@@ -1,9 +1,11 @@
 ---
 name: audit
-description: Reconciles kairoi model files against source code. Verifies guards, validates edges, resets confidence. Run when confidence is low, after external changes, or periodically. Triggers on audit kairoi, validate models, check models, reconcile models.
+description: Reconciles kairoi model files against source code. Verifies guards, validates edges, resets confidence.
+when_to_use: Run when confidence is low, after external changes, or periodically (~every 20-30 tasks). Triggers on "audit kairoi", "validate models", "check models", "reconcile models".
 argument-hint: [module-name or "all"]
 effort: high
 shell: bash
+disable-model-invocation: true
 ---
 
 # Audit kairoi models

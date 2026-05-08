@@ -94,4 +94,4 @@ mode: plan
 
 Set `permissionMode: "plan"` in subagent frontmatter or the `Agent` tool's JSON to spawn a research-only worker that returns a plan to the parent. Parent-mode precedence rules: `bypassPermissions` / `acceptEdits` / `auto` in the parent override the subagent's `permissionMode`. Plugin subagents do not honor `permissionMode` at all (the field is ignored when loaded from a plugin).
 
-Sources: https://code.claude.com/docs/en/common-workflows ; https://code.claude.com/docs/en/tools-reference (fetched 2026-04-18).
+Sources: https://code.claude.com/docs/en/common-workflows ; https://code.claude.com/docs/en/tools-reference (fetched 2026-05-07).

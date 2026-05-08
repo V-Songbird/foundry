@@ -26,8 +26,6 @@ Routing applies to **source code files**. The following always use native tools,
 
 For `Grep` and `Glob`, native tools are used when the `path` parameter targets one of the above areas. Whole-project searches (no `path` argument) still redirect to the IDE's index-backed search.
 
-> **Version:** 1.0.5-alpha — interfaces may change between minor releases.
-
 ## Requirements
 
 - JetBrains IDE 2025.2+ (WebStorm, Rider, or IntelliJ IDEA)

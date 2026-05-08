@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.4-alpha] — 2026-05-08
+
+### Fixed
+
+- Frontmatter compliance pass on all 6 skills (`audit`, `doctor`, `kairoi`, `lint`, `show`, `init`): split trigger phrases out of `description` into a `when_to_use` field so the trigger surface is discoverable in the skill listing, added scoped `allowed-tools` declarations covering each skill's directive tool invocations to suppress per-invocation permission prompts, and added `disable-model-invocation: true` to `audit` (which mutates model files via the dispatched subagent). `lint` now also declares `arguments: [module-name]` to back its `argument-hint`. No behavioral change to skill content or workflow.
+
 ## [1.0.3-alpha] — 2026-05-07
 
 ### Fixed

@@ -1,10 +1,12 @@
 ---
 name: init
-description: Initializes kairoi on any project — detects tech stack, discovers modules, bootstraps model files from source scan. Supports Node (vitest/jest), JVM (gradle), Rust (cargo), Go, Python (pytest), and generic stacks. Triggers on initialize kairoi, set up kairoi, add kairoi.
+description: Initializes kairoi on any project — detects tech stack, discovers modules, bootstraps model files from source scan. Supports Node (vitest/jest), JVM (gradle), Rust (cargo), Go, Python (pytest), and generic stacks.
+when_to_use: Trigger when the user says "initialize kairoi", "set up kairoi", or "add kairoi" on a new project.
 disable-model-invocation: true
 argument-hint: [project-root]
 effort: high
 shell: bash
+allowed-tools: AskUserQuestion, TaskCreate, TaskUpdate, Bash, Write, Read
 ---
 
 # Initialize kairoi

@@ -93,4 +93,4 @@ Don't:
 - Assume `additionalDirectories` makes a sibling repo's `.claude/` configuration discoverable. It grants *file access*, not configuration discovery — see `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` for the memory-file opt-in.
 - Document `defaultShell: "powershell"` without also documenting the `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` prerequisite.
 
-Sources: https://code.claude.com/docs/en/settings ; https://code.claude.com/docs/en/env-vars (fetched 2026-04-18).
+Sources: https://code.claude.com/docs/en/settings ; https://code.claude.com/docs/en/env-vars (fetched 2026-05-07).

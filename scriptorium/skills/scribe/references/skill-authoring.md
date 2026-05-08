@@ -89,6 +89,7 @@ Replaced when the skill is rendered into the conversation.
 | `$N` | Shorthand for `$ARGUMENTS[N]`. `$0` = first, `$1` = second. |
 | `$name` | Named argument declared in the `arguments` frontmatter list. Names map to positions in order: with `arguments: [issue, branch]`, `$issue` is the first argument and `$branch` is the second. |
 | `${CLAUDE_SESSION_ID}` | Current session ID. |
+| `${CLAUDE_EFFORT}` | Current effort level: `low`, `medium`, `high`, `xhigh`, or `max`. Use to adapt skill instructions to the active effort setting. |
 | `${CLAUDE_SKILL_DIR}` | Directory containing this `SKILL.md`. For plugin skills this is the skill's subdirectory, not the plugin root. Use in injection commands to reference bundled scripts regardless of cwd. |
 
 Multi-word indexed args require quotes: `/my-skill "hello world" second` → `$0` = `hello world`, `$1` = `second`.
@@ -224,4 +225,4 @@ Nested discovery: when working with files under `packages/frontend/`, Claude Cod
 - All skill **names** are always included; descriptions get shortened to fit the global budget.
 - Raise the budget with `SLASH_COMMAND_TOOL_CHAR_BUDGET`, or trim `description` + `when_to_use` (front-load key use case — capped at 1,536 chars per entry regardless of global budget).
 
-Source: https://code.claude.com/docs/en/skills (fetched 2026-04-26).
+Source: https://code.claude.com/docs/en/skills (fetched 2026-05-07).

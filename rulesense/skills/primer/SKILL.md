@@ -1,24 +1,22 @@
 ---
 name: primer
 description: >-
-  Invoke this skill (or /rulesense:primer) when a user wants to install the
-  recommended Claude Code rules into a project — the curated, project-agnostic
-  rules every Claude Code project benefits from regardless of language or
-  stack. Trigger phrases include "primer rules", "install starter rules", "set
-  up Claude rules", "bootstrap rules", "drop in the recommended rules", "add
-  the recommended Claude rules to this project", "give Claude awareness of my
-  project files", "fast way to add Claude rules". The bundled rules cover
-  instruction-file hygiene: re-read CLAUDE.md, README.md, AGENTS.md, and
-  .claude/rules/*.md after structural changes (renames, moves, deletions);
-  verify file paths before citing them; and audit recommendation files for
-  stale references when editing them. This skill copies one pre-defined file
-  into .claude/rules/recommendation-files.md — it never authors new rules from
-  scratch (use forge), audits existing rules (use assay), or reformats them
-  (use file). When the destination file already exists, the user is asked via
-  AskUserQuestion buttons whether to overwrite, merge, or cancel.
+  Installs the curated Claude Code rules primer into .claude/rules/recommendation-files.md.
+  The bundled rules cover instruction-file hygiene: re-read CLAUDE.md, README.md, AGENTS.md,
+  and .claude/rules/*.md after structural changes (renames, moves, deletions); verify file
+  paths before citing them; and audit recommendation files for stale references when editing
+  them. Copies one pre-defined file into .claude/rules/ — never authors new rules from
+  scratch (use forge), audits existing rules (use assay), or reformats them (use file).
+  When the destination already exists, the user is asked via AskUserQuestion buttons
+  whether to overwrite, merge, or cancel.
+when_to_use: >-
+  Trigger when the user says "primer rules", "install starter rules", "set up Claude rules",
+  "bootstrap rules", "drop in the recommended rules", "add the recommended Claude rules to
+  this project", "give Claude awareness of my project files", or "fast way to add Claude
+  rules".
 user-invocable: true
-allowed-tools: Write, Bash(mkdir -p .claude/rules*)
-version: 1.0.0-alpha
+allowed-tools: Read, Glob, Write, Bash(mkdir -p .claude/rules*)
+disable-model-invocation: true
 ---
 
 # Recommendation Rules Primer — Install Curated Self-Awareness Rules

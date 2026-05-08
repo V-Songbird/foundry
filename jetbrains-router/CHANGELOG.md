@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.7-alpha] — 2026-05-08
+
+### Fixed
+
+- Frontmatter compliance pass on both skills. `status` now declares scoped `allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/jetbrains-detect.sh*)` so the IDE-detection probe runs without a per-invocation permission prompt. `router` now sets `disable-model-invocation: true` to prevent unintended auto-invocation of the file-op redirector when Claude Code matches its description against unrelated tool calls.
+
 ## [1.0.6-alpha] — 2026-05-02
 
 ### Fixed

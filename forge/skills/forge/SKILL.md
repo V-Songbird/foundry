@@ -1,9 +1,9 @@
 ---
 name: forge
-description: Reference for the forge robust-development workflow. Loads when the user requests a non-trivial feature — particularly when they say "use forge", "review this design before I build it", or describe a change that crosses architectural boundaries. The 10-step pipeline is parallel domain experts → master plan → adversarial critic → user approval → parallel implementation → build + report. Heavy-by-design; the parallel agents are also a token-cost lever (the dispatching session never reads the full expert / implementer transcripts). Loads alongside the action skills it references — the action skills do the dispatch, this reference tells Claude when and in what order to invoke them.
+description: Reference for the forge robust-development workflow. The 10-step pipeline is parallel domain experts → master plan → adversarial critic → user approval → parallel implementation → build + report. Heavy-by-design; the parallel agents are also a token-cost lever (the dispatching session never reads the full expert / implementer transcripts). Loads alongside the action skills it references — the action skills do the dispatch, this reference tells Claude when and in what order to invoke them.
+when_to_use: Load when the user requests a non-trivial feature — particularly when they say "use forge", "review this design before I build it", or describe a change that crosses architectural boundaries.
 model: opus
 effort: high
-color: green
 ---
 
 # Forge: robust-development workflow

@@ -7,6 +7,7 @@ paths:
   - ".kairoi/model/_index.json"
   - ".kairoi/build-adapter.json"
 shell: bash
+allowed-tools: Read, Bash, Agent, Bash(jq -r*), Bash(wc -l*), Bash(git log*)
 ---
 
 # kairoi — code self-model

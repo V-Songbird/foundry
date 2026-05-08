@@ -117,10 +117,10 @@ Rule of thumb: **facts and standing rules → CLAUDE.md. Procedures and workflow
 
 CLAUDE.md instructions that reference tools must use the same naming rules as skills. See `references/tools.md` for the full catalog and phrasing rules. Quick summary:
 
-- Use exact tool names: `Read`, `Edit`, `Write`, `Glob`, `Grep`, `Bash`, `WebFetch`, `WebSearch`, `Task`, `TodoWrite`.
+- Use exact tool names: `Read`, `Edit`, `Write`, `Glob`, `Grep`, `Bash`, `WebFetch`, `WebSearch`, `Agent`, `TodoWrite`.
 - MCP tools use the literal `mcp__server__tool` form.
 - Don't paraphrase (`"use the file reader"` will not trigger Read).
 - Specific verbs help: `"Read <path>"`, `"run via Bash"`, `"Grep for X"`.
 - Same phrasing rules apply whether the instruction lives in CLAUDE.md, a rule file, a skill, or a command.
 
-Source: https://code.claude.com/docs/en/memory (fetched 2026-04-18).
+Source: https://code.claude.com/docs/en/memory (fetched 2026-05-07).

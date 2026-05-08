@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.4-alpha] — 2026-05-08
+
+### Removed
+
+- Stripped the undocumented `version` frontmatter key from `assay`, `forge`, and `primer` skills. `version` is not in Claude Code's documented skill frontmatter set (silent no-op); plugin versioning is owned by `marketplace.json`.
+
+### Fixed
+
+- Frontmatter compliance pass on all 4 skills (`assay`, `forge`, `primer`, `file`): split trigger-phrase prose out of `description` into a `when_to_use` field, added `allowed-tools` declarations covering each skill's directive tool invocations, and added `disable-model-invocation: true` to all 4 (each one writes or edits files when invoked). `file` now also declares `argument-hint: "[scope-path]"`. No behavioral change to skill content or workflow.
+
 ## [1.0.3-alpha] — 2026-05-07
 
 ### Fixed

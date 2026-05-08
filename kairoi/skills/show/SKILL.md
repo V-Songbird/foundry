@@ -1,8 +1,10 @@
 ---
 name: show
-description: Pretty-print what kairoi is currently tracking about the codebase — modules, guards, edges, recent activity, pending overrides, buffer status. For the human auditing what Claude believes. Triggers on show kairoi, kairoi status, kairoi model, kairoi state, what is kairoi tracking.
+description: Pretty-print what kairoi is currently tracking about the codebase — modules, guards, edges, recent activity, pending overrides, buffer status. For the human auditing what Claude believes.
+when_to_use: Triggers on "show kairoi", "kairoi status", "kairoi model", "kairoi state", "what is kairoi tracking".
 argument-hint: [module-name]
 shell: bash
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/show.sh*)
 ---
 
 # kairoi show

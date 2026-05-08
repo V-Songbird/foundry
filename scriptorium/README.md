@@ -4,8 +4,6 @@ Reference guide and proofreader for Claude Code instruction artifacts.
 
 Scriptorium makes Claude more effective at authoring the instruction files that drive Claude Code: SKILL.md files, CLAUDE.md rule files, plan files, subagent definitions, slash commands, and hook scripts. The scribe skill documents every tool parameter, phrasing pattern, frontmatter field, and decomposition shape that Claude Code parses and executes reliably. The proofreader audits drafts against a 13-item checklist so nothing downstream falls back to prose placeholders or bare tool calls.
 
-> **Version:** 1.0.0-alpha — interfaces may change between minor releases.
-
 ## Skills
 
 | Skill | Description |

@@ -1,6 +1,7 @@
 ---
 name: scribe
-description: Use when authoring any Claude Code instruction artifact — SKILL.md, CLAUDE.md, plan files, subagent definitions, slash commands, hook scripts, or any markdown intended to steer Claude Code behavior in a later session. Ensures the artifact names Claude Code's interactive and UX-shaping tools (AskUserQuestion with header/multiSelect, TodoWrite/TaskCreate with paired content/activeForm, Bash with description, Agent with description/name, plan-mode gates, subagent limitations, hooks, permission modes) at the right points with complete parameter coverage, rather than prose placeholders or bare tool calls that Claude Code silently degrades.
+description: Authors Claude Code instruction artifacts (SKILL.md, CLAUDE.md, plan files, subagent definitions, slash commands, hook scripts) with complete tool-call coverage — AskUserQuestion with header/multiSelect, TodoWrite/TaskCreate with paired content/activeForm, Bash with description, Agent with description/name, plan-mode gates, subagent limitations, hooks, permission modes — rather than prose placeholders or bare tool calls that Claude Code silently degrades.
+when_to_use: Load when authoring or editing any markdown whose purpose is to steer Claude Code behavior in a future session. Also load before proofreading instruction artifacts.
 ---
 
 # Authoring Claude Code Instruction Artifacts

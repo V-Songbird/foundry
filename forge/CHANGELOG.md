@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.4-alpha] — 2026-05-08
+
+### Removed
+
+- Stripped the undocumented `color` frontmatter key from all 7 skills (`master-plan`, `critic-review`, `plan-revise`, `build-and-report`, `dispatch-implementation`, `forge`, `expert-analysis`). `color` is valid for subagent definitions only, not skills (silent no-op on `SKILL.md` per upstream spec).
+
+### Fixed
+
+- Frontmatter compliance pass on all 7 skills: split trigger phrases out of `description` into a `when_to_use` field, added `allowed-tools` declarations covering each skill's directive tool invocations, and added `disable-model-invocation: true` to side-effect skills (`build-and-report` runs `git merge`; `dispatch-implementation` spawns worktrees).
+- `critic-review`: the `Agent(...)` dispatch block now sets `model: "opus"` to enforce the synthesis-shaped role. The body prose previously claimed Opus but the call did not pin it, leaving the actual model up to the dispatcher's default.
+
 ## [1.0.3-alpha] — 2026-05-02
 
 ### Fixed

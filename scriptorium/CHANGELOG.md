@@ -6,6 +6,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.2-alpha] — 2026-05-08
+
+### Fixed
+
+- `proofreader` agent: false-positive flagging of the documented `user-invocable` skill frontmatter key. Item 11's unknown-keys check now inlines the authoritative valid-key sets for skills, subagents, and slash commands (with the cross-type collision matrix — `color` is subagent-only, `user-invocable`/`allowed-tools`/`disable-model-invocation`/`argument-hint`/`arguments`/`paths`/`shell`/`context`/`agent`/`when_to_use` are skill-only) so the agent cannot fall back to training-data guesses.
+- `proofreader` agent: false-positive flagging of `${CLAUDE_PLUGIN_ROOT}` paths as undocumented. Item 9 (file references resolve) now explicitly handles documented runtime variables (`${CLAUDE_SKILL_DIR}`, `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_SESSION_ID}`, `${CLAUDE_EFFORT}`) — substitute before checking, never flag the variable itself as undocumented.
+- `scribe` reference-set drift: corrected `Task` → `Agent` in `claude-md.md`, `decomposition.md`, and `workflow-skill-shapes.md` (the Task tool was renamed to Agent in Claude Code v2.1.63; `Task` still works as an alias but the canonical form is `Agent`). Added the `${CLAUDE_EFFORT}` runtime variable to the string-substitution table in `skill-authoring.md`.
+- `scribe` SKILL.md: split `description` into `description` (the *what*) plus a new `when_to_use` field (the *when*) so the skill itself follows the rule it teaches.
+
+### Changed
+
+- All 10 scribe reference files have refreshed footer dates (2026-05-08); upstream-source content was already current except for the `Task` → `Agent` rename above.
+
 ## [1.0.1-alpha] — 2026-05-07
 
 ### Changed

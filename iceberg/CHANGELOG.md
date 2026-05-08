@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.1-alpha] — 2026-05-08
+
+### Fixed
+
+- Frontmatter compliance pass on both skills (`convention`, `patterns`): split the long trigger-phrase prose out of `description` into a `when_to_use` field, added `allowed-tools` declarations covering each skill's directive tool invocations, and added `disable-model-invocation: true` to `convention` (which directs `Write` to the project). No behavioral change.
+
 ## [1.0.0-alpha] — 2026-04-29
 
 ### Added

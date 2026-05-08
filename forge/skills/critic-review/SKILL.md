@@ -1,8 +1,9 @@
 ---
 name: critic-review
-description: Dispatches the `adversarial-critic` subagent (Opus, read-only) against the master plan currently in conversation context. The critic ground-truths the plan against the actual codebase, surfaces blocking issues / high-priority gaps / open questions, and returns a structured critique. Use as Step 5 of the forge workflow, immediately after `/forge:master-plan` produces the plan. The critique drives `/forge:plan-revise` in the next step.
+description: Dispatches the `adversarial-critic` subagent (Opus, read-only, bounded maxTurns) against the master plan in conversation context. The critic ground-truths the plan against the actual codebase and returns a structured critique (Blocking / High-priority / Open questions / Findings I couldn't ground in code / Verdict rationale).
+when_to_use: Use as Step 5 of the forge workflow, immediately after `/forge:master-plan` produces a plan. The critique drives `/forge:plan-revise` in the next step.
 user-invocable: false
-color: red
+allowed-tools: Agent
 ---
 
 # Critic Review Dispatch
@@ -24,6 +25,7 @@ Agent(
   description: "Adversarial critique of master plan against codebase",
   name: "adversarial critic",
   subagent_type: "adversarial-critic",
+  model: "opus",
   run_in_background: false,
   prompt: """
 ## Master plan to critique

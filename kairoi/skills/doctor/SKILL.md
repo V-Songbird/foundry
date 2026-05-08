@@ -1,8 +1,10 @@
 ---
 name: doctor
-description: Validates structural integrity of .kairoi/ state files. Checks JSON validity, module consistency, guard fields, edge references, JSONL format, test command, and .gitignore coverage. Use when scripts error, state seems corrupted, or after manual edits. Triggers on doctor kairoi, check kairoi health, validate kairoi state, kairoi broken.
+description: Validates structural integrity of .kairoi/ state files. Checks JSON validity, module consistency, guard fields, edge references, JSONL format, test command, and .gitignore coverage.
+when_to_use: Use when scripts error, state seems corrupted, or after manual edits. Triggers on "doctor kairoi", "check kairoi health", "validate kairoi state", "kairoi broken".
 argument-hint: (no arguments)
 shell: bash
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/doctor.sh*)
 ---
 
 # kairoi doctor

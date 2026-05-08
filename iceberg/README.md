@@ -4,8 +4,6 @@ Architectural convention enforcement for Claude Code.
 
 Iceberg encodes senior-authored structural rules as compiler/lint errors — not PR comments. The core convention: public interfaces should be small and stable; complexity lives inside implementations, not on boundaries. Language-agnostic — rules describe patterns; Claude translates each to the idiomatic enforcer for the detected ecosystem (TypeScript, Python, Rust, JVM, .NET, Go).
 
-> **Version:** 1.0.0-alpha — interfaces may change between minor releases.
-
 ## Modes
 
 | Mode | What it does |

@@ -58,7 +58,7 @@ Pre-approves tools while the skill is active. Does **not** restrict what's calla
 
 Compose by union:
 - Always: `Read Grep Glob` (every workflow skill reads code)
-- If body dispatches subagents (`Agent(...)` block present): add `Task`
+- If body dispatches subagents (`Agent(...)` block present): add `Agent`
 - If body uses dynamic injection (`` !`<cmd>` ``): add `Bash(<scoped> *)` — narrowest pattern that covers the injections (e.g. `Bash(git *)`, not `Bash(*)`)
 - If body produces files: add `Write Edit`
 

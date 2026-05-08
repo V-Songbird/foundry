@@ -227,4 +227,4 @@ Do not paste full hook configs into CLAUDE.md. Configs belong in `settings.json`
 - **Assuming hooks fired.** CLAUDE.md should always describe a fallback for when the hook is absent — users may be on a fresh checkout, the file watcher may have missed an edit, or `disableAllHooks` may be set.
 - **Using regex syntax in `FileChanged` matchers.** `FileChanged` splits on `|` into literal filenames; regex characters are not interpreted.
 
-Source: https://code.claude.com/docs/en/hooks (fetched 2026-04-18).
+Source: https://code.claude.com/docs/en/hooks (fetched 2026-05-07).

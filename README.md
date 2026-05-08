@@ -2,7 +2,7 @@
 
 A collection of Claude Code plugins by Songbird. Each plugin is an independently installable unit that extends Claude Code with new skills, hooks, and workflows.
 
-> All plugins are currently in **1.0.0-alpha**. Interfaces may change between minor releases.
+> All plugins are currently in **alpha**. Interfaces may change between minor releases. See each plugin's CHANGELOG for current version and history.
 
 ## Plugins
 

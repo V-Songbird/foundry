@@ -1,11 +1,13 @@
 ---
 name: dispatch-implementation
-description: Step 8 of the forge workflow when the approved plan has ≥ 2 steps marked `Parallel-friendly: yes`. Dispatches one `forge-implementer` subagent per such step, each in an isolated git worktree, so they can write code in parallel without stepping on each other. Each implementer receives only its assigned step (the "work unit") + the integration contract; the implementer constraints are baked into the `forge-implementer` agent's system prompt. MUST invoke `TaskCreate` for each work unit (paired `content` + `activeForm`) before the parallel `Agent` calls. Returns a per-unit completion report; the orchestrator aggregates and hands off to `/forge:build-and-report`. For plans with fewer than 2 disjoint steps, the orchestrator implements directly in the main session — coordination overhead beats wall-time savings.
+description: Parallel implementation dispatcher for forge plans. Dispatches one `forge-implementer` subagent per parallel-friendly step, each in an isolated git worktree, so they can write code in parallel without stepping on each other. Each implementer receives only its assigned step (the "work unit") + the integration contract; the implementer constraints are baked into the `forge-implementer` agent's system prompt. MUST invoke `TaskCreate` for each work unit (paired `content` + `activeForm`) before the parallel `Agent` calls. Returns per-unit completion reports for aggregation by `/forge:build-and-report`.
+when_to_use: Load at Step 8 of the forge workflow when the approved revised master plan contains ≥ 2 steps marked `Parallel-friendly: yes`. For plans with fewer than 2 such steps, implement directly in the main session — coordination overhead beats wall-time savings.
 user-invocable: false
 argument-hint: [step W-ID number, or "all" — default "all"]
 model: sonnet
 effort: medium
-color: green
+allowed-tools: TaskCreate, TaskUpdate, Agent
+disable-model-invocation: true
 ---
 
 # Dispatch Implementation

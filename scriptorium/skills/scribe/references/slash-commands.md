@@ -116,4 +116,4 @@ The plugin name comes from the plugin's `plugin.json`. Inside command bodies, `$
 - **Relying on plugin commands without the namespace.** Documenting `/foo` instead of `/my-plugin:foo` will mislead users; the plugin form always carries the prefix.
 - **Putting a command in `.claude/commands/` and expecting `${CLAUDE_SKILL_DIR}` to work.** That variable is skill-only. Commands without a directory have no bundled-files location.
 
-Sources: https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/skills (fetched 2026-04-18).
+Sources: https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/skills (fetched 2026-05-07).

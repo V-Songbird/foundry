@@ -6,8 +6,6 @@ Forge stress-tests a proposed feature design against the actual codebase before 
 
 The critical gates: parallel experts surface cross-domain conflicts that a single pass misses; the adversarial critic checks the plan against real code, not assumptions; and the user-approval step is where the feature can be redirected or killed before work begins.
 
-> **Version:** 1.0.0-alpha — interfaces may change between minor releases.
-
 ## When to use
 
 - The feature crosses two or more architectural areas or touches a trust boundary

@@ -1,15 +1,20 @@
 ---
 name: file
 description: >-
-  Invoke this skill (or /rulesense:file) when a user wants to format, clean up,
-  or make their Claude Code rules more readable. Trigger phrases include "lint my
-  rules", "format my rules", "clean up my rules", "make my rules more readable",
-  "fix my rule formatting", "tidy my rules". Also triggers on scoped variants:
-  "lint the rules for this folder", "format rules in src/", "clean up rules
-  under api/". This skill applies four structural transforms only — it never
-  rewrites rule content, adds examples, or scores rules (those belong to assay
-  and forge). Produces a before/after diff for user confirmation before writing.
+  Format and structurally clean Claude Code rule files. Applies four transforms:
+  split multi-concept bullets, add blank-line separation, restructure long
+  single-directive rules into sub-lists, and unwrap space-indented continuation
+  lines. Never rewrites rule content, adds examples, or scores rules (those
+  belong to assay and forge). Produces a before/after diff for user confirmation
+  before writing.
+when_to_use: >-
+  Trigger when the user says "lint my rules", "format my rules", "clean up my
+  rules", "make my rules more readable", "fix my rule formatting", or "tidy my
+  rules". Also triggers on scoped variants: "lint the rules for this folder",
+  "format rules in src/", "clean up rules under api/".
 user-invocable: true
+argument-hint: "[scope-path]"
+disable-model-invocation: true
 ---
 
 # Rules Linter — Structural Formatting

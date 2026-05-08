@@ -1,20 +1,21 @@
 ---
 name: assay
 description: >-
-  Invoke this skill (or /rulesense:assay) any time a user wants feedback on rule
-  files they already have. This covers CLAUDE.md and .claude/rules/ — grading,
-  scoring, auditing, reviewing, or critiquing the structural clarity of existing
-  instructions. Trigger broadly: if someone asks "are my rules any good",
-  "look at my rules", "check my CLAUDE.md", "grade my instruction files",
-  "which rules are weak/vague/passive/garbage", "triage this inherited rule
-  set", or "which rules should be hooks instead" — this is the skill. Also
-  trigger when someone references /rulesense:assay with any flags (--json, --fix,
-  --verbose). The core signal is: the user has existing Claude Code rules and
-  wants an opinion on their quality. This skill reads and evaluates — it never
-  creates new rules (that's forge), never reviews code or PRs, and
-  ignores non-Claude-Code config like eslint or prettier.
+  Rules quality auditor for existing Claude Code instruction files (CLAUDE.md,
+  .claude/rules/). Grades, scores, audits, reviews, and critiques the structural
+  clarity of existing rules. Reads and evaluates only — never creates new rules
+  (that's forge), never reviews code or PRs, and ignores non-Claude-Code config
+  like eslint or prettier.
+when_to_use: >-
+  Trigger when a user wants feedback on rule files they already have: "are my
+  rules any good", "look at my rules", "check my CLAUDE.md", "grade my
+  instruction files", "which rules are weak/vague/passive/garbage", "triage
+  this inherited rule set", or "which rules should be hooks instead". Also
+  trigger when someone references /rulesense:assay with any flags (--json,
+  --fix, --verbose).
 user-invocable: true
-version: 1.0.0-alpha
+disable-model-invocation: true
+allowed-tools: Bash, Read, Write, Edit, Glob, TodoWrite, TaskCreate, TaskUpdate
 ---
 
 # Rules Assay — Quality Scoring

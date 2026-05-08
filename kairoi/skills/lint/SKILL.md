@@ -1,8 +1,11 @@
 ---
 name: lint
-description: Observation-only report on source patterns that make Claude's own re-reading harder — star imports, files over 300 lines, source files with no matching test. Grounded in Claude's introspective knowledge of its own cognitive cost, not style-guide consensus. Triggers on kairoi style check, kairoi style report, check claude-legibility.
-argument-hint: [module-name]
+description: Observation-only report on source patterns that make Claude's own re-reading harder — star imports, files over 300 lines, source files with no matching test. Grounded in Claude's introspective knowledge of its own cognitive cost, not style-guide consensus.
+when_to_use: Triggers on "kairoi style check", "kairoi style report", "check claude-legibility".
+arguments: [module-name]
+argument-hint: "[module-name]"
 shell: bash
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/style-check.sh*)
 ---
 
 # kairoi lint

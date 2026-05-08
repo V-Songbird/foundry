@@ -189,4 +189,4 @@ To resume a stopped subagent the main session uses `SendMessage` with the agent 
 
 ---
 
-Sources: https://code.claude.com/docs/en/sub-agents ; https://code.claude.com/docs/en/plugins-reference (fetched 2026-04-18).
+Sources: https://code.claude.com/docs/en/sub-agents ; https://code.claude.com/docs/en/plugins-reference (fetched 2026-05-07).

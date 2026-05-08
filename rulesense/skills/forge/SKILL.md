@@ -1,21 +1,20 @@
 ---
 name: forge
 description: >-
-  Invoke this skill (or /rulesense:forge) when a user wants to create new Claude
-  Code rules or add conventions to their project. This covers creating
-  .claude/rules/ files, drafting rule sets for specific topics, and scaffolding
-  rules from project patterns. Trigger broadly: if someone asks "I need rules
-  for testing", "make Claude always do X", "create a rule that enforces Y",
-  "scaffold rules for this project", "add conventions for my API layer", "help
-  me write better rules", or "I want Claude to follow these patterns" — this
-  is the skill. Also trigger when the user picks a coverage gap identified by
-  the assay skill and wants to fill it with new rules. The core signal is: the
-  user wants NEW rules written, not existing rules reviewed. This skill creates
-  and writes .claude/rules/ files — it never audits or scores existing rules
-  (that's the assay skill), never modifies CLAUDE.md directly, and never writes
-  code or tests.
+  Creates new Claude Code rules and scaffolds .claude/rules/ files for specific
+  topics or from project patterns. Writes new rule files only — never audits or
+  scores existing rules (that's the assay skill), never modifies CLAUDE.md
+  directly, and never writes code or tests.
+when_to_use: >-
+  Trigger when a user wants to create new rules or add conventions: "I need
+  rules for testing", "make Claude always do X", "create a rule that enforces
+  Y", "scaffold rules for this project", "add conventions for my API layer",
+  "help me write better rules", or "I want Claude to follow these patterns".
+  Also trigger when the user picks a coverage gap identified by the assay skill
+  and wants to fill it with new rules.
 user-invocable: true
-version: 1.0.0-alpha
+disable-model-invocation: true
+allowed-tools: Read, Write, Glob, Bash, AskUserQuestion, TaskCreate, TaskUpdate, Agent
 ---
 
 # Rules Builder — Quality-Scored Rule Creation

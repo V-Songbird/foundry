@@ -1,10 +1,11 @@
 ---
 name: master-plan
-description: Consolidates the expert reports from `/forge:expert-analysis` into a single master implementation plan that the user can audit at a glance. Walks every expert report; reconciles overlapping claims; resolves cross-domain conflicts by reading the code; produces a single-layer plan (Feature, Steps, Risks, Open questions) capped at ≤ 80 lines for typical features. Optional Integration-contract appendix only when the plan has ≥ 2 steps marked `Parallel-friendly: yes`. Use as Step 4 of the forge workflow, immediately after `/forge:expert-analysis` returns. Produces the plan in conversation context only — no file is written.
+description: Consolidates the expert reports from `/forge:expert-analysis` into a single master implementation plan that the user can audit at a glance. Walks every expert report; reconciles overlapping claims; resolves cross-domain conflicts by reading the code; produces a single-layer plan (Feature, Steps, Risks, Open questions) capped at ≤ 80 lines for typical features. Optional Integration-contract appendix only when the plan has ≥ 2 steps marked `Parallel-friendly: yes`. Produces the plan in conversation context only — no file is written.
+when_to_use: Use as Step 4 of the forge workflow, immediately after `/forge:expert-analysis` returns.
 user-invocable: false
 model: opus
 effort: high
-color: blue
+allowed-tools: Read
 ---
 
 # Master Plan Synthesis
