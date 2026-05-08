@@ -280,7 +280,7 @@ done
 # Solo mode uses a whole-directory `.kairoi/` rule which covers every
 # transient implicitly; Team mode lists them individually. Detect mode
 # from .gitignore content (mode is not persisted in a dedicated file).
-TRANSIENTS=".guards-log .guard-disputes .sync-manifest.json .session-summary.txt .write-guard-disabled"
+TRANSIENTS=".guards-log .guard-disputes .sync-manifest.json .sync-pending .session-summary.txt .write-guard-disabled"
 TRANSIENT_GLOBS=".reflect-result-*.json .seen-* .pre-sync/"
 
 GITIGNORE=""

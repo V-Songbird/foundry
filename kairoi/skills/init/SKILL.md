@@ -321,6 +321,7 @@ Create `.gitignore` if it doesn't exist. Append the appropriate block.
 .kairoi/.guards-log
 .kairoi/.guard-disputes
 .kairoi/.sync-manifest.json
+.kairoi/.sync-pending
 .kairoi/.reflect-result-*.json
 .kairoi/.seen-*
 .kairoi/.session-summary.txt

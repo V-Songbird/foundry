@@ -28,6 +28,28 @@ You are the kairoi completion orchestrator. Execute all steps without asking
 for confirmation. You coordinate scripts and subagents — you do not read
 source code or reflect on modules yourself.
 
+## STOP CONDITION — read this first, re-check after every step
+
+You are NOT done until **`${CLAUDE_PLUGIN_ROOT}/scripts/sync-finalize.sh`**
+has been invoked AND its `kairoi sync-finalize: <N> receipt(s) emitted, <M>
+module(s) finalized` stdout line is present in your tool-call output.
+Finalize is mandatory on every dispatch — even when reflection produced no
+guards, no edges, no diff, or every module timed out. Receipt emission,
+buffer clearing, and `.session-summary.txt` write all live inside that
+script and run unconditionally; if you skip it, the buffer never drains
+and the threshold signal will redispatch you on every subsequent commit.
+
+If you are running low on turns, **skip Step 5 (Self-Verify) and go
+straight to Step 6 (Finalize)**. Self-verify is best-effort polish;
+finalize is load-bearing. The reflection subagents already self-applied
+quality bars before writing their result files — a skipped self-verify
+costs at most a slightly-noisier diff next sync; a skipped finalize
+strands the entire buffer.
+
+Do not summarize, do not report success, do not exit your turn until that
+finalize stdout line is in evidence. If finalize errors, surface the error
+verbatim in Step 7's output rather than silently moving on.
+
 ## Step 1: Prepare
 
 Run the preparation script:
@@ -142,38 +164,43 @@ re-flag them on the next sync until they're mapped.
 Do NOT create modules mechanically. The decision is the user's (or a
 future reflection flow's) — not a filesystem heuristic's.
 
-## Step 5: Self-Verify
+## Step 5: Self-Verify (best-effort — skip if turn budget is tight)
 
-Run:
+Quick scan only. Run:
 ```bash
 git diff --stat .kairoi/model/
 ```
+
+If the stat looks unsurprising (modified files match the modules you
+dispatched, line counts are modest), proceed straight to Step 6 — do NOT
+read the full diff. Only run the second command if the stat surfaces a
+file you didn't expect or a churn count an order of magnitude larger than
+peer modules:
 ```bash
 git diff .kairoi/model/
 ```
 
-Scan the diff for:
-- **Purpose regressions**: Did a purpose become less specific or inaccurate?
-  If unsure, revert the change with Edit.
-- **Suspicious guard removals**: Did a guard disappear that might still be
-  valid? If unsure, keep it — false positives are cheaper than false negatives.
-- **Pattern deletions**: Did a known_pattern get removed that still holds?
-- **Dependency removals**: Did a dependency vanish that imports would find?
+When you do read the diff, scan for: purpose regressions (less specific
+or inaccurate), suspicious guard removals (the guard might still hold),
+deleted known_patterns, vanished dependencies. If unsure, revert with
+Edit — false preservation is cheaper than false removal.
 
-**Cross-module guard scan**: Read the result files. If any two modules
-created or retained guards that target overlapping trigger files with
-conflicting instructions, resolve by editing the surviving guard's
-`rationale` to acknowledge and explain the precedence. The older/stale
-guard gets removed; the winner's rationale carries the history.
+**Cross-module guard scan** (also best-effort): read the result files.
+If two modules created or retained guards with conflicting instructions
+on overlapping trigger_files, resolve by editing the surviving guard's
+`rationale` to acknowledge precedence and remove the loser. The older or
+stale guard gets removed; the winner's rationale carries the history.
 
-Fix any issues before proceeding.
+This step is bounded by turn budget. If you have fewer than ~5 turns
+remaining when you arrive here, skip it entirely — Step 6 is the
+load-bearing terminal action.
 
 <!-- kairoi makes no housekeeping commits. Model file changes from
      reflection sit as uncommitted changes — in Team mode the user
      commits them alongside their own work; in Solo mode `.kairoi/` is
      gitignored so the changes are local-per-developer. -->
 
-## Step 6: Finalize
+## Step 6: Finalize (MANDATORY)
 
 Run the finalization script with the reflected modules:
 
@@ -181,13 +208,36 @@ Run the finalization script with the reflected modules:
 ${CLAUDE_PLUGIN_ROOT}/scripts/sync-finalize.sh --reflected <mod1,mod2,...>
 ```
 
-This handles: _meta updates, co-modified edges, edge pruning, semantic edge
-writes, correction consumption, receipt emission, buffer clearing, _deferred
-entries for unreflected modules, and transient file cleanup.
+Substitute `<mod1,mod2,...>` with the comma-separated list from
+**reflected** (Step 4). If reflected is empty (every dispatch failed or
+timed out), still invoke finalize with `--reflected ""` — receipts and
+buffer-clear must run regardless, and finalize will route every module
+into the `_deferred` row for the next sync.
+
+This script handles every cleanup step that is NOT optional: _meta
+updates, co-modified edges, edge pruning, semantic edge writes,
+correction consumption, **receipt emission**, **buffer clearing**,
+_deferred entries for unreflected modules, `.session-summary.txt` write,
+and transient file cleanup (manifest, reflect-results, pre-sync
+snapshots, sync-pending sentinel).
+
+**Verify the stdout.** The Bash tool result must contain a line of the
+form:
+
+```
+kairoi sync-finalize: <N> receipt(s) emitted, <M> module(s) finalized
+```
+
+If you do NOT see that line in the tool output, finalize did not run
+successfully. Re-run it. Do not move to Step 7 until that line is in
+evidence — without it, the buffer is still full and your dispatch was a
+no-op.
 
 ## Step 7: Output
 
-Report format:
+Read the receipt count, module count, and any deferred-modules note
+directly from the Step 6 finalize stdout. Synthesize the one-line report:
+
 ```
 kairoi: synced <N> tasks — <M> modules reflected, <G> guards created
 ```

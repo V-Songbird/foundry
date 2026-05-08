@@ -219,4 +219,76 @@ if echo "$OUT_QUIET" | grep -qF "Dispatch the kairoi-complete agent"; then
   exit 1
 fi
 
+# ---- Orphaned sync-pending: surfaces recovery instruction ------------------
+# When .sync-pending exists with started_at older than 10 minutes, session-
+# boot must surface a sync-finalize recovery instruction AND suppress the
+# normal threshold dispatch (which would otherwise re-run sync-prepare and
+# overwrite the in-progress manifest).
+setup_kairoi_state "auth" "Auth module" 3
+# Pile up enough to cross threshold so dispatch WOULD fire if not for the
+# orphan suppression.
+for i in 1 2 3 4 5 6 7 8 9 10 11; do
+  buffer_append_raw "task-$i" "SUCCESS" "auth"
+done
+# Stale sentinel: 30 minutes old, exceeds the 600s orphan threshold.
+STALE_TS="$(jq -nr 'now - 1800 | strftime("%Y-%m-%dT%H:%M:%SZ")')"
+jq -n -c --arg ts "$STALE_TS" '{started_at: $ts, task_count: 11, module_count: 1}' \
+  > .kairoi/.sync-pending
+# Reflect-result file simulates a partial sync (auth completed, finalize never ran).
+jq -n '{module: "auth", first_population: false, guards_created: [], guards_removed: [], semantic_edges: [], purpose_changed: false, contradiction_notes: null}' \
+  > .kairoi/.reflect-result-auth.json
+
+OUT_ORPHAN="$(echo "$INPUT" | bash "$SESSION_BOOT" 2>&1)"
+if ! echo "$OUT_ORPHAN" | grep -qF "orphaned sync detected"; then
+  echo "orphan detection didn't surface 'orphaned sync detected'"
+  echo "$OUT_ORPHAN" | sed 's/^/  /'
+  exit 1
+fi
+if ! echo "$OUT_ORPHAN" | grep -qF "sync-finalize.sh --reflected auth"; then
+  echo "orphan detection didn't include the sync-finalize recovery command with reflected modules"
+  echo "$OUT_ORPHAN" | sed 's/^/  /'
+  exit 1
+fi
+# Suppression check — threshold dispatch must NOT fire when an orphan is
+# present. Re-dispatching would overwrite the in-progress manifest.
+if echo "$OUT_ORPHAN" | grep -qF "Dispatch the kairoi-complete agent"; then
+  echo "kairoi-complete dispatch fired despite orphaned sync-pending — should be suppressed"
+  echo "$OUT_ORPHAN" | sed 's/^/  /'
+  exit 1
+fi
+
+# ---- Orphan with no surviving reflect-results: empty-list recovery ---------
+# All reflect-results lost, only the sentinel remains. Recovery should still
+# work — finalize with --reflected "" routes every module to _deferred and
+# clears the buffer.
+rm -f .kairoi/.reflect-result-*.json
+
+OUT_EMPTY_REFL="$(echo "$INPUT" | bash "$SESSION_BOOT" 2>&1)"
+if ! echo "$OUT_EMPTY_REFL" | grep -qF "orphaned sync detected"; then
+  echo "orphan detection didn't fire when reflect-results were missing"
+  echo "$OUT_EMPTY_REFL" | sed 's/^/  /'
+  exit 1
+fi
+if ! echo "$OUT_EMPTY_REFL" | grep -qF 'sync-finalize.sh --reflected ""'; then
+  echo "empty-reflect orphan recovery didn't propose --reflected \"\" form"
+  echo "$OUT_EMPTY_REFL" | sed 's/^/  /'
+  exit 1
+fi
+
+# ---- Fresh sync-pending: NOT treated as orphan -----------------------------
+# A sync legitimately in flight (started < 10min ago) must NOT trigger the
+# orphan-recovery prompt. False positives here would interrupt active syncs.
+setup_kairoi_state "auth" "Auth module" 3
+buffer_append_raw "task-a" "SUCCESS" "auth"
+FRESH_TS="$(jq -nr 'now - 60 | strftime("%Y-%m-%dT%H:%M:%SZ")')"
+jq -n -c --arg ts "$FRESH_TS" '{started_at: $ts, task_count: 1, module_count: 1}' \
+  > .kairoi/.sync-pending
+
+OUT_FRESH="$(echo "$INPUT" | bash "$SESSION_BOOT" 2>&1)"
+if echo "$OUT_FRESH" | grep -qF "orphaned sync detected"; then
+  echo "fresh sync-pending (60s old) was wrongly flagged as orphan"
+  echo "$OUT_FRESH" | sed 's/^/  /'
+  exit 1
+fi
+
 exit 0

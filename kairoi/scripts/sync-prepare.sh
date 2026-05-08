@@ -14,7 +14,9 @@ set -euo pipefail
 #
 # Writes:
 #   .kairoi/.sync-manifest.json
-#   .kairoi/model/<module>.json (seed files for newly discovered modules)
+#   .kairoi/.sync-pending           (sentinel — removed by sync-finalize)
+#   .kairoi/.pre-sync/<module>.json (snapshots for protected_guards restore)
+#   .kairoi/model/<module>.json     (seed files for newly discovered modules)
 #
 # Exits 0 with JSON status on stdout:
 #   {"status":"ok","task_count":N} or {"status":"empty"}
@@ -219,5 +221,21 @@ while IFS= read -r SNAP_MOD; do
   SRC_MF="$STATE_DIR/model/$SNAP_MOD.json"
   [ -f "$SRC_MF" ] && cp "$SRC_MF" "$SNAPSHOT_DIR/$SNAP_MOD.json"
 done < <(echo "$MODULES_AFFECTED" | jq -r 'keys[]' | tr -d '\r')
+
+# --- Write sync-pending sentinel ---
+# Marks "a sync was started but not yet finalized." sync-finalize removes
+# this on successful exit; session-boot detects orphaned (>10min old)
+# sentinels and surfaces a recovery instruction. Without this, a kairoi-
+# complete dispatch that runs sync-prepare but never reaches sync-finalize
+# (e.g., agent ran out of turns mid-orchestration) silently strands the
+# manifest and the buffer — the buffer never drains, the threshold signal
+# re-fires on every commit, and receipts for already-completed reflection
+# work never get emitted.
+PENDING="$STATE_DIR/.sync-pending"
+jq -n -c \
+  --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson tc "$TASK_COUNT" \
+  --argjson mc "$(echo "$MODULES_AFFECTED" | jq 'keys | length')" \
+  '{started_at: $ts, task_count: $tc, module_count: $mc}' > "$PENDING"
 
 echo "{\"status\":\"ok\",\"task_count\":$TASK_COUNT,\"modules\":$(echo "$MODULES_AFFECTED" | jq 'keys'),\"deferred\":$DEFERRED_COUNT,\"unmapped\":$(echo "$UNMAPPED_FILES" | jq 'length')}"

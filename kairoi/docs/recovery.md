@@ -224,7 +224,68 @@ index/model mismatch, or an orphaned transient marker.
 
 ---
 
-## 7. `.gitignore` got misconfigured (mode detection is off)
+## 7. The buffer isn't draining after a sync (orphaned sync-pending)
+
+**Symptoms:** A `kairoi-complete` dispatch reports success, but on the
+next commit the threshold signal fires again with the same buffer count
+(or higher). Re-runs of `kairoi-complete` repeat the symptom. The
+session banner shows `M unreflected` even immediately after a sync.
+
+**Cause:** `kairoi-complete` ran `sync-prepare.sh` (which staged the
+manifest, snapshots, and the `.sync-pending` sentinel) but never reached
+its terminal `sync-finalize.sh` step. The reflection subagents wrote
+their result files; per-module model JSON updated correctly. But the
+finalize step — which emits receipts, clears the buffer, prunes edges,
+consumes corrections, and writes `.session-summary.txt` — never fired.
+The agent treated reflection as the entire job and exited.
+
+**Detection:** start a new Claude Code session. `session-boot.sh`
+detects the orphaned sentinel (older than 10 minutes) and surfaces a
+recovery instruction with the exact `sync-finalize.sh` invocation to
+run. Follow it before doing anything else.
+
+**Recovery (manual, without a fresh session):**
+
+1. Inspect what's pending:
+   ```bash
+   cat .kairoi/.sync-pending
+   ls .kairoi/.reflect-result-*.json 2>/dev/null
+   ```
+   The sentinel carries the `started_at` timestamp; the reflect-result
+   files name the modules whose reflection completed.
+
+2. Run finalize directly with the surviving reflect-result module names:
+   ```bash
+   bash ${CLAUDE_PLUGIN_ROOT}/scripts/sync-finalize.sh --reflected mod1,mod2,...
+   ```
+   If no reflect-results survived, pass an empty list — finalize will
+   route every module into `_deferred` and clear the buffer:
+   ```bash
+   bash ${CLAUDE_PLUGIN_ROOT}/scripts/sync-finalize.sh --reflected ""
+   ```
+
+3. Verify the recovery worked:
+   ```bash
+   wc -l < .kairoi/buffer.jsonl   # should be 0 (or 1 with a _deferred row)
+   tail -1 .kairoi/receipts.jsonl | jq .timestamp
+   ls .kairoi/.sync-pending 2>/dev/null   # should be gone
+   ```
+
+**Why not redispatch `kairoi-complete`?** That would re-run
+`sync-prepare.sh`, which overwrites the existing manifest and discards
+the in-progress reflect-result files. The work that DID get done would
+be lost; the buffer would still not drain because the new dispatch
+might also skip finalize.
+
+**Prevention:** the agent definition (`agents/kairoi-complete.md`) now
+opens with a STOP CONDITION explicitly forbidding the agent from
+exiting until `sync-finalize.sh` stdout appears in tool output. The
+sentinel is the defense-in-depth: even if a future runtime quirk
+re-introduces the bug class, the next session catches it.
+
+---
+
+## 8. `.gitignore` got misconfigured (mode detection is off)
 
 **Symptoms:** `/kairoi:init` re-prompts for Team/Solo when you've
 already chosen, or committed state files leak into diffs in ways

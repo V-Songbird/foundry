@@ -110,6 +110,65 @@ else
   echo "$LINE"
 fi
 
+# ---- Orphaned sync-pending detection ---------------------------------------
+#
+# kairoi-complete is supposed to call sync-finalize.sh as its terminal step.
+# When it doesn't (agent ran out of turns, lost the thread mid-orchestration,
+# or the underlying runtime de-emphasized the instruction), the manifest and
+# the .sync-pending sentinel both linger. The buffer never drains, receipts
+# for any modules that DID reflect never get appended, and the next dispatch
+# would re-run sync-prepare — overwriting the in-progress manifest and
+# losing the work done so far.
+#
+# Detection rule: .sync-pending exists AND its started_at is older than 10
+# minutes. Real syncs finish in 60–180 seconds; 10 minutes is a safe ceiling
+# that won't false-positive on a sync currently in flight.
+#
+# Recovery: tell Claude to run sync-finalize directly with whatever
+# reflect-result files survived. NEVER re-dispatch kairoi-complete in this
+# state — that would overwrite the manifest. Suppress the normal
+# threshold-based dispatch below for the same reason.
+ORPHANED_PENDING=false
+PENDING_FILE="$STATE_DIR/.sync-pending"
+if [ -f "$PENDING_FILE" ]; then
+  PENDING_TS="$(jq -r '.started_at // empty' "$PENDING_FILE" 2>"$_DEVNULL" || true)"
+  if [ -n "$PENDING_TS" ]; then
+    PENDING_AGE_SEC="$(jq -n --arg ts "$PENDING_TS" \
+      '(now - ($ts | fromdateiso8601)) | floor' 2>"$_DEVNULL" || echo 0)"
+    if [ "$PENDING_AGE_SEC" -gt 600 ]; then
+      ORPHANED_PENDING=true
+    fi
+  else
+    # Sentinel exists but is unparseable — treat as orphaned. Better to
+    # over-prompt than leave a wedged sync silently in place.
+    ORPHANED_PENDING=true
+    PENDING_AGE_SEC=0
+  fi
+fi
+
+if [ "$ORPHANED_PENDING" = true ]; then
+  REFLECTED_MODS=""
+  REFLECT_COUNT=0
+  for RF in "$STATE_DIR"/.reflect-result-*.json; do
+    [ -f "$RF" ] || continue
+    BASENAME="$(basename "$RF")"
+    MOD="${BASENAME#.reflect-result-}"
+    MOD="${MOD%.json}"
+    REFLECTED_MODS="${REFLECTED_MODS}${REFLECTED_MODS:+,}${MOD}"
+    REFLECT_COUNT=$((REFLECT_COUNT + 1))
+  done
+
+  echo ""
+  echo "kairoi: ⚠ orphaned sync detected. The previous kairoi-complete dispatch ran sync-prepare but never reached sync-finalize, leaving the buffer undrained and receipts unwritten for any modules that DID reflect. Run sync-finalize directly via the Bash tool BEFORE doing anything else (do NOT redispatch kairoi-complete — that would re-run sync-prepare and overwrite the in-progress manifest):"
+  if [ "$REFLECT_COUNT" -gt 0 ]; then
+    echo "  bash \${CLAUDE_PLUGIN_ROOT}/scripts/sync-finalize.sh --reflected $REFLECTED_MODS"
+    echo "($REFLECT_COUNT reflect-result file(s) survived; finalize will emit receipts and drain the buffer.)"
+  else
+    echo "  bash \${CLAUDE_PLUGIN_ROOT}/scripts/sync-finalize.sh --reflected \"\""
+    echo "(No reflect-result files survived; finalize will route every module into _deferred and clear the buffer so a fresh dispatch can retry.)"
+  fi
+fi
+
 # ---- Auto-sync dispatch signal (load-bearing; not gated by KAIROI_VERBOSE) --
 #
 # On SessionStart, emit a dispatch signal when ANY of these holds:
@@ -123,8 +182,12 @@ fi
 # every new session staring at a large buffer with no actionable instruction.
 # auto-buffer's PostToolUse threshold signal also fires on each commit, but
 # it can be missed mid-task; SessionStart is a fresh, uncluttered moment.
+#
+# Suppressed when an orphaned sync-pending is detected above — the recovery
+# instruction there is more specific and a redispatch would clobber the
+# manifest.
 
-if [ "$BUFFER_COUNT" -gt 0 ]; then
+if [ "$ORPHANED_PENDING" = false ] && [ "$BUFFER_COUNT" -gt 0 ]; then
   STALE_DAYS="$(jq -r '.session_start_stale_days // 7' "$STATE_DIR/build-adapter.json" 2>"$_DEVNULL" || echo 7)"
   [ "$STALE_DAYS" = "null" ] && STALE_DAYS=7
   THRESHOLD="$(jq -r '.auto_sync_buffer_threshold // 10' "$STATE_DIR/build-adapter.json" 2>"$_DEVNULL" || echo 10)"

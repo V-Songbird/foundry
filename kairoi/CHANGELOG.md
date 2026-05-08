@@ -6,6 +6,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.3-alpha] — 2026-05-07
+
+### Fixed
+
+- `kairoi-complete` agent now reliably runs `sync-finalize.sh` as its terminal step. Previously the agent would complete per-module reflection (Step 3) and exit before reaching Step 6, leaving the buffer permanently undrained — every subsequent commit re-fired the threshold signal and re-dispatched the agent against an ever-growing backlog. Three independent reproductions in one session, with `buffer.jsonl` line counts climbing while `receipts.jsonl` stayed unchanged. The fix restructures `agents/kairoi-complete.md`: a STOP CONDITION callout opens the body and explicitly forbids the agent from exiting until the `kairoi sync-finalize: <N> receipt(s) emitted` stdout line is in tool output; Step 5 (Self-Verify) is now best-effort and explicitly skippable when turn budget is tight; Step 6 (Finalize) carries a MANDATORY label and stdout-verification text; Step 7 derives its output from finalize's stdout (so omitting Step 6 makes Step 7 unproducible).
+
+### Added
+
+- Defense-in-depth orphan detection. `sync-prepare.sh` now writes a `.kairoi/.sync-pending` sentinel containing `started_at`, `task_count`, and `module_count`. `sync-finalize.sh` removes the sentinel as part of its cleanup pass — its absence is the load-bearing signal that finalize ran cleanly. `session-boot.sh` detects orphaned sentinels (older than 10 minutes, since real syncs finish in 60–180 seconds) and surfaces a `sync-finalize.sh --reflected <surviving-modules>` recovery instruction. The threshold-based `kairoi-complete` dispatch is suppressed when an orphan is present, since redispatching would re-run sync-prepare and overwrite the in-progress manifest.
+- `docs/recovery.md` scenario 7: "The buffer isn't draining after a sync (orphaned sync-pending)" — manual recovery steps for users who need to drain a wedged sync without starting a fresh session.
+- `tests/test_session_boot_banner.sh`: 3 new orphan-detection cases (stale sentinel surfaces recovery + suppresses dispatch; missing reflect-results uses `--reflected ""` form; fresh sentinel under 10 minutes does NOT false-positive).
+- `tests/test_overrides_enforcement.sh`: assertions that `sync-prepare.sh` writes the sentinel with required fields and `sync-finalize.sh` removes it.
+
+### Changed
+
+- `doctor.sh` and the Team-mode `.gitignore` template (`skills/init/SKILL.md`) now list `.kairoi/.sync-pending` alongside the other transient files.
+
 ## [1.0.2-alpha] — 2026-05-02
 
 ### Fixed

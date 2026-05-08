@@ -29,12 +29,24 @@ jq -n '{
 
 buffer_append_raw "some-task" "SUCCESS" "auth"
 
-# Run sync-prepare (creates manifest + snapshots)
+# Run sync-prepare (creates manifest + snapshots + sync-pending sentinel)
 bash "$SYNC_PREPARE" >/dev/null 2>&1
 
 # Verify snapshot exists
 if [ ! -f ".kairoi/.pre-sync/auth.json" ]; then
   echo "snapshot not created by sync-prepare"
+  exit 1
+fi
+
+# Verify sync-pending sentinel was written. Its presence is what session-boot
+# uses to detect orphaned syncs (sync-prepare ran, sync-finalize never did).
+if [ ! -f ".kairoi/.sync-pending" ]; then
+  echo "sync-pending sentinel not created by sync-prepare"
+  exit 1
+fi
+if ! jq -e '.started_at and .task_count and .module_count' .kairoi/.sync-pending >/dev/null 2>&1; then
+  echo "sync-pending sentinel missing required fields (started_at, task_count, module_count)"
+  cat .kairoi/.sync-pending
   exit 1
 fi
 
@@ -78,6 +90,14 @@ assert_jq ".kairoi/model/auth.json" '[.guards[] | select(.source_task == "fix-to
 # --- Snapshot cleaned up ---
 if [ -d ".kairoi/.pre-sync" ]; then
   echo ".pre-sync/ directory should be removed after sync-finalize"
+  exit 1
+fi
+
+# --- sync-pending sentinel removed (this is the load-bearing signal that
+#     finalize ran cleanly; its absence is what session-boot orphan detection
+#     interprets as "nothing pending"). ---
+if [ -f ".kairoi/.sync-pending" ]; then
+  echo ".sync-pending sentinel should be removed by sync-finalize"
   exit 1
 fi
 

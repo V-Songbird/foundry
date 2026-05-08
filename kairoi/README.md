@@ -4,8 +4,6 @@ Session safety for Claude Code in unfamiliar codebases.
 
 Kairoi keeps Claude in sync with your project across long sessions. It fires warnings before risky edits, captures what changed after each session, and reflects on module state so context doesn't drift. Cross-module aware: guards for interface-level constraints automatically extend to dependent modules.
 
-> **Version:** 1.0.0-alpha — interfaces may change between minor releases.
-
 ## What it does
 
 **Edit-time guards** — pre-flight checks run before Claude edits trigger-matched files. Guards encode known constraints and fire before changes land, not after.

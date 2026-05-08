@@ -27,6 +27,8 @@ set -euo pipefail
 # Removes:
 #   .kairoi/.sync-manifest.json
 #   .kairoi/.reflect-result-*.json
+#   .kairoi/.pre-sync/
+#   .kairoi/.sync-pending  (presence = sync started but not finalized)
 
 command -v jq &>/dev/null || { echo "kairoi sync-finalize: jq required" >&2; exit 1; }
 
@@ -462,6 +464,11 @@ MODULES_LIST="$(echo "$REFLECTED_JSON" | jq -r 'join(", ")')"
 rm -f "$MANIFEST"
 rm -f "$STATE_DIR"/.reflect-result-*.json
 rm -rf "$STATE_DIR/.pre-sync"
+# Clear the sync-pending sentinel last — its absence is the load-bearing
+# signal that this sync finished cleanly. session-boot detects orphans by
+# its presence (paired with an old started_at timestamp), so missing this
+# rm would produce false-positive orphan-recovery prompts on next session.
+rm -f "$STATE_DIR/.sync-pending"
 
 # --- Output ---
 echo "kairoi sync-finalize: $RECEIPT_COUNT receipt(s) emitted, $MODULE_COUNT module(s) finalized"
