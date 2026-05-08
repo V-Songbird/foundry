@@ -6,18 +6,18 @@ description: >-
   rules", "format my rules", "clean up my rules", "make my rules more readable",
   "fix my rule formatting", "tidy my rules". Also triggers on scoped variants:
   "lint the rules for this folder", "format rules in src/", "clean up rules
-  under api/". This skill applies three structural transforms only — it never
+  under api/". This skill applies four structural transforms only — it never
   rewrites rule content, adds examples, or scores rules (those belong to assay
   and forge). Produces a before/after diff for user confirmation before writing.
 user-invocable: true
-version: 1.0.0-alpha
 ---
 
 # Rules Linter — Structural Formatting
 
-Reformat Claude Code rule files using three structural transforms: split
+Reformat Claude Code rule files using four structural transforms: split
 multi-concept bullets into one-concept-per-bullet, add blank-line separation
-between bullets, and restructure long single-directive rules into sub-lists.
+between bullets, restructure long single-directive rules into sub-lists, and
+unwrap space-indented continuation lines into single-line bullets.
 
 This skill NEVER changes rule content — structure only. For quality improvements
 and example injection, use the assay skill. For new rules, use the forge skill.
@@ -80,7 +80,7 @@ Mark task 2 `completed` and proceed to Phase 3.
 
 ## Phase 3 — Apply formatting transforms
 
-For each file that contains rule bullets, apply all three transforms in order.
+For each file that contains rule bullets, apply all four transforms in order.
 Work on the parsed bullets in memory — do not write files yet. Preserve any YAML
 frontmatter and non-bullet content (headings, prose) exactly as-is.
 
@@ -138,13 +138,65 @@ ending in a period continues or terminates.
 
 **Output format**: the primary directive becomes the top-level bullet; each
 exception, example, or sub-case becomes an indented `  - ` sub-bullet beneath
-it.
+it. Continuation lines are not an acceptable substitute — Transform 4 unwraps
+them.
 
-**Do NOT use space-indented continuation lines** (wrapping a sentence across
-multiple lines with a 2-space indent). That format is ambiguous — a period
-followed by a line break looks like rule termination, and the continuation
-looks like a new incomplete item. Sub-lists are the only safe multi-line
-structure.
+### Transform 4 — Unwrap continuation lines
+
+A continuation line is any line inside a bullet item that begins with
+whitespace and is NOT itself a sub-bullet (`  - ` or `  * `). For each bullet
+(top-level or sub) whose body spans more than one source line via continuation
+indent, collapse those lines into a single line per bullet.
+
+**Detect when**:
+
+- The bullet's content occupies more than one source line, AND
+- The continuation lines start with whitespace but no `- ` or `* ` marker.
+
+**Output**: join the wrapped lines with single spaces, producing one line of
+text per bullet. Do not change the wording, do not split the joined text into
+multiple bullets, do not introduce sub-bullets — those decisions belong to
+Transforms 1 and 3 and have already run by the time Transform 4 executes on a
+given pass. Treat any sub-bullet (`  - ` line) as its own bullet, with its own
+potential continuation lines to unwrap.
+
+**Apply this transform unconditionally** when the detect condition matches.
+The prohibition is not contingent on the wrapped content containing a period,
+a colon, or any other specific punctuation — continuation indent is
+structurally ambiguous regardless of the wrapped text, because a reader (or
+Claude) must distinguish it from sub-bullet indent. Sub-lists are the only
+safe multi-line structure.
+
+**Worked example**:
+
+Input (two source lines, second begins with 2-space continuation indent):
+
+```
+- Before saving an `Edit` to an instruction file, Glob every backticked
+  path in the new content.
+```
+
+Output (one source line):
+
+```
+- Before saving an `Edit` to an instruction file, Glob every backticked path in the new content.
+```
+
+Input with a continuation-indented sub-bullet:
+
+```
+- After invoking `Bash` with `mv`, Grep every instruction file for the
+  original path before marking the task done.
+  - When a match is found, update the citation to the new path or remove
+    it.
+```
+
+Output:
+
+```
+- After invoking `Bash` with `mv`, Grep every instruction file for the original path before marking the task done.
+  - When a match is found, update the citation to the new path or remove it.
+```
 
 ### Build the diff
 
@@ -168,11 +220,16 @@ Otherwise, present the diff for each changed file in this format:
 **Before:**
 - Rule as it currently appears in the file.
 
+- Before saving an `Edit` to an instruction file, Glob every backticked
+  path in the new content.
+
 **After:**
 - Rule reformatted to one concept per bullet.
 
 - Long rule with a qualifier restructured into a sub-list.
   - Exception: only when the binding site and all uses are visible on screen.
+
+- Before saving an `Edit` to an instruction file, Glob every backticked path in the new content.
 ```
 
 After presenting all diffs, MUST invoke `AskUserQuestion`:

@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.3-alpha] — 2026-05-07
+
+### Fixed
+
+- `/rulesense:file` skill: the prohibition on space-indented continuation lines was buried inside Transform 3 as a closing note, so the skill silently passed files whose primary bullets wrapped across multiple lines via 2-space continuation indent — including the `recommendation-files.md` shipped by `/rulesense:primer`. Promoted the rule to a first-class **Transform 4 — Unwrap continuation lines** with explicit detection criteria, output rules, an unconditional-application directive (the symptom is structural ambiguity regardless of the wrapped content's punctuation), and two worked examples. Updated the Phase 4 diff format to include a wrapped→unwrapped pair so the emitted diff exhibits the intended pattern. Updated counts in description and Phase 3 intro from "three transforms" to "four transforms"
+
+### Changed
+
+- `/rulesense:primer` bundled file (`recommendation-files.md`): reformatted to comply with the now-correct `/rulesense:file` rules. Every primary bullet and `Why:` sub-bullet was previously written across multiple source lines via 2-space continuation indent (the exact anti-pattern Transform 4 forbids). Each is now a single unwrapped line per bullet. Wording is unchanged; only the line breaks moved. Running `/rulesense:primer` followed by `/rulesense:file` against the bundled file is now a no-op as intended
+
 ## [1.0.2-alpha] — 2026-05-07
 
 ### Changed
