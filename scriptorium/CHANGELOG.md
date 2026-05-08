@@ -6,6 +6,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.1-alpha] — 2026-05-07
+
+### Changed
+
+- `proofreader` item 8a now measures the **combined** `description` + `when_to_use` length against the 1,536-char cap (the actual upstream truncation unit in the skill listing), not `description` alone — a 1,000-char `description` plus a 1,000-char `when_to_use` no longer slips past the audit
+- `scribe` item 8 and the body-budget table updated to match (combined-cap wording, source pointer to `references/skill-authoring.md` § 3)
+
+### Added
+
+- `proofreader` item 11 sub-rule: `description` says both *what* and *when* — partial fail when neither field anchors the trigger condition (per upstream "What the skill does and when to use it")
+- `proofreader` item 11 sub-rule: front-loading the key use case — advisory `Suggest:` annotation emitted in Evidence when the first sentence buries the dominant trigger noun (per upstream "Put the key use case first"); explicitly excluded from verdict math and partial-fail tally
+- Item 11 Output-format Evidence template extended with worked phrasings for both new sub-rules
+
 ## [1.0.0-alpha] — 2026-04-29
 
 ### Added
