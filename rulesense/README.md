@@ -6,7 +6,7 @@ Rulesense makes Claude more effective at following your rules by improving the r
 
 > **Scores measure what authors control: rule structure. Claude's actual compliance depends on baseline behavior beyond rule text.**
 
-> **Version:** 1.0.1-alpha — interfaces may change between minor releases.
+> **Version:** 1.0.2-alpha — interfaces may change between minor releases.
 
 ## Skills
 

@@ -1,32 +1,62 @@
----
-default-category: mandate
----
+# Instruction-File Hygiene
 
-# Recommendation File Hygiene
+Rules that prevent Claude from creating or trusting stale references in
+project instruction files. "Instruction files" below means CLAUDE.md,
+README.md, AGENTS.md, and any file under `.claude/rules/`.
 
-Rules that keep Claude's understanding of the project synchronized with its own
-instruction files. CLAUDE.md, README.md, AGENTS.md, and `.claude/rules/*.md`
-are first-class state for Claude — they go stale faster than the code they
-describe, and Claude trusts them as authoritative when they load on the next
-session.
+- After invoking `Bash` with `mv`, `git mv`, or `rm -r`, or after relocating
+  code through `Edit`/`Write` (delete from one file plus create in another),
+  Grep every instruction file for the original path before marking the task
+  done.
+  - When a match is found, update the citation to the new path or remove it.
+  - Why: instruction files cite source paths as canonical, so an unaudited
+    move leaves the next Claude session reading a path that no longer exists.
 
-- After renaming, moving, or deleting any file or folder, re-read every
-  CLAUDE.md, README.md, AGENTS.md, and `.claude/rules/*.md` file inside the
-  affected scope before reporting the task done, because instruction files
-  frequently embed paths that silently rot when the layout shifts.
+- After invoking `Bash` with `rename`, `mmv`, `find ... -exec mv`, or a
+  `for f in ... do mv` loop, Grep every instruction file for each old
+  basename touched by the rename pattern.
+  - Capture the list of matching files before the rename runs so the old
+    basenames are known.
+  - Why: batch renames bypass the single-`mv` trigger of the rule above and
+    leave dozens of stale paths in one shot.
 
-- When citing any file or directory path in a response, status update, or
-  commit message, verify it resolves with Glob or Read before stating it as
-  fact, because instruction files and prior conversation memory often retain
-  paths that have been refactored away.
+- Before saving an `Edit` or `Write` to an instruction file, `Glob` every
+  backticked path in the new content.
+  - When a path does not resolve, remove or correct it before saving the edit.
+  - Why: instruction files outlive the layouts they describe, so an
+    unverified edit ships stale paths that the next session trusts as
+    authoritative.
 
-- When editing CLAUDE.md, README.md, AGENTS.md, or any file under
-  `.claude/rules/`, verify every file path the document cites still exists
-  using Glob before saving the edit, because instruction files accumulate
-  stale paths over time and silently mislead future sessions.
+- Before saving an `Edit` to CLAUDE.md, README.md, or AGENTS.md that changes
+  a stated rule or convention, Grep the other two files for the same claim.
+  - When a sibling repeats the old wording, update it or replace it with a
+    citation pointing to the new source of truth.
+  - Why: contradictions between instruction files force the next session to
+    guess which rule is current, eroding trust in all three.
 
-- When opening an unfamiliar project for the first time in a session, list
-  all CLAUDE.md, README.md, AGENTS.md, and `.claude/rules/*.md` files using
-  Glob before making any structural assumptions, because recommendation files
-  in a single repository sometimes disagree with each other and with the
-  actual code layout.
+- After an `Edit` that renames an exported function, class, type, or
+  constant, Grep every instruction file for the old identifier.
+  - Detect renames by diffing the old and new strings on the same `export`,
+    `pub`, `def`, `class`, or `func` line.
+  - Match both the bare identifier and its call form (`oldName(`).
+  - Why: instruction files cite public APIs by name, so a rename leaves
+    copy-pasteable examples that no longer compile on the next session.
+
+- After an `Edit` to `package.json` `"scripts"`, a `Makefile` target,
+  `pyproject.toml` `[project.scripts]`, or `Cargo.toml` `[[bin]]` that
+  renames or removes a command, Grep every instruction file for the old
+  command name.
+  - Match the cited invocation form (`npm run build`, `make test`,
+    `cargo run --bin foo`).
+  - When found, update to the new command or remove the citation.
+  - Why: instruction files quote build commands as canonical, so a removed
+    `npm run check` invites the next session to run a script that fails.
+
+- After an `Edit` that renames an environment variable in `process.env.X`,
+  `os.environ["X"]`, `.env.example`, or a config schema, Grep every
+  instruction file for the old key.
+  - Match both the bare name (`API_URL`) and assignment form (`API_URL=`).
+  - When found, update to the new key or remove the citation.
+  - Why: docs pointing at `API_URL` after the loader switched to
+    `API_BASE_URL` make the next session set the wrong variable and silently
+    fall back to defaults.

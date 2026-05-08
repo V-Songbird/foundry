@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.2-alpha] — 2026-05-07
+
+### Changed
+
+- `/rulesense:primer` bundled rules: rewrote the existing 3 rules to follow forge's writing principles — concrete tool-call triggers (`Bash mv`/`git mv`/`rm -r`, `Edit`/`Write` to instruction files), single-imperative parent bullets, sub-list format for edge cases and WHY clauses
+- `/rulesense:primer` bundled file: removed the `default-category: mandate` frontmatter block — `mandate` is rulesense's default and the field is not part of Claude Code's official rule frontmatter spec
+
+### Added
+
+- Five new rules in `/rulesense:primer`'s bundled file covering stale-reference vectors beyond file paths: batch-shell-rename extension (`rename`/`mmv`/`find -exec mv`/for-loop renames not covered by the single-`mv` trigger), sibling instruction-file consistency check (CLAUDE.md/README.md/AGENTS.md convention drift), exported-symbol rename audit, build-script rename audit (`package.json` scripts, `Makefile` targets, `pyproject.toml`/`Cargo.toml` entries), and environment-variable rename audit
+
 ## [1.0.1-alpha] — 2026-05-07
 
 ### Added
