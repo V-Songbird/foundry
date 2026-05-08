@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.1-alpha] — 2026-05-07
+
+### Added
+
+- `/rulesense:primer` skill: copies a curated, project-agnostic recommendation-rules file into `.claude/rules/recommendation-files.md` so Claude re-reads its own instruction files (CLAUDE.md, README.md, AGENTS.md, `.claude/rules/*.md`) after structural changes (renames, moves, deletions) and verifies cited file paths before stating them as fact; bundled rules cover four scenarios — post-restructure audit, path-citation verification, doc-edit path check, and first-session project orientation; offers Overwrite / Merge / Cancel via `AskUserQuestion` when the destination file already exists
+
 ## [1.0.0-alpha] — 2026-04-29
 
 ### Added

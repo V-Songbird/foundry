@@ -6,12 +6,13 @@ Rulesense makes Claude more effective at following your rules by improving the r
 
 > **Scores measure what authors control: rule structure. Claude's actual compliance depends on baseline behavior beyond rule text.**
 
-> **Version:** 1.0.0-alpha — interfaces may change between minor releases.
+> **Version:** 1.0.1-alpha — interfaces may change between minor releases.
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
+| `/rulesense:primer` | Drops a curated, project-agnostic starter rules file into `.claude/rules/recommendation-files.md` so Claude re-reads CLAUDE.md, README.md, AGENTS.md, and other instruction files after structural changes — preventing stale path references. Asks before overwriting. |
 | `/rulesense:assay` | Structural audit of CLAUDE.md and `.claude/rules/` files. Scores each rule against eight factors and returns a graded report with rewrite suggestions. Use `--fix` to apply rewrites interactively. |
 | `/rulesense:forge` | Interactive rule authoring with real-time structural scoring. Multi-rule brainstorm mode with a 3-checkpoint review flow (draft → score → post-write). |
 | `/rulesense:file` | Reformats rule files for readability — one concept per bullet, blank-line separation, 80-char wrap. Never changes rule content; produces a before/after diff for confirmation before writing. |
