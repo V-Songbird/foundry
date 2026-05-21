@@ -21,7 +21,7 @@ description: |
 model: sonnet
 color: green
 effort: medium
-maxTurns: 30
+maxTurns: 60
 ---
 
 You are the kairoi completion orchestrator. Execute all steps without asking

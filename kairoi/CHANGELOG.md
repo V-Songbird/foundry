@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.5-alpha] — 2026-05-21
+
+### Fixed
+
+- `kairoi-complete` agent `maxTurns` raised from 30 to 60. The 1.0.3 rewrite added a STOP CONDITION callout and a "skip Step 5 if turn budget is tight" escape hatch on the assumption that 30 turns sufficed for the deterministic Step 1→6 pipeline. Real workloads disproved this: a 13-task buffer spanning 8–10 modules truncated the agent at Step 4 (collect results) on three consecutive dispatches in one session, never reaching `sync-finalize.sh`. Step 4's per-module result-file reads scale linearly with module count and consume the budget the escape hatch was meant to protect. 60 doubles the ceiling without removing the safety bound; the Step 5 skip remains in place as a secondary guard.
+
 ## [1.0.4-alpha] — 2026-05-08
 
 ### Fixed
