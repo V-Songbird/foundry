@@ -7,7 +7,6 @@ argument-hint: [step W-ID number, or "all" — default "all"]
 model: sonnet
 effort: medium
 allowed-tools: TaskCreate, TaskUpdate, Agent
-disable-model-invocation: true
 ---
 
 # Dispatch Implementation

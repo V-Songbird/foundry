@@ -6,7 +6,6 @@ user-invocable: false
 model: sonnet
 effort: medium
 allowed-tools: Bash, AskUserQuestion, Read, Write
-disable-model-invocation: true
 ---
 
 # Build and Report
