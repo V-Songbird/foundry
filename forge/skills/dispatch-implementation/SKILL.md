@@ -42,10 +42,8 @@ For each qualifying step being dispatched, MUST invoke `Agent` in a single tool-
 ```
 Agent(
   description: "Implement step W<N>: <step title>",
-  name: "Implementer W<N>",
   subagent_type: "forge-implementer",
   model: "sonnet",         # mirrors forge-implementer.md frontmatter; explicit so the dispatch is self-documenting
-  max_turns: 30,           # mirrors forge-implementer.md maxTurns; explicit so the dispatch is self-documenting
   run_in_background: false,
   isolation: "worktree",
   prompt: """
@@ -59,6 +57,8 @@ Agent(
 ```
 
 The `forge-implementer` agent's system prompt (in `forge/agents/forge-implementer.md`) carries the full constraints — files-touched discipline, contract honoring, citation discipline, blocker escalation, single-commit rule, return format. The dispatch prompt only inlines the per-step content.
+
+The turn budget is set exclusively by the agent's `maxTurns:` frontmatter (currently `60`). The `Agent` tool does NOT accept `max_turns` or `name` at the call site — both are silently dropped by the harness — so do not pass them here. To change the per-implementer budget, edit the agent's frontmatter.
 
 ## Critical Constraints
 

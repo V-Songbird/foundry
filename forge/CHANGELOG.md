@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.6-alpha] — 2026-05-28
+
+### Fixed
+
+- `forge-implementer` agents hitting `maxTurns` mid-implementation on parallel dispatches: raised frontmatter `maxTurns` from `30` → `60` (mirrors the kairoi 1.0.5-alpha fix; same failure mode, same remedy) and added a "Turn budget" section at the top of [forge-implementer.md](agents/forge-implementer.md) with explicit checkpoints (turn 40: stop reading; turn 50: finalize edits; turn 55: commit-or-escalate). Implementers now escalate as a Blocker rather than silently truncate when the work doesn't fit the budget.
+- `dispatch-implementation` Agent template: removed `max_turns: 30` and `name: "Implementer W<N>"` from the call template. Per Claude Code's tool reference, neither parameter is accepted at the `Agent` call site — both were silently dropped by the harness, while the "self-documenting" comment misled readers into thinking they controlled the per-dispatch budget. The template now points readers to the agent frontmatter, which is the only effective control.
+
 ## [1.0.4-alpha] — 2026-05-08
 
 ### Removed
