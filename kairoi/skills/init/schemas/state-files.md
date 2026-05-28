@@ -13,9 +13,25 @@ Authoritative reference for all `.kairoi/` files.
   "test_dirs": ["tests/", "__tests__/"],
   "exclude_dirs": ["src/generated/"],
   "edge_prune_min_weight": 2,
-  "edge_prune_max_age_days": 30
+  "edge_prune_max_age_days": 30,
+  "test_infrastructure_blocked_patterns": []
 }
 ```
+
+**test_infrastructure_blocked_patterns** *(optional)* — Array of egrep
+regexes. If any pattern matches the auto-run test command's stdout/stderr,
+`buffer-append.sh` treats the run as infrastructure-blocked rather than as
+a real test failure: `test_results` is written with zero counts and
+`infrastructure_blocked: true`, the commit's `status` is NOT auto-promoted
+to BLOCKED, and the user-facing alert is the softer "test results not
+captured" line instead of "TESTS FAILING." Built-in patterns (always
+active) cover the gradle/IntelliJ jar-lock case — the FileSystemException
+`user-mapped section open` text and the `:prepareTestSandbox FAILED` task
+line — emitted when the IDE has the plugin-test sandbox jar memory-mapped
+while gradle tries to rewrite it. Use this field to extend detection to
+project-specific infrastructure failures (CI runner OOMs, container exec
+errors, missing fixtures, etc.) that the harness should surface but not
+classify as code regressions.
 
 ## model/_index.json
 
@@ -201,6 +217,18 @@ frameworks (vitest, jest, pytest). If `--tests` is provided explicitly, it
 overrides auto-run. If `--skip-tests` is passed, test_results is null. The
 auto-run may include a `raw_exit` field (exit code) and `parse_note` if
 output format wasn't recognized.
+
+When the auto-run hits an infrastructure failure (the harness itself
+couldn't run — e.g., gradle's `:prepareTestSandbox` failing because an
+attached IDE has the test-sandbox jar memory-mapped), `test_results` is
+written with zero counts plus `infrastructure_blocked: true` and a
+`parse_note` describing the cause. The `raw_exit` field still records the
+harness's exit code. Infrastructure-blocked runs do NOT auto-promote the
+commit to BLOCKED (the failure is environmental, not a code regression)
+and emit a softer "test results not captured" notice instead of the
+"TESTS FAILING" alarm. Detection runs against built-in patterns (gradle
+jar-lock) plus any project-specific regexes in
+`build-adapter.json.test_infrastructure_blocked_patterns`.
 
 `guards_fired` is captured automatically from `.guards-log` (see below).
 

@@ -103,21 +103,57 @@ elif [ "$SKIP_TESTS" = false ]; then
     TEST_EXIT=0
     TEST_OUTPUT="$(eval "$TEST_CMD" 2>&1)" || TEST_EXIT=$?
 
-    # Parse test counts from common framework output formats
-    T_PASSED="$(echo "$TEST_OUTPUT" | grep -oiE '[0-9]+ passed' | tail -1 | grep -oE '[0-9]+')" || T_PASSED=0
-    T_FAILED="$(echo "$TEST_OUTPUT" | grep -oiE '[0-9]+ failed' | tail -1 | grep -oE '[0-9]+')" || T_FAILED=0
-    T_SKIPPED="$(echo "$TEST_OUTPUT" | grep -oiE '[0-9]+ (skipped|pending|todo)' | tail -1 | grep -oE '[0-9]+')" || T_SKIPPED=0
-    T_TOTAL=$((T_PASSED + T_FAILED + T_SKIPPED))
+    # Infrastructure-blocked detection. Some failures are NOT "the tests
+    # failed" but "the test harness couldn't run at all" — and gradle in
+    # particular still emits test-count lines in that case (e.g.,
+    # "172 tests completed, 172 failed" after :prepareTestSandbox dies),
+    # which the parser below would mistake for a real failing suite and
+    # auto-promote the commit to BLOCKED. Detect the infrastructure
+    # signature BEFORE counting, and short-circuit to a zero-counts entry
+    # flagged with `infrastructure_blocked: true`.
+    #
+    # Built-in patterns (gradle / IntelliJ): the FileSystemException
+    # "user-mapped section open" is the smoking gun emitted when the IDE
+    # has the plugin-test sandbox jar memory-mapped while gradle tries to
+    # rewrite it; the ":prepareTestSandbox" task-name match is the broader
+    # fallback for the same root cause. Project-specific patterns can be
+    # added via `build-adapter.json.test_infrastructure_blocked_patterns`
+    # (array of egrep regexes).
+    INFRA_NOTE=""
+    if echo "$TEST_OUTPUT" | grep -qE 'user-mapped section open|:prepareTestSandbox.*FAILED'; then
+      INFRA_NOTE="gradle prepareTestSandbox failed — IDE is holding the test-sandbox jar memory-mapped (FileSystemException: user-mapped section open). Run tests from the IDE instead; this commit's test status was not captured."
+    fi
+    if [ -z "$INFRA_NOTE" ]; then
+      EXTRA_PATTERNS="$(jq -r '.test_infrastructure_blocked_patterns // [] | .[]' "$STATE_DIR/build-adapter.json" 2>"$_DEVNULL" || true)"
+      while IFS= read -r PAT; do
+        [ -n "$PAT" ] || continue
+        if echo "$TEST_OUTPUT" | grep -qE "$PAT"; then
+          INFRA_NOTE="test_infrastructure_blocked_patterns matched (${PAT}) — test results not captured"
+          break
+        fi
+      done <<< "$EXTRA_PATTERNS"
+    fi
 
-    # If parsing found nothing but tests ran, use exit code
-    if [ "$T_TOTAL" -eq 0 ]; then
-      if [ "$TEST_EXIT" -eq 0 ]; then
-        TESTS_JSON="{\"total\":0,\"passed\":0,\"failed\":0,\"skipped\":0,\"raw_exit\":0,\"parse_note\":\"tests passed but output format not recognized\"}"
-      else
-        TESTS_JSON="{\"total\":1,\"passed\":0,\"failed\":1,\"skipped\":0,\"raw_exit\":$TEST_EXIT,\"parse_note\":\"tests failed but output format not recognized\"}"
-      fi
+    if [ -n "$INFRA_NOTE" ]; then
+      INFRA_NOTE_JSON="$(printf '%s' "$INFRA_NOTE" | jq -R -s '. | rtrimstr("\n")')"
+      TESTS_JSON="{\"total\":0,\"passed\":0,\"failed\":0,\"skipped\":0,\"raw_exit\":$TEST_EXIT,\"infrastructure_blocked\":true,\"parse_note\":$INFRA_NOTE_JSON}"
     else
-      TESTS_JSON="{\"total\":$T_TOTAL,\"passed\":$T_PASSED,\"failed\":$T_FAILED,\"skipped\":$T_SKIPPED,\"raw_exit\":$TEST_EXIT}"
+      # Parse test counts from common framework output formats
+      T_PASSED="$(echo "$TEST_OUTPUT" | grep -oiE '[0-9]+ passed' | tail -1 | grep -oE '[0-9]+')" || T_PASSED=0
+      T_FAILED="$(echo "$TEST_OUTPUT" | grep -oiE '[0-9]+ failed' | tail -1 | grep -oE '[0-9]+')" || T_FAILED=0
+      T_SKIPPED="$(echo "$TEST_OUTPUT" | grep -oiE '[0-9]+ (skipped|pending|todo)' | tail -1 | grep -oE '[0-9]+')" || T_SKIPPED=0
+      T_TOTAL=$((T_PASSED + T_FAILED + T_SKIPPED))
+
+      # If parsing found nothing but tests ran, use exit code
+      if [ "$T_TOTAL" -eq 0 ]; then
+        if [ "$TEST_EXIT" -eq 0 ]; then
+          TESTS_JSON="{\"total\":0,\"passed\":0,\"failed\":0,\"skipped\":0,\"raw_exit\":0,\"parse_note\":\"tests passed but output format not recognized\"}"
+        else
+          TESTS_JSON="{\"total\":1,\"passed\":0,\"failed\":1,\"skipped\":0,\"raw_exit\":$TEST_EXIT,\"parse_note\":\"tests failed but output format not recognized\"}"
+        fi
+      else
+        TESTS_JSON="{\"total\":$T_TOTAL,\"passed\":$T_PASSED,\"failed\":$T_FAILED,\"skipped\":$T_SKIPPED,\"raw_exit\":$TEST_EXIT}"
+      fi
     fi
   fi
 fi
@@ -149,13 +185,20 @@ fi
 if [ "$STATUS" = "SUCCESS" ]; then
   PROMOTE_REASON=""
 
-  # Signal 1: test failures
+  # Signal 1: test failures. Skip when test_results.infrastructure_blocked
+  # is set — the harness never ran, so a non-zero raw_exit reflects the
+  # infrastructure failure (e.g., gradle :prepareTestSandbox), not a real
+  # test regression. Promoting on it would mark every commit BLOCKED until
+  # the IDE is detached.
   if [ "$TESTS_JSON" != "null" ]; then
-    T_F_PROMOTE="$(echo "$TESTS_JSON" | jq -r '.failed // 0' 2>"$_DEVNULL" || echo 0)"
-    T_RAW_PROMOTE="$(echo "$TESTS_JSON" | jq -r '.raw_exit // 0' 2>"$_DEVNULL" || echo 0)"
-    T_T_PROMOTE="$(echo "$TESTS_JSON" | jq -r '.total // 0' 2>"$_DEVNULL" || echo 0)"
-    if [ "${T_F_PROMOTE:-0}" -gt 0 ] 2>/dev/null || [ "${T_RAW_PROMOTE:-0}" -ne 0 ] 2>/dev/null; then
-      PROMOTE_REASON="tests failing: $T_F_PROMOTE of $T_T_PROMOTE failed (raw_exit=$T_RAW_PROMOTE)"
+    T_INFRA="$(echo "$TESTS_JSON" | jq -r '.infrastructure_blocked // false' 2>"$_DEVNULL" || echo false)"
+    if [ "$T_INFRA" != "true" ]; then
+      T_F_PROMOTE="$(echo "$TESTS_JSON" | jq -r '.failed // 0' 2>"$_DEVNULL" || echo 0)"
+      T_RAW_PROMOTE="$(echo "$TESTS_JSON" | jq -r '.raw_exit // 0' 2>"$_DEVNULL" || echo 0)"
+      T_T_PROMOTE="$(echo "$TESTS_JSON" | jq -r '.total // 0' 2>"$_DEVNULL" || echo 0)"
+      if [ "${T_F_PROMOTE:-0}" -gt 0 ] 2>/dev/null || [ "${T_RAW_PROMOTE:-0}" -ne 0 ] 2>/dev/null; then
+        PROMOTE_REASON="tests failing: $T_F_PROMOTE of $T_T_PROMOTE failed (raw_exit=$T_RAW_PROMOTE)"
+      fi
     fi
   fi
 
@@ -253,12 +296,21 @@ fi
 
 printf '%s\n' "$ENTRY" >> "$STATE_DIR/buffer.jsonl"
 
-# Test failure alert — data first, notification second
+# Test failure alert — data first, notification second.
+# Infrastructure-blocked runs emit a softer "not captured" notice instead
+# of the failing-tests alarm; the harness never ran, so there's nothing
+# to "fix."
 if [ "$TESTS_JSON" != "null" ]; then
-  T_F_CHECK="$(echo "$TESTS_JSON" | jq '.failed // 0')"
-  T_T_CHECK="$(echo "$TESTS_JSON" | jq '.total // 0')"
-  if [ "$T_F_CHECK" -gt 0 ]; then
-    echo "kairoi: ⚠ TESTS FAILING — $T_F_CHECK of $T_T_CHECK tests broke after commit ${COMMIT_HASH:0:7}. Fix before continuing."
+  T_INFRA_CHECK="$(echo "$TESTS_JSON" | jq -r '.infrastructure_blocked // false')"
+  if [ "$T_INFRA_CHECK" = "true" ]; then
+    T_INFRA_NOTE="$(echo "$TESTS_JSON" | jq -r '.parse_note // "test infrastructure blocked"')"
+    echo "kairoi: ⓘ test results not captured for commit ${COMMIT_HASH:0:7} — $T_INFRA_NOTE"
+  else
+    T_F_CHECK="$(echo "$TESTS_JSON" | jq '.failed // 0')"
+    T_T_CHECK="$(echo "$TESTS_JSON" | jq '.total // 0')"
+    if [ "$T_F_CHECK" -gt 0 ]; then
+      echo "kairoi: ⚠ TESTS FAILING — $T_F_CHECK of $T_T_CHECK tests broke after commit ${COMMIT_HASH:0:7}. Fix before continuing."
+    fi
   fi
 fi
 

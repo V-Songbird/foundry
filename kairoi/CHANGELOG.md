@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.0.6-alpha] — 2026-05-27
+
+### Fixed
+
+- `buffer-append.sh` no longer classifies infrastructure failures of the test harness as real test failures. Previously, when an attached IDE held the gradle test-sandbox jar memory-mapped, `./gradlew test` died in `:prepareTestSandbox` with `FileSystemException: ... user-mapped section open` but still emitted "N tests completed, N failed" in its summary — which the parser captured as a real regression, auto-promoting every commit in the affected session range (8+ commits across one release range; metadata-only commits included, where tests cannot fail by construction) to BLOCKED with `{"total":N,"passed":0,"failed":N,"raw_exit":1}`. The fix scans the auto-run output for the gradle/IntelliJ signature BEFORE counting tests; on match, `test_results` is written with zero counts plus `infrastructure_blocked: true` and a `parse_note` describing the cause, the SUCCESS→BLOCKED auto-promotion is skipped (the harness never ran, so a non-zero exit reflects the environment, not the code), and the user-facing notice degrades from the "TESTS FAILING" alarm to a softer "test results not captured" line.
+
+### Added
+
+- `build-adapter.json.test_infrastructure_blocked_patterns` (optional array of egrep regexes). Lets projects extend infrastructure-blocked detection to environmental failures the built-in patterns don't cover — CI runner OOMs, docker daemon outages, missing fixtures, etc. — so the harness surfaces them without conflating them with code regressions. Built-in gradle/IntelliJ patterns remain active unconditionally.
+- `tests/test_infrastructure_blocked.sh`: 4 cases — gradle FileSystemException, `:prepareTestSandbox FAILED` task-name fallback, custom regex via `test_infrastructure_blocked_patterns`, and a regression guard that real test failures still auto-promote to BLOCKED.
+
 ## [1.0.5-alpha] — 2026-05-21
 
 ### Fixed
