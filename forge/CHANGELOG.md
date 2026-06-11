@@ -6,6 +6,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.1.0-alpha] — 2026-06-11
+
+### Added
+
+- **Deep mode (user opt-in).** When the user explicitly asks for a deep / thorough run AND the `Workflow` tool is available (Claude Code ≥ 2.1.154), Steps 3 and 5 upgrade from `Agent` dispatch to `Workflow` orchestration: experts return schema-validated reports (tool-layer validation + retry replaces heading-parsing), and every Blocking critic finding is audited by a two-refuter panel with distinct lenses (identifier accuracy / consequence severity) before `/forge:plan-revise` spends verification cycles on it. Script templates: [skills/expert-analysis/references/workflow-dispatch.md](skills/expert-analysis/references/workflow-dispatch.md) and [skills/critic-review/references/workflow-panel.md](skills/critic-review/references/workflow-panel.md). Standard `Agent` dispatch remains the default path and the fallback when `Workflow` is unavailable.
+- **External-verification lens for experts.** `forge-expert` may now ground claims that live outside the repo (framework version behavior, platform API contracts, library semantics) via `WebFetch`/`WebSearch` — citing the doc URL with the same discipline as `file:line`, pinning the version against the project's actual manifest/lockfile first, and never substituting a fetch for reading the project's code.
+- **Resume, don't re-dispatch, when context is an asset.** Blocker resolution and contested critic findings now continue the original subagent via `SendMessage` (context + worktree intact) instead of fresh dispatch: `dispatch-implementation` resumes implementers for decision-only blockers; `plan-revise` gives the critic one confirm-or-withdraw exchange on refuted Blocking findings. Fresh dispatch remains the rule when the assignment itself changes, and the fallback on builds without `SendMessage`.
+- **Plan digest at the approval gate.** Step 7 now presents a short, dev-pitched digest (intention, shape of the change, risks and critic deltas, verification — no W-IDs or `file:line` machinery) above the full plan, so the human approves on understanding instead of rubber-stamping a Claude-facing artifact. The digest is presentation only; the full plan remains the single canonical artifact for the critic and implementers.
+
+### Changed
+
+- **Final report recalibrated to a developer reader.** The two mandatory user-facing sections ("How to test this feature", "How is this feature useful?") are now pitched at a developer who did not follow the run — concrete commands and technical terms welcome, internals walkthroughs out — replacing the old "non-developer / no technical terms" framing. The report template also moves "Plan adherence" below the user-facing sections so skimming readers can stop early.
+
+- **Fable 5 model pass.** Research-shaped agents pin `fable`: `forge-expert` (was `sonnet`) and `adversarial-critic` (was `opus`; effort `medium` → `high`). Synthesis skills (`master-plan`, `plan-revise`, the `forge` orchestrator) drop their `opus` pins and inherit the session model, so they never age into downgrades when newer models ship. `forge-implementer` stays `sonnet` as a documented cost choice — implementers execute a pre-verified plan.
+- **Turn budgets scaled to research depth.** `forge-expert` `maxTurns` 20 → 40 (investigate to turn 30, report by 33); `adversarial-critic` 18 → 30 (checkpoints 23/27). The 1.0.3-era tightening was a weak-model mitigation that had become the binding constraint on investigation depth.
+
+### Fixed
+
+- Removed the residual `name:` parameter from the `Agent` dispatch templates in `expert-analysis` and `critic-review` — the same silently-dropped parameter that 1.0.6 removed from `dispatch-implementation` — and added the do-not-re-add note to both skills.
+
+## [1.0.5-alpha] — 2026-05-28
+
+### Removed
+
+- Removed unused `disable-model-invocation: true` from the `dispatch-implementation` and `build-and-report` skills. (Entry backfilled — this release was originally published as a marketplace version bump without a changelog entry.)
+
 ## [1.0.6-alpha] — 2026-05-28
 
 ### Fixed

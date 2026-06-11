@@ -3,7 +3,6 @@ name: master-plan
 description: Consolidates the expert reports from `/forge:expert-analysis` into a single master implementation plan that the user can audit at a glance. Walks every expert report; reconciles overlapping claims; resolves cross-domain conflicts by reading the code; produces a single-layer plan (Feature, Steps, Risks, Open questions) capped at ≤ 80 lines for typical features. Optional Integration-contract appendix only when the plan has ≥ 2 steps marked `Parallel-friendly: yes`. Produces the plan in conversation context only — no file is written.
 when_to_use: Use as Step 4 of the forge workflow, immediately after `/forge:expert-analysis` returns.
 user-invocable: false
-model: opus
 effort: high
 allowed-tools: Read
 ---
@@ -14,7 +13,7 @@ Synthesize the expert reports into a single, code-grounded plan the user can aud
 
 ## Required Inputs
 
-- Every expert report from the most recent `/forge:expert-analysis` run, present in the conversation transcript.
+- Every expert report from the most recent `/forge:expert-analysis` run, present in the conversation transcript. On the standard path these are markdown reports parsed by heading; on the deep-mode path they are structured JSON objects from the Workflow result — the fields map one-to-one onto the report headings, and the synthesis procedure below is identical for both.
 - The original feature requirements as the user expressed them.
 - Optional: any user clarifications since the experts were dispatched.
 

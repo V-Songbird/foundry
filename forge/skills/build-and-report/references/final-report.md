@@ -2,6 +2,8 @@
 
 This is the canonical shape `/build-and-report` produces at the end of the forge workflow. The report goes into the conversation as a single markdown block.
 
+The section order is deliberate: outcome and verification first, then the two user-facing sections, then the plan-machinery detail last. The reader is a developer who did not follow the run and will skim — they should be able to stop after "How is this feature useful?" and have everything they need; "Plan adherence" and "What we'd improve next time" are the appendix for whoever wants the audit trail.
+
 ```markdown
 # Forge run report: <feature>
 
@@ -14,12 +16,9 @@ This is the canonical shape `/build-and-report` produces at the end of the forge
 - Done-when criteria: <one row per step — W<N>: pass / fail / manual-smoke-required (steps if applicable)>
 - Version bump: <file → version> (or "skipped — workflow did not apply" if project CLAUDE.md says so)
 
-## Plan adherence
-<one paragraph: did the implementation match the approved plan? Any deviations escalated and approved? Any deviations that slipped past the contract? Reference plan step W-IDs.>
-
 ## How to test this feature
 
-Plain-language steps anyone using the application can follow. NO file paths, NO class or function names, NO implementation jargon.
+Steps a developer who did not follow the implementation can execute cold. Commands, URLs, and entry points are welcome; a tour of the change's internals is not.
 
 1. <Open the application / navigate to the feature entry point.>
 2. <Do the action that exercises the new feature.>
@@ -33,9 +32,9 @@ If you see <symptom>, that means <interpretation> — <next step or "report to m
 
 ## How is this feature useful?
 
-Plain-language explanation for the people who use the software. Lead with the pain or goal; describe what changes; describe what they can now do.
+The user-visible benefit. Lead with the pain or goal; describe what changes; describe what they can now do. Technical terms are fine — the reader is a dev — but no module/class walkthroughs; if the section needs a map of the implementation to make sense, it has gone too deep.
 
-<2–4 short paragraphs. No internal modules, no classes, no implementation details. Read like product documentation, not engineering documentation.>
+<2–4 short paragraphs. Read like a good PR description's "why", not like engineering documentation.>
 
 Example shape:
 > Before this change, you had to <old painful workflow>. Now you can <new direct path>.
@@ -44,6 +43,9 @@ Example shape:
 >
 > A typical use is <walked-through example>.
 
+## Plan adherence
+<one paragraph: did the implementation match the approved plan? Any deviations escalated and approved? Any deviations that slipped past the contract? Reference plan step W-IDs.>
+
 ## What we'd improve next time
 
 <short bulleted list — at most 5 items. The orchestrator's notes from the run: planning gaps, contract overlaps that caused merge conflicts, expert-domain coverage that turned out insufficient, etc. This section feeds future forge runs; it is not user-facing.>
@@ -51,7 +53,8 @@ Example shape:
 
 ## Anti-patterns to avoid
 
-- **Implementation jargon in user-facing sections.** "How to test this feature" describing "open `src/MainWindow.xaml.cs` and trigger the `OnFeatureClick` handler" is a fail. The user opens the application, not the source.
+- **Implementation jargon in user-facing sections.** "How to test this feature" describing "open `src/MainWindow.xaml.cs` and trigger the `OnFeatureClick` handler" is a fail — the reader verifies behavior from the outside. `npm run dev` and "open the settings dialog" are fine; a walkthrough of the diff is not.
+- **Treating the reader as a non-developer.** The reader is almost always a dev — don't strip every technical term or pad with hand-holding. The failure mode to avoid is depth (internals tours that get skimmed past), not vocabulary.
 - **Skipping the success criterion.** "Try the new feature" without defining what working looks like leaves the user unable to evaluate.
 - **Marketing in "How is this feature useful?"** Avoid superlatives ("powerful", "robust", "seamless"). Describe the change concretely; the user evaluates the value.
 - **Pretending the build passed when it didn't.** If the build failed, the report MUST say so prominently and STOP — do not paper over to "complete" the workflow.

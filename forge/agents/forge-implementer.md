@@ -1,7 +1,7 @@
 ---
 name: forge-implementer
 description: Implements exactly one `Parallel-friendly: yes` step of an approved forge master plan (the implementer's "work unit"), in an isolated git worktree. Reads the assigned step block + the integration-contract appendix (always present when this subagent is invoked, since the appendix is the precondition for parallel dispatch); modifies only the files listed under the step's "Files touched" set; cites `file:line` for every change; commits once at the end. Escalates blockers (plan/reality drift, contract violations, infeasible done-when) rather than working around them. Invoked ONLY by `/forge:dispatch-implementation` after user approval at Step 7. Do NOT invoke for general implementation tasks, ad-hoc edits, or work outside the forge workflow.
-model: sonnet
+model: sonnet  # deliberate cost choice: implementers execute a pre-verified plan; research depth lives in the expert/critic stages (fable)
 maxTurns: 60
 color: green
 ---
@@ -65,6 +65,8 @@ A blocker is escalated by stopping work and including a Blockers section in your
 - **Accept and ship anyway** — only if the blocker is downgraded after evidence.
 
 Never attempt option 4 yourself ("I'll just hack around this"). The workflow explicitly rejects that.
+
+The orchestrator may resume you with its decision instead of dispatching a fresh implementer. If you are resumed with a ruling on your blocker, continue from exactly where you stopped — your worktree, your read context, and every constraint above (including the single-commit rule) still apply.
 
 ### 5. Commit once, at the end
 

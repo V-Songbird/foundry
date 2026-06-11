@@ -115,8 +115,10 @@ If the build fails: STOP. Surface the failure to the user with the failing outpu
 
 Append a single markdown report to the conversation, following the structure in [references/final-report.md](references/final-report.md). The report MUST include these two sections, named exactly:
 
-- **How to test this feature** — step-by-step in plain language a non-developer can follow. Name the entry point (menu item / URL / command), the inputs to try, what counts as success, and which edge cases to poke. Avoid file paths and function names — the user does not need them at this layer.
-- **How is this feature useful?** — explain the user-visible benefit in plain language. Lead with the user's pain or goal; describe what changes; describe what they can now do that they couldn't before. Do NOT name internal modules, classes, or implementation details — this section is for the people who use the software, not the people who build it.
+Pitch both sections at a developer who did NOT follow the implementation and will skim. Technical terms and concrete commands are fine — this reader is a dev; a tour of the change's internals is not — that depth trains readers to accept without reading.
+
+- **How to test this feature** — step-by-step the reader can execute cold. Name the entry point (menu item / URL / command), concrete commands where they help (`npm run dev`, the curl call, the test target), the inputs to try, what counts as success, and which edge cases to poke. Skip the change's internals — the reader is verifying behavior, not reviewing the diff.
+- **How is this feature useful?** — the user-visible benefit. Lead with the pain or goal; describe what changes; what they can now do that they couldn't before. Technical terms are fine; module/class walkthroughs are not. If the section needs a map of the implementation to make sense, it has gone too deep.
 
 For the full report template, see [references/final-report.md](references/final-report.md).
 
@@ -127,7 +129,7 @@ For the full report template, see [references/final-report.md](references/final-
 - **NEVER skip a failing build.** `--no-verify` or equivalent flags hide regressions; the build is the workflow's last safety net.
 - **NEVER invent build commands.** If the project's CLAUDE.md does not name them, ask the user. Inventing a command risks silent breakage.
 - **NEVER write the final report without both mandatory sections.** "How to test this feature" and "How is this feature useful?" are workflow contract; report renderers downstream rely on those exact headings.
-- **NEVER write the report in implementer jargon.** Both mandatory sections are user-facing. Strip file paths, class names, and internal step labels before delivering.
+- **NEVER write the report in implementer jargon.** Both mandatory sections are user-facing — pitched at a developer who didn't follow the run. Commands, endpoints, and technology names are fine; plan machinery (W-IDs, contract clauses), file-by-file change lists, and class-level internals are not.
 
 ## Next Step
 

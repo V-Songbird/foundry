@@ -30,6 +30,12 @@ Forge skips the full pipeline for trivial localized changes (typo fixes, single-
 
 Forge is stack-agnostic — no hardcoded build commands. All stack-specific behavior defers to the consuming project's own CLAUDE.md.
 
+The research stages run on pinned models: domain experts and the adversarial critic use Fable for investigation depth, synthesis steps inherit the session model, and implementers run on Sonnet as a cost choice.
+
+## Deep mode
+
+Ask for a "deep" or "thorough" forge run and the two research stages upgrade to Workflow orchestration: experts return schema-validated reports, and every blocking critic finding is independently audited by a two-refuter panel before it reaches plan revision. Requires Claude Code ≥ 2.1.154 (the `Workflow` tool); forge falls back to standard dispatch otherwise.
+
 ## Installation
 
 Clone this repository and register the `forge/` directory as a Claude Code plugin.

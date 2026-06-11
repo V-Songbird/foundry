@@ -3,10 +3,9 @@ name: dispatch-implementation
 description: Parallel implementation dispatcher for forge plans. Dispatches one `forge-implementer` subagent per parallel-friendly step, each in an isolated git worktree, so they can write code in parallel without stepping on each other. Each implementer receives only its assigned step (the "work unit") + the integration contract; the implementer constraints are baked into the `forge-implementer` agent's system prompt. MUST invoke `TaskCreate` for each work unit (paired `content` + `activeForm`) before the parallel `Agent` calls. Returns per-unit completion reports for aggregation by `/forge:build-and-report`.
 when_to_use: Load at Step 8 of the forge workflow when the approved revised master plan contains ≥ 2 steps marked `Parallel-friendly: yes`. For plans with fewer than 2 such steps, implement directly in the main session — coordination overhead beats wall-time savings.
 user-invocable: false
-argument-hint: [step W-ID number, or "all" — default "all"]
 model: sonnet
 effort: medium
-allowed-tools: TaskCreate, TaskUpdate, Agent
+allowed-tools: TaskCreate, TaskUpdate, Agent, SendMessage
 ---
 
 # Dispatch Implementation
@@ -60,6 +59,8 @@ The `forge-implementer` agent's system prompt (in `forge/agents/forge-implemente
 
 The turn budget is set exclusively by the agent's `maxTurns:` frontmatter (currently `60`). The `Agent` tool does NOT accept `max_turns` or `name` at the call site — both are silently dropped by the harness — so do not pass them here. To change the per-implementer budget, edit the agent's frontmatter.
 
+Keep the agent ID from each dispatch result. Blocker resolution resumes implementers by ID via `SendMessage` (see "Handling implementer reports").
+
 ## Critical Constraints
 
 - **`isolation: "worktree"` on every dispatch.** Without it, parallel implementers race on the same files. The worktree gives each its own filesystem view + branch.
@@ -73,7 +74,10 @@ The turn budget is set exclusively by the agent's `maxTurns:` frontmatter (curre
 
 When implementers return:
 
-- **Hard blockers (non-empty Blockers section)** — STOP. The orchestrator decides between revise-plan-and-redispatch, reassign-unit, or accept-with-evidence. Do not proceed to merge with an unresolved hard blocker. MUST invoke `TaskUpdate` to keep the task `in_progress` (with an updated `activeForm` describing the blocker) until the user decides.
+- **Hard blockers (non-empty Blockers section)** — STOP. The orchestrator decides between resume-with-decision, revise-plan-and-redispatch, reassign-unit, or accept-with-evidence. Do not proceed to merge with an unresolved hard blocker. MUST invoke `TaskUpdate` to keep the task `in_progress` (with an updated `activeForm` describing the blocker) until resolved.
+  - **Resume-first.** When the blocker needs only a ruling the orchestrator (or the user at the approval gate) can give — a contract-clause interpretation, a plan-vs-reality drift the plan author can rule on, an expanded "Files touched" set — and the work unit itself is unchanged, MUST invoke `SendMessage` to that implementer's agent ID with the decision. The implementer resumes in its existing worktree with its read context intact, which is far cheaper than a fresh dispatch that re-reads everything.
+  - **Fresh dispatch only when the work unit changes.** If resolving the blocker re-slices the plan (new step boundaries, reassigned files), revise the plan first and re-dispatch that unit fresh — stale context misleads once the assignment itself has changed.
+  - If `SendMessage` is unavailable in this session (older Claude Code builds), fall back to revise-plan-and-redispatch.
 - **Done-when criterion: no / partial-because** — same treatment as a hard blocker.
 - **All units returned clean** — MUST invoke `TaskUpdate` to mark each work-unit task `completed`. Then proceed to `/forge:build-and-report`.
 

@@ -2,8 +2,8 @@
 name: forge
 description: Reference for the forge robust-development workflow. The 10-step pipeline is parallel domain experts → master plan → adversarial critic → user approval → parallel implementation → build + report. Heavy-by-design; the parallel agents are also a token-cost lever (the dispatching session never reads the full expert / implementer transcripts). Loads alongside the action skills it references — the action skills do the dispatch, this reference tells Claude when and in what order to invoke them.
 when_to_use: Load when the user requests a non-trivial feature — particularly when they say "use forge", "review this design before I build it", or describe a change that crosses architectural boundaries.
-model: opus
 effort: high
+allowed-tools: AskUserQuestion, TaskCreate, Skill
 ---
 
 # Forge: robust-development workflow
@@ -30,16 +30,31 @@ For trivial localized changes (typo, single-method bug fix, copy edit), do NOT u
 | 2   | Quick search for essential structural codebase knowledge                     | inherit              | —                           |
 | 2.3 | Domain-skill scan: invoke any project skills authoritative for this feature  | inherit              | —                           |
 | 2.5 | Reality-check spike against the riskiest assumption (≤ 30 lines)            | inherit              | —                           |
-| 3   | Dispatch domain experts in parallel                                          | sonnet               | `/forge:expert-analysis`    |
-| 4   | Consolidate expert reports into a master implementation plan                 | opus (effort high)   | `/forge:master-plan`        |
-| 5   | Dispatch the adversarial critic against the master plan                      | opus                 | `/forge:critic-review`      |
-| 6   | Verify each critique; fold verified findings back into the plan              | opus (effort high)   | `/forge:plan-revise`        |
-| 7   | Present the revised plan to the user; wait for approval                      | inherit              | —                           |
+| 3   | Dispatch domain experts in parallel                                          | fable (per expert)   | `/forge:expert-analysis`    |
+| 4   | Consolidate expert reports into a master implementation plan                 | inherit (effort high)| `/forge:master-plan`        |
+| 5   | Dispatch the adversarial critic against the master plan                      | fable (effort high)  | `/forge:critic-review`      |
+| 6   | Verify each critique; fold verified findings back into the plan              | inherit (effort high)| `/forge:plan-revise`        |
+| 7   | Present the plan digest + revised plan to the user; wait for approval        | inherit              | —                           |
 | 8   | Implement the plan (parallel-first when ≥ 2 disjoint steps; in-session else) | sonnet (per worker)  | `/forge:dispatch-implementation` |
 | 9   | Bump version (per consuming project's convention) and run the project build  | sonnet               | `/forge:build-and-report`   |
 | 10  | Deliver the final implementation report                                      | sonnet               | `/forge:build-and-report`   |
 
 Steps 1, 2, 2.3, 2.5, 7 run in the main session with no skill — they are orchestrator actions. Steps 9 and 10 are produced by a single skill (`/forge:build-and-report`) in one pass. Step 8 runs `/forge:dispatch-implementation` when the plan has ≥ 2 disjoint steps; otherwise the orchestrator implements directly in-session.
+
+Model rationale: the research-shaped subagents (experts, critic) pin `fable` in their frontmatter — investigation depth is their purpose, and the pin holds even when the session runs a cheaper model. The synthesis steps (4, 6) inherit the session model so they never age into a downgrade when newer models ship. Implementers stay `sonnet` as a deliberate cost choice — they execute a plan the experts and critic already verified.
+
+## Deep mode — user opt-in upgrade for Steps 3 and 5
+
+Deep mode upgrades the two research dispatches from `Agent` calls to `Workflow` orchestration. Enter it ONLY when BOTH hold:
+
+- The user explicitly asked for a deep / thorough / exhaustive run ("deep forge", "be thorough", "ultracode"). Depth is a user opt-in, never an orchestrator inference — multi-agent fan-out at this scale is the user's call.
+- The `Workflow` tool is available in the session (requires Claude Code ≥ 2.1.154).
+
+If either fails, run the standard pipeline; deep mode is an upgrade, not a prerequisite. What changes:
+
+- **Step 3** — `/forge:expert-analysis` dispatches the experts through a `Workflow` script with schema-validated reports (see that skill's "Deep mode" section). Malformed reports are retried at the tool layer instead of hand-parsed by heading.
+- **Step 5** — `/forge:critic-review` runs the critic plus a two-refuter panel per Blocking finding (see that skill's "Deep mode" section). Panel verdicts arrive pre-flagged for `/forge:plan-revise`, which verifies the likeliest misfires first.
+- Everything else is unchanged: same gates, same Step 7 approval, same implementation routing.
 
 ## Step 2.3 — Domain-skill scan
 
@@ -61,7 +76,28 @@ Skip Step 2.5 only when the feature has no risky assumption (pure refactor, well
 
 ## Step 7 — Approval gate
 
-Once the plan is revised, MUST invoke `AskUserQuestion`:
+The master plan is built to direct Claude — W-IDs, `file:line` citations, done-when criteria, contract clauses. Presented raw, it trains users to approve without reading. So present in two layers: a short **plan digest** first, then the full plan beneath it for anyone who wants the detail.
+
+Write the digest for a developer who has NOT followed the pipeline: technical terms are fine (this reader is a dev), plan machinery is not — no W-IDs, no `file:line` lists, no contract-clause numbering. Shape:
+
+```markdown
+## What this plan does
+
+<2–3 sentences: the intention — what gets built, and why it answers what the user asked for.>
+
+**The change:** <1–2 sentences naming the areas touched in dev terms — "a new handler in the request pipeline plus a settings toggle", not file paths.>
+
+**Worth knowing before you approve:**
+- <the 1–2 real risks, stated as what the user would observe if they bite>
+- <what the critic changed, if anything: "the critic caught X; the plan now does Y">
+- <decisions still open — the same questions the plan's Open questions section escalates>
+
+**How we'll know it works:** <one sentence: the test command, build, or smoke test that verifies it.>
+```
+
+Cap the digest at ~12 lines and skip any bullet with nothing real to say. The digest is presentation only — the full plan below it remains the single canonical artifact the critic verified and the implementers receive. Never let the digest drift into a second plan, and never edit the plan via the digest.
+
+Immediately after the digest + plan, MUST invoke `AskUserQuestion`:
 
 ```
 AskUserQuestion(questions: [{
@@ -76,7 +112,7 @@ AskUserQuestion(questions: [{
 }])
 ```
 
-No risk tiers. No diff preview. The user reads the plan above the prompt and either approves, asks for a revision, or cancels.
+No risk tiers. No diff preview. The user reads the digest for intention and the plan for detail, then approves, asks for a revision, or cancels.
 
 ## After approval (Step 8)
 
@@ -92,9 +128,10 @@ The forge plugin is stack-agnostic; the actual version-bump file (`plugin.xml`, 
 
 ## Workflow principles
 
-- **Citations required.** Experts, critic, plan — every claim cites `file:line`. Summaries without citations break verification chains.
+- **Citations required.** Experts, critic, plan — every claim cites `file:line` (or a doc URL for claims an expert verified against external documentation). Summaries without citations break verification chains.
 - **Single canonical plan in conversation.** `/forge:plan-revise` rewrites in place; the conversation never holds v1 + v2 + v3 simultaneously.
-- **Foreground subagents.** Every `Agent` dispatch in this workflow is `run_in_background: false`. The next step needs the prior step's output.
+- **Foreground subagents.** Every `Agent` dispatch in this workflow is `run_in_background: false`. The next step needs the prior step's output. (Deep-mode `Workflow` runs return via task notification — wait for the result; never start the next step on a pending workflow.)
+- **Resume when context is an asset; re-dispatch when it misleads.** Decision-only blockers and contested critic findings continue the original subagent via `SendMessage` (its read context and worktree are intact). Fresh dispatch is for changed assignments — re-sliced work units, re-scoped expert coverage — where stale context is a liability. Fall back to fresh dispatch when `SendMessage` is unavailable.
 - **No persistent state files.** The plan, critique, and expert reports live in conversation context. The workflow does not write `.claude/plans/*.md` or similar.
 - **User approval is non-negotiable.** Step 7 is the gate. The orchestrator never silently proceeds to writing code.
 - **`TaskCreate` per work unit before dispatch.** When `/forge:dispatch-implementation` runs, MUST invoke `TaskCreate` for each work unit (paired `content` + `activeForm`) before the parallel `Agent` calls — the dispatch skill's body specifies the exact wording.
@@ -103,9 +140,9 @@ The forge plugin is stack-agnostic; the actual version-bump file (`plugin.xml`, 
 
 The action skills are independently invocable for re-runs:
 
-- Bad expert coverage → re-run `/forge:expert-analysis` with a different role list.
+- Bad expert coverage → re-run `/forge:expert-analysis` with a different role list (fresh dispatch — the original experts' context reflects the wrong scope).
 - Plan needs revision after the user pushed back → re-run `/forge:plan-revise`. Re-dispatch the critic only if the change is structural.
-- One dispatched implementer blocked → re-run `/forge:dispatch-implementation 2` (just unit W2) after revising the plan.
+- One dispatched implementer blocked on a decision, work unit unchanged → resume it via `SendMessage` with the ruling. Blocked because the step itself was wrong → re-run `/forge:dispatch-implementation 2` (just unit W2) after revising the plan.
 - Build broke after a tangential change → re-run `/forge:build-and-report`.
 
 Each action skill is `user-invocable: false` — only the orchestrator (Claude) invokes them, at the right step in the pipeline. They are deliberately hidden from the slash-command menu so the workflow runs as a single coherent pipeline driven by this reference. Do not auto-fire skills out of sequence: the workflow's value comes from the gates between steps, and skipping ahead defeats them.
