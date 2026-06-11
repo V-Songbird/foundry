@@ -130,4 +130,41 @@ fi
 assert_jq ".kairoi/buffer.jsonl" '.status' "BLOCKED" || exit 1
 rm -f .kairoi/.blocked-output.json
 
+# --- Stage 7: `git revert` is gated IN and auto-promotes to BLOCKED ---
+# A plain `git revert <hash>` authors a commit without the word "commit"
+# in the command — the old gate missed it entirely, which made
+# buffer-append's Signal 3 (revert detection) unreachable from the
+# automatic path.
+> .kairoi/buffer.jsonl
+git revert --no-edit HEAD >/dev/null 2>&1
+REVERT_INPUT="$(jq -n --arg cwd "$CWD" '{cwd: $cwd, tool_name: "Bash", tool_input: {command: "git revert --no-edit HEAD"}}')"
+echo "$REVERT_INPUT" | CLAUDE_PLUGIN_ROOT="$PLUGIN" bash "$AUTO_BUFFER" >/dev/null 2>&1
+
+assert_line_count ".kairoi/buffer.jsonl" 1 || exit 1
+LATEST_S7="$(tail -1 .kairoi/buffer.jsonl)"
+if [ "$(echo "$LATEST_S7" | jq -r '.status')" != "BLOCKED" ]; then
+  echo "expected revert commit to buffer as BLOCKED, got: $(echo "$LATEST_S7" | jq -r '.status')"
+  exit 1
+fi
+if ! echo "$LATEST_S7" | jq -r '.blocked_diagnostics' | grep -qF "revert"; then
+  echo "expected revert diagnostic, got: $(echo "$LATEST_S7" | jq -r '.blocked_diagnostics')"
+  exit 1
+fi
+
+# --- Stage 8: receipts dedup — an already-reflected HEAD is not re-buffered ---
+# After a sync drains the buffer, HEAD's entry lives in receipts.jsonl.
+# A gate match that isn't a fresh commit must not re-buffer it.
+> .kairoi/buffer.jsonl
+HEAD_HASH="$(git rev-parse HEAD)"
+jq -n -c --arg hash "$HEAD_HASH" '{
+  task_id: "already-reflected", timestamp: "2026-04-01T00:00:00Z",
+  status: "SUCCESS", modules_affected: ["auth"], modified_files: [],
+  test_results: null, commit_hash: $hash, guards_fired: [],
+  guards_disputed: [], guards_created: [], model_updated: [],
+  edges_updated: [], blocked_diagnostics: null
+}' >> .kairoi/receipts.jsonl
+
+echo "$INPUT" | CLAUDE_PLUGIN_ROOT="$PLUGIN" bash "$AUTO_BUFFER" >/dev/null 2>&1
+assert_line_count ".kairoi/buffer.jsonl" 0 || exit 1
+
 exit 0

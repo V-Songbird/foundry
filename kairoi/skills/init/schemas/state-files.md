@@ -218,6 +218,15 @@ overrides auto-run. If `--skip-tests` is passed, test_results is null. The
 auto-run may include a `raw_exit` field (exit code) and `parse_note` if
 output format wasn't recognized.
 
+The auto-run executes synchronously inside the `auto-buffer` PostToolUse
+hook, which has a 300-second budget (`hooks/hooks.json`). The buffer entry
+is appended BEFORE the test run and upgraded in place afterward, so a
+`test` command that exceeds the budget costs only the test data — the
+entry survives with `test_results: null` and reflection proceeds without
+test-based BLOCKED classification for that task. If your suite can't
+reliably finish inside the budget, point `test` at a fast subset (or
+leave it null) and run the full suite outside kairoi.
+
 When the auto-run hits an infrastructure failure (the harness itself
 couldn't run — e.g., gradle's `:prepareTestSandbox` failing because an
 attached IDE has the test-sandbox jar memory-mapped), `test_results` is
@@ -274,6 +283,28 @@ Human corrections. Never auto-modified except consuming `corrections`.
 - `pinned`: override model fields at read time. Persistent.
 - `corrections`: consumed during next reflection, then removed.
 - `protected_guards`: source_task IDs whose guards must never be removed.
+
+## legibility.jsonl
+
+Append-only evidence log for the writing-stance rules
+(`.claude/rules/kairoi-writing.md`) and `/kairoi:lint`'s growth gate. One
+JSON object per line, appended by `sync-finalize.sh` from reflection
+result files whenever a Claude-legibility issue measurably slowed or
+blocked a task in that sync's batch:
+
+```json
+{ "rule": "canonical-naming", "file": "src/auth/token.ts", "note": "task said 'session' but code says 'token' — grep missed 4 call sites", "module": "auth", "timestamp": "2026-06-10T14:30:00Z" }
+```
+
+`rule` labels: `canonical-naming`, `locality`, `grep-anchor`, `idiom`,
+`verbosity`, `duplication`. Local per-developer (gitignored in Team mode,
+like receipts). Rotation: >200 lines → keep last 100.
+
+The point is falsifiability: the writing-stance rules are
+introspection-grounded, and this log is where project history confirms or
+fails to confirm them. A rule that never accumulates evidence over a long
+history is a removal candidate at audit — the same epistemics as a guard
+whose `confirmed` stays 0.
 
 ## receipts.jsonl
 

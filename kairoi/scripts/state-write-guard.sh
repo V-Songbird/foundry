@@ -31,6 +31,12 @@ INPUT="$(cat)"
 CWD="$(echo "$INPUT" | jq -r '.cwd // empty')"
 [ -n "$CWD" ] || exit 0
 
+# Normalize Windows backslash separators to forward slashes BEFORE the
+# prefix-strip and case-pattern match below. Without this, a Write to
+# `.kairoi\model\auth.json` (or `D:\proj\.kairoi\...` with a `D:\proj`
+# cwd) sails past the `.kairoi/*` pattern and the deny guard fails open.
+CWD="${CWD//\\//}"
+
 STATE_DIR="$CWD/.kairoi"
 
 # Subagents (kairoi-complete, kairoi-audit, kairoi-reflect-module) write model
@@ -63,6 +69,10 @@ esac
 # covers all three matchers.
 FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')"
 [ -n "$FILE_PATH" ] || exit 0
+
+# Same backslash normalization as CWD above — the two must agree for the
+# prefix-strip to work.
+FILE_PATH="${FILE_PATH//\\//}"
 
 # Normalize: tool inputs may be absolute (Write) or relative (Edit on a
 # previously-read file). Strip the cwd prefix if present so the match logic

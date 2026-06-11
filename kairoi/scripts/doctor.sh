@@ -198,6 +198,28 @@ if [ "$INDEX_VALID" = true ]; then
           problem "model/${MOD}.json guard[$i]: $GERR — edit .kairoi/model/${MOD}.json"
           GUARD_ERRS=$((GUARD_ERRS + 1))
         fi
+
+        # Stale triggers: the guard HAS trigger paths but none exist on
+        # disk — usually a rename. The guard can never fire again; it
+        # needs re-pointing or removal, which is audit's judgment call.
+        if [ -z "$GERR" ] && [ "$TF" -gt 0 ] 2>"$_DEVNULL"; then
+          SG_ALIVE=false
+          SG_FIRST=""
+          while IFS= read -r SG_TF; do
+            SG_TF="${SG_TF%$'\r'}"
+            [ -n "$SG_TF" ] || continue
+            case "$SG_TF" in
+              */) [ -d "$SG_TF" ] && SG_ALIVE=true ;;
+              *)  [ -e "$SG_TF" ] && SG_ALIVE=true ;;
+            esac
+            [ "$SG_ALIVE" = true ] && break
+            [ -n "$SG_FIRST" ] || SG_FIRST="$SG_TF"
+          done <<< "$(jq -r --argjson i "$i" '.guards[$i].trigger_files[]?' "$MF" 2>"$_DEVNULL" | tr -d '\r')"
+          if [ "$SG_ALIVE" = false ] && [ -n "$SG_FIRST" ]; then
+            problem "model/${MOD}.json guard[$i] ($ST): no trigger path exists on disk (e.g. $SG_FIRST) — likely renamed; run /kairoi:audit $MOD"
+            GUARD_ERRS=$((GUARD_ERRS + 1))
+          fi
+        fi
       done
       [ "$GUARD_ERRS" -eq 0 ] && [ "$GCOUNT" -gt 0 ] && ok "model/${MOD}.json $GCOUNT guard(s) valid"
     fi
@@ -243,7 +265,7 @@ if [ "$INDEX_VALID" = true ]; then
 fi
 
 # --- Check 8: JSONL files ---
-for JFILE in buffer.jsonl receipts.jsonl; do
+for JFILE in buffer.jsonl receipts.jsonl legibility.jsonl; do
   FPATH="$STATE_DIR/$JFILE"
   if [ ! -f "$FPATH" ]; then
     ok "$JFILE not present (ok if no tasks yet)"
@@ -292,8 +314,13 @@ fi
 # Skip the individual-entry check; the whole-directory rule is sufficient.
 if echo "$GITIGNORE" | grep -qE '^\s*\.kairoi/?\s*$' 2>"$_DEVNULL"; then
   ok "transient files covered by .gitignore (Solo mode — \`.kairoi/\` whole-directory rule)"
+# Team mode with the dotfile pattern: `.kairoi/.*` covers every transient
+# (current and future) in one rule — what init writes since 1.0.7.
+elif echo "$GITIGNORE" | grep -qE '^\s*\.kairoi/\.\*\s*$' 2>"$_DEVNULL"; then
+  ok "transient files covered by .gitignore (Team mode — \`.kairoi/.*\` pattern)"
 else
-  # Team mode (or unconfigured): each transient must be listed.
+  # Legacy Team mode (pre-1.0.7 init) or unconfigured: each transient
+  # must be listed individually.
   MISSING_IGNORE=""
   for TF in $TRANSIENTS; do
     if ! echo "$GITIGNORE" | grep -qF ".kairoi/$TF" 2>"$_DEVNULL" && \

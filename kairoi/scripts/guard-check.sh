@@ -39,6 +39,13 @@ INPUT="$(cat)"
 CWD="$(echo "$INPUT" | jq -r '.cwd // empty')"
 
 [ -n "$CWD" ] || exit 0
+# Normalize Windows backslash separators to forward slashes BEFORE any
+# prefix-strip or glob match. Tool inputs on Windows routinely arrive as
+# D:\proj\src\auth\token.ts with a D:\proj cwd; backslashes both break the
+# `${FILE_PATH#$CWD/}` strip and act as escape characters in unquoted glob
+# patterns, so without this the module match silently fails and guards
+# never fire (fail-open, zero error). git-bash resolves D:/proj paths fine.
+CWD="${CWD//\\//}"
 STATE_DIR="$CWD/.kairoi"
 [ -f "$STATE_DIR/model/_index.json" ] || exit 0
 
@@ -52,7 +59,7 @@ INDEX_DATA="$(cat "$STATE_DIR/model/_index.json")"
 TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty')"
 IS_WRITE_OP=false
 case "$TOOL_NAME" in
-  Write|Edit|\
+  Write|Edit|MultiEdit|\
   mcp__webstorm__replace_text_in_file|\
   mcp__webstorm__create_new_file|\
   mcp__webstorm__rename_refactoring)
@@ -67,6 +74,10 @@ esac
 # orientation push is meaningful only when a single module owns the touch.
 FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.path // .tool_input.pathInProject // empty')"
 [ -n "$FILE_PATH" ] || exit 0
+
+# Same backslash normalization as CWD above — the two must agree for the
+# prefix-strip to work.
+FILE_PATH="${FILE_PATH//\\//}"
 
 # Make path relative to CWD if absolute. .pathInProject is already relative
 # so the prefix-strip is a no-op for it.

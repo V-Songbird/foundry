@@ -120,10 +120,8 @@ SessionStart when state is stale. When that reminder appears in my
 context, I MUST invoke `Agent` with:
 
 - `subagent_type: 'kairoi-complete'`
-- `name: 'kairoi-complete'`
 - `description: 'Sync kairoi buffer'`
 - `prompt: '<paste the hook-emitted instruction verbatim>'`
-- `max_turns: 15`
 - `run_in_background: false`
 - `isolation` is omitted intentionally — `kairoi-complete` reads
   committed state and writes to `.kairoi/` in the same working tree;
@@ -131,8 +129,10 @@ context, I MUST invoke `Agent` with:
 - `model` is omitted intentionally — inherited from `kairoi-complete`'s
   own frontmatter so the subagent's declared effort tier is honored.
 
-`max_turns: 15` matches `kairoi-complete`'s own `maxTurns` frontmatter
-so the runtime does not default to a smaller budget. The sync runs in
+The turn budget is set exclusively by `kairoi-complete`'s own
+`maxTurns:` frontmatter (currently `60`). The `Agent` tool does NOT
+accept `max_turns` or `name` at the call site — both are silently
+dropped by the harness — so do not pass them. The sync runs in
 the foreground (`run_in_background: false`) so the user sees the
 one-line outcome (`kairoi: synced <N> tasks — <M> modules reflected,
 <G> guards created`) inline; backgrounding would hide it.

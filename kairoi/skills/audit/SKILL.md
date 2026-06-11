@@ -28,16 +28,15 @@ MUST invoke `Agent` with:
 
 ```
 subagent_type: "kairoi-audit"
-name: "kairoi-audit"
 description: "Audit kairoi models"
 prompt: "Reconcile kairoi model files against source code. Target: $ARGUMENTS (defaults to 'all' if empty). Follow the kairoi-audit agent's Steps 1–7."
-max_turns: 25
 run_in_background: false
 ```
 
 The `kairoi-audit` subagent is resolved by `subagent_type` name; its
 definition lives under the plugin's `agents/` directory and declares
-`maxTurns: 25`. The explicit `max_turns: 25` above matches that value
-so the runtime does not default to a smaller budget.
+`maxTurns: 25` — the only effective turn-budget knob. The `Agent` tool
+does NOT accept `max_turns` or `name` at the call site (both are
+silently dropped by the harness), so do not pass them.
 `run_in_background: false` because the user expects to see the audit
 report inline in the same turn that invoked `/kairoi:audit`.

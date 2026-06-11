@@ -90,7 +90,12 @@ Reference [schemas/build-adapters.md](schemas/build-adapters.md) for detection r
 
 ## Step 2: Create build-adapter.json
 
-Read plugin version from `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`.
+Read the plugin version from the marketplace manifest:
+`${CLAUDE_PLUGIN_ROOT}/../.claude-plugin/marketplace.json`, field
+`.plugins[] | select(.name == "kairoi") | .version`. `plugin.json`
+intentionally carries no `version` field — marketplace.json is the
+version authority (same lookup `session-boot.sh` uses for its verbose
+header). If the manifest is missing or unreadable, write `"unknown"`.
 
 ```json
 {
@@ -269,7 +274,8 @@ will be blocked, redirecting hand-edits to `/kairoi:audit` /
 
 Kairoi needs to know how the project is developed so it can decide which
 parts of `.kairoi/` belong in git (shared with teammates) and which stay
-local-per-developer. There are two modes: Team and Solo.
+local-per-developer. There are two modes: Solo — kairoi's primary design
+target, where Claude is the sole developer — and Team.
 
 ### Idempotency check first
 
@@ -291,12 +297,12 @@ questions: [{
   multiSelect: false,
   options: [
     {
-      label: "Team",
-      description: "Multiple developers. Commit model files, overrides, and stack config so teammates share the same understanding. Local work-in-progress (buffer, receipts, session log) stays on my machine."
+      label: "Solo (Recommended)",
+      description: "Just me and Claude. kairoi's primary mode: the entire .kairoi/ directory stays local to my machine, and init installs the Claude-first writing-stance rule — no human teammates read this code."
     },
     {
-      label: "Solo",
-      description: "Just me. The entire .kairoi/ directory stays local to my machine — nothing kairoi-related goes into git."
+      label: "Team",
+      description: "Multiple developers. Commit model files, overrides, and stack config so teammates share the same understanding. Local work-in-progress (buffer, receipts, session log) stays on my machine. The writing-stance rule is not installed — humans read this code too."
     }
   ]
 }]
@@ -318,17 +324,10 @@ Create `.gitignore` if it doesn't exist. Append the appropriate block.
 .kairoi/buffer.jsonl
 .kairoi/receipts.jsonl
 .kairoi/session.log
+.kairoi/legibility.jsonl
 
-# kairoi — transient hook scratch state
-.kairoi/.guards-log
-.kairoi/.guard-disputes
-.kairoi/.sync-manifest.json
-.kairoi/.sync-pending
-.kairoi/.reflect-result-*.json
-.kairoi/.seen-*
-.kairoi/.session-summary.txt
-.kairoi/.pre-sync/
-.kairoi/.write-guard-disabled
+# kairoi — transient hook scratch state (all dotfiles under .kairoi/)
+.kairoi/.*
 ```
 
 In Team mode, `.kairoi/model/`, `.kairoi/overrides.json`, and
@@ -357,17 +356,24 @@ that needs to know the mode infers it by grepping `.gitignore`:
 
 ### Keep in sync
 
-The Team transient-files list above must stay in sync with `doctor.sh`'s
-transient-file audit. Adding a new transient here requires updating the
-doctor's `TRANSIENTS` variable.
+The `.kairoi/.*` pattern covers every current and future transient
+dotfile, so adding a new transient requires no `.gitignore` change.
+`doctor.sh`'s transient-file audit accepts this pattern as full
+coverage; its individual-entry `TRANSIENTS` list exists only for
+projects initialized before the pattern (which listed each transient
+separately) and must keep growing if new transients are added.
 
 ## Step 8.5: Write behavioral rules
 
-Write three rulesense-format rule files so Claude has ambient
-orientation about kairoi state ownership, command routing, and the
-project's writing stance. This runs before the commit step so the new
-files land in the same init commit. No CLAUDE.md breadcrumb is
-installed — the rule files carry the load on their own loading
+Write rulesense-format rule files so Claude has ambient orientation
+about kairoi state ownership, command routing, and (in Solo mode) the
+project's writing stance. `kairoi.md` and `kairoi-state-files.md`
+install in both modes; `kairoi-writing.md` installs ONLY in Solo mode —
+its stance ("Claude is the sole developer; optimize for Claude's own
+future re-reading, not human conventions") is flatly wrong for Team
+repos where humans read the code too. This runs before the commit step
+so the new files land in the same init commit. No CLAUDE.md breadcrumb
+is installed — the rule files carry the load on their own loading
 discipline, so duplicating their content into the always-loaded
 CLAUDE.md would just fire on every session regardless of relevance.
 
@@ -387,19 +393,27 @@ Every command below appends one `key=value` line per outcome to
 covered by the `.kairoi/.*` transient pattern set in Step 8) and may
 be deleted after the summary renders.
 
-### Copy rule files (skip-if-exists)
+### Copy rule files (skip-if-exists, mode-aware)
 
-For each of `kairoi.md`, `kairoi-state-files.md`, and
-`kairoi-writing.md`, copy from the skill's `rules/` directory into
-`<project>/.claude/rules/`. If the destination already exists, leave
-it untouched — the user may have customized it.
+Copy rule files from the skill's `rules/` directory into
+`<project>/.claude/rules/`: `kairoi.md` and `kairoi-state-files.md` in
+both modes, `kairoi-writing.md` only in Solo mode. If a destination
+already exists, leave it untouched — the user may have customized it.
 
 MUST invoke `Bash` with:
 - `command: (the copy loop below, passed as a single command string)`
 - `description: 'Installing kairoi behavioral rules under .claude/rules/'`
 
 ```bash
-for RULE in kairoi.md kairoi-state-files.md kairoi-writing.md; do
+# Mode is inferred from .gitignore (same rule as everywhere else in
+# kairoi): a whole-directory `.kairoi/` line means Solo.
+RULES="kairoi.md kairoi-state-files.md"
+if grep -qE '^\s*\.kairoi/?\s*$' .gitignore 2>/dev/null; then
+  RULES="$RULES kairoi-writing.md"
+else
+  echo "rule_skipped_team=kairoi-writing.md" >> .kairoi/.init-summary
+fi
+for RULE in $RULES; do
   DST=".claude/rules/$RULE"
   SRC="${CLAUDE_SKILL_DIR}/rules/$RULE"
   if [ -e "$DST" ]; then
@@ -441,12 +455,15 @@ present this exact format (do NOT paraphrase or restructure):
   kairoi entry from a prior init.
 - For each of `.claude/rules/kairoi.md`, `.claude/rules/kairoi-state-files.md`,
   and `.claude/rules/kairoi-writing.md`, one line reporting
-  `wrote <file>` or `skipped <file> — already exists`. Read from
-  `.kairoi/.init-summary` (the file written across Step 8.5's Bash
-  invocations — shell variables don't survive between Bash tool calls,
-  so the file is the only reliable source). Parse with:
-  `grep '^rule_written=' .kairoi/.init-summary | cut -d= -f2-` and
-  `grep '^rule_skipped=' .kairoi/.init-summary | cut -d= -f2-`.
+  `wrote <file>`, `skipped <file> — already exists`, or (for
+  `kairoi-writing.md` in Team mode)
+  `skipped kairoi-writing.md — Team mode (writing stance is Solo-only)`.
+  Read from `.kairoi/.init-summary` (the file written across Step 8.5's
+  Bash invocations — shell variables don't survive between Bash tool
+  calls, so the file is the only reliable source). Parse with:
+  `grep '^rule_written=' .kairoi/.init-summary | cut -d= -f2-`,
+  `grep '^rule_skipped=' .kairoi/.init-summary | cut -d= -f2-`, and
+  `grep '^rule_skipped_team=' .kairoi/.init-summary | cut -d= -f2-`.
 - "Models were built from a source scan and are ready to use. Guards are
   empty — they grow from task reflection as I encounter surprises.
   Start the first task."

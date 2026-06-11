@@ -9,7 +9,8 @@
 #   show.sh                     # all modules, edges, recent activity, overrides, buffer
 #   show.sh <module>            # just that module's detail
 #   show.sh --verbose           # default output + diagnostics, chronic, unresolved
-#   show.sh --verbose <module>  # per-module detail + verbose tail
+#   show.sh --verbose <module>  # that module's detail only (the verbose tail
+#                               # is system-wide and is suppressed when filtering)
 
 set -u
 

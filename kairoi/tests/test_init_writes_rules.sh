@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # init Step 8.5 writes behavioral rules.
 # Verifies:
-#   - Fresh project: all three rule files are copied to .claude/rules/.
+#   - Fresh Solo project: all three rule files are copied to .claude/rules/.
 #   - Existing rule files: skipped untouched on re-run (idempotent).
 #   - CLAUDE.md is NOT created or modified — kairoi no longer installs a
 #     breadcrumb section. Rule files carry the behavioral load on their own
 #     loading discipline.
+#   - Team mode: kairoi-writing.md is NOT installed — its stance presumes
+#     Claude is the sole developer, which is wrong for shared repos.
 #
 # The test mirrors the bash block specified in SKILL.md Step 8.5, pointing
 # CLAUDE_SKILL_DIR at the plugin's actual init skill so the rule
@@ -26,13 +28,23 @@ SKILL_DIR="$PLUGIN/skills/init"
   || { echo "FAIL: plugin is missing $SKILL_DIR/rules/kairoi-writing.md"; exit 1; }
 
 # apply_step_8_5 mirrors the SKILL.md Step 8.5 bash block exactly.
-# Populates KAIROI_RULES_WRITTEN / KAIROI_RULES_SKIPPED arrays.
+# Mode is inferred from .gitignore (a whole-directory `.kairoi/` line means
+# Solo); kairoi-writing.md installs only in Solo mode. Populates
+# KAIROI_RULES_WRITTEN / KAIROI_RULES_SKIPPED / KAIROI_RULES_SKIPPED_TEAM.
 apply_step_8_5() {
   KAIROI_RULES_WRITTEN=()
   KAIROI_RULES_SKIPPED=()
+  KAIROI_RULES_SKIPPED_TEAM=()
+
+  local RULES="kairoi.md kairoi-state-files.md"
+  if grep -qE '^\s*\.kairoi/?\s*$' .gitignore 2>/dev/null; then
+    RULES="$RULES kairoi-writing.md"
+  else
+    KAIROI_RULES_SKIPPED_TEAM+=("kairoi-writing.md")
+  fi
 
   local RULE DST SRC
-  for RULE in kairoi.md kairoi-state-files.md kairoi-writing.md; do
+  for RULE in $RULES; do
     DST=".claude/rules/$RULE"
     SRC="${CLAUDE_SKILL_DIR}/rules/$RULE"
     if [ -e "$DST" ]; then
@@ -48,9 +60,10 @@ apply_step_8_5() {
 export CLAUDE_SKILL_DIR="$SKILL_DIR"
 
 # =========================================================================
-# Case 1: fresh project — rule files copied, CLAUDE.md untouched
+# Case 1: fresh Solo project — all rule files copied, CLAUDE.md untouched
 # =========================================================================
 mkdir -p case1 && cd case1 || exit 1
+printf '.kairoi/\n' > .gitignore
 
 apply_step_8_5
 
@@ -81,9 +94,10 @@ assert_contains .claude/rules/kairoi-writing.md "# kairoi — writing stance" ||
 cd .. || exit 1
 
 # =========================================================================
-# Case 2: re-run on fully-initialized project — everything skipped
+# Case 2: re-run on fully-initialized Solo project — everything skipped
 # =========================================================================
 mkdir -p case2 && cd case2 || exit 1
+printf '.kairoi/\n' > .gitignore
 
 # Pre-populate as though init already ran.
 mkdir -p .claude/rules
@@ -115,6 +129,7 @@ cd .. || exit 1
 # Case 3: pre-existing CLAUDE.md is left untouched on init
 # =========================================================================
 mkdir -p case3 && cd case3 || exit 1
+printf '.kairoi/\n' > .gitignore
 
 printf '# My project\n\nProse paragraph.\n' > CLAUDE.md
 CLAUDE_MD_BEFORE="$(cat CLAUDE.md)"
@@ -129,6 +144,28 @@ apply_step_8_5
 # Rule files were written (this project had no prior rules).
 [ "${#KAIROI_RULES_WRITTEN[@]}" -eq 3 ] \
   || { echo "FAIL c3: expected 3 rules written, got ${#KAIROI_RULES_WRITTEN[@]}"; exit 1; }
+
+cd .. || exit 1
+
+# =========================================================================
+# Case 4: Team mode — writing-stance rule NOT installed
+# =========================================================================
+mkdir -p case4 && cd case4 || exit 1
+printf '.kairoi/buffer.jsonl\n.kairoi/receipts.jsonl\n.kairoi/session.log\n.kairoi/.*\n' > .gitignore
+
+apply_step_8_5
+
+[ -f .claude/rules/kairoi.md ] \
+  || { echo "FAIL c4: .claude/rules/kairoi.md not written in Team mode"; exit 1; }
+[ -f .claude/rules/kairoi-state-files.md ] \
+  || { echo "FAIL c4: .claude/rules/kairoi-state-files.md not written in Team mode"; exit 1; }
+[ ! -e .claude/rules/kairoi-writing.md ] \
+  || { echo "FAIL c4: kairoi-writing.md must NOT be installed in Team mode"; exit 1; }
+
+[ "${#KAIROI_RULES_WRITTEN[@]}" -eq 2 ] \
+  || { echo "FAIL c4: expected 2 rules written, got ${#KAIROI_RULES_WRITTEN[@]}"; exit 1; }
+[ "${#KAIROI_RULES_SKIPPED_TEAM[@]}" -eq 1 ] \
+  || { echo "FAIL c4: expected 1 team-skip, got ${#KAIROI_RULES_SKIPPED_TEAM[@]}"; exit 1; }
 
 cd .. || exit 1
 

@@ -101,6 +101,13 @@ Each Agent tool call uses these arguments:
 - `subagent_type`: `"kairoi-reflect-module"`
 - `description`: `"Reflect on <module_id>"` (3–5 words)
 - `prompt`: the template below, with `<module_id>` and `<cwd>` substituted
+- `model`: `"opus"` ONLY when the module ID is in `blocked_modules`;
+  omit otherwise (the agent then inherits `sonnet` from its own
+  frontmatter). BLOCKED reflection is the highest-value learning in the
+  system — the failure narrative becomes a guard that protects every
+  future session — so it gets the strongest model. Routine reflection
+  stays on sonnet; the call-site `model` override takes precedence over
+  the agent definition's frontmatter.
 
 Prompt template:
 

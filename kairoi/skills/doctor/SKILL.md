@@ -31,6 +31,8 @@ verifying that models accurately reflect source code, use
 - JSON/JSONL file validity
 - Module files match _index.json registry
 - Guard fields (trigger_files, source_task, check)
+- Guard trigger paths still exist on disk (rename detection — a guard
+  whose every trigger path is gone can never fire again)
 - Edge references point to existing modules
 - _meta fields have valid values
 - build-adapter.json test command is executable

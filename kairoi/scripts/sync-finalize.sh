@@ -59,9 +59,12 @@ BUFFER="$STATE_DIR/buffer.jsonl"
 
 [ -f "$MANIFEST" ] || { echo "kairoi sync-finalize: no manifest" >&2; exit 1; }
 
-# Parse reflected modules into a JSON array
+# Parse reflected modules into a JSON array. The ${arr[@]+...} expansion
+# guard matters: with `--reflected ""` (the orphan-recovery path) the array
+# is empty, and expanding an empty array via "${arr[@]}" under `set -u`
+# is an "unbound variable" error on bash < 4.4 (macOS ships 3.2).
 IFS=',' read -ra REFLECTED_ARR <<< "$REFLECTED"
-REFLECTED_JSON="$(printf '%s\n' "${REFLECTED_ARR[@]}" | jq -R -s 'split("\n") | map(select(length > 0))')"
+REFLECTED_JSON="$(printf '%s\n' ${REFLECTED_ARR[@]+"${REFLECTED_ARR[@]}"} | jq -R -s 'split("\n") | map(select(length > 0))')"
 
 # All modules from manifest. tr -d '\r' guards against Windows git-bash pipes
 # adding CR to jq output, which would corrupt every downstream module-key lookup.
@@ -403,6 +406,45 @@ if [ -f "$RECEIPTS" ]; then
   fi
 fi
 
+# --- Step 4b: Stale-trigger guard detection (mechanical, read-only) ---
+# Renames silently orphan guards: trigger matching is exact-path / directory-
+# prefix, so when every path a guard watches stops existing, the guard can
+# never fire again — and nothing notices until an audit happens to re-read
+# the module. Detect that state here (every sync) and surface it. Removal
+# stays a judgment call for /kairoi:audit: the guard may need re-pointing at
+# the renamed file, not deletion.
+STALE_GUARDS=""
+while IFS= read -r SG_MOD; do
+  SG_MOD="${SG_MOD%$'\r'}"
+  [ -n "$SG_MOD" ] || continue
+  SG_MF="$STATE_DIR/model/$SG_MOD.json"
+  [ -f "$SG_MF" ] || continue
+  SG_COUNT="$(jq '.guards | length' "$SG_MF" 2>"$_DEVNULL" || echo 0)"
+  [ "$SG_COUNT" -gt 0 ] 2>"$_DEVNULL" || continue
+
+  for ((sg=0; sg<SG_COUNT; sg++)); do
+    SG_ALIVE=false
+    SG_FIRST_MISSING=""
+    while IFS= read -r SG_TF; do
+      SG_TF="${SG_TF%$'\r'}"
+      [ -n "$SG_TF" ] || continue
+      case "$SG_TF" in
+        */) [ -d "$SG_TF" ] && SG_ALIVE=true ;;
+        *)  [ -e "$SG_TF" ] && SG_ALIVE=true ;;
+      esac
+      [ "$SG_ALIVE" = true ] && break
+      [ -n "$SG_FIRST_MISSING" ] || SG_FIRST_MISSING="$SG_TF"
+    done <<< "$(jq -r --argjson i "$sg" '.guards[$i].trigger_files[]?' "$SG_MF" 2>"$_DEVNULL" | tr -d '\r')"
+
+    # Flag only when the guard HAD triggers and none exist on disk.
+    # Zero-trigger guards are doctor's territory (structural error).
+    if [ "$SG_ALIVE" = false ] && [ -n "$SG_FIRST_MISSING" ]; then
+      SG_ST="$(jq -r --argjson i "$sg" '.guards[$i].source_task // "?"' "$SG_MF" 2>"$_DEVNULL" | tr -d '\r')"
+      STALE_GUARDS="${STALE_GUARDS}    $SG_MOD/$SG_ST — no trigger path exists (e.g. $SG_FIRST_MISSING)"$'\n'
+    fi
+  done
+done <<< "$(jq -r '.modules | keys[]' "$INDEX" 2>"$_DEVNULL" | tr -d '\r')"
+
 # --- Step 5: Clear buffer + write _deferred ---
 > "$BUFFER"
 
@@ -437,6 +479,36 @@ done
 GUARDS_CREATED_COUNT="$(echo "$GUARDS_CREATED_ALL" | jq 'length')"
 GUARDS_REMOVED_COUNT="$(echo "$GUARDS_REMOVED_ALL" | jq 'length')"
 
+# --- Legibility evidence (writing-stance / lint evidence loop) ---
+# Reflection agents record cases where a Claude-legibility issue measurably
+# slowed or blocked a task (result-file field: legibility_evidence). Append
+# them to .kairoi/legibility.jsonl — the durable evidence log that the
+# writing-stance rules and /kairoi:lint's growth gate cite. A rule that
+# never accumulates evidence over a long history is a removal candidate at
+# audit, same epistemics as a guard whose `confirmed` stays 0.
+# (Loop runs BEFORE cleanup below so it sees the result files.)
+LEGIBILITY="$STATE_DIR/legibility.jsonl"
+LEG_COUNT=0
+TS_LEG="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+for RF_LEG in "$STATE_DIR"/.reflect-result-*.json; do
+  [ -f "$RF_LEG" ] || continue
+  LEG_MOD="$(jq -r '.module // "?"' "$RF_LEG" 2>"$_DEVNULL" | tr -d '\r')"
+  while IFS= read -r LEG_LINE; do
+    [ -n "$LEG_LINE" ] || continue
+    echo "$LEG_LINE" | jq -c --arg m "$LEG_MOD" --arg ts "$TS_LEG" \
+      '. + {module: $m, timestamp: $ts}' >> "$LEGIBILITY" 2>"$_DEVNULL" || continue
+    LEG_COUNT=$((LEG_COUNT + 1))
+  done <<< "$(jq -c '.legibility_evidence // [] | .[]' "$RF_LEG" 2>"$_DEVNULL" | tr -d '\r')"
+done
+
+# Rotate like receipts: low-volume, but nothing else trims it.
+if [ -f "$LEGIBILITY" ]; then
+  LEG_LINES="$(wc -l < "$LEGIBILITY" | tr -d ' ')"
+  if [ "$LEG_LINES" -gt 200 ]; then
+    tail -100 "$LEGIBILITY" > "${LEGIBILITY}.tmp" && mv "${LEGIBILITY}.tmp" "$LEGIBILITY"
+  fi
+fi
+
 # Test results rollup across tasks
 TEST_PASSED="$(echo "$TASKS_JSON" | jq '[.[] | .test_results // {} | .passed // 0] | add // 0')"
 TEST_FAILED="$(echo "$TASKS_JSON" | jq '[.[] | .test_results // {} | .failed // 0] | add // 0')"
@@ -452,11 +524,18 @@ MODULES_LIST="$(echo "$REFLECTED_JSON" | jq -r 'join(", ")')"
   if [ "$GUARDS_CREATED_COUNT" -gt 0 ] || [ "$GUARDS_REMOVED_COUNT" -gt 0 ]; then
     echo "  guards: +$GUARDS_CREATED_COUNT created, -$GUARDS_REMOVED_COUNT removed"
   fi
+  if [ "$LEG_COUNT" -gt 0 ]; then
+    echo "  legibility evidence: +$LEG_COUNT observation(s) — see .kairoi/legibility.jsonl"
+  fi
   if [ "$TEST_PASSED" -gt 0 ] || [ "$TEST_FAILED" -gt 0 ]; then
     echo "  tests: ${TEST_PASSED} passed, ${TEST_FAILED} failed"
   fi
   if [ "$UNREFLECTED_COUNT" -gt 0 ]; then
     echo "  deferred (retry next sync): $(echo "$UNREFLECTED_JSON" | jq -r 'join(", ")')"
+  fi
+  if [ -n "$STALE_GUARDS" ]; then
+    echo "  stale-trigger guards (file moved/renamed?) — run /kairoi:audit on the module:"
+    printf '%s' "$STALE_GUARDS"
   fi
 } > "$SUMMARY_FILE"
 

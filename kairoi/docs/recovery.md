@@ -302,6 +302,7 @@ removed, or clobbered by a merge, detection breaks.
   .kairoi/buffer.jsonl
   .kairoi/receipts.jsonl
   .kairoi/session.log
+  .kairoi/legibility.jsonl
   .kairoi/.*
   ```
 

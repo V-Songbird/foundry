@@ -65,7 +65,11 @@ assert_line_count() {
     return 1
   fi
   local actual
-  actual="$(grep -c . "$file" 2>/dev/null || echo 0)"
+  # grep -c prints "0" AND exits 1 when no lines match (empty file), so an
+  # `|| echo 0` fallback here would append a second "0" and corrupt the
+  # comparison. Capture whatever grep printed; backfill only if empty.
+  actual="$(grep -c . "$file" 2>/dev/null)" || true
+  [ -n "$actual" ] || actual=0
   if [ "$actual" != "$expected" ]; then
     echo "assert_line_count FAILED: $file"
     echo "  expected: $expected lines"

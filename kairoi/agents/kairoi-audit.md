@@ -97,6 +97,17 @@ Write updated _index.json.
 
 If overrides.json has corrections for audited modules, incorporate and clear.
 
+## Step 5b: Legibility evidence review
+
+If `.kairoi/legibility.jsonl` exists, read it and include per-rule counts
+in the report (e.g., `canonical-naming×3, grep-anchor×1`). The
+writing-stance rules in `.claude/rules/kairoi-writing.md` are
+introspection-grounded; this log is what confirms or fails to confirm
+them against project history. A rule with zero accumulated evidence over
+a long history (rough bar: 30+ receipts) is a removal candidate — report
+it, but do NOT edit `.claude/rules/` yourself. Recommending a
+writing-rule change is the human's call.
+
 <!-- kairoi makes no housekeeping commits. Model file changes from
      audit sit as uncommitted changes — user commits them alongside
      their work in Team mode; gitignored entirely in Solo mode. -->
@@ -116,6 +127,7 @@ Emit one receipt for the audit itself. Audits don't commit, so
   "test_results": null,
   "commit_hash": null,
   "guards_fired": [],
+  "guards_disputed": [],
   "guards_created": ["<any new guards>"],
   "model_updated": ["<audited>"],
   "edges_updated": [],

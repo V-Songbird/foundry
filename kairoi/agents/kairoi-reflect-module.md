@@ -119,6 +119,30 @@ reflection.
 disputed guard apply? Did known_patterns change? Did dependencies shift?
 Create a guard if the failure reveals a constraint.
 
+**5b. Legibility evidence** (evidence loop for the writing-stance rules
+and `/kairoi:lint`'s growth gate): while reading this session's modified
+source, did a Claude-legibility issue measurably slow or block any of
+this batch's tasks? Recognizable shapes: synonym naming that broke a
+search (`canonical-naming`), needing 3+ files to answer one question
+(`locality`), an error string that couldn't be grepped because it was
+assembled from fragments (`grep-anchor`), a misleading idiom deviation
+(`idiom`), name length that hid rather than removed ambiguity
+(`verbosity`), or copies that should have been one abstraction — or an
+abstraction that should have been copies (`duplication`). If yes, add to
+the result file:
+
+```json
+"legibility_evidence": [
+  { "rule": "canonical-naming",
+    "file": "src/auth/token.ts",
+    "note": "task summary said 'session' but code says 'token' — grep missed 4 call sites" }
+]
+```
+
+Record ONLY evidence tied to this batch's tasks — no speculative audits
+of unrelated code. Omit the field (or use `[]`) when nothing was
+observed; zero evidence is the common, honest case.
+
 **6. Human corrections**: If `corrections` is non-empty, incorporate them
 into the model. Respect `pinned` values — these override model fields.
 
@@ -156,7 +180,8 @@ Write the result file to `.kairoi/.reflect-result-<module_id>.json`:
     }
   ],
   "purpose_changed": true,
-  "contradiction_notes": null
+  "contradiction_notes": null,
+  "legibility_evidence": []
 }
 ```
 

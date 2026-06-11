@@ -88,16 +88,31 @@ done | sort -u)"
 FILES_JSON="$(echo "$MODIFIED_FILES" | jq -R -s 'split("\n") | map(select(length > 0))')"
 MODULES_JSON="$(echo "$MODULES_AFFECTED" | jq -R -s 'split("\n") | map(select(length > 0))')"
 
-# --- Test results ---
+# --- Test results (explicit forms resolved here; auto-run is deferred) ---
+# The auto-run path executes AFTER the entry is safely appended. This script
+# runs inside the auto-buffer PostToolUse hook, which has a hard timeout
+# (hooks.json: 300s); when the test suite outruns the budget, the hook is
+# killed mid-run. Before 1.0.7 the entry was only built after the test run,
+# so a timeout silently lost the commit from the buffer entirely. Now the
+# entry lands first with test_results null, and the auto-run upgrade phase
+# below rewrites that line in place — a timeout costs the test data, never
+# the commit.
 TESTS_JSON="null"
+AUTO_RUN_PENDING=false
+TEST_CMD=""
 if [ -n "$TESTS" ]; then
   # Explicit --tests provided: use as-is
   IFS=',' read -r T_TOTAL T_PASSED T_FAILED T_SKIPPED <<< "$TESTS"
   TESTS_JSON="{\"total\":${T_TOTAL:-0},\"passed\":${T_PASSED:-0},\"failed\":${T_FAILED:-0},\"skipped\":${T_SKIPPED:-0}}"
 elif [ "$SKIP_TESTS" = false ]; then
-  # Auto-run tests from build-adapter.json
   TEST_CMD="$(jq -r '.test // empty' "$STATE_DIR/build-adapter.json" 2>"$_DEVNULL" || true)"
-  if [ -n "$TEST_CMD" ]; then
+  [ -n "$TEST_CMD" ] && AUTO_RUN_PENDING=true
+fi
+
+# run_auto_tests: execute the configured test command, detect
+# infrastructure-blocked runs, parse counts, and set TESTS_JSON. Invoked
+# only from the post-append upgrade phase below.
+run_auto_tests() {
     echo "kairoi: auto-running tests — $TEST_CMD"
     TEST_OUTPUT=""
     TEST_EXIT=0
@@ -155,8 +170,7 @@ elif [ "$SKIP_TESTS" = false ]; then
         TESTS_JSON="{\"total\":$T_TOTAL,\"passed\":$T_PASSED,\"failed\":$T_FAILED,\"skipped\":$T_SKIPPED,\"raw_exit\":$TEST_EXIT}"
       fi
     fi
-  fi
-fi
+}
 
 # --- Guards fired — read and clear the log ---
 GUARDS_FIRED_JSON="[]"
@@ -189,7 +203,8 @@ if [ "$STATUS" = "SUCCESS" ]; then
   # is set — the harness never ran, so a non-zero raw_exit reflects the
   # infrastructure failure (e.g., gradle :prepareTestSandbox), not a real
   # test regression. Promoting on it would mark every commit BLOCKED until
-  # the IDE is detached.
+  # the IDE is detached. (On the auto-run path TESTS_JSON is still null at
+  # this point — Signal 1 re-applies in the upgrade phase after the run.)
   if [ "$TESTS_JSON" != "null" ]; then
     T_INFRA="$(echo "$TESTS_JSON" | jq -r '.infrastructure_blocked // false' 2>"$_DEVNULL" || echo false)"
     if [ "$T_INFRA" != "true" ]; then
@@ -258,31 +273,38 @@ TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # it, a malformed entry (missing field, bad type, __PENDING__ commit_hash)
 # silently lands in buffer.jsonl and breaks sync-prepare's aggregation
 # downstream.
-ENTRY="$(jq -n -c \
-  --arg task_id "$TASK_ID" \
-  --arg timestamp "$TIMESTAMP" \
-  --arg status "$STATUS" \
-  --arg summary "$SUMMARY" \
-  --arg commit_hash "$COMMIT_HASH" \
-  --argjson modules_affected "$MODULES_JSON" \
-  --argjson modified_files "$FILES_JSON" \
-  --argjson test_results "$TESTS_JSON" \
-  --argjson guards_fired "$GUARDS_FIRED_JSON" \
-  --argjson guards_disputed "$GUARDS_DISPUTED_JSON" \
-  --argjson blocked_diagnostics "$BLOCKED_JSON" \
-  '{
-    task_id: $task_id,
-    timestamp: $timestamp,
-    status: $status,
-    summary: $summary,
-    modules_affected: $modules_affected,
-    modified_files: $modified_files,
-    test_results: $test_results,
-    commit_hash: $commit_hash,
-    guards_fired: $guards_fired,
-    guards_disputed: $guards_disputed,
-    blocked_diagnostics: $blocked_diagnostics
-  }')"
+#
+# build_entry reads the current globals so the auto-run upgrade phase below
+# can rebuild the entry with fresh TESTS_JSON / STATUS / BLOCKED_JSON.
+build_entry() {
+  jq -n -c \
+    --arg task_id "$TASK_ID" \
+    --arg timestamp "$TIMESTAMP" \
+    --arg status "$STATUS" \
+    --arg summary "$SUMMARY" \
+    --arg commit_hash "$COMMIT_HASH" \
+    --argjson modules_affected "$MODULES_JSON" \
+    --argjson modified_files "$FILES_JSON" \
+    --argjson test_results "$TESTS_JSON" \
+    --argjson guards_fired "$GUARDS_FIRED_JSON" \
+    --argjson guards_disputed "$GUARDS_DISPUTED_JSON" \
+    --argjson blocked_diagnostics "$BLOCKED_JSON" \
+    '{
+      task_id: $task_id,
+      timestamp: $timestamp,
+      status: $status,
+      summary: $summary,
+      modules_affected: $modules_affected,
+      modified_files: $modified_files,
+      test_results: $test_results,
+      commit_hash: $commit_hash,
+      guards_fired: $guards_fired,
+      guards_disputed: $guards_disputed,
+      blocked_diagnostics: $blocked_diagnostics
+    }'
+}
+
+ENTRY="$(build_entry)"
 
 # Resolve plugin root for the validator (handles direct CLI invocation too).
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(dirname "$(dirname "$0")")}"
@@ -295,6 +317,61 @@ if [ -f "$VALIDATOR" ]; then
 fi
 
 printf '%s\n' "$ENTRY" >> "$STATE_DIR/buffer.jsonl"
+
+# --- Auto-run upgrade phase: run tests, rewrite the entry in place ---
+# The commit is already durably buffered above. Everything from here on is
+# best-effort enrichment: if the hook gets killed mid-test-run, the entry
+# survives with test_results null and reflection proceeds without
+# test-based BLOCKED classification for this task.
+if [ "$AUTO_RUN_PENDING" = true ]; then
+  run_auto_tests
+
+  # Signal 1 (test failures) — the same promotion rule the pre-append
+  # signals use, applied now that results exist. Upgrades SUCCESS only,
+  # never downgrades an existing BLOCKED. Skips infrastructure-blocked
+  # runs (the harness never ran; a non-zero exit reflects the
+  # environment, not the code).
+  if [ "$STATUS" = "SUCCESS" ]; then
+    T_INFRA_UP="$(echo "$TESTS_JSON" | jq -r '.infrastructure_blocked // false' 2>"$_DEVNULL" || echo false)"
+    if [ "$T_INFRA_UP" != "true" ]; then
+      T_F_UP="$(echo "$TESTS_JSON" | jq -r '.failed // 0' 2>"$_DEVNULL" || echo 0)"
+      T_RAW_UP="$(echo "$TESTS_JSON" | jq -r '.raw_exit // 0' 2>"$_DEVNULL" || echo 0)"
+      T_T_UP="$(echo "$TESTS_JSON" | jq -r '.total // 0' 2>"$_DEVNULL" || echo 0)"
+      if [ "${T_F_UP:-0}" -gt 0 ] 2>/dev/null || [ "${T_RAW_UP:-0}" -ne 0 ] 2>/dev/null; then
+        STATUS="BLOCKED"
+        if [ -z "$BLOCKED_DIAG" ]; then
+          BLOCKED_DIAG="tests failing: $T_F_UP of $T_T_UP failed (raw_exit=$T_RAW_UP)"
+        fi
+      fi
+    fi
+  fi
+
+  # Rebuild with the fresh test results / status / diagnostics.
+  BLOCKED_JSON="null"
+  if [ -n "$BLOCKED_DIAG" ]; then
+    BLOCKED_JSON="$(echo "$BLOCKED_DIAG" | jq -R -s '.')"
+  fi
+  UPDATED_ENTRY="$(build_entry)"
+
+  # Replace the line we just appended — strictly verify the tail is still
+  # ours (same commit_hash + task_id) before rewriting, and that the
+  # upgraded entry passes the same schema gate. On any mismatch, keep the
+  # already-appended pre-test entry rather than risk clobbering data.
+  UPGRADE_OK=true
+  if [ -f "$VALIDATOR" ] && ! printf '%s' "$UPDATED_ENTRY" | bash "$VALIDATOR" buffer-entry >&2; then
+    UPGRADE_OK=false
+    echo "kairoi: upgraded entry failed schema validation — keeping the pre-test entry" >&2
+  fi
+  LAST_LINE_UP="$(tail -1 "$STATE_DIR/buffer.jsonl" 2>"$_DEVNULL" | tr -d '\r' || true)"
+  LAST_IS_OURS="$(printf '%s' "$LAST_LINE_UP" | jq -r --arg h "$COMMIT_HASH" --arg t "$TASK_ID" \
+    'if .commit_hash == $h and .task_id == $t then "yes" else "no" end' 2>"$_DEVNULL" || echo no)"
+  if [ "$UPGRADE_OK" = true ] && [ "$LAST_IS_OURS" = "yes" ]; then
+    BUF_LINES_UP="$(wc -l < "$STATE_DIR/buffer.jsonl" | tr -d ' ')"
+    head -n $((BUF_LINES_UP - 1)) "$STATE_DIR/buffer.jsonl" > "$STATE_DIR/buffer.jsonl.tmp" \
+      && printf '%s\n' "$UPDATED_ENTRY" >> "$STATE_DIR/buffer.jsonl.tmp" \
+      && mv "$STATE_DIR/buffer.jsonl.tmp" "$STATE_DIR/buffer.jsonl"
+  fi
+fi
 
 # Test failure alert — data first, notification second.
 # Infrastructure-blocked runs emit a softer "not captured" notice instead

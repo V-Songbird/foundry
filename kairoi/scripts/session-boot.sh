@@ -41,6 +41,17 @@ fi
 # session re-delivers module context on first edit.
 rm -f "$STATE_DIR"/.seen-* 2>"$_DEVNULL" || true
 
+# Rotate session.log — it's append-only (one line per guard fire, written by
+# guard-check.sh) and nothing else trims it. Same shape as the receipts
+# rotation in sync-finalize: past 500 lines, keep the newest 200.
+if [ -f "$STATE_DIR/session.log" ]; then
+  SL_LINES="$(wc -l < "$STATE_DIR/session.log" 2>"$_DEVNULL" | tr -d ' ')"
+  if [ "${SL_LINES:-0}" -gt 500 ] 2>"$_DEVNULL"; then
+    tail -200 "$STATE_DIR/session.log" > "$STATE_DIR/session.log.tmp" 2>"$_DEVNULL" \
+      && mv "$STATE_DIR/session.log.tmp" "$STATE_DIR/session.log"
+  fi
+fi
+
 MC="$(jq '.modules | length' "$STATE_DIR/model/_index.json" 2>"$_DEVNULL" || echo 0)"
 
 # Buffer count (needed by both default banner and verbose path + dispatch).

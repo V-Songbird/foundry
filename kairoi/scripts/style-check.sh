@@ -201,7 +201,6 @@ ANY_FINDINGS=false
 while IFS= read -r MOD; do
   MOD="${MOD%$'\r'}"
   [ -n "$MOD" ] || continue
-  OUTPUT_BEFORE_COUNT="$HEADER_EMITTED"
   scan_module "$MOD"
   if [ "$HEADER_EMITTED" = true ]; then
     ANY_FINDINGS=true

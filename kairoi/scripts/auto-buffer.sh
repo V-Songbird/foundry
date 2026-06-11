@@ -5,7 +5,8 @@
 # as SUCCESS or BLOCKED from test results and other signals.
 #
 # Flow:
-#   1. Fires PostToolUse on Bash(git commit *).
+#   1. Fires PostToolUse on Bash for commit-creating git commands
+#      (commit / revert / cherry-pick — see the gate below).
 #   2. Exits silently if not in a kairoi-tracked project.
 #   3. If the commit's hash already appears in buffer.jsonl, skip (dedup).
 #   4. Reads FULL commit message (%B, not %s) — subject for task_id,
@@ -31,15 +32,23 @@ CWD="$(echo "$INPUT" | jq -r '.cwd // empty')"
 STATE_DIR="$CWD/.kairoi"
 [ -f "$STATE_DIR/model/_index.json" ] || exit 0
 
-# Script-side gate: only proceed for `git commit` invocations. The hook
-# matcher in hooks.json is `Bash` (the only documented matcher granularity);
-# a per-command predicate must be enforced here, otherwise this script runs
-# after every Bash tool call and HEAD-buffers spuriously on commands like
-# `ls`, `pytest`, etc. (Dedup catches re-buffers on the second hit, but
-# only after a wasted run.)
+# Script-side gate: only proceed for commit-creating git invocations. The
+# hook matcher in hooks.json is `Bash` (the only documented matcher
+# granularity); a per-command predicate must be enforced here, otherwise
+# this script runs after every Bash tool call and HEAD-buffers spuriously
+# on commands like `ls`, `pytest`, etc. (Dedup catches re-buffers on the
+# second hit, but only after a wasted run.)
+#
+# Beyond `git commit`, `git revert` and `git cherry-pick` also author new
+# commits without the literal word "commit" in the command — a plain
+# `git revert <hash>` previously never reached buffer-append, which made
+# buffer-append's revert-detection signal (Signal 3) unreachable from the
+# automatic path. `git merge` is deliberately NOT gated in: a fast-forward
+# merge moves HEAD to a commit authored elsewhere, and buffering foreign
+# work as a session task would poison reflection.
 TOOL_CMD="$(echo "$INPUT" | jq -r '.tool_input.command // empty')"
 case "$TOOL_CMD" in
-  *"git commit"*|*"git "*"commit"*) ;;
+  *"git commit"*|*"git "*"commit"*|*"git revert"*|*"git cherry-pick"*) ;;
   *) exit 0 ;;
 esac
 
@@ -59,6 +68,17 @@ SUBJECT="$(echo "$FULL_MSG" | head -1)"
 # Dedup: if this commit is already in the buffer, do nothing (agent already
 # called buffer-append manually, or this hook fired twice).
 if [ -f "$STATE_DIR/buffer.jsonl" ] && grep -qF "\"$HASH\"" "$STATE_DIR/buffer.jsonl" 2>"$_DEVNULL"; then
+  exit 0
+fi
+
+# Dedup against receipts too: after a sync drains the buffer, HEAD's entry
+# lives in receipts.jsonl. Without this check, any gate match that isn't a
+# fresh commit (a re-run command, a false-positive command match, or a
+# `git -C <subdir> commit` that left the project HEAD unchanged) would
+# re-buffer an already-reflected commit and double-reflect it next sync.
+# Receipts rotate at 200→100 lines, so very old commits could in principle
+# re-buffer — acceptable: reflection treats them as a no-op update.
+if [ -f "$STATE_DIR/receipts.jsonl" ] && grep -qF "\"$HASH\"" "$STATE_DIR/receipts.jsonl" 2>"$_DEVNULL"; then
   exit 0
 fi
 

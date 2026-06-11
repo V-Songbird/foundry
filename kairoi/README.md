@@ -1,8 +1,13 @@
 # kairoi
 
-Session safety for Claude Code in unfamiliar codebases.
+Session safety for Claude Code in unfamiliar codebases — built solo-first, for projects where Claude is the sole developer.
 
 Kairoi keeps Claude in sync with your project across long sessions. It fires warnings before risky edits, captures what changed after each session, and reflects on module state so context doesn't drift. Cross-module aware: guards for interface-level constraints automatically extend to dependent modules.
+
+## Modes
+
+- **Solo (recommended)** — kairoi's primary design target. Claude is the sole developer: the entire `.kairoi/` directory stays local to your machine, and init installs a writing-stance rule that optimizes the codebase for Claude's own future re-reading rather than human conventions.
+- **Team** — for shared repos. Model files, overrides, and stack config are committed so teammates share the same understanding; per-developer work-in-progress stays local. The writing-stance rule is not installed — humans read the code too.
 
 ## What it does
 

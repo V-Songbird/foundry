@@ -104,7 +104,8 @@ def err_reflect_result:
   . as $r |
   [
     (if has("guards_created") and ($r.guards_created | type) != "array" then "guards_created must be array" else empty end),
-    (if has("semantic_edges") and ($r.semantic_edges | type) != "array" then "semantic_edges must be array" else empty end)
+    (if has("semantic_edges") and ($r.semantic_edges | type) != "array" then "semantic_edges must be array" else empty end),
+    (if has("legibility_evidence") and ($r.legibility_evidence | type) != "array" then "legibility_evidence must be array" else empty end)
   ] | map(select(. != null and type == "string" and length > 0))
 ;
 
@@ -115,8 +116,11 @@ else null
 end
 '
 
-RESULT="$(echo "$INPUT" | jq --arg schema "$SCHEMA" "$VALIDATORS" 2>&1)"
-JQ_RC=$?
+# `|| JQ_RC=$?` keeps a jq failure from tripping `set -e` on the assignment
+# itself — without it the error branch below was unreachable (the script
+# exited 1, masquerading as a validation failure with the message lost).
+JQ_RC=0
+RESULT="$(echo "$INPUT" | jq --arg schema "$SCHEMA" "$VALIDATORS" 2>&1)" || JQ_RC=$?
 
 if [ "$JQ_RC" -ne 0 ]; then
   echo "kairoi validate-schema: jq internal error:" >&2
