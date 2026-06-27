@@ -1,3 +1,5 @@
+> **Deprecated.** scriptorium has been superseded by [hestia](../hestia/README.md), which includes all instruction-authoring capabilities under `/hestia:scribe` and `/hestia:proofread`. Install hestia instead. scriptorium will receive no further updates.
+
 # scriptorium
 
 Reference guide and proofreader for Claude Code instruction artifacts.

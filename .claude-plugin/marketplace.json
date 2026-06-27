@@ -7,6 +7,23 @@
   },
   "plugins": [
     {
+      "name": "hestia",
+      "source": "./hestia",
+      "description": "One audit for your whole Claude Code setup. Checkup scans your CLAUDE.md, rules, agents, skills, hooks, and commands and hands back a plain-language, ranked list of what to improve. Freshness watches those files over time and nudges you when they go stale. Lean keeps your code minimal as you work. Read-only by default — it recommends, you decide.",
+      "version": "0.1.0-alpha",
+      "license": "MIT",
+      "author": {
+        "name": "Songbird",
+        "email": "songbird@tuta.com"
+      },
+      "homepage": "https://github.com/V-Songbird/claude-plugins/tree/main/hestia",
+      "repository": "https://github.com/V-Songbird/claude-plugins",
+      "category": "setup-health",
+      "keywords": ["setup", "audit", "CLAUDE.md", "rules", "agents", "hooks", "skills", "freshness", "drift", "minimalism", "onboarding"],
+      "tags": ["setup", "audit", "CLAUDE.md", "rules", "agents", "hooks", "skills", "freshness", "drift", "minimalism", "onboarding"],
+      "strict": true
+    },
+    {
       "name": "kairoi",
       "source": "./kairoi",
       "description": "Keeps Claude from making risky changes when working in code you don't know well. Warns before touching anything sensitive, tracks what changed during a session, and recaps long sessions so Claude doesn't lose the thread. Built solo-first for projects where Claude is the sole developer, with an optional Team mode for shared repos.",
@@ -38,7 +55,9 @@
       "category": "instructions",
       "keywords": ["rules", "CLAUDE.md", "audit", "linting", "quality", "instructions", "scoring"],
       "tags": ["rules", "CLAUDE.md", "audit", "linting", "quality", "instructions", "scoring"],
-      "strict": true
+      "strict": true,
+      "deprecated": true,
+      "deprecatedBy": "hestia"
     },
     {
       "name": "iceberg",
@@ -72,7 +91,9 @@
       "category": "authoring",
       "keywords": ["skills", "SKILL.md", "CLAUDE.md", "authoring", "instructions", "proofreader", "artifacts"],
       "tags": ["skills", "SKILL.md", "CLAUDE.md", "authoring", "instructions", "proofreader", "artifacts"],
-      "strict": true
+      "strict": true,
+      "deprecated": true,
+      "deprecatedBy": "hestia"
     },
     {
       "name": "jetbrains-router",
