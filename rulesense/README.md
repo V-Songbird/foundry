@@ -1,3 +1,5 @@
+> **Deprecated.** rulesense has been superseded by [hestia](../hestia/README.md), which includes all rule-quality capabilities under `/hestia:assess-rules`. Install hestia instead. rulesense will receive no further updates.
+
 # rulesense
 
 Audit and author CLAUDE.md rule files for Claude Code.

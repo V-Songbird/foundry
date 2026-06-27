@@ -4,6 +4,8 @@ description: Authors Claude Code instruction artifacts (SKILL.md, CLAUDE.md, pla
 when_to_use: Load when authoring or editing any markdown whose purpose is to steer Claude Code behavior in a future session. Also load before proofreading instruction artifacts.
 ---
 
+> **Deprecated.** This skill has moved to Hestia. Run `/hestia:scribe` instead. This stub is kept for backward compatibility only.
+
 # Authoring Claude Code Instruction Artifacts
 
 ## When this skill applies
