@@ -18,7 +18,7 @@ _BACKTICK = re.compile(r"`([^`\n]+)`")
 _AT_IMPORT = re.compile(r"(?<!\w)@([~./][\w./-]+)")          # CLAUDE.md @imports
 _MD_LINK = re.compile(r"\]\((\.{0,2}/[^)\s]+)\)")            # [text](./path)
 _EXT = re.compile(r"\.[A-Za-z0-9]{1,8}$")
-_SKIP = ("http://", "https://", "://", "${", "*", " ", "\t")
+_SKIP = ("http://", "https://", "://", "${", "*", " ", "\t", "<", ">")  # < > = template placeholders, e.g. `references/<file>.md`
 _DIR_PREFIXES = ("./", "../", "~/", ".claude/")
 
 
@@ -42,7 +42,7 @@ def extract_refs(text: str) -> list[str]:
         refs.add("@" + m.group(1))
     for m in _MD_LINK.finditer(text):
         tok = m.group(1).strip()
-        if not any(s in tok for s in ("http://", "https://", "${")):
+        if not any(s in tok for s in ("http://", "https://", "${", "<", ">")):
             refs.add(tok)
     return sorted(refs)
 

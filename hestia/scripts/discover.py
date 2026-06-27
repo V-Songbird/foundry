@@ -26,6 +26,7 @@ PRUNE_DIRS = {
     ".git", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache",
     "dist", "build", "target", "out", ".next", ".idea", ".vscode", "vendor",
     ".hestia", ".hestia-tmp", ".rulesense", ".rulesense-tmp", ".kairoi",
+    "worktrees",  # .claude/worktrees holds throwaway agent copies; their refs are not the user's
 }
 
 # Marker file -> stack label.

@@ -15,7 +15,7 @@ when_to_use: >-
   "bootstrap rules", "drop in the recommended rules", "add the recommended Claude rules to
   this project", "give Claude awareness of my project files", or "fast way to add Claude
   rules".
-allowed-tools: Read, Glob, Write, Bash(mkdir -p .claude/rules*)
+allowed-tools: Read, Glob, Write, AskUserQuestion, Bash(mkdir -p .claude/rules*)
 ---
 
 # Recommendation Rules Primer — Install Curated Self-Awareness Rules

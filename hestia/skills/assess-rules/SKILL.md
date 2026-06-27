@@ -13,7 +13,7 @@ when_to_use: >-
   this inherited rule set", or "which rules should be hooks instead". Also
   trigger when someone references /hestia:assess-rules with any flags (--json,
   --fix, --verbose).
-allowed-tools: Bash, Read, Write, Edit, Glob, TodoWrite, TaskCreate, TaskUpdate
+allowed-tools: Bash, Read, Write, Edit, Glob, AskUserQuestion, TodoWrite, TaskCreate, TaskUpdate
 ---
 
 # Rules Assess — Quality Scoring

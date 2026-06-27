@@ -121,6 +121,7 @@ Before writing anything, understand what exists:
 
 - **subagent_type**: `"Explore"`
 - **description**: one-line summary (e.g. `"Sample testing conventions in src/api"`)
+- **name**: short label for the foreground subagent (e.g. `"convention-sampler"`)
 - **prompt**: focused instruction asking the subagent to return ONLY a summary of naming patterns, import style, test placement, and 2–3 representative file paths — NOT raw file contents
 - **max_turns**: set high enough that the subagent returns a complete summary in one turn (typically 4–8 depending on subsystem size; do not over-prescribe)
 - **run_in_background**: `false` (you need the summary before drafting)

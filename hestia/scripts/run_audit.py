@@ -8,6 +8,7 @@ Modes:
   --finalize-fix [--verbose] [--json]  parse rewrite judgments -> finalize -> report
   --score-draft <draft.json>         score draft rules
   --finalize-draft                   compose draft scores after F3/F8 judgment
+  --build-analysis                   structured analysis data from rules-audit.json for report sections
   --prepare-placement                run placement detectors
   --write-promotions [--project-root P]  write .hestia/PROMOTIONS.md + remove moved rules
   --cleanup                          remove .hestia-tmp/
@@ -665,6 +666,81 @@ def cmd_write_promotions(project_root: str) -> None:
         sys.exit(1)
 
 
+def cmd_build_analysis() -> None:
+    """--build-analysis: structured analysis data from rules-audit.json for Phase 3."""
+    audit = _read_tmp_json("rules-audit.json")
+    rules = audit.get("rules", [])
+    files = audit.get("files", [])
+
+    mandate = [r for r in rules if r.get("category") == "mandate"]
+
+    grade_counts = {"A": 0, "B": 0, "C": 0, "D": 0, "F": 0}
+    for r in mandate:
+        grade_counts[_letter_grade(r.get("score", 0))] += 1
+
+    good_count = grade_counts["A"] + grade_counts["B"]
+    below_floor = sum(1 for r in mandate if r.get("score", 0) < 0.50)
+
+    file_info = []
+    for f in files:
+        file_info.append({
+            "path": f.get("path", "?"),
+            "rule_count": f.get("rule_count", 0),
+            "file_score": f.get("file_score", 0),
+            "grade": _letter_grade(f.get("file_score", 0)),
+            "line_count": f.get("line_count", 0),
+            "dead_zone_count": f.get("dead_zone_count", 0),
+        })
+
+    claude_md_rules = sum(1 for r in rules if r.get("file", "").endswith("CLAUDE.md"))
+    rules_dir = [r for r in rules if not r.get("file", "").endswith("CLAUDE.md")]
+    scoped = sum(1 for r in rules_dir if r.get("loading") == "glob-scoped")
+    always_in_dir = len(rules_dir) - scoped
+    claude_md_lines = next(
+        (f.get("line_count", 0) for f in files if f.get("path", "").endswith("CLAUDE.md")),
+        0,
+    )
+
+    sorted_mandate = sorted(mandate, key=lambda r: r.get("score", 0), reverse=True)
+    best = [{"id": r["id"], "text": r.get("text", "")[:120], "score": r.get("score", 0),
+             "grade": _letter_grade(r.get("score", 0)),
+             "strength": _friendly_summary(r)}
+            for r in sorted_mandate[:5]]
+    worst = [{"id": r["id"], "text": r.get("text", "")[:120], "score": r.get("score", 0),
+              "grade": _letter_grade(r.get("score", 0)),
+              "problem": _FRIENDLY_PROBLEMS.get(r.get("dominant_weakness", ""), "Review")}
+             for r in sorted_mandate[-5:]] if sorted_mandate else []
+
+    rules_for_map = [
+        {"id": r["id"], "text": r.get("text", "")[:200],
+         "file": r.get("file", ""), "score": r.get("score", 0),
+         "grade": _letter_grade(r.get("score", 0)),
+         "dominant_weakness": r.get("dominant_weakness"),
+         "loading": r.get("loading", "always-loaded")}
+        for r in rules
+    ]
+
+    ecq = audit.get("effective_corpus_quality", {})
+    _lib.emit({
+        "grade": _letter_grade(ecq.get("score", 0)),
+        "score": ecq.get("score", 0),
+        "rule_count": len(mandate),
+        "good_count": good_count,
+        "grade_counts": grade_counts,
+        "below_floor_count": below_floor,
+        "files": file_info,
+        "organization": {
+            "claude_md_rules": claude_md_rules,
+            "scoped_rules": scoped,
+            "always_loaded_rules_in_rules_dir": always_in_dir,
+            "claude_md_lines": claude_md_lines,
+        },
+        "best_rules": best,
+        "worst_rules": worst,
+        "rules_for_intention_map": rules_for_map,
+    })
+
+
 def cmd_cleanup() -> None:
     """--cleanup: remove .hestia-tmp/."""
     tmp = Path(TMP_DIR)
@@ -681,7 +757,7 @@ def main():
     if not args:
         print("Usage: run_audit.py <mode> [options]", file=sys.stderr)
         print("Modes: --prepare, --finalize, --prepare-fix, --score-rewrites, "
-              "--finalize-fix, --score-draft, --finalize-draft, "
+              "--finalize-fix, --score-draft, --finalize-draft, --build-analysis, "
               "--prepare-placement, --write-promotions, --cleanup",
               file=sys.stderr)
         sys.exit(1)
@@ -725,6 +801,9 @@ def main():
 
     elif mode == "--finalize-draft":
         cmd_finalize_draft()
+
+    elif mode == "--build-analysis":
+        cmd_build_analysis()
 
     elif mode == "--prepare-placement":
         cmd_prepare_placement()
