@@ -18,6 +18,8 @@ disable-model-invocation: true
 allowed-tools: Bash, Read, Write, Edit, Glob, TodoWrite, TaskCreate, TaskUpdate
 ---
 
+> **Deprecated.** This skill has moved to Hestia. Run `/hestia:assess-rules` instead. This stub is kept for backward compatibility only.
+
 # Rules Assay — Quality Scoring
 
 Score the project's Claude Code instruction files for structural clarity — how clearly Claude can parse and apply each rule.
