@@ -14,16 +14,9 @@ Verify the proofreader returns expected verdicts for all fixtures in `${CLAUDE_P
 
 A test case PASSES when the proofreader's verdict matches the expectation. A test case FAILS when it does not.
 
-## Coverage gaps
+## Coverage
 
-The fixture set currently covers items 1, 2, 3, 7, 8, 11, 13 plus a clean pass. Fixtures for the following items should be added as the proofreader matures:
-
-- **Item 4** — `Agent` dispatch missing `description` or `subagent_type`; tool restrictions in body prose instead of frontmatter
-- **Item 5** — plan-gate prescribes "plan first" without naming `EnterPlanMode` / `ExitPlanMode`
-- **Item 6** — subagent body contains `AskUserQuestion` or "ask the user" prose
-- **Item 9** — markdown link or backtick path that does not resolve to an actual file
-- **Item 10** — user-facing output exposes internal jargon or uses wrong voice
-- **Item 12** — artifact with ≥ 2 decomposition signals (SUGGEST-only, does not affect verdict math)
+The fixture set covers all 13 items plus a clean pass: items 1–13 each have a dedicated `fail/` fixture (item 1 has two), and `pass/clean_skill.md` exercises the no-defect path. Add further fixtures as new edge cases surface (e.g. multi-signal decomposition, combined frontmatter failures).
 
 ## Steps
 

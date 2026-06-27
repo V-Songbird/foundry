@@ -2,7 +2,6 @@
 name: checkup
 description: Hestia's session health check — a companion brief on your project's instruction files, rules quality, and staleness before a development session. Read-only; it recommends, you decide.
 when_to_use: Use when the user wants to assess or improve their Claude Code setup — "audit my setup", "check my CLAUDE.md / rules / agents", "how can I improve my Claude Code setup", "is my setup any good", "health check", or /hestia:checkup. This is Hestia's front door.
-argument-hint: ""
 allowed-tools: Bash, Read, Write, AskUserQuestion
 ---
 
@@ -14,7 +13,7 @@ Run one health check of the project's Claude Code setup and hand back a short, r
 
 ### Step 1 — Heuristic scan (always)
 
-MUST invoke `Bash`:
+MUST invoke `Bash` with `description: "Scan project Claude Code setup"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/checkup.py"`
 
 If `python` is missing, try `python3`; if neither runs, tell the user Python 3.10+ is required and stop.
@@ -34,12 +33,12 @@ Otherwise continue.
 
 Run this step only if the `summary.rules` count from step 1 is greater than 0.
 
-2a. MUST invoke `Bash`:
+2a. MUST invoke `Bash` with `description: "Extract and mechanically score rules"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/run_audit.py" --prepare --project-root <project_root>`
 
 Replace `<project_root>` with the `project_root` value from step 1. This runs extract → score_mechanical → score_semi and saves `.hestia-tmp/scored_semi.json`.
 
-2b. If `--prepare` succeeds, MUST invoke `Bash`:
+2b. If `--prepare` succeeds, MUST invoke `Bash` with `description: "Finalize audit and emit JSON"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/run_audit.py" --finalize --json`
 
 Read the JSON output (the full audit object). From it, extract all rules where `score` < 0.50 (grade D or F). These are low-quality rules. For each one, add a finding to the findings list:
@@ -57,7 +56,7 @@ If `--finalize` fails (e.g. because `.hestia-tmp/all_judgments.json` does not ex
 
 ### Step 3 — Freshness scan (always)
 
-MUST invoke `Bash`:
+MUST invoke `Bash` with `description: "Scan instruction files for stale references"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/drift.py"`
 
 Read the JSON output. For each entry in `stale_files`, create a finding:
