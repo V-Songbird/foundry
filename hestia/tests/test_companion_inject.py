@@ -1,10 +1,11 @@
 """Tests for companion-inject.py — the SessionStart / SubagentStart injector.
 
 Covers:
-  - SessionStart emits the FULL brief (every standing order) as raw stdout.
-  - SubagentStart emits only the COMPACT build-governing subset, wrapped in the
-    hookSpecificOutput JSON contract — NOT the full brief.
-  - The subagent subset is strictly smaller than the full brief.
+  - SessionStart at the default (lean) emits the full body of every order.
+  - The verbosity dial is real: trim = terse of every order, lean = full bodies,
+    bare = terse of the critical orders only (bare < trim < lean in size).
+  - SubagentStart emits the terse build-governing subset (Lean/Truth/Scope),
+    wrapped in the hookSpecificOutput JSON contract — not phases/memory, not full.
   - mode "off" emits nothing.
   - The hook never crashes on missing / empty / malformed stdin.
 """
@@ -80,9 +81,10 @@ class TestSessionStart:
         assert "Memory hygiene" in r.stdout
 
     def test_default_mode_is_lean(self, project):
-        """No lean-mode file -> default level injected (the lean block)."""
+        """No lean-mode file -> default level = lean = full bodies of every order."""
         r = run_hook(project, session_event())
-        assert "lean (default)" in r.stdout
+        # "The ladder" appears only in the full Lean body, never in the terse form.
+        assert "The ladder" in r.stdout
 
 
 # ---------------------------------------------------------------------------
@@ -103,7 +105,7 @@ class TestSubagentStart:
         r = run_hook(project, subagent_event())
         ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
         assert "Lean" in ctx
-        assert "Scope control" in ctx
+        assert "Scope" in ctx
         assert "truth-grounding" in ctx.lower()
 
     def test_excludes_orchestration_orders(self, project):
@@ -120,11 +122,12 @@ class TestSubagentStart:
         )["hookSpecificOutput"]["additionalContext"]
         assert len(sub) < len(full)
 
-    def test_subagent_excludes_level_blocks(self, project):
-        """The per-level (trim/lean/bare) blocks are not part of the subset."""
+    def test_subagent_uses_terse_not_full(self, project):
+        """Subagent gets the terse one-liners, not the full bodies."""
         r = run_hook(project, subagent_event())
         ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
-        assert "At this level" not in ctx
+        assert "- **Lean:**" in ctx       # terse bullet form
+        assert "The ladder" not in ctx    # full Lean body NOT included
 
 
 # ---------------------------------------------------------------------------
@@ -168,4 +171,44 @@ class TestRobustness:
         set_mode(project, "wibble")
         r = run_hook(project, session_event())
         assert r.returncode == 0
-        assert "lean (default)" in r.stdout
+        assert "The ladder" in r.stdout  # fell back to lean (full bodies)
+
+
+# ---------------------------------------------------------------------------
+# The verbosity dial — trim / lean / bare genuinely differ
+# ---------------------------------------------------------------------------
+
+class TestLevels:
+    TERSE_LABELS = ("- **Lean:**", "- **Phases:**", "- **Truth-grounding:**",
+                    "- **Scope:**", "- **Memory:**")
+
+    def test_trim_is_all_orders_terse(self, project):
+        set_mode(project, "trim")
+        out = run_hook(project, session_event()).stdout
+        for label in self.TERSE_LABELS:
+            assert label in out          # every order present, terse
+        assert "The ladder" not in out   # but no full bodies
+        assert "## Lean" not in out
+
+    def test_lean_is_all_orders_full(self, project):
+        set_mode(project, "lean")
+        out = run_hook(project, session_event()).stdout
+        assert "The ladder" in out       # full bodies
+        assert "## Memory hygiene" in out
+        assert "- **Lean:**" not in out  # not the terse bullets
+
+    def test_bare_is_critical_orders_only(self, project):
+        set_mode(project, "bare")
+        out = run_hook(project, session_event()).stdout
+        assert "- **Lean:**" in out
+        assert "- **Truth-grounding:**" in out
+        # non-critical orders are dropped at bare
+        assert "- **Phases:**" not in out
+        assert "- **Scope:**" not in out
+        assert "- **Memory:**" not in out
+
+    def test_size_ordering_bare_lt_trim_lt_lean(self, project):
+        def size(mode):
+            set_mode(project, mode)
+            return len(run_hook(project, session_event()).stdout)
+        assert size("bare") < size("trim") < size("lean")

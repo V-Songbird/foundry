@@ -5,12 +5,15 @@ Runs on SessionStart and SubagentStart. Reads the project's companion verbosity
 from `.hestia/lean-mode` (default: lean) and injects the companion brief as
 hidden context. Emits nothing when the mode is "off".
 
-  - SessionStart  -> the FULL brief (core + active level): every standing order.
-  - SubagentStart -> only the build-governing subset (lean/YAGNI, scope control,
-    truth-grounding). A subagent does not orchestrate phases or own memory, so
-    injecting the whole doctrine into every subagent (including read-only ones)
-    is noise — and an always-on nudge that is frequently irrelevant trains
-    Claude to tune out ALL of them.
+  - SessionStart  -> the brief at the active verbosity level:
+      trim -> the terse one-line form of every standing order
+      lean -> the full body of every standing order (default)
+      bare -> the terse form of the critical orders only
+  - SubagentStart -> the terse form of only the build-governing orders
+    (lean/YAGNI, truth-grounding, scope control), regardless of level. A
+    subagent does not orchestrate phases or own memory, so injecting the whole
+    doctrine into every subagent is noise — and an always-on nudge that is
+    frequently irrelevant trains Claude to tune out ALL of them.
 
 Output contract (native Claude Code):
   - SessionStart  -> raw text on stdout is added to context.
@@ -40,11 +43,6 @@ FALLBACK = (
     "asked for. Mark deliberate shortcuts with a `hestia:later` comment."
 )
 
-# Build-governing orders — the subset injected into subagents. These affect what
-# gets built; the excluded orders (phase discipline, memory hygiene) are
-# orchestration concerns the spawning session owns, not a single subagent's task.
-# Matched against the core section headings (## <Title> ...) in doctrine.md.
-SUBAGENT_ORDERS = ("Lean", "Domain truth-grounding", "Scope control")
 SUBAGENT_FALLBACK = FALLBACK
 
 
@@ -68,48 +66,71 @@ def _strip_authoring_comment(text: str) -> str:
     return re.sub(r"^\s*<!--.*?-->\s*", "", text, count=1, flags=re.DOTALL)
 
 
-def _split_core_and_blocks(text: str) -> tuple[str, dict[str, str]]:
-    """Split the doctrine into the always-on core and the per-level blocks."""
-    parts = re.split(r"<!--\s*LEVEL:(\w+)\s*-->", text)
-    core = parts[0].strip()
-    blocks = {parts[i].strip().lower(): parts[i + 1].strip() for i in range(1, len(parts) - 1, 2)}
-    return core, blocks
+def parse_doctrine(text: str) -> tuple[str, list[dict]]:
+    """Parse the doctrine into (preamble, orders).
+
+    Each order is {id, critical, build, terse, full}: `terse` is the one-line
+    bullet form, `full` is the detailed body. The preamble (everything before
+    the first ORDER marker) prefixes the brief at every non-off level.
+    """
+    text = _strip_authoring_comment(text)
+    parts = re.split(r"<!--\s*ORDER\s+(.*?)\s*-->", text, flags=re.DOTALL)
+    preamble = parts[0].strip()
+    orders: list[dict] = []
+    for i in range(1, len(parts) - 1, 2):
+        attrs = dict(kv.split("=", 1) for kv in parts[i].split() if "=" in kv)
+        terse, full_lines = "", []
+        for line in parts[i + 1].strip().splitlines():
+            s = line.strip()
+            if not terse and not full_lines and s.startswith("- "):
+                terse = s
+            elif s.startswith("## ") or full_lines:
+                full_lines.append(line)
+        orders.append({
+            "id": attrs.get("id", ""),
+            "critical": attrs.get("critical") == "yes",
+            "build": attrs.get("build") == "yes",
+            "terse": terse,
+            "full": "\n".join(full_lines).strip(),
+        })
+    return preamble, orders
+
+
+def _assemble(preamble: str, pieces: list[str]) -> str:
+    body = "\n\n".join(p for p in pieces if p).strip()
+    return f"{preamble}\n\n{body}".strip() if body else preamble
 
 
 def build_context(level: str) -> str:
-    """Full brief: core (every standing order) plus the active level block."""
+    """Session brief, varying by level: trim = terse of every order, lean =
+    full body of every order (default), bare = terse of the critical orders."""
     try:
         text = DOCTRINE.read_text(encoding="utf-8")
     except OSError:
         return FALLBACK
-    core, blocks = _split_core_and_blocks(_strip_authoring_comment(text))
-    block = blocks.get(level, "")
-    return f"{core}\n\n{block}".strip() if block else core
+    preamble, orders = parse_doctrine(text)
+    if not orders:
+        return preamble or FALLBACK
+    if level == "trim":
+        pieces = [o["terse"] for o in orders]
+    elif level == "bare":
+        pieces = [o["terse"] for o in orders if o["critical"]]
+    else:  # lean (default), and any unexpected value -> full
+        pieces = [o["full"] for o in orders]
+    return _assemble(preamble, pieces)
 
 
 def build_subagent_context() -> str:
-    """Compact brief for subagents: only the build-governing standing orders.
-
-    Keeps the brief's preamble line (so the subagent knows it is under Hestia),
-    then only the core sections whose heading matches SUBAGENT_ORDERS. The
-    per-level blocks and the orchestration orders (phases, memory) are dropped.
-    """
+    """Compact brief for subagents: the terse form of the build-governing orders
+    only, regardless of session level. They affect what gets built; the others
+    (phases, memory) are orchestration the spawning session owns."""
     try:
         text = DOCTRINE.read_text(encoding="utf-8")
     except OSError:
         return SUBAGENT_FALLBACK
-    core, _ = _split_core_and_blocks(_strip_authoring_comment(text))
-    # Sections are delimited by level-2 headings (## ...). Keep the preamble
-    # (everything before the first ## heading) plus the selected sections.
-    chunks = re.split(r"(?m)^(?=## )", core)
-    preamble = chunks[0].strip()
-    kept = [preamble] if preamble else []
-    for chunk in chunks[1:]:
-        heading = chunk.lstrip("# ").splitlines()[0] if chunk.strip() else ""
-        if any(heading.startswith(name) for name in SUBAGENT_ORDERS):
-            kept.append(chunk.strip())
-    selected = "\n\n".join(kept).strip()
-    return selected or SUBAGENT_FALLBACK
+    preamble, orders = parse_doctrine(text)
+    pieces = [o["terse"] for o in orders if o["build"]]
+    return _assemble(preamble, pieces) if pieces else SUBAGENT_FALLBACK
 
 
 def hook_event() -> str:

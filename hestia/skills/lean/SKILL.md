@@ -12,10 +12,12 @@ Hestia injects a companion brief into every session automatically — standing o
 
 ## Levels
 
-- **trim** — light. All standing orders present but stated once, concisely.
-- **lean** — default. Standing orders with enough context to apply them confidently.
-- **bare** — minimal. Lean + truth-grounding only — the most critical pair.
+- **trim** — light. Every standing order, but a single terse line each (no detail).
+- **lean** — default. Every standing order in full — the detail needed to apply it confidently.
+- **bare** — minimal. Only the two critical orders (lean + truth-grounding), terse; the rest are dropped.
 - **off** — no companion brief injected.
+
+Each level changes what the SessionStart hook actually injects — `bare` < `trim` < `lean` in size — not just the tone.
 
 ## Steps
 
