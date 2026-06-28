@@ -17,6 +17,7 @@ Standard library only. Python 3.10+.
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 from _lib import emit, find_project_root, read_text, rel
@@ -61,23 +62,36 @@ def _entry(path: Path, root: Path, **extra) -> dict:
 
 
 def _find_claude_md(root: Path) -> list[dict]:
-    """Root, .claude/, and any nested (monorepo) CLAUDE.md files."""
+    """Root, .claude/, CLAUDE.local.md, and any nested (monorepo) CLAUDE.md files.
+
+    Per the docs, project-root CLAUDE.md / .claude/CLAUDE.md / CLAUDE.local.md are
+    loaded in full at launch (always-loaded). CLAUDE.local.md gets scope
+    ``project-local`` (gitignored personal preferences). Nested CLAUDE.md in
+    subdirectories load *on demand* when Claude reads files there, so they get
+    scope ``nested`` and are treated as not-always-loaded downstream.
+    """
     found: list[dict] = []
     seen: set[Path] = set()
 
-    for scope, p in (("project", root / "CLAUDE.md"), ("project-dot", root / ".claude" / "CLAUDE.md")):
+    for scope, p in (
+        ("project", root / "CLAUDE.md"),
+        ("project-dot", root / ".claude" / "CLAUDE.md"),
+        ("project-local", root / "CLAUDE.local.md"),
+    ):
         if p.is_file():
             found.append(_entry(p, root, scope=scope))
             seen.add(p.resolve())
 
-    # Nested CLAUDE.md in subtrees (monorepo packages), skipping pruned dirs.
-    for p in root.rglob("CLAUDE.md"):
-        rp = p.resolve()
-        if rp in seen:
-            continue
-        if any(part in PRUNE_DIRS for part in p.relative_to(root).parts):
-            continue
-        found.append(_entry(p, root, scope="nested"))
+    # Nested CLAUDE.md / CLAUDE.local.md in subtrees (monorepo packages), skipping pruned dirs.
+    for name in ("CLAUDE.md", "CLAUDE.local.md"):
+        for p in root.rglob(name):
+            rp = p.resolve()
+            if rp in seen:
+                continue
+            if any(part in PRUNE_DIRS for part in p.relative_to(root).parts):
+                continue
+            found.append(_entry(p, root, scope="nested"))
+            seen.add(rp)
     return found
 
 
@@ -89,6 +103,26 @@ def _glob_dir(root: Path, rel_dir: str, pattern: str, **extra_per) -> list[dict]
     for p in sorted(base.glob(pattern)):
         if p.is_file():
             out.append(_entry(p, root))
+    return out
+
+
+def _rglob_dir(root: Path, base: Path, pattern: str, scope_root: Path | None = None, **extra_per) -> list[dict]:
+    """Recursively collect files under ``base`` matching ``pattern``, pruning PRUNE_DIRS.
+
+    Doc: ``.claude/rules`` and ``.claude/commands`` are discovered recursively, so
+    e.g. ``.claude/rules/frontend/react.md`` is found. ``scope_root`` controls how
+    paths are made relative (project root, or the user-config dir for user scope).
+    """
+    if not base.is_dir():
+        return []
+    path_root = scope_root or root
+    out: list[dict] = []
+    for p in sorted(base.rglob(pattern)):
+        if not p.is_file():
+            continue
+        if any(part in PRUNE_DIRS for part in p.relative_to(base).parts):
+            continue
+        out.append(_entry(p, path_root, **extra_per))
     return out
 
 
@@ -138,6 +172,40 @@ def _read_mcp(root: Path) -> dict:
         return {"present": True, "path": rel(p, root), "servers": [], "parse_error": True}
 
 
+def _user_config_dir() -> Path:
+    """Resolve the user-scope Claude config dir, honoring CLAUDE_CONFIG_DIR.
+
+    Falls back to ``~/.claude``. Per the docs, user-scope CLAUDE.md and
+    ``~/.claude/rules/**/*.md`` load alongside project context.
+    """
+    override = os.environ.get("CLAUDE_CONFIG_DIR")
+    if override:
+        return Path(override).expanduser()
+    return Path.home() / ".claude"
+
+
+def _find_user_scope() -> dict:
+    """Discover user-scope CLAUDE.md and rules (~/.claude/...). Never crashes if absent.
+
+    Returns {"claude_md": [...], "rules": [...]} with paths relative to the user
+    config dir, each tagged scope="user". Opt-in: only called when requested.
+    """
+    out: dict[str, list[dict]] = {"claude_md": [], "rules": []}
+    try:
+        cfg = _user_config_dir()
+    except (OSError, RuntimeError):
+        return out
+    if not cfg.is_dir():
+        return out
+
+    user_md = cfg / "CLAUDE.md"
+    if user_md.is_file():
+        out["claude_md"].append(_entry(user_md, cfg, scope="user"))
+
+    out["rules"] = _rglob_dir(cfg, cfg / "rules", "*.md", scope_root=cfg, scope="user")
+    return out
+
+
 def _detect_stack(root: Path) -> list[str]:
     stack: set[str] = set()
     for marker, label in STACK_MARKERS.items():
@@ -149,16 +217,28 @@ def _detect_stack(root: Path) -> list[str]:
     return sorted(stack)
 
 
-def discover(project_root: str | None = None) -> dict:
+def discover(project_root: str | None = None, *, include_user_scope: bool = False) -> dict:
     root = find_project_root(project_root) if project_root is None else Path(project_root).resolve()
 
+    # .claude/rules and .claude/commands are discovered recursively (nested
+    # subdirs like rules/frontend/react.md), pruning the same dirs as skills.
     artifacts = {
         "claude_md": _find_claude_md(root),
-        "rules": _glob_dir(root, ".claude/rules", "*.md"),
+        "rules": _rglob_dir(root, root / ".claude" / "rules", "*.md"),
         "agents": _glob_dir(root, ".claude/agents", "*.md"),
         "skills": _find_skills(root),
-        "commands": _glob_dir(root, ".claude/commands", "*.md"),
+        "commands": _rglob_dir(root, root / ".claude" / "commands", "*.md"),
     }
+
+    # User scope (~/.claude/): opt-in so default project audits don't silently
+    # pull in personal files. Tagged scope="user" so reports can separate them.
+    if include_user_scope:
+        user = _find_user_scope()
+        for md in user["claude_md"]:
+            artifacts["claude_md"].append(md)
+        for rule in user["rules"]:
+            artifacts["rules"].append(rule)
+
     hooks = _read_hooks(root)
     mcp = _read_mcp(root)
     stack = _detect_stack(root)
@@ -181,8 +261,10 @@ def discover(project_root: str | None = None) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Inventory a project's Claude Code setup.")
     ap.add_argument("--project-root", default=None, help="Project root (defaults to nearest .git ancestor of cwd).")
+    ap.add_argument("--include-user-scope", action="store_true",
+                    help="Also discover user-scope CLAUDE.md and ~/.claude/rules/ (honors CLAUDE_CONFIG_DIR).")
     args = ap.parse_args()
-    emit(discover(args.project_root))
+    emit(discover(args.project_root, include_user_scope=args.include_user_scope))
 
 
 if __name__ == "__main__":

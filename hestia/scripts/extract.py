@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from _lib import emit, find_project_root, load_data, read_text
-from discover import discover
+from discover import discover, PRUNE_DIRS
 
 if hasattr(sys.stdin, 'reconfigure'):
     sys.stdin.reconfigure(encoding='utf-8')
@@ -451,23 +451,280 @@ def _make_subchunk(parent: dict, text: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Rule frontmatter scoping (drives F4 load-trigger alignment)
+# ---------------------------------------------------------------------------
+
+# paths: is canonical per the docs (Rules and memory.md — "Path-specific rules").
+# globs: is a tolerated legacy alias; paths: wins when both are present.
+_SCOPE_KEYS = ("paths", "globs")
+
+# Max recursion for @path imports, per the docs ("a maximum depth of four hops").
+_IMPORT_MAX_DEPTH = 4
+
+# @path imports inside CLAUDE.md. The docs allow relative (foo/bar.md and
+# ./foo.md), home (~/...), and absolute paths. refs._AT_IMPORT only matches
+# refs that begin with ~ . or /, so it misses bare relative imports like
+# `@docs/git.md`; this pattern is broader on purpose. Code spans / fenced code
+# blocks are stripped before this runs (the docs say import parsing skips them).
+_AT_IMPORT_PATTERN = re.compile(r"(?<![\w`])@([~\w./\\-]+)")
+
+
+def _frontmatter_lines(content: str) -> list[str]:
+    """Return the raw YAML frontmatter lines (between the leading --- fences)."""
+    lines = content.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return []
+    out: list[str] = []
+    for line in lines[1:]:
+        if line.strip() == "---":
+            return out
+        out.append(line)
+    return []  # unterminated frontmatter -> treat as none
+
+
+def _normalize_glob_value(raw: str) -> list[str]:
+    """Normalize a scalar paths:/globs: value (single or comma-separated) to a list."""
+    raw = raw.strip()
+    if not raw:
+        return []
+    # Strip surrounding quotes on the whole scalar, then split on commas.
+    out: list[str] = []
+    for part in raw.split(","):
+        item = part.strip().strip('"').strip("'").strip()
+        if item:
+            out.append(item)
+    return out
+
+
+def parse_scoping(content: str) -> list[str]:
+    """Extract the rule's scoping globs from YAML frontmatter.
+
+    Canonical key is ``paths:`` (per the docs); ``globs:`` is a tolerated legacy
+    alias. ``paths:`` wins if both are present. The value may be a single string,
+    a comma-separated string, or a YAML block/flow list. Returns a normalized
+    list of glob strings (empty when no scoping key is present).
+    """
+    fm = _frontmatter_lines(content)
+    if not fm:
+        return []
+
+    results: dict[str, list[str]] = {}
+    i = 0
+    while i < len(fm):
+        line = fm[i]
+        # Match a top-level mapping key (no indentation) we care about.
+        m = re.match(r"^(\w+)\s*:\s*(.*)$", line)
+        if not m or m.group(1) not in _SCOPE_KEYS:
+            i += 1
+            continue
+
+        key = m.group(1)
+        inline = m.group(2).strip()
+        globs: list[str] = []
+
+        if inline:
+            # Flow list: paths: ["a", "b"] — or a scalar / comma-separated string.
+            flow = inline
+            if flow.startswith("[") and flow.endswith("]"):
+                flow = flow[1:-1]
+            globs.extend(_normalize_glob_value(flow))
+            i += 1
+        else:
+            # Block list: subsequent `  - "glob"` lines.
+            i += 1
+            while i < len(fm):
+                item = re.match(r"^\s*-\s*(.+?)\s*$", fm[i])
+                if not item:
+                    break
+                val = item.group(1).strip().strip('"').strip("'").strip()
+                if val:
+                    globs.append(val)
+                i += 1
+
+        if globs:
+            results[key] = globs
+
+    # Canonical paths: wins over the legacy globs: alias.
+    if results.get("paths"):
+        return results["paths"]
+    return results.get("globs", [])
+
+
+def count_glob_matches(globs: list[str], project_root: Path) -> int:
+    """Count distinct project files matching any glob, pruning PRUNE_DIRS."""
+    if not globs:
+        return 0
+    matched: set[Path] = set()
+    for pattern in globs:
+        pat = pattern.replace("\\", "/").lstrip("/")
+        if not pat:
+            continue
+        try:
+            candidates = project_root.rglob(pat)
+        except (ValueError, OSError):
+            continue
+        for p in candidates:
+            try:
+                if not p.is_file():
+                    continue
+                rel_parts = p.relative_to(project_root).parts
+            except (ValueError, OSError):
+                continue
+            if any(part in PRUNE_DIRS for part in rel_parts):
+                continue
+            matched.add(p)
+    return len(matched)
+
+
+def _strip_for_imports(content: str) -> str:
+    """Blank out fenced code blocks and inline code spans so @imports inside them
+    are not followed (the docs: import parsing skips code spans and fenced blocks)."""
+    lines = content.split("\n")
+    out: list[str] = []
+    in_fence = False
+    for line in lines:
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+            out.append("")
+            continue
+        if in_fence:
+            out.append("")
+            continue
+        # Drop inline code spans (`...`) on this line.
+        out.append(re.sub(r"`[^`]*`", "", line))
+    return "\n".join(out)
+
+
+def find_imports(content: str) -> list[str]:
+    """Return @path import targets in CLAUDE.md content (code-span/fence safe)."""
+    cleaned = _strip_for_imports(content)
+    seen: list[str] = []
+    for m in _AT_IMPORT_PATTERN.finditer(cleaned):
+        ref = m.group(1)
+        if ref and ref not in seen:
+            seen.append(ref)
+    return seen
+
+
+def _resolve_import(ref: str, file_dir: Path, project_root: Path) -> Path:
+    """Resolve an @import target to an absolute path.
+
+    Relative refs resolve against the importing file's directory (per the docs),
+    ~/ against home, and absolute paths as-is.
+    """
+    if ref.startswith("~/") or ref == "~":
+        return (Path.home() / ref[2:]).resolve() if len(ref) > 2 else Path.home()
+    p = Path(ref)
+    if p.is_absolute():
+        return p.resolve()
+    return (file_dir / ref).resolve()
+
+
+def resolve_imports(seed_files: list[dict], project_root: Path) -> tuple[list[dict], list[dict]]:
+    """Follow @path imports out of CLAUDE.md sources, recursively (max depth 4).
+
+    Returns (imported_source_files, unresolved). Each imported source carries
+    ``imported_from`` (the rel path of the file that referenced it) and
+    ``import_depth``. Unresolved imports are reported as dicts
+    {"ref", "from", "resolved"} so they can surface as a staleness signal —
+    never crash on a missing import.
+    """
+    from _lib import rel
+
+    imported: list[dict] = []
+    unresolved: list[dict] = []
+    # Track every file already in play (seeds + resolved imports) to guard cycles.
+    visited: set[Path] = set()
+    for sf in seed_files:
+        try:
+            visited.add((project_root / sf["path"]).resolve())
+        except (ValueError, OSError):
+            pass
+
+    # BFS queue of (abs_path, depth, importer_rel).
+    queue: list[tuple[Path, int, str]] = []
+    for sf in seed_files:
+        if sf.get("kind") != "claude_md":
+            continue
+        abs_path = (project_root / sf["path"]).resolve()
+        queue.append((abs_path, 0, sf["path"]))
+
+    while queue:
+        abs_path, depth, importer_rel = queue.pop(0)
+        if depth >= _IMPORT_MAX_DEPTH:
+            continue  # already at max hops; do not expand further
+        content = read_text(abs_path)
+        if not content:
+            continue
+        for ref in find_imports(content):
+            target = _resolve_import(ref, abs_path.parent, project_root)
+            if not target.exists() or not target.is_file():
+                unresolved.append({"ref": ref, "from": importer_rel, "resolved": str(target)})
+                continue
+            if target in visited:
+                continue  # cycle / already-included guard
+            visited.add(target)
+            target_rel = rel(target, project_root)
+            imported.append({
+                "path": target_rel,
+                "kind": "rules",
+                "default_category": "mandate",
+                "globs": [],
+                "always_loaded": True,  # imports expand into context at launch
+                "glob_match_count": 0,
+                "scope": "imported",
+                "imported_from": importer_rel,
+                "import_depth": depth + 1,
+            })
+            queue.append((target, depth + 1, target_rel))
+
+    return imported, unresolved
+
+
+# ---------------------------------------------------------------------------
 # Steps 6-8: Load files, assign categories, build output
 # ---------------------------------------------------------------------------
 
 # Maps discover() artifact kinds to source_file entries
 _ARTIFACT_KINDS = ("claude_md", "rules", "agents", "skills", "commands")
 
+# CLAUDE.md scopes that load in full at launch (always-loaded). Nested
+# (monorepo subpackage) CLAUDE.md load on demand, so they are NOT always-loaded.
+_ALWAYS_LOADED_CLAUDE_SCOPES = {"project", "project-dot", "project-local", "user"}
+
 
 def _build_source_files(artifacts: dict, project_root: Path) -> list[dict]:
-    """Flatten discover() artifacts into a source_files list."""
+    """Flatten discover() artifacts into a source_files list.
+
+    For ``rules`` files this parses the ``paths:`` (canonical) / ``globs:``
+    (legacy alias) frontmatter into ``globs``, sets ``always_loaded`` (False when
+    a non-empty scoping key is present), and counts matching project files
+    (``glob_match_count``). For ``claude_md`` it threads discover's ``scope`` so a
+    ``nested`` (monorepo) CLAUDE.md is not-always-loaded (it loads on demand).
+    """
     source_files = []
     for kind in _ARTIFACT_KINDS:
         for entry in artifacts.get(kind, []):
-            source_files.append({
+            sf = {
                 "path": entry["path"],
                 "kind": kind,
                 "default_category": "mandate",
-            })
+            }
+            if "scope" in entry:
+                sf["scope"] = entry["scope"]
+
+            if kind == "rules":
+                content = read_text(project_root / entry["path"])
+                globs = parse_scoping(content) if content else []
+                sf["globs"] = globs
+                sf["always_loaded"] = not globs
+                sf["glob_match_count"] = count_glob_matches(globs, project_root)
+            elif kind == "claude_md":
+                scope = entry.get("scope", "project")
+                sf["globs"] = []
+                sf["always_loaded"] = scope in _ALWAYS_LOADED_CLAUDE_SCOPES
+
+            source_files.append(sf)
     return source_files
 
 
@@ -487,12 +744,56 @@ def _should_ignore(file_path: str, rule_text: str, ignore_patterns: list[str]) -
     return False
 
 
+def _build_tooling(inventory: dict) -> dict:
+    """Best-effort enforcement-tooling signals from discover() (empty if none)."""
+    tooling: dict[str, bool] = {}
+    hooks = inventory.get("hooks", {})
+    events = hooks.get("events", {}) if isinstance(hooks, dict) else {}
+    if events:
+        tooling["hooks"] = True
+    mcp = inventory.get("mcp", {})
+    if isinstance(mcp, dict) and mcp.get("servers"):
+        tooling["mcp"] = True
+    return tooling
+
+
+def _build_project_context(inventory: dict, source_files: list[dict]) -> dict:
+    """Populate the project_context build_prompt.py consumes.
+
+    ``stack`` from discover; ``always_loaded_files`` / ``glob_scoped_files`` from
+    the always_loaded split computed in _build_source_files; ``tooling`` from
+    discover (best-effort, empty dict when nothing detected).
+    """
+    always_loaded_files: list[str] = []
+    glob_scoped_files: list[dict] = []
+    for sf in source_files:
+        globs = sf.get("globs", [])
+        if globs and not sf.get("always_loaded", True):
+            glob_scoped_files.append({"path": sf["path"], "globs": globs})
+        elif sf.get("always_loaded", True):
+            always_loaded_files.append(sf["path"])
+    return {
+        "stack": inventory.get("stack", []),
+        "always_loaded_files": always_loaded_files,
+        "glob_scoped_files": glob_scoped_files,
+        "tooling": _build_tooling(inventory),
+    }
+
+
 def extract_rules(project_root_arg: str | None) -> dict:
     """Full extraction pipeline: discover → read → parse → output dict."""
     inventory = discover(project_root_arg)
     project_root = Path(inventory["project_root"])
 
     source_files = _build_source_files(inventory["artifacts"], project_root)
+
+    # Follow @path imports out of CLAUDE.md files (max depth 4, cycle-guarded).
+    # Resolved imports become additional rule sources; unresolved ones are a
+    # staleness signal surfaced under ``unresolved_imports``.
+    imported, unresolved_imports = resolve_imports(source_files, project_root)
+    source_files.extend(imported)
+
+    project_context = _build_project_context(inventory, source_files)
 
     all_rules: list[dict] = []
     rule_counter = 0
@@ -540,6 +841,8 @@ def extract_rules(project_root_arg: str | None) -> dict:
         "project_root": str(project_root),
         "source_files": source_files,
         "rules": all_rules,
+        "project_context": project_context,
+        "unresolved_imports": unresolved_imports,
     }
 
 

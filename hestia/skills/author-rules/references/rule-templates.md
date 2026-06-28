@@ -14,7 +14,7 @@ Scope to language files. Sample the project first to match existing conventions 
 
 ```yaml
 ---
-globs: "**/*.ts"
+paths: "**/*.ts"
 default-category: mandate
 ---
 ```
@@ -27,7 +27,7 @@ Example directives:
 
 **Common patterns by language:**
 
-| Language | Globs pattern |
+| Language | `paths` pattern |
 |----------|---------------|
 | TypeScript | `"**/*.{ts,tsx}"` |
 | Python | `"**/*.py"` |
@@ -43,7 +43,7 @@ Scope to test files. Check where the project places tests before choosing the pa
 
 ```yaml
 ---
-globs: "**/*.{test,spec}.{ts,tsx,js,jsx}"
+paths: "**/*.{test,spec}.{ts,tsx,js,jsx}"
 default-category: mandate
 ---
 ```
@@ -56,7 +56,7 @@ Example directives:
 
 **Alternative patterns:**
 
-| Convention | Globs pattern |
+| Convention | `paths` pattern |
 |------------|---------------|
 | Adjacent (.test.ts) | `"**/*.{test,spec}.{ts,tsx}"` |
 | Separate dir | `"tests/**/*"` |
@@ -71,7 +71,7 @@ Scope to API route directories.
 
 ```yaml
 ---
-globs: "src/api/**/*.ts"
+paths: "src/api/**/*.ts"
 default-category: mandate
 ---
 ```
@@ -84,7 +84,7 @@ Example directives:
 
 **Alternative patterns:**
 
-| Framework | Globs pattern |
+| Framework | `paths` pattern |
 |-----------|---------------|
 | Express/Fastify | `"src/api/**/*.ts"` |
 | Next.js App Router | `"app/api/**/*.ts"` |
@@ -95,7 +95,7 @@ Example directives:
 
 ## Security
 
-Always-loaded — no `globs:` frontmatter. Security rules apply everywhere.
+Always-loaded — no `paths:` frontmatter. Security rules apply everywhere.
 
 ```yaml
 ---
@@ -116,7 +116,7 @@ Scope to the module's directory.
 
 ```yaml
 ---
-globs: "src/core/**/*"
+paths: "src/core/**/*"
 default-category: mandate
 ---
 ```
@@ -139,7 +139,7 @@ default-category: mandate
 
 Example directives:
 - "Use conventional commits: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`" — **~0.64** (specific format, but consider: commitlint hook instead → F8: 0.30)
-- "Never force-push to `main` or `master`" — **~0.50** (prohibition, distant trigger, and enforceable via `git config receive.denyNonFastForwards` → F8: 0.20)
+- "Never force-push to `main` or `master`" — **~0.50** (prohibition, distant trigger, and best enforced by a `PreToolUse` hook that blocks the force-push command → F8: 0.20; secondarily, a git-native guard like `git config receive.denyNonFastForwards`)
 
 ---
 
@@ -150,7 +150,7 @@ Scope to framework files. Detect which framework the project uses before applyin
 **React:**
 ```yaml
 ---
-globs: "src/components/**/*.{tsx,jsx}"
+paths: "src/components/**/*.{tsx,jsx}"
 default-category: mandate
 ---
 ```
@@ -160,7 +160,7 @@ default-category: mandate
 **Database / ORM:**
 ```yaml
 ---
-globs: "prisma/**/*"
+paths: "prisma/**/*"
 default-category: mandate
 ---
 ```
@@ -178,7 +178,7 @@ Override rules are exceptions to other rules, scoped to specific files. They sco
 Example:
 ```yaml
 ---
-globs: "src/legacy/**/*"
+paths: "src/legacy/**/*"
 default-category: override
 ---
 ```
@@ -195,7 +195,7 @@ Preference rules are soft guidelines where hedging is intentional. F1 and F2 are
 Example:
 ```yaml
 ---
-globs: "**/*.ts"
+paths: "**/*.ts"
 default-category: preference
 ---
 ```

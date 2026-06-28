@@ -94,7 +94,7 @@ The following are discarded (not extracted as rules) even if they contain impera
 - **Headings used as labels**: "## Naming Conventions" is structural, not a directive
 - **Table headers and table-of-contents entries**
 - **Pure reference pointers**: "See `docs/architecture.md` for the full diagram"
-- **YAML frontmatter fields**: `globs:`, `default-category:`, etc.
+- **YAML frontmatter fields**: `paths:`, `default-category:`, etc.
 - **Metadata statements**: "Stack: generic", "Version: 1.0"
 
 ---
@@ -114,7 +114,7 @@ Given this file content:
 
 ```markdown
 ---
-globs: "src/api/**/*.ts"
+paths: "src/api/**/*.ts"
 default-category: mandate
 ---
 

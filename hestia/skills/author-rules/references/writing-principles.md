@@ -78,13 +78,13 @@ One code span. One before/after contrast. F7 jumps from 0.20 to ~0.70.
 
 ## Principle 6: Scope rules where they fire
 
-Rules scoped to always-load (CLAUDE.md, no `globs:`) consume Claude's attention budget on every session, including sessions where the rule is irrelevant. This dilutes the attention available for rules that do matter.
+Rules scoped to always-load (CLAUDE.md, no `paths:`) consume Claude's attention budget on every session, including sessions where the rule is irrelevant. This dilutes the attention available for rules that do matter.
 
 **CLAUDE.md should contain:**
 - Conventions that apply to every file in every session (commit format, tool preferences, project-wide naming)
 - Rules where the trigger is a session-level property (e.g., "always use the project's shared config, not ad-hoc values")
 
-**`.claude/rules/` with `globs:` should contain:**
+**`.claude/rules/` with `paths:` should contain:**
 - Language-specific conventions (TypeScript, Python, SQL)
 - Directory-specific conventions (API routes, test files, migrations)
 - Framework-specific conventions (React components, database models)

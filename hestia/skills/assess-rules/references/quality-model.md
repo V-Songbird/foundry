@@ -106,7 +106,7 @@ The distinction matters for projects with files exceeding 120 lines — the effe
 ### Worked Example
 
 Rule: "Validate all request bodies at the handler boundary using Zod. Example: `CreateUserSchema.parse(req.body)`"
-File: `.claude/rules/api.md` with `globs: "src/api/**/*.ts"`
+File: `.claude/rules/api.md` with `paths: "src/api/**/*.ts"`
 
 | Factor | Value | Weight | w*F | Reasoning |
 |--------|-------|--------|-----|-----------|

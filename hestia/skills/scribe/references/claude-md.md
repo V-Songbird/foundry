@@ -51,7 +51,7 @@ Rules:
 - Both **relative and absolute** paths allowed.
 - Relative paths resolve against the **file containing the import**, not the working directory.
 - `~/...` works for the user home directory.
-- Imports recurse, with a **maximum depth of five hops**.
+- Imports recurse, with a **maximum depth of four hops**.
 - First time a project uses external imports, Claude Code shows an approval dialog. Decline = imports stay disabled.
 
 Use imports to keep CLAUDE.md short while pulling in detailed reference docs (READMEs, contributor guides, project-specific instruction packs).
@@ -123,6 +123,6 @@ CLAUDE.md instructions that reference tools must use the same naming rules as sk
 - Specific verbs help: `"Read <path>"`, `"run via Bash"`, `"Grep for X"`.
 - Same phrasing rules apply whether the instruction lives in CLAUDE.md, a rule file, a skill, or a command.
 
-Source: https://code.claude.com/docs/en/memory (fetched 2026-05-07).
+Source: https://code.claude.com/docs/en/memory (fetched 2026-06-27).
 
 Source: scriptorium/skills/scribe/references/claude-md.md

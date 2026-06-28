@@ -69,7 +69,7 @@ Rules with triggers at Level 4+ are candidates for `PreToolUse`/`PostToolUse` ho
 
 | Situation | Score |
 |-----------|-------|
-| Rule has `globs:` or `paths:` matching the files it applies to | 1.00 |
+| Rule has `paths:` matching the files it applies to | 1.00 |
 | Rule is in CLAUDE.md and applies to ALL files | 0.85 |
 | Rule is in CLAUDE.md but only applies to specific files | 0.40 |
 | Rule has a glob but the glob doesn't match the rule's trigger files | 0.40 |
@@ -136,7 +136,7 @@ Rule: "Mock external services at the boundary — never mock internal modules. E
 - F1: bare imperative "Mock" → 0.85
 - F2: positive imperative with soft prohibition → 0.70
 - F3: same task, different file (test + module) → Level 2 → 0.70
-- F4: in a scoped file (`globs: "**/*.test.ts"`) matching trigger files → 1.00
+- F4: in a scoped file (`paths: "**/*.test.ts"`) matching trigger files → 1.00
 - F7: 3 concrete markers (`fetch`, `api.test.ts`, `getUserById`, `service.test.ts`) → 0.85
 
 Composite: (0.22×0.85) + (0.15×0.70) + (0.19×0.70) + (0.17×1.00) + (0.29×0.85)

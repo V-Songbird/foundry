@@ -141,15 +141,15 @@ Within each level, score higher when:
 
 ## F4: Load-Trigger Alignment (Semi-mechanical)
 
-**What it measures**: Whether the rule's file-level loading scope (determined by `globs:` frontmatter or always-loaded status) matches the conditions under which the rule actually applies. A rule that says "When editing API files, validate with Zod" but loads on every session (no globs) pays full attention cost but only fires some of the time.
+**What it measures**: Whether the rule's file-level loading scope (determined by `paths:` frontmatter or always-loaded status) matches the conditions under which the rule actually applies. A rule that says "When editing API files, validate with Zod" but loads on every session (no `paths:`) pays full attention cost but only fires some of the time.
 
 **Measurement class**: Semi-mechanical. The procedure below extracts the rule's trigger text with regex, but the comparison to the loading scope uses bag-of-words keyword overlap between glob path components and rule text — not exact glob matching. The procedure is testable and reproducible, but the semantic-similarity step places F4 closer to F7 (concreteness) than to the strictly deterministic F1/F2. See `quality-model.md` § "Epistemic anchor" for the full discussion.
 
 **Procedure**:
 
 1. **Extract the rule's loading scope**:
-   - If the file has `globs:` frontmatter → the loading scope is the glob pattern
-   - If the file has no `globs:` frontmatter → always-loaded (scope = all files)
+   - If the file has `paths:` frontmatter → the loading scope is the glob pattern
+   - If the file has no `paths:` frontmatter → always-loaded (scope = all files)
 
 2. **Extract the rule's internal trigger scope**: look for trigger language in the rule text:
    - "When editing X files..." → trigger scope = X files
@@ -171,16 +171,16 @@ Within each level, score higher when:
 
 **Implicit scope trust**: a rule inside a `paths:`-scoped file that does NOT repeat the scope in its text (e.g., "When writing TypeScript in packages/ui, ...") scores high because the `paths:` frontmatter IS the alignment mechanism. Re-stating the scope inside the rule text is redundant padding — the lens rewards concise rules that trust the frontmatter.
 
-4. **Verify glob validity**: For rules with `globs:` frontmatter, run `Glob` against the pattern. If zero matches → score 0.05 (dead glob, functionally stale).
+4. **Verify glob validity**: For rules with `paths:` frontmatter, run `Glob` against the pattern. If zero matches → score 0.05 (dead glob, functionally stale).
 
 ### Worked Examples
 
 | Rule | Loading | Trigger Language | Score | Reasoning |
 |------|---------|-----------------|-------|-----------|
-| "Use Zod for API validation" in `api-rules.md` with `globs: "src/api/**/*.ts"` | Scoped to API | "API validation" | 0.95 | Glob matches trigger perfectly |
+| "Use Zod for API validation" in `api-rules.md` with `paths: "src/api/**/*.ts"` | Scoped to API | "API validation" | 0.95 | Glob matches trigger perfectly |
 | "Validate request bodies with Zod" in the same file (no in-text trigger) | Scoped to API | None (trusts the scope) | 0.85 | Implicit scope trust — the rule correctly doesn't re-state the scope |
-| "Use Zod for API validation" in root `CLAUDE.md` (no globs) | Always-loaded | "API validation" | 0.40 | Paying attention cost every session for a rule that only fires in API work |
-| "Use TypeScript strict mode" in root `CLAUDE.md` (no globs) | Always-loaded | Universal (applies always) | 0.95 | Always-loaded rule with no specific trigger is correctly scoped |
+| "Use Zod for API validation" in root `CLAUDE.md` (no `paths:`) | Always-loaded | "API validation" | 0.40 | Paying attention cost every session for a rule that only fires in API work |
+| "Use TypeScript strict mode" in root `CLAUDE.md` (no `paths:`) | Always-loaded | Universal (applies always) | 0.95 | Always-loaded rule with no specific trigger is correctly scoped |
 | "Run tests for `src/legacy/auth.js`" but `src/legacy/` is deleted | Any | Stale reference | 0.05 | Referenced entity doesn't exist |
 
 ---

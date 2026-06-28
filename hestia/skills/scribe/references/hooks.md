@@ -51,6 +51,12 @@ Fires when a session begins or resumes. Matcher: `startup | resume | clear | com
 { "SessionStart": [{ "matcher": "compact", "hooks": [{ "type": "command", "command": "echo 'Reminder: use bun, not npm.'" }] }] }
 ```
 
+### Setup
+Fires when you start Claude Code with `--init-only`, or with `--init` or `--maintenance` in `-p` mode. Matcher: `init | maintenance`. Use for one-time preparation in CI or scripts. Cannot be blocked (exit 2 shows stderr to the user and execution continues).
+```json
+{ "Setup": [{ "matcher": "init", "hooks": [{ "type": "command", "command": "./scripts/prepare-workspace.sh" }] }] }
+```
+
 ### SessionEnd
 Fires when a session terminates. Matcher: `clear | resume | logout | prompt_input_exit | bypass_permissions_disabled | other`. Use for cleanup.
 
@@ -144,18 +150,15 @@ Fires after the user responds to an MCP elicitation, before the response goes ba
 Cross-reference of the prior `SKILL.md` draft list against the live docs:
 
 VERIFIED (exist in docs):
-`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `UserPromptSubmit`, `SessionStart`, `SessionEnd`, `Stop`, `SubagentStart`, `SubagentStop`, `PreCompact`, `PermissionRequest`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `Notification`, `TeammateIdle`.
+`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `UserPromptSubmit`, `SessionStart`, `Setup`, `SessionEnd`, `Stop`, `SubagentStart`, `SubagentStop`, `PreCompact`, `PermissionRequest`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `Notification`, `TeammateIdle`.
 
 Also from the older prose mention — VERIFIED:
 `PostCompact`, `PermissionDenied`, `TaskCreated`, `InstructionsLoaded`, `CwdChanged`, `FileChanged`.
 
-NOT DOCUMENTED — do not rely on these event names:
-- `Setup` — no such event. Use `SessionStart` (matcher `startup`) for one-time setup behavior.
-
 Additional events present in the docs that the prior draft missed (worth knowing):
 `StopFailure`, `Elicitation`, `ElicitationResult`.
 
-If you encounter a citation to `Setup` in any artifact, treat it as a fabrication and replace with `SessionStart` + the correct matcher.
+`Setup` is a real event (matchers `init | maintenance`) — it fires only under `--init-only`, or `--init` / `--maintenance` in `-p` mode, so it does not run in a normal interactive session. For one-time setup behavior in an ordinary session, `SessionStart` (matcher `startup`) is still the right choice.
 
 ## Hooks in skills and agents
 
@@ -219,7 +222,7 @@ Do not paste full hook configs into CLAUDE.md. Configs belong in `settings.json`
 
 ## Anti-patterns
 
-- **Inventing events.** Never cite an event name that isn't in the catalog above. `Setup`, `OnEdit`, `BeforeCommit` etc. do not exist; the harness silently ignores unknown event keys, which looks like the hook is "broken" when it was never registered.
+- **Inventing events.** Never cite an event name that isn't in the catalog above. `OnEdit`, `BeforeCommit` etc. do not exist; the harness silently ignores unknown event keys, which looks like the hook is "broken" when it was never registered.
 - **Writing executable hook logic in `skills/` markdown as if Claude runs it.** Claude reads SKILL.md; the harness reads `hooks` blocks. A hook described in prose with no corresponding `settings.json` / frontmatter entry will never fire.
 - **Omitting the matcher when one is required.** A `PreToolUse` block with no matcher fires on every tool call — including `Read`, `Glob`, `WebFetch`. This is almost never what authors intend. Set `matcher` to the specific tool names you mean to gate.
 - **Treating stdout as user-facing.** Stdout from `command` hooks is parsed as JSON or injected into Claude's context (depending on event), not shown to the user. User-facing messages go to `systemMessage` in JSON output, or to stderr with exit 2 for blocking feedback.
@@ -227,6 +230,6 @@ Do not paste full hook configs into CLAUDE.md. Configs belong in `settings.json`
 - **Assuming hooks fired.** CLAUDE.md should always describe a fallback for when the hook is absent — users may be on a fresh checkout, the file watcher may have missed an edit, or `disableAllHooks` may be set.
 - **Using regex syntax in `FileChanged` matchers.** `FileChanged` splits on `|` into literal filenames; regex characters are not interpreted.
 
-Source: https://code.claude.com/docs/en/hooks (fetched 2026-05-07).
+Source: https://code.claude.com/docs/en/hooks (fetched 2026-06-27).
 
 Source: scriptorium/skills/scribe/references/hooks.md

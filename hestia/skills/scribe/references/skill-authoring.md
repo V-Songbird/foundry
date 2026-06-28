@@ -16,6 +16,7 @@ YAML between `---` markers at the top of `SKILL.md`. All fields optional; `descr
 | `disable-model-invocation` | No | `true` \| `false` (default `false`) | `true` blocks Claude from auto-loading; only user-invoked. |
 | `user-invocable` | No | `true` \| `false` (default `true`) | `false` hides from `/` menu; only Claude can invoke. |
 | `allowed-tools` | No | space-separated string OR YAML list | Pre-approves tools while skill is active. Supports `Bash(git add *)` patterns. |
+| `disallowed-tools` | No | space-separated/comma-separated string OR YAML list | Tools removed from Claude's available pool while this skill is active. Use for autonomous/background skills that should never call a tool (e.g. `AskUserQuestion`). Restriction clears on your next message. |
 | `model` | No | same values as [`/model`](https://code.claude.com/docs/en/model-config) (`opus`/`sonnet`/`haiku`/full id) OR `inherit` | Model to use while this skill is active. The override applies for the rest of the **current turn only** and is not saved to settings; the session model resumes on the next prompt. `inherit` keeps the active model. |
 | `effort` | No | `low` \| `medium` \| `high` \| `xhigh` \| `max` | Available levels depend on model. Overrides session effort. |
 | `context` | No | `fork` | Run skill in a forked subagent context. |
@@ -225,6 +226,6 @@ Nested discovery: when working with files under `packages/frontend/`, Claude Cod
 - All skill **names** are always included; descriptions get shortened to fit the global budget.
 - Raise the budget with `SLASH_COMMAND_TOOL_CHAR_BUDGET`, or trim `description` + `when_to_use` (front-load key use case — capped at 1,536 chars per entry regardless of global budget).
 
-Source: https://code.claude.com/docs/en/skills (fetched 2026-05-07).
+Source: https://code.claude.com/docs/en/skills (fetched 2026-06-27).
 
 Source: scriptorium/skills/scribe/references/skill-authoring.md

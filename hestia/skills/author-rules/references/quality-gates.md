@@ -34,18 +34,18 @@ These checks ensure the rule integrates cleanly with the existing instruction se
 Every file path, tool name, framework, or package referenced in a directive must exist in the project. Verify with Glob or Read.
 
 ### No Dead Globs
-For every `globs:` pattern in frontmatter, run `Glob("<pattern>")` against the repository. Zero matches = dead pattern. Fix before writing.
+For every `paths:` pattern in frontmatter, run `Glob("<pattern>")` against the repository. Zero matches = dead pattern. Fix before writing.
 
 ### No Contradictions
 Read all existing rules and new rules together. No two directives should conflict. If a new rule intentionally overrides an existing one, use `<!-- category: override -->` and make the override explicit.
 
 ### Proper Scoping
-Rules with specific trigger language ("when editing API files", "for test files") must have matching `globs:` frontmatter. Do not make subsystem-specific rules always-loaded.
+Rules with specific trigger language ("when editing API files", "for test files") must have matching `paths:` frontmatter. Do not make subsystem-specific rules always-loaded.
 
-Ask: "Does this rule apply when editing ANY file?" If no, scope it with `globs:`.
+Ask: "Does this rule apply when editing ANY file?" If no, scope it with `paths:`.
 
 ### Reasonable Density
-Each rule file should stay under 120 lines / 30 rules. If approaching limits, split into focused files with appropriate `globs:` scoping. (Anthropic's documented ceiling is ~200 lines; 120 is a practitioner's soft limit that leaves headroom.)
+Each rule file should stay under 120 lines / 30 rules. If approaching limits, split into focused files with appropriate `paths:` scoping. (Anthropic's documented ceiling is ~200 lines; 120 is a practitioner's soft limit that leaves headroom.)
 
 ---
 
@@ -68,7 +68,7 @@ Before writing any rule file:
 - [ ] No stale references
 - [ ] Glob patterns match existing files
 - [ ] No contradictions with existing rules
-- [ ] Scoped rules have `globs:` frontmatter matching their trigger
+- [ ] Scoped rules have `paths:` frontmatter matching their trigger
 - [ ] File won't exceed density limits
 - [ ] Enforceability alternatives surfaced to user
 - [ ] Category declared if not mandate (`default-category:` in frontmatter or `<!-- category: X -->`)
