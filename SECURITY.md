@@ -2,16 +2,15 @@
 
 If you believe you have found a security issue in one of these plugins, please do not open a public GitHub issue.
 
-Instead, email the details to:
-
-**songbird@tuta.com**
+Instead, email the details to **songbird@tuta.com**.
 
 Please include:
 
 - A description of the issue
 - Steps to reproduce it
-- The plugin and version affected, if you know
+- The plugin and version affected, if known
 
 You can expect an acknowledgement within 7 days.
 
-These plugins run code on your machine, including hooks and helper scripts. Reporting problems privately first gives us time to fix them before others can take advantage of them. Thank you for helping keep users safe.
+> [!NOTE]
+> These plugins run code on your machine, including hooks and helper scripts. Reporting problems privately first gives us time to fix them before others can take advantage of them. Thank you for helping keep users safe.
