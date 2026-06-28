@@ -1,50 +1,125 @@
 # forge
 
-Pre-code feature review workflow for Claude Code.
+> Stop discovering architectural problems in code review. Surface them before implementation starts.
 
-Forge stress-tests a proposed feature design against the actual codebase before any code is written. Parallel domain experts surface cross-domain conflicts; the adversarial critic checks the plan against real code, not assumptions; the user-approval step is where the feature can be redirected or killed before work begins.
+Forge is a pre-code investigation pipeline for Claude Code. Describe a feature, and forge dispatches parallel domain experts against your actual codebase, synthesizes their findings into a grounded implementation plan, and runs an adversarial critic that tries to break the plan against the real code — before you approve a single edit.
+
+The expensive failures — missed integration points, wrong assumptions about how the codebase fits together, conflicts between two areas no single reviewer connected — surface in minutes, not after a week of implementation.
+
+---
+
+## How it works
+
+```
+/forge  ──►  Structural search · domain-skill scan · reality-check spike
+                        │
+                        ▼
+             Parallel expert analysis
+             architecture · security · performance · data/state · UI/UX · testing
+                        │
+                        ▼
+             Master plan synthesis
+             expert reports → one grounded implementation plan
+                        │
+                        ▼
+             Adversarial critic
+             reads the plan · reads the code · finds every gap · cites file:line
+                        │
+                        ▼
+             Plan revision
+             every blocking finding verified and folded back in
+                        │
+                        ▼
+             User approval  ◄── the gate: redirect or cancel before any code is written
+                        │
+                        ▼
+             Implementation
+             parallel worktrees for multi-step plans · one commit per work unit
+                        │
+                        ▼
+             Build & report
+```
+
+Every claim cites `file:line`. No summaries, no hand-waving, no "we'll figure it out later."
+
+---
 
 ## Levels
 
+Three levels cover the full range — from a fast in-session plan to an exhaustively verified design review:
+
 | Level | Trigger | What runs |
 |-------|---------|-----------|
-| **lite** | `/forge lite` | In-session only — no expert or critic dispatch. For prototypes and bounded changes. |
-| **full** | `/forge` | Parallel experts → master plan → adversarial critique → approval → implementation. Default. |
-| **deep** | `/forge deep` | Full pipeline + Workflow dispatch with schema-validated reports and a two-refuter panel per Blocking finding. For high-trust-boundary or cross-team changes. |
+| **lite** | `/forge lite` | In-session only. Orchestrator reads anchor files directly, drafts a plan, gets your approval. No expert or critic dispatch. For prototypes and bounded changes. |
+| **full** | `/forge` | The complete pipeline: parallel experts → master plan → adversarial critique → approval → implementation. **Default.** |
+| **deep** | `/forge deep` | Full pipeline plus Workflow orchestration: schema-validated expert reports and a two-refuter panel per Blocking finding. For high-trust-boundary or cross-team changes. |
 
-## When to use
+---
 
-- The feature crosses two or more architectural areas or touches a trust boundary
-- You want conflicts and risks surfaced before implementation starts
-- You have a design in mind but want it stress-tested by domain experts first
+## The investigation ladder
 
-For trivial localized changes (typo fixes, single-method bugs), use a direct edit — not forge. Use `/forge lite` for exploratory prototypes where the full pipeline costs more than it saves.
+Before starting any forge run, the orchestrator climbs a five-rung ladder and stops at the first rung that covers the task:
+
+1. **Trivial?** Single-file, no cross-cutting dependencies → direct edit, not forge.
+2. **Project skill covers the domain?** Invokes it first — may resolve the question entirely.
+3. **One risky assumption?** A ≤ 30-line reality-check spike confirms or refutes it before expert dispatch.
+4. **Crosses two or more architectural areas, or touches a trust boundary?** → `/forge`
+5. **Explicitly thorough or high-stakes?** → `/forge deep`
+
+This keeps the ten-agent pipeline away from two-line changes. Rungs 2 and 3 often short-circuit the need for expert dispatch entirely.
+
+---
+
+## Quick start
+
+```
+# Standard investigation — the most common starting point
+/forge
+
+# Fast in-session plan, no expert or critic dispatch
+/forge lite
+
+# Exhaustive review with schema-validated reports and independent refuter panels
+/forge deep
+```
+
+Describe the feature after invoking the skill. Forge handles the rest: structural search, parallel domain experts, a plan the critic tries to break, and an approval gate before any edit touches your repository.
+
+---
 
 ## Skills
 
-| Skill | Description |
-|-------|-------------|
-| `/forge:forge` | Full pipeline orchestrator. Entry point for all feature reviews. |
-| `/forge:expert-analysis` | Parallel domain expert analysis (architecture, security, performance, testing, UX). |
-| `/forge:master-plan` | Synthesizes expert reports into a single-layer implementation plan. |
-| `/forge:critic-review` | Adversarial critic: grounds the master plan against actual code. |
-| `/forge:plan-revise` | Incorporates critic findings and user feedback into a revised plan. |
-| `/forge:dispatch-implementation` | Optional: parallel worktree dispatch for multi-step plans. |
-| `/forge:build-and-report` | Optional: build and verify step after implementation. |
+The action skills are orchestrator-invoked — they run as steps in the pipeline and are intentionally absent from the slash-command menu. `/forge` is the only entry point you need.
+
+| Skill | Role |
+|-------|------|
+| `/forge:forge` | Pipeline orchestrator. Manages the full sequence from ladder through report. |
+| `/forge:expert-analysis` | Dispatches parallel domain experts in one tool-use block. |
+| `/forge:master-plan` | Synthesizes expert reports into a single, auditable implementation plan. |
+| `/forge:critic-review` | Dispatches the adversarial critic: reads the plan, reads the code, finds the gaps. |
+| `/forge:plan-revise` | Verifies each critic finding against the code; folds confirmed ones back into the plan. |
+| `/forge:dispatch-implementation` | Parallel worktree dispatch for plans with two or more independent steps. |
+| `/forge:build-and-report` | Merges worktrees, bumps the version, runs the build, and emits the final report. |
+
+---
 
 ## Design
 
-Forge is stack-agnostic — no hardcoded build commands. All stack-specific behavior defers to the consuming project's own CLAUDE.md.
+**Stack-agnostic.** Forge has no hardcoded build commands, version-bump rules, or test runners. All stack-specific behavior is declared in the consuming project's own `CLAUDE.md`. Forge reads it; you own it.
 
-The research stages run on pinned models: domain experts and the adversarial critic use Fable for investigation depth, synthesis steps inherit the session model, and implementers run on Sonnet as a cost choice.
+**Model stratification.** Domain experts and the adversarial critic are pinned to Fable for investigation depth — that pin holds even when the session runs a cheaper model. Synthesis steps inherit the session model. Implementers run on Sonnet: they execute a plan the experts and critic already verified, so research depth is not the constraint at that stage.
 
-## Deep mode
+**Hooks.** A `UserPromptSubmit` hook tracks the active forge level and emits a one-line routing hint when a prompt shows architectural signals and forge is not already active. A `SubagentStart` hook injects a citation-discipline reminder into every subagent spawned during a forge run, reinforcing the citation chain without duplicating it in each agent's frontmatter.
 
-`/forge deep` upgrades the two research stages to Workflow orchestration: experts return schema-validated reports, and every Blocking critic finding is independently audited by a two-refuter panel before it reaches plan revision. Requires Claude Code ≥ 2.1.154 (the `Workflow` tool); falls back to the full pipeline otherwise.
+**Citation chain.** Every expert claim traces to `file:line`. The master plan cites those claims. The adversarial critic verifies against the same files. The implementer works from the same citations. The chain is what makes the pipeline trustworthy — a summary without evidence, or a plan step without a reference, is caught and rejected before it propagates.
+
+---
 
 ## Installation
 
 Clone this repository and register the `forge/` directory as a Claude Code plugin.
+
+---
 
 ## License
 
