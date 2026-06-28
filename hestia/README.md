@@ -1,17 +1,8 @@
 # Hestia
 
-**Claude Code's loyal companion — a secretary that keeps the development environment in order so Claude can focus on building.**
+**Claude Code's session companion** — always-on guardrails, on-demand health checks, and truth-grounding before you touch unfamiliar technology.
 
-Your `CLAUDE.md`, rules, agents, hooks, and skills start strong — then quietly rot: paths drift, rules turn vague, instruction files point at things that no longer exist. Hestia watches all of it for you.
-
-Install it once; it works in the background. Hestia injects standing orders into every session automatically. Run `/hestia:checkup` when you want a full health check.
-
-## What it does
-
-- **Checkup** — One health check of your entire Claude Code setup (`CLAUDE.md`, `.claude/rules`, agents, skills, commands, hooks). You get a ranked, plain-language report of what to fix and a one-tap path to fixing each item.
-- **Freshness** — Watches your setup files and gives you a gentle, one-line nudge when something has gone stale. Never edits anything on its own.
-- **Prepare** — Grounds Claude in an unfamiliar or niche domain before coding starts. Assesses its own knowledge gaps, clones the source repo locally, and builds pointer-index skills and rules from the actual source — not from training guesses. Only builds artifacts when a real gap exists.
-- **Lean** — An always-on minimalism doctrine plus on-demand review tools that push for the simplest solution that actually works.
+Your Claude Code setup starts clean. Then `CLAUDE.md` grows stale, rules turn vague, instruction files reference paths that no longer exist, and Claude confidently writes code from outdated training knowledge. Hestia watches all of it — and keeps Claude honest before and while it builds.
 
 ## Install
 
@@ -20,45 +11,95 @@ Install it once; it works in the background. Hestia injects standing orders into
 /plugin install hestia
 ```
 
-## Quick start
+Hestia starts working at the next session. No configuration required.
+
+---
+
+## How it works
+
+Hestia runs on two tracks: **always-on** standing orders injected into every session, and **on-demand** skills you invoke when you need them.
+
+### Always on — five standing orders
+
+Every session, every subagent, Hestia injects five standing orders automatically:
+
+| Order | What it enforces |
+| --- | --- |
+| **Lean** | Ship the smallest change that fully solves the problem. One line before fifty. Never cut validation, error handling, or security — cut the scaffolding around them. |
+| **Phase discipline** | Work spanning more than ~3 files or 30 minutes gets a phased breakdown proposed first, not started. |
+| **Truth-grounding** | On niche or unfamiliar tech, flag the knowledge gap, collect authoritative sources, and build from them. Training-based confidence is a trap on unfamiliar ground. |
+| **Scope control** | Out-of-scope discoveries get parked as `hestia:later <what> — revisit when <trigger>`, not chased inline. |
+| **Memory hygiene** | Decisions and their reasoning get saved to memory. Code, file contents, and implementation details do not. |
+
+You don't invoke these. They run.
+
+### On demand — skills
+
+| You want to… | Invoke |
+| --- | --- |
+| Full health check of your Claude Code setup | `/hestia:checkup` |
+| Prep Claude for a niche or unfamiliar domain | `/hestia:prepare` |
+| Scan for stale setup files | `/hestia:freshness` |
+| Grade your rules and CLAUDE.md quality | `/hestia:assess-rules` |
+| Write new rules with live quality scoring | `/hestia:author-rules` |
+| Fix rule formatting | `/hestia:format-rules` |
+| Author a skill, agent, command, or hook | `/hestia:scribe` |
+| Validate an instruction file is well-formed | `/hestia:proofread` |
+| Dial lean enforcement up or down | `/hestia:lean trim\|lean\|bare\|off` |
+| Review a diff for over-engineering | `/hestia:lean-review` |
+| Scan the whole codebase for bloat | `/hestia:lean-audit` |
+| See all deferred shortcuts | `/hestia:debt` |
+
+---
+
+## Start here
 
 ```
 /hestia:checkup
 ```
 
-That's the health-check front door. Run it in any project and Hestia inventories your setup, checks each piece, and hands back a prioritized report. Everything else below is something Checkup can route you to.
+Run this in any project. Hestia inventories your entire Claude Code setup — `CLAUDE.md`, `.claude/rules`, agents, skills, commands, hooks — checks every piece, and hands back a ranked, plain-language report with a clear path to fixing each item. Every other skill is reachable from Checkup.
 
-## Commands & skills
+---
 
-| You want to… | Use |
-| --- | --- |
-| Audit your whole setup | `/hestia:checkup` |
-| Prep for a niche/unfamiliar domain | `hestia:prepare` |
-| Scan for stale setup files | `hestia:freshness` |
-| Grade your rules / CLAUDE.md | `hestia:assess-rules` |
-| Write new rules (with live scoring) | `hestia:author-rules` |
-| Tidy rule formatting | `hestia:format-rules` |
-| Author a skill / agent / command / hook | `hestia:scribe` |
-| Check an instruction file is well-formed | `/hestia:proofread` |
-| Dial minimalism up or down | `/hestia:lean trim\|lean\|bare\|off` |
-| Review a diff for over-engineering | `hestia:lean-review` |
-| Scan the whole repo for bloat | `hestia:lean-audit` |
-| List deferred shortcuts | `hestia:debt` |
+## Domain terrain prep
+
+Working with a JetBrains plugin SDK? A game server scripting engine? Any technology where Claude's training knowledge might be incomplete or years out of date?
+
+```
+/hestia:prepare
+```
+
+Hestia assesses its own knowledge gaps honestly, clones the source repository locally, reads the real API surface, and builds pointer-index skills that point directly to the source — not paraphrased summaries that lose detail in translation. If no real gap exists, it says so and stops. Nothing gets built unless the gap is genuine.
+
+---
 
 ## Read-only by default
 
-Hestia's audits and watchers **never change your files**. Checkup, Freshness, the freshness nudge, the proofreader, and every `lean-*` analysis only look and report. The only skills that write — `author-rules`, `format-rules`, `scribe` — do so when you invoke them directly, and always ask before applying.
+Hestia's audits, watchers, and analysis tools **never modify your files**. Checkup, Freshness, Proofreader, and every `lean-*` skill only observe and report.
+
+The three skills that do write — `author-rules`, `format-rules`, `scribe` — run only on direct invocation and always show you what they intend to create before touching anything.
+
+---
 
 ## Files Hestia creates
 
-- `.hestia/` — small persistent state (your `lean` intensity, the freshness-nudge throttle marker).
-- `.hestia-tmp/` — transient working files during an audit; cleaned up afterward.
+| Path | Purpose |
+| --- | --- |
+| `.hestia/` | Persistent state: lean intensity setting, freshness-nudge throttle |
+| `.hestia-tmp/` | Transient audit working files, cleaned up automatically |
 
-Both are local-only and should stay gitignored.
+Add both to `.gitignore`.
+
+---
 
 ## Status
 
-Beta (`1.0.1-beta`) — feature-complete and dogfooded end-to-end. Hestia supersedes the older `rulesense` and `scriptorium` plugins and folds in the planned `virgil` freshness scope. Those plugins remain installable as deprecated stubs that point here. Real-world mileage across diverse projects earns the stable `1.0.0`.
+`1.0.2-beta` — feature-complete and dogfooded end-to-end across all pillars, including the interactive human-in-the-loop judgment flows. Beta means validated on real projects; stable `1.0.0` follows broader real-world mileage.
+
+Hestia supersedes the `rulesense` and `scriptorium` plugins. Both remain installable as deprecated stubs that redirect here.
+
+---
 
 ## License
 
