@@ -61,20 +61,6 @@ Forge dispatches parallel domain experts against your actual codebase, synthesiz
 
 ---
 
-### kairoi — Session safety
-
-Edit-time guards and cross-session sync for long runs in unfamiliar codebases.
-
-- **Guards** — pre-flight checks fire before Claude edits trigger-matched files; encode known constraints before changes land, not after
-- **Sync** — captures tasks, files modified, guards fired, and test results per module after each session
-- **Reflection** — updates module purpose, entry points, known patterns, and negative invariants so Claude's understanding stays accurate over time
-
-```
-/plugin install kairoi
-```
-
----
-
 ### iceberg — Architectural enforcement
 
 Encode structural rules as compiler/lint errors, not PR comments.
@@ -116,8 +102,7 @@ claude-plugins/
 ├── hestia/            ← flagship — start here
 ├── forge/
 ├── iceberg/
-├── jetbrains-router/
-└── kairoi/
+└── jetbrains-router/
 ```
 
 Each plugin is an independent git repository mounted as a submodule. Plugin metadata lives in `.claude-plugin/plugin.json`; the marketplace index is at `.claude-plugin/marketplace.json`.
