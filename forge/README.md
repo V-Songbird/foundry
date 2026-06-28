@@ -1,6 +1,10 @@
-# forge
+<div align="center">
+  <img src="assets/logo.svg" alt="forge" width="120" />
+  <h1>forge</h1>
+  <p><em>Stop discovering architectural problems in code review.<br>Surface them before implementation starts.</em></p>
+</div>
 
-> Stop discovering architectural problems in code review. Surface them before implementation starts.
+---
 
 Forge is a pre-code investigation pipeline for Claude Code. Describe a feature, and forge dispatches parallel domain experts against your actual codebase, synthesizes their findings into a grounded implementation plan, and runs an adversarial critic that tries to break that plan against the real code — before you approve a single edit.
 
