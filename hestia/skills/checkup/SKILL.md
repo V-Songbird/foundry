@@ -65,7 +65,7 @@ If `--finalize` fails (e.g. because `.hestia-tmp/all_judgments.json` does not ex
 MUST invoke `Bash` with `description: "Scan instruction files for stale references"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/drift.py"`
 
-Read the JSON output (it carries `stale_files`, a counted `total_broken`, and a `limits` array). For each entry in `stale_files`, create a triple-shape finding (the `path` is the locator — cite-or-drop satisfied):
+Read the JSON output (it carries `stale_files`, a counted `total_broken`, and a `limits` array). `drift.py` may also emit its own `staleness` field for nudge cadence — ignore it here; the canonical staleness header is the one from Step 1, which can legitimately differ within a single run (Step 1 reads the prior state before this run records a new one). For each entry in `stale_files`, create a triple-shape finding (the `path` is the locator — cite-or-drop satisfied):
 
 ```
 severity: "medium"

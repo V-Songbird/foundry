@@ -165,13 +165,31 @@ def render_markdown(audit: dict, verbose: bool = False) -> str:
     _render_limits(lines, audit)
 
     # 7. Disclaimer
-    lines.append("---\n")
+    _hr(lines)
     lines.append("*This report measures how clearly Claude can parse and apply your rules. "
                  "Actual compliance depends on factors beyond rule text — this audit optimizes "
                  "the structural part authors control. Counts above are observed tallies, not "
                  "before/after impact estimates.*")
 
     return "\n".join(lines)
+
+
+def _hr(lines: list[str]) -> None:
+    """Append a horizontal rule, collapsing if the last content line is already one.
+
+    A section that renders nothing can leave a trailing separator; without this
+    guard the next `---` would double up (cosmetic, but it reads as an empty
+    section). Walk back past blank lines; if the last real line is already a
+    rule, skip.
+    """
+    for prev in reversed(lines):
+        s = prev.strip()
+        if not s:
+            continue
+        if s == "---":
+            return
+        break
+    lines.append("---\n")
 
 
 def _render_limits(lines: list[str], audit: dict) -> None:
@@ -181,7 +199,7 @@ def _render_limits(lines: list[str], audit: dict) -> None:
     explicitly ("No potential conflicts surfaced."), never silenced — silence
     would let the dev assume a surface was cleared when it was merely skipped.
     """
-    lines.append("---\n")
+    _hr(lines)
     lines.append("## Limits — what this run could not check\n")
 
     # Emitter-contributed notes (each is {scope, detail, residual_risk?}).

@@ -95,6 +95,8 @@ SCRIPTS="${CLAUDE_PLUGIN_ROOT}/scripts"
 $PYTHON_CMD "$SCRIPTS/run_audit.py" --prepare --project-root "$(pwd)"
 ```
 
+**Same-directory rule (important).** The pipeline's scratch dir `.hestia-tmp/` is created in the **current working directory**, independent of `--project-root`. Run EVERY phase of this skill (`--prepare`, the judgments write, `--finalize`, `--build-analysis`, `--cleanup`) from the **same working directory** — do not `cd` between phases. If you need to audit a subdirectory, pass it via `--project-root` but stay in the same CWD throughout, otherwise the judgments file and `--finalize` will look in different `.hestia-tmp/` dirs and the run will fail.
+
 This runs the full deterministic pipeline (discover → extract → score → build prompts) and outputs JSON:
 
 ```json
@@ -153,7 +155,7 @@ After the pipeline report, get structured analysis data. Invoke `Bash` with `des
 $PYTHON_CMD "$SCRIPTS/run_audit.py" --build-analysis
 ```
 
-Read the output JSON. It contains grade distribution, file metrics,
+Read the output JSON. It contains `grade_counts` (e.g. `{"A": 4, "B": 1, "F": 2}`), file metrics,
 organization data, best/worst rules, and a compact rules list for
 theme classification — all with standard A/B/C/D/F grades. Use this
 data for the sections below. Do NOT construct ad-hoc Python scripts

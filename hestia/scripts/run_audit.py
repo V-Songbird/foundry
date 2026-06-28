@@ -744,8 +744,10 @@ def cmd_build_analysis() -> None:
 def cmd_cleanup() -> None:
     """--cleanup: remove .hestia-tmp/."""
     tmp = Path(TMP_DIR)
-    if tmp.exists():
+    existed = tmp.exists()
+    if existed:
         shutil.rmtree(tmp)
+    _lib.emit({"status": "ok", "removed": existed, "path": TMP_DIR})
 
 
 # ---------------------------------------------------------------------------
