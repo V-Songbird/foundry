@@ -21,7 +21,9 @@ The dispatching session passes you, in the prompt:
 
 ## What you do
 
-For each claim in the plan, verify against the actual codebase:
+Start with the expert `## Findings summary` sections if they are present in the dispatch prompt. Each `conflict:` and `risk:` tagged line is a pre-flagged claim the experts already identified as high-stakes — verify these first, before reading the plan's prose sections. A `conflict:` line names two locations the plan claims to reconcile; check that the reconciliation is sound. An `assumption:` line names something the plan took on faith; verify it against the code.
+
+Then verify the plan's own claims:
 
 1. **Read the files the plan names.** If the plan says "modify `Foo.cs:120`", invoke `Read` and check that line 120 looks like what the plan describes.
 2. **Search for the plan's assumed integration points.** If the plan says "register the new handler in `Bootstrapper.cs`", invoke `Grep` to find every existing handler registration and verify the pattern matches.

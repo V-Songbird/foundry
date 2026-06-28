@@ -6,6 +6,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [1.2.0-alpha] — 2026-06-27
+
+### Added
+
+- **Three explicit workflow levels.** `/forge lite` runs in-session (no expert or critic dispatch) for prototypes and bounded changes. `/forge` (default) runs the full pipeline. `/forge deep` adds Workflow dispatch with schema-validated reports and a two-refuter panel — previously this was an implicit opt-in detected from prose; it is now a first-class level set by command.
+- **Investigation Ladder.** The workflow's entry logic is now structured as a five-rung ladder: trivial → project-skill check → reality-check spike → full forge → deep forge. The orchestrator stops at the first rung that covers the task, making short-circuit exits (rungs 2 and 3) visible rather than buried in step descriptions.
+- **Routing table in main skill.** A task-shape → right-tool table makes it explicit when forge is the wrong tool and names the alternative (direct edit, `/code-review`, project skill, `/forge lite`).
+- **Tagged expert findings (`## Findings summary`).** Each `forge-expert` report now opens with a machine-readable summary section before its prose. Tags — `conflict:`, `risk:`, `touch:`, `assumption:`, `contract:` — allow `master-plan` to seed `Files touched` sets from `touch:` lines without re-parsing prose, and allow `adversarial-critic` to verify the highest-stakes claims first rather than scanning freeform markdown.
+- **Per-gate scoring metrics.** `master-plan` emits `coverage: <N> domains · <M> conflicts resolved · <P> assumptions flagged for critic` after the plan. `plan-revise` emits `resolution: <N> verified-blocking fixed · <M> refuted · <P> escalated to user` before step 7. These give the user a one-line read on each gate without parsing the full output.
+- **`UserPromptSubmit` hook.** Tracks explicit `/forge`, `/forge lite`, `/forge deep` commands and writes the active level to `~/.claude/.forge-active`. Also emits a one-line routing hint when the user's prompt shows action-verb + architectural-signal patterns and forge is not already active, surfacing the option without requiring the user to know the workflow by heart.
+- **`SubagentStart` hook.** When a forge run is active, injects a brief citation-discipline reminder into every spawned subagent. Silent when forge is not active. Reinforces `file:line` discipline across the pipeline without duplicating it in each agent's frontmatter.
+
+### Changed
+
+- **Adversarial critic prioritizes tagged findings.** `adversarial-critic` now reads `conflict:` and `risk:` tagged lines from expert `## Findings summary` sections before scanning the plan's prose — concentrating its turn budget on pre-flagged high-stakes claims.
+- **Master-plan synthesis starts from tagged findings.** Step 1 of the synthesis procedure is now a `## Findings summary` scan across all expert reports; conflicts are reconciled before step descriptions are drafted, preventing plans built on top of unresolved expert disagreements.
+
 ## [1.1.0-alpha] — 2026-06-11
 
 ### Added

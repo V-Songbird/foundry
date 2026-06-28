@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Reference for the forge robust-development workflow. The 10-step pipeline is parallel domain experts → master plan → adversarial critic → user approval → parallel implementation → build + report. Heavy-by-design; the parallel agents are also a token-cost lever (the dispatching session never reads the full expert / implementer transcripts). Loads alongside the action skills it references — the action skills do the dispatch, this reference tells Claude when and in what order to invoke them.
+description: Reference for the forge robust-development workflow. Three levels — lite (in-session, no dispatch) for prototypes; full (parallel experts → master plan → adversarial critique → parallel implementation) for cross-cutting features; deep (Workflow dispatch with schema validation and refuter panel) for high-stakes changes. The Investigation Ladder determines which level the task warrants. Heavy-by-design; parallel agents are also the token-cost lever.
 when_to_use: Load when the user requests a non-trivial feature — particularly when they say "use forge", "review this design before I build it", or describe a change that crosses architectural boundaries.
 effort: high
 allowed-tools: AskUserQuestion, TaskCreate, Skill
@@ -8,94 +8,111 @@ allowed-tools: AskUserQuestion, TaskCreate, Skill
 
 # Forge: robust-development workflow
 
-Forge is a 10-step pipeline that produces robust, code-grounded feature implementations. The value comes from the gates: parallel domain experts surface cross-domain conflicts; the adversarial critic ground-truths the plan against the actual code; the user-approval step gives the human the chance to redirect before any edit happens; parallel implementers in isolated worktrees finish the work without stepping on each other.
+Forge is a pre-code verification pipeline for features that cross architectural boundaries or touch trust boundaries. The value comes from the gates: parallel domain experts surface cross-domain conflicts; the adversarial critic ground-truths the plan against the actual code; user approval gives the human a chance to redirect before any edit happens; parallel implementers in isolated worktrees finish the work without stepping on each other.
 
-The workflow is heavy by design. Dispatching parallel agents (instead of doing all the analysis in the main session) is also the token-cost lever — the main session never reads the full expert or implementer transcripts, only their structured reports.
+The workflow is heavy by design. Dispatching parallel agents is also the token-cost lever — the main session never reads the full expert or implementer transcripts, only their structured reports.
 
-## When to enter the workflow
+## Levels
 
-Enter forge when ANY hold:
+| Level | Trigger | What runs |
+|-------|---------|-----------|
+| **lite** | `/forge lite` | In-session only. Orchestrator reads anchor files directly, drafts the plan, skips expert and critic dispatch, gets approval, implements in-session. For prototypes and bounded changes where full dispatch costs more than it saves. |
+| **full** | `/forge` | Parallel experts → master plan → adversarial critique → approval → implementation. Default. |
+| **deep** | `/forge deep` | Full pipeline + Workflow dispatch with schema-validated expert reports and a two-refuter panel per Blocking finding. For high-trust-boundary changes, cross-team features, or any run where the user explicitly asks for thoroughness. |
 
-- The feature crosses ≥ 2 architectural areas (UI + persistence; service + worker; etc.).
-- The feature touches a hot path or trust boundary (UI render loop, request handler, auth, parser).
-- The user says "review this design", "use forge for this", or similar.
+Level is set at the start of the run and sticks until implementation completes or the user cancels.
 
-For trivial localized changes (typo, single-method bug fix, copy edit), do NOT use forge — direct edit is appropriate.
+## Investigation Ladder
 
-## The 10 steps
+Before starting any forge run, climb the ladder. Stop at the first rung that fully covers the task — don't climb higher than the task warrants.
 
-| #   | Action                                                                       | Model                | Skill                       |
-|-----|------------------------------------------------------------------------------|----------------------|-----------------------------|
-| 1   | Understand and identify the feature requirements and intention               | inherit              | —                           |
-| 2   | Quick search for essential structural codebase knowledge                     | inherit              | —                           |
-| 2.3 | Domain-skill scan: invoke any project skills authoritative for this feature  | inherit              | —                           |
-| 2.5 | Reality-check spike against the riskiest assumption (≤ 30 lines)            | inherit              | —                           |
-| 3   | Dispatch domain experts in parallel                                          | fable (per expert)   | `/forge:expert-analysis`    |
-| 4   | Consolidate expert reports into a master implementation plan                 | inherit (effort high)| `/forge:master-plan`        |
-| 5   | Dispatch the adversarial critic against the master plan                      | fable (effort high)  | `/forge:critic-review`      |
-| 6   | Verify each critique; fold verified findings back into the plan              | inherit (effort high)| `/forge:plan-revise`        |
-| 7   | Present the plan digest + revised plan to the user; wait for approval        | inherit              | —                           |
-| 8   | Implement the plan (parallel-first when ≥ 2 disjoint steps; in-session else) | sonnet (per worker)  | `/forge:dispatch-implementation` |
-| 9   | Bump version (per consuming project's convention) and run the project build  | sonnet               | `/forge:build-and-report`   |
-| 10  | Deliver the final implementation report                                      | sonnet               | `/forge:build-and-report`   |
+1. **Trivial?** Single-file, no cross-cutting dependencies, no trust boundary → direct edit, not forge.
+2. **Project skill claims domain authority?** Check `.claude/skills/` for a skill whose description matches the feature's area. If one exists, invoke it with the `Skill` tool. The output may resolve the question without a forge run — if it does, stop. If it doesn't, continue climbing.
+3. **One risky assumption blocks the whole design?** A ≤ 30-line read can confirm or refute it. Read the code, surface the result. If the assumption is refuted, stop and surface the finding to the user. If confirmed, continue climbing.
+4. **Crosses ≥ 2 architectural areas or touches a trust boundary?** → `/forge` (or `/forge lite` for prototypes — see routing).
+5. **Explicitly thorough, deep, or exhaustive?** → `/forge deep`.
 
-Steps 1, 2, 2.3, 2.5, 7 run in the main session with no skill — they are orchestrator actions. Steps 9 and 10 are produced by a single skill (`/forge:build-and-report`) in one pass. Step 8 runs `/forge:dispatch-implementation` when the plan has ≥ 2 disjoint steps; otherwise the orchestrator implements directly in-session.
+Rungs 2 and 3 are fast passes that often short-circuit the need for expert dispatch. Only skip them when their scope clearly doesn't apply to the task.
 
-Model rationale: the research-shaped subagents (experts, critic) pin `fable` in their frontmatter — investigation depth is their purpose, and the pin holds even when the session runs a cheaper model. The synthesis steps (4, 6) inherit the session model so they never age into a downgrade when newer models ship. Implementers stay `sonnet` as a deliberate cost choice — they execute a plan the experts and critic already verified.
+## Routing
 
-## Deep mode — user opt-in upgrade for Steps 3 and 5
+| Task shape | Right tool |
+|---|---|
+| Single-file bug fix, no dependencies | Direct edit |
+| Schema or domain question | Invoke the relevant project skill |
+| Exploratory prototype or sandbox | `/forge lite` |
+| Refactoring existing, well-understood code | `/code-review`, then direct edit |
+| Cross-cutting feature or trust boundary | `/forge` |
+| Explicitly thorough or high-stakes change | `/forge deep` |
 
-Deep mode upgrades the two research dispatches from `Agent` calls to `Workflow` orchestration. Enter it ONLY when BOTH hold:
+## The pipeline
 
-- The user explicitly asked for a deep / thorough / exhaustive run ("deep forge", "be thorough", "ultracode"). Depth is a user opt-in, never an orchestrator inference — multi-agent fan-out at this scale is the user's call.
-- The `Workflow` tool is available in the session (requires Claude Code ≥ 2.1.154).
+| #   | Action                                                                       | Model                | Skill                           |
+|-----|------------------------------------------------------------------------------|----------------------|---------------------------------|
+| 1   | Understand and identify the feature requirements and intention               | inherit              | —                               |
+| 2   | Quick search for essential structural codebase knowledge                     | inherit              | —                               |
+| 2.3 | Domain-skill scan: invoke any project skills authoritative for this feature  | inherit              | — (ladder rung 2)               |
+| 2.5 | Reality-check spike against the riskiest assumption (≤ 30 lines)            | inherit              | — (ladder rung 3)               |
+| 3   | Dispatch domain experts in parallel                                          | fable (per expert)   | `/forge:expert-analysis`        |
+| 4   | Consolidate expert reports into a master implementation plan                 | inherit (effort high)| `/forge:master-plan`            |
+| 5   | Dispatch the adversarial critic against the master plan                      | fable (effort high)  | `/forge:critic-review`          |
+| 6   | Verify each critique; fold verified findings back into the plan              | inherit (effort high)| `/forge:plan-revise`            |
+| 7   | Present the plan digest + revised plan to the user; wait for approval        | inherit              | —                               |
+| 8   | Implement (parallel-first when ≥ 2 disjoint steps; in-session otherwise)    | sonnet (per worker)  | `/forge:dispatch-implementation` |
+| 9   | Bump version and run the project build                                       | sonnet               | `/forge:build-and-report`       |
+| 10  | Deliver the final implementation report                                      | sonnet               | `/forge:build-and-report`       |
 
-If either fails, run the standard pipeline; deep mode is an upgrade, not a prerequisite. What changes:
+Steps 1, 2, 2.3, 2.5, and 7 run in the main session — orchestrator actions, not skills. Steps 9 and 10 are produced by a single skill in one pass. Step 8 invokes `/forge:dispatch-implementation` when the plan has ≥ 2 disjoint steps; otherwise the orchestrator implements in-session.
 
-- **Step 3** — `/forge:expert-analysis` dispatches the experts through a `Workflow` script with schema-validated reports (see that skill's "Deep mode" section). Malformed reports are retried at the tool layer instead of hand-parsed by heading.
-- **Step 5** — `/forge:critic-review` runs the critic plus a two-refuter panel per Blocking finding (see that skill's "Deep mode" section). Panel verdicts arrive pre-flagged for `/forge:plan-revise`, which verifies the likeliest misfires first.
-- Everything else is unchanged: same gates, same Step 7 approval, same implementation routing.
+**Lite level:** steps 3, 5, and parallel dispatch (8) are skipped. The orchestrator reads anchor files directly in step 2, drafts the plan in-session at step 4, skips the adversarial critique, presents for approval at step 7, and implements in-session.
+
+Model rationale: the research subagents (experts, critic) pin `fable` — investigation depth is their purpose, and the pin holds even when the session runs a cheaper model. The synthesis steps (4, 6) inherit the session model so they never age into a downgrade when newer models ship. Implementers stay `sonnet` as a deliberate cost choice — they execute a plan the experts and critic already verified.
+
+## Deep mode — Workflow dispatch
+
+Deep mode replaces the standard `Agent` dispatch at steps 3 and 5 with `Workflow` orchestration. Requires Claude Code ≥ 2.1.154 — if the `Workflow` tool is absent, fall back to the full level; never block the pipeline on the tool's availability.
+
+- **Step 3** — `/forge:expert-analysis` dispatches experts through a Workflow script with schema-validated reports. Malformed reports are retried at the tool layer instead of hand-parsed by heading.
+- **Step 5** — `/forge:critic-review` runs the critic plus a two-refuter panel per Blocking finding. Panel verdicts arrive pre-flagged for `/forge:plan-revise`, which verifies the likeliest misfires first.
+
+Everything else is unchanged: same gates, same step 7 approval, same implementation routing.
 
 ## Step 2.3 — Domain-skill scan
 
 After the structural search, check whether the consuming project has skills in `.claude/skills/` that claim domain authority over any area the feature touches. A skill is a domain-authority candidate when its description uses words like "authoritative", "schema", "reference", or names the domain by type (e.g. "rAthena YAML database schemas", "rathena scripting API").
 
-For each matching skill, invoke it with the `Skill` tool immediately — before Step 2.5 and before expert dispatch. Its output becomes **supplemental domain authority** for this forge run: pass it inline in the relevant expert dispatch prompt (see `/forge:expert-analysis` Dispatch Template — the optional `## Domain authority` section) so the expert starts from pre-baked knowledge rather than file searches.
+For each matching skill, invoke it with the `Skill` tool immediately — before step 2.5 and before expert dispatch. Its output becomes **supplemental domain authority** for this forge run: pass it inline in the relevant expert dispatch prompt so the expert starts from pre-baked knowledge rather than file searches.
 
-**Why this step exists:** experts and the reality-check spike read files to answer schema questions. A project skill that already encodes the authoritative answer is faster, more reliable, and prevents experts from disagreeing on field names that the skill has already settled.
-
-Skip Step 2.3 only when the project has no `.claude/skills/` directory or no skill description matches the feature's domain.
+Skip step 2.3 only when the project has no `.claude/skills/` directory or no skill description matches the feature's domain.
 
 ## Step 2.5 — Reality-check spike
 
-Before dispatching experts, run a ≤ 30-line spike against the single riskiest assumption — whichever claim, if false, would invalidate the whole design. Examples: "does this metric actually separate the cases in real data?", "does this API return the shape we assumed?", "does the existing parser already emit the event we want to subscribe to?".
+Before dispatching experts, run a ≤ 30-line spike against the single riskiest assumption — whichever claim, if false, would invalidate the whole design. If the spike refutes the assumption, STOP — surface the refutation to the user with `file:line` evidence and ask for a corrected scope before continuing. Do NOT silently re-scope.
 
-If the spike refutes the assumption, STOP — surface the refutation to the user with `file:line` evidence and ask for a corrected scope before continuing. Do NOT silently re-scope.
-
-Skip Step 2.5 only when the feature has no risky assumption (pure refactor, well-trodden CRUD, well-covered by existing patterns).
+Skip step 2.5 only when the feature has no risky assumption (pure refactor, well-trodden CRUD, well-covered by existing patterns).
 
 ## Step 7 — Approval gate
 
-The master plan is built to direct Claude — W-IDs, `file:line` citations, done-when criteria, contract clauses. Presented raw, it trains users to approve without reading. So present in two layers: a short **plan digest** first, then the full plan beneath it for anyone who wants the detail.
+The master plan is built to direct Claude — W-IDs, `file:line` citations, done-when criteria, contract clauses. Presented raw, it trains users to approve without reading. Present in two layers: a short **plan digest** first, then the full plan beneath it.
 
-Write the digest for a developer who has NOT followed the pipeline: technical terms are fine (this reader is a dev), plan machinery is not — no W-IDs, no `file:line` lists, no contract-clause numbering. Shape:
+Write the digest for a developer who has NOT followed the pipeline — technical terms are fine, plan machinery is not (no W-IDs, no `file:line` lists, no contract-clause numbering). Shape:
 
 ```markdown
 ## What this plan does
 
 <2–3 sentences: the intention — what gets built, and why it answers what the user asked for.>
 
-**The change:** <1–2 sentences naming the areas touched in dev terms — "a new handler in the request pipeline plus a settings toggle", not file paths.>
+**The change:** <1–2 sentences naming the areas touched in dev terms.>
 
 **Worth knowing before you approve:**
 - <the 1–2 real risks, stated as what the user would observe if they bite>
-- <what the critic changed, if anything: "the critic caught X; the plan now does Y">
-- <decisions still open — the same questions the plan's Open questions section escalates>
+- <what the critic changed, if anything>
+- <decisions still open>
 
-**How we'll know it works:** <one sentence: the test command, build, or smoke test that verifies it.>
+**How we'll know it works:** <one sentence: the test command, build, or smoke test.>
 ```
 
-Cap the digest at ~12 lines and skip any bullet with nothing real to say. The digest is presentation only — the full plan below it remains the single canonical artifact the critic verified and the implementers receive. Never let the digest drift into a second plan, and never edit the plan via the digest.
+Cap the digest at ~12 lines and skip any bullet with nothing real to say. The digest is presentation only — the full plan below remains the single canonical artifact. Never let the digest drift into a second plan, and never edit the plan via the digest.
 
 Immediately after the digest + plan, MUST invoke `AskUserQuestion`:
 
@@ -112,37 +129,35 @@ AskUserQuestion(questions: [{
 }])
 ```
 
-No risk tiers. No diff preview. The user reads the digest for intention and the plan for detail, then approves, asks for a revision, or cancels.
-
 ## After approval (Step 8)
 
-Default mode is **parallel-first**: invoke `/forge:dispatch-implementation` whenever the plan has ≥ 2 steps marked `Parallel-friendly: yes` (the annotation guarantees disjoint Files-touched sets and no ordering dependency). One `forge-implementer` subagent per qualifying step, each in `isolation: "worktree"`, all dispatched in a single tool-use block.
+Default is **parallel-first**: invoke `/forge:dispatch-implementation` whenever the plan has ≥ 2 steps marked `Parallel-friendly: yes`. One `forge-implementer` subagent per qualifying step, each in `isolation: "worktree"`, all dispatched in a single tool-use block.
 
-Fall back to in-session implementation when the plan has < 2 disjoint parallel-friendly steps. In that case the orchestrator writes the code directly; the coordination overhead of parallel dispatch does not pay for itself on a single coherent edit.
+Fall back to in-session implementation when the plan has fewer than 2 disjoint parallel-friendly steps.
 
 ## Build and report (Steps 9 and 10)
 
 After implementation lands, invoke `/forge:build-and-report`. The skill bumps the version per the consuming project's convention (read from the project's CLAUDE.md), runs the project's build / verification commands, and emits the final report with the two mandatory sections "How to test this feature" and "How is this feature useful?".
 
-The forge plugin is stack-agnostic; the actual version-bump file (`plugin.xml`, `package.json`, `Cargo.toml`, `pyproject.toml`, etc.) and build command (`./gradlew buildPlugin`, `npm run build`, `cargo build`, `pytest`) are the consuming project's responsibility to declare in its own CLAUDE.md.
+The forge plugin is stack-agnostic; the actual version-bump file and build command are the consuming project's responsibility to declare in its own CLAUDE.md.
 
 ## Workflow principles
 
-- **Citations required.** Experts, critic, plan — every claim cites `file:line` (or a doc URL for claims an expert verified against external documentation). Summaries without citations break verification chains.
+- **Citations required.** Experts, critic, plan — every claim cites `file:line` (or a doc URL for externally-verified claims). Summaries without citations break verification chains.
 - **Single canonical plan in conversation.** `/forge:plan-revise` rewrites in place; the conversation never holds v1 + v2 + v3 simultaneously.
-- **Foreground subagents.** Every `Agent` dispatch in this workflow is `run_in_background: false`. The next step needs the prior step's output. (Deep-mode `Workflow` runs return via task notification — wait for the result; never start the next step on a pending workflow.)
-- **Resume when context is an asset; re-dispatch when it misleads.** Decision-only blockers and contested critic findings continue the original subagent via `SendMessage` (its read context and worktree are intact). Fresh dispatch is for changed assignments — re-sliced work units, re-scoped expert coverage — where stale context is a liability. Fall back to fresh dispatch when `SendMessage` is unavailable.
+- **Foreground subagents.** Every `Agent` dispatch is `run_in_background: false`. The next step needs the prior step's output. (Deep-mode `Workflow` runs return via task notification — wait before starting the next step.)
+- **Resume when context is an asset; re-dispatch when it misleads.** Decision-only blockers continue the original subagent via `SendMessage`. Fresh dispatch is for changed assignments where stale context is a liability. Fall back to fresh dispatch when `SendMessage` is unavailable.
 - **No persistent state files.** The plan, critique, and expert reports live in conversation context. The workflow does not write `.claude/plans/*.md` or similar.
 - **User approval is non-negotiable.** Step 7 is the gate. The orchestrator never silently proceeds to writing code.
-- **`TaskCreate` per work unit before dispatch.** When `/forge:dispatch-implementation` runs, MUST invoke `TaskCreate` for each work unit (paired `content` + `activeForm`) before the parallel `Agent` calls — the dispatch skill's body specifies the exact wording.
+- **`TaskCreate` per work unit before dispatch.** When `/forge:dispatch-implementation` runs, MUST invoke `TaskCreate` for each work unit (paired `content` + `activeForm`) before the parallel `Agent` calls.
 
 ## Re-running a single phase
 
 The action skills are independently invocable for re-runs:
 
-- Bad expert coverage → re-run `/forge:expert-analysis` with a different role list (fresh dispatch — the original experts' context reflects the wrong scope).
-- Plan needs revision after the user pushed back → re-run `/forge:plan-revise`. Re-dispatch the critic only if the change is structural.
-- One dispatched implementer blocked on a decision, work unit unchanged → resume it via `SendMessage` with the ruling. Blocked because the step itself was wrong → re-run `/forge:dispatch-implementation 2` (just unit W2) after revising the plan.
+- Bad expert coverage → re-run `/forge:expert-analysis` with a different role list.
+- Plan needs revision after user pushback → re-run `/forge:plan-revise`. Re-dispatch the critic only if the change is structural.
+- One dispatched implementer blocked on a decision, work unit unchanged → resume via `SendMessage` with the ruling.
 - Build broke after a tangential change → re-run `/forge:build-and-report`.
 
-Each action skill is `user-invocable: false` — only the orchestrator (Claude) invokes them, at the right step in the pipeline. They are deliberately hidden from the slash-command menu so the workflow runs as a single coherent pipeline driven by this reference. Do not auto-fire skills out of sequence: the workflow's value comes from the gates between steps, and skipping ahead defeats them.
+Each action skill is `user-invocable: false` — only the orchestrator invokes them, at the right step in the pipeline. They are deliberately hidden from the slash-command menu so the workflow runs as a single coherent pipeline. Do not auto-fire skills out of sequence: the workflow's value comes from the gates between steps, and skipping ahead defeats them.

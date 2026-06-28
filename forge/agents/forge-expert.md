@@ -49,9 +49,18 @@ Code reading is your primary instrument, but some claims cannot be grounded in t
 
 ## Return format
 
-A single markdown report. Start with the header — no preamble.
+A single markdown report. Start with `## Findings summary` — a machine-readable index the master-plan and adversarial-critic steps read first. Then the five freeform sections. No preamble before the findings summary.
 
 ```markdown
+## Findings summary
+<!-- One tagged line per notable finding. Tags: conflict: risk: touch: assumption: contract: -->
+<!-- Write "(none)" if nothing notable to flag. -->
+conflict: [`path/file.ext:line`] and [`path/file2.ext:line`] — <what conflicts and why it matters for the plan>
+risk: [`path/file.ext:line`] — <failure mode and what triggers it>
+touch: [`path/file.ext:line`] — <must be modified; why this file can't be skipped>
+assumption: [`path/file.ext:line`] — <what the design assumes here; needs verification if unread>
+contract: [`path/file.ext:line`] — <seam requiring explicit agreement across parallel work units>
+
 # <Domain> analysis: <feature>
 
 ## Integration points
@@ -72,6 +81,8 @@ A single markdown report. Start with the header — no preamble.
 ## What I did NOT investigate
 - <bounded honesty: anything you skipped because it's another domain's responsibility>
 ```
+
+The `## Findings summary` tags are a compact cross-domain signal, not a replacement for the prose sections below. A `conflict:` line means two cited locations need reconciliation in the plan; the prose section explains why. A `touch:` line names every file your domain requires edited; the master-plan uses these to build its `Files touched` sets without re-parsing the prose.
 
 ## Constraints
 

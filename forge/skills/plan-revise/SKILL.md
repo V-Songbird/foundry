@@ -63,8 +63,18 @@ The plan from `/forge:master-plan`, revised in place, plus a new section appende
 - **One canonical plan in the conversation.** Rewrite in place; don't accumulate v1 / v2 / v3. The orchestrator (or downstream implementer) works from the latest plan; ambiguity costs more than the temporary discomfort of overwriting.
 - **Cite `file:line` on every classification.** A "refuted" finding without code evidence is just disagreement; the user (Step 7) needs evidence to trust the resolution.
 
+## Gate metric
+
+After the revision and critique-resolution table are written, output one summary line before moving to step 7:
+
+```
+resolution: <N> verified-blocking fixed · <M> refuted · <P> escalated to user
+```
+
+Use the counts from the Critique resolution table. This line is the signal for the user (at step 7) to judge whether the plan absorbed the critic's findings or pushed them into their lap.
+
 ## Next Step
 
-After revision is complete, present the plan digest followed by the revised plan to the user for approval. See the `forge` skill's "Step 7 — Approval gate" section for the digest shape (a short, dev-pitched summary of intention, change shape, risks, and verification — no plan machinery) and the canonical `AskUserQuestion` schema (Approve / Revise / Cancel). After approval, the orchestrator routes implementation: `/forge:dispatch-implementation` if the plan has ≥ 2 steps marked `Parallel-friendly: yes`, or in-session implementation otherwise.
+After the revision, gate metric, and critique-resolution table are complete, present the plan digest followed by the revised plan to the user for approval. See the `forge` skill's "Step 7 — Approval gate" section for the digest shape (a short, dev-pitched summary of intention, change shape, risks, and verification — no plan machinery) and the canonical `AskUserQuestion` schema (Approve / Revise / Cancel). After approval, the orchestrator routes implementation: `/forge:dispatch-implementation` if the plan has ≥ 2 steps marked `Parallel-friendly: yes`, or in-session implementation otherwise.
 
 Watch for plan growth during revision. The original plan was capped at ≤ 80 lines for typical features; folding in critique findings can push it past that. If the revised plan exceeds the cap, the same triage rules apply — fold one-line-mitigation Risks into step descriptions, drop Open questions that have implicit recommendations, prune step prose to the essentials.

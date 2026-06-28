@@ -25,13 +25,15 @@ For the full template with field-by-field guidance, see [references/plan-structu
 
 ## Synthesis procedure
 
-1. **Cluster the steps.** Each step is a bounded edit a reader can hold in their head. 1 step is fine for focused changes; 5 is the practical ceiling. Cluster by what belongs together, NOT by parallelism — disjointness is the `Parallel-friendly` annotation's job, not the step boundary's.
-2. **Write step descriptions as prose.** 2–4 sentences naming what gets built, against which existing patterns (cite `file:line`), and the order if it matters. NO numbered substeps, NO inline pseudocode, NO code snippets.
-3. **Reconcile citations.** Every `file:line` cited by any expert appears in exactly one step's "Files touched" list. If two experts cite the same line with conflicting interpretations, MUST invoke `Read` on the file and resolve by reading the code yourself.
-4. **Triage risks ruthlessly.** A risk has the shape: "if this mitigation goes wrong, the user observes <symptom>." Cap at 3. One-line code fixes (clamps, sort tie-breaks, exclusion sets) are NOT risks — fold them into the relevant step's description as a sentence and drop the row.
-5. **Triage open questions ruthlessly.** Only items the user must decide. If you have a recommendation, write it as a stated decision in the relevant step's description and drop the row. Empty `Open questions` section is fine and common.
-6. **Annotate `Parallel-friendly: yes` only when honest.** A step gets the annotation ONLY if its "Files touched" set is genuinely disjoint from every other step's AND its description has no ordering dependency. Default: omit the line entirely.
-7. **Emit the Integration-contract appendix only when ≥ 2 steps are `Parallel-friendly: yes`.** Otherwise omit the appendix entirely; contract details fold inline into the relevant step's description (e.g. "subscribe to the dispatcher at `Foo.cs:120`, signature `void Handle(Bar)`"). For in-session implementation, the inline form is sufficient.
+1. **Scan `## Findings summary` sections first.** Every expert report opens with a tagged summary. Collect all `conflict:` lines — each one names two locations that need reconciliation and becomes a synthesis task before step descriptions are written. Collect all `touch:` lines to seed the `Files touched` sets. Collect all `assumption:` lines to flag for the critic. Only after this pass, read the prose sections for depth. This order prevents synthesizing a plan on top of an unresolved conflict the experts already flagged.
+
+2. **Cluster the steps.** Each step is a bounded edit a reader can hold in their head. 1 step is fine for focused changes; 5 is the practical ceiling. Cluster by what belongs together, NOT by parallelism — disjointness is the `Parallel-friendly` annotation's job, not the step boundary's.
+3. **Write step descriptions as prose.** 2–4 sentences naming what gets built, against which existing patterns (cite `file:line`), and the order if it matters. NO numbered substeps, NO inline pseudocode, NO code snippets.
+4. **Reconcile citations.** Every `file:line` cited by any expert appears in exactly one step's "Files touched" list. If two experts cite the same line with conflicting interpretations, MUST invoke `Read` on the file and resolve by reading the code yourself.
+5. **Triage risks ruthlessly.** A risk has the shape: "if this mitigation goes wrong, the user observes <symptom>." Cap at 3. One-line code fixes (clamps, sort tie-breaks, exclusion sets) are NOT risks — fold them into the relevant step's description as a sentence and drop the row.
+6. **Triage open questions ruthlessly.** Only items the user must decide. If you have a recommendation, write it as a stated decision in the relevant step's description and drop the row. Empty `Open questions` section is fine and common.
+7. **Annotate `Parallel-friendly: yes` only when honest.** A step gets the annotation ONLY if its "Files touched" set is genuinely disjoint from every other step's AND its description has no ordering dependency. Default: omit the line entirely.
+8. **Emit the Integration-contract appendix only when ≥ 2 steps are `Parallel-friendly: yes`.** Otherwise omit the appendix entirely; contract details fold inline into the relevant step's description (e.g. "subscribe to the dispatcher at `Foo.cs:120`, signature `void Handle(Bar)`"). For in-session implementation, the inline form is sufficient.
 
 ## Critical Constraints
 
@@ -43,9 +45,19 @@ For the full template with field-by-field guidance, see [references/plan-structu
 - **NEVER emit the Integration-contract appendix for a single-step or sequential plan.** It is not load-bearing in those cases and just bloats the audit surface.
 - **Cite `file:line` on every claim.** Plans without citations fail the critic and the implementer cannot verify against the code.
 
+## Gate metric
+
+After the plan is emitted, output one summary line:
+
+```
+coverage: <N> domains · <M> conflicts resolved · <P> assumptions flagged for critic
+```
+
+Use the counts from the `## Findings summary` scan: domains = number of expert reports; conflicts = `conflict:` lines reconciled; assumptions = `assumption:` lines carried into the plan as critic targets.
+
 ## Next Step
 
-After the plan is in the conversation, invoke `/forge:critic-review` to dispatch the adversarial critic against it.
+After the plan and gate metric are in the conversation, invoke `/forge:critic-review` to dispatch the adversarial critic against it.
 
 ## Additional resources
 
