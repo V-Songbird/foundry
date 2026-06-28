@@ -24,7 +24,7 @@ Each plugin is an independently installable unit with its own version, changelog
 
 ## Plugins
 
-### hestia — Claude Code's session companion
+### [hestia](https://github.com/V-Songbird/hestia) — Claude Code's session companion
 
 Always-on guardrails and on-demand health checks for your entire Claude Code setup.
 
@@ -45,7 +45,7 @@ Standing orders injected automatically into every session enforce minimal code, 
 
 ---
 
-### forge — Pre-code feature review
+### [forge](https://github.com/V-Songbird/forge) — Pre-code feature review
 
 Stop discovering architectural problems in code review. Surface them before implementation starts.
 
