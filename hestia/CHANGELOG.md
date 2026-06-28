@@ -2,6 +2,13 @@
 
 All notable changes to Hestia are documented here. Versions are owned by the marketplace manifest, not `plugin.json`.
 
+## [1.0.1-beta] — 2026-06-27
+
+### Changed — smarter truth-grounding in `/hestia:prepare`
+- **YAGNI gate (Step 4):** before proposing Skills or Rules, prepare now checks whether a real gap exists. If training knowledge plus the gathered sources show no significant gaps, it skips artifact creation and notes the self-assessment is available in conversation — no noise for domains Claude already knows well.
+- **Knowledge folder (Step 3):** GitHub repository URLs are now cloned shallow (`git clone --depth 1`) into `./knowledge/<lib-name>/` so the source is navigable on disk. Documentation and non-repo URLs stay as `WebFetch`.
+- **Pointer-index Skills (Step 5):** Skills are now authored as pointer-indexes — each entry names a concept, states its constraint in one line, and points to a `./knowledge/<lib>/path:line` location in the cloned source. Claude reads the file directly when it needs depth. Narrative summaries are no longer written, eliminating the telephone-game distortion where source → Claude summary → skill adds two lossy hops.
+
 ## [1.0.0-beta] — 2026-06-27
 
 First feature-complete, dogfooded release. All six pillars built, conformed to the official Claude Code spec, and hardened with an evidence-driven epistemics layer. Both interactive flows (`/hestia:checkup`, `/hestia:assess-rules`) were driven end-to-end as a live session — including the human F3/F8 judgment loop — before this promotion.

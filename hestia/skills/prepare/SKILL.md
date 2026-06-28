@@ -115,12 +115,16 @@ MUST invoke `AskUserQuestion`:
 
 After the user responds, collect every URL and file path they provide. Then:
 
-- For each URL: MUST invoke `WebFetch` with the URL and capture the content.
+- For each GitHub repository URL: MUST invoke `Bash` to clone it locally
+  (`git clone --depth 1 <url> ./knowledge/<lib-name>`) so the source is
+  navigable on disk. Record the cloned path — pointer skills will reference it.
+  Also MUST invoke `WebFetch` on the URL or its README for a quick orientation.
+- For non-GitHub documentation URLs: MUST invoke `WebFetch` with the URL.
   If the page is large, focus on API reference, changelog, and example sections.
 - For each local file path: MUST invoke `Read` with the path.
-- After all sources are fetched, write a short summary in the chat (3–6 bullet
-  points) covering the concrete facts learned: API shape, key conventions,
-  known version differences, common pitfalls mentioned in the source material.
+- After all sources are gathered, write a short summary in the chat (3–5 bullet
+  points): what was cloned vs. fetched, the most important API constraints found,
+  any version differences or traps the sources explicitly warned about.
 
 If the user says they have no sources to share, acknowledge it and proceed to
 Step 4 with only your self-assessment knowledge. Do NOT halt the skill.
@@ -129,9 +133,14 @@ Mark task 3 `completed` and proceed to Step 4.
 
 ## Step 4 — Gap analysis and terrain proposal
 
-Based on your self-assessment (Step 2) and the source material (Step 3),
-identify what Claude needs to work accurately in this domain. Produce a
-numbered proposal list in the chat with two sections:
+First, apply a YAGNI check. State one sentence: "My training coverage of
+[domain] is [adequate / partial / minimal], and the sources [confirmed this /
+revealed gaps in X, Y / showed no new gaps]." If coverage is adequate with no
+version-sensitive surprises in the sources, state that no artifacts are needed,
+skip directly to Step 6, and note the self-assessment is in this conversation.
+
+When real gaps exist, identify what Claude needs to work accurately. Produce a
+numbered proposal list with two sections:
 
 **Proposed Skills** — each as one line: `Skill: <name> — <one-sentence purpose>`
 
@@ -178,10 +187,15 @@ directly in this session using the source material as content) and "Open
 session). Honour the user's choice.
 
 If authoring directly: write the skill to
-`.claude/skills/<domain>/<skill-name>/SKILL.md`. The content MUST be derived
-from the actual source material gathered in Step 3 — do not write from training
-knowledge alone. Use concrete API names, method signatures, and examples from
-the sources.
+`.claude/skills/<domain>/<skill-name>/SKILL.md`. Author it as a pointer-index,
+not a narrative summary. Each entry: concept label + one-line constraint/why +
+a `./knowledge/<lib>/path/to/file:line` pointer to the source. Read the cloned
+source to locate exact lines before writing. Do NOT paraphrase — point at the
+source; Claude reads the file directly when it needs depth. Example shape:
+
+  **Threading invariant** — must hold read lock before accessing PSI
+  → `./knowledge/platform-sdk/threading/ReadAction.kt:67` (the contract)
+  → `./knowledge/platform-sdk/threading/ReadAction.kt:134` (violation pattern)
 
 **Building Rules**
 
