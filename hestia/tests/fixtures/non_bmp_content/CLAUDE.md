@@ -1,4 +1,0 @@
-- Use → for flow arrows in documentation.
-- The site must feel alive 🦎 and playful.
-- Formula: ∀x ∈ S, f(x) ≤ 1.
-- Temperature must be ≥ 20°C for optimal behavior.
