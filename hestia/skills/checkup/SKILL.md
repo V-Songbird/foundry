@@ -23,8 +23,10 @@ Read the JSON it prints. Capture:
 - `project_root` — absolute path string (used in all later steps)
 - `summary.rules` — rule count from discovery
 - `summary.skills`, `summary.agents`, `summary.commands` — presence of instruction artifacts
+- `staleness` — a DERIVED freshness label of the *last* checkup `{label, commits, days, reason, last_sha, last_ts}`. The label is `fresh` / `aging` / `stale` / `unknown`. It is computed at read-time from a cheap stored signal (last checkup's commit SHA + timestamp) — Hestia never stores a health grade that could go stale. `unknown` means no prior checkup is on record for this project.
+- `skipped_cleared` — surfaces skipped this run because their input files were unchanged since last verified clean (negative invariants). Each entry: `{surface, verified_ts, verified_sha, inputs}`. These are counted facts ("clean, inputs unchanged since <when>"), surfaced in the Limits section.
 - `findings` — heuristic findings list. Each finding obeys the **finding contract**: it carries a concrete `location` (cite-or-drop — no locator, no finding) plus the triple-shape `symptom` / `why` / `fix_action`. Never invent a finding without a `location`.
-- `limits` — what the heuristic floor could NOT check (feeds the closing Limits section in step 5)
+- `limits` — what the heuristic floor could NOT check (feeds the closing Limits section in step 5). When a surface was skipped because its inputs were unchanged, a `freshness-skip` note is included here — surface it as the honest "clean, inputs unchanged" fact, not as a warning.
 
 If `near_empty` is `true` → skip to **Onboarding** (step 7).
 
@@ -92,13 +94,15 @@ Sort by severity descending (high → medium → low → info).
 
 The report obeys the **finding contract**: every finding cites a `location` (cite-or-drop), shows the triple-shape (`symptom` / `why` / `fix_action`), and the report states counted facts only — never a counterfactual impact like "this would improve your setup health 40%" (there is no baseline for the un-fixed alternative, so any such number is fabricated).
 
-**Digest first (always).** One headline line stating the counted facts: how many high-priority items and how many smaller ones across all sources. Then the top three findings — for each, show **symptom + severity + location** as one skimmable line. This is the digest layer; keep `why`/`fix_action` for the drill-down below.
+**Staleness header first (always).** Open with one honest line derived from `staleness`: state the `label` and its `reason` in plain language — e.g. "Setup last verified 3 commits ago → fresh." or "Setup last verified 80 days / 90 commits ago → STALE; re-run /hestia:checkup before trusting this report." or, when `label` is `unknown`, "No prior checkup on record — this is your baseline." This is the staleness-as-honesty line: it reports a derived label, never a stored grade, so it can never silently rot. Do NOT invent a numeric health score.
+
+**Digest next (always).** One headline line stating the counted facts: how many high-priority items and how many smaller ones across all sources. Then the top three findings — for each, show **symptom + severity + location** as one skimmable line. This is the digest layer; keep `why`/`fix_action` for the drill-down below.
 
 **Drill-down below.** List the rest grouped by priority (high, then medium, then low). For each, expand to the full triple-shape: `symptom` (with its `location`), then `why` (the one-line rationale), then `fix_action` (the concrete corrective step). Never render a bare "this is wrong" with no fix — every finding must carry its `fix_action`.
 
 **Advisory bucket (only if any finding has `advisory: true`).** Present any advisory findings in a clearly separate "Advisory (unverified)" block, never mixed with the cited findings above — they have no locator and are hunches, not grounded findings.
 
-**Limits — what this run could not check (always).** Close with a short Limits section built from the `limits` arrays you captured in steps 1–3. State out-of-scope surfaces and the residual risk the dev still owns. Empty results are stated explicitly ("No stale references found.") — never silence. The heuristic floor does NOT grade rule clarity (that's `/hestia:assess-rules`), does not run hooks or MCP servers, and checks references conservatively.
+**Limits — what this run could not check (always).** Close with a short Limits section built from the `limits` arrays you captured in steps 1–3. State out-of-scope surfaces and the residual risk the dev still owns. Empty results are stated explicitly ("No stale references found.") — never silence. The heuristic floor does NOT grade rule clarity (that's `/hestia:assess-rules`), does not run hooks or MCP servers, and checks references conservatively. If any `freshness-skip` notes are present (a surface skipped because its inputs were unchanged since last verified clean), state them here as the honest fact — "broken-refs: clean, inputs unchanged since <when>; re-scanned automatically when those files change" — not as a gap.
 
 If there are zero findings, say so plainly and congratulate the user — then STILL render the Limits section (a clean run is not a cleared run), and still offer the lean audit in step 6.
 

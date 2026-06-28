@@ -323,6 +323,32 @@ This identifies the factor with the largest gap between its current contribution
 
 ---
 
+## Enforceability Dimension (the folklore check)
+
+A quality dimension **orthogonal** to the F1–F8 clarity score, grounded in iceberg's Axiom of Enforcement: *an unenforced rule is folklore*. It does NOT change the composite score — it classifies each rule by HOW a violation could ever be detected, and flags the rules that can't be checked at all.
+
+Every rule is classified into exactly one of three classes:
+
+| Class | Meaning | Driving evidence |
+|-------|---------|------------------|
+| **enforceable** | A hook / linter / test / build gate / Hestia probe could mechanically detect a violation. | Names a runnable check: a backtick command (`npm test`, `tsc --noEmit`), a numeric threshold (markers.json `numeric_threshold_regex`, e.g. "coverage ≥ 80%"), an enforcement/gate phrase (`lint`, `coverage`, `pre-commit`, "before pushing"), or an F8 enforceability ceiling in the mechanically-enforceable band (F8 ≤ 0.50, per `rubric_F8.md` Levels 0–1). |
+| **observable** | Claude can self-check it at edit/author time, but no external check exists. | A concrete construct (F7 concrete marker: backtick identifier, path, named framework/term) and/or a directive verb (F1 verb table). |
+| **folklore** | Hinges on unverifiable quality words with no checkable referent. Flagged for rewrite-or-delete. | A quality word (markers.json `abstract_markers` + `enforceability.json::quality_words.supplemental`) AND **no** concrete construct. |
+
+**Decision order (conservative — ambiguous falls to observable, never folklore):**
+
+1. **enforceable** if any runnable-check evidence is present.
+2. **folklore** only if a quality word is present AND there is no concrete construct. A folklore verdict ALWAYS records the matched quality word(s) as its evidence — it is never emitted without one (evidence-driven).
+3. **observable** otherwise — including the no-signal case. A single concrete marker is enough to make a rule self-checkable, so a quality word *plus* a concrete construct is observable, not folklore. We do not over-flag.
+
+**Why folklore matters.** An unenforceable rule trains Claude that the ruleset contains noise, which discounts the good rules sitting next to it. Folklore rules are surfaced as cited triple-shape findings (Finding contract): `symptom` "rule can't be enforced or self-checked", `why` "an unenforceable rule trains Claude the ruleset contains noise, discounting the rules that do matter", `fix_action` "rewrite to name a checkable condition — a command, threshold, or concrete construct — or delete it".
+
+**Lexicons (all versioned `_data/*.json`, reused not reinvented):** `verbs.json` (directive verbs / F1 table), `markers.json` (`abstract_markers` = quality words; `concrete_*` / `numeric_threshold_regex` = checkable referents), and `enforceability.json` (the only new file — adds enforcement-command and gate phrases plus a small supplemental quality-word list that `abstract_markers` does not already carry).
+
+**Output.** `compose.py` attaches `rule["enforceability"] = {class, evidence, concrete_markers, quality_words, rationale}` to every rule, emits `enforceability_counts` (a counted-facts tally) and `folklore_findings` (cited findings), and adds an `enforceability` limit note. `report.py` renders the "Folklore rules (rewrite or delete)" section. The classifier lives in `enforceability.py` and is independently runnable (`stdin {rules:[...]} -> stdout` same JSON with classifications attached) for smoke tests.
+
+---
+
 ## Corpus-Level Gap Threshold (`gap_threshold`)
 
 The per-corpus "what to fix first" ranking uses a cumulative-leverage Pareto threshold to pick the smallest set of mandate rules whose improvement would close most of the corpus-level quality gap.

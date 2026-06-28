@@ -412,6 +412,61 @@ class TestHookOpportunitiesRender:
 
 
 # ---------------------------------------------------------------------------
+# Folklore section (enforceability dimension)
+# ---------------------------------------------------------------------------
+
+def _folklore_finding() -> dict:
+    return {
+        "severity": "medium", "artifact": "rule",
+        "symptom": "rule can't be enforced or self-checked",
+        "why": ("an unenforceable rule trains Claude the ruleset contains noise, "
+                "discounting the rules that do matter"),
+        "fix_action": ("rewrite to name a checkable condition — a command, "
+                       "threshold, or concrete construct — or delete it"),
+        "file": "CLAUDE.md", "line": "3", "location": "CLAUDE.md:3",
+        "advisory": False, "fix": "assess-rules",
+        "tags": ["folklore", "quality-word:clean"],
+        "rule_id": "R001", "text": "Always write clean, maintainable code.",
+        "quality_words": ["clean", "maintainable"],
+    }
+
+
+class TestFolkloreRender:
+    def test_folklore_section_when_present(self):
+        audit = _make_audit()
+        audit["folklore_findings"] = [_folklore_finding()]
+        audit["enforceability_counts"] = {"enforceable": 1, "observable": 1, "folklore": 1}
+        report = _render_report(audit)
+        assert "## Folklore rules (rewrite or delete)" in report
+        # Triple-shape surfaces: symptom (count), why, fix_action.
+        assert "discounting the rules that do matter" in report
+        assert "rewrite to name a checkable condition" in report
+        # Evidence (the unverifiable word) and the location are cited.
+        assert "`clean`" in report
+        assert "CLAUDE.md:3" in report
+
+    def test_folklore_section_skipped_when_empty(self):
+        audit = _make_audit()
+        audit["folklore_findings"] = []
+        report = _render_report(audit)
+        assert "## Folklore rules" not in report
+
+    def test_folklore_section_missing_key_safe(self):
+        audit = _make_audit()
+        audit.pop("folklore_findings", None)
+        report = _render_report(audit)
+        assert "## Folklore rules" not in report
+
+    def test_enforceability_mix_rendered(self):
+        audit = _make_audit()
+        audit["folklore_findings"] = [_folklore_finding()]
+        audit["enforceability_counts"] = {"enforceable": 4, "observable": 2, "folklore": 1}
+        report = _render_report(audit)
+        assert "4 enforceable" in report
+        assert "2 observable" in report
+
+
+# ---------------------------------------------------------------------------
 # Degraded rule notice
 # ---------------------------------------------------------------------------
 

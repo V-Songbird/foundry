@@ -13,12 +13,14 @@ Lean mode marks deliberate shortcuts with `hestia:later` comments. This skill co
 
 1. **Find the markers.** MUST invoke `Grep` for `hestia:later` across the repository (any comment style). Skip `node_modules`, `.git`, and build output directories.
 
-2. **Parse each marker.** A well-formed marker reads `hestia:later <what was simplified>; <trigger to revisit>`. For each one, write a line:
+2. **Parse each marker.** A well-formed marker reads `hestia:later <what was deferred> — revisit when <trigger>`. Split on `revisit when` (case-insensitive) to separate the deferred work from its trigger. For each one, write a line:
 
-   `path:line — what was simplified. ceiling: the limit named. revisit when: the trigger.`
+   `path:line — what was deferred. revisit when: the trigger.`
 
-3. **Flag the rotting ones.** A marker with no revisit trigger gets `— no trigger (rot risk)` appended. Those are the shortcuts that silently become permanent.
+   Tolerate older shapes: a `;` separator or a bare `hestia:later <what>` with no trigger clause still parse — treat anything after `revisit when` (or after `;`) as the trigger, and the rest as the deferred work.
 
-4. **Tally.** End with one line: `N markers, M without a revisit trigger.`
+3. **Flag the rotting ones.** A marker with no `revisit when` trigger gets `— NO TRIGGER (silent-rot risk)` appended. Those are the shortcuts that quietly become permanent: "later" with no observable condition to revisit on means "never".
+
+4. **Tally.** End with one line: `N deferrals, M with no revisit trigger.`
 
 If there are no markers, say so in one line.

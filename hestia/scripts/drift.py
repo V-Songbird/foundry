@@ -21,6 +21,7 @@ import hashlib
 from pathlib import Path
 
 import discover as discover_mod
+import freshness_state as fresh_mod
 import refs as refs_mod
 from _lib import emit, limit_note
 
@@ -62,6 +63,11 @@ def scan(project_root: str | None = None) -> dict:
         residual_risk="A reference written in prose or pointing outside the "
         "project tree may be stale without showing up here."))
 
+    # Derived staleness of the LAST checkup (read-time, never a stored grade).
+    # The nudge hook can use this for cadence — a stale/aging setup warrants a
+    # gentler reminder even when the broken-ref signature itself hasn't changed.
+    staleness = fresh_mod.staleness_for(root)
+
     return {
         "status": "ok",
         "project_root": str(root),
@@ -69,6 +75,7 @@ def scan(project_root: str | None = None) -> dict:
         "stale_files": stale,
         "total_broken": total,
         "signature": signature,
+        "staleness": staleness,
         "limits": limits,
     }
 

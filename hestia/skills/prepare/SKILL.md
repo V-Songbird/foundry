@@ -21,6 +21,13 @@ disable-model-invocation: true
 Ground Claude in the target domain before any code is written. This skill never
 writes files until the user approves the terrain-building plan at Step 5.
 
+**Why this matters.** On niche or unfamiliar tech you have the Curse of
+Knowledge in reverse: you are the junior here and literally cannot perceive what
+terrain you're missing, so training-based confidence is a trap. This skill
+surfaces that hidden terrain — flag the gap honestly, pull authoritative sources
+from the user, and convert tacit terrain into explicit Skills and Rules — so the
+code that follows rests on ground truth instead of a confident guess.
+
 ## `AskUserQuestion` shape constraints — apply to every invocation in this skill
 
 Every enumerable decision point MUST use `AskUserQuestion` — plain-text

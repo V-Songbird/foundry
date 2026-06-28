@@ -19,6 +19,7 @@ import re
 from pathlib import Path
 
 import discover as discover_mod
+import freshness_state as fresh_mod
 import refs as refs_mod
 from _lib import Finding, emit, limit_note, rank_findings, read_text
 
@@ -47,6 +48,12 @@ def audit(project_root: str | None = None) -> dict:
     art = inv["artifacts"]
     findings: list[Finding] = []
     limits: list[dict] = []
+    skipped_cleared: list[dict] = []  # surfaces skipped because inputs unchanged
+
+    # Derive staleness from the cheap signal of the LAST checkup (commits/age
+    # since then). We never stored a grade — the label is computed here, once,
+    # via the one formula in freshness_state. Reported as honesty, not a verdict.
+    staleness = fresh_mod.staleness_for(root)
 
     # 1. No CLAUDE.md at all — Claude has no project memory.
     # File-level finding: the locator is the path Hestia would create. cite-or-drop
@@ -71,17 +78,40 @@ def audit(project_root: str | None = None) -> dict:
                 fix_action=f"Trim under {CLAUDE_MD_SOFT_MAX} lines; move path-scoped detail into .claude/rules/ so it loads only when relevant.",
                 file=c["path"], fix="assess-rules", tags=["size"]))
 
-    # 3. Broken path references in CLAUDE.md and rules (the classic staleness signal).
-    for c in art["claude_md"] + art["rules"]:
-        broken = refs_mod.broken_refs(root / c["path"], root)
-        if broken:
-            shown = ", ".join(broken[:6]) + (" …" if len(broken) > 6 else "")
-            findings.append(Finding.cited(
-                severity="high", artifact="reference",
-                symptom=f"{len(broken)} reference(s) point to missing files",
-                why="Stale references quietly mislead Claude — it follows a path that no longer exists.",
-                fix_action=f"Update or remove the broken refs: {shown}",
-                file=c["path"], fix="freshness", tags=["stale"]))
+    # 3. Broken path references in CLAUDE.md and rules (the classic staleness
+    # signal). This is the most expensive surface — it reads every instruction
+    # file's text. Negative invariant: if this surface was previously cleared
+    # under the same input-signature (no instruction file added, edited, renamed,
+    # or removed), skip the re-scan and report the honest counted fact instead.
+    ref_inputs = [str(root / c["path"]) for c in art["claude_md"] + art["rules"]]
+    ref_surface = "broken-refs"
+    ref_sig = fresh_mod.surface_signature(ref_inputs)
+    if fresh_mod.is_cleared(root, ref_surface, ref_sig):
+        rec = fresh_mod.cleared_record(root, ref_surface) or {}
+        skipped_cleared.append({
+            "surface": ref_surface,
+            "verified_ts": rec.get("ts"),
+            "verified_sha": rec.get("sha"),
+            "inputs": len(ref_inputs),
+        })
+    else:
+        ref_findings_before = len(findings)
+        for c in art["claude_md"] + art["rules"]:
+            broken = refs_mod.broken_refs(root / c["path"], root)
+            if broken:
+                shown = ", ".join(broken[:6]) + (" …" if len(broken) > 6 else "")
+                findings.append(Finding.cited(
+                    severity="high", artifact="reference",
+                    symptom=f"{len(broken)} reference(s) point to missing files",
+                    why="Stale references quietly mislead Claude — it follows a path that no longer exists.",
+                    fix_action=f"Update or remove the broken refs: {shown}",
+                    file=c["path"], fix="freshness", tags=["stale"]))
+        # Record the negative invariant: clean -> remember the signature so the
+        # next run can skip; dirty -> drop any stale cleared record.
+        if len(findings) == ref_findings_before:
+            fresh_mod.record_cleared(root, ref_surface, ref_sig)
+        else:
+            fresh_mod.clear_surface(root, ref_surface)
 
     # 4. Agents missing frontmatter name/description.
     for a in art["agents"]:
@@ -146,6 +176,20 @@ def audit(project_root: str | None = None) -> dict:
         "validity. It does not run hooks, execute MCP servers, or evaluate "
         "whether your instructions are correct for this project."))
 
+    # A skipped-because-cleared surface is a COUNTED FACT, not a limit — it was
+    # verified clean and its inputs are unchanged. Surface it honestly so the
+    # report can say "clean, inputs unchanged since <when>" rather than silently
+    # dropping it. (Genuinely unverifiable things stay in `limits` above.)
+    for sk in skipped_cleared:
+        when = sk.get("verified_ts") or "a previous run"
+        limits.append(limit_note(
+            "freshness-skip",
+            f"Surface '{sk['surface']}' skipped: {sk['inputs']} input file(s) "
+            f"unchanged since verified clean at {when}. Re-scanned automatically "
+            f"once any of those files changes.",
+            residual_risk="Skipped on file size/mtime/path signature, not content "
+            "hash; a same-size, same-mtime edit would not be detected."))
+
     ranked = rank_findings(findings)
     counts = {sev: 0 for sev in ("high", "medium", "low", "info")}
     for f in ranked:
@@ -153,12 +197,24 @@ def audit(project_root: str | None = None) -> dict:
 
     near_empty = not art["claude_md"] and not art["rules"] and not art["agents"] and not art["skills"]
 
+    # Persist ONLY the cheap signal (HEAD SHA + timestamp) so the NEXT run can
+    # derive its own staleness. No grade is ever stored. Skipped for near-empty
+    # onboarding setups (nothing was really audited).
+    if not near_empty:
+        fresh_mod.record_checkup(root)
+
     return {
         "status": "ok",
         "project_root": str(root),
         "stack": inv["stack"],
         "summary": inv["summary"],
         "near_empty": near_empty,
+        # Derived at read-time from the LAST checkup's cheap signal — a label,
+        # never a stored grade. {label, commits, days, reason, last_sha, last_ts}.
+        "staleness": staleness,
+        # Surfaces skipped this run because their inputs were unchanged since
+        # last verified clean (negative invariants). Counted facts, not limits.
+        "skipped_cleared": skipped_cleared,
         # Counted facts only — these are observed tallies, never a counterfactual
         # impact estimate (there is no baseline for the un-fixed alternative).
         "counts": counts,

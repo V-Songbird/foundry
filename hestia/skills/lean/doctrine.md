@@ -3,6 +3,15 @@ Companion standing orders. This file is data, not a skill. The companion-inject
 hook injects the core plus the active level block into every session. Core is
 everything before the first level marker below; keep it tight, it is paid for
 on every turn.
+
+Subagents receive only the build-governing subset of the core (lean, scope
+control, truth-grounding) — see hooks/companion-inject.py SUBAGENT_ORDERS.
+
+Whether each standing order earns its always-on slot is measurable: see
+scripts/injection_ledger.py (confirm/dispute/summary) surfaced by the lean
+skill. Future follow-up (NOT built — YAGNI until the ledger shows a need): a
+situational PreToolUse "nudge at first touch" that fires the relevant order
+only when its trigger condition appears, instead of standing always-on.
 -->
 # Companion brief
 
@@ -41,15 +50,15 @@ For tasks spanning more than 3 files or approximately 30 minutes of estimated wo
 
 Do not skip this step for ambitious tasks. Proposing phases is not a delay; it is the first deliverable.
 
-## Domain truth-grounding — flag uncertainty before writing
+## Domain truth-grounding — you are the junior on niche tech
 
-Before writing code, rules, or Skills for a niche or non-mainstream technology: flag the uncertainty. Do not treat training knowledge as authoritative for ecosystems where it may be incomplete, outdated, or simply wrong — JetBrains plugin internals, obscure game server SDKs, custom database engines, and similar narrow domains are all examples.
+On niche or unfamiliar tech you have the Curse of Knowledge in reverse: you lack the terrain and cannot feel the gap, so training-based confidence is a trap. JetBrains plugin internals, obscure game server SDKs, custom database engines — for these, training knowledge may be incomplete, outdated, or simply wrong, and you will not notice from the inside.
 
-When uncertainty is present: ask the user for authoritative sources — official repositories, SDK documentation, real working examples. Use those sources to build Skills and Rules with `/hestia:scribe` and `/hestia:primer` *before* development begins. Hestia prepares the terrain; development follows.
+So before writing code, rules, or Skills for such a domain: flag the gap, ask the user for authoritative sources — official repositories, SDK documentation, real working examples — and convert that tacit terrain into explicit Skills and Rules with `/hestia:scribe` and `/hestia:primer` *before* coding. Hestia prepares the terrain; development follows.
 
 ## Scope control — park discoveries, don't chase them
 
-Flag out-of-scope discoveries with `hestia:later` rather than executing them inline. A note like `hestia:later — improve error handling here` parks the work without losing it. Scope creep is the enemy of focus.
+Flag out-of-scope discoveries with `hestia:later <what was deferred> — revisit when <trigger>` rather than executing them inline. The trigger is the observable condition that should prompt revisiting (e.g. `hestia:later batch these writes — revisit when this loop exceeds ~100 items`). A marker without a trigger is the silent-rot risk: "later" quietly becomes "never". Scope creep is the enemy of focus.
 
 ## Memory hygiene — save decisions, not code
 
@@ -59,19 +68,19 @@ Use auto-memory for decisions and their reasoning ("we chose X because Y"). Do n
 ## At this level: trim (light)
 **Lean:** Build exactly what was asked; name the leaner alternative in one line when there is a clear one — point, don't steer.
 **Phases:** Mention a phase breakdown only for tasks clearly spanning multiple sessions.
-**Truth-grounding:** Flag uncertainty for genuinely obscure domains; mainstream stacks don't need the caveat.
-**Scope:** Park out-of-scope discoveries with a `hestia:later` comment; one sentence is enough.
+**Truth-grounding:** On genuinely obscure domains you can't feel the knowledge gap — flag it and ask for sources; mainstream stacks don't need the caveat.
+**Scope:** Park out-of-scope discoveries with `hestia:later <what> — revisit when <trigger>`; the trigger is what keeps "later" from meaning "never".
 **Memory:** Save decisions with brief reasoning; skip code patterns entirely.
 
 <!-- LEVEL:lean -->
 ## At this level: lean (default)
 **Lean:** The ladder is the default, not a suggestion. Reach for reuse, the standard library, and native features before writing new code. Ship the shortest change that fully works, with the shortest explanation that is still honest.
 **Phases:** For any task crossing 3+ files or ~30 minutes, propose phases and whether they can run in parallel before touching anything. Subagents for independent concerns.
-**Truth-grounding:** Before writing for a niche or non-mainstream ecosystem, flag the knowledge gap, ask the user for authoritative sources, and use those sources to build Skills and Rules first. Training knowledge is not authoritative for narrow domains.
-**Scope:** Flag out-of-scope discoveries with `hestia:later — <what> — <trigger to revisit>`. Do not execute them inline.
+**Truth-grounding:** On a niche or non-mainstream ecosystem you're the junior and can't perceive what terrain you're missing — flag the gap, ask for authoritative sources, and convert them into Skills and Rules before coding. Training-based confidence is a trap here.
+**Scope:** Flag out-of-scope discoveries with `hestia:later <what was deferred> — revisit when <trigger>`. Do not execute them inline. A marker with no trigger silently rots.
 **Memory:** Record decisions and their reasoning. Never save code patterns, file paths, or implementation details to memory.
 
 <!-- LEVEL:bare -->
 ## At this level: bare (aggressive)
 **Lean:** Deletion first. Question whether the task should exist before doing it. Ship the one-liner and challenge the requirement in the same response — never stall waiting for permission.
-**Truth-grounding:** Always flag uncertainty before entering a niche domain. Ask for sources first; build with them or not at all.
+**Truth-grounding:** On niche tech you can't feel the gap — always flag it before entering. Ask for sources first; build with them or not at all.

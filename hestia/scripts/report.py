@@ -149,6 +149,9 @@ def render_markdown(audit: dict, verbose: bool = False) -> str:
     # 5. Hook opportunities (F8 parallel signal)
     _render_hook_opportunities(lines, audit)
 
+    # 6. Folklore rules (enforceability dimension — the folklore check)
+    _render_folklore(lines, audit)
+
     # 5. Suggested Rewrites (--fix mode, if present)
     fix_rewrites = audit.get("rewrites", [])
     if fix_rewrites:
@@ -419,6 +422,56 @@ def _render_hook_opportunities(lines: list[str], audit: dict) -> None:
     if len(hook_ops) > 10:
         lines.append(f"| ...and {len(hook_ops) - 10} more | | |")
     lines.append("")
+    lines.append("---\n")
+
+
+def _render_folklore(lines: list[str], audit: dict) -> None:
+    """Render the 'Folklore rules' section — the enforceability dimension.
+
+    Digest: the count of folklore rules (a counted fact). Drill-down: each
+    folklore rule as a triple-shape cited finding (symptom + location, then why
+    + fix_action), with the unverifiable quality word(s) that drove the verdict.
+    Renders nothing when there are no folklore findings.
+    """
+    findings = audit.get("folklore_findings", [])
+    if not findings:
+        return
+
+    counts = audit.get("enforceability_counts", {})
+    n = len(findings)
+    rule_word = "rule hinges" if n == 1 else "rules hinge"
+    lines.append("## Folklore rules (rewrite or delete)\n")
+    lines.append(
+        f"{n} {rule_word} on unverifiable quality words with nothing a hook, "
+        "linter, test, or Claude itself could check against. An unenforceable rule "
+        "trains Claude that the ruleset contains noise — which discounts the good "
+        "rules sitting next to it. Rewrite each to name a checkable condition "
+        "(a command, a threshold, or a concrete construct), or delete it.\n"
+    )
+    if counts:
+        lines.append(
+            f"*Enforceability mix: {counts.get('enforceable', 0)} enforceable "
+            f"(a tool could catch a violation), {counts.get('observable', 0)} "
+            f"observable (Claude can self-check), {counts.get('folklore', 0)} "
+            "folklore (below).*\n"
+        )
+    lines.append("| Rule | File | Unverifiable word(s) |")
+    lines.append("|------|------|----------------------|")
+    for f in findings[:10]:
+        text = f.get("text", "")[:80]
+        if len(f.get("text", "")) > 80:
+            text += "..."
+        loc = f.get("location") or f.get("file", "?")
+        words = f.get("quality_words", [])
+        words_str = ", ".join(f"`{w}`" for w in words) if words else "—"
+        lines.append(f"| \"{text}\" | {loc} | {words_str} |")
+    if n > 10:
+        lines.append(f"| ...and {n - 10} more | | |")
+    lines.append("")
+    # Drill-down: the triple-shape, stated once (identical across folklore rules).
+    sample = findings[0]
+    lines.append(f"**Why it bites:** {sample.get('why', '')}")
+    lines.append(f"**How to fix:** {sample.get('fix_action', '')}\n")
     lines.append("---\n")
 
 

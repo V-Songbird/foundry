@@ -17,6 +17,7 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 sys.path.insert(0, str(Path(__file__).parent))
 import _lib
+import enforceability
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -134,6 +135,62 @@ def detect_conflicts(rules: list[dict]) -> list[dict]:
             })
     conflicts.sort(key=lambda c: (c["rule_a"]["id"], c["rule_b"]["id"]))
     return conflicts
+
+
+# ---------------------------------------------------------------------------
+# Enforceability dimension — the folklore check (epistemics feature #1)
+# ---------------------------------------------------------------------------
+
+# Triple-shape text shared by every folklore finding (the contract: symptom /
+# why / fix_action). Stated once so the digest and drill-down stay consistent.
+_FOLKLORE_SYMPTOM = "rule can't be enforced or self-checked"
+_FOLKLORE_WHY = (
+    "an unenforceable rule trains Claude the ruleset contains noise, "
+    "discounting the rules that do matter"
+)
+_FOLKLORE_FIX = (
+    "rewrite to name a checkable condition — a command, threshold, or "
+    "concrete construct — or delete it"
+)
+
+
+def build_folklore_findings(rules: list[dict]) -> list[dict]:
+    """Emit one cited triple-shape Finding per folklore rule (Phase-1 contract).
+
+    Cite-or-drop: each finding carries the rule's ``file``/``line`` locator. A
+    rule with no file is skipped rather than emitted locator-less (the
+    constructor would refuse it anyway). Counted facts only — no counterfactual
+    impact claim. The evidence token(s) that drove the folklore verdict are
+    carried in ``tags`` so the report can show what made the rule folklore.
+    """
+    findings: list[dict] = []
+    for rule in rules:
+        enf = rule.get("enforceability", {})
+        if enf.get("class") != "folklore":
+            continue
+        file = rule.get("file", "")
+        if not file:
+            # Cite-or-drop: no locator -> not a finding.
+            continue
+        quality_words = enf.get("quality_words") or enf.get("evidence") or []
+        finding = _lib.Finding.cited(
+            severity="medium",
+            artifact="rule",
+            symptom=_FOLKLORE_SYMPTOM,
+            why=_FOLKLORE_WHY,
+            fix_action=_FOLKLORE_FIX,
+            file=file,
+            line=rule.get("line_start"),
+            fix="assess-rules",
+            tags=["folklore", *(f"quality-word:{w}" for w in quality_words)],
+        )
+        d = finding.to_dict()
+        # Surface the rule text + evidence inline for the report drill-down.
+        d["rule_id"] = rule.get("id", "")
+        d["text"] = rule.get("text", "")
+        d["quality_words"] = quality_words
+        findings.append(d)
+    return findings
 
 
 # ---------------------------------------------------------------------------
@@ -503,6 +560,12 @@ def main():
             rule["file"] = source_files[fi]["path"]
             rule["loading"] = "always-loaded" if source_files[fi].get("always_loaded") else "glob-scoped"
 
+    # Enforceability dimension (folklore check) — attach a classification to
+    # every rule. Runs after scoring so F8 (enforceability ceiling) is available
+    # as a corroborating signal, and after rule["file"] is set so the folklore
+    # findings can cite a locator (cite-or-drop).
+    enforceability.classify_rules(rules)
+
     # Sort mandate rules by leverage descending, non-mandate appended
     mandate_rules = sorted(
         [r for r in rules if r.get("category") == "mandate"],
@@ -549,6 +612,14 @@ def main():
 
     corpus_grade = score_to_grade(effective_corpus["score"])
 
+    # --- Enforceability dimension: counts + cited folklore findings ---
+    enforceability_counts = {"enforceable": 0, "observable": 0, "folklore": 0}
+    for r in rules:
+        cls = r.get("enforceability", {}).get("class")
+        if cls in enforceability_counts:
+            enforceability_counts[cls] += 1
+    folklore_findings = build_folklore_findings(rules)
+
     # --- Part C: honest limits the rules engine itself owns ---
     # These are stated as counted facts; report.py adds the standing engine
     # limits (English-only, structural-only) and the empty-result explicit-None
@@ -561,6 +632,16 @@ def main():
             "prose paragraphs without an imperative) are not scored.",
             residual_risk="An instruction buried in prose may carry weight Claude "
             "feels but this audit never saw."),
+        _lib.limit_note(
+            "enforceability",
+            f"Classified every rule by how a violation could be detected: "
+            f"{enforceability_counts['enforceable']} enforceable, "
+            f"{enforceability_counts['observable']} observable, "
+            f"{enforceability_counts['folklore']} folklore. Conservative — an "
+            "ambiguous rule is classed observable, never folklore.",
+            residual_risk="A rule classed observable may still be hard to "
+            "self-check in practice; the dimension only checks for a checkable "
+            "referent, not whether the check is easy."),
     ]
 
     output = {
@@ -602,6 +683,10 @@ def main():
             if r.get("is_hook_candidate")
         ],
         "conflicts": detect_conflicts(rules),
+        # Enforceability dimension (folklore check). Counts are observed tallies
+        # (counted-facts-only); folklore_findings are cited triple-shape findings.
+        "enforceability_counts": enforceability_counts,
+        "folklore_findings": folklore_findings,
     }
 
     _lib.emit(output)

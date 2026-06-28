@@ -47,7 +47,12 @@ def main() -> None:
             recent = (date.today() - date.fromisoformat(prev["date"])).days < THROTTLE_DAYS
         except ValueError:
             recent = False
-    if same_sig and recent:
+    # Derived staleness (read-time label from the last checkup's cheap signal; no
+    # grade is stored). A setup that has aged to "stale" warrants a reminder even
+    # when the broken-ref signature itself hasn't changed — so it overrides the
+    # throttle. Everything else keeps the existing behavior.
+    setup_stale = (result.get("staleness", {}) or {}).get("label") == "stale"
+    if same_sig and recent and not setup_stale:
         return  # already nudged for this exact staleness, recently
 
     try:
