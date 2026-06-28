@@ -10,6 +10,7 @@ Install it once; it works in the background. Hestia injects standing orders into
 
 - **Checkup** — One health check of your entire Claude Code setup (`CLAUDE.md`, `.claude/rules`, agents, skills, commands, hooks). You get a ranked, plain-language report of what to fix and a one-tap path to fixing each item.
 - **Freshness** — Watches your setup files and gives you a gentle, one-line nudge when something has gone stale. Never edits anything on its own.
+- **Prepare** — Grounds Claude in an unfamiliar or niche domain before coding starts. Assesses its own knowledge gaps, clones the source repo locally, and builds pointer-index skills and rules from the actual source — not from training guesses. Only builds artifacts when a real gap exists.
 - **Lean** — An always-on minimalism doctrine plus on-demand review tools that push for the simplest solution that actually works.
 
 ## Install
@@ -32,6 +33,7 @@ That's the health-check front door. Run it in any project and Hestia inventories
 | You want to… | Use |
 | --- | --- |
 | Audit your whole setup | `/hestia:checkup` |
+| Prep for a niche/unfamiliar domain | `hestia:prepare` |
 | Scan for stale setup files | `hestia:freshness` |
 | Grade your rules / CLAUDE.md | `hestia:assess-rules` |
 | Write new rules (with live scoring) | `hestia:author-rules` |
@@ -56,7 +58,7 @@ Both are local-only and should stay gitignored.
 
 ## Status
 
-Early alpha (`0.1.0-alpha`) — under active construction. Hestia supersedes the older `rulesense` and `scriptorium` plugins and folds in the planned `virgil` freshness scope. Those plugins remain installable as deprecated stubs that point here.
+Beta (`1.0.1-beta`) — feature-complete and dogfooded end-to-end. Hestia supersedes the older `rulesense` and `scriptorium` plugins and folds in the planned `virgil` freshness scope. Those plugins remain installable as deprecated stubs that point here. Real-world mileage across diverse projects earns the stable `1.0.0`.
 
 ## License
 
