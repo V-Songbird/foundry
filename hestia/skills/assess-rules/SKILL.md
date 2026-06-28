@@ -143,6 +143,8 @@ $PYTHON_CMD "$SCRIPTS/run_audit.py" --finalize
 
 Pass `--verbose` or `--json` if the user requested those flags. Read the output and present it.
 
+**Finding contract — present the report as rendered, don't editorialize past it.** `report.py` already obeys the contract: each weak-rule row cites a `file:line` (cite-or-drop) and shows the problem (symptom) with a "How to fix" line (the corrective action); the report closes with a "Limits — what this run could not check" section and states counted facts only. Do NOT add a counterfactual impact claim ("fixing these would improve your setup health N%") — there is no baseline for the un-fixed alternative, so any such number is fabricated. When you summarize, repeat the counted facts (grade, how many rules below floor, how many conflict candidates) and surface the Limits section; never invent a finding the report did not cite.
+
 After the pipeline report, get structured analysis data. Invoke `Bash` with `description: "Build structured analysis for report sections"`:
 
 ```bash

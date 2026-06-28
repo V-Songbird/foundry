@@ -23,7 +23,8 @@ Read the JSON it prints. Capture:
 - `project_root` — absolute path string (used in all later steps)
 - `summary.rules` — rule count from discovery
 - `summary.skills`, `summary.agents`, `summary.commands` — presence of instruction artifacts
-- `findings` — heuristic findings list
+- `findings` — heuristic findings list. Each finding obeys the **finding contract**: it carries a concrete `location` (cite-or-drop — no locator, no finding) plus the triple-shape `symptom` / `why` / `fix_action`. Never invent a finding without a `location`.
+- `limits` — what the heuristic floor could NOT check (feeds the closing Limits section in step 5)
 
 If `near_empty` is `true` → skip to **Onboarding** (step 7).
 
@@ -41,16 +42,19 @@ Replace `<project_root>` with the `project_root` value from step 1. This runs ex
 2b. If `--prepare` succeeds, MUST invoke `Bash` with `description: "Finalize audit and emit JSON"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/run_audit.py" --finalize --json`
 
-Read the JSON output (the full audit object). From it, extract all rules where `score` < 0.50 (grade D or F). These are low-quality rules. For each one, add a finding to the findings list:
+Read the JSON output (the full audit object). From it, extract all rules where `score` < 0.50 (grade D or F). These are low-quality rules. Each one already has a `file:line_start` locator, so it satisfies cite-or-drop. For each, add a triple-shape finding to the findings list:
 
 ```
 severity: "medium"
 artifact: "rule"
-title: "Rule scores D/F: <first 60 chars of rule text>"
-detail: "<dominant_weakness friendly text if available, else 'Review and improve this rule'>"
+symptom: "Rule scores D/F: <first 60 chars of rule text>"
+why: "<dominant_weakness friendly text if available, else 'Claude can't reliably parse/apply this rule as written'>"
+fix_action: "<the dominant_weakness fix if available, else 'Rewrite with a clear verb, trigger, and concrete example'>"
 location: "<file>:<line_start>"
 fix: "assess-rules"
 ```
+
+The audit object also carries a `limits` array — fold its notes into the closing Limits section in step 5.
 
 If `--finalize` fails (e.g. because `.hestia-tmp/all_judgments.json` does not exist yet — the semi-mechanical scoring requires a judgment step that hasn't run), note this silently and continue with only the heuristic findings. Do not surface a confusing error to the user.
 
@@ -59,16 +63,19 @@ If `--finalize` fails (e.g. because `.hestia-tmp/all_judgments.json` does not ex
 MUST invoke `Bash` with `description: "Scan instruction files for stale references"`:
 `python "${CLAUDE_PLUGIN_ROOT}/scripts/drift.py"`
 
-Read the JSON output. For each entry in `stale_files`, create a finding:
+Read the JSON output (it carries `stale_files`, a counted `total_broken`, and a `limits` array). For each entry in `stale_files`, create a triple-shape finding (the `path` is the locator — cite-or-drop satisfied):
 
 ```
 severity: "medium"
 artifact: "reference"
-title: "<N> stale reference(s) in <path>"
-detail: "Broken: <first 4 broken refs joined by ', '>. Stale references quietly mislead Claude."
+symptom: "<N> stale reference(s) in <path>"
+why: "Stale references quietly mislead Claude — it follows a path that no longer exists."
+fix_action: "Update or remove the broken refs: <first 4 broken refs joined by ', '>."
 location: "<path>"
 fix: "freshness"
 ```
+
+Carry this scan's `limits` notes forward into step 5's Limits section.
 
 **Deduplication:** before adding a drift finding, check whether the heuristic findings list (from step 1) already contains an entry with the same `location`. If so, replace the heuristic finding with the drift finding (drift.py covers a wider range of artifact kinds and its broken-refs list is authoritative). Do not add both.
 
@@ -81,13 +88,19 @@ Combine:
 
 Sort by severity descending (high → medium → low → info).
 
-### Step 5 — Unified report (two layers)
+### Step 5 — Unified report (two layers + limits)
 
-**Digest first (always).** One headline line: how many high-priority items and how many smaller ones across all sources. Then the top three findings, each as one plain sentence — what it is and why it matters. No file paths or jargon in the digest unless a path *is* the point.
+The report obeys the **finding contract**: every finding cites a `location` (cite-or-drop), shows the triple-shape (`symptom` / `why` / `fix_action`), and the report states counted facts only — never a counterfactual impact like "this would improve your setup health 40%" (there is no baseline for the un-fixed alternative, so any such number is fabricated).
 
-**Details below.** List the rest grouped by priority (high, then medium, then low). For each: the title, the file/location, and the one-line fix. Keep it skimmable.
+**Digest first (always).** One headline line stating the counted facts: how many high-priority items and how many smaller ones across all sources. Then the top three findings — for each, show **symptom + severity + location** as one skimmable line. This is the digest layer; keep `why`/`fix_action` for the drill-down below.
 
-If there are zero findings, say so plainly and congratulate the user — then still offer the lean audit in step 6.
+**Drill-down below.** List the rest grouped by priority (high, then medium, then low). For each, expand to the full triple-shape: `symptom` (with its `location`), then `why` (the one-line rationale), then `fix_action` (the concrete corrective step). Never render a bare "this is wrong" with no fix — every finding must carry its `fix_action`.
+
+**Advisory bucket (only if any finding has `advisory: true`).** Present any advisory findings in a clearly separate "Advisory (unverified)" block, never mixed with the cited findings above — they have no locator and are hunches, not grounded findings.
+
+**Limits — what this run could not check (always).** Close with a short Limits section built from the `limits` arrays you captured in steps 1–3. State out-of-scope surfaces and the residual risk the dev still owns. Empty results are stated explicitly ("No stale references found.") — never silence. The heuristic floor does NOT grade rule clarity (that's `/hestia:assess-rules`), does not run hooks or MCP servers, and checks references conservatively.
+
+If there are zero findings, say so plainly and congratulate the user — then STILL render the Limits section (a clean run is not a cleared run), and still offer the lean audit in step 6.
 
 ### Step 6 — Offer the next step
 

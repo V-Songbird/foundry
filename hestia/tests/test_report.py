@@ -455,6 +455,65 @@ class TestDisclaimer:
 
 
 # ---------------------------------------------------------------------------
+# Limits section (finding contract — Part C)
+# ---------------------------------------------------------------------------
+
+class TestLimitsSection:
+    def test_limits_section_always_renders(self):
+        """The Limits section renders even when the audit carries no `limits`."""
+        report = _render_report(_make_audit())
+        assert "## Limits — what this run could not check" in report
+
+    def test_limits_section_near_end(self):
+        report = _render_report(_make_audit())
+        limits_pos = report.find("## Limits")
+        fix_pos = report.find("What to fix first")
+        assert limits_pos > fix_pos > 0
+
+    def test_limits_renders_emitter_notes(self):
+        audit = _make_audit()
+        audit["limits"] = [
+            {"scope": "rule-extraction", "detail": "Scored 3 rules across 2 files.",
+             "residual_risk": "Prose instructions are invisible to the audit."}
+        ]
+        report = _render_report(audit)
+        assert "Scored 3 rules across 2 files." in report
+        assert "Residual risk: Prose instructions are invisible" in report
+
+    def test_limits_states_no_conflicts_explicitly(self):
+        """Empty conflict result is stated, not silenced."""
+        report = _render_report(_make_audit())  # no conflicts
+        assert "No potential conflicts surfaced" in report
+
+    def test_limits_states_no_degraded_explicitly(self):
+        report = _render_report(_make_audit())  # no degraded rules
+        assert "no degraded scores" in report.lower()
+
+    def test_limits_counts_conflicts_when_present(self):
+        report = _render_report(_make_audit_with_conflicts())
+        # The Limits section names the candidate-pair count.
+        limits_block = report[report.find("## Limits"):]
+        assert "1 candidate pair" in limits_block
+
+
+# ---------------------------------------------------------------------------
+# Counted facts, no counterfactual (finding contract — Part D)
+# ---------------------------------------------------------------------------
+
+class TestNoCounterfactual:
+    def test_report_makes_no_improvement_pct_claim(self):
+        """The report must never claim a counterfactual improvement percentage."""
+        report = _render_report(_make_audit()).lower()
+        for phrase in ("improved setup health", "improvement of", "% better",
+                       "would improve", "increase health by"):
+            assert phrase not in report
+
+    def test_disclaimer_states_counted_not_impact(self):
+        report = _render_report(_make_audit())
+        assert "observed tallies, not before/after impact" in report
+
+
+# ---------------------------------------------------------------------------
 # Emoji / Unicode encoding
 # ---------------------------------------------------------------------------
 

@@ -96,8 +96,34 @@ def rel(path: str | Path, root: str | Path) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Finding model
+# Finding model — the FINDING CONTRACT
 # ---------------------------------------------------------------------------
+#
+# Hestia is evidence-driven; it rejects ungrounded prescription. The Finding
+# shape turns that principle into a mechanical output contract with four rules
+# baked into the type itself:
+#
+#   A. Cite-or-drop. A normal finding MUST carry a concrete locator — a `file`,
+#      and (where applicable) a `line`/line-range. Construct a finding via
+#      `Finding.cited(...)`, which REQUIRES a file. A claim that cannot point at
+#      a specific construct is not a finding: either drop it, or route it through
+#      `Finding.advisory(...)` into the clearly-labeled "advisory (unverified)"
+#      bucket. Hestia literally cannot emit an ungrounded "this could be better"
+#      as a normal finding — the constructor refuses it.
+#
+#   B. Triple-shape. Every finding carries `symptom` (what's wrong, short),
+#      `why` (one line on why it bites Claude/the dev), and `fix_action` (the
+#      concrete corrective action). The digest layer shows symptom + severity +
+#      location; the drill-down shows why + fix_action. Never a bare "this is
+#      wrong" with no fix.
+#
+# (Parts C — honest limits — and D — counted-facts-only — live in `limit_note`
+# and `report.py` respectively; the contract is the same surface.)
+#
+# A file-level finding (e.g. "CLAUDE.md is too long", "agent has no
+# frontmatter") legitimately has a file but no single line: `line` stays None
+# and the `file` alone satisfies the locator requirement. Only a finding with
+# NO file is rejected.
 
 # Severity ranks used for ordering the home report (higher = louder).
 SEVERITY_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3}
@@ -105,24 +131,128 @@ SEVERITY_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3}
 
 @dataclass
 class Finding:
-    """One thing worth telling the user about their setup.
+    """One grounded thing worth telling the user about their setup.
 
-    ``severity`` is one of info/low/medium/high. ``artifact`` is the kind of
-    file (e.g. "claude-md", "rule", "agent", "skill", "hook", "command").
-    ``fix`` names the Hestia skill that addresses it, for the recommendation
-    router (e.g. "assess-rules", "scribe", "freshness", "lean").
+    Construct findings via the factories, never the bare constructor:
+
+    - ``Finding.cited(...)`` — a normal finding. Requires ``file`` (the locator);
+      ``line`` is optional for file-level findings. Carries the triple-shape
+      (``symptom`` / ``why`` / ``fix_action``).
+    - ``Finding.advisory(...)`` — an UNVERIFIED hunch with no locator. Sets
+      ``advisory=True`` so renderers route it to a separate, clearly-labeled
+      bucket. This is the only way to emit something without a file.
+
+    Fields:
+      ``severity``    one of info/low/medium/high.
+      ``artifact``    the kind of construct (claude-md, rule, agent, skill,
+                      hook, command, reference, mcp).
+      ``symptom``     what's wrong, short — the digest line.
+      ``why``         one line on why it bites Claude/the dev (the rationale).
+      ``fix_action``  the concrete corrective action (never empty for a real
+                      finding — that's the "no bare wrong" rule).
+      ``file``        the locator. REQUIRED for a cited finding; "" only for an
+                      advisory.
+      ``line``        optional line or line-range string for sub-file findings.
+      ``fix``         the Hestia skill that addresses it, for the next-step
+                      router (e.g. "assess-rules", "scribe", "freshness",
+                      "lean"). This is a routing hint, NOT the corrective text —
+                      that's ``fix_action``.
+      ``advisory``    True for the unverified bucket; False for cited findings.
+      ``tags``        free-form classifier tags.
     """
 
     severity: str
     artifact: str
-    title: str
-    detail: str = ""
-    location: str = ""
+    symptom: str
+    why: str = ""
+    fix_action: str = ""
+    file: str = ""
+    line: str | None = None
     fix: str = ""
+    advisory: bool = False
     tags: list[str] = field(default_factory=list)
 
+    def __post_init__(self) -> None:
+        # Cite-or-drop, enforced by construction: a non-advisory finding without
+        # a file is not a finding at all.
+        if not self.advisory and not self.file:
+            raise ValueError(
+                "cite-or-drop: a normal Finding requires a `file` locator. "
+                "Use Finding.advisory(...) for an unverified, locator-less hunch."
+            )
+
+    @classmethod
+    def cited(
+        cls,
+        *,
+        severity: str,
+        artifact: str,
+        symptom: str,
+        why: str,
+        fix_action: str,
+        file: str,
+        line: str | int | None = None,
+        fix: str = "",
+        tags: list[str] | None = None,
+    ) -> "Finding":
+        """Build a normal, grounded finding. ``file`` is mandatory (cite-or-drop);
+        ``line`` is optional for file-level findings. ``why`` and ``fix_action``
+        complete the triple-shape and should never be empty."""
+        if not file:
+            raise ValueError("cite-or-drop: Finding.cited requires a `file` locator.")
+        return cls(
+            severity=severity,
+            artifact=artifact,
+            symptom=symptom,
+            why=why,
+            fix_action=fix_action,
+            file=file,
+            line=None if line is None else str(line),
+            fix=fix,
+            advisory=False,
+            tags=list(tags or []),
+        )
+
+    @classmethod
+    def advisory_note(
+        cls,
+        *,
+        severity: str,
+        artifact: str,
+        symptom: str,
+        why: str = "",
+        fix_action: str = "",
+        fix: str = "",
+        tags: list[str] | None = None,
+    ) -> "Finding":
+        """Build an UNVERIFIED advisory with no locator. Renderers MUST present
+        these in a separate "advisory (unverified)" bucket, never mixed with
+        cited findings."""
+        return cls(
+            severity=severity,
+            artifact=artifact,
+            symptom=symptom,
+            why=why,
+            fix_action=fix_action,
+            file="",
+            line=None,
+            fix=fix,
+            advisory=True,
+            tags=list(tags or []),
+        )
+
+    @property
+    def location(self) -> str:
+        """Human-readable locator: ``file:line`` or just ``file`` for a
+        file-level finding. Empty for an advisory."""
+        if not self.file:
+            return ""
+        return f"{self.file}:{self.line}" if self.line else self.file
+
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        d["location"] = self.location
+        return d
 
 
 def rank_findings(findings: Iterable[Finding | dict[str, Any]]) -> list[dict[str, Any]]:
@@ -130,3 +260,28 @@ def rank_findings(findings: Iterable[Finding | dict[str, Any]]) -> list[dict[str
     dicts = [f.to_dict() if isinstance(f, Finding) else f for f in findings]
     dicts.sort(key=lambda f: SEVERITY_RANK.get(f.get("severity", "info"), 0), reverse=True)
     return dicts
+
+
+# ---------------------------------------------------------------------------
+# Part C — Honest limits
+# ---------------------------------------------------------------------------
+
+def limit_note(scope: str, detail: str, residual_risk: str = "") -> dict[str, str]:
+    """One contribution to a report's closing "Limits" section.
+
+    Every emitter can hand back limit notes so the report can state, plainly,
+    what this run could NOT check — out-of-scope surfaces, unverifiable things
+    (unresolved ``@``-imports, skipped/pruned dirs, missing external tools), and
+    the residual risk the dev still owns.
+
+    Empty results are limits too: state them explicitly ("No stale references
+    found."), never silence.
+
+    ``scope`` is a short label (e.g. "freshness", "rule-scoring",
+    "external-tools"); ``detail`` is the plain-language note; ``residual_risk``
+    optionally names what the dev still has to verify by hand.
+    """
+    note = {"scope": scope, "detail": detail}
+    if residual_risk:
+        note["residual_risk"] = residual_risk
+    return note

@@ -549,6 +549,20 @@ def main():
 
     corpus_grade = score_to_grade(effective_corpus["score"])
 
+    # --- Part C: honest limits the rules engine itself owns ---
+    # These are stated as counted facts; report.py adds the standing engine
+    # limits (English-only, structural-only) and the empty-result explicit-None
+    # cases (no conflicts, no degraded rules).
+    limits = [
+        _lib.limit_note(
+            "rule-extraction",
+            f"Scored {len(rules)} extracted rule(s) across {len(source_files)} "
+            "instruction file(s). Rules the extractor could not isolate (e.g. "
+            "prose paragraphs without an imperative) are not scored.",
+            residual_risk="An instruction buried in prose may carry weight Claude "
+            "feels but this audit never saw."),
+    ]
+
     output = {
         "schema_version": "0.1",
         "project": project_root,
@@ -556,8 +570,10 @@ def main():
         "methodology": {
             "weights_version": _WEIGHTS["version"],
         },
+        # Counted facts only — observed tallies, never counterfactual impact.
         "files_scanned": len(source_files),
         "rules_extracted": len(rules),
+        "limits": limits,
         "effective_corpus_quality": {**effective_corpus, "grade": corpus_grade},
         "corpus_quality": corpus,
         "guideline_quality": guideline,

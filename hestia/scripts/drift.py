@@ -22,7 +22,7 @@ from pathlib import Path
 
 import discover as discover_mod
 import refs as refs_mod
-from _lib import emit
+from _lib import emit, limit_note
 
 INSTRUCTION_KINDS = ("claude_md", "rules", "agents", "skills", "commands")
 
@@ -44,12 +44,32 @@ def scan(project_root: str | None = None) -> dict:
         basis = "|".join(sorted(f"{s['path']}:{','.join(s['broken'])}" for s in stale))
         signature = hashlib.sha1(basis.encode("utf-8")).hexdigest()[:12]
 
+    # --- Part C: honest limits — empty results are stated explicitly, never
+    # silenced. A clean scan means "no broken path-like refs", not "everything
+    # is current".
+    limits = []
+    if not stale:
+        limits.append(limit_note(
+            "freshness",
+            "No stale references found.",
+            residual_risk="This only checks resolvable path-like references; "
+            "prose that describes outdated behavior is not detected."))
+    limits.append(limit_note(
+        "freshness-scope",
+        "Reference detection is conservative — only path-like tokens (./ ../ ~/ "
+        ".claude/ or slash+extension), @imports, and relative markdown links are "
+        "verified. Time/churn signals are excluded (a fresh clone resets mtimes).",
+        residual_risk="A reference written in prose or pointing outside the "
+        "project tree may be stale without showing up here."))
+
     return {
         "status": "ok",
         "project_root": str(root),
+        # Counted facts only — observed tallies, no impact claims.
         "stale_files": stale,
         "total_broken": total,
         "signature": signature,
+        "limits": limits,
     }
 
 

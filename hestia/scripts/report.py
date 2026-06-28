@@ -6,6 +6,20 @@ Use --json flag for JSON passthrough.
 Renders the quality report with letter grades. Scores measure how clearly
 Claude can parse and apply each rule -- a structural-clarity heuristic,
 not a compliance predictor.
+
+FINDING CONTRACT — Part D (counted facts, no counterfactual).
+This module states COUNTED facts only: tallies actually observed in the corpus
+("3 stale refs, 2 trigger-less rules", "12 of 20 rules grade B+"). It MUST
+NEVER claim counterfactual impact — e.g. "improved setup health 40%" — because
+there is no baseline for the un-fixed alternative, so such a number would be
+fabricated. The health SCORE shown (effective corpus quality) is a transparent,
+count-derived index whose components (file scores, factor values) are listed
+inline and in --verbose; it is not a before/after improvement claim. There is
+deliberately NO API here that emits a counterfactual percentage.
+
+Every report also closes with a "Limits — what this run could not check"
+section (Part C): out-of-scope surfaces, unverifiable things, and the residual
+risk the dev still owns. Empty sub-checks are stated explicitly, never silenced.
 """
 
 from __future__ import annotations
@@ -144,13 +158,66 @@ def render_markdown(audit: dict, verbose: bool = False) -> str:
     if verbose:
         _render_verbose_section(lines, audit)
 
-    # 6. Disclaimer
+    # 6. Limits — what this run could not check (always rendered)
+    _render_limits(lines, audit)
+
+    # 7. Disclaimer
     lines.append("---\n")
     lines.append("*This report measures how clearly Claude can parse and apply your rules. "
                  "Actual compliance depends on factors beyond rule text — this audit optimizes "
-                 "the structural part authors control.*")
+                 "the structural part authors control. Counts above are observed tallies, not "
+                 "before/after impact estimates.*")
 
     return "\n".join(lines)
+
+
+def _render_limits(lines: list[str], audit: dict) -> None:
+    """Render the closing "Limits — what this run could not check" section.
+
+    Part C of the finding contract: ALWAYS renders. Empty sub-checks are stated
+    explicitly ("No potential conflicts surfaced."), never silenced — silence
+    would let the dev assume a surface was cleared when it was merely skipped.
+    """
+    lines.append("---\n")
+    lines.append("## Limits — what this run could not check\n")
+
+    # Emitter-contributed notes (each is {scope, detail, residual_risk?}).
+    notes = audit.get("limits") or []
+    for note in notes:
+        detail = note.get("detail", "")
+        if not detail:
+            continue
+        lines.append(f"- {detail}")
+        rr = note.get("residual_risk")
+        if rr:
+            lines.append(f"  - Residual risk: {rr}")
+
+    # Standing limits of the rules engine, stated as explicit facts even when the
+    # corresponding result set is empty (never silent).
+    lines.append("- Scoring is English-only; non-English rules get inaccurate scores.")
+    lines.append("- Structural clarity only — this does NOT predict whether Claude will "
+                 "actually comply, nor whether a rule is correct for your project.")
+
+    conflicts = audit.get("conflicts", [])
+    if conflicts:
+        n = len(conflicts)
+        pair_word = "pair" if n == 1 else "pairs"
+        lines.append(f"- Conflict scan flagged {n} candidate {pair_word} (vocabulary "
+                     "overlap) — confirm each by reading the rules; some are false positives.")
+    else:
+        lines.append("- No potential conflicts surfaced. (A clean conflict scan is not a "
+                     "proof of consistency — it only checks shared concrete markers.)")
+
+    degraded = sum(1 for r in audit.get("rules", [])
+                   if r.get("category") == "mandate" and r.get("degraded"))
+    if degraded:
+        noun = "rule was" if degraded == 1 else "rules were"
+        lines.append(f"- {degraded} {noun} scored on fewer than all factors; missing "
+                     "factors were excluded, not defaulted.")
+    else:
+        lines.append("- All scored rules had every factor available — no degraded scores.")
+
+    lines.append("")
 
 
 # ---------------------------------------------------------------------------
