@@ -14,6 +14,8 @@ Verify the proofreader returns expected verdicts for all fixtures in `${CLAUDE_P
 
 A test case PASSES when the proofreader's verdict matches the expectation. A test case FAILS when it does not.
 
+> Negative-fixture rule (verify-the-detector): every Hestia detector must have a negative fixture proving it FIRES on a known-bad input — paired with a clean input it must NOT flag. A detector tested only on clean fixtures is indistinguishable from a broken one. The Python suite enforces this in `tests/test_detectors_fire.py`; new detectors are expected to add a paired clean/known-bad firing test there.
+
 ## Coverage
 
 The fixture set covers all 13 items plus a clean pass: items 1–13 each have a dedicated `fail/` fixture (item 1 has two), and `pass/clean_skill.md` exercises the no-defect path. Add further fixtures as new edge cases surface (e.g. multi-signal decomposition, combined frontmatter failures).
