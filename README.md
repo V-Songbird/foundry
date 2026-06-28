@@ -8,8 +8,6 @@ A collection of Claude Code plugins by Songbird. Each plugin is an independently
 
 **[hestia](./hestia)** is the recommended starting point. It is the single plugin that covers the whole surface of your Claude Code setup: one `/hestia:checkup` command audits your `CLAUDE.md`, rules, agents, skills, hooks, and commands and returns a plain-language ranked report of what to improve. It also watches those files for staleness over time and ships a built-in minimalism mode.
 
-Hestia supersedes the older `rulesense` and `scriptorium` plugins — those remain installable as deprecated stubs that redirect here.
-
 ## All plugins
 
 | Plugin                                 | Description                                                                                                                                                                         |
@@ -19,9 +17,6 @@ Hestia supersedes the older `rulesense` and `scriptorium` plugins — those rema
 | [iceberg](./iceberg)                   | Encode architectural rules as compiler/lint errors. Audits structural debt, applies the asymmetric-complexity convention, or bootstraps enforcement scaffolding in a fresh project. |
 | [jetbrains-router](./jetbrains-router) | Routes Claude Code tools through a JetBrains IDE MCP server (WebStorm, Rider, IntelliJ IDEA) for live diagnostics and unsaved-buffer reads. Fails open when no IDE is connected.    |
 | [kairoi](./kairoi)                     | Session safety for unfamiliar codebases. Edit-time guards, automatic commit capture, and cross-module reflection so Claude stays in sync across long sessions.                      |
-| [rulesense](./rulesense)               | *(Superseded by hestia.)* Audits and authors CLAUDE.md rule files. Rule quality capabilities now live in `/hestia:assess-rules`.                                                    |
-| [scriptorium](./scriptorium)           | *(Superseded by hestia.)* Reference guide and proofreader for Claude Code instruction artifacts. Authoring now lives in `/hestia:scribe` and `/hestia:proofread`.                   |
-
 ## Installation
 
 Each plugin is installed individually. Clone this repository and register the plugin directory with Claude Code.
@@ -36,9 +31,7 @@ claude-plugins/
 ├── forge/
 ├── iceberg/
 ├── jetbrains-router/
-├── kairoi/
-├── rulesense/         ← superseded by hestia
-└── scriptorium/       ← superseded by hestia
+└── kairoi/
 ```
 
 ## License

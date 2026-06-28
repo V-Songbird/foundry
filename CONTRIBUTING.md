@@ -33,7 +33,6 @@ plugin-name/
 All plugins with scripted behavior include a test suite. Run tests before submitting:
 
 - **Shell-based plugins** (jetbrains-router, kairoi): `bash <plugin>/tests/run.sh`
-- **Python-based plugins** (rulesense): `pytest <plugin>/tests/ -v`
 
 PRs that change script behavior without updating tests will not be merged.
 

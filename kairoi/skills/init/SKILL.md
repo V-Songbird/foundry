@@ -365,7 +365,7 @@ separately) and must keep growing if new transients are added.
 
 ## Step 8.5: Write behavioral rules
 
-Write rulesense-format rule files so Claude has ambient orientation
+Write behavioral rule files so Claude has ambient orientation
 about kairoi state ownership, command routing, and (in Solo mode) the
 project's writing stance. `kairoi.md` and `kairoi-state-files.md`
 install in both modes; `kairoi-writing.md` installs ONLY in Solo mode —
