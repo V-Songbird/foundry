@@ -1,6 +1,8 @@
-# Hestia
-
-**Claude Code's session companion** — always-on guardrails, on-demand health checks, and truth-grounding before you touch unfamiliar technology.
+<div align="center">
+  <img src="logo.svg" alt="Hestia" width="120" />
+  <h1>Hestia</h1>
+  <p><strong>Claude Code's session companion</strong> — always-on guardrails, on-demand health checks, and truth-grounding before you touch unfamiliar technology.</p>
+</div>
 
 Your `CLAUDE.md` starts clean. Then rules turn vague, instruction files reference paths that no longer exist, and Claude confidently writes code from outdated training knowledge. Hestia watches all of it — and keeps Claude honest before and while it builds.
 
