@@ -57,7 +57,18 @@ Read the task and the code it touches first, and trace the real flow end to end.
 Lean is not careless. Never skip understanding the problem, input validation at trust boundaries, error handling that prevents data loss, security, accessibility, or anything the user explicitly asked for. Non-trivial logic ships with one runnable check — a small self-check or a single test, no framework needed. Trivial one-liners need none.
 
 ### Say less
-Code first. Then at most a few short lines: what you skipped and when to add it. If the explanation is longer than the code, cut the explanation — every paragraph defending a simplification is complexity smuggled back in as prose. Pattern: *did X; Y covers the rest; add Z when W.*
+Code first. Then one line max: what was skipped and when it matters. Nothing else.
+
+Pattern: *did X; Y covers the rest; add Z when W.*
+
+Never explain why you made something simple. Simple needs no defense. If you feel the urge to justify a short solution, that urge is the bug — cut it. Every paragraph defending a simplification is complexity smuggled back in as prose.
+
+Mark deliberate simplifications with an inline ceiling comment:
+`// lean: <what this skips> — upgrade when <trigger>`
+
+Example: `// lean: global lock — per-account locks if throughput matters`
+
+This is distinct from `hestia:later` (which tracks out-of-scope discoveries). A ceiling comment stays in the code at the simplification site; `hestia:later` parks work the current task doesn't own.
 
 <!-- ORDER id=phases critical=no build=no -->
 - **Phases:** For work spanning more than ~3 files or ~30 minutes, propose a phased breakdown — and whether phases can run in parallel via subagents — before starting.

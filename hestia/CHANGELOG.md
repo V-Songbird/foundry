@@ -2,6 +2,13 @@
 
 All notable changes to Hestia are documented here. Versions are owned by the marketplace manifest, not `plugin.json`.
 
+## [1.0.2-beta] — 2026-06-27
+
+### Changed — sharper lean doctrine (token reduction)
+- **Response shape rule:** "one line max — what was skipped and when it matters." Replaces the vague "a few short lines" with a concrete ceiling.
+- **No-defense rule:** never explain why you made something simple. The urge to justify a short solution is the bug — cut it.
+- **Inline ceiling comments:** `// lean: <what this skips> — upgrade when <trigger>` marks deliberate simplifications at the site in code. Distinct from `hestia:later` (scope drift) — a ceiling comment stays with the code; `hestia:later` parks work the current task doesn't own.
+
 ## [1.0.1-beta] — 2026-06-27
 
 ### Changed — smarter truth-grounding in `/hestia:prepare`
