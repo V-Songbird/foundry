@@ -2,9 +2,15 @@
 
 Pre-code feature review workflow for Claude Code.
 
-Forge stress-tests a proposed feature design against the actual codebase before any code is written. It runs a 10-step pipeline: requirements understanding → structural search → reality-check spike → parallel domain expert analysis → master plan → adversarial critic → plan revision → user approval → implementation → optional build report.
+Forge stress-tests a proposed feature design against the actual codebase before any code is written. Parallel domain experts surface cross-domain conflicts; the adversarial critic checks the plan against real code, not assumptions; the user-approval step is where the feature can be redirected or killed before work begins.
 
-The critical gates: parallel experts surface cross-domain conflicts that a single pass misses; the adversarial critic checks the plan against real code, not assumptions; and the user-approval step is where the feature can be redirected or killed before work begins.
+## Levels
+
+| Level | Trigger | What runs |
+|-------|---------|-----------|
+| **lite** | `/forge lite` | In-session only — no expert or critic dispatch. For prototypes and bounded changes. |
+| **full** | `/forge` | Parallel experts → master plan → adversarial critique → approval → implementation. Default. |
+| **deep** | `/forge deep` | Full pipeline + Workflow dispatch with schema-validated reports and a two-refuter panel per Blocking finding. For high-trust-boundary or cross-team changes. |
 
 ## When to use
 
@@ -12,7 +18,7 @@ The critical gates: parallel experts surface cross-domain conflicts that a singl
 - You want conflicts and risks surfaced before implementation starts
 - You have a design in mind but want it stress-tested by domain experts first
 
-Forge skips the full pipeline for trivial localized changes (typo fixes, single-method bugs).
+For trivial localized changes (typo fixes, single-method bugs), use a direct edit — not forge. Use `/forge lite` for exploratory prototypes where the full pipeline costs more than it saves.
 
 ## Skills
 
@@ -34,7 +40,7 @@ The research stages run on pinned models: domain experts and the adversarial cri
 
 ## Deep mode
 
-Ask for a "deep" or "thorough" forge run and the two research stages upgrade to Workflow orchestration: experts return schema-validated reports, and every blocking critic finding is independently audited by a two-refuter panel before it reaches plan revision. Requires Claude Code ≥ 2.1.154 (the `Workflow` tool); forge falls back to standard dispatch otherwise.
+`/forge deep` upgrades the two research stages to Workflow orchestration: experts return schema-validated reports, and every Blocking critic finding is independently audited by a two-refuter panel before it reaches plan revision. Requires Claude Code ≥ 2.1.154 (the `Workflow` tool); falls back to the full pipeline otherwise.
 
 ## Installation
 

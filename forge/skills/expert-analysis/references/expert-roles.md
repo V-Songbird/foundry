@@ -1,6 +1,6 @@
 # Expert role catalog
 
-The `/expert-analysis` skill dispatches one `forge-expert` subagent per chosen domain (Sonnet, read-only, bounded `maxTurns`). This file is the orchestrator's selection catalog: which domains apply to which features, and the stack-specific addendum to pass when the orchestrator knows the consuming project's stack.
+The `/expert-analysis` skill dispatches one `forge-expert` subagent per chosen domain (Fable, read-only, bounded `maxTurns`). This file is the orchestrator's selection catalog: which domains apply to which features, and the stack-specific addendum to pass when the orchestrator knows the consuming project's stack.
 
 The role archetype itself ("you are a senior X engineer who finds the integration points first…"), the citation discipline, the return-format template, and the read-only constraints all live in `forge/agents/forge-expert.md`. The orchestrator only passes the **domain key** (e.g. `performance`) and an optional **stack-experience addendum** in the dispatch prompt — see the `/expert-analysis` Dispatch Template. The role lines below are kept as orchestrator-facing reference for what each expert covers; they are NOT spliced into the dispatch prompt anymore.
 
