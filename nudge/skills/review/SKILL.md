@@ -8,15 +8,15 @@ disable-model-invocation: true
 
 # nudge — session prompt review
 
-You are reviewing this conversation to teach the user how to write better prompts. Your job is not to grade the session — it is to show the user one or two specific, concrete things they can do differently next time, grounded in what actually happened here.
+You are reviewing this conversation to show the user how a better first prompt could have made this session more direct. The first prompt is the one that matters — it set everything in motion. The rest of the conversation is evidence: what did you have to ask for, guess at, or get corrected on? That's what the opening prompt didn't contain.
 
-Before beginning, MUST invoke `Read` on `references/rubric.md` — it contains the 9-dimension analysis framework, the golden rule test, and the exact report format to follow. The `references/model-effort-guide.md` read happens in Step 0.
+Before beginning, MUST invoke `Read` on `references/rubric.md` — it contains the 9-dimension analysis framework and the report format to follow.
 
 ## Step 0: Session context
 
 **Identify your model.** You know which Claude model you are — state it to yourself before proceeding.
 
-MUST invoke `Read` on `references/model-effort-guide.md` — it tells you which rubric dimensions to weight more heavily for your model and what model-specific patterns to watch for during analysis.
+MUST invoke `Read` on `references/model-effort-guide.md` — it tells you which rubric dimensions to weight more heavily for your model and what model-specific patterns to watch for.
 
 **Ask the user one optional question** — MUST invoke `AskUserQuestion`:
 - **question**: "This session ran on [your model name]. What effort level did you use?"
@@ -30,75 +30,54 @@ MUST invoke `Read` on `references/model-effort-guide.md` — it tells you which 
 
 Wait for the user's response, then proceed to Step 1. If they choose "Not sure / skip", proceed without an effort answer — the Session efficiency section will be omitted from the report.
 
-## Step 1: Filter the conversation
+## Step 1: Orient to the session
 
-Scan all user turns and identify **substantive prompts** — turns that initiated work, described a task, provided context for Claude to act on, or meaningfully redirected the session.
+Find the **first substantive prompt** — the user turn that opened the actual work. This is almost always the first message. Skip slash command invocations, greetings, and single-word replies.
 
-**Exclude:**
-- This `/nudge:review` invocation and everything after it
-- Single-word or short acknowledgments: "ok", "yes", "thanks", "looks good", "proceed", "go ahead", "sure", "correct"
-- Follow-up approvals where Claude asked a yes/no clarifying question
-- Pure slot-fills: "Python", "yes please", "the second option"
-- Other slash command invocations
+Then scan the full session to understand:
+- What was ultimately accomplished
+- What follow-up turns were needed — corrections, redirections, clarifications, "actually do X instead"
+- What you had to ask for, guess at, or get wrong before getting it right
 
-**Include:**
-- Any turn describing a task or question requiring substantive work
-- Follow-up turns that added meaningful new requirements, corrections, or redirections — these are especially instructive because the need for a follow-up often signals an underspecified original prompt
+Read the session backward from the opening: the follow-up turns reveal what the first prompt didn't contain.
 
-## Step 2: Select 2–4 most instructive moments
+## Step 2: Identify the gap
 
-From the substantive prompts, select the 2–4 that offer the highest teaching value. Prioritize:
+Apply the rubric from `references/rubric.md` to the first prompt. The question is not "which dimensions are missing" in the abstract — it is: **which missing dimensions caused follow-up turns or required you to guess?**
 
-- Prompts followed by a response that missed the mark — Claude asked for clarification, produced the wrong format, addressed the wrong angle, or required correction in the next turn
-- Prompts that were short relative to the complexity of what was being requested
-- Prompts missing role, context, output format, or examples where those would have made a measurable difference
-- Prompts where a follow-up correction existed — the correction itself reveals what the original prompt left ambiguous
+Identify the 1–2 gaps with the highest impact on session flow.
 
-If the session had fewer than 5 substantive prompts, analyze all of them. For sessions with 15 or more, sample the most representative moments — cover the range, don't pad with easy wins.
+If the first prompt was already well-formed and the session ran cleanly with no corrections or redirections, say so specifically: name which dimensions it handled well and what that enabled. Then skip to Step 5.
 
-## Step 3: Analyze each selected prompt
+## Step 3: Write the rewrite
 
-For each selected prompt, work through four steps in order:
+Write one complete, professional version of the first prompt that would have gotten to the same outcome with fewer turns. It should:
+- Address the 1–2 gaps identified in Step 2
+- Be written for this specific model and effort level — apply what `references/model-effort-guide.md` says about your model
+- Read naturally — like something a confident, experienced user of this model would actually type
+- Not be a textbook template or enumerated checklist; be a real prompt
 
-**Quote it verbatim.** Show exactly what was written, unchanged. Do not paraphrase or clean it up — the raw text is what you are teaching from.
+## Step 4: Explain it simply
 
-**Apply the rubric.** Check the prompt against the 9 dimensions in `references/rubric.md`. Identify the **1–2 most impactful gaps only**. If a prompt missed four dimensions, pick the two where improvement would have made the biggest difference to response quality. Do not pile on — a list of six things wrong is not a lesson, it is a complaint.
+One short paragraph. No technical terms, no rubric labels, no jargon. Explain what the rewrite gives Claude that the original didn't — in terms of what Claude can now do, not in terms of prompting principles. Write as if explaining to someone who has never thought about how prompts work.
 
-**Rewrite it.** Produce an improved version that addresses the identified gaps. The rewrite must feel like something a human would actually write — not a textbook example, not a checklist of injected components. It should read naturally and be plausibly something this user could have typed.
+## Step 5: Session efficiency
 
-**Explain the mechanism.** One paragraph explaining *why* the rewrite works better. Not "you should add a role" but the actual mechanism: what Claude can now do that it could not do before, and why that produces a better result. Mechanisms are what transfer to future sessions — labels do not.
+If the user provided an effort level in Step 0: characterize the session's dominant task types, compare to the effort decision matrix in `references/model-effort-guide.md`, and write the Session efficiency section per the report format.
 
-## Step 4: Identify the session pattern (if any)
-
-After analyzing the individual prompts, look across them for a recurring theme. If the user consistently omitted output format, or consistently gave Claude context without stating what to do with it, name it plainly.
-
-If there is no clear pattern, omit this section. Do not manufacture a pattern to fill the space.
-
-## Step 5: One takeaway
-
-Close with a single actionable line — the one change with the highest expected impact across this user's next session. Make it specific to what you observed in this session, not a generic prompting tip that could apply to anyone.
-
-## Handling a solid session
-
-If the user's prompts were already well-structured, say so — but specifically. Name which dimensions they handled well and explain the mechanism behind why that worked. "Your prompting was solid" is only useful if the user learns what they did intentionally, so they can repeat it on purpose.
-
-Do not manufacture problems in a solid session. Honest positive feedback with explained mechanisms is more valuable than forced criticism.
+If no effort level was provided, omit this section entirely.
 
 ## Tone
 
-Teach, do not grade. This is a coaching conversation, not a rubric score.
+Be direct. One concrete rewrite teaches more than a list of observations.
 
-Be direct and gentle simultaneously. Do not open with "Great session!" or close with "Keep it up!" Do not soften every observation into mush. One clear, honest observation teaches more than five hedged ones.
+Plain language in the Step 4 explanation. If a technical term appears anywhere in the report, define it in the same sentence.
 
-Mechanism before label. "Without a role, Claude defaults to a generic response style because it has no signal to narrow from" teaches something. "You forgot to add a role" teaches nothing.
-
-Plain language throughout. If a technical term is necessary — chain-of-thought, few-shot, XML delimiter — define it in the same sentence. The user may be learning this vocabulary for the first time.
-
-Frame rewrites carefully. Say "this reduces ambiguity" or "this gives Claude a clearer target." Do not say "this would have gotten you a better answer" — that is a counterfactual we cannot prove.
+Frame the rewrite as reducing ambiguity or giving Claude a clearer target — not as guaranteeing a better result.
 
 ## Output
 
-Follow the report structure in `references/rubric.md`. Deliver the report inline in the conversation. Do not save to a file unless the user explicitly asks.
+Follow the report format in `references/rubric.md`. Deliver the report inline in the conversation. Do not save to a file unless the user explicitly asks.
 
 ## Additional resources
 

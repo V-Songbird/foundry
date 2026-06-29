@@ -167,36 +167,19 @@ Use this exact structure. Plain markdown, no excessive headers.
 ```
 ## nudge
 
-**Session:** [One sentence: what the session accomplished]
+**Session:** [One sentence: what was accomplished — and if the session required corrections or redirections, note that briefly]
 
 ---
 
-### [Short 3–5 word label for the prompt]
+**Opening prompt:**
+> [Verbatim first prompt, unchanged — do not paraphrase or clean it up]
 
-> [Verbatim quote of the user's prompt]
+**What the session needed:** [Short paragraph — which 1–2 gaps in the opening prompt forced follow-up turns or required guessing. Ground this in what actually happened in the session, not abstract principles.]
 
-**The gap:** [One short paragraph naming the 1–2 missing dimensions and why they mattered here]
+**What it could have been:**
+> [The complete rewrite — natural, confident, written for this model at this effort level. Not a template.]
 
-**Rewritten:**
-> [The improved version — natural, human-sounding, not a template]
-
-**Why it works:** [One paragraph on the mechanism — what Claude can now do that it couldn't before, and why that produces a better result]
-
----
-
-[Repeat for each selected prompt — 2 to 4 total]
-
----
-
-### Pattern  ← omit this section entirely if no clear pattern exists
-
-[One sentence naming the recurring theme observed across this session's prompts]
-
----
-
-### One thing to carry forward
-
-[A single specific, actionable line grounded in what this user did in this session — not a generic tip]
+**Why it works:** [One short paragraph in plain, non-technical language. No rubric labels, no jargon. Explain what Claude can now do that it couldn't do before — in terms the user can immediately understand without knowing anything about prompting.]
 
 ---
 
@@ -207,12 +190,12 @@ Use this exact structure. Plain markdown, no excessive headers.
 
 [One paragraph: characterize the dominant task types observed in this session, state the appropriate effort tier from the matrix in `references/model-effort-guide.md`, and compare. If there's a mismatch, name the direction and what to use instead. If the effort matched, confirm it briefly. One short paragraph — a verdict, not an analysis.]
 
-**Model note:** [Include only if a model-specific pattern was observed — e.g., a reasoning-reproduction prompt in a Fable 5 session, or scope-reliant instructions in an Opus 4.8 session running at low effort. Omit this line entirely if no model-specific issue was observed.]
+**Model note:** [Include only if a model-specific pattern was observed. Omit this line entirely if not.]
 ```
 
 **Tone reminders:**
 - Do not open with praise or close with encouragement
-- One gap per prompt — not a list of everything missing
-- Mechanisms over labels: explain *why* the change matters, not just *what* changed
-- Rewrites must read like something the user could plausibly have typed — not a textbook example
-- Frame improvements as reducing ambiguity or giving Claude a clearer target, not as guaranteeing a better result
+- One rewrite, one plain-language explanation — not a list of every issue found
+- The Step 4 explanation must use no technical terms or rubric labels — explain the mechanism in everyday language
+- The rewrite must read naturally — not a textbook example, not a checklist of injected components
+- Frame the rewrite as reducing ambiguity or giving Claude a clearer target, not as guaranteeing a better result

@@ -2,6 +2,20 @@
 
 All notable changes to nudge will be documented here.
 
+## [0.2.0-alpha] — 2026-06-29
+
+### Changed
+- **Core behavior redesign:** skill now focuses on the first prompt only, using the rest of the session as evidence of what it missed
+- Report produces one professional rewrite of the opening prompt (calibrated to the detected model and effort level) instead of analyzing multiple prompts
+- Step 4 explanation is now required to be plain, non-technical language — no rubric labels or jargon
+- Report format simplified: removed Pattern section and One thing to carry forward; report is opening prompt → gap → rewrite → explanation → efficiency
+
+### Fixed
+- Added `Read` to `allowed-tools` (skill reads two reference files)
+- Added `disable-model-invocation: true` (broad trigger phrases risk auto-firing)
+- Replaced prose question in Step 0 with proper `AskUserQuestion` directive
+- Replaced natural-language "read" verbs with `MUST invoke Read` directives
+
 ## [0.1.0-alpha] — 2026-06-29
 
 ### Added
