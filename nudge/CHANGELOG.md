@@ -2,6 +2,12 @@
 
 All notable changes to nudge will be documented here.
 
+## [0.2.1-alpha] — 2026-06-29
+
+### Fixed
+- "What the session needed" constrained to 2–3 sentences (was an uncapped paragraph)
+- Step 3 rewrite now required to apply all relevant rubric dimensions (role, XML structure, output format, positive framing) — previously only addressed the identified gap, producing incomplete rewrites without role context or structure
+
 ## [0.2.0-alpha] — 2026-06-29
 
 ### Changed

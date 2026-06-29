@@ -174,7 +174,7 @@ Use this exact structure. Plain markdown, no excessive headers.
 **Opening prompt:**
 > [Verbatim first prompt, unchanged — do not paraphrase or clean it up]
 
-**What the session needed:** [Short paragraph — which 1–2 gaps in the opening prompt forced follow-up turns or required guessing. Ground this in what actually happened in the session, not abstract principles.]
+**What the session needed:** [2–3 sentences max. Name the 1–2 gaps that caused extra turns or required guessing. Ground it in what actually happened — no abstract principles, no preamble.]
 
 **What it could have been:**
 > [The complete rewrite — natural, confident, written for this model at this effort level. Not a template.]

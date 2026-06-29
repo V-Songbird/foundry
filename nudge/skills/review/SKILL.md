@@ -51,8 +51,19 @@ If the first prompt was already well-formed and the session ran cleanly with no 
 
 ## Step 3: Write the rewrite
 
-Write one complete, professional version of the first prompt that would have gotten to the same outcome with fewer turns. It should:
-- Address the 1–2 gaps identified in Step 2
+Write one complete, professional version of the first prompt that would have gotten to the same outcome with fewer turns.
+
+The rewrite is not a patch of the identified gap — it is a fully-formed prompt that applies all relevant rubric dimensions. Check each one:
+- **Role context** (Dimension 1): does this task benefit from telling Claude who it is or what voice to use? Add it.
+- **XML structure** (Dimension 7): does the prompt mix instructions with context, data, or a specific question? Separate them with `<context>`, `<task>`, `<document>`, etc.
+- **Output format** (Dimension 8): does the shape of the response matter? Specify it.
+- **Positive framing** (Dimension 4): state what to do, not what to avoid.
+- **Motivation behind rules** (Dimension 2): if there are constraints, explain why.
+
+The gap identified in Step 2 is the focus of your Step 4 explanation — it is the highest-impact teaching point. The rewrite must demonstrate correct application of all dimensions, not just fix the one gap.
+
+It should:
+- Apply all relevant rubric dimensions — not just address the identified gap
 - Be written for this specific model and effort level — apply what `references/model-effort-guide.md` says about your model
 - Read naturally — like something a confident, experienced user of this model would actually type
 - Not be a textbook template or enumerated checklist; be a real prompt
