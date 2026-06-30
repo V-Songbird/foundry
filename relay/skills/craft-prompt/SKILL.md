@@ -31,6 +31,8 @@ Options:
 
 Record which optional sections were selected.
 
+Q2 asks what the user *wants* in the prompt, not what's *true* about the code — no amount of upfront code investigation answers it, so don't skip it even when you've already grounded every fact the prompt will state. Investigation and section selection are orthogonal: being confident about the code is not the same as knowing which sections the user wants included.
+
 ---
 
 ## Call 2 — required fields (batch all 4)
