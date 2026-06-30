@@ -15,11 +15,12 @@ import json
 import re
 import sys
 
-# Numbered lists, "also/additionally/and then/furthermore" conjunctions
-_MULTI = re.compile(
-    r"(?:\b(?:also|additionally|and\s+then|furthermore)\b|\b\d+[\.\)]\s+\w)",
-    re.IGNORECASE,
-)
+# Numbered list item — strong signal alone (e.g. "1. do X").
+_LIST = re.compile(r"\b\d+[\.\)]\s+\w", re.IGNORECASE)
+
+# "also/additionally/and then/furthermore" — weak signal, needs 2+ hits to fire
+# (a single "also" matches mid-sentence asides, not just multi-part requests).
+_CONJ = re.compile(r"\b(?:also|additionally|and\s+then|furthermore)\b", re.IGNORECASE)
 
 # Explicit deferral language
 _DEFERRED = re.compile(
@@ -50,7 +51,7 @@ def main() -> None:
         return
 
     hints = []
-    if _MULTI.search(prompt):
+    if _LIST.search(prompt) or len(_CONJ.findall(prompt)) >= 2:
         hints.append(MULTI_HINT)
     if _DEFERRED.search(prompt):
         hints.append(DEFERRED_HINT)
