@@ -24,20 +24,19 @@ Each plugin is an independently installable unit with its own version, changelog
 
 ## Plugins
 
-### [hestia](https://github.com/V-Songbird/hestia) — Claude Code's session companion
+### [hestia](https://github.com/V-Songbird/hestia) — Claude Code's calm companion
 
-Always-on guardrails and on-demand health checks for your entire Claude Code setup.
+Keeps Claude's answers simple and clear, and keeps your project tidy.
 
 | You want to… | Invoke |
 | --- | --- |
 | Full health check of your Claude Code setup | `/hestia:checkup` |
-| Prep Claude for a niche or unfamiliar domain | `/hestia:prepare` |
 | Scan for stale instruction files | `/hestia:freshness` |
-| Grade your rules and CLAUDE.md quality | `/hestia:assess-rules` |
-| Review a diff for over-engineering | `/hestia:lean-review` |
-| Author a skill, agent, command, or hook | `/hestia:scribe` |
+| See all deferred `hestia:later` work | `/hestia:debt` |
+| Turn the companion on or off | `/hestia:lean on\|off` |
+| Check whether your rules reach Claude | `/hestia:assess-rules` |
 
-Standing orders injected automatically into every session enforce minimal code, scope discipline, truth-grounding on unfamiliar tech, and memory hygiene — across Claude and every subagent it spawns.
+Two reminders inject automatically into every session: keep Claude's answers simple and clear (the outcome, not the jargon or the step-by-step), and keep the workspace tidy. Hestia says nothing about how to write code — that's Claude's craft.
 
 ```
 /plugin install hestia
