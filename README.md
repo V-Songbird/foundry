@@ -94,6 +94,34 @@ Supported IDEs: WebStorm, Rider, IntelliJ IDEA 2025.2+
 
 ---
 
+### [nudge](https://github.com/V-Songbird/claude-plugins/tree/main/nudge) — Prompt coaching
+
+Reviews your session and teaches you how to write better prompts. Run it at the end of any working session — it identifies what your opening prompt missed, rewrites it as a professional prompt calibrated to your Claude model and effort level, and explains why in plain language.
+
+```
+/nudge:review
+```
+
+```
+/plugin install nudge
+```
+
+---
+
+### [verity](https://github.com/V-Songbird/claude-plugins/tree/main/verity) — Live documentation grounding
+
+Fetches current official Claude Code documentation on demand — gives Claude truth-grounding from primary sources instead of training memory. Also provides a canonical reference for host MCP tools (`spawn_task`, `mark_chapter`, `show_widget`, and the full `ccd_session` and `visualize` families).
+
+```
+/verity:ground-truth
+```
+
+```
+/plugin install verity
+```
+
+---
+
 ## Repository layout
 
 ```
@@ -101,7 +129,9 @@ claude-plugins/
 ├── hestia/            ← flagship — start here
 ├── forge/
 ├── iceberg/
-└── jetbrains-router/
+├── jetbrains-router/
+├── nudge/
+└── verity/
 ```
 
 Each plugin is an independent git repository mounted as a submodule. Plugin metadata lives in `.claude-plugin/plugin.json`; the marketplace index is at `.claude-plugin/marketplace.json`.
