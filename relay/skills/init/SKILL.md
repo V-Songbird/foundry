@@ -1,6 +1,6 @@
 ---
 name: init
-description: Bootstraps a project's ROADMAP.jsonl and .relay/config.json, and optionally drafts a starter .claude/rules/ file. Asks what the project is and its near-term goals, asks whether the roadmap should accept Claude-suggested entries after commits, drafts an initial set of roadmap tasks (and a rule file, if opted in), gets approval, then writes and commits everything.
+description: Bootstraps a project's ROADMAP.jsonl and .relay/config.json. Asks what the project is and its near-term goals, asks whether the roadmap should accept Claude-suggested entries after commits, drafts an initial set of roadmap tasks, gets approval, then writes and commits both files.
 when_to_use: Trigger when the user wants to set up Relay's roadmap for a project, says "init relay", "set up the roadmap", "initialize relay", "start a roadmap", or invokes /relay:init. Usually a one-time-per-project action.
 argument-hint: "<brief project description — optional seed>"
 allowed-tools: AskUserQuestion, Read, Write, Bash
@@ -8,24 +8,14 @@ allowed-tools: AskUserQuestion, Read, Write, Bash
 
 # relay:init — bootstrap a project roadmap
 
-Creates `ROADMAP.jsonl` and `.relay/config.json` at the project root, and
-optionally a starter rule at `.claude/rules/project-conventions.md`. All
-are committed to git — shared project artifacts, not personal state.
-`ROADMAP.jsonl` reads/writes go through
+Creates `ROADMAP.jsonl` and `.relay/config.json` at the project root. Both
+are committed to git — they're a shared project artifact, not personal
+state. All reads/writes go through
 `${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js` (see "Write phase" below) — it
 enforces the write invariants (id computation, parse-before/after-write)
 mechanically, so you don't have to. Skim
 `${CLAUDE_PLUGIN_ROOT}/roadmap-schema.md` if you need field semantics
 beyond what's obvious from the names (`why`/`what`/`depends_on`/`touches`).
-
-The rule file, if drafted, comes **only** from what this skill's questions
-gather — never from exploring the codebase. That's a deliberate limit:
-Relay's other flows stay cheap by never grounding claims before handoff
-(`truth_grounding` covers that at execution time instead), and a rule file
-built from unverified exploration would assert things about the codebase
-nobody checked. For an existing project with real conventions to capture
-accurately, a human-reviewed rule file (or `/memory`) beats one drafted
-from a five-question interview.
 
 If args were provided, treat them as the project description seed and skip
 asking for it in Call 1.
@@ -75,26 +65,6 @@ field verbatim.
 
 ---
 
-## Call 2.5 — starter rule file (optional)
-
-Check first: if `.claude/rules/project-conventions.md` already exists,
-skip this whole call silently — mention in passing that it's already there
-and won't be touched, then move on to the draft phase.
-
-**Q1** — "Draft a starter rule for `.claude/rules/` from what you've told me so far?"
-Options:
-- `Yes — draft it` — a short, always-loaded project primer (no `paths:`
-  frontmatter), built only from Call 1's answers plus whatever you add next.
-- `No — skip` — don't touch `.claude/rules/` at all.
-
-If yes, one more optional question:
-
-**Q2** — "Any conventions or constraints Claude should always follow here?"
-Options: `I'll describe them` (style, patterns, hard limits — free text),
-`None — just use what I already said`
-
----
-
 ## Draft phase (no AskUserQuestion)
 
 From the Call 1 answers, draft 3–8 initial `ROADMAP.jsonl` lines following
@@ -109,43 +79,18 @@ the schema exactly:
 - ids `"001"` through `"00N"` (or continuing past the existing max, if
   appending to an existing file per the pre-check).
 
-If Call 2.5 was a yes, also draft the rule file content:
-```markdown
-# Project Conventions
-
-[1-2 sentences from Call 1 Q1 — what this project is]
-
-## Working on this project
-
-This project tracks planned work in `ROADMAP.jsonl` via the Relay plugin.
-Check `/relay:roadmap` for the next task before picking up new work ad hoc.
-
-## Near-term goals
-
-[Bullet list from Call 1 Q2, only if concrete goals were given]
-
-[If Call 2.5 Q2 had content:]
-## Conventions
-
-[Bullet list of what the user said — verbatim intent, not paraphrased into
-something stronger than what they actually stated]
-```
-Nothing in this file states anything not directly traceable to something
-the user said in this conversation.
-
 Present the draft as readable text, one task per line — `title` plus `why`
-— not a raw JSON dump. If a rule file was drafted, show it right after, in
-a fenced block. The user should be able to skim both in a few seconds.
+— not a raw JSON dump. The user should be able to skim it in a few seconds.
 
 ---
 
 ## Call 3 — approval
 
-**Q1** — "Draft ready above. Proceed?"
+**Q1** — "Draft roadmap ready above. Proceed?"
 Options: `Looks good, write it`, `Let me adjust it first`
 
-If adjust: gather free-text revisions (roadmap tasks and/or the rule file),
-re-present the updated draft(s), ask again. Repeat until approved.
+If adjust: gather free-text revisions (add/remove/reword tasks), re-present
+the updated draft, ask again. Repeat until approved.
 
 ---
 
@@ -165,15 +110,9 @@ re-present the updated draft(s), ask again. Repeat until approved.
 3. Write `.relay/config.json` — `{"discoverySuggestions": <bool>}` (skip
    this file write if the pre-check "keep, add to it" branch found an
    existing config already).
-4. If a rule file was drafted and approved: `Write` it to
-   `.claude/rules/project-conventions.md`. (Call 2.5 already skips this
-   whole branch if the file exists — no separate overwrite prompt needed
-   here.)
-5. Stage and commit only the files this skill actually wrote — never a
-   broader `git add`:
-   `git add ROADMAP.jsonl .relay/config.json` (+ `.claude/rules/project-conventions.md` if written)
-   `&& git commit -m "chore: init relay roadmap"`
+4. Stage and commit just these two files:
+   `git add ROADMAP.jsonl .relay/config.json && git commit -m "chore: init relay roadmap"`
+   (Only the files this skill wrote — never a broader `git add`.)
 
-Report back: task count, discovery-suggestions on/off, whether a rule file
-was written, and point the user at `/relay:roadmap` to pick up the first
-task.
+Report back: task count, discovery-suggestions on/off, and point the user
+at `/relay:roadmap` to pick up the first task.

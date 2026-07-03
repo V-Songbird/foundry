@@ -5,6 +5,24 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.8-alpha] — 2026-07-03
+
+### Removed — the `.claude/rules/` drafting added in 0.4.7-alpha
+
+Reverted same-day, after direct feedback: the only genuinely new content a
+drafted rule file could add (project description, goals, conventions) is
+exactly the interpreted/synthesized content the user didn't want. Strip
+that out and what's left — "check `/relay:roadmap`, don't hand-edit
+`ROADMAP.jsonl`" — is fully redundant with mechanisms that already work
+without depending on a rules file being loaded or remembered:
+`guard-roadmap-edit.js` denies the direct edit and explains why in the
+same message; `post-commit.js` nudges at the exact moment it matters
+instead of sitting as passive context; `skills/roadmap/SKILL.md`'s own
+`description`/`when_to_use` frontmatter is what Claude Code already uses
+to discover the skill. No version of this feature was left that was both
+static (what was asked for) and non-redundant (worth keeping). `relay:init`
+is back to bootstrapping only `ROADMAP.jsonl` and `.relay/config.json`.
+
 ## [0.4.7-alpha] — 2026-07-03
 
 ### Added — optional starter `.claude/rules/` file in `relay:init`
