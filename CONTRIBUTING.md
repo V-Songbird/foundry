@@ -48,7 +48,7 @@ plugin-name/
 
 All plugins with scripted behavior include a test suite. Run tests before submitting:
 
-- **Shell-based plugins** (jetbrains-router, kairoi): `bash <plugin>/tests/run.sh`
+- **Shell-based plugins** (jetbrains-router): `bash <plugin>/tests/run.sh`
 
 PRs that change script behavior without updating tests will not be merged.
 
