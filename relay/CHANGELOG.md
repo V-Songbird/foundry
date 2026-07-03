@@ -1,0 +1,65 @@
+# Changelog
+
+All notable changes to Relay are documented here. Relay is a monorepo-folder
+plugin — its version is owned by `.claude-plugin/marketplace.json` at the
+repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
+version field by convention).
+
+## [0.4.0-alpha] — 2026-07-03
+
+### Changed — pivot from delegation-doctrine coach to prompt-engineering + roadmap plugin
+
+Relay dropped its `SessionStart` doctrine injection and the four hooks
+supporting it, and gained a second pillar: a per-project, git-committed
+`ROADMAP.jsonl` plus the skills to bootstrap and drive it.
+
+- **Removed** `hooks/session-start.js` (every-session delegation-doctrine
+  injection), `hooks/pre-tool-use.js` (global `spawn_task` template-read
+  gate), `hooks/post-tool-use.js` (post-Agent/Workflow spawn nudge),
+  `hooks/stop.js` (end-of-session deferred-work sweep), and
+  `hooks/user-prompt-submit.js` (multi-part/deferred-language regex hints).
+- **Added** `hooks/post-commit.js` — the one remaining hook, `PostToolUse`
+  on `Bash`/`PowerShell`, fires only on an actual `git commit`. Silent by
+  default (no `ROADMAP.jsonl` → nothing happens). When present, offers a
+  status-sync nudge (close out an `in_progress` task on the commit that
+  finished it) and, opt-in only, a discovery nudge (ask the user what to
+  do with confirmed follow-up opportunities spotted in that commit's work
+  — never acts without asking).
+- **Added** `roadmap-schema.md` — the `ROADMAP.jsonl` field reference:
+  `id`, `title`, `why`, `what`, `status`
+  (`planned|in_progress|done|dropped|rejected`), `source`
+  (`user|claude-suggested`), `depends_on`, `touches`, `commits`,
+  `created_at`, `updated_at`, `notes`. No parser/writer script — Claude
+  reads/writes the file directly, guided by this doc's write invariants.
+- **Added** `/relay:init` — bootstraps `ROADMAP.jsonl` and
+  `.relay/config.json` for a project: asks what it is and its near-term
+  goals, asks the key policy question (accept Claude-suggested roadmap
+  entries after commits — yes/no), drafts an initial task set, gets
+  approval, writes and commits both files.
+- **Added** `/relay:roadmap` — the ongoing entry point: pick the next task
+  (reasons about `depends_on` ordering and `touches` collisions, then
+  crafts a self-contained handoff prompt using `prompt-template.md`'s
+  shape — hands off only, never executes inline, never routes to Forge),
+  add a task, or review status.
+- **Kept unchanged**: `/relay:craft-prompt` and `prompt-template.md` —
+  already self-contained, already the prompt-engineering pillar this
+  redesign builds on.
+
+### Housekeeping
+
+- Added this `CHANGELOG.md` and `README.md` — both were missing despite
+  the repo's `CONTRIBUTING.md` requiring them for every plugin.
+- Added `tests/` (`node --test`) covering `post-commit.js`.
+- `plugin.json` description/keywords rewritten to reflect the new scope;
+  marketplace.json entry bumped `0.3.2-alpha` → `0.4.0-alpha`.
+
+## [0.3.2-alpha] — 2026-07-01
+
+Enriched session-start injection (delegation-doctrine era — see above,
+superseded by 0.4.0-alpha).
+
+## [0.2.1-alpha] and earlier
+
+Delegation-doctrine era: zero-config coaching toward `spawn_task`,
+`mark_chapter`, and `Agent`/`Workflow` usage, plus the original
+`/relay:craft-prompt` skill. Superseded by 0.4.0-alpha.

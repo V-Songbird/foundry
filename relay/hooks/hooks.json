@@ -1,64 +1,14 @@
 {
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js\"",
-            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\session-start.js\"",
-            "timeout": 5,
-            "statusMessage": "Loading Relay..."
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "mcp__ccd_session__spawn_task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-use.js\"",
-            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\pre-tool-use.js\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit.js\"",
-            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\user-prompt-submit.js\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
-        "matcher": "^(Agent|Workflow)$",
+        "matcher": "^(Bash|PowerShell)$",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-use.js\"",
-            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\post-tool-use.js\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/post-commit.js\"",
+            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\post-commit.js\"",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/stop.js\"",
-            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\stop.js\"",
-            "timeout": 10
           }
         ]
       }
