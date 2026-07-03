@@ -5,6 +5,29 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.6-alpha] — 2026-07-03
+
+### Added — hooks/guard-roadmap-edit.js, mechanical enforcement of the CLI-only rule
+
+"Never `Read`/`Edit` `ROADMAP.jsonl` directly, use `roadmap.js`" has been
+prose since 0.4.3-alpha — nothing actually stopped a direct `Edit`/`Write`.
+Every guarantee the CLI provides (sequential ids, parse-before/after-write,
+append-only notes, length warnings) only holds if the CLI is actually the
+only path in. Closed that gap the same way `pre-tool-use.js` once gated
+`spawn_task` (see [[feedback_relay_spawn_task_gate]] for the precedent,
+though that specific hook is long gone) — a `PreToolUse` deny, not another
+reminder.
+
+- **`hooks/guard-roadmap-edit.js`** — `PreToolUse` on `Edit`/`Write`,
+  denies the call if the target file's basename is `ROADMAP.jsonl`
+  (case-insensitive), pointing back at `roadmap.js --help`. `Read` is
+  unaffected. `Bash` is deliberately left open — if the file is ever
+  corrupt enough that the CLI itself can't parse it, that's the sanctioned
+  repair path, same as `relay:init`'s own `> ROADMAP.jsonl` reset on
+  Overwrite.
+
+58 tests total (49 existing + 9 new).
+
 ## [0.4.5-alpha] — 2026-07-03
 
 ### Fixed — --help, verbose chat output, and leaked XML tags

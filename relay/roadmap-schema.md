@@ -19,6 +19,13 @@ cheaper (one Bash call instead of Read+reason+Edit+Read) and safer (no
 hand-formatted JSON to get wrong). Never `Read`/`Edit` `ROADMAP.jsonl`
 directly — see "Using roadmap.js" below.
 
+This isn't just convention — `hooks/guard-roadmap-edit.js` (`PreToolUse`
+on `Edit`/`Write`) denies any direct edit of a file named `ROADMAP.jsonl`,
+pointing back at the CLI. `Read` is still fine (inspecting the file is
+harmless), only writing to it directly is blocked. `Bash` stays open as
+an escape hatch for the rare case where the file is corrupt and the CLI
+itself can't parse it to operate on it.
+
 ---
 
 ## Fields
@@ -155,7 +162,9 @@ never ran `relay:init` gets nothing from Relay's commit hook).
 
 ## Who reads and writes this file
 
-All access — from any caller — goes through `scripts/roadmap.js`.
+All access — from any caller — goes through `scripts/roadmap.js`, and
+`hooks/guard-roadmap-edit.js` mechanically blocks the alternative (direct
+`Edit`/`Write`), not just prose.
 
 - `relay:init` — creates it (loops `add` once per drafted task).
 - `relay:roadmap` — `next-candidates` (Pick next task), `add` (Add a task),

@@ -103,7 +103,7 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 
 ---
 
-## The commit hook
+## The hooks
 
 `hooks/post-commit.js` fires on every `git commit` (via `Bash`/`PowerShell`
 `PostToolUse`). It:
@@ -123,6 +123,13 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
    further just to pad out a roadmap entry; see
    [`roadmap-schema.md`](roadmap-schema.md#writing-claude-suggested-entries--pack-context-now-its-free).
 
+`hooks/guard-roadmap-edit.js` fires on every `Edit`/`Write` (`PreToolUse`)
+and denies it if the target file is named `ROADMAP.jsonl` — mechanical
+enforcement, not just convention, that all reads/writes go through
+`scripts/roadmap.js`. `Read` is unaffected; `Bash` stays open as an escape
+hatch if the file is ever corrupt enough that the CLI itself can't parse
+it.
+
 ---
 
 ## Tests
@@ -131,6 +138,7 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 node --test relay/tests/*.test.js
 ```
 
-Covers `hooks/post-commit.js` and `scripts/roadmap.js` (id computation,
-status transitions, append-only notes, duplicate detection, corrupt-file
-handling, `--help`/`-h`/no-args usage output).
+Covers `hooks/post-commit.js`, `hooks/guard-roadmap-edit.js`, and
+`scripts/roadmap.js` (id computation, status transitions, append-only
+notes, duplicate detection, corrupt-file handling, `--help`/`-h`/no-args
+usage output).
