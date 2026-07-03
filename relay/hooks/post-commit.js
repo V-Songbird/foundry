@@ -71,10 +71,15 @@ function discoveryBlock() {
     `${SCHEMA_PATH} for the schema, then check ROADMAP.jsonl for existing ` +
     '"rejected" entries so you don\'t re-suggest something already declined. ' +
     "Scan this commit's work for CONFIRMED opportunities, bugs, or ideas — " +
-    "not vague hunches. For each one, ask the user (AskUserQuestion) what to " +
-    "do with it: Add to roadmap (status: planned) / Execute with TaskCreate " +
-    "(work it now in this session, tracked) / Execute with a background " +
-    "Agent (run_in_background: true) / Reject (status: rejected, source: " +
+    "not vague hunches. If you add one to the roadmap, write it dense using " +
+    "only what's already in this session's context (exact paths, line " +
+    "ranges, symbol names, the specific behavior observed) — do NOT run " +
+    "extra Read/Grep/Bash calls just to enrich the entry, that spends " +
+    "tokens now instead of saving them for whoever picks it up later. " +
+    "For each one, ask the user (AskUserQuestion) what to do with it: Add " +
+    "to roadmap (status: planned) / Execute with TaskCreate (work it now " +
+    "in this session, tracked) / Execute with a background Agent " +
+    "(run_in_background: true) / Reject (status: rejected, source: " +
     "claude-suggested, so it isn't re-surfaced). Never call " +
     "mcp__ccd_session__spawn_task — it has a known bug where tasks spawned " +
     "through it don't get MCP tools. Never act without asking. Say nothing " +

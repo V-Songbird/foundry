@@ -5,6 +5,29 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.2-alpha] — 2026-07-03
+
+### Added — token-conscious discovery entries + truth-grounding mandate
+
+Two additions aimed at reducing token spend for whoever picks up Relay's
+output later:
+
+- **`roadmap-schema.md`** gained a "Writing claude-suggested entries" rule:
+  when the commit hook's discovery flow adds an entry, write `what`/`why`/
+  `touches`/`notes` as dense as possible using only what's already in the
+  session's context (exact paths, line ranges, symbol names) — and
+  explicitly do NOT run extra `Read`/`Grep`/`Bash` calls just to enrich the
+  entry, since that spends tokens now instead of saving them for later.
+  `hooks/post-commit.js`'s discovery block carries the same instruction at
+  the point Claude actually acts on it. The worked example's
+  `claude-suggested` entry was rewritten denser to demonstrate the target.
+- **`prompt-template.md`** (and its embedded copy in `craft-prompt/SKILL.md`)
+  gained a fixed, always-included `<truth_grounding>` block: the handed-off
+  session must verify every claim in the prompt against the actual
+  codebase at the start of its work rather than assuming it's still
+  accurate — the prompt may have been crafted earlier and run later via
+  `TaskCreate` or a background `Agent`. Added to both checklists.
+
 ## [0.4.1-alpha] — 2026-07-03
 
 ### Changed — retired `spawn_task`, three explicit execution options

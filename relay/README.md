@@ -40,6 +40,11 @@ a background `Agent`, or copy it to the clipboard. Never uses
 `mcp__ccd_session__spawn_task` — it has a known bug where tasks spawned
 through it don't get MCP tools.
 
+Every assembled prompt carries a fixed `truth_grounding` block instructing
+the handed-off session to verify the prompt's claims against the actual
+codebase at the start of its work, rather than assuming they're still
+accurate — the prompt may have been written earlier and run later.
+
 ### `/relay:init`
 
 Run once per project. Asks what the project is and its near-term goals,
@@ -53,8 +58,10 @@ The ongoing entry point once a roadmap exists:
 - **Pick the next task** — reasons about `depends_on` ordering and
   `touches` collisions like a software architect, then crafts a
   self-contained handoff prompt (reusing `craft-prompt`'s template) for the
-  chosen task. Hands off only — it never executes the task itself inline,
-  and it has nothing to do with Forge (a separate, unrelated plugin).
+  chosen task and asks how to run it (`TaskCreate`, background `Agent`, or
+  clipboard) — same three options as `craft-prompt`. Never silently
+  executes without asking, and has nothing to do with Forge (a separate,
+  unrelated plugin).
 - **Add a task** — appends a new entry to the roadmap.
 - **Review status** — read-only summary grouped by status.
 
@@ -93,7 +100,10 @@ write invariants: [`roadmap-schema.md`](roadmap-schema.md).
    for *confirmed* opportunities/bugs/ideas and, for each one, ask you what
    to do with it — add to the roadmap, execute now with `TaskCreate`,
    execute via a background `Agent`, or reject it (logged so it isn't
-   re-suggested). Never acts without asking.
+   re-suggested). Never acts without asking. Entries added this way are
+   written dense with whatever's already in the session's context (exact
+   paths, line ranges, symbol names) — Claude never goes exploring further
+   just to pad out a roadmap entry; see [`roadmap-schema.md`](roadmap-schema.md#writing-claude-suggested-entries--pack-context-now-its-free).
 
 ---
 

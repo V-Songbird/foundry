@@ -21,6 +21,16 @@ You are [specific role — e.g. "a senior security engineer", "a TypeScript deve
 Your goal is [one sentence — what "done" looks like for this specific task].
 </task_context>
 
+<truth_grounding>
+Before acting on anything in this prompt, verify it against the current state
+of the codebase — read the cited files, run the cited commands. This prompt
+may have been written earlier and executed later (queued via TaskCreate, run
+by a background Agent, or pasted into a fresh session); treat every claim
+below as a hypothesis to confirm at the start of this session, never as a
+fact to assume. If reality contradicts this prompt, trust reality, say so
+explicitly, and proceed from what you actually find.
+</truth_grounding>
+
 <tone>
 Technical and direct. Ground every conclusion in a file read or command output.
 If information is missing or ambiguous, say so explicitly — never guess.
@@ -75,6 +85,7 @@ Example: wrap the summary in <findings></findings> tags.]
 ## Checklist (verify before handoff)
 
 - [ ] `task_context` names a specific role and a concrete one-sentence "done" state
+- [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
 - [ ] `relevant_files` lists every file path with line ranges — no vague references
 - [ ] `task_rules` has numbered steps AND a runnable verification command with expected output
 - [ ] prompt contains no phrases like "as we discussed" or "from earlier" — zero assumed context

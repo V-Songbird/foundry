@@ -101,6 +101,16 @@ You are [role].
 Your goal is [done-state sentence].
 </task_context>
 
+<truth_grounding>
+Before acting on anything in this prompt, verify it against the current state
+of the codebase — read the cited files, run the cited commands. This prompt
+may have been written earlier and executed later (queued via TaskCreate, run
+by a background Agent, or pasted into a fresh session); treat every claim
+below as a hypothesis to confirm at the start of this session, never as a
+fact to assume. If reality contradicts this prompt, trust reality, say so
+explicitly, and proceed from what you actually find.
+</truth_grounding>
+
 <tone>
 [If Tone selected: user's custom tone. Otherwise: "Technical and direct. Ground every conclusion in a file read or command output. If information is missing or ambiguous, say so explicitly — never guess."]
 </tone>
@@ -149,6 +159,7 @@ Otherwise: "List every file modified. Wrap the final summary in <summary></summa
 
 Before moving to the next phase, verify the assembled prompt against this checklist:
 - `task_context` has a specific role and a concrete one-sentence done-state
+- `truth_grounding` block is present, unmodified — always included, never optional
 - `relevant_files` uses exact paths — no vague references like "the auth module"
 - `task_rules` has 3 numbered steps and a runnable verification command (unless pure research)
 - Prompt contains no phrases like "as we discussed" or "from earlier"

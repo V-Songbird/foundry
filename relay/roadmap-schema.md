@@ -51,6 +51,25 @@ out of sync with reality.
 
 ---
 
+## Writing claude-suggested entries — pack context now, it's free
+
+When an entry's `source` is `claude-suggested` (the commit-hook discovery
+flow), write it dense: use everything already sitting in this session's
+context — exact file paths and line ranges, function/symbol names, the
+specific behavior or error observed, why it matters — and put it in `what`,
+`why`, `touches`, and `notes`. This is the cheapest moment to capture that
+detail: it costs nothing extra right now (already in context), and it saves
+whoever picks up the task later (`relay:roadmap`, and the session it hands
+off to) from re-deriving it from scratch, which costs real tokens then.
+
+**Do not explore further just to enrich the entry.** No extra `Read`,
+`Grep`, or `Bash` calls whose only purpose is filling in roadmap fields —
+that spends tokens now instead of saving them later, defeating the point.
+If a detail isn't already in context, leave the field at its normal length
+rather than digging for it.
+
+---
+
 ## Write invariants
 
 Every writer (`relay:init`, `relay:roadmap`, or the commit hook's
@@ -77,13 +96,14 @@ A 4-task file showing a dependency chain and one Claude-suggested entry:
 {"id":"001","title":"Design auth token schema","why":"No agreed token shape before middleware work starts.","what":"Decide access/refresh token fields and expiry policy.","status":"done","source":"user","depends_on":[],"touches":["docs/auth-design.md"],"commits":["a1b2c3d"],"created_at":"2026-06-20","updated_at":"2026-06-22","notes":""}
 {"id":"002","title":"Add JWT refresh middleware","why":"Sessions expire mid-request under load; users get silently logged out.","what":"Refresh the access token in middleware before its 15-min expiry.","status":"in_progress","source":"user","depends_on":["001"],"touches":["src/auth/middleware.ts"],"commits":[],"created_at":"2026-06-22","updated_at":"2026-07-03","notes":""}
 {"id":"003","title":"Add refresh-token revocation endpoint","why":"No way to force-expire a stolen refresh token today.","what":"POST /auth/revoke — deletes the refresh token server-side.","status":"planned","source":"user","depends_on":["002"],"touches":["src/auth/routes.ts"],"commits":[],"created_at":"2026-06-22","updated_at":"2026-06-22","notes":""}
-{"id":"004","title":"Extract duplicated retry logic in fetch wrapper","why":"Same exponential-backoff loop copy-pasted in 3 API clients, spotted while implementing task 002.","what":"Pull the retry loop into one shared helper, point all 3 callers at it.","status":"planned","source":"claude-suggested","depends_on":[],"touches":["src/api/"],"commits":[],"created_at":"2026-07-03","updated_at":"2026-07-03","notes":"surfaced via post-commit discovery scan on commit a1b2c3d"}
+{"id":"004","title":"Extract duplicated retry logic in API clients","why":"Same exponential-backoff loop (3 attempts, 200ms base) copy-pasted across 3 files, spotted while implementing task 002.","what":"Pull the retry loop out of src/api/githubClient.ts:40-58, src/api/slackClient.ts:22-40, and src/api/jiraClient.ts:15-33 into one shared src/api/retry.ts helper; point all three callers at it.","status":"planned","source":"claude-suggested","depends_on":[],"touches":["src/api/githubClient.ts","src/api/slackClient.ts","src/api/jiraClient.ts","src/api/retry.ts"],"commits":[],"created_at":"2026-07-03","updated_at":"2026-07-03","notes":"surfaced via post-commit discovery scan on commit a1b2c3d"}
 ```
 
 `003` is blocked right now — derived, not stored — because `002` isn't
-`done` yet. `004` shows the discovery flow's shape: `source:
-"claude-suggested"`, and a `notes` breadcrumb pointing back at the commit
-that surfaced it.
+`done` yet. `004` shows both the discovery flow's shape (`source:
+"claude-suggested"`, a `notes` breadcrumb pointing back at the commit that
+surfaced it) and the density "Writing claude-suggested entries" above asks
+for — exact paths and line ranges instead of a vague "the fetch wrapper."
 
 ---
 
