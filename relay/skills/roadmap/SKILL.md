@@ -3,7 +3,7 @@ name: roadmap
 description: Ongoing entry point for a project's ROADMAP.jsonl. Pick the next task to work on (reasons about dependencies and file-touch collisions like a software architect, then crafts a self-contained handoff prompt), add a new task, or review roadmap status.
 when_to_use: Trigger when the user asks what to work on next, wants to add something to the roadmap, wants to see roadmap status, says "what's next", "pick a task", "add to the roadmap", "roadmap status", or invokes /relay:roadmap.
 argument-hint: "<optional — a task description to add, or a hint about what to pick next>"
-allowed-tools: AskUserQuestion, Read, Edit, Bash
+allowed-tools: AskUserQuestion, Read, Edit, Bash, PowerShell, TaskCreate, Agent
 ---
 
 # relay:roadmap — pick, add to, or review the project roadmap
@@ -64,20 +64,29 @@ else not on the list.
    instruction has something to close out later.
 
 **Q2 (final)** — "Prompt is ready. What should we do?"
-Options: `Spawn a background task now`, `Show me the prompt to copy`
+Options:
+- `Execute with TaskCreate` — track it and work it in this session
+- `Execute with a background Agent` — offload it, get notified on completion
+- `Copy prompt to clipboard` — just get the text, no execution
 
-- **Spawn (Desktop)**: call `mcp__ccd_session__spawn_task` with the
-  assembled prompt.
-- **Spawn (CLI — spawn_task unavailable)**: spawn an `Agent` with the
-  assembled prompt, and a `TaskCreate` entry to track it.
-- **Show**: output the assembled prompt in a fenced `xml` block to copy.
+**Never call `mcp__ccd_session__spawn_task`** — it has a known bug where
+tasks spawned through it don't get MCP tools.
+
+- **TaskCreate**: call `TaskCreate` with `subject` = a verb-first
+  imperative ≤60 chars from the entry's `title`, `description` = the
+  assembled XML prompt. Work it in this session, `TaskUpdate` to
+  `in_progress` then `completed` as you go.
+- **Background Agent**: call `Agent` with `prompt` = the assembled XML
+  prompt, `description` = a 3-5 word summary, `run_in_background: true`.
+- **Clipboard**: copy the prompt via `Bash`/`PowerShell`
+  (`Set-Clipboard`/`clip` on Windows, `pbcopy` on macOS, `xclip
+  -selection clipboard`/`wl-copy` on Linux); fall back to a fenced `xml`
+  block if no clipboard tool is available.
 
 **Hard rule — state this explicitly if the user pushes back**: this skill
-only crafts and hands off the prompt. It never executes the task itself
-inline, and it never mentions or routes to Forge or any other plugin. If
-the user says "just do it now," say that's outside this skill's job —
-either they run the crafted prompt themselves right now, or they use the
-spawn/Agent handoff above.
+always asks before doing anything — it never silently executes a task, and
+it never mentions or routes to Forge or any other plugin. "Do it now" means
+picking `Execute with TaskCreate` above, not this skill deciding on its own.
 
 ---
 

@@ -72,10 +72,13 @@ function discoveryBlock() {
     '"rejected" entries so you don\'t re-suggest something already declined. ' +
     "Scan this commit's work for CONFIRMED opportunities, bugs, or ideas — " +
     "not vague hunches. For each one, ask the user (AskUserQuestion) what to " +
-    "do with it: Add to roadmap (status: planned) / Spawn now (spawn_task if " +
-    "available, else Agent+TaskCreate) / Do it inline now / Reject (status: " +
-    "rejected, source: claude-suggested, so it isn't re-surfaced). Never act " +
-    "without asking. Say nothing if nothing is confirmed."
+    "do with it: Add to roadmap (status: planned) / Execute with TaskCreate " +
+    "(work it now in this session, tracked) / Execute with a background " +
+    "Agent (run_in_background: true) / Reject (status: rejected, source: " +
+    "claude-suggested, so it isn't re-surfaced). Never call " +
+    "mcp__ccd_session__spawn_task — it has a known bug where tasks spawned " +
+    "through it don't get MCP tools. Never act without asking. Say nothing " +
+    "if nothing is confirmed."
   );
 }
 

@@ -34,9 +34,11 @@ completely silent on any project that hasn't run `/relay:init`.
 Interactive, `AskUserQuestion`-driven prompt builder. Walks through task
 type, optional sections (tone, constraints, background, output format),
 required fields (role, done-state, relevant files, steps), and verification
-— then assembles the XML prompt defined in `prompt-template.md` and either
-spawns it (`spawn_task` on Desktop, `Agent`+`TaskCreate` on CLI) or shows it
-to copy.
+— then assembles the XML prompt defined in `prompt-template.md` and hands
+it off: execute now via `TaskCreate` (tracked in this session), execute via
+a background `Agent`, or copy it to the clipboard. Never uses
+`mcp__ccd_session__spawn_task` — it has a known bug where tasks spawned
+through it don't get MCP tools.
 
 ### `/relay:init`
 
@@ -89,8 +91,9 @@ write invariants: [`roadmap-schema.md`](roadmap-schema.md).
    commit finished it and, if so, update its status/commits.
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
    for *confirmed* opportunities/bugs/ideas and, for each one, ask you what
-   to do with it — add to the roadmap, spawn it now, do it inline now, or
-   reject it (logged so it isn't re-suggested). Never acts without asking.
+   to do with it — add to the roadmap, execute now with `TaskCreate`,
+   execute via a background `Agent`, or reject it (logged so it isn't
+   re-suggested). Never acts without asking.
 
 ---
 

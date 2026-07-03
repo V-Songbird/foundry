@@ -1,14 +1,15 @@
-# Relay — spawn_task prompt template
+# Relay — prompt template
 
-<!-- relay:practices lastmod:2026-06-30
+<!-- relay:practices lastmod:2026-07-03
      source-a: https://code.claude.com/docs/en/best-practices.md
      source-b: https://code.claude.com/docs/en/sub-agents.md
      source-c: Anthropic Prompting 101 — Code w/ Claude 2025-05-22
      source-d: https://code.claude.com/docs/en/about-claude/models/prompting-fable5 -->
 
-The spawned session has **zero memory** of this conversation. Fill every required
-section. A self-contained prompt is not optional — it is the only way the spawned
-session can act correctly.
+The handed-off session — whether run via `TaskCreate` in this session, a
+background `Agent`, or copy-pasted elsewhere — has **zero memory** of this
+conversation. Fill every required section. A self-contained prompt is not
+optional — it is the only way the handed-off work can act correctly.
 
 ---
 
@@ -71,16 +72,17 @@ Example: wrap the summary in <findings></findings> tags.]
 
 ---
 
-## Checklist (verify before calling spawn_task)
+## Checklist (verify before handoff)
 
 - [ ] `task_context` names a specific role and a concrete one-sentence "done" state
 - [ ] `relevant_files` lists every file path with line ranges — no vague references
 - [ ] `task_rules` has numbered steps AND a runnable verification command with expected output
 - [ ] prompt contains no phrases like "as we discussed" or "from earlier" — zero assumed context
-- [ ] `title` in spawn_task call: verb-first imperative, under 60 chars
-- [ ] `tldr` in spawn_task call: 1–2 plain sentences, no file paths, no code
+- [ ] a short verb-first imperative name (under 60 chars) and a 1–2 sentence
+      plain-language summary are ready — `TaskCreate`'s `subject`/`description`
+      and a background `Agent`'s `description` both need this
 
-## When NOT to use spawn_task
+## When NOT to hand off — do it inline instead
 
 - Vague observations ("this could be cleaner") — not confirmed, skip it
 - Trivial fixes doable inline in seconds — do it now

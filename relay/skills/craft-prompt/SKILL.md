@@ -1,9 +1,9 @@
 ---
 name: craft-prompt
-description: Interactive prompt builder. Guides you through assembling a self-contained spawned-session prompt following Relay's template — asks which optional sections to include, gathers required info via AskUserQuestion, assembles the XML, then spawns a task or outputs the prompt to copy.
+description: Interactive prompt builder. Guides you through assembling a self-contained spawned-session prompt following Relay's template — asks which optional sections to include, gathers required info via AskUserQuestion, assembles the XML, then hands it off via TaskCreate, a background Agent, or copies it to the clipboard.
 when_to_use: Trigger when the user wants to create a task, spawn a background agent, craft a prompt for a spawned session, or says "craft a prompt", "build a prompt", "relay prompt", "new task prompt", or invokes /relay:craft-prompt.
 argument-hint: "<brief task description — optional seed>"
-allowed-tools: AskUserQuestion, mcp__ccd_session__spawn_task, TaskCreate, Agent
+allowed-tools: AskUserQuestion, TaskCreate, Agent, Bash, PowerShell
 ---
 
 # relay:craft-prompt — interactive prompt builder
@@ -155,18 +155,31 @@ Before moving to the next phase, verify the assembled prompt against this checkl
 
 ---
 
-## Final call — spawn or output
+## Final call — execute or copy
 
 Ask one question:
 
 **Q1** — "Prompt is ready. What should we do?"
-Options: `Spawn a background task now`, `Show me the prompt to copy`
+Options:
+- `Execute with TaskCreate` — track it and work it in this session
+- `Execute with a background Agent` — offload it, get notified on completion
+- `Copy prompt to clipboard` — just get the text, no execution
 
-**If spawn (Desktop):** call `mcp__ccd_session__spawn_task` with:
-- `title`: verb-first imperative, ≤60 chars, derived from the task description
-- `prompt`: the assembled XML prompt
-- `tldr`: 1–2 plain sentences — what the spawned session will do and why, no file paths or code
+**Never call `mcp__ccd_session__spawn_task`** — it has a known bug where
+tasks spawned through it don't get MCP tools. Use one of the three options
+below instead, regardless of Desktop or CLI.
 
-**If spawn (CLI — spawn_task unavailable):** spawn an `Agent` with the assembled prompt as the task, and create a `TaskCreate` entry to track it.
+**If TaskCreate:** call `TaskCreate` with `subject` = a verb-first
+imperative ≤60 chars derived from the task description, `description` = the
+assembled XML prompt, `activeForm` = its present-continuous form. Then work
+the task in this session, using `TaskUpdate` to mark it `in_progress` then
+`completed` as you go.
 
-**If show:** output the assembled prompt in a fenced `xml` code block so the user can copy it.
+**If background Agent:** call `Agent` with `prompt` = the assembled XML
+prompt, `description` = a 3-5 word summary, `run_in_background: true`.
+
+**If clipboard:** copy the assembled prompt to the system clipboard via
+`Bash`/`PowerShell` — `Set-Clipboard` or `clip` on Windows, `pbcopy` on
+macOS, `xclip -selection clipboard` (or `wl-copy` under Wayland) on Linux.
+If no clipboard tool is available or the copy fails, fall back to showing
+the prompt in a fenced `xml` code block instead.

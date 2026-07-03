@@ -5,6 +5,29 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.1-alpha] — 2026-07-03
+
+### Changed — retired `spawn_task`, three explicit execution options
+
+`mcp__ccd_session__spawn_task` has a known bug: tasks spawned through it
+don't get MCP tools. Every handoff point in Relay (`craft-prompt`'s final
+call, `roadmap`'s "Pick the next task" branch, the commit hook's discovery
+block) now offers three options instead:
+
+- **Execute with TaskCreate** — `TaskCreate` tracks it, worked in the
+  current session (`TaskUpdate` to `in_progress`/`completed`).
+- **Execute with a background Agent** — `Agent` with `run_in_background:
+  true`, notified on completion.
+- **Copy prompt to clipboard** — platform-appropriate clipboard command
+  (`Set-Clipboard`/`clip` on Windows, `pbcopy` on macOS, `xclip`/`wl-copy`
+  on Linux), falling back to a fenced code block if unavailable.
+
+`prompt-template.md`'s checklist and "when not to hand off" section were
+generalized off spawn_task-specific field names (`title`/`tldr`) to the
+mechanism-agnostic `subject`/`description` naming `TaskCreate` and `Agent`
+actually use. `allowed-tools` in both skills dropped `spawn_task`, added
+`Bash`/`PowerShell` (clipboard) and `TaskCreate`/`Agent` where missing.
+
 ## [0.4.0-alpha] — 2026-07-03
 
 ### Changed — pivot from delegation-doctrine coach to prompt-engineering + roadmap plugin
