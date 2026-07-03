@@ -45,6 +45,13 @@ the handed-off session to verify the prompt's claims against the actual
 codebase at the start of its work, rather than assuming they're still
 accurate — the prompt may have been written earlier and run later.
 
+Default tone (override with the `Tone` optional section): checks for
+caveman mode (`$CLAUDE_CONFIG_DIR/.caveman-active`) and goes terse if
+active, otherwise minimal and professional — silent by default, only what
+you need to know, no unnecessary jargon. Default output format: a plain
+human-readable summary, no XML tags — tags are opt-in only (`Custom output
+format`), for when something downstream actually parses the result.
+
 ### `/relay:init`
 
 Run once per project. Asks what the project is and its near-term goals,
@@ -126,4 +133,4 @@ node --test relay/tests/*.test.js
 
 Covers `hooks/post-commit.js` and `scripts/roadmap.js` (id computation,
 status transitions, append-only notes, duplicate detection, corrupt-file
-handling).
+handling, `--help`/`-h`/no-args usage output).

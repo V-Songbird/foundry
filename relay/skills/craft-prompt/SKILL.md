@@ -23,11 +23,11 @@ Options: `Implement a feature`, `Fix a bug`, `Investigate / research`, `Refactor
 
 **Q2** — "Which optional sections do you want in the prompt?" (multiSelect: true)
 Options:
-- `Tone` — override the default tone (default: "Technical and direct; ground every conclusion in a file read or command output")
+- `Tone` — override the default (minimal/professional, silent-by-default, caveman-aware — see the template)
 - `Example` — a before/after or input→output snippet (good for fixes and transformations)
 - `Constraints` — hard limits on files or interfaces the agent must NOT touch
 - `Background context` — architectural decisions, patterns, or environment details
-- `Custom output format` — specific XML tags or structure beyond the default summary wrap
+- `Custom output format` — wrap the deliverable in a specific XML tag for a downstream parser (skip this unless something actually parses the output — the default is a plain human-readable summary, no tags)
 
 Record which optional sections were selected.
 
@@ -112,7 +112,14 @@ explicitly, and proceed from what you actually find.
 </truth_grounding>
 
 <tone>
-[If Tone selected: user's custom tone. Otherwise: "Technical and direct. Ground every conclusion in a file read or command output. If information is missing or ambiguous, say so explicitly — never guess."]
+[If Tone selected: user's custom tone. Otherwise: "Check for caveman mode:
+read `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active` (Bash). If it
+exists with a non-off mode, communicate tersely for this whole session —
+drop articles/filler/hedging, fragments OK, keep full technical substance,
+still write code/commits/security notes in normal prose. Otherwise:
+minimal, professional conversation — silent by default, say only what the
+user actually needs to know, simplify technical explanations, avoid
+unnecessary jargon."]
 </tone>
 
 <background>
@@ -152,8 +159,12 @@ Do NOT report success without running this. If it fails, iterate until it passes
 Think step by step before making changes. Consider edge cases before writing code.
 
 <output_format>
-[If Custom output format selected: "Wrap the final deliverable in [chosen tag] tags."
-Otherwise: "List every file modified. Wrap the final summary in <summary></summary> tags."]
+[If Custom output format selected: "Wrap the final deliverable in [chosen
+tag] tags — this is for a downstream parser. If a human also reads this
+directly in chat, give a short plain-language summary above the tagged
+block too; don't make the tags the only content."
+Otherwise: "Give a concise, human-readable summary: files changed,
+verification result. No XML tags — a human reads this directly in chat."]
 </output_format>
 ```
 

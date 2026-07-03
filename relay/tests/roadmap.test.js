@@ -316,3 +316,25 @@ describe('unknown subcommand', () => {
     assert.match(json.error, /unknown subcommand/);
   });
 });
+
+describe('--help', () => {
+  test('--help prints usage, not a JSON error', () => {
+    const result = runRoadmap(['--help'], undefined, env);
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /add\b/);
+    assert.match(result.stdout, /next-candidates/);
+    assert.throws(() => JSON.parse(result.stdout));
+  });
+
+  test('-h is the same as --help', () => {
+    const result = runRoadmap(['-h'], undefined, env);
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /update-status/);
+  });
+
+  test('no subcommand at all also prints usage', () => {
+    const result = runRoadmap([], undefined, env);
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /check-duplicate/);
+  });
+});

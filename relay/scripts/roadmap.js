@@ -241,6 +241,27 @@ function readStdinJSON() {
   return JSON.parse(raw);
 }
 
+const USAGE = `roadmap.js -- mechanical CRUD for ROADMAP.jsonl. Every call
+prints one JSON line to stdout: {"ok":true, ...} on success,
+{"ok":false,"error":"..."} (exit 1) on failure.
+
+  add               stdin JSON: {title, why, what, source, depends_on?, touches?, notes?, status?}
+                    source: "user" | "claude-suggested"
+                    status (create-time only): "planned" (default) | "rejected"
+  update-status     stdin JSON: {id, status, commit?, notes?}
+                    status: "planned" | "in_progress" | "done" | "dropped" | "rejected"
+  list              flag: --status planned,in_progress   (optional, comma-separated)
+  next-candidates   flag: --limit N   (optional, default 5)
+  check-duplicate   stdin JSON: {title, why}
+
+Examples:
+  echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"user"}' \\
+    | node roadmap.js add
+  echo '{"id":"003","status":"done","commit":"a1b2c3d"}' \\
+    | node roadmap.js update-status
+  node roadmap.js next-candidates --limit 5
+`;
+
 function parseFlags(argv) {
   const flags = {};
   for (let i = 0; i < argv.length; i++) {
@@ -261,6 +282,10 @@ function parseFlags(argv) {
 
 function main() {
   const [, , sub, ...rest] = process.argv;
+  if (!sub || sub === "--help" || sub === "-h") {
+    process.stdout.write(USAGE);
+    return;
+  }
   const root = projectDir();
   let result;
   switch (sub) {
@@ -309,4 +334,5 @@ module.exports = {
   cmdCheckDuplicate,
   normalizeWords,
   jaccard,
+  USAGE,
 };

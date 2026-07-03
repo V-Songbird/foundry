@@ -32,8 +32,14 @@ explicitly, and proceed from what you actually find.
 </truth_grounding>
 
 <tone>
-Technical and direct. Ground every conclusion in a file read or command output.
-If information is missing or ambiguous, say so explicitly — never guess.
+Check for caveman mode: read `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active`
+(Bash). If it exists with a non-off mode, communicate tersely for this whole
+session — drop articles/filler/hedging, fragments OK, keep full technical
+substance, still write code/commits/security notes in normal prose. Otherwise:
+minimal, professional conversation — silent by default, say only what the
+user actually needs to know, simplify technical explanations, avoid
+unnecessary jargon. [If Tone was selected as an optional section: the user's
+custom tone replaces this default entirely.]
 </tone>
 
 <background>
@@ -74,9 +80,13 @@ Do NOT report success without running this. If it fails, iterate until it passes
 Think step by step before making changes. Consider edge cases before writing code.
 
 <output_format>
-[What this session must produce: list of files modified, PR opened, report written.
-Wrap the final deliverable in a named XML tag so it is parseable.
-Example: wrap the summary in <findings></findings> tags.]
+Give a concise, human-readable summary: what changed, and the verification
+result. No XML tags in the visible response — a human reads this directly
+in chat by default, and raw `<tag>` markers read as a bug, not structure.
+[Only if something downstream actually parses this output — a script, a
+following automated step — name a specific XML tag here explicitly and say
+who/what consumes it. Otherwise omit this bracket entirely; don't wrap by
+default "just in case".]
 </output_format>
 ```
 

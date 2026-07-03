@@ -5,6 +5,34 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.5-alpha] — 2026-07-03
+
+### Fixed — --help, verbose chat output, and leaked XML tags
+
+Two more real-usage findings: `roadmap.js --help` errored (`unknown
+subcommand: --help`) — Claude's first instinct when it didn't remember the
+exact invocation, forcing a `roadmap-schema.md` read just to recover. And
+the handed-off session's final chat message dumped a massive wall of
+investigation detail wrapped in a raw `<findings>` tag — a machine-parsing
+convention shown literally to a human reading chat.
+
+- **`roadmap.js` gained `--help`/`-h`/no-args** — prints subcommand usage
+  and stdin/flag shapes instead of erroring, matching the Unix convention
+  Claude reached for first.
+- **Default `<tone>` replaced**: "Technical and direct, ground every
+  conclusion..." (now redundant with `truth_grounding`, which already owns
+  grounding) → checks `$CLAUDE_CONFIG_DIR/.caveman-active` and goes terse
+  if caveman is active, otherwise minimal/professional — silent by
+  default, only what the user needs to know, no unnecessary jargon.
+- **Default `<output_format>` stopped forcing an XML wrap.** Both
+  `prompt-template.md` and `craft-prompt`'s embedded copy now default to a
+  plain human-readable summary; XML-tag wrapping is opt-in only (`Custom
+  output format`), for when something downstream genuinely parses the
+  result — and even then, a plain-language summary goes above the tagged
+  block so a human reading chat directly isn't just shown raw markup.
+
+49 tests total (46 existing + 3 new for `--help`).
+
 ## [0.4.4-alpha] — 2026-07-03
 
 ### Fixed — Pick-next-task was doing ground-truth investigation it shouldn't
