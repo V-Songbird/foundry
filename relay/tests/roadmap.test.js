@@ -6,6 +6,10 @@
 //   - add computes sequential zero-padded ids, validates required fields/source
 //   - update-status transitions status, appends (not replaces) commits/notes
 //   - list filters by status, returns everything with no filter
+//   - next-candidates filters unblocked planned tasks, ranks by unblocks
+//     count then recency, flags touches collisions against in_progress
+//   - add/update-status return a `warnings` field for long why/what/notes
+//     without failing the write
 //   - check-duplicate finds word-overlap matches against rejected entries only
 //   - a corrupt line in the file fails loudly (ok:false, exit 1) instead of
 //     silently skipping it
@@ -183,6 +187,115 @@ describe('check-duplicate', () => {
     });
     assert.equal(json.duplicate, false);
     assert.deepEqual(json.matches, []);
+  });
+});
+
+describe('next-candidates', () => {
+  test('excludes anything not planned', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'done one', status: 'done', depends_on: [], touches: [] },
+      { id: '002', title: 'in progress one', status: 'in_progress', depends_on: [], touches: [] },
+      { id: '003', title: 'planned one', status: 'planned', depends_on: [], touches: [] },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.deepEqual(json.candidates.map((c) => c.id), ['003']);
+  });
+
+  test('excludes planned tasks with an undone dependency', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'prereq', status: 'planned', depends_on: [], touches: [] },
+      { id: '002', title: 'blocked', status: 'planned', depends_on: ['001'], touches: [] },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.deepEqual(json.candidates.map((c) => c.id), ['001']);
+  });
+
+  test('includes a planned task once its dependency is done', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'prereq', status: 'done', depends_on: [], touches: [] },
+      { id: '002', title: 'unblocked now', status: 'planned', depends_on: ['001'], touches: [] },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.deepEqual(json.candidates.map((c) => c.id), ['002']);
+  });
+
+  test('ranks by unblocks-count (most depended-on first)', () => {
+    // 003/004 aren't candidates themselves (status dropped) — what matters
+    // is 002 being referenced by two other entries' depends_on, computed
+    // from the full file regardless of those entries' own status.
+    writeRoadmap(project, [
+      { id: '001', title: 'unblocks nothing', status: 'planned', depends_on: [], touches: [], created_at: '2026-07-01' },
+      { id: '002', title: 'unblocks two others', status: 'planned', depends_on: [], touches: [], created_at: '2026-07-01' },
+      { id: '003', title: 'not planned, just a referrer', status: 'dropped', depends_on: ['002'], touches: [] },
+      { id: '004', title: 'also a referrer', status: 'dropped', depends_on: ['002'], touches: [] },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.equal(json.candidates[0].id, '002');
+    assert.equal(json.candidates[0].unblocks, 2);
+  });
+
+  test('ties in unblocks-count break by oldest created_at first', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'newer', status: 'planned', depends_on: [], touches: [], created_at: '2026-07-03' },
+      { id: '002', title: 'older', status: 'planned', depends_on: [], touches: [], created_at: '2026-06-01' },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.deepEqual(json.candidates.map((c) => c.id), ['002', '001']);
+  });
+
+  test('flags a touches collision against an in_progress entry', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'in progress', status: 'in_progress', depends_on: [], touches: ['src/shared.ts'] },
+      { id: '002', title: 'candidate, overlaps', status: 'planned', depends_on: [], touches: ['src/shared.ts'] },
+      { id: '003', title: 'candidate, no overlap', status: 'planned', depends_on: [], touches: ['src/other.ts'] },
+    ]);
+    const { json } = run(['next-candidates']);
+    const byId = Object.fromEntries(json.candidates.map((c) => [c.id, c]));
+    assert.equal(byId['002'].collision, true);
+    assert.equal(byId['003'].collision, false);
+  });
+
+  test('respects --limit and reports total_unblocked separately', () => {
+    writeRoadmap(
+      project,
+      Array.from({ length: 8 }, (_, i) => ({
+        id: String(i + 1).padStart(3, '0'),
+        title: `task ${i + 1}`,
+        status: 'planned',
+        depends_on: [],
+        touches: [],
+        created_at: '2026-07-01',
+      }))
+    );
+    const { json } = run(['next-candidates', '--limit', '3']);
+    assert.equal(json.candidates.length, 3);
+    assert.equal(json.total_unblocked, 8);
+  });
+});
+
+describe('field length warnings', () => {
+  test('add returns a warning for an overlong why, but still writes', () => {
+    const { status, json } = run(['add'], {
+      title: 'a',
+      why: 'x'.repeat(300),
+      what: 'a',
+      source: 'user',
+    });
+    assert.equal(status, 0);
+    assert.equal(json.ok, true);
+    assert.ok(json.warnings && json.warnings.some((w) => w.startsWith('why')));
+    assert.equal(json.entry.why.length, 300); // written as given, not truncated
+  });
+
+  test('add has no warnings for normal-length fields', () => {
+    const { json } = run(['add'], { title: 'a', why: 'short reason', what: 'short scope', source: 'user' });
+    assert.equal(json.warnings, undefined);
+  });
+
+  test('update-status returns a warning for an overlong notes append', () => {
+    writeRoadmap(project, [{ id: '001', title: 'a', why: 'a', what: 'a', status: 'planned', source: 'user', depends_on: [], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' }]);
+    const { json } = run(['update-status'], { id: '001', status: 'planned', notes: 'y'.repeat(300) });
+    assert.ok(json.warnings && json.warnings.some((w) => w.startsWith('notes')));
   });
 });
 

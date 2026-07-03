@@ -55,13 +55,16 @@ approval, then writes and commits `ROADMAP.jsonl` and `.relay/config.json`.
 ### `/relay:roadmap`
 
 The ongoing entry point once a roadmap exists:
-- **Pick the next task** — reasons about `depends_on` ordering and
-  `touches` collisions like a software architect, then crafts a
-  self-contained handoff prompt (reusing `craft-prompt`'s template) for the
-  chosen task and asks how to run it (`TaskCreate`, background `Agent`, or
-  clipboard) — same three options as `craft-prompt`. Never silently
-  executes without asking, and has nothing to do with Forge (a separate,
-  unrelated plugin).
+- **Pick the next task** — `roadmap.js next-candidates` mechanically
+  filters (unblocked: `planned`, every `depends_on` done) and ranks (most
+  `depends_on`-referenced first, then oldest) with a `touches`-collision
+  flag against `in_progress` work — no LLM reasoning over the whole file.
+  Crafts a self-contained handoff prompt straight from the picked entry's
+  own fields — **it does not `Read`/`Grep` the codebase to verify them**,
+  that's the handed-off session's job via `truth_grounding`. Asks how to
+  run it (`TaskCreate`, background `Agent`, or clipboard) — same three
+  options as `craft-prompt`. Never silently executes without asking, and
+  has nothing to do with Forge (a separate, unrelated plugin).
 - **Add a task** — appends a new entry to the roadmap.
 - **Review status** — read-only summary grouped by status.
 
@@ -73,9 +76,12 @@ The ongoing entry point once a roadmap exists:
 visible, shared record of the plan, not internal plugin state. One JSON
 object per line, one line per task. Every read/write goes through
 `scripts/roadmap.js` — a small CLI (`add`/`update-status`/`list`/
-`check-duplicate`, JSON in/out) — never a hand-edited `Read`/`Edit`. Full
-field reference, CLI usage, and the invariants it enforces:
-[`roadmap-schema.md`](roadmap-schema.md).
+`next-candidates`/`check-duplicate`, JSON in/out) — never a hand-edited
+`Read`/`Edit`. `add`/`update-status` return a `warnings` field (without
+failing the write) if `why`/`what`/`notes` run long — dense means specific
+paths and symbols, not an essay; every extra paragraph gets re-read on
+every future `list`/`next-candidates` call. Full field reference, CLI
+usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 
 ```jsonl
 {"id":"001","title":"Add JWT refresh middleware","why":"Sessions expire mid-request under load.","what":"Refresh the access token in middleware before its 15-min expiry.","status":"planned","source":"user","depends_on":[],"touches":["src/auth/middleware.ts"],"commits":[],"created_at":"2026-07-03","updated_at":"2026-07-03","notes":""}

@@ -5,6 +5,53 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.4-alpha] — 2026-07-03
+
+### Fixed — Pick-next-task was doing ground-truth investigation it shouldn't
+
+A real-repo trace showed `/relay:roadmap`'s "Pick the next task" branch
+burning ~100k tokens on one invocation: `list`-then-manually-filter-and-rank
+over a large roadmap, then ~11 `Read`/`Grep` calls exploring the codebase to
+"verify/tighten" the picked entry's `touches` hints before assembling the
+prompt — including re-reading the same file twice across two separate
+batches. That's backwards: `<truth_grounding>` exists precisely so the
+*handed-off* session verifies claims at the start of its own work; the
+picker verifying anything first duplicates that cost for no reason. Also
+visible in the trace: one roadmap entry's `notes` held a full paragraph
+plus an entire legacy tracker's JSON record serialized as a string inside
+it — bloating every future `list` call that touches that entry.
+
+- **`roadmap.js next-candidates`** (new subcommand) — mechanical filter
+  (unblocked: `planned`, every `depends_on` done) + rank (most
+  `depends_on`-referenced first — a derived importance proxy, still no
+  stored priority field — then oldest `created_at`) + a `collision` flag
+  per candidate. `skills/roadmap`'s Pick-next-task branch now calls this
+  instead of `list` + reasoning over the whole file.
+- **Pick-next-task branch rewritten to forbid exploration outright**:
+  "This branch does not investigate the codebase. At all." The prompt is
+  assembled straight from the picked entry's fields; `touches` passes
+  through as unverified area-level hints. The assembled prompt's
+  `task_rules` Step 1 now defaults to "explore `relevant_files` first" —
+  explicitly handing verification to the recipient instead of the picker
+  attempting it. `prompt-template.md`'s checklist gained a note
+  distinguishing `craft-prompt` (user-supplied exact files) from
+  `relay:roadmap` (entry-derived, `truth_grounding` covers the gap).
+- **Field-length warnings**: `add`/`update-status` return a non-fatal
+  `warnings` field when `why` (>240 chars), `what` (>400 chars), or a
+  single `notes` append (>240 chars) run long — the write still succeeds,
+  but Claude sees the nudge to trim. `roadmap-schema.md` explicitly warns
+  against serializing an entire legacy record into `notes`; map fields
+  onto `why`/`what`/`touches` instead.
+- **Clipboard fixed to file-mediated only**: the observed trace showed one
+  failed inline-clipboard attempt before a working file-based fallback —
+  large prompts as inline shell strings break quoting. Both
+  `craft-prompt` and `roadmap` now always `Write` to a temp file first,
+  then pipe the file's content into the clipboard command; no more
+  try-inline-then-fallback.
+
+46 tests total (36 existing + 10 new: 7 for `next-candidates`, 3 for the
+length warnings).
+
 ## [0.4.3-alpha] — 2026-07-03
 
 ### Added — `scripts/roadmap.js`, a mechanical CRUD CLI for ROADMAP.jsonl

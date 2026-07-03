@@ -59,6 +59,26 @@ const SOURCES = new Set(["user", "claude-suggested"]);
 // applied later via update-status.
 const CREATE_STATUSES = new Set(["planned", "rejected"]);
 
+// Soft caps, not hard limits — every entry gets re-read on every `list`,
+// so a wall-of-text why/notes multiplies cost across every future call.
+// Dense means specific (exact paths/symbols), not exhaustive prose.
+const WHY_WARN_CHARS = 240;
+const WHAT_WARN_CHARS = 400;
+const NOTES_APPEND_WARN_CHARS = 240;
+
+function fieldWarnings(fields) {
+  const warnings = [];
+  for (const [name, text, max] of fields) {
+    if (text && text.length > max) {
+      warnings.push(
+        `${name} is ${text.length} chars — aim for under ${max} (roughly 1-2 sentences). ` +
+          "Dense means specific (exact paths/symbols), not an exhaustive essay."
+      );
+    }
+  }
+  return warnings;
+}
+
 function cmdAdd(root, payload) {
   const { title, why, what, source, status, depends_on, touches, notes } = payload || {};
   if (!title || !why || !what) {
@@ -90,7 +110,11 @@ function cmdAdd(root, payload) {
   };
   entries.push(entry);
   writeEntries(root, entries);
-  return { entry };
+  const warnings = fieldWarnings([
+    ["why", why, WHY_WARN_CHARS],
+    ["what", what, WHAT_WARN_CHARS],
+  ]);
+  return warnings.length ? { entry, warnings } : { entry };
 }
 
 function cmdUpdateStatus(root, payload) {
@@ -113,7 +137,8 @@ function cmdUpdateStatus(root, payload) {
   }
   entry.updated_at = today();
   writeEntries(root, entries);
-  return { entry };
+  const warnings = notes ? fieldWarnings([["notes", notes, NOTES_APPEND_WARN_CHARS]]) : [];
+  return warnings.length ? { entry, warnings } : { entry };
 }
 
 function cmdList(root, filters) {
@@ -121,6 +146,48 @@ function cmdList(root, filters) {
   const statusFilter = filters.status ? new Set(String(filters.status).split(",")) : null;
   const filtered = statusFilter ? entries.filter((e) => statusFilter.has(e.status)) : entries;
   return { entries: filtered };
+}
+
+// Mechanical filter + rank for "what should I work on next" — no stored,
+// staleness-prone priority field. unblocks (how many other entries depend
+// on this one) is a derived proxy for importance instead.
+function cmdNextCandidates(root, filters) {
+  const limit = filters && filters.limit ? parseInt(filters.limit, 10) : 5;
+  const entries = readEntries(root);
+  const doneIds = new Set(entries.filter((e) => e.status === "done").map((e) => e.id));
+
+  const inProgressTouches = new Set();
+  for (const e of entries) {
+    if (e.status !== "in_progress") continue;
+    for (const t of e.touches || []) inProgressTouches.add(t);
+  }
+
+  const unblocksCount = new Map();
+  for (const e of entries) {
+    for (const dep of e.depends_on || []) {
+      unblocksCount.set(dep, (unblocksCount.get(dep) || 0) + 1);
+    }
+  }
+
+  const unblocked = entries
+    .filter((e) => e.status === "planned")
+    .filter((e) => (e.depends_on || []).every((dep) => doneIds.has(dep)))
+    .map((e) => ({
+      id: e.id,
+      title: e.title,
+      why: e.why,
+      what: e.what,
+      touches: e.touches || [],
+      unblocks: unblocksCount.get(e.id) || 0,
+      collision: (e.touches || []).some((t) => inProgressTouches.has(t)),
+      created_at: e.created_at,
+    }))
+    .sort((a, b) => {
+      if (b.unblocks !== a.unblocks) return b.unblocks - a.unblocks;
+      return String(a.created_at || "").localeCompare(String(b.created_at || ""));
+    });
+
+  return { candidates: unblocked.slice(0, limit), total_unblocked: unblocked.length };
 }
 
 function normalizeWords(text) {
@@ -206,11 +273,16 @@ function main() {
     case "list":
       result = cmdList(root, parseFlags(rest));
       break;
+    case "next-candidates":
+      result = cmdNextCandidates(root, parseFlags(rest));
+      break;
     case "check-duplicate":
       result = cmdCheckDuplicate(root, readStdinJSON());
       break;
     default:
-      throw new Error(`unknown subcommand: ${sub}. Use add|update-status|list|check-duplicate`);
+      throw new Error(
+        `unknown subcommand: ${sub}. Use add|update-status|list|next-candidates|check-duplicate`
+      );
   }
   process.stdout.write(JSON.stringify({ ok: true, ...result }));
 }
@@ -233,6 +305,7 @@ module.exports = {
   cmdAdd,
   cmdUpdateStatus,
   cmdList,
+  cmdNextCandidates,
   cmdCheckDuplicate,
   normalizeWords,
   jaccard,

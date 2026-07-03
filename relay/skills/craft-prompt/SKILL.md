@@ -3,7 +3,7 @@ name: craft-prompt
 description: Interactive prompt builder. Guides you through assembling a self-contained spawned-session prompt following Relay's template — asks which optional sections to include, gathers required info via AskUserQuestion, assembles the XML, then hands it off via TaskCreate, a background Agent, or copies it to the clipboard.
 when_to_use: Trigger when the user wants to create a task, spawn a background agent, craft a prompt for a spawned session, or says "craft a prompt", "build a prompt", "relay prompt", "new task prompt", or invokes /relay:craft-prompt.
 argument-hint: "<brief task description — optional seed>"
-allowed-tools: AskUserQuestion, TaskCreate, Agent, Bash, PowerShell
+allowed-tools: AskUserQuestion, TaskCreate, Agent, Write, Bash, PowerShell
 ---
 
 # relay:craft-prompt — interactive prompt builder
@@ -189,8 +189,11 @@ the task in this session, using `TaskUpdate` to mark it `in_progress` then
 **If background Agent:** call `Agent` with `prompt` = the assembled XML
 prompt, `description` = a 3-5 word summary, `run_in_background: true`.
 
-**If clipboard:** copy the assembled prompt to the system clipboard via
-`Bash`/`PowerShell` — `Set-Clipboard` or `clip` on Windows, `pbcopy` on
-macOS, `xclip -selection clipboard` (or `wl-copy` under Wayland) on Linux.
-If no clipboard tool is available or the copy fails, fall back to showing
-the prompt in a fenced `xml` code block instead.
+**If clipboard:** `Write` the assembled prompt to a temp file first — never
+pass it as an inline shell string, a large prompt breaks shell quoting and
+the copy silently fails. Then pipe the file's content into the clipboard
+command: `Get-Content -Raw <file> | Set-Clipboard` on Windows, `pbcopy <
+<file>` on macOS, `xclip -selection clipboard < <file>` (or `wl-copy <
+<file>`) on Linux. Mention the file path too, in case the clipboard step
+fails. If no clipboard tool is available at all, fall back to showing the
+prompt in a fenced `xml` code block instead.

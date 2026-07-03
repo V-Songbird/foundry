@@ -86,7 +86,11 @@ Example: wrap the summary in <findings></findings> tags.]
 
 - [ ] `task_context` names a specific role and a concrete one-sentence "done" state
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
-- [ ] `relevant_files` lists every file path with line ranges — no vague references
+- [ ] `relevant_files` lists every file path with line ranges — no vague
+      references (for `craft-prompt`, get this from the user directly; for
+      `relay:roadmap`, pass the entry's `touches` through as-is — do NOT
+      explore the codebase to upgrade area-level hints into exact
+      file:line ranges, `truth_grounding` covers that gap at handoff time)
 - [ ] `task_rules` has numbered steps AND a runnable verification command with expected output
 - [ ] prompt contains no phrases like "as we discussed" or "from earlier" — zero assumed context
 - [ ] a short verb-first imperative name (under 60 chars) and a 1–2 sentence

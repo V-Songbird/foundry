@@ -3,7 +3,7 @@ name: roadmap
 description: Ongoing entry point for a project's ROADMAP.jsonl. Pick the next task to work on (reasons about dependencies and file-touch collisions like a software architect, then crafts a self-contained handoff prompt), add a new task, or review roadmap status.
 when_to_use: Trigger when the user asks what to work on next, wants to add something to the roadmap, wants to see roadmap status, says "what's next", "pick a task", "add to the roadmap", "roadmap status", or invokes /relay:roadmap.
 argument-hint: "<optional — a task description to add, or a hint about what to pick next>"
-allowed-tools: AskUserQuestion, Read, Bash, PowerShell, TaskCreate, Agent
+allowed-tools: AskUserQuestion, Read, Write, Bash, PowerShell, TaskCreate, Agent
 ---
 
 # relay:roadmap — pick, add to, or review the project roadmap
@@ -35,34 +35,42 @@ question, treat it as a seed for "Add a task" and skip this call.
 
 ## Branch: Pick the next task
 
-1. `node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js list` — returns every
-   entry as JSON. Small file, read it all, not a filtered subset.
-2. Filter to `status == "planned"` entries whose every `depends_on` id is
-   `status == "done"` (anything else is blocked — derived, not stored, per
-   the schema doc). This filtering is your reasoning, not the script's —
-   `list` only fetches, it doesn't rank.
-3. Among the unblocked candidates, flag (don't hard-exclude) any whose
-   `touches` overlaps with another currently-`in_progress` task's
-   `touches` — that's a collision risk, not a blocker; surface it as a
-   caution in the candidate's one-line summary.
-4. Present the ranked candidates (2-4 of them) with a one-line `why` each.
+**This branch does not investigate the codebase. At all.** No `Read`, no
+`Grep`, no exploring files to confirm or expand what an entry says. The
+picked entry's own fields are the only input to the prompt. Verifying
+those claims against reality is the handed-off session's job, at the start
+of *its* work — that's exactly what the `<truth_grounding>` block in
+`prompt-template.md` exists for. Picking a task should be fast: one
+mechanical call, one question, assemble, done.
+
+1. `node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates` —
+   already filtered (unblocked: `planned` with every `depends_on` done)
+   and ranked (most-unblocking first, then oldest) with a `collision` flag
+   per candidate (its `touches` overlaps a currently-`in_progress` task's).
+   Do not re-derive this by calling `list` and reasoning over the whole
+   file yourself — that's exactly the cost `next-candidates` exists to cut.
+2. Present the top candidates (already ranked, take them as given) with
+   their `why`, noting `collision:true` as a caution, not a blocker.
 
 **Q1** — "Which task next?"
 Options: the top candidates by title, plus an escape to describe something
 else not on the list.
 
-5. Once confirmed, craft the handoff prompt using
-   `${CLAUDE_PLUGIN_ROOT}/prompt-template.md`'s XML structure, pre-filled
-   from the roadmap entry:
-   - `task_context` goal ← the entry's `title` + `why`
-   - `background` / `context` ← the entry's `what`
-   - `relevant_files` seed ← the entry's `touches` (tell the user these are
-     area-level hints, not confirmed file:line ranges — they still need to
-     verify/tighten them, same as the checklist in `prompt-template.md`
-     already requires)
-   - Everything else (tone, steps, verification command) — ask the same way
-     `craft-prompt` does if it isn't inferable from the roadmap entry alone.
-6. Before handoff, mark it in progress:
+3. Once confirmed, craft the handoff prompt using
+   `${CLAUDE_PLUGIN_ROOT}/prompt-template.md`'s XML structure, straight
+   from the candidate's fields — no verification pass:
+   - `task_context` goal ← `title` + `why`
+   - `background` / `context` ← `what`
+   - `relevant_files` seed ← `touches`, passed through as-is (area-level
+     hints, not confirmed file:line ranges — that's fine, don't upgrade
+     them yourself)
+   - `task_rules` Step 1 defaults to: "Read/explore the files or areas
+     listed in `relevant_files` first — this prompt was assembled without
+     verifying them, ground every claim below against what you actually
+     find before proceeding." Steps 2-3, tone, and the verification command
+     — ask the same way `craft-prompt` does only if genuinely not
+     inferable from the entry; don't turn this into a second interview.
+4. Before handoff, mark it in progress:
    `echo '{"id":"<id>","status":"in_progress"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status`
    — so the commit hook's status-sync instruction has something to close
    out later.
@@ -82,10 +90,14 @@ tasks spawned through it don't get MCP tools.
   `in_progress` then `completed` as you go.
 - **Background Agent**: call `Agent` with `prompt` = the assembled XML
   prompt, `description` = a 3-5 word summary, `run_in_background: true`.
-- **Clipboard**: copy the prompt via `Bash`/`PowerShell`
-  (`Set-Clipboard`/`clip` on Windows, `pbcopy` on macOS, `xclip
-  -selection clipboard`/`wl-copy` on Linux); fall back to a fenced `xml`
-  block if no clipboard tool is available.
+- **Clipboard**: `Write` the assembled prompt to a temp file first — never
+  pass it as an inline shell string, a large prompt breaks shell quoting
+  and the copy fails. Then pipe the file's content into the clipboard
+  command: `Get-Content -Raw <file> | Set-Clipboard` on Windows, `pbcopy <
+  <file>` on macOS, `xclip -selection clipboard < <file>` (or `wl-copy <
+  <file>`) on Linux. Mention the file path too, in case the clipboard step
+  fails. Fall back to a fenced `xml` block only if no clipboard tool is
+  available at all.
 
 **Hard rule — state this explicitly if the user pushes back**: this skill
 always asks before doing anything — it never silently executes a task, and

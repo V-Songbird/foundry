@@ -27,8 +27,8 @@ directly — see "Using roadmap.js" below.
 |---|---|---|---|
 | `id` | string | yes | Zero-padded sequential id (`"001"`, `"002"`, ...). Compute as `max(existing ids) + 1` over a **fresh full parse of the file**, immediately before writing. |
 | `title` | string | yes | Short imperative summary, e.g. `"Add JWT refresh middleware"`. |
-| `why` | string | yes | The rationale — the problem or need this task addresses. |
-| `what` | string | yes | What the task concretely consists of. |
+| `why` | string | yes | The rationale — the problem or need this task addresses. **Keep it to 1-2 sentences** (`roadmap.js` warns past ~240 chars) — this gets re-read on every `list`/`next-candidates` call, a wall of text multiplies cost across every future call, not just this one. |
+| `what` | string | yes | What the task concretely consists of. A bit more room than `why` (warns past ~400 chars) since concrete detail (paths, line ranges) belongs here — but still a description, not a design doc. |
 | `status` | enum | yes | `planned \| in_progress \| done \| dropped \| rejected`. See below. |
 | `source` | enum | yes | `user` (added directly by a person) or `claude-suggested` (originated from the commit-hook discovery flow). |
 | `depends_on` | array\<string\> | yes (may be `[]`) | Ids of tasks that must be `done` before this one is unblocked. |
@@ -36,7 +36,7 @@ directly — see "Using roadmap.js" below.
 | `commits` | array\<string\> | yes (may be `[]`) | Short SHAs (`git rev-parse --short HEAD` output) that implemented this task. |
 | `created_at` | string (`YYYY-MM-DD`) | yes | Set once, at creation, never rewritten. |
 | `updated_at` | string (`YYYY-MM-DD`) | yes | Rewritten on every change to the entry. |
-| `notes` | string | yes (may be `""`) | Free text. **Append-only** — add to it, never overwrite what's already there. |
+| `notes` | string | yes (may be `""`) | Free text. **Append-only** — add to it, never overwrite what's already there. Each individual append should be a short breadcrumb (warns past ~240 chars), not a paragraph — and never a serialized JSON blob (e.g. dumping an imported/legacy record's full JSON as a string here defeats the point of a structured schema; if migrating from another tracker, map its fields onto `why`/`what`/`touches` instead of stuffing the original object into `notes`). |
 
 ### `status` values
 
@@ -76,6 +76,14 @@ assumes; the rule is against exploring the codebase further, not against
 writing what you already know.) If a detail isn't already in context,
 leave the field at its normal length rather than digging for it.
 
+**Dense means specific, not long.** "Refresh the token in
+`src/auth/middleware.ts:40-58` before it expires" is dense. Three
+paragraphs explaining the history and reasoning is not — it's exactly the
+kind of entry that makes every future `list`/`next-candidates` call more
+expensive, for every reader, forever. `roadmap.js` will return a
+`warnings` field if `why`/`what`/`notes` run long; if you see one, trim
+before moving on rather than ignoring it.
+
 ---
 
 ## Using roadmap.js
@@ -89,6 +97,7 @@ JSON line to stdout: `{"ok":true, ...}` on success, `{"ok":false,"error":
 | `add` | JSON via stdin: `title`, `why`, `what`, `source`, optional `depends_on`/`touches`/`notes`/`status` | Computes `id` as `max(existing)+1`, defaults `status` to `"planned"` (only `"planned"` or `"rejected"` are valid at creation — a task doesn't start out `in_progress`/`done`/`dropped`), stamps `created_at`/`updated_at`, appends the line, re-validates the file. Returns the new `entry`. |
 | `update-status` | JSON via stdin: `id`, `status`, optional `commit`, optional `notes` | Transitions status, appends `commit` to `commits[]` (no duplicates), **appends** `notes` (never overwrites), bumps `updated_at`, re-validates the file. Returns the updated `entry`. |
 | `list` | optional flag: `--status planned,in_progress` | Returns `entries` — filtered if `--status` given, everything otherwise. Read-only. |
+| `next-candidates` | optional flag: `--limit N` (default 5) | Mechanical filter (unblocked: `planned`, every `depends_on` done) + rank (most `depends_on`-referenced first as a derived importance proxy — no stored priority field — then oldest `created_at`) + a `collision` flag per candidate (its `touches` overlaps a currently-`in_progress` entry's). Returns `{"candidates":[...], "total_unblocked": N}`. This is what `relay:roadmap`'s "Pick the next task" calls — never `list` + manual filtering for that flow, `next-candidates` exists specifically to avoid loading the whole file into context just to do graph filtering that needs no judgment. |
 | `check-duplicate` | JSON via stdin: `title`, `why` | Word-overlap (Jaccard) match against `rejected` entries only. Returns `{"duplicate": bool, "matches": [...]}`. Not semantic — a cheap filter to stop re-asking about something already declined, not a guarantee. |
 
 Examples:
@@ -99,7 +108,7 @@ echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"u
 echo '{"id":"002","status":"done","commit":"a1b2c3d"}' \
   | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status
 
-node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js list --status planned
+node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates --limit 5
 ```
 
 The invariants this replaces (kept here as the contract the script
@@ -149,8 +158,12 @@ never ran `relay:init` gets nothing from Relay's commit hook).
 All access — from any caller — goes through `scripts/roadmap.js`.
 
 - `relay:init` — creates it (loops `add` once per drafted task).
-- `relay:roadmap` — `list` (all three menu branches), `add` (Add a task),
-  `update-status` (Pick next task sets `in_progress`).
+- `relay:roadmap` — `next-candidates` (Pick next task), `add` (Add a task),
+  `list` (Review status), `update-status` (Pick next task sets
+  `in_progress`). Pick next task does not `Read`/`Grep` the codebase to
+  verify a candidate before crafting its prompt — see `prompt-template.md`'s
+  `truth_grounding` block, which is exactly the mechanism that makes that
+  safe to skip at pick time.
 - `relay/hooks/post-commit.js` — the only caller that reads the file
   in-process (it `require()`s `roadmap.js`'s `readEntries` directly, same
   Node process, no subprocess) to decide whether to mention status-sync at
