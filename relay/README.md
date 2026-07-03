@@ -56,8 +56,11 @@ format`), for when something downstream actually parses the result.
 
 Run once per project. Asks what the project is and its near-term goals,
 asks the key policy question — should the roadmap accept Claude-suggested
-entries after commits — drafts an initial `ROADMAP.jsonl`, gets your
-approval, then writes and commits `ROADMAP.jsonl` and `.relay/config.json`.
+entries after commits — drafts an initial `ROADMAP.jsonl`, optionally
+drafts a starter `.claude/rules/project-conventions.md` (built only from
+what you told it in this conversation, never from exploring the codebase —
+skipped entirely if that file already exists), gets your approval, then
+writes and commits everything.
 
 ### `/relay:roadmap`
 

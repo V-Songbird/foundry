@@ -5,6 +5,28 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.7-alpha] — 2026-07-03
+
+### Added — optional starter `.claude/rules/` file in `relay:init`
+
+`relay:init` can now draft `.claude/rules/project-conventions.md`
+alongside `ROADMAP.jsonl` — one more optional question (draft it? any
+always-follow conventions?), then written and committed with the rest.
+Verified the actual `.claude/rules/` mechanism against the official docs
+first (`claude-directory.md`): files without `paths:` frontmatter load at
+session start like `CLAUDE.md`; with `paths:` globs they load only when a
+matching file enters context. This feature uses no `paths:` — a general,
+always-loaded primer, not path-scoped.
+
+Deliberately limited: the rule file is built **only** from what the
+interview gathers, never from exploring the codebase — consistent with
+every other Relay flow staying cheap (no ground-truthing before handoff).
+For an existing project with real conventions to capture accurately, a
+human-reviewed rule file beats one drafted from a five-question interview;
+`relay:init` says so explicitly rather than pretending otherwise. Skips
+the whole call silently if `.claude/rules/project-conventions.md` already
+exists — no clobbering.
+
 ## [0.4.6-alpha] — 2026-07-03
 
 ### Added — hooks/guard-roadmap-edit.js, mechanical enforcement of the CLI-only rule
