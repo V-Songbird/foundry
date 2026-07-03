@@ -5,7 +5,7 @@
 //
 // Covers:
 //   - Edit/Write of a path basename ROADMAP.jsonl (any case) gets denied
-//   - Edit/Write of anything else (including .relay/config.json) is silent
+//   - Edit/Write of anything else (including .foreman/config.json) is silent
 //   - non-Edit/Write tools (e.g. Bash) are never even inspected — the
 //     escape hatch for genuine corrupt-file repair stays open
 
@@ -53,8 +53,8 @@ describe('leaves everything else alone', () => {
     assert.equal(out, '');
   });
 
-  test('Write of .relay/config.json stays silent — that file has no CLI path', () => {
-    const out = run({ tool_name: 'Write', tool_input: { file_path: 'D:/project/.relay/config.json' } });
+  test('Write of .foreman/config.json stays silent — that file has no CLI path', () => {
+    const out = run({ tool_name: 'Write', tool_input: { file_path: 'D:/project/.foreman/config.json' } });
     assert.equal(out, '');
   });
 

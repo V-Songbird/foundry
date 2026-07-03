@@ -47,7 +47,7 @@ function commitFailed(data) {
 }
 
 function readConfig(root) {
-  const p = path.join(root, ".relay", "config.json");
+  const p = path.join(root, ".foreman", "config.json");
   try {
     const parsed = JSON.parse(fs.readFileSync(p, "utf-8"));
     return { discoverySuggestions: parsed?.discoverySuggestions === true };
@@ -58,7 +58,7 @@ function readConfig(root) {
 
 function statusSyncBlock() {
   return (
-    "[Relay] This commit may complete an in-progress ROADMAP.jsonl task. " +
+    "[Foreman] This commit may complete an in-progress ROADMAP.jsonl task. " +
     "If it does, run `git rev-parse --short HEAD` for the commit SHA, then: " +
     `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status. ` +
     "The script computes updated_at and appends the SHA — don't hand-edit the file."
@@ -67,7 +67,7 @@ function statusSyncBlock() {
 
 function discoveryBlock() {
   return (
-    "[Relay] Roadmap discovery is enabled for this project. Scan this " +
+    "[Foreman] Roadmap discovery is enabled for this project. Scan this " +
     "commit's work for CONFIRMED opportunities, bugs, or ideas — not vague " +
     "hunches. If you add one to the roadmap, write it dense using only " +
     "what's already in this session's context (exact paths, line ranges, " +

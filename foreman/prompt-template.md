@@ -1,6 +1,6 @@
-# Relay — prompt template
+# Foreman — prompt template
 
-<!-- relay:practices lastmod:2026-07-03
+<!-- foreman:practices lastmod:2026-07-03
      source-a: https://code.claude.com/docs/en/best-practices.md
      source-b: https://code.claude.com/docs/en/sub-agents.md
      source-c: Anthropic Prompting 101 — Code w/ Claude 2025-05-22
@@ -98,7 +98,7 @@ default "just in case".]
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
 - [ ] `relevant_files` lists every file path with line ranges — no vague
       references (for `craft-prompt`, get this from the user directly; for
-      `relay:roadmap`, pass the entry's `touches` through as-is — do NOT
+      `foreman:roadmap`, pass the entry's `touches` through as-is — do NOT
       explore the codebase to upgrade area-level hints into exact
       file:line ranges, `truth_grounding` covers that gap at handoff time)
 - [ ] `task_rules` has numbered steps AND a runnable verification command with expected output

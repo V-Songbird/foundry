@@ -1,14 +1,15 @@
-# Relay
+# Foreman
 
 **Prompt-engineering + project-roadmap plugin for Claude Code.**
 
-Relay has two pillars: crafting self-contained, Anthropic-grade prompts for
+Foreman has two pillars: crafting self-contained, Anthropic-grade prompts for
 spawned sessions, and driving a per-project roadmap (`ROADMAP.jsonl`) that
 records why each task exists, what it is, its status, and the commit(s)
-that implemented it. A single hook, triggered on `git commit`, keeps the
-roadmap in sync and — only if you opt in — asks what to do with newly
-discovered opportunities. It never acts without asking, and it stays
-completely silent on any project that hasn't run `/relay:init`.
+that implemented it. A hook triggered on `git commit` keeps the roadmap in
+sync and — only if you opt in — asks what to do with newly discovered
+opportunities; a second hook mechanically blocks direct edits to
+`ROADMAP.jsonl`. Neither acts without asking or touches a project that
+hasn't run `/foreman:init`.
 
 ---
 
@@ -16,7 +17,7 @@ completely silent on any project that hasn't run `/relay:init`.
 
 ```
 /plugin marketplace add V-Songbird/claude-plugins
-/plugin install relay
+/plugin install foreman
 ```
 
 ---
@@ -25,11 +26,11 @@ completely silent on any project that hasn't run `/relay:init`.
 
 | You want to… | Invoke |
 | --- | --- |
-| Build a self-contained prompt for a spawned session | `/relay:craft-prompt` |
-| Bootstrap a project's roadmap (one-time, per project) | `/relay:init` |
-| Pick the next task, add a task, or review roadmap status | `/relay:roadmap` |
+| Build a self-contained prompt for a spawned session | `/foreman:craft-prompt` |
+| Bootstrap a project's roadmap (one-time, per project) | `/foreman:init` |
+| Pick the next task, add a task, or review roadmap status | `/foreman:roadmap` |
 
-### `/relay:craft-prompt`
+### `/foreman:craft-prompt`
 
 Interactive, `AskUserQuestion`-driven prompt builder. Walks through task
 type, optional sections (tone, constraints, background, output format),
@@ -52,14 +53,14 @@ you need to know, no unnecessary jargon. Default output format: a plain
 human-readable summary, no XML tags — tags are opt-in only (`Custom output
 format`), for when something downstream actually parses the result.
 
-### `/relay:init`
+### `/foreman:init`
 
 Run once per project. Asks what the project is and its near-term goals,
 asks the key policy question — should the roadmap accept Claude-suggested
 entries after commits — drafts an initial `ROADMAP.jsonl`, gets your
-approval, then writes and commits `ROADMAP.jsonl` and `.relay/config.json`.
+approval, then writes and commits `ROADMAP.jsonl` and `.foreman/config.json`.
 
-### `/relay:roadmap`
+### `/foreman:roadmap`
 
 The ongoing entry point once a roadmap exists:
 - **Pick the next task** — `roadmap.js next-candidates` mechanically
@@ -94,8 +95,8 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 {"id":"001","title":"Add JWT refresh middleware","why":"Sessions expire mid-request under load.","what":"Refresh the access token in middleware before its 15-min expiry.","status":"planned","source":"user","depends_on":[],"touches":["src/auth/middleware.ts"],"commits":[],"created_at":"2026-07-03","updated_at":"2026-07-03","notes":""}
 ```
 
-`.relay/config.json` (also committed) holds the one policy toggle
-`/relay:init` sets:
+`.foreman/config.json` (also committed) holds the one policy toggle
+`/foreman:init` sets:
 
 ```json
 {"discoverySuggestions": true}
@@ -109,7 +110,7 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 `PostToolUse`). It:
 
 1. Stays completely silent if `ROADMAP.jsonl` doesn't exist — a project
-   that never ran `/relay:init` gets nothing from Relay, ever.
+   that never ran `/foreman:init` gets nothing from Foreman, ever.
 2. If a roadmap task is `in_progress`, nudges Claude to check whether this
    commit finished it and, if so, update its status/commits.
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
@@ -135,7 +136,7 @@ it.
 ## Tests
 
 ```
-node --test relay/tests/*.test.js
+node --test foreman/tests/*.test.js
 ```
 
 Covers `hooks/post-commit.js`, `hooks/guard-roadmap-edit.js`, and

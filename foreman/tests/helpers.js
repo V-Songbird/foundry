@@ -1,6 +1,6 @@
 'use strict';
 
-// Shared fixtures and helpers for relay tests.
+// Shared fixtures and helpers for foreman tests.
 
 const fs = require('fs');
 const os = require('os');
@@ -31,14 +31,14 @@ function runScriptRaw(name, stdinData, env) {
   return runNodeScript(path.join(HOOKS_DIR, name), [], stdinData, env);
 }
 
-/** Run relay/scripts/roadmap.js with the given subcommand + argv. */
+/** Run foreman/scripts/roadmap.js with the given subcommand + argv. */
 function runRoadmap(argv, stdinData, env) {
   return runNodeScript(path.join(SCRIPTS_DIR, 'roadmap.js'), argv, stdinData, env);
 }
 
 /** Create a fresh empty temp directory usable as a project root. */
 function makeTmpProject() {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'relay-project-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'foreman-project-'));
   const project = path.join(tmpDir, 'project');
   fs.mkdirSync(project);
   return project;
@@ -50,9 +50,9 @@ function writeRoadmap(project, entries) {
   fs.writeFileSync(path.join(project, 'ROADMAP.jsonl'), text, 'utf-8');
 }
 
-/** Write .relay/config.json in a project dir. */
+/** Write .foreman/config.json in a project dir. */
 function writeConfig(project, config) {
-  const dir = path.join(project, '.relay');
+  const dir = path.join(project, '.foreman');
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'config.json'), JSON.stringify(config), 'utf-8');
 }

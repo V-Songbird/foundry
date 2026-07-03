@@ -1,12 +1,12 @@
 ---
 name: roadmap
 description: Ongoing entry point for a project's ROADMAP.jsonl. Pick the next task to work on (reasons about dependencies and file-touch collisions like a software architect, then crafts a self-contained handoff prompt), add a new task, or review roadmap status.
-when_to_use: Trigger when the user asks what to work on next, wants to add something to the roadmap, wants to see roadmap status, says "what's next", "pick a task", "add to the roadmap", "roadmap status", or invokes /relay:roadmap.
+when_to_use: Trigger when the user asks what to work on next, wants to add something to the roadmap, wants to see roadmap status, says "what's next", "pick a task", "add to the roadmap", "roadmap status", or invokes /foreman:roadmap.
 argument-hint: "<optional — a task description to add, or a hint about what to pick next>"
 allowed-tools: AskUserQuestion, Read, Write, Bash, PowerShell, TaskCreate, Agent
 ---
 
-# relay:roadmap — pick, add to, or review the project roadmap
+# foreman:roadmap — pick, add to, or review the project roadmap
 
 All reads/writes to `ROADMAP.jsonl` at the project root go through
 `${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js` — never `Read`/`Edit` the file
@@ -15,7 +15,7 @@ mechanically. Skim `${CLAUDE_PLUGIN_ROOT}/roadmap-schema.md` if you need
 field semantics beyond what's obvious from the names.
 
 **Pre-check**: if `ROADMAP.jsonl` doesn't exist at the project root, tell
-the user to run `/relay:init` first and stop here.
+the user to run `/foreman:init` first and stop here.
 
 ---
 

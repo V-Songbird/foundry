@@ -1,10 +1,10 @@
-# Relay — ROADMAP.jsonl schema
+# Foreman — ROADMAP.jsonl schema
 
-<!-- relay:roadmap-schema lastmod:2026-07-03 -->
+<!-- foreman:roadmap-schema lastmod:2026-07-03 -->
 
 `ROADMAP.jsonl` lives at the **project root** (not inside this plugin) and is
 committed to git — it's a visible, shared record of the project's plan, not
-internal Relay state. One JSON object per line (JSON Lines, not a JSON
+internal Foreman state. One JSON object per line (JSON Lines, not a JSON
 array): one line = one task. Line-per-task is deliberate — changing one
 task's status touches exactly one line, so `git diff` on this file shows a
 clean one-line change per update instead of reformatting the whole file.
@@ -71,7 +71,7 @@ context — exact file paths and line ranges, function/symbol names, the
 specific behavior or error observed, why it matters — and put it in `what`,
 `why`, `touches`, and `notes`. This is the cheapest moment to capture that
 detail: it costs nothing extra right now (already in context), and it saves
-whoever picks up the task later (`relay:roadmap`, and the session it hands
+whoever picks up the task later (`foreman:roadmap`, and the session it hands
 off to) from re-deriving it from scratch, which costs real tokens then.
 
 **Do not explore further just to enrich the entry.** No extra `Read` or
@@ -104,7 +104,7 @@ JSON line to stdout: `{"ok":true, ...}` on success, `{"ok":false,"error":
 | `add` | JSON via stdin: `title`, `why`, `what`, `source`, optional `depends_on`/`touches`/`notes`/`status` | Computes `id` as `max(existing)+1`, defaults `status` to `"planned"` (only `"planned"` or `"rejected"` are valid at creation — a task doesn't start out `in_progress`/`done`/`dropped`), stamps `created_at`/`updated_at`, appends the line, re-validates the file. Returns the new `entry`. |
 | `update-status` | JSON via stdin: `id`, `status`, optional `commit`, optional `notes` | Transitions status, appends `commit` to `commits[]` (no duplicates), **appends** `notes` (never overwrites), bumps `updated_at`, re-validates the file. Returns the updated `entry`. |
 | `list` | optional flag: `--status planned,in_progress` | Returns `entries` — filtered if `--status` given, everything otherwise. Read-only. |
-| `next-candidates` | optional flag: `--limit N` (default 5) | Mechanical filter (unblocked: `planned`, every `depends_on` done) + rank (most `depends_on`-referenced first as a derived importance proxy — no stored priority field — then oldest `created_at`) + a `collision` flag per candidate (its `touches` overlaps a currently-`in_progress` entry's). Returns `{"candidates":[...], "total_unblocked": N}`. This is what `relay:roadmap`'s "Pick the next task" calls — never `list` + manual filtering for that flow, `next-candidates` exists specifically to avoid loading the whole file into context just to do graph filtering that needs no judgment. |
+| `next-candidates` | optional flag: `--limit N` (default 5) | Mechanical filter (unblocked: `planned`, every `depends_on` done) + rank (most `depends_on`-referenced first as a derived importance proxy — no stored priority field — then oldest `created_at`) + a `collision` flag per candidate (its `touches` overlaps a currently-`in_progress` entry's). Returns `{"candidates":[...], "total_unblocked": N}`. This is what `foreman:roadmap`'s "Pick the next task" calls — never `list` + manual filtering for that flow, `next-candidates` exists specifically to avoid loading the whole file into context just to do graph filtering that needs no judgment. |
 | `check-duplicate` | JSON via stdin: `title`, `why` | Word-overlap (Jaccard) match against `rejected` entries only. Returns `{"duplicate": bool, "matches": [...]}`. Not semantic — a cheap filter to stop re-asking about something already declined, not a guarantee. |
 
 Examples:
@@ -146,7 +146,7 @@ for — exact paths and line ranges instead of a vague "the fetch wrapper."
 
 ---
 
-## `.relay/config.json`
+## `.foreman/config.json`
 
 Sibling runtime file, also at the project root, also committed:
 
@@ -154,9 +154,9 @@ Sibling runtime file, also at the project root, also committed:
 {"discoverySuggestions": true}
 ```
 
-The one field `relay:init`'s key question sets. Missing or unparseable →
+The one field `foreman:init`'s key question sets. Missing or unparseable →
 treated as `false` everywhere it's read (silent, no nudging — a project that
-never ran `relay:init` gets nothing from Relay's commit hook).
+never ran `foreman:init` gets nothing from Foreman's commit hook).
 
 ---
 
@@ -166,14 +166,14 @@ All access — from any caller — goes through `scripts/roadmap.js`, and
 `hooks/guard-roadmap-edit.js` mechanically blocks the alternative (direct
 `Edit`/`Write`), not just prose.
 
-- `relay:init` — creates it (loops `add` once per drafted task).
-- `relay:roadmap` — `next-candidates` (Pick next task), `add` (Add a task),
+- `foreman:init` — creates it (loops `add` once per drafted task).
+- `foreman:roadmap` — `next-candidates` (Pick next task), `add` (Add a task),
   `list` (Review status), `update-status` (Pick next task sets
   `in_progress`). Pick next task does not `Read`/`Grep` the codebase to
   verify a candidate before crafting its prompt — see `prompt-template.md`'s
   `truth_grounding` block, which is exactly the mechanism that makes that
   safe to skip at pick time.
-- `relay/hooks/post-commit.js` — the only caller that reads the file
+- `foreman/hooks/post-commit.js` — the only caller that reads the file
   in-process (it `require()`s `roadmap.js`'s `readEntries` directly, same
   Node process, no subprocess) to decide whether to mention status-sync at
   all. It never writes to the file itself — it only emits instructions

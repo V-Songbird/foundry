@@ -43,7 +43,7 @@ function main() {
       hookEventName: "PreToolUse",
       permissionDecision: "deny",
       permissionDecisionReason:
-        `Relay: direct ${data.tool_name} of ROADMAP.jsonl is blocked. Use ` +
+        `Foreman: direct ${data.tool_name} of ROADMAP.jsonl is blocked. Use ` +
         `node ${SCRIPT_PATH} instead (add/update-status/list/` +
         "next-candidates/check-duplicate — run with --help for usage). " +
         "It enforces id computation and parse-before/after-write; a hand " +

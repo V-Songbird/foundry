@@ -1,9 +1,33 @@
 # Changelog
 
-All notable changes to Relay are documented here. Relay is a monorepo-folder
-plugin — its version is owned by `.claude-plugin/marketplace.json` at the
-repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
-version field by convention).
+All notable changes to Foreman are documented here. Foreman was named
+Relay through 0.4.8-alpha — see the 0.5.0-alpha entry below for the
+rename; earlier entries below refer to the plugin by its name at the
+time, not retroactively edited. Foreman is a monorepo-folder plugin — its
+version is owned by `.claude-plugin/marketplace.json` at the repo root,
+not by `foreman/.claude-plugin/plugin.json` (which carries no version
+field by convention).
+
+## [0.5.0-alpha] — 2026-07-03
+
+### Changed — renamed from Relay to Foreman
+
+No installed users yet (single-project testing only), so the rename cost
+nothing beyond the mechanical work: `relay/` → `foreman/` (`git mv`,
+history preserved), every `/relay:*` skill invocation → `/foreman:*`,
+`.relay/config.json` → `.foreman/config.json` (in code, not just docs —
+`hooks/post-commit.js`'s `readConfig`, `tests/helpers.js`'s `writeConfig`),
+`[Relay]`/`Relay:` message prefixes in both hooks → `[Foreman]`/`Foreman:`,
+`marketplace.json`/`plugin.json` `name`/`source`/`homepage`, every doc
+cross-reference.
+
+Reasoning: "Relay" fit the prompt-handoff pillar (craft-prompt, pass a
+fully-briefed prompt to another session) but never fit the roadmap pillar
+(tracking, sequencing, dependency graphs — nothing about "relay" suggests
+that to a cold reader). "Foreman" fits both without a stretch: a foreman
+keeps the work plan (roadmap), decides what's next, and hands each worker
+a fully-briefed assignment (the crafted prompt) — the same shape as this
+plugin's actual two pillars, not just the handoff tail end of one of them.
 
 ## [0.4.8-alpha] — 2026-07-03
 

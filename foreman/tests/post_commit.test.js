@@ -1,12 +1,12 @@
 'use strict';
 
-// Tests for hooks/post-commit.js — the only hook Relay ships post-redesign.
+// Tests for hooks/post-commit.js — the only hook Foreman ships post-redesign.
 //
 // Covers:
 //   - only fires on Bash/PowerShell tool calls that are actually `git commit`
-//   - silent when ROADMAP.jsonl doesn't exist (zero-config: never ran /relay:init)
+//   - silent when ROADMAP.jsonl doesn't exist (zero-config: never ran /foreman:init)
 //   - status-sync block appears whenever an in_progress entry exists
-//   - discovery block appears only when .relay/config.json has discoverySuggestions:true
+//   - discovery block appears only when .foreman/config.json has discoverySuggestions:true
 //   - malformed/missing config is treated as discoverySuggestions:false
 //   - a failed commit (confirmed nonzero exit code) stays silent
 //   - a commit with no confirmed exit code fails open (still fires)
@@ -54,7 +54,7 @@ describe('non-matching tool calls', () => {
 });
 
 describe('no ROADMAP.jsonl', () => {
-  test('stays completely silent — never ran /relay:init', () => {
+  test('stays completely silent — never ran /foreman:init', () => {
     const out = run(bashPayload('git commit -m "wip"'));
     assert.equal(out, '');
   });
@@ -115,8 +115,8 @@ describe('discovery block', () => {
     writeRoadmap(project, [{ id: '001', status: 'planned' }]);
     const fs = require('fs');
     const path = require('path');
-    fs.mkdirSync(path.join(project, '.relay'), { recursive: true });
-    fs.writeFileSync(path.join(project, '.relay', 'config.json'), '{not json', 'utf-8');
+    fs.mkdirSync(path.join(project, '.foreman'), { recursive: true });
+    fs.writeFileSync(path.join(project, '.foreman', 'config.json'), '{not json', 'utf-8');
     const out = run(bashPayload('git commit -m "add feature"'));
     assert.equal(out, '');
   });

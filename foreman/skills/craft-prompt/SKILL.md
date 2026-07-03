@@ -1,14 +1,14 @@
 ---
 name: craft-prompt
-description: Interactive prompt builder. Guides you through assembling a self-contained spawned-session prompt following Relay's template — asks which optional sections to include, gathers required info via AskUserQuestion, assembles the XML, then hands it off via TaskCreate, a background Agent, or copies it to the clipboard.
-when_to_use: Trigger when the user wants to create a task, spawn a background agent, craft a prompt for a spawned session, or says "craft a prompt", "build a prompt", "relay prompt", "new task prompt", or invokes /relay:craft-prompt.
+description: Interactive prompt builder. Guides you through assembling a self-contained spawned-session prompt following Foreman's template — asks which optional sections to include, gathers required info via AskUserQuestion, assembles the XML, then hands it off via TaskCreate, a background Agent, or copies it to the clipboard.
+when_to_use: Trigger when the user wants to create a task, spawn a background agent, craft a prompt for a spawned session, or says "craft a prompt", "build a prompt", "foreman prompt", "new task prompt", or invokes /foreman:craft-prompt.
 argument-hint: "<brief task description — optional seed>"
 allowed-tools: AskUserQuestion, TaskCreate, Agent, Write, Bash, PowerShell
 ---
 
-# relay:craft-prompt — interactive prompt builder
+# foreman:craft-prompt — interactive prompt builder
 
-Assemble a self-contained prompt for a spawned session following Relay's template. The spawned session has zero memory of this conversation — every field must be filled so it can act cold.
+Assemble a self-contained prompt for a spawned session following Foreman's template. The spawned session has zero memory of this conversation — every field must be filled so it can act cold.
 
 If args were provided, treat them as the task description seed and skip asking for it in Call 1.
 

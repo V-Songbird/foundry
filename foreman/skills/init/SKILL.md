@@ -1,14 +1,14 @@
 ---
 name: init
-description: Bootstraps a project's ROADMAP.jsonl and .relay/config.json. Asks what the project is and its near-term goals, asks whether the roadmap should accept Claude-suggested entries after commits, drafts an initial set of roadmap tasks, gets approval, then writes and commits both files.
-when_to_use: Trigger when the user wants to set up Relay's roadmap for a project, says "init relay", "set up the roadmap", "initialize relay", "start a roadmap", or invokes /relay:init. Usually a one-time-per-project action.
+description: Bootstraps a project's ROADMAP.jsonl and .foreman/config.json. Asks what the project is and its near-term goals, asks whether the roadmap should accept Claude-suggested entries after commits, drafts an initial set of roadmap tasks, gets approval, then writes and commits both files.
+when_to_use: Trigger when the user wants to set up Foreman's roadmap for a project, says "init foreman", "set up the roadmap", "initialize foreman", "start a roadmap", or invokes /foreman:init. Usually a one-time-per-project action.
 argument-hint: "<brief project description — optional seed>"
 allowed-tools: AskUserQuestion, Read, Write, Bash
 ---
 
-# relay:init — bootstrap a project roadmap
+# foreman:init — bootstrap a project roadmap
 
-Creates `ROADMAP.jsonl` and `.relay/config.json` at the project root. Both
+Creates `ROADMAP.jsonl` and `.foreman/config.json` at the project root. Both
 are committed to git — they're a shared project artifact, not personal
 state. All reads/writes go through
 `${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js` (see "Write phase" below) — it
@@ -32,7 +32,7 @@ Options: `Overwrite it (start fresh)`, `Keep it, just add to it`, `Cancel`
 
 - Overwrite → continue to Call 1, the draft phase replaces the file.
 - Keep, add to it → skip straight to the draft phase, append new entries
-  instead of replacing, don't touch `.relay/config.json` if it already
+  instead of replacing, don't touch `.foreman/config.json` if it already
   exists (ask its Call 2 question only if the config file is missing).
 - Cancel → stop here.
 
@@ -55,12 +55,12 @@ they want to get done soon)
 **Q1** — "Should the roadmap accept Claude-suggested entries after commits?"
 Options:
 - `Yes — ask me about opportunities found after each commit` — after every
-  `git commit`, Relay's hook will prompt Claude to scan for confirmed
+  `git commit`, Foreman's hook will prompt Claude to scan for confirmed
   bugs/opportunities/ideas from that work and ask what to do with each one.
 - `No — the roadmap only grows from what I add myself` — the commit hook
   stays completely silent; nothing gets suggested, ever, until re-run.
 
-Record the answer — it becomes `.relay/config.json`'s `discoverySuggestions`
+Record the answer — it becomes `.foreman/config.json`'s `discoverySuggestions`
 field verbatim.
 
 ---
@@ -107,12 +107,12 @@ the updated draft, ask again. Repeat until approved.
    The script computes the id, sets `status:"planned"`, stamps
    `created_at`/`updated_at`, and validates the file after every write —
    no manual parsing, no hand-computed ids.
-3. Write `.relay/config.json` — `{"discoverySuggestions": <bool>}` (skip
+3. Write `.foreman/config.json` — `{"discoverySuggestions": <bool>}` (skip
    this file write if the pre-check "keep, add to it" branch found an
    existing config already).
 4. Stage and commit just these two files:
-   `git add ROADMAP.jsonl .relay/config.json && git commit -m "chore: init relay roadmap"`
+   `git add ROADMAP.jsonl .foreman/config.json && git commit -m "chore: init foreman roadmap"`
    (Only the files this skill wrote — never a broader `git add`.)
 
 Report back: task count, discovery-suggestions on/off, and point the user
-at `/relay:roadmap` to pick up the first task.
+at `/foreman:roadmap` to pick up the first task.
