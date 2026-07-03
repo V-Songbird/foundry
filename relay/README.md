@@ -71,8 +71,11 @@ The ongoing entry point once a roadmap exists:
 
 `ROADMAP.jsonl` lives at your project's root and is committed to git — a
 visible, shared record of the plan, not internal plugin state. One JSON
-object per line, one line per task. Full field reference, status enum, and
-write invariants: [`roadmap-schema.md`](roadmap-schema.md).
+object per line, one line per task. Every read/write goes through
+`scripts/roadmap.js` — a small CLI (`add`/`update-status`/`list`/
+`check-duplicate`, JSON in/out) — never a hand-edited `Read`/`Edit`. Full
+field reference, CLI usage, and the invariants it enforces:
+[`roadmap-schema.md`](roadmap-schema.md).
 
 ```jsonl
 {"id":"001","title":"Add JWT refresh middleware","why":"Sessions expire mid-request under load.","what":"Refresh the access token in middleware before its 15-min expiry.","status":"planned","source":"user","depends_on":[],"touches":["src/auth/middleware.ts"],"commits":[],"created_at":"2026-07-03","updated_at":"2026-07-03","notes":""}
@@ -97,13 +100,15 @@ write invariants: [`roadmap-schema.md`](roadmap-schema.md).
 2. If a roadmap task is `in_progress`, nudges Claude to check whether this
    commit finished it and, if so, update its status/commits.
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
-   for *confirmed* opportunities/bugs/ideas and, for each one, ask you what
-   to do with it — add to the roadmap, execute now with `TaskCreate`,
-   execute via a background `Agent`, or reject it (logged so it isn't
-   re-suggested). Never acts without asking. Entries added this way are
-   written dense with whatever's already in the session's context (exact
-   paths, line ranges, symbol names) — Claude never goes exploring further
-   just to pad out a roadmap entry; see [`roadmap-schema.md`](roadmap-schema.md#writing-claude-suggested-entries--pack-context-now-its-free).
+   for *confirmed* opportunities/bugs/ideas, check them against already-
+   `rejected` entries via `roadmap.js check-duplicate` (skips silently on a
+   match), and for each new one ask you what to do with it — add to the
+   roadmap, execute now with `TaskCreate`, execute via a background
+   `Agent`, or reject it. Never acts without asking. Entries added this way
+   are written dense with whatever's already in the session's context
+   (exact paths, line ranges, symbol names) — Claude never goes exploring
+   further just to pad out a roadmap entry; see
+   [`roadmap-schema.md`](roadmap-schema.md#writing-claude-suggested-entries--pack-context-now-its-free).
 
 ---
 
@@ -112,3 +117,7 @@ write invariants: [`roadmap-schema.md`](roadmap-schema.md).
 ```
 node --test relay/tests/*.test.js
 ```
+
+Covers `hooks/post-commit.js` and `scripts/roadmap.js` (id computation,
+status transitions, append-only notes, duplicate detection, corrupt-file
+handling).

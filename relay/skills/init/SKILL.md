@@ -10,9 +10,12 @@ allowed-tools: AskUserQuestion, Read, Write, Bash
 
 Creates `ROADMAP.jsonl` and `.relay/config.json` at the project root. Both
 are committed to git — they're a shared project artifact, not personal
-state. Read `${CLAUDE_PLUGIN_ROOT}/roadmap-schema.md` before drafting or
-writing anything — it defines every field, the status enum, and the write
-invariants (parse-before-write, parse-after-write, append-only notes).
+state. All reads/writes go through
+`${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js` (see "Write phase" below) — it
+enforces the write invariants (id computation, parse-before/after-write)
+mechanically, so you don't have to. Skim
+`${CLAUDE_PLUGIN_ROOT}/roadmap-schema.md` if you need field semantics
+beyond what's obvious from the names (`why`/`what`/`depends_on`/`touches`).
 
 If args were provided, treat them as the project description seed and skip
 asking for it in Call 1.
@@ -93,13 +96,20 @@ the updated draft, ask again. Repeat until approved.
 
 ## Write phase
 
-1. Write `ROADMAP.jsonl` — one `JSON.stringify`'d line per entry (overwrite
-   or append per the pre-check branch).
-2. Write `.relay/config.json` — `{"discoverySuggestions": <bool>}` (skip
+1. If the pre-check chose Overwrite: clear any existing file first —
+   `Bash`: `> ROADMAP.jsonl` (or delete it). `roadmap.js add` always
+   appends, so a fresh file means ids start at `001` again.
+2. For each drafted task, call `add` with its fields as JSON over stdin:
+   ```
+   echo '{"title":"...","why":"...","what":"...","source":"user","depends_on":[],"touches":[]}' \
+     | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js add
+   ```
+   The script computes the id, sets `status:"planned"`, stamps
+   `created_at`/`updated_at`, and validates the file after every write —
+   no manual parsing, no hand-computed ids.
+3. Write `.relay/config.json` — `{"discoverySuggestions": <bool>}` (skip
    this file write if the pre-check "keep, add to it" branch found an
    existing config already).
-3. Re-read `ROADMAP.jsonl` and confirm every line still parses as JSON —
-   per the schema doc's write invariants.
 4. Stage and commit just these two files:
    `git add ROADMAP.jsonl .relay/config.json && git commit -m "chore: init relay roadmap"`
    (Only the files this skill wrote — never a broader `git add`.)

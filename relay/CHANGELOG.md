@@ -5,6 +5,39 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `relay/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## [0.4.3-alpha] — 2026-07-03
+
+### Added — `scripts/roadmap.js`, a mechanical CRUD CLI for ROADMAP.jsonl
+
+Every `ROADMAP.jsonl` read/write used to be Claude's own Read+reason+Edit+
+Read-to-verify — repeated on every commit with discovery on. That's pure
+token overhead for fully deterministic work (id computation, JSON
+formatting, parse-before/after-write, append-only notes). Moved it into a
+small Node CLI, same pattern as `hestia/scripts/run_audit.js` (subcommand +
+flags for reads, JSON via stdin for writes, JSON via stdout for results —
+no server, no daemon, Claude just shells out once per call):
+
+- `add` — computes `id`, defaults `status:"planned"` (or `"rejected"` for
+  the discovery flow's Reject path — both use the same call now), stamps
+  timestamps, validates.
+- `update-status` — transitions status, appends `commit`/`notes` (never
+  overwrites), re-validates.
+- `list` — optional `--status` filter, read-only.
+- `check-duplicate` — cheap word-overlap (Jaccard) match against `rejected`
+  entries, so the discovery flow stops re-asking about declined ideas
+  instead of re-reading and eyeballing the whole file every time.
+
+Rewired all three callers: `hooks/post-commit.js` (`require()`s
+`readEntries` in-process for the cheap in-progress check instead of a text
+substring match; its instruction blocks now tell Claude to shell out to the
+CLI instead of hand-editing), `skills/init` (Write phase loops `add`
+instead of `JSON.stringify`-by-hand), `skills/roadmap` (all three branches
+— dropped `Edit` from `allowed-tools` entirely, there's no longer a
+sanctioned way to hand-edit the file from either skill).
+`roadmap-schema.md`'s "Write invariants" section became "Using roadmap.js"
+— the same guarantees, now enforced in code instead of re-derived from
+prose every time. 36 tests total (17 existing + 19 new for the CLI).
+
 ## [0.4.2-alpha] — 2026-07-03
 
 ### Added — token-conscious discovery entries + truth-grounding mandate

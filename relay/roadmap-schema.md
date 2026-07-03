@@ -9,10 +9,15 @@ array): one line = one task. Line-per-task is deliberate — changing one
 task's status touches exactly one line, so `git diff` on this file shows a
 clean one-line change per update instead of reformatting the whole file.
 
-There is no parser/writer script for this file. Reading and writing it is a
-handful of short lines, done rarely — read it with `Read`, edit it with
-`Edit`, following the invariants below. Skip building tooling for this; it
-would be solving a problem this file doesn't have.
+All reads and writes go through `scripts/roadmap.js` — a small CLI, not a
+long-running server (Claude shells out once per call, same as any other
+Bash invocation). It exists because this file gets touched on every commit
+with discovery on, not rarely — the CRUD mechanics (id computation,
+parse-before/after-write, notes append-only) are now enforced in code
+instead of re-derived by Claude from prose every time, which is both
+cheaper (one Bash call instead of Read+reason+Edit+Read) and safer (no
+hand-formatted JSON to get wrong). Never `Read`/`Edit` `ROADMAP.jsonl`
+directly — see "Using roadmap.js" below.
 
 ---
 
@@ -62,29 +67,47 @@ detail: it costs nothing extra right now (already in context), and it saves
 whoever picks up the task later (`relay:roadmap`, and the session it hands
 off to) from re-deriving it from scratch, which costs real tokens then.
 
-**Do not explore further just to enrich the entry.** No extra `Read`,
-`Grep`, or `Bash` calls whose only purpose is filling in roadmap fields —
-that spends tokens now instead of saving them later, defeating the point.
-If a detail isn't already in context, leave the field at its normal length
-rather than digging for it.
+**Do not explore further just to enrich the entry.** No extra `Read` or
+`Grep` calls whose only purpose is gathering more detail for roadmap
+fields — that spends tokens now instead of saving them later, defeating
+the point. (This doesn't mean avoid `Bash` — calling `roadmap.js add` to
+actually persist the entry is the mechanical step this whole section
+assumes; the rule is against exploring the codebase further, not against
+writing what you already know.) If a detail isn't already in context,
+leave the field at its normal length rather than digging for it.
 
 ---
 
-## Write invariants
+## Using roadmap.js
 
-Every writer (`relay:init`, `relay:roadmap`, or the commit hook's
-instructions) follows these:
+`${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js`. Every subcommand prints one
+JSON line to stdout: `{"ok":true, ...}` on success, `{"ok":false,"error":
+"..."}` (exit code 1) on failure — parse it, don't scrape prose.
 
-1. **Parse before writing.** Read the whole file, `JSON.parse` every line.
-   If a line fails to parse, stop and surface the corrupt line to the user —
-   don't write on top of unknown-bad state. This full parse is also how the
-   next `id` gets computed (`max + 1`).
-2. **Parse after writing.** Re-read the file and re-parse every line to
-   confirm it's still well-formed JSONL before reporting success.
-3. **`notes` is append-only.** Never replace existing text in `notes` —
-   add to it (e.g. with a `; ` separator) so earlier context stays legible.
-4. **`updated_at` changes on every write to an entry.** `created_at` never
-   does.
+| Subcommand | Input | Does |
+|---|---|---|
+| `add` | JSON via stdin: `title`, `why`, `what`, `source`, optional `depends_on`/`touches`/`notes`/`status` | Computes `id` as `max(existing)+1`, defaults `status` to `"planned"` (only `"planned"` or `"rejected"` are valid at creation — a task doesn't start out `in_progress`/`done`/`dropped`), stamps `created_at`/`updated_at`, appends the line, re-validates the file. Returns the new `entry`. |
+| `update-status` | JSON via stdin: `id`, `status`, optional `commit`, optional `notes` | Transitions status, appends `commit` to `commits[]` (no duplicates), **appends** `notes` (never overwrites), bumps `updated_at`, re-validates the file. Returns the updated `entry`. |
+| `list` | optional flag: `--status planned,in_progress` | Returns `entries` — filtered if `--status` given, everything otherwise. Read-only. |
+| `check-duplicate` | JSON via stdin: `title`, `why` | Word-overlap (Jaccard) match against `rejected` entries only. Returns `{"duplicate": bool, "matches": [...]}`. Not semantic — a cheap filter to stop re-asking about something already declined, not a guarantee. |
+
+Examples:
+```
+echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"user"}' \
+  | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js add
+
+echo '{"id":"002","status":"done","commit":"a1b2c3d"}' \
+  | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status
+
+node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js list --status planned
+```
+
+The invariants this replaces (kept here as the contract the script
+guarantees, not as steps Claude performs by hand anymore): parse the whole
+file before any write and fail loudly on a corrupt line rather than write
+on top of unknown-bad state; re-parse after writing to confirm the file is
+still well-formed JSONL; `notes` is append-only; `updated_at` changes on
+every write to an entry, `created_at` never does.
 
 ---
 
@@ -123,11 +146,15 @@ never ran `relay:init` gets nothing from Relay's commit hook).
 
 ## Who reads and writes this file
 
-- `relay:init` — creates it.
-- `relay:roadmap` — reads it (all three menu branches), writes it (Pick
-  next task sets `in_progress`; Add a task appends a `planned` entry).
-- `relay/hooks/post-commit.js` — reads it read-only (a cheap substring
-  check for `"status":"in_progress"` to decide whether to mention
-  status-sync at all). It never writes to the file itself — it only emits
-  instructions telling Claude to update it, keeping every actual write in a
-  reviewable, skill- or Claude-driven path rather than a script's hands.
+All access — from any caller — goes through `scripts/roadmap.js`.
+
+- `relay:init` — creates it (loops `add` once per drafted task).
+- `relay:roadmap` — `list` (all three menu branches), `add` (Add a task),
+  `update-status` (Pick next task sets `in_progress`).
+- `relay/hooks/post-commit.js` — the only caller that reads the file
+  in-process (it `require()`s `roadmap.js`'s `readEntries` directly, same
+  Node process, no subprocess) to decide whether to mention status-sync at
+  all. It never writes to the file itself — it only emits instructions
+  telling Claude to call `update-status`/`add`/`check-duplicate` via Bash,
+  keeping every actual write in a reviewable, skill- or Claude-driven path
+  rather than a hook's hands.

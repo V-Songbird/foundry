@@ -8,6 +8,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const HOOKS_DIR = path.join(__dirname, '..', 'hooks');
+const SCRIPTS_DIR = path.join(__dirname, '..', 'scripts');
 
 function buildStdin(stdinData) {
   if (stdinData === null || stdinData === undefined) return undefined;
@@ -15,14 +16,24 @@ function buildStdin(stdinData) {
   return JSON.stringify(stdinData);
 }
 
-/** Run a hook script from hooks/ and return the raw spawnSync result. */
-function runScriptRaw(name, stdinData, env) {
-  return spawnSync('node', [path.join(HOOKS_DIR, name)], {
+/** Run a .js file by absolute path and return the raw spawnSync result. */
+function runNodeScript(fullPath, argv, stdinData, env) {
+  return spawnSync('node', [fullPath, ...(argv || [])], {
     input: buildStdin(stdinData),
     encoding: 'utf-8',
     timeout: 30000,
     env: { ...process.env, ...(env || {}) },
   });
+}
+
+/** Run a hook script from hooks/ and return the raw spawnSync result. */
+function runScriptRaw(name, stdinData, env) {
+  return runNodeScript(path.join(HOOKS_DIR, name), [], stdinData, env);
+}
+
+/** Run relay/scripts/roadmap.js with the given subcommand + argv. */
+function runRoadmap(argv, stdinData, env) {
+  return runNodeScript(path.join(SCRIPTS_DIR, 'roadmap.js'), argv, stdinData, env);
 }
 
 /** Create a fresh empty temp directory usable as a project root. */
@@ -48,8 +59,11 @@ function writeConfig(project, config) {
 
 module.exports = {
   runScriptRaw,
+  runNodeScript,
+  runRoadmap,
   makeTmpProject,
   writeRoadmap,
   writeConfig,
   HOOKS_DIR,
+  SCRIPTS_DIR,
 };

@@ -1,0 +1,205 @@
+'use strict';
+
+// Tests for scripts/roadmap.js — the mechanical CRUD CLI for ROADMAP.jsonl.
+//
+// Covers:
+//   - add computes sequential zero-padded ids, validates required fields/source
+//   - update-status transitions status, appends (not replaces) commits/notes
+//   - list filters by status, returns everything with no filter
+//   - check-duplicate finds word-overlap matches against rejected entries only
+//   - a corrupt line in the file fails loudly (ok:false, exit 1) instead of
+//     silently skipping it
+
+const { test, describe, beforeEach } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+
+const { runRoadmap, makeTmpProject, writeRoadmap } = require('./helpers');
+
+let project;
+let env;
+
+beforeEach(() => {
+  project = makeTmpProject();
+  env = { CLAUDE_PROJECT_DIR: project };
+});
+
+function run(argv, stdinData) {
+  const result = runRoadmap(argv, stdinData, env);
+  let json;
+  try {
+    json = JSON.parse(result.stdout);
+  } catch {
+    throw new Error(`non-JSON stdout (status ${result.status}): ${result.stdout}\n${result.stderr}`);
+  }
+  return { status: result.status, json };
+}
+
+describe('add', () => {
+  test('creates ROADMAP.jsonl if missing, first id is 001', () => {
+    const { status, json } = run(['add'], {
+      title: 'Add JWT refresh middleware',
+      why: 'Sessions expire mid-request under load.',
+      what: 'Refresh the token before its 15-min expiry.',
+      source: 'user',
+    });
+    assert.equal(status, 0);
+    assert.equal(json.ok, true);
+    assert.equal(json.entry.id, '001');
+    assert.equal(json.entry.status, 'planned');
+    assert.deepEqual(json.entry.commits, []);
+    assert.ok(fs.existsSync(path.join(project, 'ROADMAP.jsonl')));
+  });
+
+  test('ids increment sequentially, zero-padded', () => {
+    run(['add'], { title: 'a', why: 'a', what: 'a', source: 'user' });
+    run(['add'], { title: 'b', why: 'b', what: 'b', source: 'user' });
+    const { json } = run(['add'], { title: 'c', why: 'c', what: 'c', source: 'user' });
+    assert.equal(json.entry.id, '003');
+  });
+
+  test('defaults depends_on/touches/notes when omitted', () => {
+    const { json } = run(['add'], { title: 'a', why: 'a', what: 'a', source: 'user' });
+    assert.deepEqual(json.entry.depends_on, []);
+    assert.deepEqual(json.entry.touches, []);
+    assert.equal(json.entry.notes, '');
+  });
+
+  test('rejects missing required fields', () => {
+    const { status, json } = run(['add'], { title: 'a', source: 'user' });
+    assert.equal(status, 1);
+    assert.equal(json.ok, false);
+    assert.match(json.error, /requires title, why, what/);
+  });
+
+  test('rejects invalid source', () => {
+    const { status, json } = run(['add'], { title: 'a', why: 'a', what: 'a', source: 'bot' });
+    assert.equal(status, 1);
+    assert.match(json.error, /source must be one of/);
+  });
+});
+
+describe('update-status', () => {
+  beforeEach(() => {
+    writeRoadmap(project, [
+      { id: '001', title: 'a', why: 'a', what: 'a', status: 'in_progress', source: 'user', depends_on: [], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+    ]);
+  });
+
+  test('transitions status and appends a commit', () => {
+    const { json } = run(['update-status'], { id: '001', status: 'done', commit: 'a1b2c3d' });
+    assert.equal(json.entry.status, 'done');
+    assert.deepEqual(json.entry.commits, ['a1b2c3d']);
+  });
+
+  test('does not duplicate an already-recorded commit', () => {
+    run(['update-status'], { id: '001', status: 'in_progress', commit: 'a1b2c3d' });
+    const { json } = run(['update-status'], { id: '001', status: 'done', commit: 'a1b2c3d' });
+    assert.deepEqual(json.entry.commits, ['a1b2c3d']);
+  });
+
+  test('appends notes rather than replacing them', () => {
+    run(['update-status'], { id: '001', status: 'in_progress', notes: 'first' });
+    const { json } = run(['update-status'], { id: '001', status: 'in_progress', notes: 'second' });
+    assert.equal(json.entry.notes, 'first; second');
+  });
+
+  test('rejects unknown id', () => {
+    const { status, json } = run(['update-status'], { id: '999', status: 'done' });
+    assert.equal(status, 1);
+    assert.match(json.error, /no entry with id 999/);
+  });
+
+  test('rejects invalid status', () => {
+    const { status, json } = run(['update-status'], { id: '001', status: 'cancelled' });
+    assert.equal(status, 1);
+    assert.match(json.error, /status must be one of/);
+  });
+});
+
+describe('list', () => {
+  beforeEach(() => {
+    writeRoadmap(project, [
+      { id: '001', title: 'a', status: 'planned' },
+      { id: '002', title: 'b', status: 'in_progress' },
+      { id: '003', title: 'c', status: 'done' },
+    ]);
+  });
+
+  test('no filter returns everything', () => {
+    const { json } = run(['list']);
+    assert.equal(json.entries.length, 3);
+  });
+
+  test('filters by a single status', () => {
+    const { json } = run(['list', '--status', 'planned']);
+    assert.deepEqual(json.entries.map((e) => e.id), ['001']);
+  });
+
+  test('filters by a comma-separated status list', () => {
+    const { json } = run(['list', '--status', 'planned,done']);
+    assert.deepEqual(json.entries.map((e) => e.id).sort(), ['001', '003']);
+  });
+
+  test('a project with no ROADMAP.jsonl yet returns an empty list, not an error', () => {
+    const freshProject = makeTmpProject();
+    const result = runRoadmap(['list'], undefined, { CLAUDE_PROJECT_DIR: freshProject });
+    const json = JSON.parse(result.stdout);
+    assert.equal(result.status, 0);
+    assert.deepEqual(json.entries, []);
+  });
+});
+
+describe('check-duplicate', () => {
+  beforeEach(() => {
+    writeRoadmap(project, [
+      { id: '001', title: 'Extract duplicated retry logic', why: 'Same backoff loop copy-pasted across API clients', status: 'rejected', source: 'claude-suggested' },
+      { id: '002', title: 'Unrelated planned task', why: 'Totally different thing', status: 'planned', source: 'user' },
+    ]);
+  });
+
+  test('finds a word-overlap match against a rejected entry', () => {
+    const { json } = run(['check-duplicate'], {
+      title: 'Extract duplicated retry logic',
+      why: 'Same backoff loop copy-pasted across API clients',
+    });
+    assert.equal(json.duplicate, true);
+    assert.equal(json.matches[0].id, '001');
+  });
+
+  test('does not match against non-rejected entries', () => {
+    const { json } = run(['check-duplicate'], {
+      title: 'Unrelated planned task',
+      why: 'Totally different thing',
+    });
+    assert.equal(json.duplicate, false);
+  });
+
+  test('unrelated text finds no match', () => {
+    const { json } = run(['check-duplicate'], {
+      title: 'Completely different concern about styling',
+      why: 'Nothing to do with retries or backoff at all',
+    });
+    assert.equal(json.duplicate, false);
+    assert.deepEqual(json.matches, []);
+  });
+});
+
+describe('corrupt file handling', () => {
+  test('a malformed line fails loudly instead of being skipped', () => {
+    fs.writeFileSync(path.join(project, 'ROADMAP.jsonl'), '{"id":"001"\nnot json at all\n', 'utf-8');
+    const { status, json } = run(['list']);
+    assert.equal(status, 1);
+    assert.equal(json.ok, false);
+    assert.match(json.error, /not valid JSON/);
+  });
+});
+
+describe('unknown subcommand', () => {
+  test('errors with a helpful message', () => {
+    const { status, json } = run(['bogus']);
+    assert.equal(status, 1);
+    assert.match(json.error, /unknown subcommand/);
+  });
+});
