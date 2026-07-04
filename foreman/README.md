@@ -164,7 +164,12 @@ version of Foreman before `inheritOperatorTone` existed.
 1. Stays completely silent if `ROADMAP.jsonl` doesn't exist — a project
    that never ran `/foreman:init` gets nothing from Foreman, ever.
 2. If a roadmap task is `in_progress`, nudges Claude to check whether this
-   commit finished it and, if so, update its status/commits.
+   commit finished it and, if so, update its status/commits. If a task was
+   marked `done` earlier the same day, nudges separately that this commit
+   might be a same-day follow-up fix for it — a task stops getting any
+   nudge the moment it's `done`, so without this a quick bugfix commit
+   right after finishing something loses its SHA with no signal at all.
+   Appending it doesn't change the task's status, just its `commits[]`.
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
    for *confirmed* opportunities/bugs/ideas, check them against already-
    `rejected` entries via `roadmap.js check-duplicate` (skips silently on a

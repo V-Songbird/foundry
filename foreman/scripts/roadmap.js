@@ -384,6 +384,7 @@ module.exports = {
   readEntries,
   writeEntries,
   nextId,
+  today,
   cmdAdd,
   cmdUpdateStatus,
   cmdUpdateDeps,

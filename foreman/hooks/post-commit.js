@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { readEntries } = require("../scripts/roadmap");
+const { readEntries, today } = require("../scripts/roadmap");
 
 const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT
   ? path.resolve(process.env.CLAUDE_PLUGIN_ROOT)
@@ -56,13 +56,36 @@ function readConfig(root) {
   }
 }
 
-function statusSyncBlock() {
-  return (
-    "[Foreman] This commit may complete an in-progress ROADMAP.jsonl task. " +
-    "If it does, run `git rev-parse --short HEAD` for the commit SHA, then: " +
-    `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status. ` +
-    "The script computes updated_at and appends the SHA — don't hand-edit the file."
-  );
+// Two independent triggers, since a task stops getting any nudge the moment
+// it's marked done — real usage showed a same-day follow-up bugfix commit
+// (found right after finishing a task, before moving on) silently loses its
+// SHA with no signal at all, unlike an in_progress task which still nudges.
+function statusSyncBlock(inProgress, freshlyDone) {
+  const parts = [];
+  if (inProgress.length) {
+    const list = inProgress.map((e) => `${e.id} ("${e.title}")`).join(", ");
+    parts.push(
+      `This commit may complete an in-progress ROADMAP.jsonl task (${list}). ` +
+        "If it does, run `git rev-parse --short HEAD` for the commit SHA, then: " +
+        `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status. ` +
+        "The script computes updated_at and appends the SHA — don't hand-edit the file."
+    );
+  }
+  if (freshlyDone.length) {
+    const list = freshlyDone.map((e) => `${e.id} ("${e.title}")`).join(", ");
+    parts.push(
+      `This commit might also be a follow-up fix for a task already marked done ` +
+        `earlier today (${list}) — a bugfix right after finishing a task is easy to ` +
+        "lose track of, since nothing nudges about a task once it's done. If this " +
+        "commit actually relates to one of those, append its SHA rather than " +
+        "letting it go unrecorded: run `git rev-parse --short HEAD`, then " +
+        `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status ` +
+        "(same status — this only adds the SHA, commits[] holds every SHA that ever " +
+        "touched the task, not just the first). Most commits won't relate to an " +
+        "already-done task — say nothing if this one doesn't."
+    );
+  }
+  return "[Foreman] " + parts.join(" ");
 }
 
 function discoveryBlock() {
@@ -108,9 +131,13 @@ function main() {
     return; // corrupt file — stay silent rather than nudge Claude into writing on top of it
   }
 
+  const todayStr = today();
+  const inProgress = entries.filter((e) => e.status === "in_progress");
+  const freshlyDone = entries.filter((e) => e.status === "done" && e.updated_at === todayStr);
+
   const blocks = [];
-  if (entries.some((e) => e.status === "in_progress")) {
-    blocks.push(statusSyncBlock());
+  if (inProgress.length || freshlyDone.length) {
+    blocks.push(statusSyncBlock(inProgress, freshlyDone));
   }
   if (readConfig(root).discoverySuggestions) {
     blocks.push(discoveryBlock());

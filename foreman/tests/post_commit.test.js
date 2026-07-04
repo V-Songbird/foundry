@@ -5,7 +5,8 @@
 // Covers:
 //   - only fires on Bash/PowerShell tool calls that are actually `git commit`
 //   - silent when ROADMAP.jsonl doesn't exist (zero-config: never ran /foreman:init)
-//   - status-sync block appears whenever an in_progress entry exists
+//   - status-sync block appears whenever an in_progress entry exists, or a
+//     done entry was updated earlier today (same-day follow-up fix commit)
 //   - discovery block appears only when .foreman/config.json has discoverySuggestions:true
 //   - malformed/missing config is treated as discoverySuggestions:false
 //   - a failed commit (confirmed nonzero exit code) stays silent
@@ -94,6 +95,39 @@ describe('status-sync block', () => {
       env
     );
     assert.notEqual(result.stdout, '');
+  });
+});
+
+describe('freshly-done follow-up fix', () => {
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  test('fires when a done entry was updated earlier today', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'ship the thing', status: 'done', updated_at: todayStr() },
+    ]);
+    const out = run(bashPayload('git commit -m "fix bug found right after"'));
+    assert.match(out, /follow-up fix/i);
+    assert.match(out, /001/);
+  });
+
+  test('does not fire for a done entry updated on an earlier day', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'ship the thing', status: 'done', updated_at: '2020-01-01' },
+    ]);
+    const out = run(bashPayload('git commit -m "unrelated later work"'));
+    assert.equal(out, '');
+  });
+
+  test('in_progress and freshly-done both surface together', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'older task', status: 'in_progress' },
+      { id: '002', title: 'ship the thing', status: 'done', updated_at: todayStr() },
+    ]);
+    const out = run(bashPayload('git commit -m "wip"'));
+    assert.match(out, /in-progress ROADMAP/i);
+    assert.match(out, /follow-up fix/i);
   });
 });
 

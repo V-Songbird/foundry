@@ -8,6 +8,35 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.9.1-alpha] — 2026-07-04
+
+### Fixed — follow-up fix commits after a task is marked `done` were silently losing their SHA
+
+Real-repo usage: a session finishes task X, marks it `done`, commits the
+SHA. The user then reports a bug, the session fixes it and commits again —
+but `post-commit.js`'s status-sync nudge only ever fired for `in_progress`
+entries, so once a task is `done` it gets zero further nudges, ever. That
+second commit's SHA (and the fact it was a fix for X) had nowhere to go
+and was silently lost. Repeats for every subsequent bugfix in the same
+loop.
+
+- **`hooks/post-commit.js`**: the status-sync check now also matches
+  entries `status: "done"` with `updated_at` equal to today — a same-day
+  completion is the concrete signal for "still in the working session that
+  just touched this," same reasoning as the existing in_progress check.
+  `statusSyncBlock` takes both matching lists and emits a second sentence
+  for the freshly-done case: append the new SHA via the same `update-status`
+  call (same status, `commits[]` just grows), explicitly not a status
+  change, and explicitly silent if the commit doesn't actually relate to
+  either list.
+- **`scripts/roadmap.js`** exports its existing `today()` helper so
+  `post-commit.js` doesn't duplicate the date-formatting logic.
+- `tests/post_commit.test.js` gained 3 cases: fires for a done-today entry,
+  stays silent for a done-on-an-earlier-day entry, and both in_progress +
+  freshly-done surface together in one commit's output.
+
+81 tests total (78 existing + 3 new).
+
 ## [0.9.0-alpha] — 2026-07-04
 
 ### Added — `.foreman/config.json`'s `inheritOperatorTone`, removed `foreman:toggle-discovery`
