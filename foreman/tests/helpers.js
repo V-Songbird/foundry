@@ -57,6 +57,23 @@ function writeConfig(project, config) {
   fs.writeFileSync(path.join(dir, 'config.json'), JSON.stringify(config), 'utf-8');
 }
 
+/** Init a throwaway git repo in a project dir, for tests exercising git-backed features. */
+function initGitRepo(project) {
+  spawnSync('git', ['init', '-q'], { cwd: project });
+  spawnSync('git', ['config', 'user.email', 'foreman-test@example.com'], { cwd: project });
+  spawnSync('git', ['config', 'user.name', 'Foreman Test'], { cwd: project });
+}
+
+/** Write a file and commit it in a project's git repo. Returns the short SHA. */
+function commitFile(project, relPath, content) {
+  const full = path.join(project, relPath);
+  fs.mkdirSync(path.dirname(full), { recursive: true });
+  fs.writeFileSync(full, content, 'utf-8');
+  spawnSync('git', ['add', relPath], { cwd: project });
+  spawnSync('git', ['commit', '-q', '-m', 'test commit'], { cwd: project });
+  return spawnSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: project, encoding: 'utf-8' }).stdout.trim();
+}
+
 module.exports = {
   runScriptRaw,
   runNodeScript,
@@ -64,6 +81,8 @@ module.exports = {
   makeTmpProject,
   writeRoadmap,
   writeConfig,
+  initGitRepo,
+  commitFile,
   HOOKS_DIR,
   SCRIPTS_DIR,
 };

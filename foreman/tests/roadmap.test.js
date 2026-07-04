@@ -5,7 +5,8 @@
 // Covers:
 //   - add computes sequential zero-padded ids, validates required fields/source
 //   - update-status transitions status, appends (not replaces) commits/notes,
-//     and folds add_touches into touches (dedup, never removes)
+//     and folds add_touches into touches (dedup, never removes) as well as
+//     whatever files the given commit's git diff actually shows (best-effort)
 //   - update-deps adds a discovered depends_on id to an existing entry,
 //     rejecting unknown ids and self-dependencies
 //   - list filters by status, returns everything with no filter
@@ -23,7 +24,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
-const { runRoadmap, makeTmpProject, writeRoadmap } = require('./helpers');
+const { runRoadmap, makeTmpProject, writeRoadmap, initGitRepo, commitFile } = require('./helpers');
 
 let project;
 let env;
@@ -146,6 +147,47 @@ describe('update-status', () => {
     const { status, json } = run(['update-status'], { id: '001', status: 'done', add_touches: 'src/api/retry.ts' });
     assert.equal(status, 1);
     assert.match(json.error, /add_touches must be an array/);
+  });
+});
+
+describe('update-status auto-derives touches from the commit', () => {
+  beforeEach(() => {
+    writeRoadmap(project, [
+      { id: '001', title: 'a', why: 'a', what: 'a', status: 'in_progress', source: 'user', depends_on: [], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+    ]);
+    initGitRepo(project);
+  });
+
+  test('folds in the files the commit actually changed', () => {
+    const sha = commitFile(project, 'src/foo.ts', 'export const x = 1;\n');
+    const { json } = run(['update-status'], { id: '001', status: 'done', commit: sha });
+    assert.deepEqual(json.entry.touches, ['src/foo.ts']);
+    assert.deepEqual(json.derived_touches, ['src/foo.ts']);
+  });
+
+  test('merges derived files with manual add_touches, deduped', () => {
+    const sha = commitFile(project, 'src/foo.ts', 'export const x = 1;\n');
+    const { json } = run(['update-status'], {
+      id: '001',
+      status: 'done',
+      commit: sha,
+      add_touches: ['src/foo.ts', 'docs/migration.md'],
+    });
+    assert.deepEqual(json.entry.touches, ['src/foo.ts', 'docs/migration.md']);
+  });
+
+  test('an unknown sha fails soft — write still succeeds, nothing derived', () => {
+    const { status, json } = run(['update-status'], { id: '001', status: 'done', commit: 'deadbeef' });
+    assert.equal(status, 0);
+    assert.equal(json.entry.status, 'done');
+    assert.deepEqual(json.entry.touches, []);
+    assert.equal(json.derived_touches, undefined);
+  });
+
+  test('no commit given — no derivation attempted, add_touches still works alone', () => {
+    const { json } = run(['update-status'], { id: '001', status: 'in_progress', add_touches: ['src/manual.ts'] });
+    assert.deepEqual(json.entry.touches, ['src/manual.ts']);
+    assert.equal(json.derived_touches, undefined);
   });
 });
 

@@ -3,6 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 
 function projectDir() {
   return path.resolve(process.env.CLAUDE_PROJECT_DIR || process.cwd());
@@ -117,6 +118,28 @@ function cmdAdd(root, payload) {
   return warnings.length ? { entry, warnings } : { entry };
 }
 
+// Best-effort: git already has the definitive file list for a commit, more
+// accurate than asking Claude to recall it from memory. Never throws — a
+// missing git binary, a non-git project, or an unknown sha all just mean no
+// auto-derived paths for this call, same fail-soft spirit as commitFailed().
+// --relative scopes paths to `root`, matching how `touches` is interpreted
+// elsewhere (project-root-relative, not repo-root-relative in a subfolder checkout).
+function filesTouchedByCommit(root, sha) {
+  try {
+    const out = execFileSync(
+      "git",
+      ["show", "--pretty=format:", "--name-only", "--relative", sha],
+      { cwd: root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] }
+    );
+    return out
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 function cmdUpdateStatus(root, payload) {
   const { id, status, commit, notes, add_touches } = payload || {};
   if (!id || !status) throw new Error("update-status requires id, status");
@@ -138,19 +161,24 @@ function cmdUpdateStatus(root, payload) {
     // append-only invariant: never replace existing notes
     entry.notes = entry.notes ? `${entry.notes}; ${notes}` : notes;
   }
-  if (add_touches && add_touches.length) {
-    // touches is a growing footprint, same append-only spirit as commits —
-    // the creation-time guess stays, actual files found during the work get
-    // folded in instead of leaving the record stale.
+  // touches is a growing footprint, same append-only spirit as commits — the
+  // creation-time guess stays, and both what the commit's diff actually
+  // shows and whatever add_touches names get folded in instead of leaving
+  // the record stale.
+  const derivedTouches = commit ? filesTouchedByCommit(root, commit) : [];
+  const newTouches = [...(add_touches || []), ...derivedTouches];
+  if (newTouches.length) {
     entry.touches = Array.isArray(entry.touches) ? entry.touches : [];
-    for (const t of add_touches) {
+    for (const t of newTouches) {
       if (typeof t === "string" && t && !entry.touches.includes(t)) entry.touches.push(t);
     }
   }
   entry.updated_at = today();
   writeEntries(root, entries);
   const warnings = notes ? fieldWarnings([["notes", notes, NOTES_APPEND_WARN_CHARS]]) : [];
-  return warnings.length ? { entry, warnings } : { entry };
+  const result = { entry };
+  if (derivedTouches.length) result.derived_touches = derivedTouches;
+  return warnings.length ? { ...result, warnings } : result;
 }
 
 // True if starting from startId and walking depends_on chains reaches
@@ -313,6 +341,10 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
                     status (create-time only): "planned" (default) | "rejected"
   update-status     stdin JSON: {id, status, commit?, notes?, add_touches?}
                     status: "planned" | "in_progress" | "done" | "dropped" | "rejected"
+                    if commit is given, touches auto-folds in that commit's
+                    actual changed files (git show, best-effort, silent if
+                    git/the sha is unavailable) -- add_touches adds more on
+                    top, for anything outside that commit's diff
                     add_touches: array of paths to fold into touches (dedup, never removes)
   update-deps       stdin JSON: {id, add_depends_on}   (add_depends_on: non-empty array of ids)
   list              flag: --status planned,in_progress   (optional, comma-separated)
@@ -322,7 +354,9 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
 Examples:
   echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"user"}' \\
     | node roadmap.js add
-  echo '{"id":"003","status":"done","commit":"a1b2c3d","add_touches":["src/api/retry.ts"]}' \\
+  echo '{"id":"003","status":"done","commit":"a1b2c3d"}' \\
+    | node roadmap.js update-status
+  echo '{"id":"003","status":"done","commit":"a1b2c3d","add_touches":["docs/migration.md"]}' \\
     | node roadmap.js update-status
   echo '{"id":"004","add_depends_on":["002"]}' \\
     | node roadmap.js update-deps

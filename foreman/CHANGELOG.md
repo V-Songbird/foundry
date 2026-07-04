@@ -8,6 +8,40 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.9.3-alpha] — 2026-07-04
+
+### Changed — `touches` now auto-derives from the commit's own diff, not just manual `add_touches`
+
+Last version added `add_touches` so `touches` could be corrected at
+completion time — but it still relied on Claude recalling every file it
+touched from memory and typing it into the JSON payload, when git already
+has the exact, definitive list for any commit already being passed in the
+same call.
+
+- **`roadmap.js update-status`**: when `commit` is given, runs `git show
+  --pretty=format: --name-only --relative <sha>` (fails soft — no git, not
+  a git project, or an unknown sha just means nothing gets derived, the
+  rest of the call still succeeds) and folds every changed path into
+  `touches` automatically, same append-only merge `add_touches` already
+  used. `add_touches` still exists for paths outside that specific
+  commit's diff (or when git derivation isn't available) but is no longer
+  the primary mechanism.
+- Considered whether auto-derived paths (which include routine bookkeeping
+  files like `CHANGELOG.md`/`marketplace.json` in this repo's own
+  convention) would pollute `next-candidates`' `collision` flag with false
+  positives. Concluded no: `collision` only compares a `planned` candidate's
+  own `touches` (set at creation, before any derivation ever runs on it)
+  against `in_progress` entries' `touches` — a shared bookkeeping file
+  showing up in both would be a real, not spurious, overlap.
+- `hooks/post-commit.js`'s nudges simplified to match: no more telling
+  Claude to list touched files itself, passing `commit` already covers it.
+- `tests/helpers.js` gained `initGitRepo`/`commitFile` for tests that need
+  a real git history. `roadmap-schema.md`/`README.md` updated.
+
+89 tests total (85 existing + 4 new, covering the git-derived path,
+merging with manual `add_touches`, an unknown-sha fail-soft case, and the
+no-commit-given case).
+
 ## [0.9.2-alpha] — 2026-07-04
 
 ### Added — `add_touches`, so `touches` stops going stale the moment work starts

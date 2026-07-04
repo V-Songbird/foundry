@@ -164,16 +164,16 @@ version of Foreman before `inheritOperatorTone` existed.
 1. Stays completely silent if `ROADMAP.jsonl` doesn't exist — a project
    that never ran `/foreman:init` gets nothing from Foreman, ever.
 2. If a roadmap task is `in_progress`, nudges Claude to check whether this
-   commit finished it and, if so, update its status/commits — and to fold
-   any files the real work touched beyond the entry's pre-task `touches`
-   guess in via the same call's `add_touches` (cheap: Claude already knows
-   what it edited this session, no `git diff` needed). If a task was
-   marked `done` earlier the same day, nudges separately that this commit
-   might be a same-day follow-up fix for it — a task stops getting any
-   nudge the moment it's `done`, so without this a quick bugfix commit
-   right after finishing something loses its SHA (and any newly-touched
-   files) with no signal at all. Appending either doesn't change the
-   task's status — `commits[]` and `touches` only ever grow.
+   commit finished it and, if so, update its status/commits — `roadmap.js`
+   itself then auto-folds that commit's actual changed files (`git show`)
+   into the entry's `touches`, correcting the pre-task guess to reflect
+   what the work really touched, no manual file-listing needed. If a task
+   was marked `done` earlier the same day, nudges separately that this
+   commit might be a same-day follow-up fix for it — a task stops getting
+   any nudge the moment it's `done`, so without this a quick bugfix commit
+   right after finishing something loses its SHA (and its files) with no
+   signal at all. Appending either doesn't change the task's status —
+   `commits[]` and `touches` only ever grow.
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
    for *confirmed* opportunities/bugs/ideas, check them against already-
    `rejected` entries via `roadmap.js check-duplicate` (skips silently on a
