@@ -8,6 +8,34 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.8.0-alpha] — 2026-07-04
+
+### Added — test-on-edit hook
+
+`tests/` covers every CRUD invariant `scripts/roadmap.js` and the other
+hooks enforce, but nothing ran it automatically — a regression there sat
+silent until someone ran the suite by hand.
+
+- **`hooks/run-tests-on-edit.js`** — new `PostToolUse` hook, matcher
+  `^(Edit|Write)$`. Filters by path itself (matchers can't do this): only
+  an edit under this plugin's own `scripts/` or `hooks/` directories (any
+  `.js` file, case-insensitive) triggers a rerun of `node --test
+  tests/*.test.js` (a bare directory arg makes this node version try to
+  `require()` it instead of recursing — the glob is what actually works).
+  Silent when green, same as every other Foreman hook; on red, returns
+  `additionalContext` with the pass/fail counts and the command to get the
+  full trace. Strips `NODE_TEST_CONTEXT`/`NODE_CHANNEL_FD` before spawning
+  the nested `node --test` — inherited from this hook's *own* test running
+  under `node --test`, they make the nested process misbehave and exit
+  silently instead of reporting real results.
+- Wired into `hooks/hooks.json` as a second `PostToolUse` entry (30s
+  timeout — the suite itself runs in ~2-5s, headroom for a cold start).
+- `tests/run_tests_on_edit.test.js` covers the path-matching logic
+  directly, plus two full end-to-end runs (via a throwaway temp plugin
+  root, never the real `scripts/roadmap.js`) proving the hook stays silent
+  against a green copy and reports failure against a deliberately broken
+  one.
+
 ## [0.7.1-alpha] — 2026-07-04
 
 ### Fixed — `update-deps` rejects dependency cycles
