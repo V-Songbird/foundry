@@ -75,6 +75,12 @@ describe('status-sync block', () => {
     assert.equal(out, '');
   });
 
+  test('mentions add_touches for folding in newly-discovered files', () => {
+    writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
+    const out = run(bashPayload('git commit -m "finish task"'));
+    assert.match(out, /add_touches/);
+  });
+
   test('git commit --amend still fires', () => {
     writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
     const out = run(bashPayload('git commit --amend --no-edit'));
@@ -110,6 +116,7 @@ describe('freshly-done follow-up fix', () => {
     const out = run(bashPayload('git commit -m "fix bug found right after"'));
     assert.match(out, /follow-up fix/i);
     assert.match(out, /001/);
+    assert.match(out, /add_touches/);
   });
 
   test('does not fire for a done entry updated on an earlier day', () => {

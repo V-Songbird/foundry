@@ -118,10 +118,13 @@ function cmdAdd(root, payload) {
 }
 
 function cmdUpdateStatus(root, payload) {
-  const { id, status, commit, notes } = payload || {};
+  const { id, status, commit, notes, add_touches } = payload || {};
   if (!id || !status) throw new Error("update-status requires id, status");
   if (!STATUSES.has(status)) {
     throw new Error(`status must be one of ${[...STATUSES].join("|")}`);
+  }
+  if (add_touches !== undefined && !Array.isArray(add_touches)) {
+    throw new Error("add_touches must be an array of paths");
   }
   const entries = readEntries(root);
   const entry = entries.find((e) => e.id === id);
@@ -134,6 +137,15 @@ function cmdUpdateStatus(root, payload) {
   if (notes) {
     // append-only invariant: never replace existing notes
     entry.notes = entry.notes ? `${entry.notes}; ${notes}` : notes;
+  }
+  if (add_touches && add_touches.length) {
+    // touches is a growing footprint, same append-only spirit as commits —
+    // the creation-time guess stays, actual files found during the work get
+    // folded in instead of leaving the record stale.
+    entry.touches = Array.isArray(entry.touches) ? entry.touches : [];
+    for (const t of add_touches) {
+      if (typeof t === "string" && t && !entry.touches.includes(t)) entry.touches.push(t);
+    }
   }
   entry.updated_at = today();
   writeEntries(root, entries);
@@ -299,8 +311,9 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
   add               stdin JSON: {title, why, what, source, depends_on?, touches?, notes?, status?}
                     source: "user" | "claude-suggested"
                     status (create-time only): "planned" (default) | "rejected"
-  update-status     stdin JSON: {id, status, commit?, notes?}
+  update-status     stdin JSON: {id, status, commit?, notes?, add_touches?}
                     status: "planned" | "in_progress" | "done" | "dropped" | "rejected"
+                    add_touches: array of paths to fold into touches (dedup, never removes)
   update-deps       stdin JSON: {id, add_depends_on}   (add_depends_on: non-empty array of ids)
   list              flag: --status planned,in_progress   (optional, comma-separated)
   next-candidates   flag: --limit N   (optional, default 3)
@@ -309,7 +322,7 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
 Examples:
   echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"user"}' \\
     | node roadmap.js add
-  echo '{"id":"003","status":"done","commit":"a1b2c3d"}' \\
+  echo '{"id":"003","status":"done","commit":"a1b2c3d","add_touches":["src/api/retry.ts"]}' \\
     | node roadmap.js update-status
   echo '{"id":"004","add_depends_on":["002"]}' \\
     | node roadmap.js update-deps

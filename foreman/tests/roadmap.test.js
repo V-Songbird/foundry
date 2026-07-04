@@ -4,7 +4,8 @@
 //
 // Covers:
 //   - add computes sequential zero-padded ids, validates required fields/source
-//   - update-status transitions status, appends (not replaces) commits/notes
+//   - update-status transitions status, appends (not replaces) commits/notes,
+//     and folds add_touches into touches (dedup, never removes)
 //   - update-deps adds a discovered depends_on id to an existing entry,
 //     rejecting unknown ids and self-dependencies
 //   - list filters by status, returns everything with no filter
@@ -122,6 +123,29 @@ describe('update-status', () => {
     const { status, json } = run(['update-status'], { id: '001', status: 'cancelled' });
     assert.equal(status, 1);
     assert.match(json.error, /status must be one of/);
+  });
+
+  test('folds add_touches into touches', () => {
+    const { json } = run(['update-status'], {
+      id: '001',
+      status: 'done',
+      add_touches: ['src/api/retry.ts', 'src/api/githubClient.ts'],
+    });
+    assert.deepEqual(json.entry.touches, ['src/api/retry.ts', 'src/api/githubClient.ts']);
+  });
+
+  test('does not duplicate an already-listed touched path', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'a', why: 'a', what: 'a', status: 'in_progress', source: 'user', depends_on: [], touches: ['src/api/retry.ts'], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+    ]);
+    const { json } = run(['update-status'], { id: '001', status: 'done', add_touches: ['src/api/retry.ts', 'src/api/new.ts'] });
+    assert.deepEqual(json.entry.touches, ['src/api/retry.ts', 'src/api/new.ts']);
+  });
+
+  test('rejects a non-array add_touches', () => {
+    const { status, json } = run(['update-status'], { id: '001', status: 'done', add_touches: 'src/api/retry.ts' });
+    assert.equal(status, 1);
+    assert.match(json.error, /add_touches must be an array/);
   });
 });
 

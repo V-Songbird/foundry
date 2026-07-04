@@ -116,8 +116,8 @@ done finding writes a `notes` breadcrumb or status change via
 `ROADMAP.jsonl` lives at your project's root and is committed to git — a
 visible, shared record of the plan, not internal plugin state. One JSON
 object per line, one line per task. Every read/write goes through
-`scripts/roadmap.js` — a small CLI (`add`/`update-status`/`list`/
-`next-candidates`/`check-duplicate`, JSON in/out) — never a hand-edited
+`scripts/roadmap.js` — a small CLI (`add`/`update-status`/`update-deps`/
+`list`/`next-candidates`/`check-duplicate`, JSON in/out) — never a hand-edited
 `Read`/`Edit`. `add`/`update-status` return a `warnings` field (without
 failing the write) if `why`/`what`/`notes` run long — dense means specific
 paths and symbols, not an essay; every extra paragraph gets re-read on
@@ -164,12 +164,16 @@ version of Foreman before `inheritOperatorTone` existed.
 1. Stays completely silent if `ROADMAP.jsonl` doesn't exist — a project
    that never ran `/foreman:init` gets nothing from Foreman, ever.
 2. If a roadmap task is `in_progress`, nudges Claude to check whether this
-   commit finished it and, if so, update its status/commits. If a task was
+   commit finished it and, if so, update its status/commits — and to fold
+   any files the real work touched beyond the entry's pre-task `touches`
+   guess in via the same call's `add_touches` (cheap: Claude already knows
+   what it edited this session, no `git diff` needed). If a task was
    marked `done` earlier the same day, nudges separately that this commit
    might be a same-day follow-up fix for it — a task stops getting any
    nudge the moment it's `done`, so without this a quick bugfix commit
-   right after finishing something loses its SHA with no signal at all.
-   Appending it doesn't change the task's status, just its `commits[]`.
+   right after finishing something loses its SHA (and any newly-touched
+   files) with no signal at all. Appending either doesn't change the
+   task's status — `commits[]` and `touches` only ever grow.
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
    for *confirmed* opportunities/bugs/ideas, check them against already-
    `rejected` entries via `roadmap.js check-duplicate` (skips silently on a

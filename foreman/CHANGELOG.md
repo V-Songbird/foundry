@@ -8,6 +8,40 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.9.2-alpha] — 2026-07-04
+
+### Added — `add_touches`, so `touches` stops going stale the moment work starts
+
+`touches` was set once at task creation from whatever investigation
+happened beforehand — sometimes shallow, sometimes from a different
+session's context — and nothing ever updated it once the real work
+revealed a wider or different footprint. Lower stakes than the SHA gap
+fixed last version (`commits[]` already makes the real footprint
+recoverable via `git show --stat`), but still a real staleness gap for
+anyone skimming `ROADMAP.jsonl` directly for audit/backtracking.
+
+Deliberately did **not** go as far as rewriting `why`/`what` at completion
+time (a broader ask that came up alongside this one) — that would erase
+the plan-vs-actual distinction (real audit value: shows scope drift) and
+reopen the cost problem 0.4.4-alpha already fixed (long fields making every
+future `list`/`next-candidates` call more expensive). `touches` stays
+append-only instead, same treatment as `commits[]`; narrative drift belongs
+in `notes`, not a rewritten record.
+
+- **`roadmap.js update-status`** gained optional `add_touches` (array of
+  paths) — folds new paths into `touches` (dedup, never removes, same
+  spirit as `commits[]`). Rejects a non-array value.
+- **`hooks/post-commit.js`**: both status-sync nudges (in-progress →
+  done, and the 0.9.1-alpha same-day follow-up case) now also suggest
+  `add_touches` in the same `update-status` call — cheap since Claude
+  already knows what it edited this session, no `git diff` needed; omit it
+  if `touches` was already accurate.
+- `roadmap-schema.md`'s `touches` field and `update-status` row, and
+  `README.md`'s hooks section, updated to describe the new behavior.
+
+85 tests total (81 existing + 4 new: 3 for `add_touches` in `roadmap.js`,
+1 for its mention in the post-commit hook's output).
+
 ## [0.9.1-alpha] — 2026-07-04
 
 ### Fixed — follow-up fix commits after a task is marked `done` were silently losing their SHA

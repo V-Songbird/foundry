@@ -60,6 +60,11 @@ function readConfig(root) {
 // it's marked done — real usage showed a same-day follow-up bugfix commit
 // (found right after finishing a task, before moving on) silently loses its
 // SHA with no signal at all, unlike an in_progress task which still nudges.
+// Both branches also carry add_touches: touches is set once, from whatever
+// investigation happened before the task started, and nothing updates it
+// once real work reveals a wider (or different) footprint — same kind of
+// staleness as the SHA gap, just lower-stakes since commits[] already makes
+// the real footprint recoverable via git, add_touches just saves the trip.
 function statusSyncBlock(inProgress, freshlyDone) {
   const parts = [];
   if (inProgress.length) {
@@ -67,8 +72,12 @@ function statusSyncBlock(inProgress, freshlyDone) {
     parts.push(
       `This commit may complete an in-progress ROADMAP.jsonl task (${list}). ` +
         "If it does, run `git rev-parse --short HEAD` for the commit SHA, then: " +
-        `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status. ` +
-        "The script computes updated_at and appends the SHA — don't hand-edit the file."
+        `echo '{"id":"<id>","status":"done","commit":"<sha>","add_touches":["<path>",...]}' | node ${SCRIPT_PATH} update-status. ` +
+        "add_touches folds in any files this work actually touched that weren't " +
+        "already in the task's touches — cheap to list, you already know what you " +
+        "edited this session, no need to git-diff for it; omit it if touches was " +
+        "already accurate. The script computes updated_at and appends the SHA — " +
+        "don't hand-edit the file."
     );
   }
   if (freshlyDone.length) {
@@ -77,12 +86,14 @@ function statusSyncBlock(inProgress, freshlyDone) {
       `This commit might also be a follow-up fix for a task already marked done ` +
         `earlier today (${list}) — a bugfix right after finishing a task is easy to ` +
         "lose track of, since nothing nudges about a task once it's done. If this " +
-        "commit actually relates to one of those, append its SHA rather than " +
-        "letting it go unrecorded: run `git rev-parse --short HEAD`, then " +
-        `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status ` +
-        "(same status — this only adds the SHA, commits[] holds every SHA that ever " +
-        "touched the task, not just the first). Most commits won't relate to an " +
-        "already-done task — say nothing if this one doesn't."
+        "commit actually relates to one of those, append its SHA (and any newly-" +
+        "touched files via add_touches — a follow-up fix often lands in a file the " +
+        "original touches guess never listed) rather than letting it go unrecorded: " +
+        "run `git rev-parse --short HEAD`, then " +
+        `echo '{"id":"<id>","status":"done","commit":"<sha>","add_touches":["<path>",...]}' | node ${SCRIPT_PATH} update-status ` +
+        "(same status — this only adds the SHA/paths, commits[] and touches both " +
+        "only grow, never shrink). Most commits won't relate to an already-done " +
+        "task — say nothing if this one doesn't."
     );
   }
   return "[Foreman] " + parts.join(" ");

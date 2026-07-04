@@ -39,7 +39,7 @@ itself can't parse it to operate on it.
 | `status` | enum | yes | `planned \| in_progress \| done \| dropped \| rejected`. See below. |
 | `source` | enum | yes | `user` (added directly by a person) or `claude-suggested` (originated from the commit-hook discovery flow). |
 | `depends_on` | array\<string\> | yes (may be `[]`) | Ids of tasks that must be `done` before this one is unblocked. |
-| `touches` | array\<string\> | yes (may be `[]`) | Flat file/area path hints, e.g. `"src/auth/middleware.ts"` or `"src/auth/"`. Plain strings only — no need for glob/AST matching at this scale, this is for eyeballed collision checks. |
+| `touches` | array\<string\> | yes (may be `[]`) | Flat file/area path hints, e.g. `"src/auth/middleware.ts"` or `"src/auth/"`. Plain strings only — no need for glob/AST matching at this scale, this is for eyeballed collision checks. Starts as a pre-work guess (may be an area-level hint, not exact); `update-status`'s `add_touches` folds in files the real work actually touched (**append-only**, same spirit as `commits` — never shrinks). Still not required to be exhaustive: `commits[]` is the ground truth via `git show --stat`, `touches` is a convenience index on top of it, not a second ledger. |
 | `commits` | array\<string\> | yes (may be `[]`) | Short SHAs (`git rev-parse --short HEAD` output) that implemented this task. |
 | `created_at` | string (`YYYY-MM-DD`) | yes | Set once, at creation, never rewritten. |
 | `updated_at` | string (`YYYY-MM-DD`) | yes | Rewritten on every change to the entry. |
@@ -102,7 +102,7 @@ JSON line to stdout: `{"ok":true, ...}` on success, `{"ok":false,"error":
 | Subcommand | Input | Does |
 |---|---|---|
 | `add` | JSON via stdin: `title`, `why`, `what`, `source`, optional `depends_on`/`touches`/`notes`/`status` | Computes `id` as `max(existing)+1`, defaults `status` to `"planned"` (only `"planned"` or `"rejected"` are valid at creation — a task doesn't start out `in_progress`/`done`/`dropped`), stamps `created_at`/`updated_at`, appends the line, re-validates the file. Returns the new `entry`. |
-| `update-status` | JSON via stdin: `id`, `status`, optional `commit`, optional `notes` | Transitions status, appends `commit` to `commits[]` (no duplicates), **appends** `notes` (never overwrites), bumps `updated_at`, re-validates the file. Returns the updated `entry`. |
+| `update-status` | JSON via stdin: `id`, `status`, optional `commit`, optional `notes`, optional `add_touches` (array of paths) | Transitions status, appends `commit` to `commits[]` (no duplicates), **appends** `notes` (never overwrites), folds `add_touches` into `touches` (no duplicates, never removes — for files the real work touched beyond the pre-task guess), bumps `updated_at`, re-validates the file. Returns the updated `entry`. |
 | `update-deps` | JSON via stdin: `id`, `add_depends_on` (non-empty array of ids) | Adds ids to an existing entry's `depends_on` (no duplicates), rejects unknown ids, self-dependencies, and any addition that would close a dependency cycle (direct or transitive — walks the existing graph before writing), bumps `updated_at`. For a hidden dependency discovered after the entry was created — `add` only sets `depends_on` at creation time, this is the only way to correct it later. Structural, not a breadcrumb: this changes what `next-candidates` computes as unblocked, so it's the mechanism `foreman:survey` uses to make a finding persist across sessions instead of just noting it. |
 | `list` | optional flag: `--status planned,in_progress` | Returns `entries` — filtered if `--status` given, everything otherwise. Read-only. |
 | `next-candidates` | optional flag: `--limit N` (default 3 — matches `AskUserQuestion`'s 4-option cap, leaving one slot for the "something else" escape hatch) | Mechanical filter (unblocked: `planned`, every `depends_on` done) + rank (most `depends_on`-referenced first as a derived importance proxy — no stored priority field — then oldest `created_at`) + a `collision` flag per candidate (its `touches` overlaps a currently-`in_progress` entry's) + each candidate's `notes` (so a breadcrumb left by `foreman:survey` is visible without a separate `list` call). Returns `{"candidates":[...], "total_unblocked": N}`. This is what `foreman:roadmap`'s "Pick the next task" calls — never `list` + manual filtering for that flow, `next-candidates` exists specifically to avoid loading the whole file into context just to do graph filtering that needs no judgment. |
@@ -113,7 +113,7 @@ Examples:
 echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"user"}' \
   | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js add
 
-echo '{"id":"002","status":"done","commit":"a1b2c3d"}' \
+echo '{"id":"002","status":"done","commit":"a1b2c3d","add_touches":["src/api/retry.ts"]}' \
   | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status
 
 echo '{"id":"004","add_depends_on":["002"]}' \
