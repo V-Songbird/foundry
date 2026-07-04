@@ -156,6 +156,25 @@ describe('update-deps', () => {
     assert.match(json.error, /cannot depend on itself/);
   });
 
+  test('rejects an indirect cycle', () => {
+    // set up 002 -> 001 first; making 001 -> 002 would close the loop.
+    run(['update-deps'], { id: '002', add_depends_on: ['001'] });
+    const { status, json } = run(['update-deps'], { id: '001', add_depends_on: ['002'] });
+    assert.equal(status, 1);
+    assert.match(json.error, /would create a cycle/);
+  });
+
+  test('rejects a longer indirect cycle (001 -> 002 -> 003 -> 001)', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'a', why: 'a', what: 'a', status: 'planned', source: 'user', depends_on: [], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+      { id: '002', title: 'b', why: 'a', what: 'a', status: 'planned', source: 'user', depends_on: ['001'], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+      { id: '003', title: 'c', why: 'a', what: 'a', status: 'planned', source: 'user', depends_on: ['002'], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+    ]);
+    const { status, json } = run(['update-deps'], { id: '001', add_depends_on: ['003'] });
+    assert.equal(status, 1);
+    assert.match(json.error, /would create a cycle/);
+  });
+
   test('rejects unknown id', () => {
     const { status, json } = run(['update-deps'], { id: '999', add_depends_on: ['001'] });
     assert.equal(status, 1);

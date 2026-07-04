@@ -8,6 +8,25 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.7.1-alpha] — 2026-07-04
+
+### Fixed — `update-deps` rejects dependency cycles
+
+`update-deps` already rejected unknown ids and self-dependencies but not an
+*indirect* cycle: adding `add_depends_on` that closes a loop (e.g. `002`
+depends on `001`, then a later call makes `001` depend on `002`) left both
+entries permanently unblockable — `next-candidates` requires every
+`depends_on` to be `done`, so neither can ever satisfy the other. Silent,
+no error, no way to notice short of manually walking the graph.
+
+- `scripts/roadmap.js`'s new `reaches(entries, startId, targetId)` walks
+  `depends_on` chains from each proposed dependency; if it can reach the
+  entry being updated, adding it would close a cycle, so `cmdUpdateDeps`
+  now rejects it (checked before any write, alongside the existing
+  unknown-id and self-dependency checks).
+- `roadmap-schema.md`'s `update-deps` row updated to document the new
+  rejection.
+
 ## [0.7.0-alpha] — 2026-07-04
 
 ### Added — `foreman:toggle-discovery`

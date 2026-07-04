@@ -141,6 +141,23 @@ function cmdUpdateStatus(root, payload) {
   return warnings.length ? { entry, warnings } : { entry };
 }
 
+// True if starting from startId and walking depends_on chains reaches
+// targetId — i.e. targetId already (transitively) depends on startId, so
+// making targetId depend on startId too would close a cycle.
+function reaches(entries, startId, targetId) {
+  const byId = new Map(entries.map((e) => [e.id, e]));
+  const seen = new Set();
+  const stack = [startId];
+  while (stack.length) {
+    const cur = stack.pop();
+    if (cur === targetId) return true;
+    if (seen.has(cur)) continue;
+    seen.add(cur);
+    for (const dep of byId.get(cur)?.depends_on || []) stack.push(dep);
+  }
+  return false;
+}
+
 // Structural fix for a hidden dependency `add` missed at creation time —
 // mutates depends_on on an existing entry, which next-candidates already
 // reads. Unlike notes, this changes future ranking mechanically instead of
@@ -157,6 +174,14 @@ function cmdUpdateDeps(root, payload) {
   const unknown = add_depends_on.filter((dep) => !knownIds.has(dep));
   if (unknown.length) throw new Error(`unknown depends_on id(s): ${unknown.join(", ")}`);
   if (add_depends_on.includes(id)) throw new Error("a task cannot depend on itself");
+  // A cycle can only be introduced here — add sets depends_on once, at
+  // creation, when no other entry can reference the not-yet-existing id.
+  const cyclic = add_depends_on.filter((dep) => reaches(entries, dep, id));
+  if (cyclic.length) {
+    throw new Error(
+      `depends_on id(s) would create a cycle back to ${id}: ${cyclic.join(", ")}`
+    );
+  }
   entry.depends_on = Array.isArray(entry.depends_on) ? entry.depends_on : [];
   for (const dep of add_depends_on) {
     if (!entry.depends_on.includes(dep)) entry.depends_on.push(dep);
@@ -365,6 +390,7 @@ module.exports = {
   cmdList,
   cmdNextCandidates,
   cmdCheckDuplicate,
+  reaches,
   normalizeWords,
   jaccard,
   USAGE,
