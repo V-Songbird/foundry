@@ -23,7 +23,7 @@ Options: `Implement a feature`, `Fix a bug`, `Investigate / research`, `Refactor
 
 **Q2** — "Which optional sections do you want in the prompt?" (multiSelect: true)
 Options:
-- `Tone` — override the default (minimal/professional, silent-by-default, caveman-aware — see the template)
+- `Tone` — override the default (minimal/professional, silent-by-default, caveman/ponytail-aware — see the template)
 - `Example` — a before/after or input→output snippet (good for fixes and transformations)
 - `Constraints` — hard limits on files or interfaces the agent must NOT touch
 - `Background context` — architectural decisions, patterns, or environment details
@@ -118,9 +118,22 @@ or a temp file piped to clipboard, not something to show the user. The one
 exception is the clipboard-fallback fenced block below, used only when no
 clipboard tool exists.
 
+**Craft-time environment check (do this now, once — not an instruction for
+the spawned session to act on later):** check both flags in one call —
+`test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
+"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
+`Test-Path` equivalent (PowerShell). Both plugins' own `SessionStart` hooks
+fire unconditionally on every session and already re-establish persona/tone
+from that same flag, so this only needs to avoid contradicting them, not
+carry the state forward — if a flag changes before this prompt actually
+runs, the destination session's own hook corrects it regardless.
+
 ```xml
 <task_context>
-You are [role].
+[If `.ponytail-active` exists: ponytail's own SessionStart hook already
+establishes a "lazy senior developer" persona — a second "You are a [role]"
+sentence competes with it instead of layering on it. Use domain framing:
+"Domain: [role]." If the flag doesn't exist: "You are [role]."]
 Your goal is [done-state sentence].
 </task_context>
 
@@ -135,14 +148,12 @@ explicitly, and proceed from what you actually find.
 </truth_grounding>
 
 <tone>
-[If Tone selected: user's custom tone. Otherwise: "Check for caveman mode:
-read `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active` (Bash). If it
-exists with a non-off mode, communicate tersely for this whole session —
-drop articles/filler/hedging, fragments OK, keep full technical substance,
-still write code/commits/security notes in normal prose. Otherwise:
-minimal, professional conversation — silent by default, say only what the
-user actually needs to know, simplify technical explanations, avoid
-unnecessary jargon."]
+[If Tone selected: user's custom tone, full stop — replaces everything
+below. Otherwise: if `.caveman-active` exists, omit this whole `<tone>`
+block — caveman's own hook already sets terse mode on whatever session runs
+this. If it doesn't exist: "Minimal, professional conversation — silent by
+default, say only what the user actually needs to know, simplify technical
+explanations, avoid unnecessary jargon."]
 </tone>
 
 <background>
@@ -192,8 +203,12 @@ verification result. No XML tags — a human reads this directly in chat."]
 ```
 
 Before moving to the next phase, verify the assembled prompt against this checklist:
-- `task_context` has a specific role and a concrete one-sentence done-state
+- `task_context` has a specific role (or domain framing, if `.ponytail-active`
+  was found at craft time) and a concrete one-sentence done-state
 - `truth_grounding` block is present, unmodified — always included, never optional
+- `.caveman-active`/`.ponytail-active` were checked once at craft time, not
+  deferred to the spawned session — `<tone>` omitted entirely if caveman is
+  active and no custom Tone was selected
 - `relevant_files` uses exact paths — no vague references like "the auth module"
 - `task_rules` has 3 numbered steps and a runnable verification command (unless pure research)
 - Prompt contains no phrases like "as we discussed" or "from earlier"

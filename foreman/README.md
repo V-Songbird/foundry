@@ -48,10 +48,14 @@ the handed-off session to verify the prompt's claims against the actual
 codebase at the start of its work, rather than assuming they're still
 accurate — the prompt may have been written earlier and run later.
 
-Default tone (override with the `Tone` optional section): checks for
-caveman mode (`$CLAUDE_CONFIG_DIR/.caveman-active`) and goes terse if
-active, otherwise minimal and professional — silent by default, only what
-you need to know, no unnecessary jargon. Default output format: a plain
+Default tone (override with the `Tone` optional section): checked once at
+craft time, not deferred to the spawned session — if `.caveman-active`
+exists, the `<tone>` block is omitted entirely (caveman's own SessionStart
+hook already sets terse mode on whatever session runs the prompt);
+otherwise minimal and professional — silent by default, only what you need
+to know, no unnecessary jargon. `task_context`'s role sentence gets the same
+craft-time treatment for `.ponytail-active` — domain framing instead of a
+competing "You are a [role]" identity claim. Default output format: a plain
 human-readable summary, no XML tags — tags are opt-in only (`Custom output
 format`), for when something downstream actually parses the result.
 

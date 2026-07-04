@@ -1,6 +1,6 @@
 # Foreman — prompt template
 
-<!-- foreman:practices lastmod:2026-07-03
+<!-- foreman:practices lastmod:2026-07-04
      source-a: https://code.claude.com/docs/en/best-practices.md
      source-b: https://code.claude.com/docs/en/sub-agents.md
      source-c: Anthropic Prompting 101 — Code w/ Claude 2025-05-22
@@ -15,9 +15,29 @@ optional — it is the only way the handed-off work can act correctly.
 
 ## Template
 
+**Craft-time environment check (do this now, once, while assembling — not
+an instruction for the spawned session to act on later):** both `<task_context>`
+and `<tone>` below depend on whether ponytail/caveman are active *for the
+crafting session right now*. Check both flags in one call:
+`test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
+"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
+`Test-Path` equivalent against `$env:CLAUDE_CONFIG_DIR` (falling back to
+`$HOME/.claude`) joined with each flag name (PowerShell). Both
+plugins' own `SessionStart` hooks fire unconditionally on every session and
+already re-establish persona/tone from that same flag — so whatever this
+prompt bakes in now only needs to *avoid contradicting* that, not carry the
+state forward itself; if the flag changes before this prompt actually runs,
+the destination session's own hook corrects it regardless of what's written
+below.
+
 ```xml
 <task_context>
-You are [specific role — e.g. "a senior security engineer", "a TypeScript developer"].
+[If `.ponytail-active` exists: ponytail's own SessionStart hook already
+establishes a "lazy senior developer" persona in whatever session runs this
+— a second "You are a [role]" sentence reads as a competing identity claim,
+not a layered one. Use domain framing instead: "Domain: [specific role/
+specialization]." If the flag doesn't exist: "You are [specific role — e.g.
+"a senior security engineer", "a TypeScript developer"]."]
 Your goal is [one sentence — what "done" looks like for this specific task].
 </task_context>
 
@@ -32,14 +52,14 @@ explicitly, and proceed from what you actually find.
 </truth_grounding>
 
 <tone>
-Check for caveman mode: read `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active`
-(Bash). If it exists with a non-off mode, communicate tersely for this whole
-session — drop articles/filler/hedging, fragments OK, keep full technical
-substance, still write code/commits/security notes in normal prose. Otherwise:
-minimal, professional conversation — silent by default, say only what the
-user actually needs to know, simplify technical explanations, avoid
-unnecessary jargon. [If Tone was selected as an optional section: the user's
-custom tone replaces this default entirely.]
+[If Tone was selected as an optional section: the user's custom tone,
+full stop — it replaces everything below. Otherwise: if `.caveman-active`
+exists, omit this whole `<tone>` block from the assembled prompt — caveman's
+own SessionStart hook already sets terse mode on whatever session actually
+runs this, restating it here is redundant and one more thing that can go
+stale. If `.caveman-active` doesn't exist, include: "Minimal, professional
+conversation — silent by default, say only what the user actually needs to
+know, simplify technical explanations, avoid unnecessary jargon."]
 </tone>
 
 <background>
@@ -94,8 +114,13 @@ default "just in case".]
 
 ## Checklist (verify before handoff)
 
-- [ ] `task_context` names a specific role and a concrete one-sentence "done" state
+- [ ] `task_context` names a specific role (or, if `.ponytail-active` was
+      found at craft time, domain framing instead of a competing "You are a"
+      sentence) and a concrete one-sentence "done" state
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
+- [ ] `.caveman-active`/`.ponytail-active` were checked once at craft time
+      (not deferred to the spawned session) — `<tone>` omitted entirely if
+      caveman is active and no custom Tone was selected
 - [ ] `relevant_files` lists every file path with line ranges — no vague
       references (for `craft-prompt`, get this from the user directly; for
       `foreman:roadmap`, pass the entry's `touches` through as-is — do NOT

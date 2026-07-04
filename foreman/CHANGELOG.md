@@ -8,6 +8,40 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.6.2-alpha] — 2026-07-04
+
+### Fixed — tone/role checked at craft time instead of embedded as a runtime self-check
+
+The `<tone>` block used to tell the *spawned* session to read
+`.caveman-active` itself and branch at runtime. That's backwards on two
+counts: it's an extra Bash call the destination session pays for something
+knowable right now, and it can't see ponytail at all — `task_context`'s
+"You are a [role]" sentence and ponytail's own SessionStart-injected "You
+are a lazy senior developer" persona are two competing identity claims with
+no reconciliation, since ponytail wasn't part of Foreman's picture when the
+template was written.
+
+- **`prompt-template.md` and `craft-prompt/SKILL.md`'s embedded copy**: both
+  `.caveman-active` and `.ponytail-active` are now checked once, at craft
+  time, by whichever skill is assembling the prompt (one combined Bash/
+  PowerShell call) — not written into the prompt as something the spawned
+  session figures out later.
+  - `.caveman-active` found (and no custom `Tone` selected) → the whole
+    `<tone>` block is omitted from the assembled prompt. Caveman's own
+    `SessionStart` hook re-establishes terse mode on any session that
+    actually runs the prompt regardless, so restating it is redundant and
+    one more thing that can go stale between crafting and execution.
+  - `.ponytail-active` found → `task_context` opens with domain framing
+    ("Domain: [role].") instead of "You are a [role]." — no longer a second
+    identity sentence competing with ponytail's own persona injection.
+  - Neither flag found → same defaults as before (minimal/professional
+    tone, direct role sentence).
+- Both files' handoff checklists and `README.md`'s "Default tone" paragraph
+  updated to describe the craft-time check instead of the old runtime one.
+
+No `roadmap.js` change — this is a prompt-authoring fix only, all 66 tests
+still pass.
+
 ## [0.6.1-alpha] — 2026-07-04
 
 ### Fixed — Pick-next-task dumped raw JSON, showed more candidates than the dialog could use
