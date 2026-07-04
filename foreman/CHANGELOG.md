@@ -8,6 +8,38 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.9.4-alpha] — 2026-07-04
+
+### Added — `requireVerification`, an opt-in gate on Claude self-certifying a task `done`
+
+Distinct from the SHA/touches staleness gaps fixed in 0.9.1–0.9.3: those
+were about data (making the record accurate). This one is about the
+`done` label itself — today `post-commit.js` lets Claude call
+`update-status` with `"done"` unilaterally the moment it thinks a commit
+finished a task, with no human sign-off. Considered adding a new `status`
+enum value (`"qa"`/`"testing"`) for this but rejected it: it would touch
+`next-candidates`' `doneIds`-based dependency-unblocking logic, `foreman:
+survey`'s already-done detection, `STATUSES`/`CREATE_STATUSES`, and every
+doc/test that enumerates statuses — real surface area for what turns out
+to be a pure workflow-sequencing concern, not a new task state.
+
+- **`.foreman/config.json` gains `requireVerification`** (boolean, default
+  `false` — off by default since it adds a confirmation step to every
+  task, including trivial ones). `true`: `hooks/post-commit.js`'s
+  in-progress nudge still records the commit's SHA and auto-derived
+  `touches` immediately (data isn't worth gating on a human), but
+  withholds `status:"done"` — instead it tells Claude to ask the user
+  (`AskUserQuestion`) whether the work is actually verified, and only
+  call a follow-up `update-status` with `"done"` on confirmation. Doesn't
+  touch the freshly-done follow-up branch (that's about recording a fix on
+  an *already legitimately done* task, orthogonal to this gate).
+- No `roadmap.js`/schema change — same reasoning as `inheritOperatorTone`,
+  a pure prompt/hook-instruction gate needs no new stored state beyond the
+  one config flag.
+- `README.md`'s config table and hooks section updated.
+
+93 tests total (89 existing + 4 new).
+
 ## [0.9.3-alpha] — 2026-07-04
 
 ### Changed — `touches` now auto-derives from the commit's own diff, not just manual `add_touches`

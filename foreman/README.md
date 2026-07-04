@@ -136,23 +136,25 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 also committed to git — a shared project policy, not personal state. Plain
 JSON, small enough that no CLI or skill wraps it: `/foreman:init` writes it
 once during setup, and any flag can be flipped later with a direct
-`Read`/`Write` (ask Claude to "turn discovery off" or "stop inheriting my
-caveman tone for this project" and it edits the file itself — no dedicated
-command needed for a two-field object).
+`Read`/`Write` (ask Claude to "turn discovery off", "stop inheriting my
+caveman tone for this project", or "require verification before marking
+tasks done" and it edits the file itself — no dedicated command needed for
+a small flat object).
 
 ```json
-{"discoverySuggestions": true, "inheritOperatorTone": true}
+{"discoverySuggestions": true, "inheritOperatorTone": true, "requireVerification": false}
 ```
 
 | Field | Type | Default if missing/unparseable | Meaning |
 | --- | --- | --- | --- |
 | `discoverySuggestions` | boolean | `false` | Whether `hooks/post-commit.js` ever nudges Claude to scan a commit for roadmap opportunities. Set once during `/foreman:init`'s interview. |
 | `inheritOperatorTone` | boolean | `true` | Whether prompts assembled by `craft-prompt`/`roadmap` inherit *your* personal caveman/ponytail state (checked at craft time — see `prompt-template.md`). Set to `false` to make this project's prompts always use the plain defaults (direct role sentence, minimal/professional tone) regardless of what's active on whoever's machine crafts them — useful when a project's prompts should read the same for everyone, independent of each operator's personal Claude Code tooling. |
+| `requireVerification` | boolean | `false` | Whether `hooks/post-commit.js` lets Claude mark a task `done` unilaterally. `false` (default): a commit that finishes an in-progress task gets `status:"done"` straight away, same as ever. `true`: the commit's SHA and touched files still get recorded immediately (data isn't worth gating), but status stays `in_progress` until Claude asks you (`AskUserQuestion`) to confirm the work is actually verified — only then does it call `update-status` with `"done"`. Off by default since it adds a confirmation step to every task, including trivial ones. |
 
-Both fields are independent and optional — a file with just one key is
-fine, the other falls back to its default. Neither field existing at all
-(no `.foreman/config.json`) means both defaults apply, same as every
-version of Foreman before `inheritOperatorTone` existed.
+All fields are independent and optional — a file with just one or two keys
+is fine, the rest fall back to their defaults. Neither field existing at
+all (no `.foreman/config.json`) means every default applies, same as every
+version of Foreman before these flags existed.
 
 ---
 
@@ -173,7 +175,10 @@ version of Foreman before `inheritOperatorTone` existed.
    any nudge the moment it's `done`, so without this a quick bugfix commit
    right after finishing something loses its SHA (and its files) with no
    signal at all. Appending either doesn't change the task's status —
-   `commits[]` and `touches` only ever grow.
+   `commits[]` and `touches` only ever grow. If `requireVerification` is
+   on, the commit still records its SHA/touches immediately but the nudge
+   withholds `status:"done"` until Claude asks you to confirm the work is
+   actually verified — see [The config file](#the-config-file).
 3. If `discoverySuggestions` is on, nudges Claude to scan the commit's work
    for *confirmed* opportunities/bugs/ideas, check them against already-
    `rejected` entries via `roadmap.js check-duplicate` (skips silently on a

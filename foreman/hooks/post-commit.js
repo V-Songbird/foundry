@@ -50,9 +50,12 @@ function readConfig(root) {
   const p = path.join(root, ".foreman", "config.json");
   try {
     const parsed = JSON.parse(fs.readFileSync(p, "utf-8"));
-    return { discoverySuggestions: parsed?.discoverySuggestions === true };
+    return {
+      discoverySuggestions: parsed?.discoverySuggestions === true,
+      requireVerification: parsed?.requireVerification === true,
+    };
   } catch {
-    return { discoverySuggestions: false };
+    return { discoverySuggestions: false, requireVerification: false };
   }
 }
 
@@ -67,18 +70,38 @@ function readConfig(root) {
 // add_touches remains for the rare case that needs it (git unavailable, or
 // a file touched outside this specific commit) but doesn't need mentioning
 // here — passing commit alone already covers the common case.
-function statusSyncBlock(inProgress, freshlyDone) {
+//
+// requireVerification decouples "record the work" from "call it done": data
+// (commit/touches) is never worth gating on a human, only the status label
+// is — so under the flag, the in_progress branch still records immediately
+// but leaves status alone until the user actually confirms it.
+function statusSyncBlock(inProgress, freshlyDone, requireVerification) {
   const parts = [];
   if (inProgress.length) {
     const list = inProgress.map((e) => `${e.id} ("${e.title}")`).join(", ");
-    parts.push(
-      `This commit may complete an in-progress ROADMAP.jsonl task (${list}). ` +
-        "If it does, run `git rev-parse --short HEAD` for the commit SHA, then: " +
-        `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status. ` +
-        "The script computes updated_at, appends the SHA, and auto-folds that " +
-        "commit's actual changed files into touches — don't hand-edit the file, " +
-        "and no need to list touched files yourself, the script derives them."
-    );
+    if (requireVerification) {
+      parts.push(
+        `This commit may complete an in-progress ROADMAP.jsonl task (${list}), ` +
+          "but requireVerification is on for this project — record the work now, " +
+          "don't close it out yet. Run `git rev-parse --short HEAD` for the SHA, then: " +
+          `echo '{"id":"<id>","status":"in_progress","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status ` +
+          "(keeps commits[]/touches accurate — touches still auto-folds from the " +
+          "commit's diff, same as always). Then ask the user (AskUserQuestion) " +
+          "whether this is actually verified and working. Only on confirmation, " +
+          "close it out: " +
+          `echo '{"id":"<id>","status":"done"}' | node ${SCRIPT_PATH} update-status. ` +
+          "If they say it's not ready, leave it in_progress — don't mark done."
+      );
+    } else {
+      parts.push(
+        `This commit may complete an in-progress ROADMAP.jsonl task (${list}). ` +
+          "If it does, run `git rev-parse --short HEAD` for the commit SHA, then: " +
+          `echo '{"id":"<id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status. ` +
+          "The script computes updated_at, appends the SHA, and auto-folds that " +
+          "commit's actual changed files into touches — don't hand-edit the file, " +
+          "and no need to list touched files yourself, the script derives them."
+      );
+    }
   }
   if (freshlyDone.length) {
     const list = freshlyDone.map((e) => `${e.id} ("${e.title}")`).join(", ");
@@ -144,12 +167,13 @@ function main() {
   const todayStr = today();
   const inProgress = entries.filter((e) => e.status === "in_progress");
   const freshlyDone = entries.filter((e) => e.status === "done" && e.updated_at === todayStr);
+  const config = readConfig(root);
 
   const blocks = [];
   if (inProgress.length || freshlyDone.length) {
-    blocks.push(statusSyncBlock(inProgress, freshlyDone));
+    blocks.push(statusSyncBlock(inProgress, freshlyDone, config.requireVerification));
   }
-  if (readConfig(root).discoverySuggestions) {
+  if (config.discoverySuggestions) {
     blocks.push(discoveryBlock());
   }
   if (!blocks.length) return;

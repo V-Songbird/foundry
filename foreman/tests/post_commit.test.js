@@ -8,7 +8,10 @@
 //   - status-sync block appears whenever an in_progress entry exists, or a
 //     done entry was updated earlier today (same-day follow-up fix commit)
 //   - discovery block appears only when .foreman/config.json has discoverySuggestions:true
-//   - malformed/missing config is treated as discoverySuggestions:false
+//   - requireVerification:true withholds the done transition until the user
+//     confirms, without affecting the freshly-done follow-up branch
+//   - malformed/missing config is treated as discoverySuggestions:false and
+//     requireVerification:false
 //   - a failed commit (confirmed nonzero exit code) stays silent
 //   - a commit with no confirmed exit code fails open (still fires)
 
@@ -135,6 +138,45 @@ describe('freshly-done follow-up fix', () => {
     const out = run(bashPayload('git commit -m "wip"'));
     assert.match(out, /in-progress ROADMAP/i);
     assert.match(out, /follow-up fix/i);
+  });
+});
+
+describe('requireVerification gate', () => {
+  test('default (off): nudges to mark done directly', () => {
+    writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
+    const out = run(bashPayload('git commit -m "finish task"'));
+    assert.match(out, /may complete an in-progress/i);
+    assert.doesNotMatch(out, /requireVerification is on/);
+  });
+
+  test('on: records the commit but withholds done until the user confirms', () => {
+    writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
+    writeConfig(project, { requireVerification: true });
+    const out = run(bashPayload('git commit -m "finish task"'));
+    assert.match(out, /requireVerification is on/);
+    assert.match(out, /AskUserQuestion/);
+    assert.match(out, /don't close it out yet/);
+    assert.match(out, /confirmation/i);
+  });
+
+  test('on: does not affect the freshly-done follow-up branch', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'ship the thing', status: 'done', updated_at: new Date().toISOString().slice(0, 10) },
+    ]);
+    writeConfig(project, { requireVerification: true });
+    const out = run(bashPayload('git commit -m "fix bug found right after"'));
+    assert.match(out, /follow-up fix/i);
+    assert.doesNotMatch(out, /requireVerification is on/);
+  });
+
+  test('malformed config treated as requireVerification:false', () => {
+    writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
+    const fs = require('fs');
+    const path = require('path');
+    fs.mkdirSync(path.join(project, '.foreman'), { recursive: true });
+    fs.writeFileSync(path.join(project, '.foreman', 'config.json'), '{not json', 'utf-8');
+    const out = run(bashPayload('git commit -m "finish task"'));
+    assert.doesNotMatch(out, /requireVerification is on/);
   });
 });
 
