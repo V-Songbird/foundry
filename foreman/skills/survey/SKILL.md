@@ -30,9 +30,10 @@ the user to run `/foreman:init` first and stop here.
 If args named specific task ids, survey just those (still validate they
 exist and are `planned` via `list`). Otherwise:
 
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates --limit 5`
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates`
+(default `--limit 3`)
 
-Survey the top candidates only — same 5 by default as `foreman:roadmap`
+Survey the top candidates only — same 3 by default as `foreman:roadmap`
 shows. This is deliberately not the whole backlog: a hidden dependency or
 stale claim matters most for what's about to be picked, and checking every
 `planned` entry every time would make this as expensive as the thing it's

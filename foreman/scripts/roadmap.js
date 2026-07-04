@@ -177,7 +177,7 @@ function cmdList(root, filters) {
 // staleness-prone priority field. unblocks (how many other entries depend
 // on this one) is a derived proxy for importance instead.
 function cmdNextCandidates(root, filters) {
-  const limit = filters && filters.limit ? parseInt(filters.limit, 10) : 5;
+  const limit = filters && filters.limit ? parseInt(filters.limit, 10) : 3;
   const entries = readEntries(root);
   const doneIds = new Set(entries.filter((e) => e.status === "done").map((e) => e.id));
 
@@ -278,7 +278,7 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
                     status: "planned" | "in_progress" | "done" | "dropped" | "rejected"
   update-deps       stdin JSON: {id, add_depends_on}   (add_depends_on: non-empty array of ids)
   list              flag: --status planned,in_progress   (optional, comma-separated)
-  next-candidates   flag: --limit N   (optional, default 5)
+  next-candidates   flag: --limit N   (optional, default 3)
   check-duplicate   stdin JSON: {title, why}
 
 Examples:

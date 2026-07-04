@@ -8,6 +8,34 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.6.1-alpha] — 2026-07-04
+
+### Fixed — Pick-next-task dumped raw JSON, showed more candidates than the dialog could use
+
+Real usage showed two things: `next-candidates`' full JSON response (every
+candidate's `what`/`touches`/`notes`/`unblocks`) got echoed verbatim into
+the chat response before the picker even asked a question — clutter no
+human needed, since the session isn't ground-truthing any of it (that's
+`foreman:survey`'s job). And it fetched/showed 5 candidates while
+`AskUserQuestion` only ever surfaces 3 of them plus "something else" —
+`next-candidates`' 4-option cap already meant 2 of the 5 fetched were
+always thrown away.
+
+- **`roadmap.js next-candidates` default `--limit` changed from 5 to 3** —
+  matches `AskUserQuestion`'s 4-option cap (3 tasks + the escape hatch),
+  nothing fetched now goes unused.
+- **`skills/roadmap/SKILL.md`'s pick-next-task branch rewritten**: forbids
+  pasting the raw `next-candidates` JSON into the chat response outright;
+  goes straight to `AskUserQuestion` instead of a prose recap first; each
+  option's description is `why` only (no `what`/`touches`/`notes`/
+  `unblocks` folded in); the top-ranked candidate's label gets
+  `(Recommended)` appended instead of leaving the ranking implicit in list
+  order alone.
+- `foreman:survey` and `roadmap-schema.md` updated to match the new
+  default of 3.
+
+66 tests total (65 existing + 1 new, for the default-limit-of-3 behavior).
+
 ## [0.6.0-alpha] — 2026-07-04
 
 ### Added — `foreman:survey`, on-demand ground-truthing of near-term roadmap candidates

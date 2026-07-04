@@ -44,17 +44,35 @@ of *its* work — that's exactly what the `<truth_grounding>` block in
 mechanical call, one question, assemble, done.
 
 1. `node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates` —
-   already filtered (unblocked: `planned` with every `depends_on` done)
-   and ranked (most-unblocking first, then oldest) with a `collision` flag
-   per candidate (its `touches` overlaps a currently-`in_progress` task's).
-   Do not re-derive this by calling `list` and reasoning over the whole
-   file yourself — that's exactly the cost `next-candidates` exists to cut.
-2. Present the top candidates (already ranked, take them as given) with
-   their `why`, noting `collision:true` as a caution, not a blocker.
+   already filtered (unblocked: `planned` with every `depends_on` done),
+   ranked (most-unblocking first, then oldest), limited to 3 by default,
+   with a `collision` flag per candidate (its `touches` overlaps a
+   currently-`in_progress` task's). Do not re-derive this by calling
+   `list` and reasoning over the whole file yourself — that's exactly the
+   cost `next-candidates` exists to cut.
+
+   **Never paste or print this JSON output into your chat response.** It's
+   input to the next step, not something to show — the full `what`/
+   `touches`/`notes`/`unblocks` fields are context for *you* to weigh
+   candidates and craft the eventual handoff prompt, not content a human
+   needs dumped in front of them before they've even picked a task.
+2. Go straight to Q1 below — no narrative recap of the candidates in prose
+   first, the question *is* the presentation.
 
 **Q1** — "Which task next?"
-Options: the top candidates by title, plus an escape to describe something
-else not on the list.
+Options, one per candidate (already ranked, take the order as given):
+- Label: `<title> (<id>)`. The first-ranked candidate's label gets
+  `(Recommended)` appended — it's first for a reason (most-unblocking, or
+  oldest on a tie), say so with the tag instead of making the user infer it
+  from list order alone.
+- Description: `why` only, trimmed to one sentence if it runs longer. Never
+  fold `what`/`touches`/`notes`/`unblocks` into the description — none of
+  that is a pick-time decision input if the session isn't ground-truthing
+  anyway (that's `foreman:survey`'s job); it only bloats the dialog. Add
+  "(possible file overlap with in-progress work)" to the description if
+  `collision:true` — still a caution, not a blocker.
+
+Plus the standard escape to describe something else not on the list.
 
 **Q2** — "How do you want to run this?" — ask this now, before the prompt
 exists, not after. There is nothing to preview yet; the destination decides

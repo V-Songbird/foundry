@@ -10,7 +10,7 @@
 //   - list filters by status, returns everything with no filter
 //   - next-candidates filters unblocked planned tasks, ranks by unblocks
 //     count then recency, flags touches collisions against in_progress,
-//     and surfaces each candidate's notes
+//     surfaces each candidate's notes, and defaults to a limit of 3
 //   - add/update-status return a `warnings` field for long why/what/notes
 //     without failing the write
 //   - check-duplicate finds word-overlap matches against rejected entries only
@@ -308,6 +308,23 @@ describe('next-candidates', () => {
     ]);
     const { json } = run(['next-candidates']);
     assert.equal(json.candidates[0].notes, 'surveyed 2026-07-04: prefer after 002, shared risk pattern');
+  });
+
+  test('defaults to a limit of 3 when --limit is omitted', () => {
+    writeRoadmap(
+      project,
+      Array.from({ length: 5 }, (_, i) => ({
+        id: String(i + 1).padStart(3, '0'),
+        title: `task ${i + 1}`,
+        status: 'planned',
+        depends_on: [],
+        touches: [],
+        created_at: '2026-07-01',
+      }))
+    );
+    const { json } = run(['next-candidates']);
+    assert.equal(json.candidates.length, 3);
+    assert.equal(json.total_unblocked, 5);
   });
 
   test('respects --limit and reports total_unblocked separately', () => {
