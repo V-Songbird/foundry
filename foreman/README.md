@@ -29,6 +29,8 @@ hasn't run `/foreman:init`.
 | Build a self-contained prompt for a spawned session | `/foreman:craft-prompt` |
 | Bootstrap a project's roadmap (one-time, per project) | `/foreman:init` |
 | Pick the next task, add a task, or review roadmap status | `/foreman:roadmap` |
+| Ground-truth the next candidates against the actual codebase | `/foreman:survey` |
+| Turn commit-hook discovery suggestions on or off | `/foreman:toggle-discovery` |
 
 ### `/foreman:craft-prompt`
 
@@ -83,6 +85,28 @@ The ongoing entry point once a roadmap exists:
   separate, unrelated plugin).
 - **Add a task** — appends a new entry to the roadmap.
 - **Review status** — read-only summary grouped by status.
+
+### `/foreman:survey`
+
+The one Foreman flow that deliberately investigates the codebase against
+the roadmap — separate and explicitly-triggered on purpose, so
+`foreman:roadmap`'s fast pick-next-task path never pays for it. Surveys the
+top unblocked candidates (default 3, same as `roadmap`), dispatches one
+`Explore` agent per candidate in parallel to check whether `touches` still
+match reality, whether `depends_on` entries' claimed `commits` actually
+exist, and whether a hidden dependency or duplicate work shows up in the
+code — then asks before persisting anything. A confirmed hidden dependency
+writes to `depends_on` via `roadmap.js update-deps` (structural — changes
+what a future `next-candidates` call returns); a stale/duplicate/already-
+done finding writes a `notes` breadcrumb or status change via
+`update-status`.
+
+### `/foreman:toggle-discovery`
+
+Flips `.foreman/config.json`'s `discoverySuggestions` flag without
+re-running the whole `/foreman:init` interview. Reads the current state,
+asks which way to set it (or reads `on`/`off` straight from args), writes
+and commits just that file if it actually changed.
 
 ---
 

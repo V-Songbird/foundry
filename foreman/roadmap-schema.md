@@ -161,6 +161,8 @@ Sibling runtime file, also at the project root, also committed:
 The one field `foreman:init`'s key question sets. Missing or unparseable →
 treated as `false` everywhere it's read (silent, no nudging — a project that
 never ran `foreman:init` gets nothing from Foreman's commit hook).
+`foreman:toggle-discovery` flips it later without re-running the whole
+`init` interview — the only other writer of this file.
 
 ---
 

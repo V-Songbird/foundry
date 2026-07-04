@@ -8,6 +8,33 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.7.0-alpha] — 2026-07-04
+
+### Added — `foreman:toggle-discovery`
+
+`.foreman/config.json`'s `discoverySuggestions` flag could previously only
+be set during `/foreman:init`'s one-time interview — flipping it later
+meant hand-editing the file (no guard hook covers it, unlike
+`ROADMAP.jsonl`, but also no sanctioned mechanical path either).
+
+- **`skills/toggle-discovery/SKILL.md`** — reads the current flag (missing/
+  unparseable treated as off, same as `post-commit.js` itself), asks which
+  way to set it (or reads `on`/`off`/`enable`/`disable` straight from args),
+  and if the state actually changes, merges the new value into the existing
+  config object (preserving any other keys) and commits just that file —
+  same convention `foreman:init` already uses for this file.
+- Implemented as a Skill, not a `commands/*.md` file, despite the original
+  ask being phrased as "a command" — matches every other Foreman entry
+  point (`init`/`roadmap`/`craft-prompt`/`survey`) and the `plugin-dev`
+  `command-development` skill's own guidance that `.claude/commands/` is
+  the legacy format now that Skills cover the same ground plus
+  `when_to_use` natural-language triggering.
+- `roadmap-schema.md`, `README.md`, `plugin.json` updated. `README.md` also
+  gained the `foreman:survey` entry it was missing since 0.6.0-alpha.
+
+No `roadmap.js` change — `.foreman/config.json` was already a direct
+`Read`/`Write` file outside the CLI's scope. 66 tests total, unchanged.
+
 ## [0.6.2-alpha] — 2026-07-04
 
 ### Fixed — tone/role checked at craft time instead of embedded as a runtime self-check
