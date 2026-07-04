@@ -106,6 +106,11 @@ default "just in case".]
 - [ ] a short verb-first imperative name (under 60 chars) and a 1–2 sentence
       plain-language summary are ready — `TaskCreate`'s `subject`/`description`
       and a background `Agent`'s `description` both need this
+- [ ] the destination (`TaskCreate` / background `Agent` / clipboard) was
+      asked and decided *before* assembling this prompt, and the raw XML is
+      never pasted into the chat response — it goes straight to whichever
+      destination was picked (clipboard's no-tool fallback is the only
+      exception)
 
 ## When NOT to hand off — do it inline instead
 

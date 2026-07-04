@@ -91,9 +91,32 @@ For each section selected in Call 1 Q2, ask its detail question(s). Batch up to 
 
 ---
 
+## Call 5 — destination
+
+Ask this now, before the prompt exists, not after assembly. There is
+nothing to preview yet; the destination decides how the prompt gets
+delivered, not the other way around.
+
+**Q1** — "How do you want to run this?"
+Options:
+- `Execute with TaskCreate` — track it and work it in this session
+- `Execute with a background Agent` — offload it, get notified on completion
+- `Copy prompt to clipboard` — just get the text, no execution
+
+**Never call `mcp__ccd_session__spawn_task`** — it has a known bug where
+tasks spawned through it don't get MCP tools. Use one of the three options
+above instead, regardless of Desktop or CLI.
+
+---
+
 ## Assemble the prompt
 
-Build the XML exactly as follows. Omit optional blocks not selected by the user.
+Build the XML exactly as follows. Omit optional blocks not selected by the
+user. **Never paste or print this assembled prompt into your response
+text** — it is data for `TaskCreate`'s `description`, `Agent`'s `prompt`,
+or a temp file piped to clipboard, not something to show the user. The one
+exception is the clipboard-fallback fenced block below, used only when no
+clipboard tool exists.
 
 ```xml
 <task_context>
@@ -177,19 +200,9 @@ Before moving to the next phase, verify the assembled prompt against this checkl
 
 ---
 
-## Final call — execute or copy
+## Deliver
 
-Ask one question:
-
-**Q1** — "Prompt is ready. What should we do?"
-Options:
-- `Execute with TaskCreate` — track it and work it in this session
-- `Execute with a background Agent` — offload it, get notified on completion
-- `Copy prompt to clipboard` — just get the text, no execution
-
-**Never call `mcp__ccd_session__spawn_task`** — it has a known bug where
-tasks spawned through it don't get MCP tools. Use one of the three options
-below instead, regardless of Desktop or CLI.
+Deliver via whatever Call 5 picked — no further question.
 
 **If TaskCreate:** call `TaskCreate` with `subject` = a verb-first
 imperative ≤60 chars derived from the task description, `description` = the

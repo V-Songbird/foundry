@@ -56,9 +56,20 @@ mechanical call, one question, assemble, done.
 Options: the top candidates by title, plus an escape to describe something
 else not on the list.
 
-3. Once confirmed, craft the handoff prompt using
-   `${CLAUDE_PLUGIN_ROOT}/prompt-template.md`'s XML structure, straight
-   from the candidate's fields — no verification pass:
+**Q2** — "How do you want to run this?" — ask this now, before the prompt
+exists, not after. There is nothing to preview yet; the destination decides
+how the prompt gets built and delivered, not the other way around.
+Options:
+- `Execute with TaskCreate` — track it and work it in this session
+- `Execute with a background Agent` — offload it, get notified on completion
+- `Copy prompt to clipboard` — just get the text, no execution
+
+**Never call `mcp__ccd_session__spawn_task`** — it has a known bug where
+tasks spawned through it don't get MCP tools.
+
+3. Craft the handoff prompt using `${CLAUDE_PLUGIN_ROOT}/prompt-template.md`'s
+   XML structure, straight from the candidate's fields — no verification
+   pass:
    - `task_context` goal ← `title` + `why`
    - `background` / `context` ← `what`
    - `relevant_files` seed ← `touches`, passed through as-is (area-level
@@ -70,34 +81,31 @@ else not on the list.
      find before proceeding." Steps 2-3, tone, and the verification command
      — ask the same way `craft-prompt` does only if genuinely not
      inferable from the entry; don't turn this into a second interview.
+
+   **Never paste or print the assembled XML prompt into your response
+   text.** It is data for `TaskCreate`'s `description`, `Agent`'s `prompt`,
+   or a temp file piped to clipboard — not something to show the user. The
+   one exception is already below: the clipboard-fallback fenced block when
+   no clipboard tool exists.
 4. Before handoff, mark it in progress:
    `echo '{"id":"<id>","status":"in_progress"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status`
    — so the commit hook's status-sync instruction has something to close
    out later.
-
-**Q2 (final)** — "Prompt is ready. What should we do?"
-Options:
-- `Execute with TaskCreate` — track it and work it in this session
-- `Execute with a background Agent` — offload it, get notified on completion
-- `Copy prompt to clipboard` — just get the text, no execution
-
-**Never call `mcp__ccd_session__spawn_task`** — it has a known bug where
-tasks spawned through it don't get MCP tools.
-
-- **TaskCreate**: call `TaskCreate` with `subject` = a verb-first
-  imperative ≤60 chars from the entry's `title`, `description` = the
-  assembled XML prompt. Work it in this session, `TaskUpdate` to
-  `in_progress` then `completed` as you go.
-- **Background Agent**: call `Agent` with `prompt` = the assembled XML
-  prompt, `description` = a 3-5 word summary, `run_in_background: true`.
-- **Clipboard**: `Write` the assembled prompt to a temp file first — never
-  pass it as an inline shell string, a large prompt breaks shell quoting
-  and the copy fails. Then pipe the file's content into the clipboard
-  command: `Get-Content -Raw <file> | Set-Clipboard` on Windows, `pbcopy <
-  <file>` on macOS, `xclip -selection clipboard < <file>` (or `wl-copy <
-  <file>`) on Linux. Mention the file path too, in case the clipboard step
-  fails. Fall back to a fenced `xml` block only if no clipboard tool is
-  available at all.
+5. Deliver via whatever Q2 picked:
+   - **TaskCreate**: call `TaskCreate` with `subject` = a verb-first
+     imperative ≤60 chars from the entry's `title`, `description` = the
+     assembled XML prompt. Work it in this session, `TaskUpdate` to
+     `in_progress` then `completed` as you go.
+   - **Background Agent**: call `Agent` with `prompt` = the assembled XML
+     prompt, `description` = a 3-5 word summary, `run_in_background: true`.
+   - **Clipboard**: `Write` the assembled prompt to a temp file first —
+     never pass it as an inline shell string, a large prompt breaks shell
+     quoting and the copy fails. Then pipe the file's content into the
+     clipboard command: `Get-Content -Raw <file> | Set-Clipboard` on
+     Windows, `pbcopy < <file>` on macOS, `xclip -selection clipboard <
+     <file>` (or `wl-copy < <file>`) on Linux. Mention the file path too,
+     in case the clipboard step fails. Fall back to a fenced `xml` block
+     only if no clipboard tool is available at all.
 
 **Hard rule — state this explicitly if the user pushes back**: this skill
 always asks before doing anything — it never silently executes a task, and

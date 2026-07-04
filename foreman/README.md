@@ -35,9 +35,11 @@ hasn't run `/foreman:init`.
 Interactive, `AskUserQuestion`-driven prompt builder. Walks through task
 type, optional sections (tone, constraints, background, output format),
 required fields (role, done-state, relevant files, steps), and verification
-— then assembles the XML prompt defined in `prompt-template.md` and hands
-it off: execute now via `TaskCreate` (tracked in this session), execute via
-a background `Agent`, or copy it to the clipboard. Never uses
+— then asks how you want to run it (`TaskCreate`, a background `Agent`, or
+clipboard) *before* assembling anything — then builds the XML prompt
+defined in `prompt-template.md` and delivers it straight to that
+destination. The raw prompt is never shown in chat; it's data for the
+chosen mechanism, not something to preview. Never uses
 `mcp__ccd_session__spawn_task` — it has a known bug where tasks spawned
 through it don't get MCP tools.
 
@@ -67,12 +69,14 @@ The ongoing entry point once a roadmap exists:
   filters (unblocked: `planned`, every `depends_on` done) and ranks (most
   `depends_on`-referenced first, then oldest) with a `touches`-collision
   flag against `in_progress` work — no LLM reasoning over the whole file.
-  Crafts a self-contained handoff prompt straight from the picked entry's
+  Asks how to run it (`TaskCreate`, background `Agent`, or clipboard —
+  same three options as `craft-prompt`) *before* building anything, then
+  crafts a self-contained handoff prompt straight from the picked entry's
   own fields — **it does not `Read`/`Grep` the codebase to verify them**,
-  that's the handed-off session's job via `truth_grounding`. Asks how to
-  run it (`TaskCreate`, background `Agent`, or clipboard) — same three
-  options as `craft-prompt`. Never silently executes without asking, and
-  has nothing to do with Forge (a separate, unrelated plugin).
+  that's the handed-off session's job via `truth_grounding` — and delivers
+  it straight to the chosen destination, never shown in chat. Never
+  silently executes without asking, and has nothing to do with Forge (a
+  separate, unrelated plugin).
 - **Add a task** — appends a new entry to the roadmap.
 - **Review status** — read-only summary grouped by status.
 
