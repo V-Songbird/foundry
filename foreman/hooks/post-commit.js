@@ -37,12 +37,13 @@ function isGitCommit(command) {
   return command.split(SEP).some((part) => COMMIT_RE.test(part));
 }
 
-// ponytail: no confirmed field name for exit code in this repo's hook payloads
-// (docs example shows tool_output, a hestia test fixture shows tool_response —
-// neither is exercised by working code). Best-effort: skip on a *confirmed*
-// failure, fail open (proceed) when the field is simply absent.
+// Confirmed against code.claude.com/docs/en/hooks.md: PostToolUse's Bash
+// exit code is a top-level `exit_code` field, not nested under
+// tool_response/tool_output (tool_response is stdout text, a string, not an
+// object) -- the field this checked before was never real, so this always
+// silently failed open. Fail open still, on a genuinely absent field.
 function commitFailed(data) {
-  const code = data?.tool_response?.exit_code ?? data?.tool_output?.exit_code;
+  const code = data?.exit_code;
   return typeof code === "number" && code !== 0;
 }
 
@@ -147,7 +148,7 @@ function discoveryBlock() {
     "than leaving it \"planned\": the same `add` call above, then " +
     `echo '{"id":"<new-id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status ` +
     "(touches auto-derives from that commit). Ask first (AskUserQuestion: " +
-    "Log it / Skip) — same rule as above, never act without asking. " +
+    "Log it / Skip). " +
     "Never call " +
     "mcp__ccd_session__spawn_task — it has a known bug where tasks spawned " +
     "through it don't get MCP tools. Never act without asking. Say nothing " +

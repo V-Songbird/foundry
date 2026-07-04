@@ -106,6 +106,19 @@ Each plugin is an independent git repository mounted as a submodule. Plugin meta
 
 ---
 
+## Development
+
+`.claude/settings.json` (committed) registers one repo-wide dev hook:
+`.claude/hooks/run-tests-on-edit.js` reruns whichever plugin's own test
+suite after an `Edit`/`Write` lands in that plugin's `scripts/` or `hooks/`
+dir — detected by walking up to the nearest `.claude-plugin/plugin.json`
+marker, so it works for any plugin in this repo, not just one. Silent when
+green; surfaces a failure via `additionalContext` when red. Dev-only: it
+never fires for anyone who has merely *installed* a plugin from this repo,
+only for edits made inside the source tree itself.
+
+---
+
 ## Community
 
 - Bug reports and suggestions: [GitHub Issues](https://github.com/V-Songbird/claude-plugins/issues)

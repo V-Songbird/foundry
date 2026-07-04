@@ -27,11 +27,12 @@ the user to run `/foreman:init` first and stop here.
 
 ## 1. Pick the scope
 
-If args named specific task ids, survey just those (still validate they
-exist and are `planned` via `list`). Otherwise:
+If args named specific task ids, `list --ids <those ids>` (validate they
+exist and are `planned`). Otherwise:
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates`
-(default `--limit 3`)
+(default `--limit 3`) — candidates already include each one's own
+`depends_on`, no separate call needed just to get that.
 
 Survey the top candidates only — same 3 by default as `foreman:roadmap`
 shows. This is deliberately not the whole backlog: a hidden dependency or
@@ -40,10 +41,19 @@ stale claim matters most for what's about to be picked, and checking every
 trying to avoid. If `total_unblocked` is larger than what you surveyed,
 say so when reporting back — don't imply full coverage silently.
 
-Also `node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js list` once, read-only,
-to get every entry's `id`, `title`, `status`, `touches`, and `commits` —
-each candidate's investigation needs this to check its own `depends_on`
-entries' claimed commits and to spot files claimed by *other* tasks.
+Collect the exact set of dependency ids referenced across all candidates'
+`depends_on` (dedup). If non-empty, resolve just those —
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js list --ids <comma-joined ids>`
+— never the unfiltered `list`, which loads the whole file just to answer a
+question about a handful of ids.
+
+**Mechanical pre-check, not an agent's job:** for each resolved dependency
+entry with `status:"done"`, verify each of its `commits` actually exists —
+`git cat-file -e <sha>` (Bash), exit code tells you, no reasoning involved.
+Build a small per-commit `exists: true/false` map from this before moving
+to step 2 — a dispatched agent re-deriving something a shell command
+already answered for free is pure waste, one `git cat-file` call is
+cheaper than N parallel agents each running their own `git log`.
 
 ---
 
@@ -52,18 +62,22 @@ entries' claimed commits and to spot files claimed by *other* tasks.
 Dispatch one `Agent` (`subagent_type: Explore`) per candidate, in parallel
 (single message, multiple tool calls). Each gets a self-contained prompt —
 it has no memory of this conversation — built from the candidate's own
-fields plus the full-list context gathered in step 1:
+fields plus the resolved-dependency and exists-map context gathered in
+step 1:
 
 - The candidate's `id`, `title`, `why`, `what`, `touches`, `depends_on`.
-- For each id in `depends_on`: that entry's `title`, `status`, `commits`.
+- For each id in `depends_on`: that entry's `title`, `status`, `commits`,
+  and the pre-computed `exists` flag for each of those commits — the agent
+  consumes this fact, it does not re-derive it.
 - Ask it to check, and report a verdict for each:
   1. **Touches still real?** Do the paths in `touches` exist and does their
      current content still match what `what` describes? (`git log
      --oneline -- <path>` plus a read of the file's current state.)
-  2. **Dependencies actually satisfied?** For each `depends_on` entry marked
-     `done`, do its `commits` actually exist in `git log` and do they
-     plausibly implement what that entry's `title`/`what` claims? A `done`
-     entry with an empty or bogus `commits` list is a red flag.
+  2. **Dependencies actually satisfied?** If step 1's `exists` map already
+     flags a `done` entry's commit as missing, that alone is a red flag —
+     no further check needed. Otherwise, for commits confirmed to exist,
+     do they plausibly implement what that entry's `title`/`what` claims?
+     (this half stays semantic — read the commit, judge the match)
   3. **Hidden dependency?** Reading the code the candidate's `touches`
      point to, does it already reference/import/call something that
      another *not-done* task's `touches` claims to own, which isn't in this

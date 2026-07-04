@@ -9,10 +9,12 @@
 //     whatever files the given commit's git diff actually shows (best-effort)
 //   - update-deps adds a discovered depends_on id to an existing entry,
 //     rejecting unknown ids and self-dependencies
-//   - list filters by status, returns everything with no filter
+//   - list filters by status and/or ids (combinable), returns everything
+//     with no filter
 //   - next-candidates filters unblocked planned tasks, ranks by unblocks
 //     count then recency, flags touches collisions against in_progress,
-//     surfaces each candidate's notes, and defaults to a limit of 3
+//     surfaces each candidate's notes and depends_on, and defaults to a
+//     limit of 3
 //   - add/update-status return a `warnings` field for long why/what/notes
 //     without failing the write
 //   - check-duplicate finds word-overlap matches against rejected entries only
@@ -278,6 +280,16 @@ describe('list', () => {
     assert.deepEqual(json.entries.map((e) => e.id).sort(), ['001', '003']);
   });
 
+  test('filters by a comma-separated ids list', () => {
+    const { json } = run(['list', '--ids', '001,003']);
+    assert.deepEqual(json.entries.map((e) => e.id).sort(), ['001', '003']);
+  });
+
+  test('combines --status and --ids (AND, not OR)', () => {
+    const { json } = run(['list', '--status', 'planned,done', '--ids', '001,002']);
+    assert.deepEqual(json.entries.map((e) => e.id), ['001']);
+  });
+
   test('a project with no ROADMAP.jsonl yet returns an empty list, not an error', () => {
     const freshProject = makeTmpProject();
     const result = runRoadmap(['list'], undefined, { CLAUDE_PROJECT_DIR: freshProject });
@@ -393,6 +405,15 @@ describe('next-candidates', () => {
     ]);
     const { json } = run(['next-candidates']);
     assert.equal(json.candidates[0].notes, 'surveyed 2026-07-04: prefer after 002, shared risk pattern');
+  });
+
+  test('surfaces depends_on so survey can resolve dependency ids without a separate list call', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'prereq', status: 'done', depends_on: [], touches: [] },
+      { id: '002', title: 'candidate', status: 'planned', depends_on: ['001'], touches: [] },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.deepEqual(json.candidates[0].depends_on, ['001']);
   });
 
   test('defaults to a limit of 3 when --limit is omitted', () => {

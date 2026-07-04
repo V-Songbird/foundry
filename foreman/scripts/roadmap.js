@@ -234,7 +234,10 @@ function cmdUpdateDeps(root, payload) {
 function cmdList(root, filters) {
   const entries = readEntries(root);
   const statusFilter = filters.status ? new Set(String(filters.status).split(",")) : null;
-  const filtered = statusFilter ? entries.filter((e) => statusFilter.has(e.status)) : entries;
+  const idsFilter = filters.ids ? new Set(String(filters.ids).split(",")) : null;
+  let filtered = entries;
+  if (statusFilter) filtered = filtered.filter((e) => statusFilter.has(e.status));
+  if (idsFilter) filtered = filtered.filter((e) => idsFilter.has(e.id));
   return { entries: filtered };
 }
 
@@ -268,6 +271,7 @@ function cmdNextCandidates(root, filters) {
       why: e.why,
       what: e.what,
       touches: e.touches || [],
+      depends_on: e.depends_on || [],
       unblocks: unblocksCount.get(e.id) || 0,
       collision: (e.touches || []).some((t) => inProgressTouches.has(t)),
       created_at: e.created_at,
@@ -348,7 +352,9 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
                     add_touches: array of paths to fold into touches (dedup, never removes)
   update-deps       stdin JSON: {id, add_depends_on}   (add_depends_on: non-empty array of ids)
   list              flag: --status planned,in_progress   (optional, comma-separated)
+                    flag: --ids 002,005   (optional, comma-separated, combinable with --status)
   next-candidates   flag: --limit N   (optional, default 3)
+                    candidates now include depends_on
   check-duplicate   stdin JSON: {title, why}
 
 Examples:

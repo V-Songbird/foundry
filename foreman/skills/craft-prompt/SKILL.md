@@ -3,7 +3,7 @@ name: craft-prompt
 description: Interactive prompt builder. Guides you through assembling a self-contained spawned-session prompt following Foreman's template — asks which optional sections to include, gathers required info via AskUserQuestion, assembles the XML, then hands it off via TaskCreate, a background Agent, or copies it to the clipboard.
 when_to_use: Trigger when the user wants to create a task, spawn a background agent, craft a prompt for a spawned session, or says "craft a prompt", "build a prompt", "foreman prompt", "new task prompt", or invokes /foreman:craft-prompt.
 argument-hint: "<brief task description — optional seed>"
-allowed-tools: AskUserQuestion, TaskCreate, Agent, Write, Bash, PowerShell
+allowed-tools: AskUserQuestion, TaskCreate, Agent, Read, Write, Bash, PowerShell
 ---
 
 # foreman:craft-prompt — interactive prompt builder
@@ -111,131 +111,33 @@ above instead, regardless of Desktop or CLI.
 
 ## Assemble the prompt
 
-Build the XML exactly as follows. Omit optional blocks not selected by the
-user. **Never paste or print this assembled prompt into your response
-text** — it is data for `TaskCreate`'s `description`, `Agent`'s `prompt`,
-or a temp file piped to clipboard, not something to show the user. The one
-exception is the clipboard-fallback fenced block below, used only when no
-clipboard tool exists.
+Follow `${CLAUDE_PLUGIN_ROOT}/prompt-template.md` exactly — its craft-time
+environment check (`inheritOperatorTone` gate, then the ponytail/caveman
+flag check) and its XML template, both verbatim. Never re-derive or
+duplicate either here; if the template changes, this skill picks up the
+change automatically by reading it fresh each time. Map this skill's
+gathered fields onto the template's placeholders:
 
-**Craft-time environment check (do this now, once — not an instruction for
-the spawned session to act on later):** if a project root is in scope,
-`Read` its `.foreman/config.json` and check `inheritOperatorTone` (default
-`true` if missing/unparseable, and for standalone use with no such file at
-all). If `false`, skip the flag check below entirely — use the plain
-flag-not-found defaults for `<task_context>`/`<tone>` regardless of what's
-actually active; the project opted out of letting the operator's personal
-caveman/ponytail state shape its prompts. Otherwise, check both flags in
-one call — `test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
-"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
-`Test-Path` equivalent (PowerShell). Both plugins' own `SessionStart` hooks
-fire unconditionally on every session and already re-establish persona/tone
-from that same flag, so this only needs to avoid contradicting them, not
-carry the state forward — if a flag changes before this prompt actually
-runs, the destination session's own hook corrects it regardless.
+- `task_context`: role ← Call 2 Q1, goal ← Call 2 Q2
+- `relevant_files` ← Call 2 Q3
+- `task_rules`: steps ← Call 2 Q4; Constraints ← Call 4's Constraints
+  answers, if selected; Verification ← Call 3, if gathered
+- `tone` ← Call 4's Tone answer, if selected (overrides the template's
+  default entirely, same as the template already says); otherwise the
+  template's own craft-time gate applies unchanged
+- `background`/`context` ← Call 4's Background-context answer, if selected
+- `example` ← Call 4's Example answer, if selected
+- `output_format` ← Call 4's Custom-output-format answer, if selected;
+  otherwise the template's own default applies
 
-```xml
-<task_context>
-[If `.ponytail-active` exists: ponytail's own SessionStart hook already
-establishes a "lazy senior developer" persona — a second "You are a [role]"
-sentence competes with it instead of layering on it. Use domain framing:
-"Domain: [role]." If the flag doesn't exist: "You are [role]."]
-Your goal is [done-state sentence].
-</task_context>
+**Never paste or print the assembled prompt into your response text** — it
+is data for `TaskCreate`'s `description`, `Agent`'s `prompt`, or a temp
+file piped to clipboard, not something to show the user. The one
+exception is the clipboard-fallback fenced block in "Deliver" below, used
+only when no clipboard tool exists.
 
-<truth_grounding>
-Before acting on anything in this prompt, verify it against the current state
-of the codebase — read the cited files, run the cited commands. This prompt
-may have been written earlier and executed later (queued via TaskCreate, run
-by a background Agent, or pasted into a fresh session); treat every claim
-below as a hypothesis to confirm at the start of this session, never as a
-fact to assume. If reality contradicts this prompt, trust reality, say so
-explicitly, and proceed from what you actually find.
-</truth_grounding>
-
-<scope_discipline>
-If a request mid-session asks for something beyond this task's stated goal
-above, don't fold it in silently — say so explicitly first. Once it's
-actually done, check whether ROADMAP.jsonl exists at the project root: if
-it does, log the extra work as its own entry instead of stretching this
-task's story to cover it — it already happened, so create it and close it
-out in the same breath rather than leaving it "planned":
-echo '{"title":"...","why":"...","what":"...","source":"claude-suggested","status":"planned"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js add
-then, using the id just returned:
-echo '{"id":"<new-id>","status":"done","commit":"<sha>"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status
-(touches auto-derives from that commit, same as any other completion). If
-no ROADMAP.jsonl exists, flagging it to the user is enough — nothing to
-log. Doesn't apply to legitimate refinement of this task's own scope —
-only to work that's genuinely a separate concern from `task_context` above.
-</scope_discipline>
-
-<tone>
-[If Tone selected: user's custom tone, full stop — replaces everything
-below. Otherwise: if `.caveman-active` exists, omit this whole `<tone>`
-block — caveman's own hook already sets terse mode on whatever session runs
-this. If it doesn't exist: "Minimal, professional conversation — silent by
-default, say only what the user actually needs to know, simplify technical
-explanations, avoid unnecessary jargon."]
-</tone>
-
-<background>
-<relevant_files>
-[Files and line ranges from Call 2 Q3]
-</relevant_files>
-[If Background context selected:]
-<context>
-[Context from optional section detail]
-</context>
-</background>
-
-<task_rules>
-Step 1: [from Call 2 Q4]
-Step 2: [from Call 2 Q4]
-Step 3: [from Call 2 Q4]
-
-[If Constraints selected:]
-Constraints:
-- [Files/interfaces NOT to modify]
-- [Style pattern or example file, if provided]
-
-[If verification was gathered:]
-Verification (REQUIRED):
-Run: [command from Call 3 Q1]
-Expected: [outcome from Call 3 Q2]
-Do NOT report success without running this. If it fails, iterate until it passes.
-</task_rules>
-
-[If Example selected:]
-<example>
-[Before/after or input→output snippet from optional section detail]
-</example>
-
-[One-sentence task statement synthesized from everything gathered.]
-
-Think step by step before making changes. Consider edge cases before writing code.
-
-<output_format>
-[If Custom output format selected: "Wrap the final deliverable in [chosen
-tag] tags — this is for a downstream parser. If a human also reads this
-directly in chat, give a short plain-language summary above the tagged
-block too; don't make the tags the only content."
-Otherwise: "Give a concise, human-readable summary: files changed,
-verification result. No XML tags — a human reads this directly in chat."]
-</output_format>
-```
-
-Before moving to the next phase, verify the assembled prompt against this checklist:
-- `task_context` has a specific role (or domain framing, if `.ponytail-active`
-  was found at craft time) and a concrete one-sentence done-state
-- `truth_grounding` block is present, unmodified — always included, never optional
-- `scope_discipline` block is present, unmodified — always included, never optional
-- `.foreman/config.json`'s `inheritOperatorTone` was checked first (default
-  `true`); only if it isn't `false` were `.caveman-active`/`.ponytail-active`
-  checked at craft time — `<tone>` omitted entirely if caveman is active and
-  no custom Tone was selected
-- `relevant_files` uses exact paths — no vague references like "the auth module"
-- `task_rules` has 3 numbered steps and a runnable verification command (unless pure research)
-- Prompt contains no phrases like "as we discussed" or "from earlier"
+Before moving to the next phase, verify the assembled prompt against
+`prompt-template.md`'s own checklist — don't re-list it here either.
 
 ---
 

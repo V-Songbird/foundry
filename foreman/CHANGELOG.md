@@ -8,6 +8,68 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.10.0-alpha] — 2026-07-04
+
+### Fixed — two real bugs found by a full-plugin token/correctness audit
+
+- **`craft-prompt/SKILL.md` was missing `Read` from `allowed-tools`**, despite
+  its 0.9.0-alpha craft-time gate instructing it to `Read`
+  `.foreman/config.json`. Introduced with `inheritOperatorTone`, never
+  caught until this pass.
+- **`hooks/post-commit.js`'s `commitFailed` checked a field that was never
+  real.** Confirmed against `code.claude.com/docs/en/hooks.md`: `PostToolUse`'s
+  Bash exit code is a top-level `exit_code` field; `tool_response` is stdout
+  *text* (a string), not an object. The old check
+  (`tool_response?.exit_code ?? tool_output?.exit_code`) always evaluated to
+  `undefined` in real usage — every failed `git commit` silently fired the
+  status-sync/discovery nudges anyway, since day one (0.4.0-alpha). Fixed to
+  read `data.exit_code` directly; the two exit-code tests that encoded the
+  wrong shape now encode the real one.
+
+### Changed — dedup, mechanical checks over LLM judgment, and a misplaced hook moved to where it belongs
+
+- **`craft-prompt/SKILL.md` no longer duplicates `prompt-template.md`'s XML
+  template and checklist** (~115 lines). It now says "follow
+  `prompt-template.md` exactly" plus a field-source mapping, the same
+  pattern `roadmap/SKILL.md` already used. Every prior edit to the shared
+  template (`inheritOperatorTone`, `scope_discipline`, the tone gate) had to
+  touch both files in lockstep by discipline, not structure — this was the
+  single biggest duplication in the plugin.
+- **`roadmap.js list` gained an `--ids` filter** (combinable with
+  `--status`), and **`next-candidates`'s candidates now include their own
+  `depends_on`**. `foreman:survey` used to load the *entire* `list` just to
+  resolve a handful of dependency ids for 3 candidates — real waste on a
+  large roadmap. It now resolves exactly the ids it needs.
+- **`foreman:survey` no longer asks an Explore agent to verify commit
+  existence** — "does this SHA actually exist in git history" is a
+  deterministic fact (`git cat-file -e <sha>`), not a judgment call. The
+  orchestrating skill now checks it once, mechanically, before dispatching
+  agents, and hands each agent the answer instead of having every parallel
+  agent re-derive the same fact independently.
+- **`roadmap/SKILL.md`'s `task_rules` Step 1 default** no longer restates
+  `truth_grounding`'s mandate in different words right below the fixed
+  block that already says it — shortened to a pointer.
+- **`hooks/post-commit.js`'s `discoveryBlock`** no longer says "never act
+  without asking" twice in the same string.
+- **`hooks/run-tests-on-edit.js` moved out of `foreman/` entirely**, to
+  `.claude/hooks/run-tests-on-edit.js` at the repo root, registered via a
+  new (committed) `.claude/settings.json`. It was scoped to Foreman by
+  mistake — it's dev tooling for whoever works on *any* plugin in this
+  monorepo, not a feature Foreman should ship to installers (it never fired
+  for them anyway; only edits inside the plugin's own source tree trigger
+  it). Generalized to detect which plugin owns an edited `scripts/`/`hooks/`
+  file (walks up to the nearest `.claude-plugin/plugin.json` marker) and
+  reruns *that* plugin's own tests, not just Foreman's.
+  `.gitignore`'s blanket `.claude/` exclusion narrowed to `.claude/*` with
+  explicit `!.claude/settings.json`/`!.claude/hooks/` exceptions, so this
+  hook (and only this) is actually committed and shared.
+
+87 tests total in Foreman's own suite (94 existing − 10 for the removed
+`run_tests_on_edit.test.js` + 3 new: 2 for `list --ids`, 1 for
+`next-candidates`'s `depends_on`). The moved hook has its own 10-test suite
+at `.claude/hooks/run-tests-on-edit.test.js`, outside Foreman's count since
+it isn't part of the distributed plugin.
+
 ## [0.9.5-alpha] — 2026-07-04
 
 ### Added — scope-creep discipline, at both touch points Foreman actually controls

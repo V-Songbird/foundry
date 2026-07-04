@@ -231,13 +231,13 @@ describe('discovery block', () => {
 describe('exit-code gating (best-effort)', () => {
   test('confirmed nonzero exit code stays silent', () => {
     writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
-    const out = run(bashPayload('git commit -m "wip"', { tool_response: { exit_code: 1 } }));
+    const out = run(bashPayload('git commit -m "wip"', { exit_code: 1 }));
     assert.equal(out, '');
   });
 
   test('confirmed zero exit code still fires', () => {
     writeRoadmap(project, [{ id: '001', status: 'in_progress' }]);
-    const out = run(bashPayload('git commit -m "wip"', { tool_response: { exit_code: 0 } }));
+    const out = run(bashPayload('git commit -m "wip"', { exit_code: 0 }));
     assert.notEqual(out, '');
   });
 

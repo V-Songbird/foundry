@@ -93,12 +93,13 @@ tasks spawned through it don't get MCP tools.
    - `relevant_files` seed ← `touches`, passed through as-is (area-level
      hints, not confirmed file:line ranges — that's fine, don't upgrade
      them yourself)
-   - `task_rules` Step 1 defaults to: "Read/explore the files or areas
-     listed in `relevant_files` first — this prompt was assembled without
-     verifying them, ground every claim below against what you actually
-     find before proceeding." Steps 2-3, tone, and the verification command
-     — ask the same way `craft-prompt` does only if genuinely not
-     inferable from the entry; don't turn this into a second interview.
+   - `task_rules` Step 1 defaults to: "Explore `relevant_files` first (see
+     `truth_grounding` above)." — short on purpose, `truth_grounding`
+     (fixed, right above it in the same prompt) already carries the full
+     verify-before-acting mandate, restating it here would just be the
+     same sentence twice. Steps 2-3, tone, and the verification command —
+     ask the same way `craft-prompt` does only if genuinely not inferable
+     from the entry; don't turn this into a second interview.
 
    **Never paste or print the assembled XML prompt into your response
    text.** It is data for `TaskCreate`'s `description`, `Agent`'s `prompt`,
