@@ -52,7 +52,11 @@ through it don't get MCP tools.
 Every assembled prompt carries a fixed `truth_grounding` block instructing
 the handed-off session to verify the prompt's claims against the actual
 codebase at the start of its work, rather than assuming they're still
-accurate — the prompt may have been written earlier and run later.
+accurate — the prompt may have been written earlier and run later. It also
+carries a fixed `scope_discipline` block: if a request mid-session goes
+beyond the task's stated goal, flag it rather than silently folding it in,
+and once it's done, log it as its own `ROADMAP.jsonl` entry (already
+`done`, same commit) instead of stretching this task's story to cover it.
 
 Default tone (override with the `Tone` optional section): checked once at
 craft time, not deferred to the spawned session. First gate: if the current
@@ -189,6 +193,11 @@ version of Foreman before these flags existed.
    (exact paths, line ranges, symbol names) — Claude never goes exploring
    further just to pad out a roadmap entry; see
    [`roadmap-schema.md`](roadmap-schema.md#writing-claude-suggested-entries--pack-context-now-its-free).
+   Same nudge also asks Claude to scan for the inverse case — scope that
+   grew mid-session and already got built (e.g. "could X also work like
+   this?" answered by just implementing it inline) rather than tracked as
+   its own task — and log it already `done` with the same commit instead of
+   letting it go unrecorded.
 
 `hooks/guard-roadmap-edit.js` fires on every `Edit`/`Write` (`PreToolUse`)
 and denies it if the target file is named `ROADMAP.jsonl` — mechanical

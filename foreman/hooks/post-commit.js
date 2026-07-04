@@ -139,6 +139,15 @@ function discoveryBlock() {
     "Reject use the same `add` call, only the status field differs " +
     '("planned" for Add, "rejected" for Reject): ' +
     `echo '{"title":"...","why":"...","what":"...","source":"claude-suggested","status":"planned"}' | node ${SCRIPT_PATH} add. ` +
+    "Also scan for the inverse case: work already implemented in this " +
+    "commit that goes beyond what any in_progress task's `what` describes — " +
+    "scope that grew mid-session (e.g. the user asked for something related " +
+    "but separate, and it got built inline), not a future idea. If you find " +
+    "one, it's already done, so log and close it in the same breath rather " +
+    "than leaving it \"planned\": the same `add` call above, then " +
+    `echo '{"id":"<new-id>","status":"done","commit":"<sha>"}' | node ${SCRIPT_PATH} update-status ` +
+    "(touches auto-derives from that commit). Ask first (AskUserQuestion: " +
+    "Log it / Skip) — same rule as above, never act without asking. " +
     "Never call " +
     "mcp__ccd_session__spawn_task — it has a known bug where tasks spawned " +
     "through it don't get MCP tools. Never act without asking. Say nothing " +

@@ -8,6 +8,44 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.9.5-alpha] — 2026-07-04
+
+### Added — scope-creep discipline, at both touch points Foreman actually controls
+
+Real scenario: mid-session, the user asks "could X also work like this?"
+about something outside the current task's stated scope; Claude just
+implements it inline, in the same commit, with no roadmap entry ever
+recording it happened. Not mechanically detectable from a bare git diff
+(no way to distinguish "task legitimately grew" from "unrelated feature
+got bundled in") — needs Claude's own in-the-moment judgment. Considered
+and rejected a `SessionStart` hook (like ponytail/caveman/codebase-memory
+use) for this: Foreman deliberately removed its own every-session hook in
+the 0.4.0-alpha redesign, and a `SessionStart` hook fires before Claude
+even knows what the session will touch — it can't carry a specific task's
+`what` the way a targeted instruction can. Two touch points instead, both
+already-existing mechanisms:
+
+- **`prompt-template.md` and `craft-prompt/SKILL.md`'s embedded copy**
+  gained a fixed `<scope_discipline>` block (always included, same
+  standing as `truth_grounding`): if a request diverges from the task's
+  stated goal, flag it explicitly rather than folding it in silently, then
+  — if `ROADMAP.jsonl` exists — log it as its own entry via `add` followed
+  immediately by `update-status` to `done` with the commit (it already
+  happened, so it's created and closed in the same breath, never left
+  `planned`). No `ROADMAP.jsonl` → just flagging it is enough. Covers any
+  session Foreman itself launched with a specific task in scope.
+- **`hooks/post-commit.js`'s `discoveryBlock`** gained a second scan: the
+  existing "spot future opportunities" pass now also asks Claude to check
+  the inverse — work already implemented in this commit beyond what any
+  `in_progress` task's `what` describes — and log it already-done (same
+  `add` + `update-status` pair) rather than a future-facing `planned`
+  entry. Same `discoverySuggestions` flag gates it, no new config field.
+  Covers organic sessions post-hoc, from the commit alone.
+
+94 tests total (93 existing + 1 new, for the `discoveryBlock` addition —
+the `scope_discipline` prompt-template addition has no executable logic to
+test, same as `truth_grounding`).
+
 ## [0.9.4-alpha] — 2026-07-04
 
 ### Added — `requireVerification`, an opt-in gate on Claude self-certifying a task `done`

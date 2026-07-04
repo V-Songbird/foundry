@@ -188,6 +188,14 @@ describe('discovery block', () => {
     assert.match(out, /Roadmap discovery is enabled/);
   });
 
+  test('also asks Claude to scan for already-implemented, unplanned scope creep', () => {
+    writeRoadmap(project, [{ id: '001', status: 'planned' }]);
+    writeConfig(project, { discoverySuggestions: true });
+    const out = run(bashPayload('git commit -m "add feature"'));
+    assert.match(out, /inverse case/);
+    assert.match(out, /Log it/);
+  });
+
   test('does not fire when config is missing', () => {
     writeRoadmap(project, [{ id: '001', status: 'planned' }]);
     const out = run(bashPayload('git commit -m "add feature"'));

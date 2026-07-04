@@ -63,6 +63,23 @@ fact to assume. If reality contradicts this prompt, trust reality, say so
 explicitly, and proceed from what you actually find.
 </truth_grounding>
 
+<scope_discipline>
+If a request mid-session asks for something beyond this task's stated goal
+above, don't fold it in silently — say so explicitly first. Once it's
+actually done, check whether ROADMAP.jsonl exists at the project root: if
+it does, log the extra work as its own entry instead of stretching this
+task's story to cover it — it already happened, so create it and close it
+out in the same breath rather than leaving it "planned":
+echo '{"title":"...","why":"...","what":"...","source":"claude-suggested","status":"planned"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js add
+then, using the id just returned:
+echo '{"id":"<new-id>","status":"done","commit":"<sha>"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status
+(touches auto-derives from that commit, same as any other completion). If
+no ROADMAP.jsonl exists, flagging it to the user is enough — nothing to
+log. This doesn't apply to legitimate refinement of this task's own
+scope — only to work that's genuinely a separate concern from
+`task_context` above.
+</scope_discipline>
+
 <tone>
 [If Tone was selected as an optional section: the user's custom tone,
 full stop — it replaces everything below. Otherwise: if `.caveman-active`
@@ -130,6 +147,7 @@ default "just in case".]
       found at craft time, domain framing instead of a competing "You are a"
       sentence) and a concrete one-sentence "done" state
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
+- [ ] `scope_discipline` block is present, unmodified — every handoff must carry it
 - [ ] `.foreman/config.json`'s `inheritOperatorTone` was checked first (default
       `true`); only if it isn't `false` were `.caveman-active`/`.ponytail-active`
       checked at craft time (not deferred to the spawned session) — `<tone>`
