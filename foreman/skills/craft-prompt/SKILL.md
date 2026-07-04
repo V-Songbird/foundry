@@ -119,8 +119,14 @@ exception is the clipboard-fallback fenced block below, used only when no
 clipboard tool exists.
 
 **Craft-time environment check (do this now, once — not an instruction for
-the spawned session to act on later):** check both flags in one call —
-`test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
+the spawned session to act on later):** if a project root is in scope,
+`Read` its `.foreman/config.json` and check `inheritOperatorTone` (default
+`true` if missing/unparseable, and for standalone use with no such file at
+all). If `false`, skip the flag check below entirely — use the plain
+flag-not-found defaults for `<task_context>`/`<tone>` regardless of what's
+actually active; the project opted out of letting the operator's personal
+caveman/ponytail state shape its prompts. Otherwise, check both flags in
+one call — `test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
 "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
 `Test-Path` equivalent (PowerShell). Both plugins' own `SessionStart` hooks
 fire unconditionally on every session and already re-establish persona/tone
@@ -206,9 +212,10 @@ Before moving to the next phase, verify the assembled prompt against this checkl
 - `task_context` has a specific role (or domain framing, if `.ponytail-active`
   was found at craft time) and a concrete one-sentence done-state
 - `truth_grounding` block is present, unmodified — always included, never optional
-- `.caveman-active`/`.ponytail-active` were checked once at craft time, not
-  deferred to the spawned session — `<tone>` omitted entirely if caveman is
-  active and no custom Tone was selected
+- `.foreman/config.json`'s `inheritOperatorTone` was checked first (default
+  `true`); only if it isn't `false` were `.caveman-active`/`.ponytail-active`
+  checked at craft time — `<tone>` omitted entirely if caveman is active and
+  no custom Tone was selected
 - `relevant_files` uses exact paths — no vague references like "the auth module"
 - `task_rules` has 3 numbered steps and a runnable verification command (unless pure research)
 - Prompt contains no phrases like "as we discussed" or "from earlier"

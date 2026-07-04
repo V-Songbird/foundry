@@ -8,6 +8,40 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.9.0-alpha] — 2026-07-04
+
+### Added — `.foreman/config.json`'s `inheritOperatorTone`, removed `foreman:toggle-discovery`
+
+0.6.2-alpha made prompt assembly check the *operator's* personal
+`.caveman-active`/`.ponytail-active` state unconditionally. That conflates
+two different axes: an operator's personal Claude Code tooling preference,
+and a project's policy for how its own prompts should read. A project
+whose prompts get consumed by whoever's machine happens to craft them has
+no way to say "always read the same regardless of who's crafting" — until
+now.
+
+- **`inheritOperatorTone`** (new `.foreman/config.json` field, boolean,
+  default `true` when missing/unparseable — matches every prior version's
+  behavior). `prompt-template.md`'s craft-time check now reads this first:
+  `false` skips the `.caveman-active`/`.ponytail-active` check entirely and
+  uses the plain defaults (direct role sentence, minimal/professional
+  tone) no matter what's actually active on the crafting machine.
+  `craft-prompt/SKILL.md`'s embedded copy and both checklists updated to
+  match.
+- **Removed `foreman:toggle-discovery`** (added last version). Two boolean
+  fields don't need a dedicated skill to flip them — `.foreman/config.json`
+  is small enough to `Read`/`Write` directly, same as `foreman:init` always
+  has. Its only job (flip `discoverySuggestions` without re-running the
+  whole `init` interview) is now just "ask Claude to edit the file," backed
+  by full field docs in `README.md`'s new "The config file" section.
+- `roadmap-schema.md`'s `.foreman/config.json` section trimmed to a pointer
+  at `README.md` for full field reference, since it now covers two fields
+  serving two different consumers (`post-commit.js` vs. prompt assembly)
+  rather than one.
+
+No `roadmap.js` change — this file was already outside the CLI's scope.
+66 tests total, unchanged.
+
 ## [0.8.0-alpha] — 2026-07-04
 
 ### Added — test-on-edit hook

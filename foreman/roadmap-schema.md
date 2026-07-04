@@ -152,17 +152,12 @@ for — exact paths and line ranges instead of a vague "the fetch wrapper."
 
 ## `.foreman/config.json`
 
-Sibling runtime file, also at the project root, also committed:
-
-```json
-{"discoverySuggestions": true}
-```
-
-The one field `foreman:init`'s key question sets. Missing or unparseable →
-treated as `false` everywhere it's read (silent, no nudging — a project that
-never ran `foreman:init` gets nothing from Foreman's commit hook).
-`foreman:toggle-discovery` flips it later without re-running the whole
-`init` interview — the only other writer of this file.
+Sibling runtime file, also at the project root, also committed. Plain JSON,
+no CLI wraps it (unlike `ROADMAP.jsonl`) — edited directly with `Read`/
+`Write` when a flag needs to change. Full field reference is in
+[`README.md`](README.md#the-config-file); the one relevant to this file's
+own consumer (`post-commit.js`) is `discoverySuggestions` — missing or
+unparseable → treated as `false` (silent, no nudging).
 
 ---
 

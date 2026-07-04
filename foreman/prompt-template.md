@@ -16,19 +16,31 @@ optional — it is the only way the handed-off work can act correctly.
 ## Template
 
 **Craft-time environment check (do this now, once, while assembling — not
-an instruction for the spawned session to act on later):** both `<task_context>`
-and `<tone>` below depend on whether ponytail/caveman are active *for the
-crafting session right now*. Check both flags in one call:
-`test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
-"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
-`Test-Path` equivalent against `$env:CLAUDE_CONFIG_DIR` (falling back to
-`$HOME/.claude`) joined with each flag name (PowerShell). Both
-plugins' own `SessionStart` hooks fire unconditionally on every session and
-already re-establish persona/tone from that same flag — so whatever this
-prompt bakes in now only needs to *avoid contradicting* that, not carry the
-state forward itself; if the flag changes before this prompt actually runs,
-the destination session's own hook corrects it regardless of what's written
-below.
+an instruction for the spawned session to act on later):**
+
+0. **Project opt-out gate.** If a project root is in scope, `Read` its
+   `.foreman/config.json` and check `inheritOperatorTone` (default `true`
+   if the file, or just this field, is missing/unparseable — matches the
+   behavior every version before this flag existed). If `false`: skip
+   straight to step 2 below with the flag-not-found defaults for both
+   `<task_context>` and `<tone>` — the project has explicitly opted out of
+   letting the operator's personal caveman/ponytail state shape prompts
+   crafted for it, regardless of what's actually active on this machine
+   right now. Standalone `craft-prompt` use with no `.foreman/config.json`
+   at all (no Foreman-managed roadmap in this project) behaves as `true`.
+1. **Flag check** (only if step 0 didn't already decide `false`): both
+   `<task_context>` and `<tone>` below depend on whether ponytail/caveman
+   are active *for the crafting session right now*. Check both flags in one
+   call: `test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
+   "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
+   `Test-Path` equivalent against `$env:CLAUDE_CONFIG_DIR` (falling back to
+   `$HOME/.claude`) joined with each flag name (PowerShell). Both
+   plugins' own `SessionStart` hooks fire unconditionally on every session and
+   already re-establish persona/tone from that same flag — so whatever this
+   prompt bakes in now only needs to *avoid contradicting* that, not carry the
+   state forward itself; if the flag changes before this prompt actually runs,
+   the destination session's own hook corrects it regardless of what's written
+   below.
 
 ```xml
 <task_context>
@@ -118,9 +130,10 @@ default "just in case".]
       found at craft time, domain framing instead of a competing "You are a"
       sentence) and a concrete one-sentence "done" state
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
-- [ ] `.caveman-active`/`.ponytail-active` were checked once at craft time
-      (not deferred to the spawned session) — `<tone>` omitted entirely if
-      caveman is active and no custom Tone was selected
+- [ ] `.foreman/config.json`'s `inheritOperatorTone` was checked first (default
+      `true`); only if it isn't `false` were `.caveman-active`/`.ponytail-active`
+      checked at craft time (not deferred to the spawned session) — `<tone>`
+      omitted entirely if caveman is active and no custom Tone was selected
 - [ ] `relevant_files` lists every file path with line ranges — no vague
       references (for `craft-prompt`, get this from the user directly; for
       `foreman:roadmap`, pass the entry's `touches` through as-is — do NOT

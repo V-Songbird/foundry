@@ -30,7 +30,11 @@ hasn't run `/foreman:init`.
 | Bootstrap a project's roadmap (one-time, per project) | `/foreman:init` |
 | Pick the next task, add a task, or review roadmap status | `/foreman:roadmap` |
 | Ground-truth the next candidates against the actual codebase | `/foreman:survey` |
-| Turn commit-hook discovery suggestions on or off | `/foreman:toggle-discovery` |
+
+Config flags (discovery suggestions on/off, whether prompts inherit your
+caveman/ponytail state) live in `.foreman/config.json`, a plain JSON file —
+no skill wraps it, edit it directly. See [The config file](#the-config-file)
+below.
 
 ### `/foreman:craft-prompt`
 
@@ -51,7 +55,11 @@ codebase at the start of its work, rather than assuming they're still
 accurate — the prompt may have been written earlier and run later.
 
 Default tone (override with the `Tone` optional section): checked once at
-craft time, not deferred to the spawned session — if `.caveman-active`
+craft time, not deferred to the spawned session. First gate: if the current
+project's `.foreman/config.json` sets `inheritOperatorTone` to `false`, the
+checks below are skipped entirely and the plain defaults apply regardless
+of what's actually active on this machine (see
+[The config file](#the-config-file)). Otherwise — if `.caveman-active`
 exists, the `<tone>` block is omitted entirely (caveman's own SessionStart
 hook already sets terse mode on whatever session runs the prompt);
 otherwise minimal and professional — silent by default, only what you need
@@ -101,13 +109,6 @@ what a future `next-candidates` call returns); a stale/duplicate/already-
 done finding writes a `notes` breadcrumb or status change via
 `update-status`.
 
-### `/foreman:toggle-discovery`
-
-Flips `.foreman/config.json`'s `discoverySuggestions` flag without
-re-running the whole `/foreman:init` interview. Reads the current state,
-asks which way to set it (or reads `on`/`off` straight from args), writes
-and commits just that file if it actually changed.
-
 ---
 
 ## The roadmap file
@@ -127,12 +128,31 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 {"id":"001","title":"Add JWT refresh middleware","why":"Sessions expire mid-request under load.","what":"Refresh the access token in middleware before its 15-min expiry.","status":"planned","source":"user","depends_on":[],"touches":["src/auth/middleware.ts"],"commits":[],"created_at":"2026-07-03","updated_at":"2026-07-03","notes":""}
 ```
 
-`.foreman/config.json` (also committed) holds the one policy toggle
-`/foreman:init` sets:
+---
+
+## The config file
+
+`.foreman/config.json` lives at the project root alongside `ROADMAP.jsonl`,
+also committed to git — a shared project policy, not personal state. Plain
+JSON, small enough that no CLI or skill wraps it: `/foreman:init` writes it
+once during setup, and any flag can be flipped later with a direct
+`Read`/`Write` (ask Claude to "turn discovery off" or "stop inheriting my
+caveman tone for this project" and it edits the file itself — no dedicated
+command needed for a two-field object).
 
 ```json
-{"discoverySuggestions": true}
+{"discoverySuggestions": true, "inheritOperatorTone": true}
 ```
+
+| Field | Type | Default if missing/unparseable | Meaning |
+| --- | --- | --- | --- |
+| `discoverySuggestions` | boolean | `false` | Whether `hooks/post-commit.js` ever nudges Claude to scan a commit for roadmap opportunities. Set once during `/foreman:init`'s interview. |
+| `inheritOperatorTone` | boolean | `true` | Whether prompts assembled by `craft-prompt`/`roadmap` inherit *your* personal caveman/ponytail state (checked at craft time — see `prompt-template.md`). Set to `false` to make this project's prompts always use the plain defaults (direct role sentence, minimal/professional tone) regardless of what's active on whoever's machine crafts them — useful when a project's prompts should read the same for everyone, independent of each operator's personal Claude Code tooling. |
+
+Both fields are independent and optional — a file with just one key is
+fine, the other falls back to its default. Neither field existing at all
+(no `.foreman/config.json`) means both defaults apply, same as every
+version of Foreman before `inheritOperatorTone` existed.
 
 ---
 
