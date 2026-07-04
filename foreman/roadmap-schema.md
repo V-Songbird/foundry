@@ -1,6 +1,6 @@
 # Foreman — ROADMAP.jsonl schema
 
-<!-- foreman:roadmap-schema lastmod:2026-07-03 -->
+<!-- foreman:roadmap-schema lastmod:2026-07-04 -->
 
 `ROADMAP.jsonl` lives at the **project root** (not inside this plugin) and is
 committed to git — it's a visible, shared record of the project's plan, not
@@ -103,8 +103,9 @@ JSON line to stdout: `{"ok":true, ...}` on success, `{"ok":false,"error":
 |---|---|---|
 | `add` | JSON via stdin: `title`, `why`, `what`, `source`, optional `depends_on`/`touches`/`notes`/`status` | Computes `id` as `max(existing)+1`, defaults `status` to `"planned"` (only `"planned"` or `"rejected"` are valid at creation — a task doesn't start out `in_progress`/`done`/`dropped`), stamps `created_at`/`updated_at`, appends the line, re-validates the file. Returns the new `entry`. |
 | `update-status` | JSON via stdin: `id`, `status`, optional `commit`, optional `notes` | Transitions status, appends `commit` to `commits[]` (no duplicates), **appends** `notes` (never overwrites), bumps `updated_at`, re-validates the file. Returns the updated `entry`. |
+| `update-deps` | JSON via stdin: `id`, `add_depends_on` (non-empty array of ids) | Adds ids to an existing entry's `depends_on` (no duplicates), rejects unknown ids and self-dependencies, bumps `updated_at`. For a hidden dependency discovered after the entry was created — `add` only sets `depends_on` at creation time, this is the only way to correct it later. Structural, not a breadcrumb: this changes what `next-candidates` computes as unblocked, so it's the mechanism `foreman:survey` uses to make a finding persist across sessions instead of just noting it. |
 | `list` | optional flag: `--status planned,in_progress` | Returns `entries` — filtered if `--status` given, everything otherwise. Read-only. |
-| `next-candidates` | optional flag: `--limit N` (default 5) | Mechanical filter (unblocked: `planned`, every `depends_on` done) + rank (most `depends_on`-referenced first as a derived importance proxy — no stored priority field — then oldest `created_at`) + a `collision` flag per candidate (its `touches` overlaps a currently-`in_progress` entry's). Returns `{"candidates":[...], "total_unblocked": N}`. This is what `foreman:roadmap`'s "Pick the next task" calls — never `list` + manual filtering for that flow, `next-candidates` exists specifically to avoid loading the whole file into context just to do graph filtering that needs no judgment. |
+| `next-candidates` | optional flag: `--limit N` (default 5) | Mechanical filter (unblocked: `planned`, every `depends_on` done) + rank (most `depends_on`-referenced first as a derived importance proxy — no stored priority field — then oldest `created_at`) + a `collision` flag per candidate (its `touches` overlaps a currently-`in_progress` entry's) + each candidate's `notes` (so a breadcrumb left by `foreman:survey` is visible without a separate `list` call). Returns `{"candidates":[...], "total_unblocked": N}`. This is what `foreman:roadmap`'s "Pick the next task" calls — never `list` + manual filtering for that flow, `next-candidates` exists specifically to avoid loading the whole file into context just to do graph filtering that needs no judgment. |
 | `check-duplicate` | JSON via stdin: `title`, `why` | Word-overlap (Jaccard) match against `rejected` entries only. Returns `{"duplicate": bool, "matches": [...]}`. Not semantic — a cheap filter to stop re-asking about something already declined, not a guarantee. |
 
 Examples:
@@ -114,6 +115,9 @@ echo '{"title":"Add JWT refresh middleware","why":"...","what":"...","source":"u
 
 echo '{"id":"002","status":"done","commit":"a1b2c3d"}' \
   | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status
+
+echo '{"id":"004","add_depends_on":["002"]}' \
+  | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-deps
 
 node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js next-candidates --limit 5
 ```
@@ -173,6 +177,13 @@ All access — from any caller — goes through `scripts/roadmap.js`, and
   verify a candidate before crafting its prompt — see `prompt-template.md`'s
   `truth_grounding` block, which is exactly the mechanism that makes that
   safe to skip at pick time.
+- `foreman:survey` — the one caller that *does* investigate the codebase
+  against the roadmap, on purpose, only when explicitly invoked (never from
+  `foreman:roadmap`'s fast pick-next-task path — see 0.4.4-alpha's changelog
+  entry for why that path forbids exploration). Writes findings back via
+  `update-deps` (hidden dependency found — structural, changes future
+  ranking) or `update-status` (stale/duplicate/already-done, notes-only or a
+  user-confirmed status change) — never a direct `Edit`.
 - `foreman/hooks/post-commit.js` — the only caller that reads the file
   in-process (it `require()`s `roadmap.js`'s `readEntries` directly, same
   Node process, no subprocess) to decide whether to mention status-sync at

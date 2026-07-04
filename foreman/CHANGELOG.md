@@ -8,6 +8,43 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.6.0-alpha] — 2026-07-04
+
+### Added — `foreman:survey`, on-demand ground-truthing of near-term roadmap candidates
+
+`foreman:roadmap`'s pick-next-task branch ranks purely mechanically
+(unblocks count, then oldest) and never checks the codebase — deliberately,
+per 0.4.4-alpha. That left a real gap: nothing ever re-checked whether a
+`done` task's `commits` actually exist, whether a candidate's `touches`
+still match reality, or whether a dependency exists in the code that
+`depends_on` never modeled. `foreman:survey` closes that gap as a separate,
+explicitly-triggered skill — never wired into the fast pick-next-task path,
+so the mechanical branch stays exactly as cheap as 0.4.4-alpha made it.
+
+- **`roadmap.js` gained `update-deps`** — adds ids to an existing entry's
+  `depends_on` (no duplicates, rejects unknown ids and self-dependencies).
+  `add` only sets `depends_on` at creation time; this is the only way to
+  correct it afterward. This is what makes a survey finding durable across
+  sessions: a hidden dependency gets written into the graph
+  `next-candidates` already reads, so a completely new session picks up the
+  corrected order automatically — no memory or cache involved, just the
+  same file everyone already reads.
+- **`next-candidates` now returns each candidate's `notes`** — previously
+  omitted from the output entirely, so a breadcrumb left by `update-status`
+  was invisible to the picking flow unless something separately called
+  `list`. This is the soft-signal path for findings that aren't a hard
+  block (a preference or insight without a structural reason) — visible as
+  context to whoever picks next, not a guaranteed mechanical reorder.
+- **`skills/survey/SKILL.md`** — surveys the top unblocked candidates (same
+  default 5 as `foreman:roadmap`, not the whole backlog), dispatches one
+  `Explore` agent per candidate in parallel to check touches/dependencies/
+  duplication against the actual code, then asks before persisting any
+  finding via `update-deps` or `update-status`. Never touches
+  `ROADMAP.jsonl` directly, same as every other Foreman flow.
+
+65 tests total (58 existing + 7 new: 6 for `update-deps`, 1 for `notes`
+surfacing in `next-candidates`).
+
 ## [0.5.0-alpha] — 2026-07-03
 
 ### Changed — renamed from Relay to Foreman

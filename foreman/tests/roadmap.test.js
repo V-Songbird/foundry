@@ -5,9 +5,12 @@
 // Covers:
 //   - add computes sequential zero-padded ids, validates required fields/source
 //   - update-status transitions status, appends (not replaces) commits/notes
+//   - update-deps adds a discovered depends_on id to an existing entry,
+//     rejecting unknown ids and self-dependencies
 //   - list filters by status, returns everything with no filter
 //   - next-candidates filters unblocked planned tasks, ranks by unblocks
-//     count then recency, flags touches collisions against in_progress
+//     count then recency, flags touches collisions against in_progress,
+//     and surfaces each candidate's notes
 //   - add/update-status return a `warnings` field for long why/what/notes
 //     without failing the write
 //   - check-duplicate finds word-overlap matches against rejected entries only
@@ -119,6 +122,50 @@ describe('update-status', () => {
     const { status, json } = run(['update-status'], { id: '001', status: 'cancelled' });
     assert.equal(status, 1);
     assert.match(json.error, /status must be one of/);
+  });
+});
+
+describe('update-deps', () => {
+  beforeEach(() => {
+    writeRoadmap(project, [
+      { id: '001', title: 'prereq', why: 'a', what: 'a', status: 'planned', source: 'user', depends_on: [], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+      { id: '002', title: 'target', why: 'a', what: 'a', status: 'planned', source: 'user', depends_on: [], touches: [], commits: [], created_at: '2026-07-01', updated_at: '2026-07-01', notes: '' },
+    ]);
+  });
+
+  test('adds a discovered dependency', () => {
+    const { json } = run(['update-deps'], { id: '002', add_depends_on: ['001'] });
+    assert.deepEqual(json.entry.depends_on, ['001']);
+  });
+
+  test('does not duplicate an already-present dependency', () => {
+    run(['update-deps'], { id: '002', add_depends_on: ['001'] });
+    const { json } = run(['update-deps'], { id: '002', add_depends_on: ['001'] });
+    assert.deepEqual(json.entry.depends_on, ['001']);
+  });
+
+  test('rejects an unknown dependency id', () => {
+    const { status, json } = run(['update-deps'], { id: '002', add_depends_on: ['999'] });
+    assert.equal(status, 1);
+    assert.match(json.error, /unknown depends_on id/);
+  });
+
+  test('rejects a task depending on itself', () => {
+    const { status, json } = run(['update-deps'], { id: '002', add_depends_on: ['002'] });
+    assert.equal(status, 1);
+    assert.match(json.error, /cannot depend on itself/);
+  });
+
+  test('rejects unknown id', () => {
+    const { status, json } = run(['update-deps'], { id: '999', add_depends_on: ['001'] });
+    assert.equal(status, 1);
+    assert.match(json.error, /no entry with id 999/);
+  });
+
+  test('rejects an empty add_depends_on', () => {
+    const { status, json } = run(['update-deps'], { id: '002', add_depends_on: [] });
+    assert.equal(status, 1);
+    assert.match(json.error, /requires id and a non-empty add_depends_on/);
   });
 });
 
@@ -253,6 +300,14 @@ describe('next-candidates', () => {
     const byId = Object.fromEntries(json.candidates.map((c) => [c.id, c]));
     assert.equal(byId['002'].collision, true);
     assert.equal(byId['003'].collision, false);
+  });
+
+  test('surfaces notes so a survey breadcrumb is visible without a separate list call', () => {
+    writeRoadmap(project, [
+      { id: '001', title: 'surveyed', status: 'planned', depends_on: [], touches: [], notes: 'surveyed 2026-07-04: prefer after 002, shared risk pattern' },
+    ]);
+    const { json } = run(['next-candidates']);
+    assert.equal(json.candidates[0].notes, 'surveyed 2026-07-04: prefer after 002, shared risk pattern');
   });
 
   test('respects --limit and reports total_unblocked separately', () => {

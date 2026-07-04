@@ -141,6 +141,31 @@ function cmdUpdateStatus(root, payload) {
   return warnings.length ? { entry, warnings } : { entry };
 }
 
+// Structural fix for a hidden dependency `add` missed at creation time —
+// mutates depends_on on an existing entry, which next-candidates already
+// reads. Unlike notes, this changes future ranking mechanically instead of
+// just leaving a breadcrumb for a human/Claude to notice.
+function cmdUpdateDeps(root, payload) {
+  const { id, add_depends_on } = payload || {};
+  if (!id || !Array.isArray(add_depends_on) || !add_depends_on.length) {
+    throw new Error("update-deps requires id and a non-empty add_depends_on array");
+  }
+  const entries = readEntries(root);
+  const entry = entries.find((e) => e.id === id);
+  if (!entry) throw new Error(`no entry with id ${id}`);
+  const knownIds = new Set(entries.map((e) => e.id));
+  const unknown = add_depends_on.filter((dep) => !knownIds.has(dep));
+  if (unknown.length) throw new Error(`unknown depends_on id(s): ${unknown.join(", ")}`);
+  if (add_depends_on.includes(id)) throw new Error("a task cannot depend on itself");
+  entry.depends_on = Array.isArray(entry.depends_on) ? entry.depends_on : [];
+  for (const dep of add_depends_on) {
+    if (!entry.depends_on.includes(dep)) entry.depends_on.push(dep);
+  }
+  entry.updated_at = today();
+  writeEntries(root, entries);
+  return { entry };
+}
+
 function cmdList(root, filters) {
   const entries = readEntries(root);
   const statusFilter = filters.status ? new Set(String(filters.status).split(",")) : null;
@@ -181,6 +206,7 @@ function cmdNextCandidates(root, filters) {
       unblocks: unblocksCount.get(e.id) || 0,
       collision: (e.touches || []).some((t) => inProgressTouches.has(t)),
       created_at: e.created_at,
+      notes: e.notes || "",
     }))
     .sort((a, b) => {
       if (b.unblocks !== a.unblocks) return b.unblocks - a.unblocks;
@@ -250,6 +276,7 @@ prints one JSON line to stdout: {"ok":true, ...} on success,
                     status (create-time only): "planned" (default) | "rejected"
   update-status     stdin JSON: {id, status, commit?, notes?}
                     status: "planned" | "in_progress" | "done" | "dropped" | "rejected"
+  update-deps       stdin JSON: {id, add_depends_on}   (add_depends_on: non-empty array of ids)
   list              flag: --status planned,in_progress   (optional, comma-separated)
   next-candidates   flag: --limit N   (optional, default 5)
   check-duplicate   stdin JSON: {title, why}
@@ -259,6 +286,8 @@ Examples:
     | node roadmap.js add
   echo '{"id":"003","status":"done","commit":"a1b2c3d"}' \\
     | node roadmap.js update-status
+  echo '{"id":"004","add_depends_on":["002"]}' \\
+    | node roadmap.js update-deps
   node roadmap.js next-candidates --limit 5
 `;
 
@@ -295,6 +324,9 @@ function main() {
     case "update-status":
       result = cmdUpdateStatus(root, readStdinJSON());
       break;
+    case "update-deps":
+      result = cmdUpdateDeps(root, readStdinJSON());
+      break;
     case "list":
       result = cmdList(root, parseFlags(rest));
       break;
@@ -306,7 +338,7 @@ function main() {
       break;
     default:
       throw new Error(
-        `unknown subcommand: ${sub}. Use add|update-status|list|next-candidates|check-duplicate`
+        `unknown subcommand: ${sub}. Use add|update-status|update-deps|list|next-candidates|check-duplicate`
       );
   }
   process.stdout.write(JSON.stringify({ ok: true, ...result }));
@@ -329,6 +361,7 @@ module.exports = {
   nextId,
   cmdAdd,
   cmdUpdateStatus,
+  cmdUpdateDeps,
   cmdList,
   cmdNextCandidates,
   cmdCheckDuplicate,
