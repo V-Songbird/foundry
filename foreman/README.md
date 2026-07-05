@@ -84,7 +84,7 @@ and once it's done, log it as its own `ROADMAP.jsonl` entry (already
 Persona and tone are project **declarations**, resolved once at craft time
 by a single `scripts/render-sections.js` call (the same one that resolves
 `customSections`/`omitSections` below). Foreman never detects which style
-plugins (ponytail, caveman, hush, ...) are active on the machine — a
+plugins (hush, or any prompt-injection plugin) are active on the machine — a
 project that runs one simply declares the prompt shape it wants:
 `usePersona: false` swaps `task_context`'s "You are a [role]" sentence for
 domain framing (right when a plugin already establishes a persona in the
@@ -175,7 +175,7 @@ needed for a small flat object).
 | Field | Type | Default if missing/unparseable | Meaning |
 | --- | --- | --- | --- |
 | `discoverySuggestions` | boolean | `false` | Whether `hooks/post-commit.js` ever nudges Claude to scan a commit for roadmap opportunities. Set once during `/foreman:init`'s interview. |
-| `usePersona` | boolean | `true` | Whether `task_context` in assembled prompts opens with a "You are a [role]" persona sentence. Set to `false` for domain framing ("Domain: [specialization]") instead — the right choice when a style plugin (e.g. ponytail) already establishes a persona in the sessions that run these prompts, where a second identity claim would compete rather than layer. A declaration, not detection: foreman never checks which plugins are installed or active. Pair with `omitSections: ["tone"]` when a plugin (e.g. caveman, hush) also governs tone. |
+| `usePersona` | boolean | `true` | Whether `task_context` in assembled prompts opens with a "You are a [role]" persona sentence. Set to `false` for domain framing ("Domain: [specialization]") instead — the right choice when a style plugin already establishes a persona in the sessions that run these prompts, where a second identity claim would compete rather than layer. A declaration, not detection: foreman never checks which plugins are installed or active. Pair with `omitSections: ["tone"]` when a plugin (e.g. hush) also governs tone. |
 | `requireVerification` | boolean | `false` | Whether `hooks/post-commit.js` lets Claude mark a task `done` unilaterally. `false` (default): a commit that finishes an in-progress task gets `status:"done"` straight away, same as ever. `true`: the commit's SHA and touched files still get recorded immediately (data isn't worth gating), but status stays `in_progress` until Claude asks you (`AskUserQuestion`) to confirm the work is actually verified — only then does it call `update-status` with `"done"`. Off by default since it adds a confirmation step to every task, including trivial ones. |
 | `customSections` | array | `[]` | Project-defined XML sections injected into every prompt `craft-prompt`/`roadmap` assemble — see [Custom sections](#custom-sections) below. |
 | `omitSections` | array | `[]` | Optional template tags to always drop from every assembled prompt — see [Omitting optional sections](#omitting-optional-sections) below. |

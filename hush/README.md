@@ -32,7 +32,7 @@ The quiet style takes effect at your next session. There is nothing to invoke �
 
 ## How it works (for the curious)
 
-Style plugins (caveman and friends) fight the default system prompt by re-injecting "be terse" rules every turn. That costs tokens per turn, drifts on long sessions, and only touches the smallest of the three token sinks — the prose you read. Hush attacks all three with the strongest mechanism available for each.
+Prompt-injection style plugins fight the default system prompt by re-injecting "be terse" rules every turn. That costs tokens per turn, drifts on long sessions, and only touches the smallest of the three token sinks — the prose you read. Hush attacks all three with the strongest mechanism available for each.
 
 ### 1. Forced output style — the prose sink
 
@@ -71,9 +71,9 @@ Environment variables, e.g. via `env` in `settings.json`:
 | `HUSH_NARRATION_BUDGET` | `120` | Narration words allowed per turn before the meter fires (both modes) |
 | `HUSH_DISABLE` | unset | `1` disables both hooks (the output style stays; disable the plugin to remove it) |
 
-## Relationship to caveman
+## Relationship to prompt-injection style plugins
 
-hush replaces caveman's core mechanism rather than complementing it. Same terseness goal, but implemented in the system prompt instead of per-turn injected rules — and it also covers the input-token side caveman never touches. If both are installed, hush's forced output style takes precedence anyway; running both just pays caveman's injection tax for nothing. Keep caveman only if you want its extras (commit/review skills, wenyan levels, cavecrew agents).
+hush replaces their core mechanism rather than complementing them. Same terseness goal, but implemented in the system prompt instead of per-turn injected rules — and it also covers the input-token side those plugins never touch. If one is installed alongside hush, hush's forced output style takes precedence anyway; running both just pays the injection tax for nothing. Keep such a plugin only if you want its unrelated extras (skills, agents, and the like).
 
 ## Relationship to razor
 
