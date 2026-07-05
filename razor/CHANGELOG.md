@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0-alpha — 2026-07-05
+
+Evidence-carrying gates: the deny reasons stop quoting philosophy and start presenting repo facts.
+
+- Dependency soft gate now walks up from the working directory to the nearest ecosystem manifest (`package.json`, `pyproject.toml` PEP 621 + poetry / `requirements.txt`, `Cargo.toml`, `go.mod`, `composer.json`, `Gemfile`, `*.csproj`/`*.fsproj`) and lists the actual installed dependencies in the deny reason (capped at 30, with count). Line-scan extraction, no parser dependencies. No manifest → 0.1.0 generic wording.
+- Build ledger: `SessionStart` snapshots the git baseline (base commit + untracked count, once per session — resume/compact keep it); a `Stop` hook fires one question, once per session, when the tree shows sprawl — net growth > `RAZOR_LEDGER_LOC` (default 500) with deletions < 10% of insertions, or > `RAZOR_LEDGER_FILES` (default 8) new files. Insertion-heavy refactors with real deletions never trip it. Not a git repo → inert. `RAZOR_LEDGER=off` disables.
+- 93 tests (up from 71).
+
 ## 0.1.0-alpha — 2026-07-05
 
 Initial release. YAGNI enforcement at the harness level.

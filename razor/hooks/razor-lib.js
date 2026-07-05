@@ -6,6 +6,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 // Kept compact on purpose (~300 tokens per injection), and the
 // no-deliberation line keeps reasoning models from spending thinking
@@ -66,6 +67,21 @@ function writeState(sessionId, state) {
 function isActive(state) {
   if (process.env.RAZOR_DISABLE === '1') return false;
   return !(state && state.off === true);
+}
+
+// Best-effort git call; null on any failure (not a repo, no git, timeout).
+function git(args, cwd) {
+  if (!cwd) return null;
+  try {
+    return execFileSync('git', args, {
+      cwd,
+      encoding: 'utf-8',
+      timeout: 4000,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return null;
+  }
 }
 
 // ---- turn detection (same contract as hush's narration meter) ----
@@ -132,4 +148,5 @@ module.exports = {
   isActive,
   isRealUserPrompt,
   currentTurnKey,
+  git,
 };
