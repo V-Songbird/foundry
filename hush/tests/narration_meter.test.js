@@ -1,6 +1,6 @@
 'use strict';
 
-const { test, describe } = require('node:test');
+const { test, describe, after } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const os = require('os');
@@ -47,8 +47,12 @@ function wakeupFired(text) {
   });
 }
 
+const transcriptDirs = [];
+
 function writeTranscript(lines) {
-  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'hush-')), 't.jsonl');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-'));
+  transcriptDirs.push(dir);
+  const file = path.join(dir, 't.jsonl');
   fs.writeFileSync(file, lines.join('\n') + '\n');
   return file;
 }
@@ -57,6 +61,16 @@ const words = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ');
 
 let seq = 0;
 const freshSession = () => `hush-test-${process.pid}-${++seq}`;
+
+// The hook writes its dedup state into os.tmpdir(); without cleanup a stale
+// state file can collide with a later run (or, for a session_id-less input,
+// with the shared "unknown" key).
+after(() => {
+  for (let i = 1; i <= seq; i++) {
+    fs.rmSync(path.join(os.tmpdir(), `hush-meter-hush-test-${process.pid}-${i}.json`), { force: true });
+  }
+  for (const dir of transcriptDirs) fs.rmSync(dir, { recursive: true, force: true });
+});
 
 describe('unit: measureLastTurn', () => {
   test('final block is the deliverable, not narration', () => {

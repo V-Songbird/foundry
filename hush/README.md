@@ -84,6 +84,7 @@ Complementary, not overlapping: hush governs how the agent *talks*; [razor](../r
 - No hook event can rewrite or suppress the assistant's generated text — confirmed in the official hooks reference. The output side is therefore prompt-level by necessity; hush just uses the strongest prompt-level mechanism that exists.
 - The output style takes effect at session start; changing it mid-session requires `/clear` or a new session.
 - Compression targets Bash/PowerShell only. Read/Edit results are never touched — editing needs full file fidelity.
+- The narration meter's per-session state files (`hush-meter-<session>.json` in the OS temp dir) are never deleted by the plugin — there is no session-end cleanup hook path worth the complexity. They are a few bytes each; OS temp cleaning handles them.
 
 ## Tests
 
