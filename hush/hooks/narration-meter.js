@@ -23,6 +23,13 @@ function readInput() {
 
 function isRealUserPrompt(entry) {
   if (entry.type !== "user" || entry.isSidechain) return false;
+  // Harness-injected continuations look like fresh user turns but aren't:
+  // task-notification entries carry origin.kind === "task-notification", and
+  // ScheduleWakeup firings carry isMeta === true with no origin at all. Only
+  // origin.kind === "human" (or its absence, for older transcripts) is a turn
+  // boundary a person actually typed.
+  if (entry.isMeta) return false;
+  if (entry.origin && entry.origin.kind !== "human") return false;
   const content = entry.message?.content;
   if (typeof content === "string") return true;
   if (Array.isArray(content)) {

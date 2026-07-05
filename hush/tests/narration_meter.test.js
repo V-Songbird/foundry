@@ -27,6 +27,26 @@ function toolResult() {
   });
 }
 
+// Background Task-tool completion: type:"user", string content, origin.kind
+// marks it as harness-injected rather than typed by a person.
+function taskNotification(text) {
+  return JSON.stringify({
+    type: 'user',
+    message: { role: 'user', content: `<task-notification>${text}</task-notification>` },
+    origin: { kind: 'task-notification' },
+  });
+}
+
+// ScheduleWakeup firing: type:"user", string content (the wakeup's reason/
+// prompt), isMeta:true, no origin field at all.
+function wakeupFired(text) {
+  return JSON.stringify({
+    type: 'user',
+    message: { role: 'user', content: text },
+    isMeta: true,
+  });
+}
+
 function writeTranscript(lines) {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'hush-')), 't.jsonl');
   fs.writeFileSync(file, lines.join('\n') + '\n');
@@ -87,6 +107,31 @@ describe('unit: measureLastTurn', () => {
 
   test('wordCount ignores extra whitespace', () => {
     assert.strictEqual(wordCount('  a\n b\tc  '), 3);
+  });
+
+  test('task-notification does not reset the turn: pings across it accumulate', () => {
+    const { narration, blocks } = measureLastTurn([
+      userPrompt('run the four audits'),
+      assistantText(words(20)), // status ping after audit 1
+      taskNotification('audit 2 done'),
+      assistantText(words(20)), // status ping after audit 2
+      taskNotification('audit 3 done'),
+      assistantText(words(20)), // status ping after audit 3
+      taskNotification('audit 4 done'),
+      assistantText(words(30)), // final synthesis
+    ]);
+    assert.strictEqual(narration, 60);
+    assert.strictEqual(blocks, 3);
+  });
+
+  test('ScheduleWakeup firing (isMeta) does not reset the turn either', () => {
+    const { narration } = measureLastTurn([
+      userPrompt('go'),
+      assistantText(words(15)), // "waiting on it, will report back"
+      wakeupFired('check background agent and continue'),
+      assistantText(words(10)), // final message
+    ]);
+    assert.strictEqual(narration, 15);
   });
 });
 
