@@ -41,6 +41,20 @@ an instruction for the spawned session to act on later):**
    state forward itself; if the flag changes before this prompt actually runs,
    the destination session's own hook corrects it regardless of what's written
    below.
+2. **Custom sections.** If a project root is in scope, run
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/render-sections.js` — it reads
+   `.foreman/config.json`'s optional `customSections` array
+   (`[{"tag": "...", "content": "..."}]`), validates each entry (tag format,
+   not a reserved template tag, not a duplicate, non-empty content), and
+   prints `{"sections": [{"tag", "xml"}], "warnings": [...]}`. Inline every
+   `sections[].xml` value, in order, verbatim, at the `[CUSTOM SECTIONS]`
+   placeholder below — never invent, edit, or reorder its content, that
+   defeats the point of it being project-defined. If `sections` is empty,
+   remove the placeholder line entirely. Surface any `warnings` briefly to
+   the user (a skipped entry — bad tag, reserved tag, duplicate, empty
+   content) so a malformed `config.json` doesn't fail silently; a warning
+   here never blocks the rest of the assembly. No project root in scope
+   (standalone template use) → skip this step, no placeholder in output.
 
 ```xml
 <task_context>
@@ -119,6 +133,9 @@ Expected: [pass/fail signal — e.g. "all tests pass", "exit code 0"]
 Do NOT report success without running this. If it fails, iterate until it passes.
 </task_rules>
 
+[CUSTOM SECTIONS — inline each `sections[].xml` from `render-sections.js` here,
+verbatim, in order; omit this whole line if `sections` was empty]
+
 [OPTIONAL — include only when the task has a clear before/after pattern]
 <example>
 [Before snippet or input → After snippet or expected output]
@@ -158,6 +175,10 @@ default "just in case".]
       explore the codebase to upgrade area-level hints into exact
       file:line ranges, `truth_grounding` covers that gap at handoff time)
 - [ ] `task_rules` has numbered steps AND a runnable verification command with expected output
+- [ ] custom sections (if `.foreman/config.json` had a `customSections`
+      array) were rendered via `render-sections.js` and inlined verbatim
+      after `task_rules` — never hand-written or invented here — and any
+      `warnings` it returned were surfaced to the user
 - [ ] prompt contains no phrases like "as we discussed" or "from earlier" — zero assumed context
 - [ ] a short verb-first imperative name (under 60 chars) and a 1–2 sentence
       plain-language summary are ready — `TaskCreate`'s `subject`/`description`

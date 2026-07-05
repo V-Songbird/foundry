@@ -8,6 +8,34 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.11.0-alpha] — 2026-07-05
+
+### Added
+
+- **`customSections`** — an optional array in `.foreman/config.json`
+  letting a project bake its own recurring instructions (compliance
+  notice, house style, team checklist) into every prompt
+  `craft-prompt`/`roadmap` assemble, without editing the plugin's own
+  `prompt-template.md` (which lives under `${CLAUDE_PLUGIN_ROOT}` and gets
+  overwritten on plugin update/reinstall). Each entry is
+  `{tag, content}`, rendered as `<tag>content</tag>` and inlined after
+  `task_rules`.
+- **`scripts/render-sections.js`** — new mechanical validator/renderer for
+  `customSections`, following the same pattern `roadmap.js` set for
+  CLI-enforced logic instead of leaving validation to skill-prose trust:
+  rejects a bad tag format (`^[a-z][a-z0-9_]*$`), a tag reserved by the
+  fixed template, a duplicate tag, or empty content — each skipped with a
+  warning rather than failing the whole prompt. Content is XML-escaped
+  automatically so user-authored text can't corrupt the surrounding
+  prompt structure. `truth_grounding` and `scope_discipline` stay fixed
+  and non-overridable — custom sections are additive only.
+- `prompt-template.md`'s craft-time environment check gained a step 2
+  that runs `render-sections.js` and inlines its output at a new
+  `[CUSTOM SECTIONS]` placeholder; `craft-prompt/SKILL.md` and
+  `roadmap/SKILL.md` needed no changes — both already assemble prompts by
+  following `prompt-template.md`, the same dedup principle 0.10.0-alpha
+  established.
+
 ## [0.10.0-alpha] — 2026-07-04
 
 ### Fixed — two real bugs found by a full-plugin token/correctness audit

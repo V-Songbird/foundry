@@ -36,6 +36,11 @@ function runRoadmap(argv, stdinData, env) {
   return runNodeScript(path.join(SCRIPTS_DIR, 'roadmap.js'), argv, stdinData, env);
 }
 
+/** Run foreman/scripts/render-sections.js. */
+function runRenderSections(env) {
+  return runNodeScript(path.join(SCRIPTS_DIR, 'render-sections.js'), [], null, env);
+}
+
 /** Create a fresh empty temp directory usable as a project root. */
 function makeTmpProject() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'foreman-project-'));
@@ -78,6 +83,7 @@ module.exports = {
   runScriptRaw,
   runNodeScript,
   runRoadmap,
+  runRenderSections,
   makeTmpProject,
   writeRoadmap,
   writeConfig,

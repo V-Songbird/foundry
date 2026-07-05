@@ -154,11 +154,40 @@ a small flat object).
 | `discoverySuggestions` | boolean | `false` | Whether `hooks/post-commit.js` ever nudges Claude to scan a commit for roadmap opportunities. Set once during `/foreman:init`'s interview. |
 | `inheritOperatorTone` | boolean | `true` | Whether prompts assembled by `craft-prompt`/`roadmap` inherit *your* personal caveman/ponytail state (checked at craft time — see `prompt-template.md`). Set to `false` to make this project's prompts always use the plain defaults (direct role sentence, minimal/professional tone) regardless of what's active on whoever's machine crafts them — useful when a project's prompts should read the same for everyone, independent of each operator's personal Claude Code tooling. |
 | `requireVerification` | boolean | `false` | Whether `hooks/post-commit.js` lets Claude mark a task `done` unilaterally. `false` (default): a commit that finishes an in-progress task gets `status:"done"` straight away, same as ever. `true`: the commit's SHA and touched files still get recorded immediately (data isn't worth gating), but status stays `in_progress` until Claude asks you (`AskUserQuestion`) to confirm the work is actually verified — only then does it call `update-status` with `"done"`. Off by default since it adds a confirmation step to every task, including trivial ones. |
+| `customSections` | array | `[]` | Project-defined XML sections injected into every prompt `craft-prompt`/`roadmap` assemble — see [Custom sections](#custom-sections) below. |
 
 All fields are independent and optional — a file with just one or two keys
 is fine, the rest fall back to their defaults. Neither field existing at
 all (no `.foreman/config.json`) means every default applies, same as every
 version of Foreman before these flags existed.
+
+### Custom sections
+
+`customSections` lets a project bake its own recurring instructions —
+a compliance notice, a house style rule, a team-specific checklist —
+into every prompt Foreman assembles, without editing the plugin's own
+`prompt-template.md` (which lives under `${CLAUDE_PLUGIN_ROOT}` and gets
+overwritten on every plugin update/reinstall). It's an array of
+`{tag, content}` objects:
+
+```json
+{"customSections": [
+  {"tag": "compliance_notice", "content": "Any change touching payment data needs a security sign-off before merge."}
+]}
+```
+
+Each entry is rendered as `<tag>content</tag>` and inlined after
+`task_rules` in the assembled prompt, via
+`scripts/render-sections.js` — mechanical validation, not prose trust:
+`tag` must match `^[a-z][a-z0-9_]*$`, must not collide with a tag the
+fixed template already owns (`task_context`, `truth_grounding`,
+`scope_discipline`, `tone`, `background`, `relevant_files`, `context`,
+`task_rules`, `example`, `output_format`) or an earlier `customSections`
+entry, and `content` must be a non-empty string (XML-escaped
+automatically — `&`/`<`/`>` in your text won't break the surrounding
+prompt). A malformed entry is skipped with a warning, never fails the
+whole prompt. `truth_grounding` and `scope_discipline` stay fixed and
+non-overridable on purpose — custom sections are additive only.
 
 ---
 
