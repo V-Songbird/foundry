@@ -15,7 +15,7 @@ function configPath(root) {
 // Declaration, not detection: the project states whether crafted prompts
 // open task_context with a "You are a [role]" persona sentence (true,
 // default) or domain framing ("Domain: [specialization]", false — the right
-// choice when a style plugin like ponytail already establishes a persona in
+// choice when a style plugin already establishes a persona in
 // the destination session). Foreman no longer sniffs other plugins' flag
 // files; any present or future style plugin is compatible by construction.
 function readUsePersona(config) {

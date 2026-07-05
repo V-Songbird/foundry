@@ -8,11 +8,22 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.14.1-alpha] — 2026-07-05
+
+### Changed — third-party plugin names removed everywhere
+
+Follow-up to the README/description de-branding: `prompt-template.md`'s
+craft-time guidance, `scripts/render-sections.js`'s comments, the
+render-sections test fixtures, and this changelog's own historical entries
+now describe third-party style plugins generically (persona-style plugin,
+tone plugin, flag files) instead of naming them. No behavioral change —
+110 tests unchanged.
+
 ## [0.14.0-alpha] — 2026-07-05
 
 ### Changed — style-plugin compatibility flips from detection to declaration
 
-`inheritOperatorTone` and the ponytail/caveman flag-file sniffing are gone.
+`inheritOperatorTone` and the third-party flag-file sniffing are gone.
 The old model required foreman to know each style plugin's on-disk marker
 case by case, and hush already broke it: an output-style plugin leaves no
 flag file to detect. The project now declares the prompt shape it wants in
@@ -21,11 +32,11 @@ compatible by construction:
 
 - `usePersona` (boolean, default `true`) — `true`: `task_context` opens
   with "You are a [role]"; `false`: domain framing ("Domain:
-  [specialization]"), the behavior previously triggered by detecting
-  ponytail. Replaces `inheritOperatorTone`, which is now ignored (no
-  users yet — hard removal, no deprecation shim).
+  [specialization]"), the behavior previously triggered by detecting a
+  persona-injecting style plugin. Replaces `inheritOperatorTone`, which is
+  now ignored (no users yet — hard removal, no deprecation shim).
 - `omitSections: ["tone"]` — already existed; now the *only* mechanism for
-  dropping the `<tone>` block, replacing the caveman-active special case.
+  dropping the `<tone>` block, replacing the tone-plugin-active special case.
 
 Also removes a semantic wart: detection was time-skewed (flags read at
 craft time, prompt runs later); a declaration can't go stale.
@@ -46,7 +57,7 @@ session: "Task 4 done. Now task 5 —" ticking through a 5-index migration).
 Now reads "Reason through the approach and edge cases in your thinking
 before editing — not in prose between tool calls." Style-neutral: same
 rigor, routed to thinking blocks, regardless of which communication style
-(hush, caveman, default) the consuming session runs.
+(hush, a third-party plugin, default) the consuming session runs.
 
 ## [0.13.0-alpha] — 2026-07-05
 
@@ -59,8 +70,8 @@ cases. Found two, both the same shape as prior fixes (fold a mechanical
 fact into a script's output instead of having Claude/an agent re-derive
 it):
 
-- **`scripts/render-sections.js` now also resolves `inheritOperatorTone`,
-  `ponytailActive`, and `cavemanActive`**, with the same precedence
+- **`scripts/render-sections.js` now also resolves `inheritOperatorTone`
+  and the two style-plugin active flags**, with the same precedence
   `prompt-template.md` used to spell out across two separate craft-time
   steps (a `Read` of `.foreman/config.json`, then a conditional
   Bash/PowerShell `test -f`/`Test-Path` against the two flag files) —
@@ -69,7 +80,7 @@ it):
   `node render-sections.js`) into **one** — this runs on every single
   prompt assembly in both `craft-prompt` and `roadmap`'s pick-next-task
   branch, so it's the highest-frequency path in the plugin. `<task_context>`
-  and `<tone>` now read `ponytailActive`/`cavemanActive` off that one call's
+  and `<tone>` now read the two active flags off that one call's
   output instead of instructing a fresh file check. Neither skill file
   needed changes — both already say "follow `prompt-template.md` exactly"
   per the 0.10.0-alpha dedup, so they inherit the new behavior by reading
@@ -89,7 +100,7 @@ change either — both hooks were already pure deterministic Node with zero
 Claude-in-the-loop processing.
 
 111 tests total (105 existing + 6 new, covering `render-sections.js`'s
-`inheritOperatorTone`/`ponytailActive`/`cavemanActive` resolution and its
+`inheritOperatorTone` and style-plugin flag resolution and its
 precedence over the on-disk flag files).
 
 ## [0.12.0-alpha] — 2026-07-05
@@ -214,7 +225,7 @@ implements it inline, in the same commit, with no roadmap entry ever
 recording it happened. Not mechanically detectable from a bare git diff
 (no way to distinguish "task legitimately grew" from "unrelated feature
 got bundled in") — needs Claude's own in-the-moment judgment. Considered
-and rejected a `SessionStart` hook (like ponytail/caveman/codebase-memory
+and rejected a `SessionStart` hook (the mechanism style/memory plugins
 use) for this: Foreman deliberately removed its own every-session hook in
 the 0.4.0-alpha redesign, and a `SessionStart` hook fires before Claude
 even knows what the session will touch — it can't carry a specific task's
@@ -376,7 +387,7 @@ loop.
 ### Added — `.foreman/config.json`'s `inheritOperatorTone`, removed `foreman:toggle-discovery`
 
 0.6.2-alpha made prompt assembly check the *operator's* personal
-`.caveman-active`/`.ponytail-active` state unconditionally. That conflates
+style-plugin flag files unconditionally. That conflates
 two different axes: an operator's personal Claude Code tooling preference,
 and a project's policy for how its own prompts should read. A project
 whose prompts get consumed by whoever's machine happens to craft them has
@@ -386,7 +397,7 @@ now.
 - **`inheritOperatorTone`** (new `.foreman/config.json` field, boolean,
   default `true` when missing/unparseable — matches every prior version's
   behavior). `prompt-template.md`'s craft-time check now reads this first:
-  `false` skips the `.caveman-active`/`.ponytail-active` check entirely and
+  `false` skips the style-plugin flag-file check entirely and
   uses the plain defaults (direct role sentence, minimal/professional
   tone) no matter what's actually active on the crafting machine.
   `craft-prompt/SKILL.md`'s embedded copy and both checklists updated to
@@ -483,28 +494,28 @@ No `roadmap.js` change — `.foreman/config.json` was already a direct
 
 ### Fixed — tone/role checked at craft time instead of embedded as a runtime self-check
 
-The `<tone>` block used to tell the *spawned* session to read
-`.caveman-active` itself and branch at runtime. That's backwards on two
-counts: it's an extra Bash call the destination session pays for something
-knowable right now, and it can't see ponytail at all — `task_context`'s
-"You are a [role]" sentence and ponytail's own SessionStart-injected "You
-are a lazy senior developer" persona are two competing identity claims with
-no reconciliation, since ponytail wasn't part of Foreman's picture when the
-template was written.
+The `<tone>` block used to tell the *spawned* session to read the
+tone plugin's flag file itself and branch at runtime. That's backwards on
+two counts: it's an extra Bash call the destination session pays for
+something knowable right now, and it can't see persona-style plugins at
+all — `task_context`'s "You are a [role]" sentence and a persona plugin's
+own SessionStart-injected identity are two competing identity claims with
+no reconciliation, since such plugins weren't part of Foreman's picture
+when the template was written.
 
 - **`prompt-template.md` and `craft-prompt/SKILL.md`'s embedded copy**: both
-  `.caveman-active` and `.ponytail-active` are now checked once, at craft
+  style-plugin flag files are now checked once, at craft
   time, by whichever skill is assembling the prompt (one combined Bash/
   PowerShell call) — not written into the prompt as something the spawned
   session figures out later.
-  - `.caveman-active` found (and no custom `Tone` selected) → the whole
-    `<tone>` block is omitted from the assembled prompt. Caveman's own
+  - Tone-plugin flag found (and no custom `Tone` selected) → the whole
+    `<tone>` block is omitted from the assembled prompt. That plugin's own
     `SessionStart` hook re-establishes terse mode on any session that
     actually runs the prompt regardless, so restating it is redundant and
     one more thing that can go stale between crafting and execution.
-  - `.ponytail-active` found → `task_context` opens with domain framing
+  - Persona-plugin flag found → `task_context` opens with domain framing
     ("Domain: [role].") instead of "You are a [role]." — no longer a second
-    identity sentence competing with ponytail's own persona injection.
+    identity sentence competing with that plugin's own persona injection.
   - Neither flag found → same defaults as before (minimal/professional
     tone, direct role sentence).
 - Both files' handoff checklists and `README.md`'s "Default tone" paragraph
@@ -678,8 +689,8 @@ convention shown literally to a human reading chat.
   Claude reached for first.
 - **Default `<tone>` replaced**: "Technical and direct, ground every
   conclusion..." (now redundant with `truth_grounding`, which already owns
-  grounding) → checks `$CLAUDE_CONFIG_DIR/.caveman-active` and goes terse
-  if caveman is active, otherwise minimal/professional — silent by
+  grounding) → checks the terse-tone plugin's flag file and goes terse
+  if one is active, otherwise minimal/professional — silent by
   default, only what the user needs to know, no unnecessary jargon.
 - **Default `<output_format>` stopped forcing an XML wrap.** Both
   `prompt-template.md` and `craft-prompt`'s embedded copy now default to a

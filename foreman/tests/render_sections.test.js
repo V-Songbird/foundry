@@ -236,11 +236,11 @@ describe('render-sections — usePersona', () => {
 
   test('flag files and legacy inheritOperatorTone are ignored — declaration, not detection', () => {
     writeConfig(project, { inheritOperatorTone: false });
-    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active', '.caveman-active');
+    env.CLAUDE_CONFIG_DIR = makeFlagDir('.style-a-active', '.style-b-active');
     const { json } = run();
     assert.equal(json.usePersona, true);
-    assert.equal('ponytailActive' in json, false);
-    assert.equal('cavemanActive' in json, false);
+    // legacy detection-era keys must never come back in the output
+    assert.equal(Object.keys(json).some((k) => /active$/i.test(k)), false);
     assert.equal('inheritOperatorTone' in json, false);
   });
 });

@@ -73,7 +73,7 @@ function capLines(lines, cap) {
   ];
 }
 
-// ponytail: word-boundary failure sniff, exit-code field wins when present.
+// Deliberately simple: word-boundary failure sniff, exit-code field wins when present.
 // False positives only make the cap more generous — safe direction.
 const FAILURE_RE = /(^|[^0-9a-zA-Z])(FAIL(ED|URE)?|fail(ed|ure)?s?:|Error|error:|ERR!|✗|✘|not ok|Traceback|exception|panic|fatal)([^0-9a-zA-Z]|$)/m;
 

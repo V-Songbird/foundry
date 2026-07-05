@@ -19,7 +19,7 @@ const BUDGET = (() => {
   return Number.isFinite(n) && n >= 0 ? n : 120;
 })();
 
-// ponytail: fixed 1MB tail window — a single turn larger than that undercounts
+// Deliberately simple: fixed 1MB tail window — a single turn larger than that undercounts
 // its narration, which only delays the fire. Raise if that ever bites.
 const TAIL_BYTES = 1024 * 1024;
 

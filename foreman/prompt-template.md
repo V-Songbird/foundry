@@ -25,8 +25,8 @@ an instruction for the spawned session to act on later):**
    `.foreman/config.json` exists there). It prints one JSON object:
    `{"usePersona": bool, "sections": [{"tag", "xml"}], "omit": [...],
    "warnings": [...]}`. All of it is project **declaration**, never
-   detection — foreman does not inspect which style plugins (ponytail,
-   caveman, hush, ...) the operator runs; a project that wants crafted
+   detection — foreman does not inspect which style plugins (hush, or any
+   third-party one) the operator runs; a project that wants crafted
    prompts to coexist with one simply declares the shape it wants here:
    - `usePersona` — `.foreman/config.json`'s flag (default `true` if the
      file or field is missing/unparseable; standalone use with no config in
@@ -57,7 +57,7 @@ an instruction for the spawned session to act on later):**
 [If step 0's `usePersona` is `true`: "You are [specific role — e.g. "a
 senior security engineer", "a TypeScript developer"]." If `false`: the
 project has declared that a persona is established elsewhere (e.g. a style
-plugin like ponytail sets one in whatever session runs this) — a second
+plugin sets one in whatever session runs this) — a second
 "You are a [role]" sentence would read as a competing identity claim, not a
 layered one. Use domain framing instead: "Domain: [specific
 role/specialization]."]
@@ -99,7 +99,7 @@ below.]
 full stop — it replaces everything below. Otherwise include: "Minimal,
 professional conversation — silent by default, say only what the user
 actually needs to know, simplify technical explanations, avoid unnecessary
-jargon." Projects where a style plugin (caveman, hush, ...) already governs
+jargon." Projects where a style plugin (hush, or any third-party one) already governs
 tone in the destination session opt out via `omitSections: ["tone"]` —
 that's the `omit` check above, there is no plugin detection here.]
 </tone>
