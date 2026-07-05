@@ -19,18 +19,27 @@ Each plugin follows this layout:
 ```
 plugin-name/
 ├── .claude-plugin/
-│   └── plugin.json        # name, description, author, keywords, hook wiring
+│   └── plugin.json        # name, description, author, keywords — NO version
+│                          # field for monorepo-folder plugins (the version
+│                          # is owned by .claude-plugin/marketplace.json)
 ├── CHANGELOG.md           # Keep a Changelog format
 ├── LICENSE                # MIT
-├── README.md
-├── skills/
+├── README.md              # plain-language intro first, technical depth after
+├── skills/                # if the plugin has skills
 │   └── skill-name/
 │       ├── SKILL.md       # Claude Code skill definition
 │       └── references/    # Reference files loaded by the skill
 ├── hooks/
 │   └── hooks.json         # Hook event wiring (PreToolUse, PostToolUse, etc.)
-└── tests/                 # Test suite
+├── scripts/               # if the plugin has helper CLIs
+└── tests/                 # required when the plugin has scripted behavior
 ```
+
+`README.md`, `CHANGELOG.md`, and `LICENSE` are required in every plugin.
+Community files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`)
+live once at the repo root and cover all monorepo plugins — don't duplicate
+them per plugin. Forge is the exception to all of this: it lives in its own
+repository (mounted here as a submodule) and carries its own full doc set.
 
 ---
 
@@ -46,9 +55,11 @@ plugin-name/
 
 ## Tests
 
-All plugins with scripted behavior include a test suite. Run tests before submitting:
+All plugins with scripted behavior include a `node:test` suite. Run tests before submitting:
 
-- **Shell-based plugins** (jetbrains-router): `bash <plugin>/tests/run.sh`
+```
+node --test <plugin>/tests/*.test.js
+```
 
 PRs that change script behavior without updating tests will not be merged.
 

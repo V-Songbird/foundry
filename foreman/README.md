@@ -1,6 +1,38 @@
 # Foreman
 
-**Prompt-engineering + project-roadmap plugin for Claude Code.**
+**A living to-do list for your project, plus expertly written prompts to hand any task to a fresh Claude session.**
+
+---
+
+## What is this?
+
+Every project accumulates a pile of "we should do X someday" — in your head, in chat logs, in sticky notes. Foreman keeps that pile **inside the project itself**, in a simple file called `ROADMAP.jsonl`: what each task is, why it matters, what it depends on, and — once it ships — which commit did it.
+
+From there, everything else follows. Ask "what's next?" and Foreman picks the best next task the way a software architect would (nothing blocked, nothing colliding with work already in progress). Then it does the part most people find hardest: it writes a **complete, professional prompt** for that task — the kind a prompt-engineering expert would write — so you can hand it to a fresh Claude session and get good work back, even if you've never learned how to "prompt well" yourself.
+
+You don't need to write JSON or edit the roadmap file by hand — ever. You talk to Foreman in plain language; it manages the file.
+
+## Why you'd want it
+
+- **Your plan survives between sessions.** The roadmap lives in your repository, committed like code — not in one chat window that scrolls away.
+- **Great prompts without prompt-engineering skills.** Every handoff prompt is assembled from a proven template, with built-in guardrails.
+- **It keeps itself up to date.** After each `git commit`, a hook checks whether that commit finished a roadmap task and records it. Opt in, and it also spots new opportunities the work uncovered — and asks you what to do with them.
+- **It never acts without asking.** No task is added, changed, or marked done behind your back. Projects that never ran `/foreman:init` are never touched.
+
+## Install
+
+Inside Claude Code, run:
+
+```
+/plugin marketplace add V-Songbird/claude-plugins
+/plugin install foreman
+```
+
+Then, in each project you want a roadmap for, run `/foreman:init` once.
+
+---
+
+## How it works (for the curious)
 
 Foreman has two pillars: crafting self-contained, Anthropic-grade prompts for
 spawned sessions, and driving a per-project roadmap (`ROADMAP.jsonl`) that
@@ -10,15 +42,6 @@ sync and — only if you opt in — asks what to do with newly discovered
 opportunities; a second hook mechanically blocks direct edits to
 `ROADMAP.jsonl`. Neither acts without asking or touches a project that
 hasn't run `/foreman:init`.
-
----
-
-## Install
-
-```
-/plugin marketplace add V-Songbird/claude-plugins
-/plugin install foreman
-```
 
 ---
 
@@ -271,3 +294,9 @@ Covers `hooks/post-commit.js`, `hooks/guard-roadmap-edit.js`, and
 `scripts/roadmap.js` (id computation, status transitions, append-only
 notes, duplicate detection, corrupt-file handling, `--help`/`-h`/no-args
 usage output).
+
+---
+
+## License
+
+MIT — see [LICENSE](./LICENSE).

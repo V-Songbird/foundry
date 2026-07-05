@@ -1,10 +1,40 @@
 # razor
 
-YAGNI enforcement at the harness level, not the prompt level.
+**Stops Claude from over-building — no unnecessary dependencies, no file sprawl, no code "for later".**
 
-Lazy-dev style plugins teach the ladder — *stop at the first rung that holds* — through prompt injection alone: a large ruleset re-injected at session start and into every subagent spawn, with nothing mechanical backing it up. razor keeps the ladder and swaps the delivery for the strongest mechanism available at each layer, the same philosophy as [hush](../hush).
+---
 
-## The ladder
+## What is this?
+
+AI assistants love to add things. Ask for a small feature and you might get a new library installed, five helper files, and an abstraction layer for a future that never comes. Every one of those additions is something you (or the next person) has to understand, maintain, and eventually delete.
+
+Razor pushes back. It teaches Claude a simple habit — **don't build what isn't needed, reuse what already exists, prefer what's already installed** — and, unlike advice that gets forgotten, it backs the words with real checks: when Claude tries to install a new package, razor makes it stop and reconsider once ("could something already here do this?"). Same for creating an unusual number of new files in one go. If Claude still thinks the addition is right, it goes through — razor is a speed bump for second thoughts, never a wall.
+
+## Why you'd want it
+
+- **Leaner projects.** Fewer dependencies means fewer security updates, fewer breakages, less to learn.
+- **It acts, not just advises.** The reuse-first rule is enforced by hooks in the tool layer, not just words in a prompt.
+- **Never blocks you.** Every gate fires exactly once; the retry always passes. You stay in control.
+- **One switch.** `/razor off` turns everything off for the session, `/razor on` turns it back on. No dials to fiddle with.
+
+## Install
+
+Inside Claude Code, run:
+
+```
+/plugin marketplace add V-Songbird/claude-plugins
+/plugin install razor
+```
+
+It's active from the next session. No configuration needed.
+
+---
+
+## How it works (for the curious)
+
+YAGNI enforcement at the harness level, not the prompt level. Lazy-dev style plugins teach the ladder — *stop at the first rung that holds* — through prompt injection alone: a large ruleset re-injected at session start and into every subagent spawn, with nothing mechanical backing it up. razor keeps the ladder and swaps the delivery for the strongest mechanism available at each layer, the same philosophy as [hush](../hush).
+
+### The ladder
 
 Injected once per session (compact, ~300 tokens):
 
@@ -17,8 +47,6 @@ Injected once per session (compact, ~300 tokens):
 7. Only then: the minimum code that works.
 
 The payload explicitly forbids narrating or deliberating the rungs — a reasoning model that spends thinking tokens arguing the ladder can cost *more*, not less.
-
-## What it does
 
 ### 1. Gated subagent injection
 
@@ -82,3 +110,7 @@ Complementary, not overlapping: hush governs how the agent *talks* (output style
 ```
 node --test razor/tests/*.test.js
 ```
+
+## License
+
+MIT — see [LICENSE](./LICENSE).

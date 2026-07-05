@@ -1,10 +1,38 @@
 # hush
 
-Token-lean Claude Code sessions at the harness level, not the prompt level.
+**Makes Claude quieter and your sessions cheaper — less narration, less noise, one clear answer at the end.**
 
-Style plugins (caveman and friends) fight the default system prompt by re-injecting "be terse" rules every turn. That costs tokens per turn, drifts on long sessions, and only touches the smallest of the three token sinks — the prose you read. hush attacks all three with the strongest mechanism available for each.
+---
 
-## What it does
+## What is this?
+
+If you've used Claude Code for a while, you know the pattern: "Let me start by looking at...", "Now I'll check...", a 400-line wall of build output, and finally the thing you actually wanted to know. All of that costs money (every word in a session is billed as tokens) and makes the useful part harder to find.
+
+Hush trims it at the source. While it's installed, Claude works in silence, compresses noisy command output before it piles up, and delivers **one outcome-first summary** when the work is done. Code, error messages, and anything you explicitly ask to have explained stay complete — hush never shortens the parts that matter.
+
+## Why you'd want it
+
+- **Cheaper sessions.** Long sessions carry every previous word forward on every step. Hush shrinks the two biggest sources of bulk: tool output and narration.
+- **Easier to read.** The answer is at the top of one final message, not buried in a play-by-play.
+- **Nothing important is lost.** Failing command output is kept nearly whole and verbatim — failure detail is evidence. Code, diffs, and security warnings are never compressed.
+- **Zero setup.** Install it and it's on. Tune it later only if you want to.
+
+## Install
+
+Inside Claude Code, run:
+
+```
+/plugin marketplace add V-Songbird/claude-plugins
+/plugin install hush
+```
+
+The quiet style takes effect at your next session. There is nothing to invoke — hush works in the background.
+
+---
+
+## How it works (for the curious)
+
+Style plugins (caveman and friends) fight the default system prompt by re-injecting "be terse" rules every turn. That costs tokens per turn, drifts on long sessions, and only touches the smallest of the three token sinks — the prose you read. Hush attacks all three with the strongest mechanism available for each.
 
 ### 1. Forced output style — the prose sink
 
@@ -47,6 +75,10 @@ Environment variables, e.g. via `env` in `settings.json`:
 
 hush replaces caveman's core mechanism rather than complementing it. Same terseness goal, but implemented in the system prompt instead of per-turn injected rules — and it also covers the input-token side caveman never touches. If both are installed, hush's forced output style takes precedence anyway; running both just pays caveman's injection tax for nothing. Keep caveman only if you want its extras (commit/review skills, wenyan levels, cavecrew agents).
 
+## Relationship to razor
+
+Complementary, not overlapping: hush governs how the agent *talks*; [razor](../razor) governs what it *builds*. Pair them.
+
 ## What a plugin cannot do (known limits)
 
 - No hook event can rewrite or suppress the assistant's generated text — confirmed in the official hooks reference. The output side is therefore prompt-level by necessity; hush just uses the strongest prompt-level mechanism that exists.
@@ -58,3 +90,7 @@ hush replaces caveman's core mechanism rather than complementing it. Same tersen
 ```
 node --test hush/tests/*.test.js
 ```
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
