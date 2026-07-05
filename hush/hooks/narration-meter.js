@@ -7,7 +7,7 @@
 //   and injects one corrective line the moment the budget is crossed — at
 //   most once per turn, so the correction lands inside the offending turn.
 // - Stop: turn-end measurement, final block exempt (it's the deliverable).
-//   Skipped when the mid-turn fire already corrected this turn.
+// Either mode fires at most once per turn — any fire marks the turn corrected.
 // Costs zero tokens while the agent behaves.
 
 const fs = require("fs");
@@ -152,7 +152,10 @@ function main() {
   const { narration, blocks, turnKey } = midTurn ? measureCurrentTurn(lines) : measureLastTurn(lines);
   if (narration <= BUDGET) return;
   if (readState(data.session_id).turnKey === turnKey) return; // already corrected this turn
-  if (midTurn) writeState(data.session_id, { turnKey });
+  // Any fire marks the turn — Stop included, else a notification/wakeup chain
+  // (several Stop events, same turnKey) re-fires on every stop and each
+  // correction forces a reply whose words re-count into the same turn.
+  writeState(data.session_id, { turnKey });
 
   const message = midTurn
     ? `hush: ${narration} words of narration across ${blocks} blocks so far this turn (budget ${BUDGET}). Stop narrating — keep working silently and put everything in one final message.`

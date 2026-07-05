@@ -55,6 +55,9 @@ function writeTranscript(lines) {
 
 const words = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ');
 
+let seq = 0;
+const freshSession = () => `hush-test-${process.pid}-${++seq}`;
+
 describe('unit: measureLastTurn', () => {
   test('final block is the deliverable, not narration', () => {
     const { narration, blocks } = measureLastTurn([
@@ -162,7 +165,7 @@ describe('hook: end to end', () => {
 
   test('over budget injects one corrective line', () => {
     const file = writeTranscript([userPrompt('go'), assistantText(words(300)), assistantText(words(5))]);
-    const r = runHook('narration-meter.js', { transcript_path: file });
+    const r = runHook('narration-meter.js', { transcript_path: file, session_id: freshSession() });
     const out = hookOutput(r);
     assert.strictEqual(out.hookSpecificOutput.hookEventName, 'Stop');
     assert.match(out.hookSpecificOutput.additionalContext, /300 words/);
@@ -170,8 +173,24 @@ describe('hook: end to end', () => {
 
   test('budget is tunable via HUSH_NARRATION_BUDGET', () => {
     const file = writeTranscript([userPrompt('go'), assistantText(words(30)), assistantText(words(5))]);
-    const r = runHook('narration-meter.js', { transcript_path: file }, { HUSH_NARRATION_BUDGET: '10' });
+    const r = runHook(
+      'narration-meter.js',
+      { transcript_path: file, session_id: freshSession() },
+      { HUSH_NARRATION_BUDGET: '10' }
+    );
     assert.match(hookOutput(r).hookSpecificOutput.additionalContext, /30 words/);
+  });
+
+  test('consecutive Stops in the same turn fire only once (wakeup chain)', () => {
+    // A ScheduleWakeup continuation stops several times without a new human
+    // prompt; the second and later Stops must not re-fire.
+    const session = freshSession();
+    const turn = [userPrompt('go', 't1'), assistantText(words(300)), assistantText(words(5))];
+    const first = runHook('narration-meter.js', { transcript_path: writeTranscript(turn), session_id: session });
+    assert.notStrictEqual(hookOutput(first), null);
+    const grown = writeTranscript([...turn, wakeupFired('continue'), assistantText(words(50)), assistantText(words(5))]);
+    const second = runHook('narration-meter.js', { transcript_path: grown, session_id: session });
+    assert.strictEqual(hookOutput(second), null);
   });
 
   test('missing transcript stays silent', () => {
@@ -187,9 +206,6 @@ describe('hook: end to end', () => {
 });
 
 describe('hook: mid-turn mode (PostToolUse)', () => {
-  let seq = 0;
-  const freshSession = () => `hush-test-${process.pid}-${++seq}`;
-
   test('fires inside the turn the moment budget is crossed', () => {
     const file = writeTranscript([userPrompt('go', 't1'), assistantText(words(200))]);
     const r = runHook('narration-meter.js', {

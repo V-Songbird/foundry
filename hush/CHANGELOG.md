@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1-alpha — 2026-07-05
+
+Fix: the Stop-mode correction re-fired on every consecutive Stop within the same logical turn. Observed live in a ScheduleWakeup continuation chain: four consecutive Stops with growing counts (420 → 455 → 471 words), each fire injecting `additionalContext` that forced another assistant reply whose words re-counted into the same turn — a feedback loop. Cause: only the mid-turn (PostToolUse) path wrote the once-per-turn dedup state; Stop fires never marked the turn. Now any fire, mid-turn or Stop, writes the state. 37 tests (was 36).
+
 ## 0.2.0-alpha — 2026-07-05
 
 Mid-turn narration meter. Motivated by a real transcript (foreman-dispatched FBI migration task): ~22 narration blocks, ≈250 words, all inside one turn — and the Stop-only meter couldn't intervene until the turn ended, so the first offending turn always got through uncorrected.
