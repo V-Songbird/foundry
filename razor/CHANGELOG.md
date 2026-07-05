@@ -1,5 +1,10 @@
 # Changelog
 
+All notable changes to razor are documented here. Razor is a monorepo-folder
+plugin — its version is owned by `.claude-plugin/marketplace.json` at the
+repo root, not by `razor/.claude-plugin/plugin.json` (which carries no
+version field by convention).
+
 ## 0.2.0-alpha — 2026-07-05
 
 Evidence-carrying gates: the deny reasons stop quoting philosophy and start presenting repo facts.
