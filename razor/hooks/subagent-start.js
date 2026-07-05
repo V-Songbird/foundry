@@ -4,10 +4,10 @@
 // SubagentStart — inject the ladder into code-writing subagents only.
 //
 // SessionStart context never reaches subagents, so without this every
-// Task-spawned agent runs razor-unaware. Ponytail solves that by injecting
-// its full ruleset into every spawn; razor gates by agent type instead —
-// read-only exploration/planning agents never write code, so for them the
-// ladder is pure injection tax (N× in a fan-out).
+// Task-spawned agent runs razor-unaware. Rather than injecting into every
+// spawn, razor gates by agent type — read-only exploration/planning agents
+// never write code, so for them the ladder is pure injection tax (N× in a
+// fan-out).
 //
 // Unknown agent types get the ruleset: most custom agents write code, and
 // the fail-safe direction is guarded, not lean.

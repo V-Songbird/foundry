@@ -2,11 +2,11 @@
 
 YAGNI enforcement at the harness level, not the prompt level.
 
-Ponytail proved the value of the ladder — *stop at the first rung that holds* — but it is pure prompt injection: a ~900-token ruleset re-injected at session start and into **every** subagent spawn, with nothing mechanical backing it up. razor keeps the ladder and swaps the delivery for the strongest mechanism available at each layer, the same philosophy as [hush](../hush).
+Lazy-dev style plugins teach the ladder — *stop at the first rung that holds* — through prompt injection alone: a large ruleset re-injected at session start and into every subagent spawn, with nothing mechanical backing it up. razor keeps the ladder and swaps the delivery for the strongest mechanism available at each layer, the same philosophy as [hush](../hush).
 
 ## The ladder
 
-Injected once per session (compact, ~a third of ponytail's payload):
+Injected once per session (compact, ~300 tokens):
 
 1. Not genuinely needed? Skip it. (YAGNI)
 2. Already in this codebase? Reuse it.
@@ -16,7 +16,7 @@ Injected once per session (compact, ~a third of ponytail's payload):
 6. Fits in one line? One line.
 7. Only then: the minimum code that works.
 
-The payload explicitly forbids narrating or deliberating the rungs — ponytail's own benchmarks show a reasoning model that spends thinking tokens arguing the ladder can cost *more*, not less.
+The payload explicitly forbids narrating or deliberating the rungs — a reasoning model that spends thinking tokens arguing the ladder can cost *more*, not less.
 
 ## What it does
 
@@ -40,18 +40,17 @@ A `PreToolUse` hook on Write counts files about to be **created** (existing file
 
 `/razor off` (or "stop razor") parks everything for the session; `/razor on` re-arms and re-injects the ladder. No lite/full/ultra dial — intensity levels are a tone knob on something that is either a constraint or isn't.
 
-## razor vs ponytail
+## razor vs prompt-injection lazy-dev plugins
 
-| | ponytail | razor |
+| | prompt-injection style | razor |
 |---|---|---|
-| Ladder delivery | ~900-token ruleset, main thread | ~300-token ruleset, main thread |
+| Ladder delivery | large ruleset, re-injected | ~300-token ruleset, main thread |
 | Subagents | full ruleset into **every** spawn | gated by agent type; read-only spawns pay nothing |
 | Enforcement | prompt only | prompt + mechanical soft gates (deps, new files) |
-| Intensity | lite / full / ultra dial | on / off |
+| Intensity | lite / full / ultra dials | on / off |
 | Reasoning-model cost | ladder deliberation can inflate thinking tokens | payload forbids rung deliberation |
-| Extras | review/audit/debt skills, statusline | none (0.1.0 is hooks only) |
 
-Running both double-injects competing rulesets — disable ponytail if you install razor.
+If another YAGNI/lazy-dev ruleset plugin is installed, disable it — two competing rulesets double-inject and can contradict each other.
 
 ## Configuration
 

@@ -7,10 +7,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-// Kept compact on purpose (~300 tokens vs ponytail's ~900 per injection),
-// and the no-deliberation line keeps reasoning models from spending
-// thinking tokens arguing the rungs — the failure mode ponytail's own
-// benchmarks flag on terse reasoning models.
+// Kept compact on purpose (~300 tokens per injection), and the
+// no-deliberation line keeps reasoning models from spending thinking
+// tokens arguing the rungs — on terse reasoning models a ruleset that
+// invites deliberation can cost more than it saves.
 const RULESET = `RAZOR ACTIVE
 
 You are a senior developer who cuts before adding. Efficient, never careless — the best code is the code never written.
