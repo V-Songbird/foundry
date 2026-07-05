@@ -1,93 +1,83 @@
 <div align="center">
   <img src="assets/logo.svg" alt="V-Songbird" width="120" />
   <h1>claude-plugins</h1>
-  <p><strong>Claude Code plugins by Songbird</strong> — skills, hooks, and workflows that extend what Claude can do and keep it honest while it does it.</p>
+  <p><strong>Claude Code plugins by Songbird</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
 </div>
 
 ---
 
-Each plugin is an independently installable unit with its own version, changelog, and release cadence. They compose — install one or all — and are designed to stay out of each other's way.
+## New here?
 
----
+[Claude Code](https://code.claude.com/docs/en/overview) is Anthropic's AI coding assistant. **Plugins** extend it — they teach Claude new workflows, add guardrails, or change how it behaves, all with a one-line install and no configuration.
+
+This is a small, curated collection. Each plugin does one job well, works on its own, and stays out of the others' way. Install one, install all five — they compose.
 
 ## Install
+
+Inside Claude Code, run:
 
 ```
 /plugin marketplace add V-Songbird/claude-plugins
 /plugin install <plugin-name>
 ```
 
+The first command registers this collection (once); the second installs whichever plugin you want. Uninstalling is just as easy: `/plugin uninstall <plugin-name>`.
+
 ---
 
-## Plugins
+## The plugins
 
-### [forge](https://github.com/V-Songbird/forge) — Pre-code feature review
+### [forge](https://github.com/V-Songbird/forge) — Review the plan before writing the code
 
-Stop discovering architectural problems in code review. Surface them before implementation starts.
-
-```
-/forge  ──►  Parallel domain experts  ──►  Master plan  ──►  Adversarial critic  ──►  Approval gate  ──►  Implementation
-```
-
-Forge dispatches parallel domain experts against your actual codebase, synthesizes their findings into a grounded implementation plan, and runs an adversarial critic that tries to break that plan against the real code — before you approve a single edit. Every claim cites `file:line`.
+Big features fail for the same reason: a problem nobody spotted until the code was already written. Forge investigates first. Describe what you want to build, and a team of parallel AI experts examines your actual codebase, drafts a plan, and an adversarial critic tries to poke holes in that plan — all **before** a single line is written. Nothing gets implemented without your explicit sign-off.
 
 ```
 /plugin install forge
 ```
 
----
+### [verity](./verity) — Real documentation instead of guesses
 
-### jetbrains-router — IDE tool routing
-
-Routes Claude Code tools through a connected JetBrains IDE MCP server.
-
-- Live diagnostics from the IDE's in-memory index — replaces local `tsc`/`gradle`/`mypy` runs
-- Unsaved-buffer reads reflect editor state not yet flushed to disk
-- Fails open: all tool calls pass through to native Claude Code behavior when no IDE is connected
-
-Supported IDEs: WebStorm, Rider, IntelliJ IDEA 2025.2+
-
-```
-/plugin install jetbrains-router
-```
-
----
-
-### [nudge](https://github.com/V-Songbird/claude-plugins/tree/main/nudge) — Prompt coaching
-
-Reviews your session and teaches you how to write better prompts. Run it at the end of any working session — it identifies what your opening prompt missed, rewrites it as a professional prompt calibrated to your Claude model and effort level, and explains why in plain language.
-
-```
-/nudge:review
-```
-
-```
-/plugin install nudge
-```
-
----
-
-### [verity](https://github.com/V-Songbird/claude-plugins/tree/main/verity) — Live documentation grounding
-
-Fetches current official Claude Code documentation on demand — gives Claude truth-grounding from primary sources instead of training memory. Also provides a canonical reference for host MCP tools (`spawn_task`, `mark_chapter`, `show_widget`, and the full `ccd_session` and `visualize` families).
-
-```
-/verity:ground-truth
-```
+When you ask Claude how Claude Code itself works, it may answer from training memory — which ages badly. Verity makes Claude fetch the current official documentation live and answer from the source, citing the exact page it read. Install and forget; it kicks in whenever a Claude Code question comes up.
 
 ```
 /plugin install verity
 ```
 
----
+### [foreman](./foreman) — A roadmap for your project, and better prompts for free
 
-### [relay](https://github.com/V-Songbird/claude-plugins/tree/main/relay) — Prompt engineering + roadmap
-
-`/relay:craft-prompt` assembles self-contained, Anthropic-grade prompts via `AskUserQuestion`. `/relay:init` bootstraps a project's `ROADMAP.jsonl` and Claude-suggestion policy. `/relay:roadmap` picks the next task like a software architect and crafts its handoff prompt. A commit-triggered hook keeps roadmap status in sync.
+Foreman keeps a living task list (`ROADMAP.jsonl`) inside your project: why each task exists, what it is, its status, and the commits that shipped it. Ask "what's next?" and it picks the best next task like a software architect would — then writes a complete, professional prompt to hand that task to a fresh Claude session. It also builds standalone prompts on demand with `/foreman:craft-prompt`.
 
 ```
-/plugin install relay
+/plugin install foreman
 ```
+
+### [hush](./hush) — Less chatter, lower cost
+
+Claude can be talkative: progress narration, previews of what it's about to do, walls of command output. Hush trims all of it at the harness level — a forced output style (silence while working, one clear summary at the end), automatic compression of noisy command output before it eats your context window, and a meter that catches mid-turn rambling the moment it starts. Sessions get cheaper and easier to read.
+
+```
+/plugin install hush
+```
+
+### [razor](./razor) — Stops Claude from over-building
+
+AI assistants love to add: a new dependency here, five helper files there, an abstraction "for later". Razor pushes back with a simple ladder — don't build it if it isn't needed, reuse what exists, prefer the standard library — and backs the words with mechanical gates: the first attempt to install a new package is challenged once ("could something already here do this?"), and file sprawl gets questioned before it lands. Never a hard block; always one forced second thought.
+
+```
+/plugin install razor
+```
+
+### Which one first?
+
+| You want to… | Install |
+| --- | --- |
+| Plan big features safely | **forge** |
+| Get trustworthy answers about Claude Code | **verity** |
+| Track project tasks and hand them off cleanly | **foreman** |
+| Cut token cost and noise | **hush** |
+| Keep the codebase lean | **razor** |
+
+hush and razor are natural partners: hush governs how Claude *talks*, razor governs what it *builds*.
 
 ---
 
@@ -95,14 +85,14 @@ Fetches current official Claude Code documentation on demand — gives Claude tr
 
 ```
 claude-plugins/
-├── forge/
-├── jetbrains-router/
-├── nudge/
-├── relay/
-└── verity/
+├── foreman/     # monorepo folder
+├── forge/       # git submodule → github.com/V-Songbird/forge
+├── hush/        # monorepo folder
+├── razor/       # monorepo folder
+└── verity/      # monorepo folder
 ```
 
-Each plugin is an independent git repository mounted as a submodule. Plugin metadata lives in `.claude-plugin/plugin.json`; the marketplace index is at `.claude-plugin/marketplace.json`.
+Forge lives in its own repository and is mounted here as a submodule; the rest are plain folders in this repo. Each plugin ships its metadata in `.claude-plugin/plugin.json` and its own `README.md`, `CHANGELOG.md`, and `LICENSE`. The marketplace index is [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) — for monorepo-folder plugins it is also the single owner of the version number.
 
 ---
 
