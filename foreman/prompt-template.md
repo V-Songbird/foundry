@@ -41,20 +41,29 @@ an instruction for the spawned session to act on later):**
    state forward itself; if the flag changes before this prompt actually runs,
    the destination session's own hook corrects it regardless of what's written
    below.
-2. **Custom sections.** If a project root is in scope, run
+2. **Custom sections and omissions.** If a project root is in scope, run
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/render-sections.js` — it reads
    `.foreman/config.json`'s optional `customSections` array
-   (`[{"tag": "...", "content": "..."}]`), validates each entry (tag format,
-   not a reserved template tag, not a duplicate, non-empty content), and
-   prints `{"sections": [{"tag", "xml"}], "warnings": [...]}`. Inline every
-   `sections[].xml` value, in order, verbatim, at the `[CUSTOM SECTIONS]`
-   placeholder below — never invent, edit, or reorder its content, that
-   defeats the point of it being project-defined. If `sections` is empty,
-   remove the placeholder line entirely. Surface any `warnings` briefly to
-   the user (a skipped entry — bad tag, reserved tag, duplicate, empty
+   (`[{"tag": "...", "content": "..."}]`) and optional `omitSections` array
+   (`["tone", "example", "background", "output_format"]` — only these four
+   are ever valid, they're the template's already-conditional tags; a
+   guardrail like `scope_discipline` or `truth_grounding` can never appear
+   here), validates both mechanically, and prints
+   `{"sections": [{"tag", "xml"}], "omit": [...], "warnings": [...]}`.
+   Inline every `sections[].xml` value, in order, verbatim, at the
+   `[CUSTOM SECTIONS]` placeholder below — never invent, edit, or reorder
+   its content, that defeats the point of it being project-defined. If
+   `sections` is empty, remove the placeholder line entirely. For every tag
+   name in `omit`, drop that whole block from the assembled prompt
+   regardless of what Call 1's optional-section selection or the entry's
+   own fields would otherwise include — a project-level `omitSections`
+   always wins over a per-prompt selection, since it's the more specific,
+   more recently-stated intent. Surface any `warnings` briefly to the user
+   (a skipped entry — bad tag, reserved/non-omittable tag, duplicate, empty
    content) so a malformed `config.json` doesn't fail silently; a warning
    here never blocks the rest of the assembly. No project root in scope
-   (standalone template use) → skip this step, no placeholder in output.
+   (standalone template use) → skip this step, no placeholder in output,
+   nothing omitted.
 
 ```xml
 <task_context>
@@ -94,6 +103,9 @@ scope — only to work that's genuinely a separate concern from
 `task_context` above.
 </scope_discipline>
 
+[If `"tone"` is in `omit` (from `render-sections.js`), drop this whole
+`<tone>` block unconditionally — a project-level opt-out beats everything
+below.]
 <tone>
 [If Tone was selected as an optional section: the user's custom tone,
 full stop — it replaces everything below. Otherwise: if `.caveman-active`
@@ -105,6 +117,8 @@ conversation — silent by default, say only what the user actually needs to
 know, simplify technical explanations, avoid unnecessary jargon."]
 </tone>
 
+[If `"background"` is in `omit`, drop this whole `<background>` block
+unconditionally.]
 <background>
 <relevant_files>
 [Exact file paths with line ranges for every file the task touches.
@@ -136,7 +150,9 @@ Do NOT report success without running this. If it fails, iterate until it passes
 [CUSTOM SECTIONS — inline each `sections[].xml` from `render-sections.js` here,
 verbatim, in order; omit this whole line if `sections` was empty]
 
-[OPTIONAL — include only when the task has a clear before/after pattern]
+[OPTIONAL — include only when the task has a clear before/after pattern.
+If `"example"` is in `omit`, drop this whole block unconditionally, even
+if Call 1 selected it.]
 <example>
 [Before snippet or input → After snippet or expected output]
 </example>
@@ -145,6 +161,8 @@ verbatim, in order; omit this whole line if `sections` was empty]
 
 Think step by step before making changes. Consider edge cases before writing code.
 
+[If `"output_format"` is in `omit`, drop this whole block unconditionally,
+even if Call 1 selected `Custom output format`.]
 <output_format>
 Give a concise, human-readable summary: what changed, and the verification
 result. No XML tags in the visible response — a human reads this directly
@@ -179,6 +197,11 @@ default "just in case".]
       array) were rendered via `render-sections.js` and inlined verbatim
       after `task_rules` — never hand-written or invented here — and any
       `warnings` it returned were surfaced to the user
+- [ ] every tag in `render-sections.js`'s `omit` array (only ever
+      `tone`/`example`/`background`/`output_format`) is actually absent
+      from the assembled prompt, overriding Call 1's selection if the two
+      conflict — `task_context`/`truth_grounding`/`scope_discipline`/
+      `task_rules` are never affected, `omitSections` can't touch them
 - [ ] prompt contains no phrases like "as we discussed" or "from earlier" — zero assumed context
 - [ ] a short verb-first imperative name (under 60 chars) and a 1–2 sentence
       plain-language summary are ready — `TaskCreate`'s `subject`/`description`

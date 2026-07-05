@@ -1,8 +1,9 @@
 'use strict';
 
 // Tests for scripts/render-sections.js — validates and renders
-// .foreman/config.json's optional `customSections` array into inline XML
-// for prompt-template.md's craft-time custom-sections step.
+// .foreman/config.json's optional `customSections` array into inline XML,
+// and its optional `omitSections` array into a list of tags to drop, both
+// for prompt-template.md's craft-time step.
 //
 // Covers:
 //   - no config.json / no customSections field -> empty sections, no warnings
@@ -11,6 +12,9 @@
 //   - content is XML-escaped (&, <, >)
 //   - a bad tag format, a reserved tag, a duplicate tag, and empty content
 //     are each skipped with a warning instead of failing the whole call
+//   - omitSections accepts only tone/example/background/output_format
+//   - a non-omittable tag (including a guardrail like scope_discipline),
+//     a non-string entry, and a duplicate are each skipped with a warning
 
 const { test, describe, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
@@ -132,5 +136,65 @@ describe('render-sections', () => {
     assert.equal(json.sections.length, 1);
     assert.equal(json.sections[0].tag, 'house_style');
     assert.equal(json.warnings.length, 1);
+  });
+});
+
+describe('render-sections — omitSections', () => {
+  test('no config.json -> empty omit', () => {
+    const { json } = run();
+    assert.deepEqual(json.omit, []);
+  });
+
+  test('valid omittable tags pass through', () => {
+    writeConfig(project, { omitSections: ['tone', 'background', 'example', 'output_format'] });
+    const { json } = run();
+    assert.deepEqual(json.omit, ['tone', 'background', 'example', 'output_format']);
+    assert.deepEqual(json.warnings, []);
+  });
+
+  test('a guardrail tag is rejected, never silently honored', () => {
+    writeConfig(project, { omitSections: ['scope_discipline'] });
+    const { json } = run();
+    assert.deepEqual(json.omit, []);
+    assert.match(json.warnings[0], /cannot be omitted/);
+  });
+
+  test('task_context and truth_grounding are rejected too', () => {
+    writeConfig(project, { omitSections: ['task_context', 'truth_grounding', 'task_rules'] });
+    const { json } = run();
+    assert.deepEqual(json.omit, []);
+    assert.equal(json.warnings.length, 3);
+  });
+
+  test('an unknown tag is rejected with a warning', () => {
+    writeConfig(project, { omitSections: ['not_a_real_tag'] });
+    const { json } = run();
+    assert.deepEqual(json.omit, []);
+    assert.match(json.warnings[0], /cannot be omitted/);
+  });
+
+  test('a non-string entry is rejected with a warning', () => {
+    writeConfig(project, { omitSections: [42] });
+    const { json } = run();
+    assert.deepEqual(json.omit, []);
+    assert.match(json.warnings[0], /must be a string/);
+  });
+
+  test('a duplicate is skipped with a warning', () => {
+    writeConfig(project, { omitSections: ['tone', 'tone'] });
+    const { json } = run();
+    assert.deepEqual(json.omit, ['tone']);
+    assert.match(json.warnings[0], /duplicates/);
+  });
+
+  test('customSections and omitSections warnings both surface together', () => {
+    writeConfig(project, {
+      customSections: [{ tag: 'scope_discipline', content: 'x' }],
+      omitSections: ['scope_discipline'],
+    });
+    const { json } = run();
+    assert.equal(json.sections.length, 0);
+    assert.equal(json.omit.length, 0);
+    assert.equal(json.warnings.length, 2);
   });
 });

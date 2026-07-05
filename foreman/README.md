@@ -155,6 +155,7 @@ a small flat object).
 | `inheritOperatorTone` | boolean | `true` | Whether prompts assembled by `craft-prompt`/`roadmap` inherit *your* personal caveman/ponytail state (checked at craft time — see `prompt-template.md`). Set to `false` to make this project's prompts always use the plain defaults (direct role sentence, minimal/professional tone) regardless of what's active on whoever's machine crafts them — useful when a project's prompts should read the same for everyone, independent of each operator's personal Claude Code tooling. |
 | `requireVerification` | boolean | `false` | Whether `hooks/post-commit.js` lets Claude mark a task `done` unilaterally. `false` (default): a commit that finishes an in-progress task gets `status:"done"` straight away, same as ever. `true`: the commit's SHA and touched files still get recorded immediately (data isn't worth gating), but status stays `in_progress` until Claude asks you (`AskUserQuestion`) to confirm the work is actually verified — only then does it call `update-status` with `"done"`. Off by default since it adds a confirmation step to every task, including trivial ones. |
 | `customSections` | array | `[]` | Project-defined XML sections injected into every prompt `craft-prompt`/`roadmap` assemble — see [Custom sections](#custom-sections) below. |
+| `omitSections` | array | `[]` | Optional template tags to always drop from every assembled prompt — see [Omitting optional sections](#omitting-optional-sections) below. |
 
 All fields are independent and optional — a file with just one or two keys
 is fine, the rest fall back to their defaults. Neither field existing at
@@ -188,6 +189,29 @@ automatically — `&`/`<`/`>` in your text won't break the surrounding
 prompt). A malformed entry is skipped with a warning, never fails the
 whole prompt. `truth_grounding` and `scope_discipline` stay fixed and
 non-overridable on purpose — custom sections are additive only.
+
+### Omitting optional sections
+
+`omitSections` is the inverse of `customSections` — it drops one of the
+template's *own* already-conditional tags from every prompt this project's
+`craft-prompt`/`roadmap` assemble, instead of asking per-prompt (Call 1's
+"Which optional sections do you want?") every single time. Only the tags
+the template already treats as conditional can be named here:
+
+```json
+{"omitSections": ["output_format", "background"]}
+```
+
+Valid values: `tone`, `example`, `background`, `output_format` — anything
+else (a typo, or a guardrail like `scope_discipline`/`truth_grounding`) is
+rejected with a warning by `scripts/render-sections.js`, never silently
+honored. A project-level `omitSections` wins over a per-prompt selection
+if the two conflict — e.g. `background` in `omitSections` drops it even if
+Call 1's optional-section menu offered it. Note that omitting `background`
+also drops `<relevant_files>` (it's nested inside `<background>`) — the
+prompt's file citations go with it, so `truth_grounding`'s "read the cited
+files" instruction has nothing concrete left to point to; only disable it
+if that trade-off is genuinely intended for this project.
 
 ---
 

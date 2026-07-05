@@ -8,6 +8,28 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.12.0-alpha] — 2026-07-05
+
+### Added
+
+- **`omitSections`** — the inverse of `customSections`: an optional array
+  in `.foreman/config.json` naming template tags to always drop from every
+  assembled prompt, instead of re-answering `craft-prompt`'s "which
+  optional sections" question every time. Only the template's
+  already-conditional tags are valid — `tone`, `example`, `background`,
+  `output_format` — anything else (a typo, or a guardrail like
+  `scope_discipline`/`truth_grounding`/`task_context`/`task_rules`) is
+  rejected with a warning by `scripts/render-sections.js`, never silently
+  honored. A project-level `omitSections` wins over a per-prompt selection
+  when the two conflict. `render-sections.js` now returns `omit` alongside
+  `sections` in one call — same script, extended, not a new one.
+- `prompt-template.md`'s step 2 (renamed "Custom sections and omissions")
+  and each of the four omittable blocks gained an inline note instructing
+  the craft-time drop. Noted in the docs: omitting `background` also drops
+  `<relevant_files>` (nested inside it), so `truth_grounding`'s "read the
+  cited files" instruction has nothing left to point to — a real trade-off,
+  not hidden from the user.
+
 ## [0.11.0-alpha] — 2026-07-05
 
 ### Added
