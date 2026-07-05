@@ -31,8 +31,8 @@ hasn't run `/foreman:init`.
 | Pick the next task, add a task, or review roadmap status | `/foreman:roadmap` |
 | Ground-truth the next candidates against the actual codebase | `/foreman:survey` |
 
-Config flags (discovery suggestions on/off, whether prompts inherit your
-caveman/ponytail state) live in `.foreman/config.json`, a plain JSON file —
+Config flags (discovery suggestions on/off, persona vs domain framing,
+tone opt-out) live in `.foreman/config.json`, a plain JSON file —
 no skill wraps it, edit it directly. See [The config file](#the-config-file)
 below.
 
@@ -58,22 +58,20 @@ beyond the task's stated goal, flag it rather than silently folding it in,
 and once it's done, log it as its own `ROADMAP.jsonl` entry (already
 `done`, same commit) instead of stretching this task's story to cover it.
 
-Default tone (override with the `Tone` optional section): resolved once at
-craft time, not deferred to the spawned session, by a single
-`scripts/render-sections.js` call (the same one that resolves
-`customSections`/`omitSections` below) — no separate config read or
-flag-file check. If the current project's `.foreman/config.json` sets
-`inheritOperatorTone` to `false`, the call reports both flags inactive and
-the plain defaults apply regardless of what's actually active on this
-machine (see [The config file](#the-config-file)). Otherwise — if caveman is
-active, the `<tone>` block is omitted entirely (caveman's own SessionStart
-hook already sets terse mode on whatever session runs the prompt);
-otherwise minimal and professional — silent by default, only what you need
-to know, no unnecessary jargon. `task_context`'s role sentence gets the same
-craft-time treatment for ponytail — domain framing instead of a competing
-"You are a [role]" identity claim. Default output format: a plain
-human-readable summary, no XML tags — tags are opt-in only (`Custom output
-format`), for when something downstream actually parses the result.
+Persona and tone are project **declarations**, resolved once at craft time
+by a single `scripts/render-sections.js` call (the same one that resolves
+`customSections`/`omitSections` below). Foreman never detects which style
+plugins (ponytail, caveman, hush, ...) are active on the machine — a
+project that runs one simply declares the prompt shape it wants:
+`usePersona: false` swaps `task_context`'s "You are a [role]" sentence for
+domain framing (right when a plugin already establishes a persona in the
+destination session), and `omitSections: ["tone"]` drops the `<tone>` block
+entirely (right when a plugin already governs tone). Defaults with no
+config: persona sentence plus a minimal-professional tone — silent by
+default, only what you need to know, no unnecessary jargon. Override the
+tone text itself with the `Tone` optional section. Default output format: a
+plain human-readable summary, no XML tags — tags are opt-in only (`Custom
+output format`), for when something downstream actually parses the result.
 
 ### `/foreman:init`
 
@@ -142,19 +140,19 @@ usage, and the invariants it enforces: [`roadmap-schema.md`](roadmap-schema.md).
 also committed to git — a shared project policy, not personal state. Plain
 JSON, small enough that no CLI or skill wraps it: `/foreman:init` writes it
 once during setup, and any flag can be flipped later with a direct
-`Read`/`Write` (ask Claude to "turn discovery off", "stop inheriting my
-caveman tone for this project", or "require verification before marking
-tasks done" and it edits the file itself — no dedicated command needed for
-a small flat object).
+`Read`/`Write` (ask Claude to "turn discovery off", "use domain framing
+instead of a persona for this project", or "require verification before
+marking tasks done" and it edits the file itself — no dedicated command
+needed for a small flat object).
 
 ```json
-{"discoverySuggestions": true, "inheritOperatorTone": true, "requireVerification": false}
+{"discoverySuggestions": true, "usePersona": true, "requireVerification": false}
 ```
 
 | Field | Type | Default if missing/unparseable | Meaning |
 | --- | --- | --- | --- |
 | `discoverySuggestions` | boolean | `false` | Whether `hooks/post-commit.js` ever nudges Claude to scan a commit for roadmap opportunities. Set once during `/foreman:init`'s interview. |
-| `inheritOperatorTone` | boolean | `true` | Whether prompts assembled by `craft-prompt`/`roadmap` inherit *your* personal caveman/ponytail state (checked at craft time — see `prompt-template.md`). Set to `false` to make this project's prompts always use the plain defaults (direct role sentence, minimal/professional tone) regardless of what's active on whoever's machine crafts them — useful when a project's prompts should read the same for everyone, independent of each operator's personal Claude Code tooling. |
+| `usePersona` | boolean | `true` | Whether `task_context` in assembled prompts opens with a "You are a [role]" persona sentence. Set to `false` for domain framing ("Domain: [specialization]") instead — the right choice when a style plugin (e.g. ponytail) already establishes a persona in the sessions that run these prompts, where a second identity claim would compete rather than layer. A declaration, not detection: foreman never checks which plugins are installed or active. Pair with `omitSections: ["tone"]` when a plugin (e.g. caveman, hush) also governs tone. |
 | `requireVerification` | boolean | `false` | Whether `hooks/post-commit.js` lets Claude mark a task `done` unilaterally. `false` (default): a commit that finishes an in-progress task gets `status:"done"` straight away, same as ever. `true`: the commit's SHA and touched files still get recorded immediately (data isn't worth gating), but status stays `in_progress` until Claude asks you (`AskUserQuestion`) to confirm the work is actually verified — only then does it call `update-status` with `"done"`. Off by default since it adds a confirmation step to every task, including trivial ones. |
 | `customSections` | array | `[]` | Project-defined XML sections injected into every prompt `craft-prompt`/`roadmap` assemble — see [Custom sections](#custom-sections) below. |
 | `omitSections` | array | `[]` | Optional template tags to always drop from every assembled prompt — see [Omitting optional sections](#omitting-optional-sections) below. |

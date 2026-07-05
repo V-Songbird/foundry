@@ -8,6 +8,32 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.14.0-alpha] — 2026-07-05
+
+### Changed — style-plugin compatibility flips from detection to declaration
+
+`inheritOperatorTone` and the ponytail/caveman flag-file sniffing are gone.
+The old model required foreman to know each style plugin's on-disk marker
+case by case, and hush already broke it: an output-style plugin leaves no
+flag file to detect. The project now declares the prompt shape it wants in
+`.foreman/config.json`, and any present or future style plugin is
+compatible by construction:
+
+- `usePersona` (boolean, default `true`) — `true`: `task_context` opens
+  with "You are a [role]"; `false`: domain framing ("Domain:
+  [specialization]"), the behavior previously triggered by detecting
+  ponytail. Replaces `inheritOperatorTone`, which is now ignored (no
+  users yet — hard removal, no deprecation shim).
+- `omitSections: ["tone"]` — already existed; now the *only* mechanism for
+  dropping the `<tone>` block, replacing the caveman-active special case.
+
+Also removes a semantic wart: detection was time-skewed (flags read at
+craft time, prompt runs later); a declaration can't go stale.
+`render-sections.js` loses `flagsActive`/`claudeConfigDir`/
+`readInheritOperatorTone` and no longer touches `$CLAUDE_CONFIG_DIR` at
+all; the template and checklist lose all plugin-specific prose. 110 tests
+(was 111 — six flag-detection tests replaced by five declaration tests).
+
 ## [0.13.1-alpha] — 2026-07-05
 
 ### Changed — crafted prompts no longer induce visible step narration

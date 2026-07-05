@@ -23,7 +23,7 @@ Options: `Implement a feature`, `Fix a bug`, `Investigate / research`, `Refactor
 
 **Q2** — "Which optional sections do you want in the prompt?" (multiSelect: true)
 Options:
-- `Tone` — override the default (minimal/professional, silent-by-default, caveman/ponytail-aware — see the template)
+- `Tone` — override the default (minimal/professional, silent-by-default — see the template; projects opt out entirely via `omitSections: ["tone"]`)
 - `Example` — a before/after or input→output snippet (good for fixes and transformations)
 - `Constraints` — hard limits on files or interfaces the agent must NOT touch
 - `Background context` — architectural decisions, patterns, or environment details
@@ -112,8 +112,8 @@ above instead, regardless of Desktop or CLI.
 ## Assemble the prompt
 
 Follow `${CLAUDE_PLUGIN_ROOT}/prompt-template.md` exactly — its craft-time
-environment check (`inheritOperatorTone` gate, then the ponytail/caveman
-flag check) and its XML template, both verbatim. Never re-derive or
+environment check (one `render-sections.js` call resolving
+`usePersona`/`sections`/`omit`) and its XML template, both verbatim. Never re-derive or
 duplicate either here; if the template changes, this skill picks up the
 change automatically by reading it fresh each time. Map this skill's
 gathered fields onto the template's placeholders:

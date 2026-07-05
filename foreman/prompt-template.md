@@ -18,35 +18,20 @@ optional — it is the only way the handed-off work can act correctly.
 **Craft-time environment check (do this now, once, while assembling — not
 an instruction for the spawned session to act on later):**
 
-0. **One mechanical call covers tone/flags/custom-sections/omissions.** Run
+0. **One mechanical call covers persona/custom-sections/omissions.** Run
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/render-sections.js` — always, whether
    or not a project root is in scope (it resolves one from
    `$CLAUDE_PROJECT_DIR`/cwd regardless, and fails soft to defaults if no
    `.foreman/config.json` exists there). It prints one JSON object:
-   `{"inheritOperatorTone": bool, "ponytailActive": bool, "cavemanActive":
-   bool, "sections": [{"tag", "xml"}], "omit": [...], "warnings": [...]}`.
-   This replaces three separate steps this template used to spell out
-   (`Read` the config for `inheritOperatorTone`, a separate Bash/PowerShell
-   `test -f`/`Test-Path` for the two flag files, a separate call to this
-   same script for sections/omissions) with the single call this script
-   already made anyway — the precedence between them is now encoded once,
-   in code, not re-derived from prose on every assembly:
-   - `inheritOperatorTone` — `.foreman/config.json`'s flag (default `true`
-     if the file or field is missing/unparseable, matching every version
-     before this flag existed; standalone use with no config in scope also
-     reads as `true`).
-   - `ponytailActive` / `cavemanActive` — whether each plugin's session flag
-     file (`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active` /
-     `.caveman-active`) exists, **unless** `inheritOperatorTone` is `false`,
-     in which case both report `false` regardless of what's actually on
-     disk — the project has explicitly opted out of letting the operator's
-     personal caveman/ponytail state shape prompts crafted for it. Both
-     plugins' own `SessionStart` hooks fire unconditionally on every session
-     and already re-establish persona/tone from that same flag — so
-     whatever this prompt bakes in now only needs to *avoid contradicting*
-     that, not carry the state forward itself; if the flag changes before
-     this prompt actually runs, the destination session's own hook corrects
-     it regardless of what's written below.
+   `{"usePersona": bool, "sections": [{"tag", "xml"}], "omit": [...],
+   "warnings": [...]}`. All of it is project **declaration**, never
+   detection — foreman does not inspect which style plugins (ponytail,
+   caveman, hush, ...) the operator runs; a project that wants crafted
+   prompts to coexist with one simply declares the shape it wants here:
+   - `usePersona` — `.foreman/config.json`'s flag (default `true` if the
+     file or field is missing/unparseable; standalone use with no config in
+     scope also reads as `true`). Controls only the opening of
+     `task_context` below: persona sentence vs domain framing.
    - `sections` / `omit` / `warnings` — `.foreman/config.json`'s optional
      `customSections` array (`[{"tag": "...", "content": "..."}]`) and
      optional `omitSections` array (`["tone", "example", "background",
@@ -69,12 +54,13 @@ an instruction for the spawned session to act on later):**
 
 ```xml
 <task_context>
-[If step 0's `ponytailActive` is `true`: ponytail's own SessionStart hook
-already establishes a "lazy senior developer" persona in whatever session
-runs this — a second "You are a [role]" sentence reads as a competing
-identity claim, not a layered one. Use domain framing instead: "Domain:
-[specific role/specialization]." If `false`: "You are [specific role — e.g.
-"a senior security engineer", "a TypeScript developer"]."]
+[If step 0's `usePersona` is `true`: "You are [specific role — e.g. "a
+senior security engineer", "a TypeScript developer"]." If `false`: the
+project has declared that a persona is established elsewhere (e.g. a style
+plugin like ponytail sets one in whatever session runs this) — a second
+"You are a [role]" sentence would read as a competing identity claim, not a
+layered one. Use domain framing instead: "Domain: [specific
+role/specialization]."]
 Your goal is [one sentence — what "done" looks like for this specific task].
 </task_context>
 
@@ -110,13 +96,12 @@ scope — only to work that's genuinely a separate concern from
 below.]
 <tone>
 [If Tone was selected as an optional section: the user's custom tone,
-full stop — it replaces everything below. Otherwise: if step 0's
-`cavemanActive` is `true`, omit this whole `<tone>` block from the assembled
-prompt — caveman's own SessionStart hook already sets terse mode on
-whatever session actually runs this, restating it here is redundant and one
-more thing that can go stale. If `false`, include: "Minimal, professional
-conversation — silent by default, say only what the user actually needs to
-know, simplify technical explanations, avoid unnecessary jargon."]
+full stop — it replaces everything below. Otherwise include: "Minimal,
+professional conversation — silent by default, say only what the user
+actually needs to know, simplify technical explanations, avoid unnecessary
+jargon." Projects where a style plugin (caveman, hush, ...) already governs
+tone in the destination session opt out via `omitSections: ["tone"]` —
+that's the `omit` check above, there is no plugin detection here.]
 </tone>
 
 [If `"background"` is in `omit`, drop this whole `<background>` block
@@ -180,16 +165,14 @@ default "just in case".]
 
 ## Checklist (verify before handoff)
 
-- [ ] `task_context` names a specific role (or, if step 0's `ponytailActive`
-      came back `true`, domain framing instead of a competing "You are a"
-      sentence) and a concrete one-sentence "done" state
+- [ ] `task_context` names a specific role (or, if step 0's `usePersona`
+      came back `false`, domain framing instead of a "You are a" sentence)
+      and a concrete one-sentence "done" state
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
 - [ ] `scope_discipline` block is present, unmodified — every handoff must carry it
 - [ ] `render-sections.js` was run once at craft time (not deferred to the
-      spawned session) and its `inheritOperatorTone`/`ponytailActive`/
-      `cavemanActive` fields — not a fresh `Read`/file check — drove
-      `<task_context>` and `<tone>` above; `<tone>` omitted entirely if
-      `cavemanActive` is `true` and no custom Tone was selected
+      spawned session) and its `usePersona` field — not a fresh `Read` or
+      any plugin-flag check — drove `<task_context>` above
 - [ ] `relevant_files` lists every file path with line ranges — no vague
       references (for `craft-prompt`, get this from the user directly; for
       `foreman:roadmap`, pass the entry's `touches` through as-is — do NOT

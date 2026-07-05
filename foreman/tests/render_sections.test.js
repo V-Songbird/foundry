@@ -15,6 +15,8 @@
 //   - omitSections accepts only tone/example/background/output_format
 //   - a non-omittable tag (including a guardrail like scope_discipline),
 //     a non-string entry, and a duplicate are each skipped with a warning
+//   - usePersona: declared in config (default true); other plugins' flag
+//     files and the legacy inheritOperatorTone key are ignored entirely
 
 const { test, describe, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
@@ -207,50 +209,38 @@ describe('render-sections — omitSections', () => {
   });
 });
 
-describe('render-sections — inheritOperatorTone / ponytailActive / cavemanActive', () => {
-  test('no config, no flag files -> tone inherited, both flags false', () => {
-    env.CLAUDE_CONFIG_DIR = makeFlagDir();
+describe('render-sections — usePersona', () => {
+  test('no config -> usePersona defaults to true', () => {
     const { json } = run();
-    assert.equal(json.inheritOperatorTone, true);
-    assert.equal(json.ponytailActive, false);
-    assert.equal(json.cavemanActive, false);
+    assert.equal(json.usePersona, true);
   });
 
-  test('.ponytail-active present -> ponytailActive true, cavemanActive false', () => {
-    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active');
+  test('usePersona:false is honored', () => {
+    writeConfig(project, { usePersona: false });
     const { json } = run();
-    assert.equal(json.ponytailActive, true);
-    assert.equal(json.cavemanActive, false);
+    assert.equal(json.usePersona, false);
   });
 
-  test('.caveman-active present -> cavemanActive true', () => {
-    env.CLAUDE_CONFIG_DIR = makeFlagDir('.caveman-active');
+  test('usePersona:true is explicit and equivalent to the default', () => {
+    writeConfig(project, { usePersona: true });
     const { json } = run();
-    assert.equal(json.cavemanActive, true);
+    assert.equal(json.usePersona, true);
   });
 
-  test('both flag files present -> both report true', () => {
-    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active', '.caveman-active');
+  test('unparseable config defaults usePersona to true', () => {
+    fs.mkdirSync(path.join(project, '.foreman'), { recursive: true });
+    fs.writeFileSync(path.join(project, '.foreman', 'config.json'), '{not json', 'utf-8');
     const { json } = run();
-    assert.equal(json.ponytailActive, true);
-    assert.equal(json.cavemanActive, true);
+    assert.equal(json.usePersona, true);
   });
 
-  test('inheritOperatorTone:false forces both flags false even if the files exist', () => {
+  test('flag files and legacy inheritOperatorTone are ignored — declaration, not detection', () => {
     writeConfig(project, { inheritOperatorTone: false });
     env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active', '.caveman-active');
     const { json } = run();
-    assert.equal(json.inheritOperatorTone, false);
-    assert.equal(json.ponytailActive, false);
-    assert.equal(json.cavemanActive, false);
-  });
-
-  test('inheritOperatorTone missing/unparseable defaults to true', () => {
-    fs.mkdirSync(path.join(project, '.foreman'), { recursive: true });
-    fs.writeFileSync(path.join(project, '.foreman', 'config.json'), '{not json', 'utf-8');
-    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active');
-    const { json } = run();
-    assert.equal(json.inheritOperatorTone, true);
-    assert.equal(json.ponytailActive, true);
+    assert.equal(json.usePersona, true);
+    assert.equal('ponytailActive' in json, false);
+    assert.equal('cavemanActive' in json, false);
+    assert.equal('inheritOperatorTone' in json, false);
   });
 });
