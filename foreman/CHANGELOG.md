@@ -8,6 +8,20 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.13.1-alpha] — 2026-07-05
+
+### Changed — crafted prompts no longer induce visible step narration
+
+The template's closing line "Think step by step before making changes.
+Consider edge cases before writing code." was a narration inducer on
+thinking models: phrased as a prompt instruction, it invites externalizing
+the steps as prose between tool calls (observed live in a foreman-dispatched
+session: "Task 4 done. Now task 5 —" ticking through a 5-index migration).
+Now reads "Reason through the approach and edge cases in your thinking
+before editing — not in prose between tool calls." Style-neutral: same
+rigor, routed to thinking blocks, regardless of which communication style
+(hush, caveman, default) the consuming session runs.
+
 ## [0.13.0-alpha] — 2026-07-05
 
 ### Changed — full-plugin token/mechanization audit: two Claude-driven steps moved into existing scripts

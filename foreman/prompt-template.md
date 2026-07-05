@@ -161,7 +161,7 @@ if Call 1 selected it.]
 
 [The immediate, specific request in one sentence.]
 
-Think step by step before making changes. Consider edge cases before writing code.
+Reason through the approach and edge cases in your thinking before editing — not in prose between tool calls.
 
 [If `"output_format"` is in `omit`, drop this whole block unconditionally,
 even if Call 1 selected `Custom output format`.]
