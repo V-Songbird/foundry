@@ -8,6 +8,50 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.13.0-alpha] — 2026-07-05
+
+### Changed — full-plugin token/mechanization audit: two Claude-driven steps moved into existing scripts
+
+Requested full re-pass over every file in the plugin looking for remaining
+spots where Claude was still doing deterministic work by hand, after the
+0.4.3–0.10.0-alpha rounds already covered the obvious CRUD/ranking/dedup
+cases. Found two, both the same shape as prior fixes (fold a mechanical
+fact into a script's output instead of having Claude/an agent re-derive
+it):
+
+- **`scripts/render-sections.js` now also resolves `inheritOperatorTone`,
+  `ponytailActive`, and `cavemanActive`**, with the same precedence
+  `prompt-template.md` used to spell out across two separate craft-time
+  steps (a `Read` of `.foreman/config.json`, then a conditional
+  Bash/PowerShell `test -f`/`Test-Path` against the two flag files) —
+  encoded once, in code. `prompt-template.md`'s craft-time environment
+  check collapses from three tool calls (`Read` config, flag-file test,
+  `node render-sections.js`) into **one** — this runs on every single
+  prompt assembly in both `craft-prompt` and `roadmap`'s pick-next-task
+  branch, so it's the highest-frequency path in the plugin. `<task_context>`
+  and `<tone>` now read `ponytailActive`/`cavemanActive` off that one call's
+  output instead of instructing a fresh file check. Neither skill file
+  needed changes — both already say "follow `prompt-template.md` exactly"
+  per the 0.10.0-alpha dedup, so they inherit the new behavior by reading
+  the template fresh.
+- **`foreman:survey`'s mechanical pre-check (added 0.10.0-alpha for
+  commit-existence) now also covers `touches` path existence** — one
+  `test -e`/`Test-Path` per unique path across all surveyed candidates,
+  before dispatching agents, building a `path_exists` map handed to each
+  `Explore` agent instead of letting every agent independently spend a
+  `Read`/`Glob` call discovering a path is missing. A missing path is
+  itself `stale-touches` evidence; agents now only spend a real tool call
+  on the semantic content-match check for paths confirmed to exist.
+
+No `roadmap.js` change — this pass found nothing left to mechanize there,
+it's already the CRUD/ranking/dedup CLI 0.4.3–0.10.0-alpha built. No hook
+change either — both hooks were already pure deterministic Node with zero
+Claude-in-the-loop processing.
+
+111 tests total (105 existing + 6 new, covering `render-sections.js`'s
+`inheritOperatorTone`/`ponytailActive`/`cavemanActive` resolution and its
+precedence over the on-disk flag files).
+
 ## [0.12.0-alpha] — 2026-07-05
 
 ### Added

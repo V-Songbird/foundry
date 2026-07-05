@@ -58,18 +58,20 @@ beyond the task's stated goal, flag it rather than silently folding it in,
 and once it's done, log it as its own `ROADMAP.jsonl` entry (already
 `done`, same commit) instead of stretching this task's story to cover it.
 
-Default tone (override with the `Tone` optional section): checked once at
-craft time, not deferred to the spawned session. First gate: if the current
-project's `.foreman/config.json` sets `inheritOperatorTone` to `false`, the
-checks below are skipped entirely and the plain defaults apply regardless
-of what's actually active on this machine (see
-[The config file](#the-config-file)). Otherwise — if `.caveman-active`
-exists, the `<tone>` block is omitted entirely (caveman's own SessionStart
+Default tone (override with the `Tone` optional section): resolved once at
+craft time, not deferred to the spawned session, by a single
+`scripts/render-sections.js` call (the same one that resolves
+`customSections`/`omitSections` below) — no separate config read or
+flag-file check. If the current project's `.foreman/config.json` sets
+`inheritOperatorTone` to `false`, the call reports both flags inactive and
+the plain defaults apply regardless of what's actually active on this
+machine (see [The config file](#the-config-file)). Otherwise — if caveman is
+active, the `<tone>` block is omitted entirely (caveman's own SessionStart
 hook already sets terse mode on whatever session runs the prompt);
 otherwise minimal and professional — silent by default, only what you need
 to know, no unnecessary jargon. `task_context`'s role sentence gets the same
-craft-time treatment for `.ponytail-active` — domain framing instead of a
-competing "You are a [role]" identity claim. Default output format: a plain
+craft-time treatment for ponytail — domain framing instead of a competing
+"You are a [role]" identity claim. Default output format: a plain
 human-readable summary, no XML tags — tags are opt-in only (`Custom output
 format`), for when something downstream actually parses the result.
 

@@ -55,6 +55,14 @@ to step 2 — a dispatched agent re-deriving something a shell command
 already answered for free is pure waste, one `git cat-file` call is
 cheaper than N parallel agents each running their own `git log`.
 
+Same reasoning applies to `touches`: collect every path named across the
+candidates being surveyed (dedup), and check existence directly —
+`test -e <path>` (Bash) / `Test-Path <path>` (PowerShell), relative to the
+project root, one call per unique path (or a short loop in one call).
+Build a `path_exists: true/false` map from this too. A missing path is
+already `stale-touches` evidence on its own — no agent needs a `Read`/`Glob`
+round trip just to learn a file isn't there.
+
 ---
 
 ## 2. Investigate each candidate in parallel
@@ -66,13 +74,18 @@ fields plus the resolved-dependency and exists-map context gathered in
 step 1:
 
 - The candidate's `id`, `title`, `why`, `what`, `touches`, `depends_on`.
+- For each path in `touches`: the pre-computed `path_exists` flag from step
+  1 — the agent consumes this fact, it does not re-check it with its own
+  `Read`/`Glob` call.
 - For each id in `depends_on`: that entry's `title`, `status`, `commits`,
   and the pre-computed `exists` flag for each of those commits — the agent
   consumes this fact, it does not re-derive it.
 - Ask it to check, and report a verdict for each:
-  1. **Touches still real?** Do the paths in `touches` exist and does their
-     current content still match what `what` describes? (`git log
-     --oneline -- <path>` plus a read of the file's current state.)
+  1. **Touches still real?** Any path step 1 already flagged missing is
+     `stale-touches` evidence on its own — no further check needed for it.
+     For paths confirmed to exist, does their current content still match
+     what `what` describes? (`git log --oneline -- <path>` plus a read of
+     the file's current state.)
   2. **Dependencies actually satisfied?** If step 1's `exists` map already
      flags a `done` entry's commit as missing, that alone is a red flag —
      no further check needed. Otherwise, for commits confirmed to exist,

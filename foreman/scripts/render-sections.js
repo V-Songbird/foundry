@@ -2,6 +2,7 @@
 "use strict";
 
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 
 function projectDir() {
@@ -10,6 +11,32 @@ function projectDir() {
 
 function configPath(root) {
   return path.join(root, ".foreman", "config.json");
+}
+
+// Where ponytail/caveman drop their session flag files — independent of any
+// project root, matches prompt-template.md's Bash/PowerShell check.
+function claudeConfigDir() {
+  return process.env.CLAUDE_CONFIG_DIR
+    ? path.resolve(process.env.CLAUDE_CONFIG_DIR)
+    : path.join(os.homedir(), ".claude");
+}
+
+// Default true, matching every version before this flag existed.
+function readInheritOperatorTone(config) {
+  return config?.inheritOperatorTone !== false;
+}
+
+// inheritOperatorTone:false means the project opted out of the operator's
+// personal tone entirely -- both flags report inactive regardless of what's
+// actually on disk, same precedence prompt-template.md's steps 0+1 encoded
+// in prose before this merged them into one mechanical call.
+function flagsActive(inheritOperatorTone) {
+  if (!inheritOperatorTone) return { ponytailActive: false, cavemanActive: false };
+  const dir = claudeConfigDir();
+  return {
+    ponytailActive: fs.existsSync(path.join(dir, ".ponytail-active")),
+    cavemanActive: fs.existsSync(path.join(dir, ".caveman-active")),
+  };
 }
 
 // Fail-soft, same spirit as post-commit.js's readConfig: a missing or
@@ -117,7 +144,12 @@ function render(root) {
   const config = readConfig(root);
   const sectionsResult = renderSections(config.customSections);
   const omitResult = renderOmit(config.omitSections);
+  const inheritOperatorTone = readInheritOperatorTone(config);
+  const { ponytailActive, cavemanActive } = flagsActive(inheritOperatorTone);
   return {
+    inheritOperatorTone,
+    ponytailActive,
+    cavemanActive,
     sections: sectionsResult.sections,
     omit: omitResult.omit,
     warnings: [...sectionsResult.warnings, ...omitResult.warnings],
@@ -136,7 +168,10 @@ if (require.main === module) {
 module.exports = {
   projectDir,
   configPath,
+  claudeConfigDir,
   readConfig,
+  readInheritOperatorTone,
+  flagsActive,
   escapeXml,
   renderSections,
   renderOmit,

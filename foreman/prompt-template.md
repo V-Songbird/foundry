@@ -18,60 +18,62 @@ optional — it is the only way the handed-off work can act correctly.
 **Craft-time environment check (do this now, once, while assembling — not
 an instruction for the spawned session to act on later):**
 
-0. **Project opt-out gate.** If a project root is in scope, `Read` its
-   `.foreman/config.json` and check `inheritOperatorTone` (default `true`
-   if the file, or just this field, is missing/unparseable — matches the
-   behavior every version before this flag existed). If `false`: skip
-   straight to step 2 below with the flag-not-found defaults for both
-   `<task_context>` and `<tone>` — the project has explicitly opted out of
-   letting the operator's personal caveman/ponytail state shape prompts
-   crafted for it, regardless of what's actually active on this machine
-   right now. Standalone `craft-prompt` use with no `.foreman/config.json`
-   at all (no Foreman-managed roadmap in this project) behaves as `true`.
-1. **Flag check** (only if step 0 didn't already decide `false`): both
-   `<task_context>` and `<tone>` below depend on whether ponytail/caveman
-   are active *for the crafting session right now*. Check both flags in one
-   call: `test -f "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"; test -f
-   "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"` (Bash), or the
-   `Test-Path` equivalent against `$env:CLAUDE_CONFIG_DIR` (falling back to
-   `$HOME/.claude`) joined with each flag name (PowerShell). Both
-   plugins' own `SessionStart` hooks fire unconditionally on every session and
-   already re-establish persona/tone from that same flag — so whatever this
-   prompt bakes in now only needs to *avoid contradicting* that, not carry the
-   state forward itself; if the flag changes before this prompt actually runs,
-   the destination session's own hook corrects it regardless of what's written
-   below.
-2. **Custom sections and omissions.** If a project root is in scope, run
-   `node ${CLAUDE_PLUGIN_ROOT}/scripts/render-sections.js` — it reads
-   `.foreman/config.json`'s optional `customSections` array
-   (`[{"tag": "...", "content": "..."}]`) and optional `omitSections` array
-   (`["tone", "example", "background", "output_format"]` — only these four
-   are ever valid, they're the template's already-conditional tags; a
-   guardrail like `scope_discipline` or `truth_grounding` can never appear
-   here), validates both mechanically, and prints
-   `{"sections": [{"tag", "xml"}], "omit": [...], "warnings": [...]}`.
-   Inline every `sections[].xml` value, in order, verbatim, at the
-   `[CUSTOM SECTIONS]` placeholder below — never invent, edit, or reorder
-   its content, that defeats the point of it being project-defined. If
-   `sections` is empty, remove the placeholder line entirely. For every tag
-   name in `omit`, drop that whole block from the assembled prompt
-   regardless of what Call 1's optional-section selection or the entry's
-   own fields would otherwise include — a project-level `omitSections`
-   always wins over a per-prompt selection, since it's the more specific,
-   more recently-stated intent. Surface any `warnings` briefly to the user
-   (a skipped entry — bad tag, reserved/non-omittable tag, duplicate, empty
-   content) so a malformed `config.json` doesn't fail silently; a warning
-   here never blocks the rest of the assembly. No project root in scope
-   (standalone template use) → skip this step, no placeholder in output,
-   nothing omitted.
+0. **One mechanical call covers tone/flags/custom-sections/omissions.** Run
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/render-sections.js` — always, whether
+   or not a project root is in scope (it resolves one from
+   `$CLAUDE_PROJECT_DIR`/cwd regardless, and fails soft to defaults if no
+   `.foreman/config.json` exists there). It prints one JSON object:
+   `{"inheritOperatorTone": bool, "ponytailActive": bool, "cavemanActive":
+   bool, "sections": [{"tag", "xml"}], "omit": [...], "warnings": [...]}`.
+   This replaces three separate steps this template used to spell out
+   (`Read` the config for `inheritOperatorTone`, a separate Bash/PowerShell
+   `test -f`/`Test-Path` for the two flag files, a separate call to this
+   same script for sections/omissions) with the single call this script
+   already made anyway — the precedence between them is now encoded once,
+   in code, not re-derived from prose on every assembly:
+   - `inheritOperatorTone` — `.foreman/config.json`'s flag (default `true`
+     if the file or field is missing/unparseable, matching every version
+     before this flag existed; standalone use with no config in scope also
+     reads as `true`).
+   - `ponytailActive` / `cavemanActive` — whether each plugin's session flag
+     file (`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active` /
+     `.caveman-active`) exists, **unless** `inheritOperatorTone` is `false`,
+     in which case both report `false` regardless of what's actually on
+     disk — the project has explicitly opted out of letting the operator's
+     personal caveman/ponytail state shape prompts crafted for it. Both
+     plugins' own `SessionStart` hooks fire unconditionally on every session
+     and already re-establish persona/tone from that same flag — so
+     whatever this prompt bakes in now only needs to *avoid contradicting*
+     that, not carry the state forward itself; if the flag changes before
+     this prompt actually runs, the destination session's own hook corrects
+     it regardless of what's written below.
+   - `sections` / `omit` / `warnings` — `.foreman/config.json`'s optional
+     `customSections` array (`[{"tag": "...", "content": "..."}]`) and
+     optional `omitSections` array (`["tone", "example", "background",
+     "output_format"]` — only these four are ever valid, they're the
+     template's already-conditional tags; a guardrail like
+     `scope_discipline` or `truth_grounding` can never appear here), both
+     validated mechanically. Inline every `sections[].xml` value, in order,
+     verbatim, at the `[CUSTOM SECTIONS]` placeholder below — never invent,
+     edit, or reorder its content, that defeats the point of it being
+     project-defined. If `sections` is empty, remove the placeholder line
+     entirely. For every tag name in `omit`, drop that whole block from the
+     assembled prompt regardless of what Call 1's optional-section
+     selection or the entry's own fields would otherwise include — a
+     project-level `omitSections` always wins over a per-prompt selection,
+     since it's the more specific, more recently-stated intent. Surface any
+     `warnings` briefly to the user (a skipped entry — bad tag,
+     reserved/non-omittable tag, duplicate, empty content) so a malformed
+     `config.json` doesn't fail silently; a warning here never blocks the
+     rest of the assembly.
 
 ```xml
 <task_context>
-[If `.ponytail-active` exists: ponytail's own SessionStart hook already
-establishes a "lazy senior developer" persona in whatever session runs this
-— a second "You are a [role]" sentence reads as a competing identity claim,
-not a layered one. Use domain framing instead: "Domain: [specific role/
-specialization]." If the flag doesn't exist: "You are [specific role — e.g.
+[If step 0's `ponytailActive` is `true`: ponytail's own SessionStart hook
+already establishes a "lazy senior developer" persona in whatever session
+runs this — a second "You are a [role]" sentence reads as a competing
+identity claim, not a layered one. Use domain framing instead: "Domain:
+[specific role/specialization]." If `false`: "You are [specific role — e.g.
 "a senior security engineer", "a TypeScript developer"]."]
 Your goal is [one sentence — what "done" looks like for this specific task].
 </task_context>
@@ -108,11 +110,11 @@ scope — only to work that's genuinely a separate concern from
 below.]
 <tone>
 [If Tone was selected as an optional section: the user's custom tone,
-full stop — it replaces everything below. Otherwise: if `.caveman-active`
-exists, omit this whole `<tone>` block from the assembled prompt — caveman's
-own SessionStart hook already sets terse mode on whatever session actually
-runs this, restating it here is redundant and one more thing that can go
-stale. If `.caveman-active` doesn't exist, include: "Minimal, professional
+full stop — it replaces everything below. Otherwise: if step 0's
+`cavemanActive` is `true`, omit this whole `<tone>` block from the assembled
+prompt — caveman's own SessionStart hook already sets terse mode on
+whatever session actually runs this, restating it here is redundant and one
+more thing that can go stale. If `false`, include: "Minimal, professional
 conversation — silent by default, say only what the user actually needs to
 know, simplify technical explanations, avoid unnecessary jargon."]
 </tone>
@@ -178,15 +180,16 @@ default "just in case".]
 
 ## Checklist (verify before handoff)
 
-- [ ] `task_context` names a specific role (or, if `.ponytail-active` was
-      found at craft time, domain framing instead of a competing "You are a"
+- [ ] `task_context` names a specific role (or, if step 0's `ponytailActive`
+      came back `true`, domain framing instead of a competing "You are a"
       sentence) and a concrete one-sentence "done" state
 - [ ] `truth_grounding` block is present, unmodified — every handoff must carry it
 - [ ] `scope_discipline` block is present, unmodified — every handoff must carry it
-- [ ] `.foreman/config.json`'s `inheritOperatorTone` was checked first (default
-      `true`); only if it isn't `false` were `.caveman-active`/`.ponytail-active`
-      checked at craft time (not deferred to the spawned session) — `<tone>`
-      omitted entirely if caveman is active and no custom Tone was selected
+- [ ] `render-sections.js` was run once at craft time (not deferred to the
+      spawned session) and its `inheritOperatorTone`/`ponytailActive`/
+      `cavemanActive` fields — not a fresh `Read`/file check — drove
+      `<task_context>` and `<tone>` above; `<tone>` omitted entirely if
+      `cavemanActive` is `true` and no custom Tone was selected
 - [ ] `relevant_files` lists every file path with line ranges — no vague
       references (for `craft-prompt`, get this from the user directly; for
       `foreman:roadmap`, pass the entry's `touches` through as-is — do NOT

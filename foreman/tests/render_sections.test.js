@@ -19,6 +19,7 @@
 const { test, describe, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const { runRenderSections, makeTmpProject, writeConfig } = require('./helpers');
@@ -30,6 +31,13 @@ beforeEach(() => {
   project = makeTmpProject();
   env = { CLAUDE_PROJECT_DIR: project };
 });
+
+/** Fresh temp dir standing in for $CLAUDE_CONFIG_DIR, holding the named flag files. */
+function makeFlagDir(...fileNames) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'foreman-config-'));
+  for (const name of fileNames) fs.writeFileSync(path.join(dir, name), '');
+  return dir;
+}
 
 function run() {
   const result = runRenderSections(env);
@@ -196,5 +204,53 @@ describe('render-sections — omitSections', () => {
     assert.equal(json.sections.length, 0);
     assert.equal(json.omit.length, 0);
     assert.equal(json.warnings.length, 2);
+  });
+});
+
+describe('render-sections — inheritOperatorTone / ponytailActive / cavemanActive', () => {
+  test('no config, no flag files -> tone inherited, both flags false', () => {
+    env.CLAUDE_CONFIG_DIR = makeFlagDir();
+    const { json } = run();
+    assert.equal(json.inheritOperatorTone, true);
+    assert.equal(json.ponytailActive, false);
+    assert.equal(json.cavemanActive, false);
+  });
+
+  test('.ponytail-active present -> ponytailActive true, cavemanActive false', () => {
+    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active');
+    const { json } = run();
+    assert.equal(json.ponytailActive, true);
+    assert.equal(json.cavemanActive, false);
+  });
+
+  test('.caveman-active present -> cavemanActive true', () => {
+    env.CLAUDE_CONFIG_DIR = makeFlagDir('.caveman-active');
+    const { json } = run();
+    assert.equal(json.cavemanActive, true);
+  });
+
+  test('both flag files present -> both report true', () => {
+    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active', '.caveman-active');
+    const { json } = run();
+    assert.equal(json.ponytailActive, true);
+    assert.equal(json.cavemanActive, true);
+  });
+
+  test('inheritOperatorTone:false forces both flags false even if the files exist', () => {
+    writeConfig(project, { inheritOperatorTone: false });
+    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active', '.caveman-active');
+    const { json } = run();
+    assert.equal(json.inheritOperatorTone, false);
+    assert.equal(json.ponytailActive, false);
+    assert.equal(json.cavemanActive, false);
+  });
+
+  test('inheritOperatorTone missing/unparseable defaults to true', () => {
+    fs.mkdirSync(path.join(project, '.foreman'), { recursive: true });
+    fs.writeFileSync(path.join(project, '.foreman', 'config.json'), '{not json', 'utf-8');
+    env.CLAUDE_CONFIG_DIR = makeFlagDir('.ponytail-active');
+    const { json } = run();
+    assert.equal(json.inheritOperatorTone, true);
+    assert.equal(json.ponytailActive, true);
   });
 });
