@@ -178,6 +178,39 @@
         "automation"
       ],
       "strict": true
+    },
+    {
+      "name": "hush",
+      "source": "./hush",
+      "description": "Token-lean sessions at the harness level, not the prompt level. Ships a forced output style that rewires the system prompt itself — no preamble, no play-by-play, one outcome-first final message — plus a PostToolUse hook that mechanically shrinks Bash/PowerShell output before it enters context (ANSI/progress-bar strip, duplicate collapse, line caps; failures keep ~4x more, verbatim), and a Stop hook that measures mid-turn narration and injects one corrective line only when the budget is exceeded. Replaces prompt-injection style plugins like caveman: same terseness goal, stronger mechanism, and it also cuts the input-token side they never touch. Tune via HUSH_CAP_PASS, HUSH_CAP_FAIL, HUSH_NARRATION_BUDGET; disable with HUSH_DISABLE=1.",
+      "version": "0.1.0-alpha",
+      "license": "MIT",
+      "author": {
+        "name": "Songbird",
+        "email": "songbird@tuta.com"
+      },
+      "homepage": "https://github.com/V-Songbird/claude-plugins/tree/main/hush",
+      "repository": "https://github.com/V-Songbird/claude-plugins",
+      "category": "productivity",
+      "keywords": [
+        "tokens",
+        "token-optimization",
+        "output-style",
+        "compression",
+        "hooks",
+        "terse",
+        "cost"
+      ],
+      "tags": [
+        "tokens",
+        "token-optimization",
+        "output-style",
+        "compression",
+        "hooks",
+        "terse",
+        "cost"
+      ],
+      "strict": true
     }
   ]
 }
