@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0-alpha — 2026-07-05
+
+Mid-turn narration meter. Motivated by a real transcript (foreman-dispatched FBI migration task): ~22 narration blocks, ≈250 words, all inside one turn — and the Stop-only meter couldn't intervene until the turn ended, so the first offending turn always got through uncorrected.
+
+- `narration-meter.js` is now dual-mode, registered on both `PostToolUse` and `Stop` (mode from `hook_event_name`). Mid-turn mode counts every text block so far (no deliverable exists yet) and injects the corrective line the moment the budget is crossed — inside the offending turn.
+- Once-per-turn dedup via a state file in the OS temp dir keyed by `session_id`; the turn is identified by the last real user prompt's `uuid`. Stop mode skips turns the mid-turn fire already corrected; a new human prompt re-arms the meter.
+- Transcript reads are now a 1MB tail window instead of a full streaming read — the hook runs on every tool call, so cost had to stay flat as sessions grow. A single turn larger than 1MB undercounts (delays the fire), documented ceiling.
+- 36 tests (was 28).
+
 ## 0.1.1-alpha — 2026-07-05
 
 Fix: `narration-meter.js`'s turn-boundary detection (`isRealUserPrompt`) treated harness-injected continuations — background Task-tool notifications (`origin.kind: "task-notification"`) and `ScheduleWakeup` firings (`isMeta: true`) — as fresh user turns. Each one reset the narration accumulator, so a chain of short status pings after consecutive background-task completions never tripped the word budget (each ping was a lone block in its own synthetic "turn," exempted as the deliverable). Now only `origin.kind === "human"` entries count as turn boundaries; the whole notification chain is measured as one turn. Added a matching line to `output-styles/hush.md` telling the model directly that a chain of notifications without new human input is one unit of work, not one per notification.

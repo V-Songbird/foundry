@@ -6,10 +6,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { runHook, hookOutput } = require('./helpers');
-const { measureLastTurn, wordCount } = require('../hooks/narration-meter');
+const { measureLastTurn, measureCurrentTurn, wordCount } = require('../hooks/narration-meter');
 
-function userPrompt(text) {
-  return JSON.stringify({ type: 'user', message: { role: 'user', content: text } });
+function userPrompt(text, uuid) {
+  return JSON.stringify({ type: 'user', uuid: uuid || 'u1', message: { role: 'user', content: text } });
 }
 
 function assistantText(text, extra) {
@@ -133,6 +133,24 @@ describe('unit: measureLastTurn', () => {
     ]);
     assert.strictEqual(narration, 15);
   });
+
+  test('measureCurrentTurn counts every block — mid-turn has no deliverable yet', () => {
+    const { narration, blocks, turnKey } = measureCurrentTurn([
+      userPrompt('go', 'turn-a'),
+      assistantText(words(30)),
+      toolResult(),
+      assistantText(words(25)),
+    ]);
+    assert.strictEqual(narration, 55);
+    assert.strictEqual(blocks, 2);
+    assert.strictEqual(turnKey, 'turn-a');
+  });
+
+  test('turnKey changes when a new real prompt starts a turn', () => {
+    const a = measureCurrentTurn([userPrompt('one', 'turn-a'), assistantText(words(5))]);
+    const b = measureCurrentTurn([userPrompt('one', 'turn-a'), userPrompt('two', 'turn-b'), assistantText(words(5))]);
+    assert.notStrictEqual(a.turnKey, b.turnKey);
+  });
 });
 
 describe('hook: end to end', () => {
@@ -165,5 +183,73 @@ describe('hook: end to end', () => {
     const file = writeTranscript([userPrompt('go'), assistantText(words(300)), assistantText(words(5))]);
     const r = runHook('narration-meter.js', { transcript_path: file }, { HUSH_DISABLE: '1' });
     assert.strictEqual(hookOutput(r), null);
+  });
+});
+
+describe('hook: mid-turn mode (PostToolUse)', () => {
+  let seq = 0;
+  const freshSession = () => `hush-test-${process.pid}-${++seq}`;
+
+  test('fires inside the turn the moment budget is crossed', () => {
+    const file = writeTranscript([userPrompt('go', 't1'), assistantText(words(200))]);
+    const r = runHook('narration-meter.js', {
+      transcript_path: file,
+      session_id: freshSession(),
+      hook_event_name: 'PostToolUse',
+    });
+    const out = hookOutput(r);
+    assert.strictEqual(out.hookSpecificOutput.hookEventName, 'PostToolUse');
+    assert.match(out.hookSpecificOutput.additionalContext, /200 words/);
+  });
+
+  test('fires at most once per turn', () => {
+    const file = writeTranscript([userPrompt('go', 't1'), assistantText(words(200))]);
+    const session = freshSession();
+    const input = { transcript_path: file, session_id: session, hook_event_name: 'PostToolUse' };
+    assert.notStrictEqual(hookOutput(runHook('narration-meter.js', input)), null);
+    assert.strictEqual(hookOutput(runHook('narration-meter.js', input)), null);
+  });
+
+  test('Stop stays silent when mid-turn already corrected this turn', () => {
+    const file = writeTranscript([userPrompt('go', 't1'), assistantText(words(200)), assistantText(words(5))]);
+    const session = freshSession();
+    runHook('narration-meter.js', { transcript_path: file, session_id: session, hook_event_name: 'PostToolUse' });
+    const r = runHook('narration-meter.js', { transcript_path: file, session_id: session, hook_event_name: 'Stop' });
+    assert.strictEqual(hookOutput(r), null);
+  });
+
+  test('a new turn re-arms the meter', () => {
+    const session = freshSession();
+    const turn1 = writeTranscript([userPrompt('go', 't1'), assistantText(words(200))]);
+    runHook('narration-meter.js', { transcript_path: turn1, session_id: session, hook_event_name: 'PostToolUse' });
+    const turn2 = writeTranscript([
+      userPrompt('go', 't1'),
+      assistantText(words(200)),
+      userPrompt('next', 't2'),
+      assistantText(words(200)),
+    ]);
+    const r = runHook('narration-meter.js', { transcript_path: turn2, session_id: session, hook_event_name: 'PostToolUse' });
+    assert.notStrictEqual(hookOutput(r), null);
+  });
+
+  test('under budget stays silent mid-turn', () => {
+    const file = writeTranscript([userPrompt('go', 't1'), assistantText(words(10))]);
+    const r = runHook('narration-meter.js', {
+      transcript_path: file,
+      session_id: freshSession(),
+      hook_event_name: 'PostToolUse',
+    });
+    assert.strictEqual(hookOutput(r), null);
+  });
+
+  test('tail window: current turn at the end of a >1MB transcript still measures', () => {
+    const filler = assistantText('x'.repeat(2 * 1024 * 1024)); // old turn, one giant block
+    const file = writeTranscript([userPrompt('old', 't1'), filler, userPrompt('new', 't2'), assistantText(words(200))]);
+    const r = runHook('narration-meter.js', {
+      transcript_path: file,
+      session_id: freshSession(),
+      hook_event_name: 'PostToolUse',
+    });
+    assert.match(hookOutput(r).hookSpecificOutput.additionalContext, /200 words/);
   });
 });

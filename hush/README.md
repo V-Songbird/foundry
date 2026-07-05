@@ -25,7 +25,12 @@ Deterministic text transforms only. No LLM, no heuristics touching error content
 
 ### 3. Narration meter — the feedback loop
 
-A `Stop` hook parses the turn's transcript, counts words in mid-turn assistant text blocks (the final message is the deliverable and doesn't count), and injects a single corrective line only when the budget (default 120 words) is exceeded. Zero token cost while the agent behaves.
+Dual-mode, one script registered on two events:
+
+- **PostToolUse (mid-turn)**: after each tool call, tail-reads the transcript (last 1MB) and counts the turn's narration words so far. The moment the budget (default 120 words) is crossed, it injects one corrective line — inside the offending turn, so the first long turn doesn't get a free pass. Fires at most once per turn (state file in the OS temp dir keyed by session).
+- **Stop (turn end)**: same measurement with the final message exempt (it's the deliverable), skipped when the mid-turn fire already corrected the turn.
+
+Turn boundaries are real human input only — task notifications, subagent completions, and scheduled wakeups (`origin.kind` / `isMeta` markers) don't reset the counter, so a notification chain measures as one turn. Zero token cost while the agent behaves.
 
 ## Configuration
 
@@ -35,7 +40,7 @@ Environment variables, e.g. via `env` in `settings.json`:
 | --- | --- | --- |
 | `HUSH_CAP_PASS` | `60` | Line cap for passing Bash/PowerShell output |
 | `HUSH_CAP_FAIL` | `250` | Line cap for failing output |
-| `HUSH_NARRATION_BUDGET` | `120` | Mid-turn narration words allowed per turn before the meter fires |
+| `HUSH_NARRATION_BUDGET` | `120` | Narration words allowed per turn before the meter fires (both modes) |
 | `HUSH_DISABLE` | unset | `1` disables both hooks (the output style stays; disable the plugin to remove it) |
 
 ## Relationship to caveman
