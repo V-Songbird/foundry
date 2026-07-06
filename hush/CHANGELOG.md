@@ -5,6 +5,14 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.3.0-alpha — 2026-07-06
+
+New skill: `/hush:hush-compress <path>` shrinks a CLAUDE.md/memory file into hush's own dev-shorthand voice (the existing output style's word economy, not caveman-speak) so every future session that loads it pays fewer input tokens.
+
+Motivated by a real incident: caveman's equivalent skill deleted a user's CLAUDE.md completely. Read caveman's actual implementation (`compress.py`) to find the real cause rather than guessing — it's fairly defensive on paper (backup + readback verification + validate/retry/restore-on-failure), but every write in that flow is a truncate-then-write, not atomic; an interruption between truncate and write completing at any of several write sites leaves the file empty regardless of how much validation logic sits on top. Hush's version sidesteps the entire failure class rather than hardening around it: it never writes to the original file in any code path. Output goes to a sibling file (`CLAUDE.md` → `CLAUDE.hush.md`) for manual review and swap-in. No subprocess, no API key, no second LLM call either — the skill just has the current session compress the file itself, the way every other skill in this monorepo works.
+
+`hush/scripts/verify-compression.js` (new, plain Node, no deps) mechanically checks headings, code blocks, URLs, paths, and inline-code spans all survive the compression — reusing the checks caveman's own `validate.py` proved out, reimplemented rather than copied. 14 new tests (56 total).
+
 ## 0.2.5-alpha — 2026-07-06
 
 Word economy sharpened from a self-check alone to a default-to-fragments rule with concrete before/after examples, e.g. `"Bug: auth middleware, expiry check used < not <=."` instead of `"I found that the bug is in the auth middleware, where..."`. Deliberately bounded — dev-shorthand density, not caveman-speak: grammar stays correct where present, technical terms stay exact, nothing invented or abbreviated beyond recognition.

@@ -72,6 +72,12 @@ Environment variables, e.g. via `env` in `settings.json`:
 | `HUSH_NARRATION` | unset | `off` disables the narration meter only (compression and the output style stay) |
 | `HUSH_DISABLE` | unset | `1` disables both hooks (the output style stays; disable the plugin to remove it) |
 
+## Optional: compress a memory file
+
+`/hush:hush-compress <path>` shrinks a CLAUDE.md or other memory file into hush's own dev-shorthand voice (the same word economy the output style already applies to conversation), so every future session that loads it pays fewer input tokens. Say "compress this file" or "shrink my CLAUDE.md" to trigger it too.
+
+**Safety model: it never writes to the original file.** The compressed result goes to a sibling file (`CLAUDE.md` → `CLAUDE.hush.md`) for you to review and swap in yourself — there is no code path in this skill that touches the source file's bytes, so there's nothing to corrupt or lose. A mechanical verifier (`hush/scripts/verify-compression.js`, no LLM involved) checks that every heading, code block, URL, path, and inline-code span in the original still appears in the compressed version, and reports anything missing before you replace the original.
+
 ## Relationship to prompt-injection style plugins
 
 hush replaces their core mechanism rather than complementing them. Same terseness goal, but implemented in the system prompt instead of per-turn injected rules — and it also covers the input-token side those plugins never touch. If one is installed alongside hush, hush's forced output style takes precedence anyway; running both just pays the injection tax for nothing. Keep such a plugin only if you want its unrelated extras (skills, agents, and the like).
