@@ -38,15 +38,15 @@ Prompt-injection style plugins fight the default system prompt by re-injecting "
 
 [`output-styles/hush.md`](output-styles/hush.md) is applied automatically while the plugin is enabled (`force-for-plugin: true`). Output styles modify the system prompt itself, and Claude Code generates its own adherence reminders during the conversation — persistence comes from the harness, not from per-turn injection you pay for.
 
-The style: no preamble, no play-by-play, speak mid-turn only on a direction change or a blocking finding, everything else in one outcome-first final message. Code, diffs, errors, security warnings, and anything you explicitly asked to have explained stay full-fidelity.
+The style: no preamble, no play-by-play, speak mid-turn only on a direction change or a blocking finding, everything else in one outcome-first final message, written at dev-shorthand density — default to fragments, drop what a reader infers on their own. Code, diffs, errors, security warnings, and anything you explicitly asked to have explained stay full-fidelity; investigation depth is never traded for brevity.
 
 ### 2. Tool-output compression — the input sink (the big one)
 
 Tool results are typically 5–10x larger than prose in a long session, and every byte re-enters context on every subsequent model call. A `PostToolUse` hook rewrites Bash/PowerShell results via `updatedToolOutput` before they reach the model:
 
-- strips ANSI color/cursor codes and resolves `\r` progress-bar redraws to their final state
+- strips ANSI color/cursor codes and resolves `\r` progress-bar redraws to their final state (CRLF line endings are left alone — only a bare mid-line `\r` counts as a redraw)
 - collapses consecutive duplicate lines into a count marker
-- caps passing output at 60 lines (head + tail + `[hush: N lines omitted]`)
+- caps passing output at 60 lines (head + tail + `[hush: N lines omitted]`) — but a line matching a warning/error/failure/deprecation pattern survives the cap regardless of position, so a build warning buried in the middle of noisy output is never the thing that gets cut
 - failing output keeps 250 lines and everything kept is verbatim — failure detail is evidence, never summarized
 
 Deterministic text transforms only. No LLM, no heuristics touching error content, no drift. When nothing shrinks, the hook stays silent.
