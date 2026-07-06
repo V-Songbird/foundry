@@ -65,15 +65,38 @@ function dedupeConsecutive(lines) {
   return out;
 }
 
+// Lines that look like they carry the task's actual signal (warnings, errors,
+// deprecations) survive the cap regardless of position — only surrounding
+// noise (progress logs, install trees) gets cut. A blind head+tail slice was
+// caught clipping build warnings out of a passing run, which then made the
+// agent re-run the command hunting for what it couldn't see — the cap
+// destroying signal cost more tool calls than the cap ever saved. Deliberately
+// broad regex: over-matching just keeps a few extra lines, never worse.
+const SIGNAL_RE = /\b(WARN(?:ING)?|ERR(?:OR)?|FAIL(?:URE|ED)?|DEPRECATED|CRITICAL)\b/i;
+
 function capLines(lines, cap) {
   if (lines.length <= cap) return lines;
-  const head = Math.ceil(cap * 0.6);
-  const tail = cap - head;
-  return [
-    ...lines.slice(0, head),
-    `[hush: ${lines.length - cap} lines omitted]`,
-    ...lines.slice(lines.length - tail),
-  ];
+  const signalIdx = new Set();
+  lines.forEach((line, i) => {
+    if (SIGNAL_RE.test(line)) signalIdx.add(i);
+  });
+  const budget = Math.max(0, cap - signalIdx.size);
+  const head = Math.ceil(budget * 0.6);
+  const tail = budget - head;
+  const kept = new Set(signalIdx);
+  for (let i = 0; i < head && i < lines.length; i++) kept.add(i);
+  for (let i = Math.max(0, lines.length - tail); i < lines.length; i++) kept.add(i);
+
+  const sortedKept = [...kept].sort((a, b) => a - b);
+  const out = [];
+  let last = -1;
+  for (const i of sortedKept) {
+    if (i - last > 1) out.push(`[hush: ${i - last - 1} lines omitted]`);
+    out.push(lines[i]);
+    last = i;
+  }
+  if (lines.length - 1 - last > 0) out.push(`[hush: ${lines.length - 1 - last} lines omitted]`);
+  return out;
 }
 
 // Deliberately simple: word-boundary failure sniff, exit-code field wins when present.

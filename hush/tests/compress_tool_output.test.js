@@ -57,6 +57,22 @@ describe('unit: transforms', () => {
     assert.deepStrictEqual(capLines(['a', 'b'], 10), ['a', 'b']);
   });
 
+  test('capLines keeps a signal line outside the head/tail window', () => {
+    const lines = Array.from({ length: 100 }, (_, i) => `line ${i}`);
+    lines[50] = 'WARN W1042 deprecated-api in src/legacy/adapter.js';
+    const out = capLines(lines, 10);
+    assert.ok(out.includes(lines[50]), 'signal line should survive the cap');
+  });
+
+  test('capLines with no signal lines behaves exactly as a plain head+tail cap', () => {
+    const lines = Array.from({ length: 100 }, (_, i) => `line ${i}`);
+    const out = capLines(lines, 10);
+    assert.strictEqual(out.length, 11);
+    assert.strictEqual(out[0], 'line 0');
+    assert.strictEqual(out[6], '[hush: 90 lines omitted]');
+    assert.strictEqual(out[10], 'line 99');
+  });
+
   test('exit code wins over text sniffing', () => {
     assert.strictEqual(looksLikeFailure('Error everywhere', 0), false);
     assert.strictEqual(looksLikeFailure('all good', 1), true);

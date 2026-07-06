@@ -5,6 +5,10 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.4-alpha — 2026-07-06
+
+Fix: `capLines` did a blind head+tail slice, so a build warning that happened to fall outside that window got cut along with the surrounding noise. Found via `.benchmarks/`: on a task asking for every build warning, the agent couldn't see the ones the cap clipped, so it re-ran the build repeatedly hunting for them — the cap destroying signal cost far more tool calls than it ever saved (measured: +284% cost, +311% context traffic on that task versus doing nothing). Lines matching a warning/error/failure/deprecation pattern now survive the cap regardless of position — only surrounding noise gets cut, same principle already applied to whole failing runs, extended to individual lines within a passing one. Same task after the fix: −45% cost, −16% traffic versus baseline, turns back down from 9 to 2. 42 tests (was 40).
+
 ## 0.2.3-alpha — 2026-07-06
 
 Fix: `resolveCarriageReturns` treated `\r\n` (an ordinary Windows line ending) as a progress-bar redraw signal, blanking every CRLF-terminated line down to nothing and keeping only whatever survived after the last bare `\r`. Since native Windows console output (PowerShell, `Get-ChildItem`, `dir`, …) is CRLF throughout, this silently collapsed almost all passing multi-line Windows tool output to its last line — found via a `.benchmarks/` eval where a 5-file `Get-ChildItem` listing reached the model as just the alphabetically-last file, and the agent correctly reported a "single-file repo" from what it could actually see. Now normalizes `\r\n` to `\n` before resolving genuine mid-line `\r` redraws. Added regression coverage for CRLF-terminated and mixed CRLF+redraw input. 40 tests (was 38).
