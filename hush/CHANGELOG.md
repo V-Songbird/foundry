@@ -5,6 +5,12 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.5-alpha — 2026-07-06
+
+Word economy sharpened from a self-check alone to a default-to-fragments rule with concrete before/after examples, e.g. `"Bug: auth middleware, expiry check used < not <=."` instead of `"I found that the bug is in the auth middleware, where..."`. Deliberately bounded — dev-shorthand density, not caveman-speak: grammar stays correct where present, technical terms stay exact, nothing invented or abbreviated beyond recognition.
+
+Validated via `.benchmarks/` before shipping, not by inspection alone. A 3-rep spot check was inconclusive (baseline and caveman, unchanged, swung ±3-8% on their own — noise, not signal). Re-ran at 8 reps on the two pure-Q&A tasks to get past that noise floor: hush's own output tokens on `explain-rerender` dropped 719→560 (-22%) and on `explain-rebase` 632→569 (-10%) versus the prior wording. Net result against caveman is split, not a clean sweep — hush now edges caveman on `explain-rerender` (560 vs 591, a real if modest margin) but caveman still clearly leads `explain-rebase` (449 vs 569, ~27% gap, well outside noise). Shipped anyway: a real, repeatable drop in hush's own output with no readability regression (final answers checked directly — still complete, professional sentences) is worth keeping even where it doesn't fully close the gap.
+
 ## 0.2.4-alpha — 2026-07-06
 
 Fix: `capLines` did a blind head+tail slice, so a build warning that happened to fall outside that window got cut along with the surrounding noise. Found via `.benchmarks/`: on a task asking for every build warning, the agent couldn't see the ones the cap clipped, so it re-ran the build repeatedly hunting for them — the cap destroying signal cost far more tool calls than it ever saved (measured: +284% cost, +311% context traffic on that task versus doing nothing). Lines matching a warning/error/failure/deprecation pattern now survive the cap regardless of position — only surrounding noise gets cut, same principle already applied to whole failing runs, extended to individual lines within a passing one. Same task after the fix: −45% cost, −16% traffic versus baseline, turns back down from 9 to 2. 42 tests (was 40).
