@@ -1,6 +1,8 @@
-# Foreman
-
-**A living to-do list for your project, plus expertly written prompts to hand any task to a fresh Claude session.**
+<div align="center">
+  <img src="assets/logo.svg" alt="foreman" width="120" />
+  <h1>Foreman</h1>
+  <p><strong>A living to-do list for your project, plus expertly written prompts to hand any task to a fresh Claude session.</strong></p>
+</div>
 
 ---
 

@@ -1,6 +1,8 @@
-# razor
-
-**Stops Claude from over-building — no unnecessary dependencies, no file sprawl, no code "for later".**
+<div align="center">
+  <img src="assets/logo.svg" alt="razor" width="120" />
+  <h1>razor</h1>
+  <p><strong>Stops Claude from over-building — no unnecessary dependencies, no file sprawl, no code "for later".</strong></p>
+</div>
 
 ---
 

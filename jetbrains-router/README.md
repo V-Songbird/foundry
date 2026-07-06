@@ -1,6 +1,8 @@
-# jetbrains-router
-
-**Makes Claude work through your JetBrains IDE — live error detection, reads that see unsaved changes, searches that skip the junk.**
+<div align="center">
+  <img src="assets/logo.svg" alt="jetbrains-router" width="120" />
+  <h1>jetbrains-router</h1>
+  <p><strong>Makes Claude work through your JetBrains IDE — live error detection, reads that see unsaved changes, searches that skip the junk.</strong></p>
+</div>
 
 ---
 
