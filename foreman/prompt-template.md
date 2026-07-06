@@ -120,9 +120,9 @@ Example: "Uses JWT tokens in httpOnly cookies. No third-party auth libs."]
 </background>
 
 <task_rules>
-Step 1: [What to read or explore first]
-Step 2: [What to analyze or check next]
-Step 3: [What to implement, fix, or produce]
+- [What to read or explore first]
+- [What to analyze or check next]
+- [What to implement, fix, or produce]
 
 Constraints:
 - [Hard limits — files NOT to modify, interfaces NOT to break]
@@ -145,8 +145,6 @@ if Call 1 selected it.]
 </example>
 
 [The immediate, specific request in one sentence.]
-
-Reason through the approach and edge cases in your thinking before editing — not in prose between tool calls. The steps and commands above are a working plan, not a narration script: whatever output style governs this session decides what you say aloud, so don't announce step transitions or restate command results in chat.
 
 [If `"output_format"` is in `omit`, drop this whole block unconditionally,
 even if Call 1 selected `Custom output format`.]
@@ -178,7 +176,7 @@ default "just in case".]
       `foreman:roadmap`, pass the entry's `touches` through as-is — do NOT
       explore the codebase to upgrade area-level hints into exact
       file:line ranges, `truth_grounding` covers that gap at handoff time)
-- [ ] `task_rules` has numbered steps AND a runnable verification command with expected output
+- [ ] `task_rules` has read/analyze/implement steps AND a runnable verification command with expected output
 - [ ] custom sections (if `.foreman/config.json` had a `customSections`
       array) were rendered via `render-sections.js` and inlined verbatim
       after `task_rules` — never hand-written or invented here — and any

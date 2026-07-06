@@ -8,6 +8,24 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.14.3-alpha] — 2026-07-05
+
+### Changed — experiment: drop the narration-bounding sentence, de-number task_rules
+
+Reverses part of 0.14.2-alpha as a deliberate experiment: the closing
+sentence added to bound narration to the active output style is removed
+entirely (along with 0.13.1-alpha's original "not in prose between tool
+calls" line it was appended to), and `task_rules`' `Step 1:`/`Step 2:`/
+`Step 3:` labels are now plain unlabeled bullets. Hypothesis under test —
+the numbered-step structure itself, not the missing meta-instruction, was
+inducing the narration `project_foreman_state.md` traced in 0.14.2-alpha;
+if de-numbering alone holds, the closing sentence was unnecessary.
+`craft-prompt/SKILL.md`'s Q4 and `roadmap/SKILL.md`'s Step-1-default
+prose updated to match the unlabeled format; checklist item updated from
+"numbered steps" to "read/analyze/implement steps". 110 tests unchanged.
+Revert 0.14.2-alpha if a follow-up real-session trace shows narration
+returned.
+
 ## [0.14.2-alpha] — 2026-07-05
 
 ### Changed — closing line now bounds narration for any active output style

@@ -46,7 +46,7 @@ Options: `Bug is fixed and all tests pass`, `Feature is implemented and tested`,
 **Q3** — "List the relevant files with line ranges where known."
 Options: `I'll list them` (nudge user to use Other and type paths like `src/auth/middleware.ts:42-80 — token refresh logic`)
 
-**Q4** — "Describe the three steps: Step 1 = read/explore, Step 2 = analyze/check, Step 3 = implement/produce."
+**Q4** — "Describe the three steps: read/explore, then analyze/check, then implement/produce."
 Options: `I'll describe them`
 
 ---
