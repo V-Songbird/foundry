@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Read|Grep|Glob|Edit|Write|Bash|PowerShell)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/redirect.js\"",
+            "commandWindows": "node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\redirect.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

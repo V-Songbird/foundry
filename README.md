@@ -10,7 +10,7 @@
 
 [Claude Code](https://code.claude.com/docs/en/overview) is Anthropic's AI coding assistant. **Plugins** extend it — they teach Claude new workflows, add guardrails, or change how it behaves, all with a one-line install and no configuration.
 
-This is a small, curated collection. Each plugin does one job well, works on its own, and stays out of the others' way. Install one, install all five — they compose.
+This is a small, curated collection. Each plugin does one job well, works on its own, and stays out of the others' way. Install one, install all six — they compose.
 
 ## Install
 
@@ -67,6 +67,14 @@ AI assistants love to add: a new dependency here, five helper files there, an ab
 /plugin install razor
 ```
 
+### [jetbrains-router](./jetbrains-router) — Claude works through your JetBrains IDE
+
+If you code in WebStorm, IntelliJ IDEA, Rider, PyCharm, or another JetBrains IDE, your editor already knows things Claude's native tools don't: which files have errors right now (no build needed), what you've typed but not saved, and which paths are worth searching. jetbrains-router redirects Claude's file reads, searches, and edits through the IDE's MCP server whenever the IDE is running — and steps aside completely when it isn't.
+
+```
+/plugin install jetbrains-router
+```
+
 ### Which one first?
 
 | You want to… | Install |
@@ -76,6 +84,7 @@ AI assistants love to add: a new dependency here, five helper files there, an ab
 | Track project tasks and hand them off cleanly | **foreman** |
 | Cut token cost and noise | **hush** |
 | Keep the codebase lean | **razor** |
+| Use your JetBrains IDE's brains | **jetbrains-router** |
 
 hush and razor are natural partners: hush governs how Claude *talks*, razor governs what it *builds*.
 
@@ -88,6 +97,7 @@ claude-plugins/
 ├── foreman/
 ├── forge/
 ├── hush/
+├── jetbrains-router/
 ├── razor/
 └── verity/
 ```
