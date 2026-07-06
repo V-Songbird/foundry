@@ -9,6 +9,7 @@ const {
   dedupeConsecutive,
   capLines,
   looksLikeFailure,
+  isFileDump,
   compress,
 } = require('../hooks/compress-tool-output');
 
@@ -91,6 +92,29 @@ describe('unit: transforms', () => {
     assert.ok(pass < fail, `pass cap ${pass} should be tighter than fail cap ${fail}`);
     assert.ok(pass <= 61);
   });
+
+  test('isFileDump recognizes plain file-print commands', () => {
+    assert.ok(isFileDump('cat src/Foo.kt'));
+    assert.ok(isFileDump('  cat "src/My File.kt"  '));
+    assert.ok(isFileDump('type C:\\src\\Foo.kt'));
+    assert.ok(isFileDump('Get-Content ./Foo.ps1'));
+    assert.ok(isFileDump('gc ./Foo.ps1'));
+  });
+
+  test('isFileDump rejects piped, chained, redirected, or non-dump commands', () => {
+    assert.strictEqual(isFileDump('cat src/Foo.kt | grep bar'), false);
+    assert.strictEqual(isFileDump('cat src/Foo.kt && rm src/Foo.kt'), false);
+    assert.strictEqual(isFileDump('cat src/Foo.kt > out.txt'), false);
+    assert.strictEqual(isFileDump('npm test'), false);
+    assert.strictEqual(isFileDump(undefined), false);
+  });
+
+  test('compress treats a file-dump command like a failure — keeps more of the middle', () => {
+    const big = Array.from({ length: 200 }, (_, i) => `line ${i}`).join('\n');
+    const asLog = compress(big, 0, false).split('\n').length;
+    const asDump = compress(big, 0, true).split('\n').length;
+    assert.ok(asDump > asLog, `dump cap ${asDump} should be looser than log cap ${asLog}`);
+  });
 });
 
 describe('hook: end to end', () => {
@@ -122,6 +146,23 @@ describe('hook: end to end', () => {
     const updated = hookOutput(r).hookSpecificOutput.updatedToolOutput;
     assert.strictEqual(updated.interrupted, false);
     assert.match(updated.stdout, /\[hush: \d+ lines omitted\]/);
+  });
+
+  test('a plain file dump keeps more lines than a same-size build log', () => {
+    const big = Array.from({ length: 400 }, (_, i) => `line ${i}`).join('\n');
+    const dumpResult = runHook('compress-tool-output.js', {
+      tool_name: 'Bash',
+      tool_input: { command: 'cat src/Foo.kt' },
+      tool_response: big,
+    });
+    const logResult = runHook('compress-tool-output.js', {
+      tool_name: 'Bash',
+      tool_input: { command: 'npm run build' },
+      tool_response: big,
+    });
+    const dumpLines = hookOutput(dumpResult).hookSpecificOutput.updatedToolOutput.split('\n').length;
+    const logLines = hookOutput(logResult).hookSpecificOutput.updatedToolOutput.split('\n').length;
+    assert.ok(dumpLines > logLines, `dump (${dumpLines} lines) should keep more than log (${logLines} lines)`);
   });
 
   test('HUSH_DISABLE=1 bypasses everything', () => {

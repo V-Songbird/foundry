@@ -5,6 +5,10 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.3.1-alpha — 2026-07-06
+
+Fix: the pass-cap (60 lines) assumed a clean exit meant "log noise, safe to trim" — true for build/test output, false for a command that just prints a whole file (`cat`/`type`/`Get-Content` with no pipe/chain/redirect). Source text has no `WARN`/`ERROR` markers for `capLines`' signal-preservation to anchor on, so the head+tail cap could cut arbitrary lines out of the middle of a file instead of out of actual noise — a real risk surfaced by a session where an unrelated tool-routing bug forced file reads through plain Bash instead of the `Read` tool. Plain file-dump commands are now detected and treated like a failing run (250-line cap) instead of a passing one. 60 tests (was 56).
+
 ## 0.3.0-alpha — 2026-07-06
 
 New skill: `/hush:hush-compress <path>` shrinks a CLAUDE.md/memory file into hush's own dev-shorthand voice (the existing output style's word economy, not caveman-speak) so every future session that loads it pays fewer input tokens.

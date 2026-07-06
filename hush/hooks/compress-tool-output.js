@@ -108,9 +108,21 @@ function looksLikeFailure(text, exitCode) {
   return FAILURE_RE.test(text);
 }
 
-function compress(text, exitCode) {
+// A command that just dumps a whole file's contents (cat/type/Get-Content,
+// no pipe/chain/redirect) exits 0 without meaning "safe to trim like a build
+// log" — a clean exit there just means the file was read. Source text has no
+// WARN/ERROR markers for capLines' signal-preservation to anchor on, so the
+// head+tail cap would cut arbitrary lines out of the middle of the file
+// instead of out of actual log noise. Treat these like failures: keep more.
+const FILE_DUMP_RE = /^\s*(cat|type|gc|Get-Content)\s+[^|;&<>]+$/i;
+
+function isFileDump(command) {
+  return typeof command === "string" && FILE_DUMP_RE.test(command.trim());
+}
+
+function compress(text, exitCode, isDump) {
   const cleaned = resolveCarriageReturns(stripAnsi(String(text)));
-  const cap = looksLikeFailure(cleaned, exitCode) ? CAP_FAIL : CAP_PASS;
+  const cap = isDump || looksLikeFailure(cleaned, exitCode) ? CAP_FAIL : CAP_PASS;
   const lines = capLines(dedupeConsecutive(cleaned.split("\n")), cap);
   return lines.join("\n");
 }
@@ -130,10 +142,11 @@ function main() {
   if (!WATCHED_TOOLS.has(data.tool_name)) return;
 
   const response = data.tool_response;
+  const isDump = isFileDump(data.tool_input && data.tool_input.command);
   let updated;
 
   if (typeof response === "string") {
-    const out = compress(response, undefined);
+    const out = compress(response, undefined, isDump);
     if (out !== response) updated = out;
   } else if (response && typeof response === "object") {
     const exitCode = extractExitCode(response);
@@ -141,7 +154,7 @@ function main() {
     let changed = false;
     for (const field of ["stdout", "stderr", "output"]) {
       if (typeof next[field] === "string") {
-        const out = compress(next[field], exitCode);
+        const out = compress(next[field], exitCode, isDump);
         if (out !== next[field]) {
           next[field] = out;
           changed = true;
@@ -165,4 +178,12 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { stripAnsi, resolveCarriageReturns, dedupeConsecutive, capLines, looksLikeFailure, compress };
+module.exports = {
+  stripAnsi,
+  resolveCarriageReturns,
+  dedupeConsecutive,
+  capLines,
+  looksLikeFailure,
+  isFileDump,
+  compress,
+};
