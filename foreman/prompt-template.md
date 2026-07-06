@@ -70,13 +70,13 @@ of the codebase — read the cited files, run the cited commands. This prompt
 may have been written earlier and executed later (queued via TaskCreate, run
 by a background Agent, or pasted into a fresh session); treat every claim
 below as a hypothesis to confirm at the start of this session, never as a
-fact to assume. If reality contradicts this prompt, trust reality, say so
-explicitly, and proceed from what you actually find.
+fact to assume. If reality contradicts this prompt, trust reality, name the
+discrepancy in your final report, and proceed from what you actually find.
 </truth_grounding>
 
 <scope_discipline>
 If a request mid-session asks for something beyond this task's stated goal
-above, don't fold it in silently — say so explicitly first. Once it's
+above, don't fold it in silently — flag it to the user first. Once it's
 actually done, check whether ROADMAP.jsonl exists at the project root: if
 it does, log the extra work as its own entry instead of stretching this
 task's story to cover it — it already happened, so create it and close it
@@ -145,6 +145,8 @@ if Call 1 selected it.]
 </example>
 
 [The immediate, specific request in one sentence.]
+
+Reason through the approach and edge cases in your thinking before editing — not in prose between tool calls. The steps and commands above are a working plan, not a narration script: whatever output style governs this session decides what you say aloud, so don't announce step transitions or restate command results in chat.
 
 [If `"output_format"` is in `omit`, drop this whole block unconditionally,
 even if Call 1 selected `Custom output format`.]

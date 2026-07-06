@@ -8,6 +8,30 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.14.4-alpha] — 2026-07-05
+
+### Fixed — narration-bounding sentence restored; guardrail blocks no longer license mid-turn speech
+
+The 0.14.3-alpha experiment is refuted: a real foreman-dispatched session
+(rAthena stub round-trip test task, un-numbered template, a
+silence-focused output style active in the destination environment)
+showed the receiving agent narrating every `task_rules` bullet transition
+anyway. De-numbering alone was not enough — the bullet sequence still
+reads as a script, so the 0.14.2-alpha closing sentence is restored
+verbatim (including 0.13.1-alpha's "not in prose between tool calls"
+line). The de-numbered bullets stay: they weren't sufficient, but they
+weren't harmful either.
+
+Additionally, the same trace showed the guardrail blocks contributing:
+`truth_grounding`'s "trust reality, say so explicitly" and
+`scope_discipline`'s "say so explicitly first" read as instructions to
+speak aloud mid-turn, which outranks any silence output style.
+Reworded — `truth_grounding` now says "name the discrepancy in your
+final report" (anchoring the speech to the deliverable, not the work),
+and `scope_discipline` says "flag it to the user first" (the one place
+speech genuinely must precede action, kept, minus the narration-register
+phrasing). 110 tests unchanged.
+
 ## [0.14.3-alpha] — 2026-07-05
 
 ### Changed — experiment: drop the narration-bounding sentence, de-number task_rules
