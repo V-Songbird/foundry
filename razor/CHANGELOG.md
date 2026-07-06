@@ -5,7 +5,7 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `razor/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
-## Unreleased
+## 0.2.1-alpha — 2026-07-06
 
 Ladder wording fix from a razor-vs-ponytail agentic benchmark: two prompt-only inefficiencies
 found via transcript inspection, no hook logic changed.
