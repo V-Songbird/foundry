@@ -8,6 +8,22 @@ version is owned by `.claude-plugin/marketplace.json` at the repo root,
 not by `foreman/.claude-plugin/plugin.json` (which carries no version
 field by convention).
 
+## [0.14.2-alpha] — 2026-07-05
+
+### Changed — closing line now bounds narration for any active output style
+
+`prompt-template.md`'s closing line (the one reworded in 0.13.1-alpha to
+stop inducing step-by-step narration) gained a second sentence: the
+numbered `task_rules` steps and the `scope_discipline` roadmap commands
+are a working plan, not a script to narrate — whatever output style
+governs the destination session decides what gets said aloud. Traced to a
+real foreman-dispatched session where a receiving agent announced every
+step transition and intermediate roadmap-bookkeeping commit, which an
+active silence-focused output style would otherwise have suppressed. One
+line, style-name-agnostic (same principle as 0.14.0-alpha's
+detection-to-declaration move — no plugin is named or detected). 110
+tests unchanged.
+
 ## [0.14.1-alpha] — 2026-07-05
 
 ### Changed — third-party plugin names removed everywhere

@@ -146,7 +146,7 @@ if Call 1 selected it.]
 
 [The immediate, specific request in one sentence.]
 
-Reason through the approach and edge cases in your thinking before editing — not in prose between tool calls.
+Reason through the approach and edge cases in your thinking before editing — not in prose between tool calls. The steps and commands above are a working plan, not a narration script: whatever output style governs this session decides what you say aloud, so don't announce step transitions or restate command results in chat.
 
 [If `"output_format"` is in `omit`, drop this whole block unconditionally,
 even if Call 1 selected `Custom output format`.]
