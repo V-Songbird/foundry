@@ -5,6 +5,12 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.3-alpha — 2026-07-06
+
+Fix: `resolveCarriageReturns` treated `\r\n` (an ordinary Windows line ending) as a progress-bar redraw signal, blanking every CRLF-terminated line down to nothing and keeping only whatever survived after the last bare `\r`. Since native Windows console output (PowerShell, `Get-ChildItem`, `dir`, …) is CRLF throughout, this silently collapsed almost all passing multi-line Windows tool output to its last line — found via a `.benchmarks/` eval where a 5-file `Get-ChildItem` listing reached the model as just the alphabetically-last file, and the agent correctly reported a "single-file repo" from what it could actually see. Now normalizes `\r\n` to `\n` before resolving genuine mid-line `\r` redraws. Added regression coverage for CRLF-terminated and mixed CRLF+redraw input. 40 tests (was 38).
+
+Also added a "Word economy" + "Thoroughness is not negotiable" pairing to the output style: a self-check ("can I cut a word without losing a fact?") for prose density, paired explicitly with a rule that the cut applies to wording, never to how much the agent investigates before answering — closing the same gap from the wording side, in case a future compression-hook edge case recurs elsewhere.
+
 ## 0.2.2-alpha — 2026-07-05
 
 `HUSH_NARRATION=off` disables the narration meter alone (mirrors razor's `RAZOR_LEDGER=off`). Previously the only options were `HUSH_DISABLE=1` (kills compression too) or an absurd `HUSH_NARRATION_BUDGET` (workaround — `0` is a valid budget, so the budget knob can't mean "off"). 38 tests (was 37).

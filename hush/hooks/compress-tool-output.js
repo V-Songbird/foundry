@@ -35,10 +35,13 @@ function stripAnsi(text) {
   return text.replace(ANSI_RE, "");
 }
 
-// Progress bars redraw via \r; only the final state of each physical line
-// matters.
+// Progress bars redraw via a bare \r (no following \n); only the final state
+// of each physical line matters. \r\n is an ordinary Windows line ending, not
+// a redraw — normalize it away first or every CRLF-terminated line (i.e.
+// nearly all native Windows console output) collapses to empty.
 function resolveCarriageReturns(text) {
   return text
+    .replace(/\r\n/g, "\n")
     .split("\n")
     .map((line) => {
       const i = line.lastIndexOf("\r");

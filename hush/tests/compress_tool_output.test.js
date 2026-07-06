@@ -21,6 +21,20 @@ describe('unit: transforms', () => {
     assert.strictEqual(resolveCarriageReturns('10%\r50%\r100% done\nnext'), '100% done\nnext');
   });
 
+  test('resolveCarriageReturns treats CRLF as an ordinary line ending, not a redraw', () => {
+    assert.strictEqual(
+      resolveCarriageReturns('one\r\ntwo\r\nthree\r\n'),
+      'one\ntwo\nthree\n'
+    );
+  });
+
+  test('resolveCarriageReturns still resolves a bare mid-line redraw after CRLF lines', () => {
+    assert.strictEqual(
+      resolveCarriageReturns('done: one\r\n10%\r50%\r100%\r\n'),
+      'done: one\n100%\n'
+    );
+  });
+
   test('dedupeConsecutive collapses repeats with a count marker', () => {
     const out = dedupeConsecutive(['warn: x', 'warn: x', 'warn: x', 'end']);
     assert.deepStrictEqual(out, ['warn: x', '[hush: previous line repeated 2x]', 'end']);
