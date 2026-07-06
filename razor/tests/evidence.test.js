@@ -202,6 +202,25 @@ describe('integration: evidence-carrying deny', () => {
     );
     assert.match(out.hookSpecificOutput.permissionDecisionReason, /Rungs 3-5/);
   });
+
+  // Regression case from the razor-vs-ponytail benchmark (dep-toml task, 2026-07-06):
+  // a stdlib-only task (TOML parsing) where the competing plugin's agent added a new
+  // dependency anyway (a tomli fallback for pre-3.11 Pythons the task never asked to
+  // support). The gate must still catch a pip install of that exact package.
+  test('catches a stdlib-covered pip install (tomli fallback) with evidence', () => {
+    const dir = fixtureDir({ 'requirements.txt': 'flask==3.0.3\nrequests==2.32.3\nrich==13.7.1\n' });
+    const out = hookOutput(
+      runHook('dep-guard.js', {
+        session_id: freshSession(),
+        cwd: dir,
+        tool_name: 'Bash',
+        tool_input: { command: 'pip install tomli' },
+      })
+    );
+    assert.strictEqual(out.hookSpecificOutput.permissionDecision, 'deny');
+    assert.match(out.hookSpecificOutput.permissionDecisionReason, /Already installed \(3\): flask, requests, rich/);
+    assert.match(out.hookSpecificOutput.permissionDecisionReason, /tomli/);
+  });
 });
 
 // ---- build ledger ----

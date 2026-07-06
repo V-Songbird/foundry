@@ -5,6 +5,26 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `razor/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## Unreleased
+
+Ladder wording fix from a razor-vs-ponytail agentic benchmark: two prompt-only inefficiencies
+found via transcript inspection, no hook logic changed.
+
+- The "never skip comprehension" clause fired even with nothing to read, costing 2-3 wasted
+  explore-tool round-trips on greenfield ("write me X" into an empty dir) tasks. Now scoped to
+  skip when the target is a genuinely new file.
+- "Stop at the first rung that holds" didn't stop the agent verifying rungs below the one that
+  already applied — observed as an exhaustive one-by-one sweep of every dependency-manifest
+  format (`requirements.txt`, `setup.py`, `pyproject.toml`, `poetry.lock`) before writing a
+  stdlib-only implementation. Now explicit: act on the first rung without checking further down.
+- Benchmarked effect (ratio to baseline, same task, before/after): tokens 1.82x -> 1.21x and
+  turns 1.85x -> 1.00x on a dependency-decision task; tokens 2.41x -> 0.37x and turns
+  2.35x -> 0.40x on a greenfield task.
+- Added a permanent regression case: a stdlib-covered TOML-parsing task where a competing
+  prompt-injection-only skill added an unnecessary dependency anyway; the dep guard must still
+  catch it if attempted via `pip install`.
+- 94 tests (up from 93).
+
 ## 0.2.0-alpha — 2026-07-05
 
 Evidence-carrying gates: the deny reasons stop quoting philosophy and start presenting repo facts.
