@@ -144,6 +144,7 @@ function writeState(sessionId, state) {
 
 function main() {
   if (process.env.HUSH_DISABLE === "1") return;
+  if (process.env.HUSH_NARRATION === "off") return;
   const data = readInput();
   if (!data.transcript_path || !fs.existsSync(data.transcript_path)) return;
 

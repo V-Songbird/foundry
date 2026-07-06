@@ -69,6 +69,7 @@ Environment variables, e.g. via `env` in `settings.json`:
 | `HUSH_CAP_PASS` | `60` | Line cap for passing Bash/PowerShell output |
 | `HUSH_CAP_FAIL` | `250` | Line cap for failing output |
 | `HUSH_NARRATION_BUDGET` | `120` | Narration words allowed per turn before the meter fires (both modes) |
+| `HUSH_NARRATION` | unset | `off` disables the narration meter only (compression and the output style stay) |
 | `HUSH_DISABLE` | unset | `1` disables both hooks (the output style stays; disable the plugin to remove it) |
 
 ## Relationship to prompt-injection style plugins

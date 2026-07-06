@@ -5,6 +5,10 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.2-alpha — 2026-07-05
+
+`HUSH_NARRATION=off` disables the narration meter alone (mirrors razor's `RAZOR_LEDGER=off`). Previously the only options were `HUSH_DISABLE=1` (kills compression too) or an absurd `HUSH_NARRATION_BUDGET` (workaround — `0` is a valid budget, so the budget knob can't mean "off"). 38 tests (was 37).
+
 ## 0.2.1-alpha — 2026-07-05
 
 Fix: the Stop-mode correction re-fired on every consecutive Stop within the same logical turn. Observed live in a ScheduleWakeup continuation chain: four consecutive Stops with growing counts (420 → 455 → 471 words), each fire injecting `additionalContext` that forced another assistant reply whose words re-counted into the same turn — a feedback loop. Cause: only the mid-turn (PostToolUse) path wrote the once-per-turn dedup state; Stop fires never marked the turn. Now any fire, mid-turn or Stop, writes the state. 37 tests (was 36).

@@ -217,6 +217,16 @@ describe('hook: end to end', () => {
     const r = runHook('narration-meter.js', { transcript_path: file }, { HUSH_DISABLE: '1' });
     assert.strictEqual(hookOutput(r), null);
   });
+
+  test('HUSH_NARRATION=off disables the meter alone', () => {
+    const file = writeTranscript([userPrompt('go'), assistantText(words(300)), assistantText(words(5))]);
+    const r = runHook(
+      'narration-meter.js',
+      { transcript_path: file, session_id: freshSession() },
+      { HUSH_NARRATION: 'off' }
+    );
+    assert.strictEqual(hookOutput(r), null);
+  });
 });
 
 describe('hook: mid-turn mode (PostToolUse)', () => {
