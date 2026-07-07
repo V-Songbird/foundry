@@ -68,13 +68,13 @@ Hush was measured head-to-head against a no-plugin baseline and a prompt-injecti
 
 *Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), every answer checked against a mechanical ground truth so compression that dropped the answer scores as a failure, not a win. Haiku, 8 runs per arm. Means shown; not a powered study.*
 
-| vs no plugin | prompt-injection terseness plugin | hush |
-|---|---|---|
-| Session cost | +3% | **−9%** |
-| Output tokens | −13% | −13% |
-| Mid-turn narration | 2 words | **0 words** |
-| Noisy build output entering context | ~29,800 chars (untouched) | **~3,000 chars (−90%)** |
-| Answer correctness | 100% | 100% |
+| | no plugin | prompt-injection terseness plugin | hush |
+|---|---|---|---|
+| Session cost (mean per task) | $0.051 | $0.053 | **$0.047** |
+| Output tokens | 1,078 | 942 | **933** |
+| Mid-turn narration | 9 words | 2 words | **0 words** |
+| Noisy build output entering context | 29,756 chars | 29,756 chars | **3,045 chars** |
+| Answer correctness | 100% | 100% | 100% |
 
 Two things stand out. Hush was the **cheapest of the three** — the terseness plugin actually cost *more* than no plugin at all, because re-injecting rules every turn is itself a token cost it never earns back. And on noisy command output, hush cut what entered context by **~90%** (−42% session cost on that task): it compresses the *tool output* that dominates a long session, which prose-only terseness plugins never touch. Every answer survived — 100% correct across the suite.
 

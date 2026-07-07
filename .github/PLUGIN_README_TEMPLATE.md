@@ -77,15 +77,18 @@ Inside Claude Code, run:
      Head-to-head vs a no-plugin baseline AND the generic competitor category. Keep this EXACT
      shape: framing sentence -> italic method note -> results table -> takeaway -> honest limit.
      Only publish numbers you can defend; state model + reps. Never publish underpowered (n < ~6)
-     numbers as a headline. The honest-limit line is mandatory when this section is present. -->
+     numbers as a headline. The honest-limit line is mandatory when this section is present.
+     Give the "no plugin" baseline its own column with REAL values (absolute, not blank) so every
+     cell is concrete — a "vs no plugin" header over delta-only columns leaves the reader with no
+     reference point. Keep punchy % deltas for the prose takeaway. -->
 
 <one framing sentence: what was measured, against what>.
 
 *Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), <ground-truth check, e.g. `node --test` / keyword rubric> so a broken result scores as a failure, not a win. <model>, <N> runs per arm. Means shown; not a powered study.*
 
-| vs no plugin | <generic category> | <plugin> |
-|---|---|---|
-| <metric> | <theirs> | **<ours>** |
+| | no plugin | <generic category> | <plugin> |
+|---|---|---|---|
+| <metric> | <baseline value> | <theirs> | **<ours>** |
 
 <takeaway: the 1-2 facts that matter, in prose>
 

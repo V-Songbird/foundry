@@ -100,13 +100,13 @@ Razor was measured head-to-head against a no-plugin baseline and a prompt-inject
 
 *Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), correctness checked mechanically (`node --test` or executed output) so leanness that broke the result scores as a failure, not a win. Haiku, 6 runs per arm; headline results re-confirmed on the larger model. Means shown; not a powered study.*
 
-On an open-ended feature edit (add due-dates to a CLI todo app), razor delivered the leanest working code **and cost less than the no-plugin baseline itself**:
+On an open-ended feature edit (add due-dates to a CLI todo app), razor delivered the leanest working code and **cost 26% less than the no-plugin baseline itself** — 40% fewer tokens into context:
 
-| feature-edit task (vs no plugin) | prompt-injection lazy-dev plugin | razor |
-|---|---|---|
-| Session cost | −9% | **−26%** |
-| Tokens into context | −22% | **−40%** |
-| Code delivered | 13.5 LOC | **12.5 LOC** |
+| feature-edit task | no plugin | prompt-injection lazy-dev plugin | razor |
+|---|---|---|---|
+| Session cost | $0.082 | $0.074 | **$0.060** |
+| Tokens into context | 422k | 328k | **252k** |
+| Code delivered | 14.5 LOC | 13.5 LOC | **12.5 LOC** |
 
 Across the wider task set the pattern held on the two axes the delivery mechanism controls:
 
