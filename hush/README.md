@@ -10,7 +10,7 @@
 
 You know the pattern: "Let me start by looking at…", "Now I'll check…", a 400-line wall of build output, and finally the one thing you actually wanted to know. All of it costs money — every word in a session is billed — and buries the useful part.
 
-hush trims it at the source. Claude works quietly, tidies up noisy command output before it piles up, and gives you **one clear answer at the end**. Code, error messages, and anything you ask it to explain stay complete — hush never shortens the parts that matter.
+hush trims it at the source. Claude works quietly, tidies up noisy command output and bulky log files before they pile up, and gives you **one clear answer at the end**. Code, error messages, and anything you ask it to explain stay complete — hush never shortens the parts that matter.
 
 ## Why you'd want it
 
@@ -46,7 +46,7 @@ And the part that matters most: **nothing broke.** Every task still came out cor
 
 *How we tested: we ran each setup on the same real tasks several times in a fresh, throwaway workspace and read the real cost straight from the API — no guesswork. Figures are averages on the smaller, cheaper model.*
 
-*One honest note:* when Claude is spelunking through a big, unfamiliar codebase (lots of file reading rather than noisy command output), hush doesn't save you much. It's built to tame noisy output — that's where it earns its keep.
+*One honest note:* when Claude is spelunking through a big, unfamiliar codebase (lots of source-file reading rather than noisy output), hush doesn't save you much. It's built to tame noise — command output and log files — and that's where it earns its keep.
 
 Curious whether this holds up? You can reproduce it yourself — see [benchmarks/](benchmarks/).
 

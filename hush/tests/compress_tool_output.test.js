@@ -13,6 +13,7 @@ const {
   capLines,
   looksLikeFailure,
   isFileDump,
+  isLogPath,
   requestsEnumeration,
   compress,
 } = require('../hooks/compress-tool-output');
@@ -168,9 +169,68 @@ describe('unit: transforms', () => {
   });
 });
 
+describe('unit: isLogPath', () => {
+  test('matches .log files and rotated logs anywhere', () => {
+    assert.ok(isLogPath('C:\\repo\\logs\\app.log'));
+    assert.ok(isLogPath('/var/log/syslog.log.1'));
+    assert.ok(isLogPath('X:/tmp/build.log'));
+  });
+
+  test('matches .txt/.out only under a log/logs directory', () => {
+    assert.ok(isLogPath('/srv/logs/output.txt'));
+    assert.ok(isLogPath('C:\\app\\log\\run.out'));
+    assert.ok(!isLogPath('/repo/README.txt'));
+    assert.ok(!isLogPath('C:\\repo\\notes\\output.txt'));
+  });
+
+  test('never matches source code', () => {
+    assert.ok(!isLogPath('/repo/src/logger.js'));
+    assert.ok(!isLogPath('C:\\repo\\src\\services\\pricing.js'));
+    assert.ok(!isLogPath('/repo/docs/logging.md'));
+  });
+});
+
 describe('hook: end to end', () => {
   test('unwatched tool stays silent', () => {
-    const r = runHook('compress-tool-output.js', { tool_name: 'Read', tool_response: 'x\n'.repeat(500) });
+    const r = runHook('compress-tool-output.js', { tool_name: 'Glob', tool_response: 'x\n'.repeat(500) });
+    assert.strictEqual(hookOutput(r), null);
+  });
+
+  test('Read of a source file stays untouched, whatever its size', () => {
+    const big = Array.from({ length: 900 }, (_, i) => `const x${i} = ${i};`).join('\n');
+    const r = runHook('compress-tool-output.js', {
+      tool_name: 'Read',
+      tool_input: { file_path: 'C:\\repo\\src\\services\\pricing.js' },
+      tool_response: { type: 'text', file: { filePath: 'C:\\repo\\src\\services\\pricing.js', content: big, numLines: 900, startLine: 1, totalLines: 900 } },
+    });
+    assert.strictEqual(hookOutput(r), null);
+  });
+
+  test('Read of a big .log file gets compressed, signal lines survive, shape preserved', () => {
+    const lines = Array.from({ length: 900 }, (_, i) => `10:0${i % 10} info request handled in ${i}ms`);
+    lines[500] = '10:05 ERROR redis ECONNREFUSED 127.0.0.1:6379';
+    const content = lines.join('\n');
+    const r = runHook('compress-tool-output.js', {
+      tool_name: 'Read',
+      tool_input: { file_path: 'C:\\repo\\logs\\app.log' },
+      tool_response: { type: 'text', file: { filePath: 'C:\\repo\\logs\\app.log', content, numLines: 900, startLine: 1, totalLines: 900 } },
+    });
+    const updated = hookOutput(r).hookSpecificOutput.updatedToolOutput;
+    assert.strictEqual(updated.type, 'text');
+    assert.strictEqual(updated.file.filePath, 'C:\\repo\\logs\\app.log');
+    assert.strictEqual(updated.file.totalLines, 900, 'original totalLines preserved');
+    assert.ok(updated.file.content.includes('ECONNREFUSED'), 'the error line survives the cap');
+    assert.match(updated.file.content, /\[hush: \d+ lines omitted, none with warnings\/errors\/failures\]/);
+    assert.ok(updated.file.content.length < content.length / 2, 'log at least halves');
+    assert.strictEqual(updated.file.numLines, updated.file.content.split('\n').length, 'numLines matches new content');
+  });
+
+  test('Read of a small .log file stays silent — nothing to shrink', () => {
+    const r = runHook('compress-tool-output.js', {
+      tool_name: 'Read',
+      tool_input: { file_path: '/var/logs/app.log' },
+      tool_response: { type: 'text', file: { filePath: '/var/logs/app.log', content: 'one\ntwo\n', numLines: 3, startLine: 1, totalLines: 3 } },
+    });
     assert.strictEqual(hookOutput(r), null);
   });
 

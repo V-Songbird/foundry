@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
-// Fake bundler. Deterministic ~900-line output with three planted warnings.
-// No randomness, no timestamps — identical output on every run.
+// Fake bundler. Deterministic ~900-line noisy log with three warnings, then a
+// link stage that fails on a real, fixable bug in src/core/settings.js.
+// No randomness, no timestamps — identical output on every run until fixed.
+
+const path = require('node:path');
 
 const MODULES = [];
 const dirs = ['core', 'utils', 'legacy', 'net', 'ui', 'state', 'io', 'vendor'];
@@ -38,8 +41,24 @@ for (let i = 0; i < 340; i++) {
   out.push(`  dedupe: vendor chunk symbol ${i % 17} folded (pass ${Math.floor(i / 17) + 1})`);
 }
 out.push('');
-out.push('emit: dist/bundle.js  1.44 MB');
-out.push('emit: dist/bundle.js.map  3.02 MB');
-out.push('build finished in 41.7s with 3 warnings, 0 errors');
 
-process.stdout.write(out.join('\n') + '\n');
+// Real link step: load the linker settings and compute the run config. A bug in
+// src/core/settings.js throws here, aborting the build with a non-zero exit.
+try {
+  const { resolveConfig } = require(path.join(__dirname, 'src', 'core', 'settings.js'));
+  const cfg = resolveConfig({ cacheSize: 512, retries: 3 });
+  if (typeof cfg.maxRetries !== 'number') {
+    throw new Error('maxRetries did not resolve to a number');
+  }
+  out.push(`link ok: cache ${cfg.cacheSize}, parallelism ${cfg.parallelism}, retries ${cfg.maxRetries}`);
+  out.push('emit: dist/bundle.js  1.44 MB');
+  out.push('emit: dist/bundle.js.map  3.02 MB');
+  out.push('build finished in 41.7s with 3 warnings, 0 errors');
+  process.stdout.write(out.join('\n') + '\n');
+  process.exit(0);
+} catch (err) {
+  out.push(`ERROR EBUILD01 link-failed: src/core/settings.js — ${err.name}: ${err.message}`);
+  out.push('build aborted with 3 warnings, 1 error');
+  process.stdout.write(out.join('\n') + '\n');
+  process.exit(1);
+}

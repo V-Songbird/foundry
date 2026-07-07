@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 "use strict";
 
-// PostToolUse hook: mechanically shrinks Bash/PowerShell output before it
-// enters context. Deterministic text transforms only — no heuristic ever
-// touches failure detail: failing runs get a much larger cap and everything
-// kept is verbatim.
+// PostToolUse hook: mechanically shrinks Bash/PowerShell output — and Read
+// results for log-shaped files — before they enter context. Deterministic
+// text transforms only — no heuristic ever touches failure detail: failing
+// runs get a much larger cap and everything kept is verbatim.
 
 const fs = require("fs");
 const { lastUserPromptText } = require("./lib/transcript");
 
-const WATCHED_TOOLS = new Set(["Bash", "PowerShell"]);
+const WATCHED_TOOLS = new Set(["Bash", "PowerShell", "Read"]);
 
 // Caps are in lines. Passing output is mostly noise (install trees, progress
 // logs); failing output is evidence, so it keeps ~4x more.
@@ -168,6 +168,20 @@ function requestsEnumeration(prompt) {
   return ENUM_QUANTIFIED.test(prompt) || ENUM_VERB.test(prompt);
 }
 
+// Read results are compressed ONLY for log-shaped files: a `.log` (optionally
+// rotated: `.log.1`) extension anywhere, or a `.log`/`.txt`/`.out` file living
+// under a directory literally named log/logs. Source code never matches, so a
+// capped Read can never cut lines the model might need to edit byte-exactly —
+// and for genuine logs, capLines' signal preservation (every WARN/ERROR/FAIL
+// line survives) is the same guarantee shell output already gets. Without this
+// a 60k-char `Read logs/app.log` enters context whole and is re-sent on every
+// subsequent API call — the one noisy-input path hush used to leave open.
+const LOG_PATH_RE = /\.log(?:\.\d+)?$|[\\/]logs?[\\/][^\\/]+\.(?:log|txt|out)$/i;
+
+function isLogPath(filePath) {
+  return typeof filePath === "string" && LOG_PATH_RE.test(filePath.trim());
+}
+
 function compress(text, exitCode, isDump, enumerate) {
   const cleaned = resolveCarriageReturns(stripAnsi(String(text)));
   const cap = enumerate
@@ -194,11 +208,30 @@ function main() {
   if (!WATCHED_TOOLS.has(data.tool_name)) return;
 
   const response = data.tool_response;
-  const isDump = isFileDump(data.tool_input && data.tool_input.command);
   // One transcript tail-read per hook fire: does the turn's human prompt ask to
   // enumerate everything? If so, this output passes uncapped (see compress).
   const enumerate = requestsEnumeration(lastUserPromptText(data.transcript_path));
   let updated;
+
+  if (data.tool_name === "Read") {
+    // Read carries the file in tool_response.file.content (raw text; the
+    // harness adds line numbers at render time). Compress log-shaped files
+    // only; every other Read passes through untouched.
+    const file = response && typeof response === "object" ? response.file : undefined;
+    const filePath = (data.tool_input && data.tool_input.file_path) || (file && file.filePath);
+    if (file && typeof file.content === "string" && isLogPath(filePath)) {
+      const out = compress(file.content, undefined, true, enumerate);
+      if (out !== file.content) {
+        updated = {
+          ...response,
+          file: { ...file, content: out, numLines: out.split("\n").length },
+        };
+      }
+    }
+    return emit(updated);
+  }
+
+  const isDump = isFileDump(data.tool_input && data.tool_input.command);
 
   if (typeof response === "string") {
     const out = compress(response, undefined, isDump, enumerate);
@@ -219,6 +252,10 @@ function main() {
     if (changed) updated = next;
   }
 
+  emit(updated);
+}
+
+function emit(updated) {
   if (updated === undefined) return; // nothing shrank — stay silent
 
   process.stdout.write(
@@ -241,6 +278,7 @@ module.exports = {
   omittedMarker,
   looksLikeFailure,
   isFileDump,
+  isLogPath,
   requestsEnumeration,
   compress,
 };
