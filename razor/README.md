@@ -48,6 +48,8 @@ And it never cut a corner to do it: **every job still came out correct.**
 
 *Good to know:* razor never blocks you. If you genuinely want that library, just say so again and it steps aside — it's a nudge for second thoughts, not a wall.
 
+*Curious whether this holds up?* You can reproduce it yourself — see [benchmarks/](benchmarks/).
+
 ## Under the hood
 
 If you're curious, it's all a handful of gentle, one-time nudges — never a nag, never a wall — and it's all there to read in the plugin's files. Pairs naturally with [hush](../hush): hush governs how Claude *talks*, razor governs what it *builds*.
