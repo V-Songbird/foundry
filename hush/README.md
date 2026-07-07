@@ -58,8 +58,6 @@ Curious whether this holds up? You can reproduce it yourself — see [benchmarks
 
 If you're curious, hush just works quietly in the background — nothing is re-sent every turn to run up your bill — and it's all there to read in the plugin's files. Pairs naturally with [razor](../razor): hush governs how Claude *talks*, razor governs what it *builds*.
 
-One honest caveat, now mostly closed: on a *hard* debugging task whose prompt insists the real cause is somewhere other than where the symptom shows up, forced silence used to push extra reasoning into the model's hidden thinking channel — a cost-and-latency tail on that one task shape, amplified when paired with razor's root-cause push, never a correctness hit. Since 0.3.6 the output style grants a one-line mid-turn *verdict checkpoint* — state the settled diagnosis, then act — because a decision on the record stays settled instead of silently re-arguing itself. That closes the loop alone and paired; an occasional long-thinking run on that task shape can still happen (it does without any plugin, too).
-
 ## Settings
 
 Most people never touch these, but a few environment variables tune the caps or turn parts off:

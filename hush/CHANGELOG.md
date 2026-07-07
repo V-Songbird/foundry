@@ -7,11 +7,11 @@ version field by convention).
 
 ## 0.3.6-alpha — 2026-07-07
 
-Verdict checkpoints. Mid-turn silence gains a fourth exception: when a diagnosis settles or one explanation wins over another, the model states the verdict in one line and acts on it. Forced silence used to leave settled conclusions unwritten, and on a hard debugging task whose prompt points away from where the symptom appears, the hidden reasoning channel could re-argue an unwritten verdict at length — most visibly when paired with [razor](../razor)'s root-cause push (the known limitation documented in 0.3.5, now mostly closed). A verdict on the record stays settled; the one-line outlet closes the loop alone and paired, without loosening narration anywhere else. Wording matters here: the clause states only the positive rule — it deliberately avoids describing the doubt it prevents.
+Fixed an issue when pairing hush with [razor](../razor): on hard debugging tasks the combination could make the model reason for much longer than necessary — a cost and latency hit, never a correctness one. Mid-turn silence now allows stating a settled diagnosis in one line before acting on it, which keeps reasoning lean whether hush runs alone or paired.
 
 ## 0.3.5-alpha — 2026-07-07
 
-Documented a known limitation of running hush alongside [razor](../razor): on a hard debugging task whose prompt insists the real cause is somewhere other than where the symptom appears, the two together can inflate the model's hidden reasoning — a cost-and-latency tail on that task shape, never a correctness hit. No behavior change; see the README "Under the hood" note.
+Documented a known limitation when pairing hush with [razor](../razor) on hard debugging tasks. No behavior change; resolved in 0.3.6.
 
 ## 0.3.4-alpha — 2026-07-07
 

@@ -54,8 +54,6 @@ And it never cut a corner to do it: **every job still came out correct.**
 
 If you're curious, it's all a handful of gentle, one-time nudges — never a nag, never a wall — and it's all there to read in the plugin's files. Pairs naturally with [hush](../hush): hush governs how Claude *talks*, razor governs what it *builds*.
 
-One honest caveat, now mostly closed: on a *hard* debugging task whose prompt insists the real cause is somewhere other than where the symptom shows up, pairing razor's root-cause push with a silence-enforcing style used to inflate the model's hidden thinking — a cost-and-latency tail on that one task shape, never a correctness hit. hush 0.3.6 closes that loop from its side with a one-line mid-turn *verdict checkpoint* (state the settled diagnosis, then act); razor is unchanged. An occasional long-thinking run on that task shape can still happen — it does without any plugin, too.
-
 ## Settings
 
 Most people never touch these, but a few environment variables tune it or turn parts off:

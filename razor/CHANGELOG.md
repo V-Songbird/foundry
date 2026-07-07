@@ -7,11 +7,11 @@ version field by convention).
 
 ## 0.2.4-alpha — 2026-07-07
 
-Doc-only: the 0.2.3 known-limit note on pairing with [hush](../hush) is now mostly closed — hush 0.3.6 grants a one-line mid-turn verdict checkpoint that stops its forced silence from letting a settled diagnosis re-argue itself in hidden reasoning. Razor's behavior is unchanged; the README caveat is updated to match.
+Doc-only: the pairing limitation noted in 0.2.3 is resolved by [hush](../hush) 0.3.6. Razor's behavior is unchanged.
 
 ## 0.2.3-alpha — 2026-07-07
 
-Documented a known limitation of running razor alongside [hush](../hush): on a hard debugging task whose prompt insists the real cause is somewhere other than where the symptom appears, the two together can inflate the model's hidden reasoning — a cost-and-latency tail on that task shape, never a correctness hit. No behavior change; see the README "Under the hood" note.
+Documented a known limitation when pairing razor with [hush](../hush) on hard debugging tasks. No behavior change; resolved by hush 0.3.6.
 
 ## 0.2.2-alpha — 2026-07-07
 
