@@ -1,0 +1,85 @@
+[
+  {
+    "id": "explain-rerender",
+    "category": "qa",
+    "fixture": null,
+    "prompt": "My React child component re-renders on every parent render even though I pass it the same props each time (an inline object literal). Why does this happen and what is the fix?",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "patterns": ["referen(ce|tial)|new object|identity", "useMemo|React\\.memo|\\bmemo\\b", "shallow"]
+    }
+  },
+  {
+    "id": "explain-rebase",
+    "category": "qa",
+    "fixture": null,
+    "prompt": "Explain the difference between git rebase and git merge, and when I should prefer each.",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "patterns": ["linear|rewrit|replay|reapply", "merge commit", "shared|public|pushed|collaborat"]
+    }
+  },
+  {
+    "id": "bugfix-expiry",
+    "category": "tool",
+    "fixture": "bugfix-expiry",
+    "prompt": "The tests in this repo are failing. Run them with `node --test`, find the bug, fix it, and confirm the tests pass.",
+    "check": { "type": "tests", "cmd": "node --test" }
+  },
+  {
+    "id": "bugfix-pagination",
+    "category": "tool",
+    "fixture": "bugfix-pagination",
+    "prompt": "The tests in this repo are failing. Run them with `node --test`, find the bug, fix it, and confirm the tests pass.",
+    "check": { "type": "tests", "cmd": "node --test" }
+  },
+  {
+    "id": "noisy-build",
+    "category": "tool",
+    "fixture": "noisy-build",
+    "prompt": "Run `node build.js` and report every warning the build emits: each warning code and the file it points to.",
+    "check": {
+      "type": "keywords",
+      "require": 6,
+      "patterns": ["W1042", "W2213", "W3307", "legacy[/\\\\]adapter\\.js", "utils[/\\\\]format\\.js", "core[/\\\\]graph\\.js"]
+    }
+  },
+  {
+    "id": "refactor-rename",
+    "category": "tool",
+    "fixture": "refactor-rename",
+    "prompt": "We renamed our public API: `calcTotal` is now `computeTotal`. Update the whole repo accordingly and verify with `node --test`.",
+    "check": { "type": "tests", "cmd": "node --test" }
+  },
+  {
+    "id": "repo-summary",
+    "category": "tool",
+    "fixture": "repo-summary",
+    "prompt": "Explore this repository and give me an architectural overview: the main components and how they interact.",
+    "check": {
+      "type": "keywords",
+      "require": 4,
+      "patterns": ["server|http", "route", "store|TTL|in-memory", "cache|LRU", "auth|HMAC|token"]
+    }
+  },
+  {
+    "id": "checkout-bug",
+    "category": "tool",
+    "fixture": "checkout-bug",
+    "prompt": "Checkout totals are wrong for orders that combine a flat-amount coupon with a non-USD currency — `node --test` is failing. Find the root cause (it isn't in the file where the wrong number comes out) and fix it.",
+    "check": { "type": "tests", "cmd": "node --test" }
+  },
+  {
+    "id": "log-triage",
+    "category": "tool",
+    "fixture": "log-triage",
+    "prompt": "The service went down last night. Investigate `logs/app.log` and tell me the root cause of the outage.",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "patterns": ["redis", "ECONNREFUSED|6379", "cascade|storm|overload|degrad|backlog"]
+    }
+  }
+]

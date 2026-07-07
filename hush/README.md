@@ -48,6 +48,8 @@ And the part that matters most: **nothing broke.** Every task still came out cor
 
 *One honest note:* when Claude is spelunking through a big, unfamiliar codebase (lots of file reading rather than noisy command output), hush doesn't save you much. It's built to tame noisy output — that's where it earns its keep.
 
+Curious whether this holds up? You can reproduce it yourself — see [benchmarks/](benchmarks/).
+
 ## Compress a memory file (optional)
 
 `/hush:hush-compress <path>` shrinks a `CLAUDE.md` or notes file into a tighter form, so every future session that loads it costs a little less. It **never touches your original** — it writes a copy alongside it (`CLAUDE.md` → `CLAUDE.hush.md`) for you to review and swap in yourself.
