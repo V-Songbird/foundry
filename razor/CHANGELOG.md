@@ -5,6 +5,10 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `razor/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.4-alpha — 2026-07-07
+
+Doc-only: the 0.2.3 known-limit note on pairing with [hush](../hush) is now mostly closed — hush 0.3.6 grants a one-line mid-turn verdict checkpoint that stops its forced silence from letting a settled diagnosis re-argue itself in hidden reasoning. Razor's behavior is unchanged; the README caveat is updated to match.
+
 ## 0.2.3-alpha — 2026-07-07
 
 Documented a known limitation of running razor alongside [hush](../hush): on a hard debugging task whose prompt insists the real cause is somewhere other than where the symptom appears, the two together can inflate the model's hidden reasoning — a cost-and-latency tail on that task shape, never a correctness hit. No behavior change; see the README "Under the hood" note.
