@@ -55,6 +55,8 @@ describe('integration: injection lifecycle', () => {
     const r = runHook('session-start.js', { session_id: freshSession(), hook_event_name: 'SessionStart' });
     assert.match(r.stdout, /RAZOR ACTIVE/);
     assert.match(r.stdout, /first rung that holds/);
+    // rung 5 covers dependency-by-import, not just install commands
+    assert.match(r.stdout, /IS adding a dependency/);
   });
 
   test('session-start is silent under RAZOR_DISABLE', () => {

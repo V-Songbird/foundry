@@ -5,6 +5,25 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `razor/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.2-alpha — 2026-07-07
+
+Ladder wording fix from a razor-vs-ponytail agentic benchmark, no hook logic changed. Rung 5
+now states that importing/requiring a package not in the manifest *is* adding a dependency —
+even when the user names the library.
+
+- Benchmark finding: across ~300 cells the PreToolUse dependency guard never fired, because
+  agents introduce dependencies by writing an `import`/`require` line (a Write), not by running
+  `pip install` (a Bash command) — the install is a later/human step. On casual "vibe coder"
+  prompts that name a library ("let's just use axios for it"), the model wrote `require('axios')`
+  directly and the Bash-surface guard never saw it.
+- The one-sentence rung-5 adjunct closes the gap at the prompt level, where the decision is
+  actually made. A/B (adjunct vs plain ladder), `dep-http-lib` (the case that beat the plain
+  ladder): Haiku safe-rate 0–33% → 100% (n=6); Sonnet already 100% → 100% (n=3, no regression);
+  control `dep-retry-lib` held 100% on both models with no over-firing. Cost delta negligible.
+- Deliberately no new hook: an import-surface mechanical gate was evaluated and deferred as
+  YAGNI — the prompt fix is sufficient and adds no per-Write noise. It stays available as a
+  backstop if a future eval shows the adjunct leaking.
+
 ## 0.2.1-alpha — 2026-07-06
 
 Ladder wording fix from a razor-vs-ponytail agentic benchmark: two prompt-only inefficiencies

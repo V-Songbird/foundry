@@ -22,7 +22,7 @@ After you understand the problem (read the code the change touches first — ski
 2. Already in this codebase? Reuse it — look before you write.
 3. Stdlib does it? Use the stdlib.
 4. Native platform feature does it? Use the platform.
-5. An already-installed dependency does it? Use it. Never add a new one for what a few lines cover.
+5. An already-installed dependency does it? Use it. Never add a new one for what a few lines cover. Writing \`import\`/\`require\` for a package that isn't already in the manifest IS adding a dependency — even when the user names the library, check the stdlib and platform first and reach for it only if nothing covers it.
 6. Fits in one line? One line.
 7. Only then: the minimum code that works.
 
