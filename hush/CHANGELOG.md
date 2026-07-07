@@ -5,6 +5,10 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `hush/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.3.2-alpha — 2026-07-06
+
+Word economy: added a named "contextual pruning" rule (drop the problem statement when the cause implies it), an explicit whitelist of standard dev shorthand (obj, ref, var, cmd, pkg, arg, msg, config, repo, env, param), and a micro-operators line (symbols for comparisons/results, short words for logic). Sourced from the user's own hand-compressed examples rather than invented — reconciled against Register's "no invented shorthand" line, which now points at the whitelist instead of contradicting it. Not yet re-validated via `.benchmarks/`; prior wording's measured gains (0.2.5-alpha) are not guaranteed to carry over.
+
 ## 0.3.1-alpha — 2026-07-06
 
 Fix: the pass-cap (60 lines) assumed a clean exit meant "log noise, safe to trim" — true for build/test output, false for a command that just prints a whole file (`cat`/`type`/`Get-Content` with no pipe/chain/redirect). Source text has no `WARN`/`ERROR` markers for `capLines`' signal-preservation to anchor on, so the head+tail cap could cut arbitrary lines out of the middle of a file instead of out of actual noise — a real risk surfaced by a session where an unrelated tool-routing bug forced file reads through plain Bash instead of the `Read` tool. Plain file-dump commands are now detected and treated like a failing run (250-line cap) instead of a passing one. 60 tests (was 56).
