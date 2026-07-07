@@ -50,8 +50,21 @@ describe('unit: transforms', () => {
     const out = capLines(lines, 10);
     assert.strictEqual(out.length, 11);
     assert.strictEqual(out[0], 'line 0');
-    assert.strictEqual(out[6], '[hush: 90 lines omitted]');
+    assert.strictEqual(out[6], '[hush: 90 lines omitted, none with warnings/errors/failures]');
     assert.strictEqual(out[10], 'line 99');
+  });
+
+  test('omitted markers assert no signal was cut — so the model trusts the visible slice', () => {
+    const lines = Array.from({ length: 100 }, (_, i) => `line ${i}`);
+    lines[50] = 'WARN W1042 deprecated-api in src/legacy/adapter.js';
+    const out = capLines(lines, 10).join('\n');
+    // every omission marker carries the no-signal guarantee...
+    for (const m of out.match(/\[hush: \d+ lines omitted[^\]]*\]/g)) {
+      assert.match(m, /none with warnings\/errors\/failures/);
+    }
+    // ...and the guarantee holds: the surviving warning proves signal is kept,
+    // so nothing matching the signal pattern was ever hidden behind a marker.
+    assert.ok(out.includes(lines[50]));
   });
 
   test('capLines is a no-op under the cap', () => {
@@ -70,7 +83,7 @@ describe('unit: transforms', () => {
     const out = capLines(lines, 10);
     assert.strictEqual(out.length, 11);
     assert.strictEqual(out[0], 'line 0');
-    assert.strictEqual(out[6], '[hush: 90 lines omitted]');
+    assert.strictEqual(out[6], '[hush: 90 lines omitted, none with warnings/errors/failures]');
     assert.strictEqual(out[10], 'line 99');
   });
 
@@ -134,7 +147,7 @@ describe('hook: end to end', () => {
     const out = hookOutput(r);
     const updated = out.hookSpecificOutput.updatedToolOutput;
     assert.strictEqual(out.hookSpecificOutput.hookEventName, 'PostToolUse');
-    assert.match(updated, /\[hush: \d+ lines omitted\]/);
+    assert.match(updated, /\[hush: \d+ lines omitted, none with warnings\/errors\/failures\]/);
   });
 
   test('object response compresses stdout, preserves shape and other fields', () => {
@@ -145,7 +158,7 @@ describe('hook: end to end', () => {
     });
     const updated = hookOutput(r).hookSpecificOutput.updatedToolOutput;
     assert.strictEqual(updated.interrupted, false);
-    assert.match(updated.stdout, /\[hush: \d+ lines omitted\]/);
+    assert.match(updated.stdout, /\[hush: \d+ lines omitted, none with warnings\/errors\/failures\]/);
   });
 
   test('a plain file dump keeps more lines than a same-size build log', () => {

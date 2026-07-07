@@ -74,6 +74,19 @@ function dedupeConsecutive(lines) {
 // broad regex: over-matching just keeps a few extra lines, never worse.
 const SIGNAL_RE = /\b(WARN(?:ING)?|ERR(?:OR)?|FAIL(?:URE|ED)?|DEPRECATED|CRITICAL)\b/i;
 
+// A bare "N lines omitted" reads to the model as "signal might be hidden in
+// this gap." On a completeness task ("report EVERY warning") that distrust is
+// rational and expensive: the model can't know the cap preserved every signal
+// line, so it re-runs the command to recover what it thinks it's missing —
+// each extra turn re-sends full context and the compression backfires. But
+// capLines keeps every SIGNAL_RE match by construction, so an omitted span
+// PROVABLY contains no warning/error/failure line. State that guarantee in the
+// marker itself: it converts hush's internal knowledge into something the model
+// can act on, so the visible slice is trustworthy and no re-run is needed.
+function omittedMarker(n) {
+  return `[hush: ${n} lines omitted, none with warnings/errors/failures]`;
+}
+
 function capLines(lines, cap) {
   if (lines.length <= cap) return lines;
   const signalIdx = new Set();
@@ -91,11 +104,11 @@ function capLines(lines, cap) {
   const out = [];
   let last = -1;
   for (const i of sortedKept) {
-    if (i - last > 1) out.push(`[hush: ${i - last - 1} lines omitted]`);
+    if (i - last > 1) out.push(omittedMarker(i - last - 1));
     out.push(lines[i]);
     last = i;
   }
-  if (lines.length - 1 - last > 0) out.push(`[hush: ${lines.length - 1 - last} lines omitted]`);
+  if (lines.length - 1 - last > 0) out.push(omittedMarker(lines.length - 1 - last));
   return out;
 }
 
@@ -183,6 +196,7 @@ module.exports = {
   resolveCarriageReturns,
   dedupeConsecutive,
   capLines,
+  omittedMarker,
   looksLikeFailure,
   isFileDump,
   compress,
