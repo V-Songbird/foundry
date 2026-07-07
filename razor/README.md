@@ -54,6 +54,8 @@ And it never cut a corner to do it: **every job still came out correct.**
 
 If you're curious, it's all a handful of gentle, one-time nudges — never a nag, never a wall — and it's all there to read in the plugin's files. Pairs naturally with [hush](../hush): hush governs how Claude *talks*, razor governs what it *builds*.
 
+One honest caveat: on a *hard* debugging task whose prompt insists the real cause is somewhere other than where the symptom shows up, running both plugins together can push extra reasoning into the model's hidden thinking channel — a cost-and-latency tail on that one task shape, never a correctness hit (every task still passes, alone or together). It's the inherent cost of pairing "chase the true root cause" with "say less" down a deliberately misleading trail.
+
 ## Settings
 
 Most people never touch these, but a few environment variables tune it or turn parts off:

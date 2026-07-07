@@ -5,43 +5,37 @@ plugin — its version is owned by `.claude-plugin/marketplace.json` at the
 repo root, not by `razor/.claude-plugin/plugin.json` (which carries no
 version field by convention).
 
+## 0.2.3-alpha — 2026-07-07
+
+Documented a known limitation of running razor alongside [hush](../hush): on a hard debugging task whose prompt insists the real cause is somewhere other than where the symptom appears, the two together can inflate the model's hidden reasoning — a cost-and-latency tail on that task shape, never a correctness hit. No behavior change; see the README "Under the hood" note.
+
 ## 0.2.2-alpha — 2026-07-07
 
-Ladder wording fix from a razor-vs-ponytail agentic benchmark, no hook logic changed. Rung 5
-now states that importing/requiring a package not in the manifest *is* adding a dependency —
-even when the user names the library.
+Ladder wording fix, no hook logic changed. Rung 5 now states that importing/requiring a package
+not in the manifest *is* adding a dependency — even when the user names the library.
 
-- Benchmark finding: across ~300 cells the PreToolUse dependency guard never fired, because
-  agents introduce dependencies by writing an `import`/`require` line (a Write), not by running
-  `pip install` (a Bash command) — the install is a later/human step. On casual "vibe coder"
-  prompts that name a library ("let's just use axios for it"), the model wrote `require('axios')`
-  directly and the Bash-surface guard never saw it.
-- The one-sentence rung-5 adjunct closes the gap at the prompt level, where the decision is
-  actually made. A/B (adjunct vs plain ladder), `dep-http-lib` (the case that beat the plain
-  ladder): Haiku safe-rate 0–33% → 100% (n=6); Sonnet already 100% → 100% (n=3, no regression);
-  control `dep-retry-lib` held 100% on both models with no over-firing. Cost delta negligible.
-- Deliberately no new hook: an import-surface mechanical gate was evaluated and deferred as
+- The PreToolUse dependency guard watches the Bash/PowerShell surface (`pip install`, etc.), but
+  agents usually introduce a dependency by writing an `import`/`require` line — a Write, not an
+  install — so on casual prompts that name a library ("let's just use axios for it") the guard
+  never saw it. The one-sentence rung-5 adjunct closes the gap at the prompt level, where the
+  decision is actually made.
+- Deliberately no new hook: an import-surface mechanical gate was considered and deferred as
   YAGNI — the prompt fix is sufficient and adds no per-Write noise. It stays available as a
-  backstop if a future eval shows the adjunct leaking.
+  backstop.
 
 ## 0.2.1-alpha — 2026-07-06
 
-Ladder wording fix from a razor-vs-ponytail agentic benchmark: two prompt-only inefficiencies
-found via transcript inspection, no hook logic changed.
+Two ladder wording fixes, no hook logic changed.
 
-- The "never skip comprehension" clause fired even with nothing to read, costing 2-3 wasted
+- The "never skip comprehension" clause fired even with nothing to read, costing wasted
   explore-tool round-trips on greenfield ("write me X" into an empty dir) tasks. Now scoped to
   skip when the target is a genuinely new file.
 - "Stop at the first rung that holds" didn't stop the agent verifying rungs below the one that
-  already applied — observed as an exhaustive one-by-one sweep of every dependency-manifest
-  format (`requirements.txt`, `setup.py`, `pyproject.toml`, `poetry.lock`) before writing a
-  stdlib-only implementation. Now explicit: act on the first rung without checking further down.
-- Benchmarked effect (ratio to baseline, same task, before/after): tokens 1.82x -> 1.21x and
-  turns 1.85x -> 1.00x on a dependency-decision task; tokens 2.41x -> 0.37x and turns
-  2.35x -> 0.40x on a greenfield task.
-- Added a permanent regression case: a stdlib-covered TOML-parsing task where a competing
-  prompt-injection-only skill added an unnecessary dependency anyway; the dep guard must still
-  catch it if attempted via `pip install`.
+  already applied — an exhaustive one-by-one sweep of every dependency-manifest format
+  (`requirements.txt`, `setup.py`, `pyproject.toml`, `poetry.lock`) before writing a stdlib-only
+  implementation. Now explicit: act on the first rung without checking further down.
+- Added a permanent regression case: a stdlib-covered TOML-parsing task where the dep guard must
+  still catch an unnecessary dependency if one is attempted via `pip install`.
 - 94 tests (up from 93).
 
 ## 0.2.0-alpha — 2026-07-05

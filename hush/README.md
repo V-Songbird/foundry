@@ -58,6 +58,8 @@ Curious whether this holds up? You can reproduce it yourself — see [benchmarks
 
 If you're curious, hush just works quietly in the background — nothing is re-sent every turn to run up your bill — and it's all there to read in the plugin's files. Pairs naturally with [razor](../razor): hush governs how Claude *talks*, razor governs what it *builds*.
 
+One honest caveat: on a *hard* debugging task whose prompt insists the real cause is somewhere other than where the symptom shows up, running both plugins together can push extra reasoning into the model's hidden thinking channel — a cost-and-latency tail on that one task shape, never a correctness hit (every task still passes, alone or together). It's the inherent cost of pairing "say less" with "chase the true root cause" down a deliberately misleading trail.
+
 ## Settings
 
 Most people never touch these, but a few environment variables tune the caps or turn parts off:
