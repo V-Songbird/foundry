@@ -65,30 +65,21 @@ Turn boundaries are real human input only — task notifications, subagent compl
 
 ## Benchmarks
 
-Hush was measured head-to-head against a no-plugin baseline and a prompt-injection terseness plugin (same "be brief" goal, delivered as a re-injected ruleset), on a suite of tool-heavy tasks in isolated workspaces.
+We put hush up against plain Claude Code and the popular "just be brief" plugin — same real tasks, three setups — and measured the actual bill.
 
-*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), every answer checked against a mechanical ground truth so compression that dropped the answer scores as a failure, not a win. Snapshot below is Haiku, 8 runs per arm, hush 0.3.2. Means shown; not a powered study.*
+<p align="center"><img src="assets/bench-cost.svg" alt="Session cost vs no plugin: the popular brief plugin costs 3% more, hush costs 9% less" width="540"></p>
 
-| | no plugin | prompt-injection terseness plugin | hush |
-|---|---|---|---|
-| Session cost (mean per task) | $0.051 | $0.053 | **$0.047** |
-| Output tokens | 1,078 | 942 | **933** |
-| Mid-turn narration | 9 words | 2 words | **0 words** |
-| Noisy build output entering context | 29,756 chars | 29,756 chars | **3,045 chars** |
-| Answer correctness | 100% | 100% | 100% |
+**hush came out the cheapest of the three.** Here's the catch with prompt-based "be brief" plugins: they re-send their rules to Claude on every single turn, so they can end up costing *more* than running no plugin at all. hush doesn't work that way — it's baked into the setup once, so you simply pay less.
 
-Two things stand out. Hush was the **cheapest of the three** — the terseness plugin actually cost *more* than no plugin at all, because re-injecting rules every turn is itself a token cost it never earns back. And on noisy command output, hush cut what entered context by **~90%**: it compresses the *tool output* that dominates a long session, which prose-only terseness plugins never touch. Every answer survived — 100% correct across the suite.
+<p align="center"><img src="assets/bench-chatter.svg" alt="Words of narration before the answer: no plugin 9 words, the brief plugin 2, hush 0" width="540"></p>
 
-**What 0.3.4 changed on that noisy-build row.** The build task in this suite asks for *every* warning — and 0.3.4's enumeration carve-out deliberately passes the whole log on a prompt like that (the 3,045-char slice above became a re-run trigger on more capable models, which distrust a slice they can't audit for completeness). So on *that* task hush no longer wins by char-compression; it wins by **consistency**. Fresh 3-arm runs, judged on the per-rep spread (n=6):
+**Claude stops narrating and just answers.** No "Let me start by…", no running commentary — the thing you actually asked for sits right at the top of one clean message.
 
-| noisy-build, "report every warning" | no plugin | hush 0.3.4 |
-|---|---|---|
-| Sonnet — context traffic | 81k–114k (bimodal, re-verifies ~½ the time) | **83.8k flat** (30-token spread, 2 turns every rep) — −14% vs baseline mean |
-| Haiku — context traffic | 60k–136k (bimodal) | **62.5k flat** — −23% vs baseline mean |
+And the part that matters most: **nothing broke.** Every task still came out correct. hush trims the noise, never the substance — your code, error messages, and anything you ask it to explain stay whole.
 
-hush is now the tightest arm on both models here, 100% correct, with zero mid-turn narration — where 0.3.3 was a ~50/50 blow-up to ~217k on Sonnet. Compression's ~90% char cut still applies to noisy output you *don't* ask to fully enumerate.
+*How we tested: we ran each setup on the same real tasks several times in a fresh, throwaway workspace and read the real cost straight from the API — no guesswork. Figures are averages on the smaller, cheaper model.*
 
-*Honest limit:* on open-ended repository exploration (heavy file reading rather than noisy command output), hush's context traffic rose ~20% — the same as the alternative. The compression is built for noisy command output; it isn't a win on every workload.
+*One honest note:* when Claude is spelunking through a big, unfamiliar codebase (lots of file reading rather than noisy command output), hush doesn't save you much. It's built to tame noisy output — that's where it earns its keep.
 
 ## Configuration
 

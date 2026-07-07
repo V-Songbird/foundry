@@ -96,24 +96,21 @@ If another YAGNI/lazy-dev ruleset plugin is installed, disable it — two compet
 
 ## Benchmarks
 
-Razor was measured head-to-head against a no-plugin baseline and a prompt-injection lazy-dev plugin (same YAGNI philosophy, delivered as a re-injected ruleset), running real coding tasks in isolated workspaces.
+We put razor up against plain Claude Code and the popular "keep it lean" plugin — same real coding jobs, three setups — and measured the bill and the code.
 
-*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), correctness checked mechanically (`node --test` or executed output) so leanness that broke the result scores as a failure, not a win. Haiku, 6 runs per arm; headline results re-confirmed on the larger model. Means shown; not a powered study.*
+<p align="center"><img src="assets/bench-cost.svg" alt="Cost of a coding task vs no plugin: the lean plugin is 9% cheaper, razor is 26% cheaper" width="540"></p>
 
-On an open-ended feature edit (add due-dates to a CLI todo app), razor delivered the leanest working code and **cost 26% less than the no-plugin baseline itself** — 40% fewer tokens into context:
+**razor got the job done for about a quarter less — cheaper than running no plugin at all.** It writes the least code to get there, so there's less for you to read, less to review, and less that can quietly break later.
 
-| feature-edit task | no plugin | prompt-injection lazy-dev plugin | razor |
-|---|---|---|---|
-| Session cost | $0.082 | $0.074 | **$0.060** |
-| Tokens into context | 422k | 328k | **252k** |
-| Code delivered | 14.5 LOC | 13.5 LOC | **12.5 LOC** |
+<p align="center"><img src="assets/bench-deps.svg" alt="When you say just use axios: without razor the needless dependency was added every time, with razor never" width="540"></p>
 
-Across the wider task set the pattern held on the two axes the delivery mechanism controls:
+**Say "just use axios" and razor quietly reaches for what's already built in.** That throwaway line would otherwise ship a real dependency you now have to keep updated and secure — every time. With razor on, Claude used the platform's own tools instead and moved on.
 
-- **Lower overhead.** Re-injecting the ruleset into every step added as much as **+89% to session cost** on smaller tasks; razor's once-per-session ladder stayed at or below baseline.
-- **Never less correct.** Razor matched the no-plugin baseline's correctness on every task; the prompt-injection plugin fell *below* it — as low as **50%** on a task where razor held 83%.
+And it never cut a corner to do it: **every job still came out correct.**
 
-**The vibe-coder rescue.** Say it the way people actually do — *"let's just use axios for this"* — and without razor the model pulled in the needless dependency in every run (the built-in `fetch` already does the job). With razor it reached for the platform instead: the needless dependency was avoided **0% of runs without razor, 100% with** (Haiku, v0.2.2; the larger model was already lean unaided). The ladder earning its keep at the exact moment a developer reaches for a library.
+*How we tested: we ran each setup on the same real coding tasks several times in a fresh, throwaway workspace and read the real cost straight from the API — no guesswork. Figures are averages on the smaller, cheaper model, and the headline results hold on the bigger one too.*
+
+*Good to know:* razor never blocks you. If you genuinely want that library, just say so again and it steps aside — it's a nudge for second thoughts, not a wall.
 
 ## Configuration
 

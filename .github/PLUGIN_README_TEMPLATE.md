@@ -73,22 +73,27 @@ Inside Claude Code, run:
 ## Benchmarks
 
 <!-- (optional — only when the plugin has real head-to-head benchmark data; drop it entirely
-     rather than inventing numbers or writing a benchmark section with nothing to show.)
-     Head-to-head vs a no-plugin baseline AND the generic competitor category. Keep this EXACT
-     shape: framing sentence -> italic method note -> results table -> takeaway -> honest limit.
-     Only publish numbers you can defend; state model + reps. Never publish underpowered (n < ~6)
-     numbers as a headline. The honest-limit line is mandatory when this section is present.
-     Give the "no plugin" baseline its own column with REAL values (absolute, not blank) so every
-     cell is concrete — a "vs no plugin" header over delta-only columns leaves the reader with no
-     reference point. Keep punchy % deltas for the prose takeaway. -->
+     rather than inventing numbers.) This is a MARKETING SHOWCASE for regular users and vibe
+     coders, so write it in the SAME friendly, plain-language voice as the top of the README —
+     NOT a lab report. Ban the jargon: no "context traffic", "tokens", "n=6", "per-rep", "means".
+     Preferred shape: a friendly framing sentence -> one or two simple committed SVG bar charts
+     (see hush/razor assets/bench-*.svg — a non-technical reader must get each at a glance) ->
+     2-3 benefit bullets in everyday terms (cost, "0 words", "never broke") -> one plain-language
+     "how we tested" line -> one honest limit. Only claim numbers you can defend; if a headline
+     number shifted with a later release, don't overclaim precision. GitHub renders repo SVGs via
+     <img src="assets/..."> (the logo already proves it). A dense three-column table (with the
+     "no plugin" column populated with REAL values, never blank) is an acceptable fallback, but
+     the chart+prose form reads far friendlier and is preferred. -->
 
-<one framing sentence: what was measured, against what>.
+<friendly framing sentence: what we compared, in plain words>.
 
-*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), <ground-truth check, e.g. `node --test` / keyword rubric> so a broken result scores as a failure, not a win. <model>, <N> runs per arm. Means shown; not a powered study.*
+<p align="center"><img src="assets/bench-<metric>.svg" alt="<plain description of what the chart shows>" width="540"></p>
 
-| | no plugin | <generic category> | <plugin> |
-|---|---|---|---|
-| <metric> | <baseline value> | <theirs> | **<ours>** |
+**<benefit, in bold>.** <one or two plain sentences a non-technical reader gets.>
+
+*How we tested: <one friendly, non-technical sentence — real tasks, fresh workspace, real cost from the API, not guesses>.*
+
+*<Honest note / limit, in friendly terms>.*
 
 <takeaway: the 1-2 facts that matter, in prose>
 
