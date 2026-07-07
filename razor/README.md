@@ -94,6 +94,27 @@ A large diff that also deletes a lot is refactoring, not sprawl — it never fir
 
 If another YAGNI/lazy-dev ruleset plugin is installed, disable it — two competing rulesets double-inject and can contradict each other.
 
+## Benchmarks
+
+Razor was measured head-to-head against a no-plugin baseline and a prompt-injection lazy-dev plugin (same YAGNI philosophy, delivered as a re-injected ruleset), running real coding tasks in isolated workspaces.
+
+*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), correctness checked mechanically (`node --test` or executed output) so leanness that broke the result scores as a failure, not a win. Haiku, 6 runs per arm; headline results re-confirmed on the larger model. Means shown; not a powered study.*
+
+On an open-ended feature edit (add due-dates to a CLI todo app), razor delivered the leanest working code **and cost less than the no-plugin baseline itself**:
+
+| feature-edit task (vs no plugin) | prompt-injection lazy-dev plugin | razor |
+|---|---|---|
+| Session cost | −9% | **−26%** |
+| Tokens into context | −22% | **−40%** |
+| Code delivered | 13.5 LOC | **12.5 LOC** |
+
+Across the wider task set the pattern held on the two axes the delivery mechanism controls:
+
+- **Lower overhead.** Re-injecting the ruleset into every step added as much as **+89% to session cost** on smaller tasks; razor's once-per-session ladder stayed at or below baseline.
+- **Never less correct.** Razor matched the no-plugin baseline's correctness on every task; the prompt-injection plugin fell *below* it — as low as **50%** on a task where razor held 83%.
+
+**The vibe-coder rescue.** Say it the way people actually do — *"let's just use axios for this"* — and without razor the model pulled in the needless dependency in every run (the built-in `fetch` already does the job). With razor it reached for the platform instead: the needless dependency was avoided **0% of runs without razor, 100% with** (Haiku, v0.2.2; the larger model was already lean unaided). The ladder earning its keep at the exact moment a developer reaches for a library.
+
 ## Configuration
 
 Environment variables, e.g. via `env` in `settings.json`:

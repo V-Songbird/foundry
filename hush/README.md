@@ -62,6 +62,24 @@ Dual-mode, one script registered on two events:
 
 Turn boundaries are real human input only — task notifications, subagent completions, and scheduled wakeups (`origin.kind` / `isMeta` markers) don't reset the counter, so a notification chain measures as one turn. Zero token cost while the agent behaves.
 
+## Benchmarks
+
+Hush was measured head-to-head against a no-plugin baseline and a prompt-injection terseness plugin (same "be brief" goal, delivered as a re-injected ruleset), on a suite of tool-heavy tasks in isolated workspaces.
+
+*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), every answer checked against a mechanical ground truth so compression that dropped the answer scores as a failure, not a win. Haiku, 8 runs per arm. Means shown; not a powered study.*
+
+| vs no plugin | prompt-injection terseness plugin | hush |
+|---|---|---|
+| Session cost | +3% | **−9%** |
+| Output tokens | −13% | −13% |
+| Mid-turn narration | 2 words | **0 words** |
+| Noisy build output entering context | ~29,800 chars (untouched) | **~3,000 chars (−90%)** |
+| Answer correctness | 100% | 100% |
+
+Two things stand out. Hush was the **cheapest of the three** — the terseness plugin actually cost *more* than no plugin at all, because re-injecting rules every turn is itself a token cost it never earns back. And on noisy command output, hush cut what entered context by **~90%** (−42% session cost on that task): it compresses the *tool output* that dominates a long session, which prose-only terseness plugins never touch. Every answer survived — 100% correct across the suite.
+
+*Honest limit:* on open-ended repository exploration (heavy file reading rather than noisy command output), hush's context traffic rose ~20% — the same as the alternative. The compression is built for noisy command output; it isn't a win on every workload.
+
 ## Configuration
 
 Environment variables, e.g. via `env` in `settings.json`:
