@@ -60,7 +60,9 @@ Inside Claude Code, run:
 
 ## <plugin> vs <generic competitor category>
 
-<!-- Comparison table: the generic prompt-injection category vs our approach, one row per axis
+<!-- (optional — only when the plugin has a genuine competitor category; drop it for plugins with
+     no rival, e.g. a tool-router or a docs-fetcher.)
+     Comparison table: the generic prompt-injection category vs our approach, one row per axis
      (delivery, enforcement, grounding, cost, intensity, ...). If a straight table doesn't fit,
      a "Relationship to <generic category>" prose paragraph is the fallback. Never name names. -->
 
@@ -70,10 +72,12 @@ Inside Claude Code, run:
 
 ## Benchmarks
 
-<!-- Head-to-head vs a no-plugin baseline AND the generic competitor category. Keep this EXACT
+<!-- (optional — only when the plugin has real head-to-head benchmark data; drop it entirely
+     rather than inventing numbers or writing a benchmark section with nothing to show.)
+     Head-to-head vs a no-plugin baseline AND the generic competitor category. Keep this EXACT
      shape: framing sentence -> italic method note -> results table -> takeaway -> honest limit.
      Only publish numbers you can defend; state model + reps. Never publish underpowered (n < ~6)
-     numbers as a headline. The honest-limit line is mandatory. -->
+     numbers as a headline. The honest-limit line is mandatory when this section is present. -->
 
 <one framing sentence: what was measured, against what>.
 
