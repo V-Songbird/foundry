@@ -110,7 +110,7 @@
       "name": "hush",
       "source": "./hush",
       "description": "Token-lean sessions at the harness level, not the prompt level. Ships a forced output style that rewires the system prompt itself — no preamble, no play-by-play, one outcome-first final message at dev-shorthand density (default to fragments, not caveman-speak) — plus a PostToolUse hook that mechanically shrinks Bash/PowerShell output before it enters context (ANSI/progress-bar strip, duplicate collapse, line caps that always preserve warning/error/failure lines regardless of position and mark each omitted span as signal-free so the model trusts the visible slice instead of re-running to recover what it can't see; failures keep ~4x more, verbatim; and when the turn's prompt explicitly asks to enumerate EVERY/ALL/EACH of something the log passes uncapped so nothing is elided to distrust), a dual-mode narration meter (PostToolUse + Stop) that injects one corrective line the moment mid-turn narration crosses budget — inside the offending turn, at most once per turn — and a /hush:hush-compress skill that shrinks a CLAUDE.md/memory file into the same dev-shorthand voice to cut input tokens every session, writing only to a sibling file (never the original) and mechanically verifying nothing structural was lost. Replaces prompt-injection style plugins: same terseness goal, stronger mechanism, and it also cuts the input-token side they never touch. Tune via HUSH_CAP_PASS, HUSH_CAP_FAIL, HUSH_CAP_ENUMERATE, HUSH_NARRATION_BUDGET; disable the meter alone with HUSH_NARRATION=off, or everything with HUSH_DISABLE=1.",
-      "version": "0.3.4-alpha",
+      "version": "0.3.5-alpha",
       "license": "MIT",
       "author": {
         "name": "Songbird",
@@ -143,7 +143,7 @@
       "name": "razor",
       "source": "./razor",
       "description": "YAGNI enforcement at the harness level, not the prompt level. Injects a compact first-rung-that-holds ladder (skip it / reuse it / stdlib / platform / installed dep / one line / minimum that works) into the main thread and — gated by agent type — into code-writing subagents only, so read-only Explore/Plan spawns never pay the injection tax. Backs the prompt with evidence-carrying soft gates: a PreToolUse dependency guard that denies the first install of a new package and lists the project's actual installed dependencies in the reason (the retry passes — one forced reconsideration, never a hard block), a per-turn new-file meter that challenges file sprawl once, then self-clears, and a git-grounded build ledger that asks one question, once per session, when the diff grows large with nothing deleted. Boolean on/off (/razor off), no intensity dial. Pairs with hush: hush governs how the agent talks, razor governs what it builds. Tune via RAZOR_DISABLE, RAZOR_DEP_GUARD, RAZOR_FILE_BUDGET, RAZOR_LEDGER_LOC/FILES, RAZOR_AGENT_SKIP/INJECT.",
-      "version": "0.2.2-alpha",
+      "version": "0.2.3-alpha",
       "license": "MIT",
       "author": {
         "name": "Songbird",
