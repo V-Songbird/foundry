@@ -40,6 +40,13 @@ Community files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`)
 live once at the repo root and cover all plugins — don't duplicate
 them per plugin.
 
+Every plugin README shares one skeleton, tone, and style. Start from
+[`.github/PLUGIN_README_TEMPLATE.md`](.github/PLUGIN_README_TEMPLATE.md):
+copy it, fill the placeholders, and delete the guidance comments. The
+house rules (plain-language-first above the "How it works" divider,
+technical depth below it, generic competitor framing, method-transparent
+benchmarks with an honest limit) are documented inline in the template.
+
 ---
 
 ## What to keep in mind
