@@ -32,23 +32,23 @@ The quiet style takes effect at your next session. There's nothing to invoke —
 
 ## Benchmarks
 
-We put hush up against plain Claude Code and the popular "just be brief" plugin — same real tasks, three setups — and measured the actual bill.
+We put hush up against plain Claude Code and the popular "just be brief" plugin — the same real coding jobs, phrased the way a developer actually types them, three setups, and the real bill read straight from the API.
 
-<p align="center"><img src="assets/bench-cost.svg" alt="Session cost vs no plugin: the popular brief plugin costs 3% more, hush costs 9% less" width="540"></p>
+<p align="center"><img src="assets/bench-chatter.svg" alt="Words of play-by-play while fixing a real bug: no plugin 108 words, the brief plugin 46, hush 23" width="540"></p>
 
-**hush came out the cheapest of the three.** Here's the catch with prompt-based "be brief" plugins: they re-send their rules to Claude on every single turn, so they can end up costing *more* than running no plugin at all. hush doesn't work that way — it's baked into the setup once, so you simply pay less.
+**Claude stops narrating and just works.** On real fix-the-bug jobs, plain Claude says about a hundred words of play-by-play before you get the answer. hush cuts that to a fifth — half of what the brief plugin manages — and puts everything that matters in one clean final message.
 
-<p align="center"><img src="assets/bench-chatter.svg" alt="Words of narration before the answer: no plugin 9 words, the brief plugin 2, hush 0" width="540"></p>
+**Answers get about 16% shorter without turning into caveman-speak.** The brief plugin trims the same amount by mangling everything it says. hush matches the trim while keeping normal English, exact error messages, and untouched code.
 
-**Claude stops narrating and just answers.** No "Let me start by…", no running commentary — the thing you actually asked for sits right at the top of one clean message.
+<p align="center"><img src="assets/bench-logs.svg" alt="Digging a root cause out of a huge log: hush is 13% cheaper than no plugin" width="540"></p>
 
-And the part that matters most: **nothing broke.** Every task still came out correct. hush trims the noise, never the substance — your code, error messages, and anything you ask it to explain stay whole.
+**Noise gets cheaper.** When the job involves a bulky log or a chatty build, hush trims the noise before it lands on your bill — 13% cheaper on our log-digging job, with every warning and error line kept verbatim.
 
-*How we tested: we ran each setup on the same real tasks several times in a fresh, throwaway workspace and read the real cost straight from the API — no guesswork. Figures are averages on the smaller, cheaper model.*
+And the part that matters most: **nothing broke.** Every job came out correct in every setup — including one the no-plugin run fumbled.
 
-*One honest note:* when Claude is spelunking through a big, unfamiliar codebase (lots of source-file reading rather than noisy output), hush doesn't save you much. It's built to tame noise — command output and log files — and that's where it earns its keep.
+*One honest note on cost:* on short everyday tasks, no plugin of this kind makes sessions much cheaper — a session's fixed overhead dwarfs what any of them can trim, the brief plugin included. hush's everyday win is what you *read*, not what you pay; the savings show up where noise dominates.
 
-Curious whether this holds up? You can reproduce it yourself — see [benchmarks/](benchmarks/).
+*How we tested: same jobs, three setups, several runs each in fresh throwaway workspaces, on the smaller, cheaper model; costs from the API, not estimates. Reproduce it yourself — see [benchmarks/](benchmarks/).*
 
 ## Compress a memory file (optional)
 
@@ -56,7 +56,7 @@ Curious whether this holds up? You can reproduce it yourself — see [benchmarks
 
 ## Under the hood
 
-If you're curious, hush just works quietly in the background — nothing is re-sent every turn to run up your bill — and it's all there to read in the plugin's files. Pairs naturally with [razor](../razor): hush governs how Claude *talks*, razor governs what it *builds*.
+If you're curious, hush just works quietly in the background — nothing is re-sent every turn to run up your bill — and it's all there to read in the plugin's files. Pairs naturally with [razor](../razor): razor cuts the code and the cost, hush cuts the noise — and measured together, they add no overhead to each other.
 
 ## Settings
 
