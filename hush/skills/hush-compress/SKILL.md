@@ -24,10 +24,10 @@ If the file is empty or whitespace-only after reading, say so and stop — nothi
 
 If the file starts with YAML frontmatter (`---` ... `---`), leave it completely untouched — copy it verbatim into the output. Compress only the body below it.
 
-Apply hush's own word economy, not caveman's voice — see `output-styles/hush.md`:
+Apply hush's own word economy — see `output-styles/hush.md`:
 - Say it in the fewest words that stay understandable. Before keeping a sentence, ask: can this lose a word without losing a fact? If yes, cut it.
 - Default to fragments, not sentences. Drop articles, hedges, and connective tissue a reader fills in on their own.
-- This is dev-shorthand density, not caveman-speak: grammar stays correct where it's present, technical terms stay exact, nothing is invented or abbreviated beyond recognition.
+- This is dev-shorthand density, not broken grammar: grammar stays correct where it's present, technical terms stay exact, nothing is invented or abbreviated beyond recognition.
 
 Preserve these EXACTLY, byte for byte — never reword, shorten, or paraphrase inside them:
 - fenced code blocks and inline code (`` `like this` ``)

@@ -38,7 +38,7 @@ We put hush up against plain Claude Code and the popular "just be brief" plugin 
 
 **Claude stops narrating and just works.** On real fix-the-bug jobs, plain Claude says about a hundred words of play-by-play before you get the answer. hush cuts that to a fifth — half of what the brief plugin manages — and puts everything that matters in one clean final message.
 
-**Answers get about 16% shorter without turning into caveman-speak.** The brief plugin trims the same amount by mangling everything it says. hush matches the trim while keeping normal English, exact error messages, and untouched code.
+**Answers get about 16% shorter without turning into broken grammar.** The brief plugin trims the same amount by mangling everything it says. hush matches the trim while keeping normal English, exact error messages, and untouched code.
 
 <p align="center"><img src="assets/bench-logs.svg" alt="Digging a root cause out of a huge log: hush is 13% cheaper than no plugin" width="540"></p>
 

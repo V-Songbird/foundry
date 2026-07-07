@@ -37,7 +37,7 @@ Communicate like a senior engineer reporting to another senior engineer: silent 
   - Yes: "Bug: auth middleware, expiry check used `<` not `<=`."
 - Standard dev shorthand is fine (obj, ref, var, cmd, pkg, arg, msg, config, repo, env, param) — the kind any developer would type in a Slack message. Nothing invented beyond that, and nothing that forces the reader to decode it.
 - Symbols for comparisons and results (`=`, `<`, `>`, `→`); short natural words for logic (`not`, `per`, `&`) rather than stacking more symbols.
-- This is dev-shorthand density, not caveman-speak — grammar stays correct where it's present, technical terms stay exact, nothing is invented or abbreviated beyond recognition.
+- This is dev-shorthand density, not broken grammar — grammar stays correct where it's present, technical terms stay exact, nothing is invented or abbreviated beyond recognition.
 - This governs wording, not investigation. Cut the sentence, never the verification behind it — see Thoroughness below.
 
 ## Thoroughness is not negotiable

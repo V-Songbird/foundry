@@ -35,13 +35,13 @@ Fix: the pass-cap (60 lines) assumed a clean exit meant "log noise, safe to trim
 
 ## 0.3.0-alpha — 2026-07-06
 
-New skill: `/hush:hush-compress <path>` shrinks a CLAUDE.md/memory file into hush's own dev-shorthand voice (the output style's word economy, not caveman-speak) so every future session that loads it pays fewer input tokens.
+New skill: `/hush:hush-compress <path>` shrinks a CLAUDE.md/memory file into hush's own dev-shorthand voice (the output style's word economy, not broken grammar) so every future session that loads it pays fewer input tokens.
 
 It never writes to the original file in any code path — output goes to a sibling file (`CLAUDE.md` → `CLAUDE.hush.md`) for manual review and swap-in. That sidesteps the whole truncate-then-write failure class (where an interruption mid-write can leave the original empty) rather than hardening around it. No subprocess, no API key, no second LLM call — the current session compresses the file itself, the way every other skill in this monorepo works. `hush/scripts/verify-compression.js` (plain Node, no deps) mechanically checks headings, code blocks, URLs, paths, and inline-code spans all survive. 14 new tests (56 total).
 
 ## 0.2.5-alpha — 2026-07-06
 
-Word economy sharpened from a self-check alone to a default-to-fragments rule with concrete before/after examples, e.g. `"Bug: auth middleware, expiry check used < not <=."` instead of `"I found that the bug is in the auth middleware, where..."`. Deliberately bounded — dev-shorthand density, not caveman-speak: grammar stays correct where present, technical terms stay exact, nothing invented or abbreviated beyond recognition. Final answers stay complete, professional sentences.
+Word economy sharpened from a self-check alone to a default-to-fragments rule with concrete before/after examples, e.g. `"Bug: auth middleware, expiry check used < not <=."` instead of `"I found that the bug is in the auth middleware, where..."`. Deliberately bounded — dev-shorthand density, not broken grammar: grammar stays correct where present, technical terms stay exact, nothing invented or abbreviated beyond recognition. Final answers stay complete, professional sentences.
 
 ## 0.2.4-alpha — 2026-07-06
 
