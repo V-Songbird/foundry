@@ -1,18 +1,20 @@
 <!--
   Shared plugin README template for this marketplace.
   Copy this into <plugin>/README.md, fill the placeholders, and DELETE every guidance comment.
-  All plugins in this repo share this section order, tone, and style.
+  All plugins here share this lean shape, tone, and style.
 
-  House rules (apply throughout):
-  - Two registers, split by the "How it works" divider. ABOVE it: plain language for a skimming
-    developer — the pain they feel, the benefit, how to install. No mechanism detail, no jargon.
-    BELOW it: technical depth for the curious. Never mix the two.
-  - Never name a competitor plugin. Contrast with the generic category ("prompt-injection <X>
-    plugins") and sell on our own merits.
-  - Confident, concrete, em-dash prose. No marketing fluff, no exclamation points.
-  - Anything a reader can check should be checkable. Benchmarks always state method + N + model,
-    and always carry one honest limit — the limit is what makes the wins credible.
-  - Keep the section order below. Sections marked (optional) may be dropped if they don't apply.
+  THE GOLDEN RULE: short and friendly. If a reader sees a wall of text, they won't read it.
+  Write for a regular user / "vibe coder", not an engineer. Aim for ~50-80 lines total.
+  razor/ and hush/ are the reference implementations for voice; foreman/ shows how lean to go.
+
+  House rules:
+  - Warm, plain, second-person, benefit-first prose. Em-dashes are fine. NO exclamation-point
+    hype, NO jargon (no "context traffic", "PreToolUse", "n=6", "tokens", schema/field names).
+  - Never name a competitor plugin — contrast with a generic category, sell on our own merits.
+  - Keep ONLY what a user actually wants to read. Cut mechanism deep-dives, reference tables
+    (schemas, hook internals, exhaustive config), comparison tables, and any "Tests" section
+    (testing lives in CONTRIBUTING.md). Deep detail stays in the code / a linked schema doc.
+  - Sections marked (optional) may be dropped when they don't apply.
 -->
 
 <div align="center">
@@ -25,12 +27,12 @@
 
 ## What is this?
 
-<!-- 1-2 short paragraphs. Open with the pain the user already feels, in their own words.
-     Then what the plugin does about it — still plain language, no mechanism yet. -->
+<!-- 2-3 short plain sentences. Open with the pain the user already feels, then what the plugin
+     does about it. No mechanism, no jargon. -->
 
 ## Why you'd want it
 
-<!-- 3-5 bullets, each a **bold lead-in** + one sentence. Benefits the user feels, not features. -->
+<!-- 3-4 bullets, each a **bold lead-in** + one sentence. Benefits the user feels, not features. -->
 
 - **<benefit>.** <one sentence>
 
@@ -43,92 +45,49 @@ Inside Claude Code, run:
 /plugin install <plugin>
 ```
 
-<!-- one line: when it takes effect (e.g. "active from the next session"); "no configuration needed" if true -->
+<!-- one line: when it takes effect; "nothing to configure" if true; any one-time step, stated simply -->
 
----
+## What you can do
 
-## How it works (for the curious)
-
-<!-- Everything below the divider is the technical register. Lead with ONE framing paragraph
-     naming the design thesis (usually: keep the idea, swap the delivery for the strongest
-     mechanism available at each layer — not prompt-only). Then numbered mechanism subsections. -->
-
-### 1. <mechanism name>
-
-<!-- What it hooks, what it does, why that layer. Show a real example (a deny reason, a diff, an
-     output sample) where it helps the reader picture it. -->
-
-## <plugin> vs <generic competitor category>
-
-<!-- (optional — only when the plugin has a genuine competitor category; drop it for plugins with
-     no rival, e.g. a tool-router or a docs-fetcher.)
-     Comparison table: the generic prompt-injection category vs our approach, one row per axis
-     (delivery, enforcement, grounding, cost, intensity, ...). If a straight table doesn't fit,
-     a "Relationship to <generic category>" prose paragraph is the fallback. Never name names. -->
-
-| | <generic category> | <plugin> |
-|---|---|---|
-| <axis> | <theirs> | <ours> |
+<!-- (optional — only if the plugin has user-facing commands/skills.) A compact table, nothing more.
+| You want to… | Command |
+| --- | --- |
+| <plain outcome> | `/<plugin>:<command>` |
+-->
 
 ## Benchmarks
 
-<!-- (optional — only when the plugin has real head-to-head benchmark data; drop it entirely
-     rather than inventing numbers.) This is a MARKETING SHOWCASE for regular users and vibe
-     coders, so write it in the SAME friendly, plain-language voice as the top of the README —
-     NOT a lab report. Ban the jargon: no "context traffic", "tokens", "n=6", "per-rep", "means".
-     Preferred shape: a friendly framing sentence -> one or two simple committed SVG bar charts
-     (see hush/razor assets/bench-*.svg — a non-technical reader must get each at a glance) ->
-     2-3 benefit bullets in everyday terms (cost, "0 words", "never broke") -> one plain-language
-     "how we tested" line -> one honest limit. Only claim numbers you can defend; if a headline
-     number shifted with a later release, don't overclaim precision. GitHub renders repo SVGs via
-     <img src="assets/..."> (the logo already proves it). A dense three-column table (with the
-     "no plugin" column populated with REAL values, never blank) is an acceptable fallback, but
-     the chart+prose form reads far friendlier and is preferred. -->
+<!-- (optional — razor/hush only, or any plugin with REAL head-to-head data; drop it entirely
+     rather than inventing numbers.) A MARKETING SHOWCASE in the same friendly voice as the top of
+     the README, NOT a lab report. Shape: friendly framing sentence -> one or two simple committed
+     SVG bar charts (see hush/razor assets/bench-*.svg — a non-technical reader must get each at a
+     glance) -> 2-3 benefit bullets in everyday terms (cost, "0 words", "never broke") -> a plain
+     "how we tested" line -> one honest limit. Only claim numbers you can defend; never headline an
+     underpowered (n<~6) result. GitHub renders repo SVGs via <img src="assets/..."> (the logo
+     proves it). -->
 
-<friendly framing sentence: what we compared, in plain words>.
+## Under the hood
 
-<p align="center"><img src="assets/bench-<metric>.svg" alt="<plain description of what the chart shows>" width="540"></p>
+<!-- ONE short "if you're curious" paragraph, plain language — the single most interesting idea,
+     not a mechanism catalogue. If it pairs with a sibling plugin, add one line here
+     ("Pairs naturally with [<sibling>](../<sibling>): …"). If deep detail exists, point to it
+     ("the field-by-field details live in `<doc>.md` if you ever want them"). -->
 
-**<benefit, in bold>.** <one or two plain sentences a non-technical reader gets.>
+## Settings
 
-*How we tested: <one friendly, non-technical sentence — real tasks, fresh workspace, real cost from the API, not guesses>.*
+<!-- (optional — only if there are user-relevant knobs.) Lead with "Most people never touch these".
+     A compact table, <=5 rows, everyday wording — not every env var.
+| Variable | What it does |
+| --- | --- |
+| `<PLUGIN>_<VAR>` | <plain effect> |
+-->
 
-*<Honest note / limit, in friendly terms>.*
+## Good to know
 
-<takeaway: the 1-2 facts that matter, in prose>
+<!-- (optional) 1-3 short, user-facing gotchas only — the things a user might actually hit.
+     Not developer-only caveats. -->
 
-*Honest limit:* <the workload or case where it doesn't win>.
-
-## Configuration
-
-<!-- (optional — drop if the plugin has no knobs) -->
-
-Environment variables, e.g. via `env` in `settings.json`:
-
-| Variable | Default | Effect |
-| --- | --- | --- |
-| `<PLUGIN>_<VAR>` | `<default>` | <effect> |
-
-<!-- (optional) Feature-specific sections — e.g. "## Optional: <skill>" — go here, same tone. -->
-
-## Relationship to <sibling plugin>
-
-<!-- (optional — only if it pairs with another plugin here) One line on the complementary split. -->
-
-## Known limits
-
-<!-- Bullet list. Be honest about edges, bypasses, and what a plugin fundamentally cannot do.
-     This section is not optional — every plugin has limits, and stating them builds trust. -->
-
-- <limit>
-
-## Tests
-
-<!-- (optional — drop if the plugin has no scripted behavior) -->
-
-```
-node --test <plugin>/tests/*.test.js
-```
+- <gotcha>
 
 ## License
 
