@@ -345,7 +345,7 @@ function aggregate(results) {
   const groups = new Map();
   for (const r of results) {
     if ('error' in r && !('correct' in r)) continue;
-    const k = `${r.task} ${r.arm} ${r.model}`;
+    const k = `${r.task}\u0000${r.arm}\u0000${r.model}`;
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(r);
   }
@@ -353,7 +353,7 @@ function aggregate(results) {
   const medOf = (cells, key) => round(median(cells.map((c) => c[key])), 2);
   const meanOf = (cells, key, d = 4) => round(mean(cells.map((c) => c[key])), d);
   for (const [k, cells] of [...groups.entries()].sort()) {
-    const [t, a, m] = k.split(' ');
+    const [t, a, m] = k.split('\u0000');
     const n = cells.length;
     const locCells = cells.filter((c) => (c.total_loc || 0) > 0);
     const totalTokCells = cells.filter((c) => c.out_tokens !== null && c.out_tokens !== undefined);
@@ -385,13 +385,13 @@ function aggregate(results) {
 function printTable(rows) {
   const by = new Map();
   for (const r of rows) {
-    const k = `${r.task} ${r.model}`;
+    const k = `${r.task}\u0000${r.model}`;
     if (!by.has(k)) by.set(k, []);
     by.get(k).push(r);
   }
   const pad = (s, w) => String(s).padStart(w);
   for (const [k, rs] of [...by.entries()].sort()) {
-    const [task, model] = k.split(' ');
+    const [task, model] = k.split('\u0000');
     console.log(`\n=== ${task}  (${model}, n=${rs[0].n}) ===`);
     console.log(`  ${'arm'.padEnd(10)} ${pad('correct', 8)} ${pad('safe', 6)} ${pad('LOC', 6)} `
       + `${pad('files', 6)} ${pad('tot_tok', 9)} ${pad('$/run', 9)} ${pad('time_s', 7)} ${pad('installs', 9)}`);
