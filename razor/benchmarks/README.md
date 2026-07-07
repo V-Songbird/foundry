@@ -2,13 +2,12 @@
 
 Curious whether the numbers on razor's front page hold up? This is the actual harness — run it yourself.
 
-It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed coding tasks, once with no plugin and once with razor, and reads the true cost and token counts straight out of the API's own usage JSON. No mocks, no estimates. Each session is scored on the code it leaves behind, and correctness is checked mechanically — so a lean answer that breaks the task scores as a *failure*, not a win.
+It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed coding tasks, once with no plugin and once with razor, and reads the true cost and token counts straight out of the API's own usage JSON. No mocks, no estimates. Each session is scored on the code it leaves behind, and correctness is checked mechanically — the harness runs the produced code with `node` — so a lean answer that breaks the task scores as a *failure*, not a win.
 
 ## Before you start
 
 - **Claude Code, signed in.** `claude` must be on your PATH and already authenticated (run any `claude` command once first). Every run bills your account — see the cost note below.
-- **Python 3.11+** (it uses the stdlib `tomllib`, added in 3.11).
-- **Node** on your PATH — razor's hooks and a couple of the scorers need it. If you use [fnm](https://github.com/Schniz/fnm), activate it in this shell first — e.g. on PowerShell: `fnm env --use-on-cd | Out-String | Invoke-Expression`.
+- **Node** on your PATH (any recent version) — it runs the harness *and* scores the code each session produces. If you use [fnm](https://github.com/Schniz/fnm), activate it in this shell first — e.g. on PowerShell: `fnm env --use-on-cd | Out-String | Invoke-Expression`.
 - Run the commands **from this `benchmarks/` directory.**
 
 ## The honest disclaimer, up front
@@ -22,7 +21,7 @@ It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed
 **1. Prove the instruments first** (free — no API spend) to confirm each task scores a correct answer as correct, catches a wrong one, and finds the razor plugin:
 
 ```bash
-python bench.py --selftest
+node runner/run.js --selftest
 ```
 
 If it prints `all instruments valid`, you're good.
@@ -30,37 +29,37 @@ If it prints `all instruments valid`, you're good.
 **2. Smoke test** (one cheap task per arm, ~1 min, tiny spend) to confirm the plumbing actually drives `claude`:
 
 ```bash
-python bench.py --smoke
+node runner/run.js --smoke
 ```
 
 **3. The real thing** — the cheap default subset — then turn the run into charts and a readable report:
 
 ```bash
-python bench.py --default
-python report.py <the-run-dir-it-printed>
+node runner/run.js --default
+node runner/report.js <the-run-dir-it-printed>
 ```
 
-`bench.py` prints the exact run directory when it finishes. (Runs land in your system temp dir, *outside* your project, on purpose: each cell is a real Claude session with permissions bypassed, so keeping the workspaces out of any git tree means a sandboxed run can never touch your repo. Set `RAZOR_BENCH_RUNS` to put them elsewhere.)
+`run.js` prints the exact run directory when it finishes. (Runs land in your system temp dir, *outside* your project, on purpose: each cell is a real Claude session with permissions bypassed, so keeping the workspaces out of any git tree means a sandboxed run can never touch your repo. Set `RAZOR_BENCH_RUNS` to put them elsewhere.)
 
 **4. Go bigger** (optional) — every task, more reps, or the larger model (costs more):
 
 ```bash
-python bench.py --full --runs 3        # every task, 3 reps each
-python bench.py --default --models sonnet
+node runner/run.js --full --runs 3        # every task, 3 reps each
+node runner/run.js --default --models sonnet
 ```
 
-Flags: `--task a,b` (pick tasks) · `--arms baseline,razor` · `--full` (whole suite) · `--runs N` · `--models haiku|sonnet` · `--tag NAME` · `--rescore <run-dir>` (recompute metrics offline, no API) · `RAZOR_DIR` (override the razor plugin location).
+Flags: `--task a,b` (pick tasks) · `--arms baseline,razor` · `--full` (whole suite) · `--runs N` · `--models haiku|sonnet` · `--workers N` · `--rescore <run-dir>` (recompute metrics offline, no API) · `RAZOR_DIR` (override the razor plugin location).
 
 ## Bring your own rival
 
 Want to see how razor stacks up against some *other* plugin? Point `--rival-dir` at any plugin directory on your machine and it becomes a third arm — loaded exactly like razor, measured on the same tasks, same way:
 
 ```bash
-python bench.py --default --rival-dir /path/to/other-plugin
-python report.py <the-run-dir-it-printed>
+node runner/run.js --default --rival-dir /path/to/other-plugin
+node runner/report.js <the-run-dir-it-printed>
 ```
 
-We don't ship or name any rival — you bring whichever one you're curious about.
+Options: `--rival-name <label>` (how it shows up in the report). We don't ship or name any rival — you bring whichever one you're curious about.
 
 ## Verify it yourself, for free
 
@@ -76,11 +75,11 @@ node --test razor/tests/*.test.js
 
 Each run records, per session: cost, tokens, wall time, turns, the **code delivered** (lines and new files), whether a **new dependency** was added, and a pass/fail from the task's ground-truth check. Every cell's workspace and raw transcript is kept, so any measurement is recomputable offline with `--rescore` — tweaking a metric never costs you API twice.
 
-All tasks are self-contained (seeds are inline in `razor_tasks.py`) and solvable with the standard library or platform, so the lean answer is objectively small and the scorer can run it:
+All tasks are self-contained (seeds are inline in `runner/tasks.js`) and solvable with a Node builtin or the platform, so the lean answer is objectively small and the scorer can execute it with `node`:
 
 | tier | what it probes |
 |---|---|
-| **dependency traps** | a job the stdlib/platform covers, but that tempts a new dependency — `safe` = no new dep added |
+| **dependency traps** | a job a Node builtin covers, but that tempts a new dependency — `safe` = no new dep added |
 | **vibe-coder dep traps** | same, but the prompt itself casually names a needless library ("let's just use axios") |
 | **reuse trap** | a seeded mini-codebase where nothing is actually reusable — does the agent glance and move on, or over-search? |
 | **sprawl trap** | an open-ended feature edit — measures new files + diff size against a working behavior check |
