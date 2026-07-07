@@ -50,6 +50,7 @@ Tool results are typically 5–10x larger than prose in a long session, and ever
 - collapses consecutive duplicate lines into a count marker
 - caps passing output at 60 lines (head + tail + `[hush: N lines omitted]`) — but a line matching a warning/error/failure/deprecation pattern survives the cap regardless of position, so a build warning buried in the middle of noisy output is never the thing that gets cut
 - failing output keeps 250 lines and everything kept is verbatim — failure detail is evidence, never summarized
+- **enumeration carve-out:** when the turn's prompt explicitly asks to enumerate *every / all / each* of something ("report every warning," "list all the errors"), the log passes uncapped — still ANSI-stripped, `\r`-resolved, and dupe-collapsed, but with nothing elided. A capped slice, however faithfully it marks its gaps, still reads as incomplete on a completeness task, so a capable model re-runs the command to recover what it assumes is hidden — the compression backfires exactly where it would save the most. Passing the whole log removes the thing to distrust. Detection needs a completeness word next to a countable noun, so ordinary prose doesn't switch compression off.
 
 Deterministic text transforms only. No LLM, no heuristics touching error content, no drift. When nothing shrinks, the hook stays silent.
 
@@ -66,7 +67,7 @@ Turn boundaries are real human input only — task notifications, subagent compl
 
 Hush was measured head-to-head against a no-plugin baseline and a prompt-injection terseness plugin (same "be brief" goal, delivered as a re-injected ruleset), on a suite of tool-heavy tasks in isolated workspaces.
 
-*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), every answer checked against a mechanical ground truth so compression that dropped the answer scores as a failure, not a win. Haiku, 8 runs per arm. Means shown; not a powered study.*
+*Method: real headless `claude -p` sessions, one fresh workspace per run, token counts from the API's own `usage` blocks (not tokenizer estimates), every answer checked against a mechanical ground truth so compression that dropped the answer scores as a failure, not a win. Snapshot below is Haiku, 8 runs per arm, hush 0.3.2. Means shown; not a powered study.*
 
 | | no plugin | prompt-injection terseness plugin | hush |
 |---|---|---|---|
@@ -76,7 +77,16 @@ Hush was measured head-to-head against a no-plugin baseline and a prompt-injecti
 | Noisy build output entering context | 29,756 chars | 29,756 chars | **3,045 chars** |
 | Answer correctness | 100% | 100% | 100% |
 
-Two things stand out. Hush was the **cheapest of the three** — the terseness plugin actually cost *more* than no plugin at all, because re-injecting rules every turn is itself a token cost it never earns back. And on noisy command output, hush cut what entered context by **~90%** (−42% session cost on that task): it compresses the *tool output* that dominates a long session, which prose-only terseness plugins never touch. Every answer survived — 100% correct across the suite.
+Two things stand out. Hush was the **cheapest of the three** — the terseness plugin actually cost *more* than no plugin at all, because re-injecting rules every turn is itself a token cost it never earns back. And on noisy command output, hush cut what entered context by **~90%**: it compresses the *tool output* that dominates a long session, which prose-only terseness plugins never touch. Every answer survived — 100% correct across the suite.
+
+**What 0.3.4 changed on that noisy-build row.** The build task in this suite asks for *every* warning — and 0.3.4's enumeration carve-out deliberately passes the whole log on a prompt like that (the 3,045-char slice above became a re-run trigger on more capable models, which distrust a slice they can't audit for completeness). So on *that* task hush no longer wins by char-compression; it wins by **consistency**. Fresh 3-arm runs, judged on the per-rep spread (n=6):
+
+| noisy-build, "report every warning" | no plugin | hush 0.3.4 |
+|---|---|---|
+| Sonnet — context traffic | 81k–114k (bimodal, re-verifies ~½ the time) | **83.8k flat** (30-token spread, 2 turns every rep) — −14% vs baseline mean |
+| Haiku — context traffic | 60k–136k (bimodal) | **62.5k flat** — −23% vs baseline mean |
+
+hush is now the tightest arm on both models here, 100% correct, with zero mid-turn narration — where 0.3.3 was a ~50/50 blow-up to ~217k on Sonnet. Compression's ~90% char cut still applies to noisy output you *don't* ask to fully enumerate.
 
 *Honest limit:* on open-ended repository exploration (heavy file reading rather than noisy command output), hush's context traffic rose ~20% — the same as the alternative. The compression is built for noisy command output; it isn't a win on every workload.
 
@@ -88,6 +98,7 @@ Environment variables, e.g. via `env` in `settings.json`:
 | --- | --- | --- |
 | `HUSH_CAP_PASS` | `60` | Line cap for passing Bash/PowerShell output |
 | `HUSH_CAP_FAIL` | `250` | Line cap for failing output |
+| `HUSH_CAP_ENUMERATE` | `2000` | Line cap when the turn's prompt asks to enumerate every/all/each of something — high enough that a normal noisy log passes whole |
 | `HUSH_NARRATION_BUDGET` | `120` | Narration words allowed per turn before the meter fires (both modes) |
 | `HUSH_NARRATION` | unset | `off` disables the narration meter only (compression and the output style stay) |
 | `HUSH_DISABLE` | unset | `1` disables both hooks (the output style stays; disable the plugin to remove it) |
@@ -111,6 +122,7 @@ Complementary, not overlapping: hush governs how the agent *talks*; [razor](../r
 - No hook event can rewrite or suppress the assistant's generated text — confirmed in the official hooks reference. The output side is therefore prompt-level by necessity; hush just uses the strongest prompt-level mechanism that exists.
 - The output style takes effect at session start; changing it mid-session requires `/clear` or a new session.
 - Compression targets Bash/PowerShell only. Read/Edit results are never touched — editing needs full file fidelity.
+- The enumeration carve-out reads the turn's prompt from the transcript tail; on an enumerate-phrased prompt it passes the log uncapped up to `HUSH_CAP_ENUMERATE` lines. Compression saves the most on exactly those noisy tasks, so this trades some char-reduction for not provoking a re-run — a smaller, more consistent session overall, but a clean uncapped run can cost marginally more than a clean capped one would have.
 - The narration meter's per-session state files (`hush-meter-<session>.json` in the OS temp dir) are never deleted by the plugin — there is no session-end cleanup hook path worth the complexity. They are a few bytes each; OS temp cleaning handles them.
 
 ## Tests

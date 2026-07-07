@@ -7,6 +7,7 @@
 // kept is verbatim.
 
 const fs = require("fs");
+const { lastUserPromptText } = require("./lib/transcript");
 
 const WATCHED_TOOLS = new Set(["Bash", "PowerShell"]);
 
@@ -14,6 +15,11 @@ const WATCHED_TOOLS = new Set(["Bash", "PowerShell"]);
 // logs); failing output is evidence, so it keeps ~4x more.
 const CAP_PASS = intEnv("HUSH_CAP_PASS", 60);
 const CAP_FAIL = intEnv("HUSH_CAP_FAIL", 250);
+// Enumeration carve-out cap (see requestsEnumeration). Large enough that a
+// normal noisy build/log passes whole — no omission markers at all — so a model
+// asked to report EVERY item has nothing elided to distrust. Still bounded, so
+// a pathological megaline dump can't blow context.
+const CAP_ENUMERATE = intEnv("HUSH_CAP_ENUMERATE", 2000);
 
 function intEnv(name, fallback) {
   const n = parseInt(process.env[name] || "", 10);
@@ -133,9 +139,42 @@ function isFileDump(command) {
   return typeof command === "string" && FILE_DUMP_RE.test(command.trim());
 }
 
-function compress(text, exitCode, isDump) {
+// When the user's prompt explicitly asks to enumerate EVERY / ALL / EACH of
+// some countable thing (warnings, errors, files, items, ...), a capped slice —
+// even one whose omission markers promise "no signal cut" — still reads as
+// incomplete: the model can't audit a completeness claim it can't see the whole
+// of, so (on the stronger models especially) it re-runs the command to a file
+// and greps to recover what it assumes is hidden, and each extra turn re-sends
+// full context — the compression backfires exactly on the noisy task where it
+// would save the most. On these prompts we skip the cap (raise it to
+// CAP_ENUMERATE): the log still gets ANSI-stripped, \r-resolved, and
+// dupe-collapsed, but nothing is elided, so there is nothing to distrust.
+// Two shapes: a completeness quantifier near a countable noun ("every warning",
+// "all of the errors"), or a bare enumeration verb + that noun ("list the
+// files"). Kept tight — a countable noun is required — so ordinary prose
+// ("explore the whole repo") doesn't disable compression wholesale.
+const ENUM_NOUN =
+  "warn(?:ing)?s?|errors?|failures?|deprecat\\w*|issues?|items?|entr(?:y|ies)|" +
+  "lines?|occurrences?|matches|results?|files?|records?|rows?|messages?|" +
+  "violations?|findings?|instances?|columns?|tests?";
+const ENUM_QUANTIFIED = new RegExp(
+  `\\b(?:every|each|all|complete|full|entire|exhaustive)\\b[^.?!\\n]{0,30}?\\b(?:${ENUM_NOUN})\\b`,
+  "i"
+);
+const ENUM_VERB = new RegExp(`\\b(?:list|enumerate)\\b[^.?!\\n]{0,20}?\\b(?:${ENUM_NOUN})\\b`, "i");
+
+function requestsEnumeration(prompt) {
+  if (typeof prompt !== "string" || !prompt) return false;
+  return ENUM_QUANTIFIED.test(prompt) || ENUM_VERB.test(prompt);
+}
+
+function compress(text, exitCode, isDump, enumerate) {
   const cleaned = resolveCarriageReturns(stripAnsi(String(text)));
-  const cap = isDump || looksLikeFailure(cleaned, exitCode) ? CAP_FAIL : CAP_PASS;
+  const cap = enumerate
+    ? CAP_ENUMERATE
+    : isDump || looksLikeFailure(cleaned, exitCode)
+      ? CAP_FAIL
+      : CAP_PASS;
   const lines = capLines(dedupeConsecutive(cleaned.split("\n")), cap);
   return lines.join("\n");
 }
@@ -156,10 +195,13 @@ function main() {
 
   const response = data.tool_response;
   const isDump = isFileDump(data.tool_input && data.tool_input.command);
+  // One transcript tail-read per hook fire: does the turn's human prompt ask to
+  // enumerate everything? If so, this output passes uncapped (see compress).
+  const enumerate = requestsEnumeration(lastUserPromptText(data.transcript_path));
   let updated;
 
   if (typeof response === "string") {
-    const out = compress(response, undefined, isDump);
+    const out = compress(response, undefined, isDump, enumerate);
     if (out !== response) updated = out;
   } else if (response && typeof response === "object") {
     const exitCode = extractExitCode(response);
@@ -167,7 +209,7 @@ function main() {
     let changed = false;
     for (const field of ["stdout", "stderr", "output"]) {
       if (typeof next[field] === "string") {
-        const out = compress(next[field], exitCode, isDump);
+        const out = compress(next[field], exitCode, isDump, enumerate);
         if (out !== next[field]) {
           next[field] = out;
           changed = true;
@@ -199,5 +241,6 @@ module.exports = {
   omittedMarker,
   looksLikeFailure,
   isFileDump,
+  requestsEnumeration,
   compress,
 };

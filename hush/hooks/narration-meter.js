@@ -13,15 +13,12 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { readTailLines, isRealUserPrompt } = require("./lib/transcript");
 
 const BUDGET = (() => {
   const n = parseInt(process.env.HUSH_NARRATION_BUDGET || "", 10);
   return Number.isFinite(n) && n >= 0 ? n : 120;
 })();
-
-// Deliberately simple: fixed 1MB tail window — a single turn larger than that undercounts
-// its narration, which only delays the fire. Raise if that ever bites.
-const TAIL_BYTES = 1024 * 1024;
 
 function readInput() {
   try {
@@ -29,42 +26,6 @@ function readInput() {
   } catch {
     return {};
   }
-}
-
-// Runs on every tool call in long sessions, so never read the whole
-// transcript — only the tail window, dropping the leading partial line.
-function readTailLines(file) {
-  const fd = fs.openSync(file, "r");
-  try {
-    const size = fs.fstatSync(fd).size;
-    const start = Math.max(0, size - TAIL_BYTES);
-    const buf = Buffer.alloc(size - start);
-    fs.readSync(fd, buf, 0, buf.length, start);
-    let lines = buf.toString("utf-8").split("\n");
-    if (start > 0) lines = lines.slice(1);
-    return lines.filter((l) => l.trim());
-  } finally {
-    fs.closeSync(fd);
-  }
-}
-
-function isRealUserPrompt(entry) {
-  if (entry.type !== "user" || entry.isSidechain) return false;
-  // Harness-injected continuations look like fresh user turns but aren't:
-  // task-notification entries carry origin.kind === "task-notification", and
-  // ScheduleWakeup firings carry isMeta === true with no origin at all. Only
-  // origin.kind === "human" (or its absence, for older transcripts) is a turn
-  // boundary a person actually typed.
-  if (entry.isMeta) return false;
-  if (entry.origin && entry.origin.kind !== "human") return false;
-  const content = entry.message?.content;
-  if (typeof content === "string") return true;
-  if (Array.isArray(content)) {
-    // Tool results come back as type:"user" lines; a real prompt has text
-    // items and no tool_result items.
-    return content.some((c) => c.type === "text") && !content.some((c) => c.type === "tool_result");
-  }
-  return false;
 }
 
 function assistantTextBlocks(entry) {

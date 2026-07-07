@@ -1,7 +1,10 @@
 'use strict';
 
-const { test, describe } = require('node:test');
+const { test, describe, after } = require('node:test');
 const assert = require('node:assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const { runHook, hookOutput } = require('./helpers');
 const {
   stripAnsi,
@@ -10,6 +13,7 @@ const {
   capLines,
   looksLikeFailure,
   isFileDump,
+  requestsEnumeration,
   compress,
 } = require('../hooks/compress-tool-output');
 
@@ -128,6 +132,40 @@ describe('unit: transforms', () => {
     const asDump = compress(big, 0, true).split('\n').length;
     assert.ok(asDump > asLog, `dump cap ${asDump} should be looser than log cap ${asLog}`);
   });
+
+  test('requestsEnumeration fires on quantifier + countable noun', () => {
+    assert.ok(requestsEnumeration('report every warning the build emits: each warning code and file'));
+    assert.ok(requestsEnumeration('list all files in src'));
+    assert.ok(requestsEnumeration('enumerate the errors'));
+    assert.ok(requestsEnumeration('show me each error code'));
+    assert.ok(requestsEnumeration('give me the complete list of deprecations'));
+  });
+
+  test('requestsEnumeration stays quiet on ordinary prose and non-enumerate tasks', () => {
+    // No carve-out for the other benchmark prompts — compression stays on.
+    assert.strictEqual(requestsEnumeration('Explore this repository and give me an architectural overview'), false);
+    assert.strictEqual(requestsEnumeration('Investigate logs/app.log and tell me the root cause of the outage'), false);
+    assert.strictEqual(requestsEnumeration('Update the whole repo accordingly and verify with node --test'), false);
+    assert.strictEqual(requestsEnumeration('give me a full overview'), false); // quantifier, no countable noun
+    assert.strictEqual(requestsEnumeration(''), false);
+    assert.strictEqual(requestsEnumeration(undefined), false);
+  });
+
+  test('enumerate=true passes far more of a big passing log than the normal cap', () => {
+    const big = Array.from({ length: 900 }, (_, i) => `[${i}] compile mod_${i} ... ok`).join('\n');
+    const capped = compress(big, 0, false, false).split('\n').length;
+    const carved = compress(big, 0, false, true).split('\n').length;
+    assert.ok(capped <= 61, `normal pass cap should hold (${capped})`);
+    assert.ok(carved > capped * 5, `enumerate should keep far more (${carved} vs ${capped})`);
+  });
+
+  test('enumerate=true leaves no omission markers when the log fits the enumerate cap', () => {
+    const lines = Array.from({ length: 900 }, (_, i) => `[${i}] compile mod_${i} ... ok`);
+    lines[41] = 'WARN W1042 deprecated-api used in src/legacy/adapter.js';
+    const carved = compress(lines.join('\n'), 0, false, true);
+    assert.doesNotMatch(carved, /lines omitted/, 'nothing should be elided under the enumerate cap');
+    assert.ok(carved.includes(lines[41]), 'the warning survives');
+  });
 });
 
 describe('hook: end to end', () => {
@@ -193,5 +231,74 @@ describe('hook: end to end', () => {
     });
     assert.strictEqual(r.status, 0);
     assert.strictEqual(r.stdout.trim(), '');
+  });
+});
+
+describe('hook: enumeration carve-out (transcript-driven)', () => {
+  const dirs = [];
+  after(() => {
+    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  // A transcript whose last real human prompt is `prompt`.
+  function transcriptWith(prompt) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-carveout-'));
+    dirs.push(dir);
+    const file = path.join(dir, 't.jsonl');
+    const entry = JSON.stringify({
+      type: 'user',
+      uuid: 'u1',
+      origin: { kind: 'human' },
+      message: { role: 'user', content: prompt },
+    });
+    fs.writeFileSync(file, entry + '\n');
+    return file;
+  }
+
+  // Mirror the real fixture: long, with periodic consecutive-dupe noise so the
+  // hook always emits (dedupe changes the text) even under the enumerate cap.
+  const bigLog = (() => {
+    const out = [];
+    for (let i = 0; i < 900; i++) {
+      out.push(`[${i}] compile mod_${i} ... ok`);
+      if (i % 8 === 0) { out.push('note: deferred'); out.push('note: deferred'); out.push('note: deferred'); }
+    }
+    return out.join('\n');
+  })();
+
+  test('an enumerate prompt passes the whole log — no omission markers', () => {
+    const file = transcriptWith('Run the build and report every warning: each warning code and file.');
+    const r = runHook('compress-tool-output.js', {
+      tool_name: 'Bash',
+      transcript_path: file,
+      tool_input: { command: 'node build.js' },
+      tool_response: bigLog,
+    });
+    const updated = hookOutput(r).hookSpecificOutput.updatedToolOutput;
+    assert.doesNotMatch(updated, /lines omitted/);
+    assert.ok(updated.split('\n').length > 800, 'the full log should survive (dupes collapsed, nothing elided)');
+  });
+
+  test('a non-enumerate prompt still gets the normal cap with markers', () => {
+    const file = transcriptWith('Run the build and tell me if it succeeded.');
+    const r = runHook('compress-tool-output.js', {
+      tool_name: 'Bash',
+      transcript_path: file,
+      tool_input: { command: 'node build.js' },
+      tool_response: bigLog,
+    });
+    const updated = hookOutput(r).hookSpecificOutput.updatedToolOutput;
+    assert.match(updated, /\[hush: \d+ lines omitted, none with warnings\/errors\/failures\]/);
+    assert.ok(updated.split('\n').length <= 61);
+  });
+
+  test('no transcript_path falls back to normal compression (fail-safe)', () => {
+    const r = runHook('compress-tool-output.js', {
+      tool_name: 'Bash',
+      tool_input: { command: 'node build.js' },
+      tool_response: bigLog,
+    });
+    const updated = hookOutput(r).hookSpecificOutput.updatedToolOutput;
+    assert.match(updated, /lines omitted/);
   });
 });
