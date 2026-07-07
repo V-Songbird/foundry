@@ -42,7 +42,7 @@ You can also ask for it explicitly with `/verity:ground-truth`.
 
 ## Under the hood
 
-If you're curious: for official docs, Claude pulls the current page straight from the source as plain text — no cached copies, no scraping. For the undocumented in-session tools, it reads a bundled reference built from watching those tools directly. Either way, the answer ends with a citation so you always know where it came from.
+If you're curious, it fetches the live doc page straight from the source (and reads a small bundled reference for the undocumented tools) — always ending with a link so you can check.
 
 ## Good to know
 

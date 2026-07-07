@@ -41,7 +41,7 @@ You talk to Foreman in plain language — you never edit the roadmap file by han
 
 ## Under the hood
 
-If you're curious: Foreman keeps a plain-language roadmap file in your repository — one line per task, with why it matters, what it touches, and which commit finished it — and turns any task into a complete, self-contained prompt for a fresh Claude session, so the new session can do good work without your current one in the room. That's the whole idea; the field-by-field details live in [`roadmap-schema.md`](roadmap-schema.md) if you ever want them.
+If you're curious, the roadmap is just a plain file in your repo — the field-by-field details live in [`roadmap-schema.md`](roadmap-schema.md) if you ever want them.
 
 ## License
 

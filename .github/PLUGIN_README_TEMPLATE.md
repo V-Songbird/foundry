@@ -68,10 +68,12 @@ Inside Claude Code, run:
 
 ## Under the hood
 
-<!-- ONE short "if you're curious" paragraph, plain language — the single most interesting idea,
-     not a mechanism catalogue. If it pairs with a sibling plugin, add one line here
-     ("Pairs naturally with [<sibling>](../<sibling>): …"). If deep detail exists, point to it
-     ("the field-by-field details live in `<doc>.md` if you ever want them"). -->
+<!-- ONE short "if you're curious" SENTENCE, plain language — do NOT enumerate or explain the
+     mechanisms (a curious coder reads the plugin's files; a non-coder doesn't care). Point to
+     the code / a schema doc, and add the "pairs with" cross-link if there is a sibling plugin:
+     "If you're curious, <one-line gist> — it's all there to read in the plugin's files. Pairs
+     naturally with [<sibling>](../<sibling>): …". If the whole section would just repeat "What
+     is this?", drop it. -->
 
 ## Settings
 

@@ -42,9 +42,7 @@ It's active from your next session — nothing to configure. To use it, type `/f
 
 ## Under the hood
 
-If you're curious: instead of one assistant guessing at everything, forge sends a small team of specialists at your project at once — each looking from a different angle, like architecture, security, and testing — then folds what they find into a single plan. A separate "critic" then reads that plan against your real code and tries to poke holes in it, so weak spots get fixed before you ever see the plan, not after the code ships.
-
-Pairs naturally with [razor](../razor) and [hush](../hush): forge governs how Claude *plans*, razor what it *builds*, hush how it *talks*.
+If you're curious, forge works by sending a small team of specialists at your plan from different angles, then letting a critic try to break it before you ever see it. Pairs naturally with [razor](../razor) and [hush](../hush): forge governs how Claude *plans*, razor what it *builds*, hush how it *talks*.
 
 ## License
 

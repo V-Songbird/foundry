@@ -50,9 +50,7 @@ And it never cut a corner to do it: **every job still came out correct.**
 
 ## Under the hood
 
-If you're curious: razor drops a short "don't over-build" checklist into Claude once per session (and into the helper agents that write code, but not the read-only ones). Then it backs the checklist with a few light touches — it pauses the first time Claude tries to install a new package (and shows what the project already has), the first time it creates a pile of new files at once, and at the end of a session that grew a lot with nothing deleted. Each fires at most once, and the retry always passes.
-
-Pairs naturally with [hush](../hush): hush governs how Claude *talks*, razor governs what it *builds*.
+If you're curious, it's all a handful of gentle, one-time nudges — never a nag, never a wall — and it's all there to read in the plugin's files. Pairs naturally with [hush](../hush): hush governs how Claude *talks*, razor governs what it *builds*.
 
 ## Settings
 

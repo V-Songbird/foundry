@@ -54,9 +54,7 @@ And the part that matters most: **nothing broke.** Every task still came out cor
 
 ## Under the hood
 
-If you're curious: hush works in three quiet ways — a built-in "be brief" style baked into the setup once (not re-sent every turn), automatic cleanup of noisy command output before it reaches Claude, and a gentle check that keeps mid-task narration down. All boring and deterministic by design.
-
-Pairs naturally with [razor](../razor): hush governs how Claude *talks*, razor governs what it *builds*.
+If you're curious, hush just works quietly in the background — nothing is re-sent every turn to run up your bill — and it's all there to read in the plugin's files. Pairs naturally with [razor](../razor): hush governs how Claude *talks*, razor governs what it *builds*.
 
 ## Settings
 

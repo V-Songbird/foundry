@@ -41,7 +41,7 @@ That's it — it starts working the moment a JetBrains IDE is open.
 
 ## Under the hood
 
-If you're curious: whenever a JetBrains IDE is running, jetbrains-router quietly points Claude's file reads, searches, and error checks at the IDE instead of the raw disk. If the IDE isn't open or can't be reached, it steps aside and Claude works the normal way — you never have to think about it.
+If you're curious, it simply points Claude's reads, searches, and error checks at your running IDE — and steps aside automatically when no IDE is open, so you never have to think about it.
 
 ## Good to know
 
