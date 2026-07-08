@@ -41,7 +41,7 @@
 Inside Claude Code, run:
 
 ```
-/plugin marketplace add V-Songbird/claude-plugins
+/plugin marketplace add V-Songbird/foundry
 /plugin install <plugin>
 ```
 

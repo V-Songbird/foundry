@@ -101,7 +101,7 @@ function main() {
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
       additionalContext:
-        `[claude-plugins] node --test ${pluginName}/tests/ failed after this edit to ${edited}. ` +
+        `[foundry] node --test ${pluginName}/tests/ failed after this edit to ${edited}. ` +
         `${stats} Run \`node --test "${testGlob(pluginRoot)}"\` for the full trace before moving on.`,
     },
   };

@@ -43,7 +43,7 @@ function main() {
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
       additionalContext:
-        `[claude-plugins] ${filePath} was just edited. Run the manifest-curator agent (audit mode) before ` +
+        `[foundry] ${filePath} was just edited. Run the manifest-curator agent (audit mode) before ` +
         `moving on -- it catches schema violations, version/author drift between marketplace.json and this ` +
         `plugin's own plugin.json, and strict-mode conflicts that are easy to miss by eye.`,
     },

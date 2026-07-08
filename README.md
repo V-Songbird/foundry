@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="V-Songbird" width="240" />
-  <h1>claude-plugins</h1>
-  <p><strong>Claude Code plugins by Songbird</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
+  <img src="assets/logo.svg" alt="foundry" width="240" />
+  <h1>foundry</h1>
+  <p><strong>Claude Code plugins by Victor Villegas</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
 </div>
 
 ---
@@ -17,7 +17,7 @@ This is a small, curated collection. Each plugin does one job well, works on its
 Inside Claude Code, run:
 
 ```
-/plugin marketplace add V-Songbird/claude-plugins
+/plugin marketplace add V-Songbird/foundry
 /plugin install <plugin-name>
 ```
 
@@ -93,7 +93,7 @@ hush and razor are natural partners: hush governs how Claude *talks*, razor gove
 ## Repository layout
 
 ```
-claude-plugins/
+foundry/
 ├── foreman/
 ├── forge/
 ├── hush/
@@ -121,7 +121,7 @@ only for edits made inside the source tree itself.
 
 ## Community
 
-- Bug reports and suggestions: [GitHub Issues](https://github.com/V-Songbird/claude-plugins/issues)
+- Bug reports and suggestions: [GitHub Issues](https://github.com/V-Songbird/foundry/issues)
 - Security reports: [SECURITY.md](./SECURITY.md)
 - Contribution guidelines: [CONTRIBUTING.md](./CONTRIBUTING.md)
 

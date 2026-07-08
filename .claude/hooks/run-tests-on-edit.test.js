@@ -33,7 +33,7 @@ function runHook(payload, env) {
 
 /** Build a throwaway repo root with one fake plugin folder (marked via .claude-plugin/plugin.json). */
 function makeFakeRepo() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-plugins-hook-'));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'foundry-hook-'));
   const pluginRoot = path.join(root, 'demo-plugin');
   fs.mkdirSync(path.join(pluginRoot, '.claude-plugin'), { recursive: true });
   fs.writeFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), '{"name":"demo-plugin"}', 'utf-8');
@@ -64,7 +64,7 @@ describe('findPluginRoot', () => {
   });
 
   test('does not match without a .claude-plugin/plugin.json marker', () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-plugins-hook-'));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'foundry-hook-'));
     try {
       const notAPlugin = path.join(root, 'not-a-plugin');
       fs.mkdirSync(path.join(notAPlugin, 'scripts'), { recursive: true });

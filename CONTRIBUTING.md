@@ -46,7 +46,7 @@ are copied from this repo's `.github/` templates
 [`PLUGIN_SECURITY_TEMPLATE.md`](.github/PLUGIN_SECURITY_TEMPLATE.md),
 [`PLUGIN_CODE_OF_CONDUCT_TEMPLATE.md`](.github/PLUGIN_CODE_OF_CONDUCT_TEMPLATE.md))
 verbatim; don't hand-drift a plugin's copy from the template. The root
-copies of these files here in claude-plugins govern contributions to the
+copies of these files here in foundry govern contributions to the
 marketplace repo itself (manifest curation, templates, this document).
 
 Every plugin README shares one skeleton, tone, and style. Start from

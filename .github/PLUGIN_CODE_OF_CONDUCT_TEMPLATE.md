@@ -1,7 +1,7 @@
 <!--
   Shared CODE_OF_CONDUCT.md template for standalone plugin repos.
   Copy this into <plugin>/CODE_OF_CONDUCT.md and delete this comment block. No placeholders
-  to fill — identical across every plugin, including claude-plugins itself.
+  to fill — identical across every plugin, including foundry itself.
 -->
 
 # Code of conduct

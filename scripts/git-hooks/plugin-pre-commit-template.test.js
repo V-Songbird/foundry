@@ -16,7 +16,7 @@ const HOOK_PATH = path.join(__dirname, "plugin-pre-commit-template.js");
 const { cleanEnv } = require("./plugin-pre-commit-template");
 
 function makeRepo() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "claude-plugins-pctest-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-pctest-"));
   execSync("git init -q", { cwd: root });
   return root;
 }

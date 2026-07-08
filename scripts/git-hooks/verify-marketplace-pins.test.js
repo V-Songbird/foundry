@@ -19,7 +19,7 @@ describe("verify", () => {
   const { execSync } = require("child_process");
 
   function makeFakeRoot(pluginShas) {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "claude-plugins-pins-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-pins-"));
     const plugins = Object.entries(pluginShas).map(([name, sha]) => {
       const dir = path.join(root, name);
       fs.mkdirSync(dir, { recursive: true });
@@ -52,7 +52,7 @@ describe("verify", () => {
   });
 
   test("flags a plugin whose directory is not checked out at all", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "claude-plugins-pins-missing-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-pins-missing-"));
     const marketplace = { plugins: [{ name: "missing-plugin", source: { source: "url", sha: "b".repeat(40) } }] };
     const problems = verify(root, marketplace);
     assert.equal(problems.length, 1);
@@ -61,7 +61,7 @@ describe("verify", () => {
   });
 
   test("ignores plugins with a non-url source (e.g. a relative path)", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "claude-plugins-pins-relpath-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-pins-relpath-"));
     const marketplace = { plugins: [{ name: "local-plugin", source: "./local-plugin" }] };
     const problems = verify(root, marketplace);
     assert.deepEqual(problems, []);
