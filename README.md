@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="V-Songbird" width="120" />
+  <img src="assets/logo.svg" alt="V-Songbird" width="240" />
   <h1>claude-plugins</h1>
   <p><strong>Claude Code plugins by Songbird</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
 </div>
