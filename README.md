@@ -53,7 +53,7 @@ Foreman keeps a living task list (`ROADMAP.jsonl`) inside your project: why each
 
 ### [hush](https://github.com/V-Songbird/hush) — Less chatter, lower cost
 
-Claude can be talkative: progress narration, previews of what it's about to do, walls of command output. Hush trims all of it at the harness level — a forced output style (silence while working, one clear summary at the end), automatic compression of noisy command output before it eats your context window, and a meter that catches mid-turn rambling the moment it starts. Sessions get cheaper and easier to read.
+Claude can be talkative: progress narration, previews of what it's about to do, walls of command output. Hush trims all of it at the harness level — a forced output style (silence while working, one clear summary at the end), automatic compression of noisy command output and bulky log files before they eat your context window, and a meter that catches mid-turn rambling the moment it starts. Sessions get cheaper and easier to read.
 
 ```
 /plugin install hush
@@ -108,14 +108,10 @@ Every plugin lives in its own repo, mounted here as a git submodule (see [`.gitm
 
 ## Development
 
-`.claude/settings.json` (committed) registers one repo-wide dev hook:
-`.claude/hooks/run-tests-on-edit.js` reruns whichever plugin's own test
-suite after an `Edit`/`Write` lands in that plugin's `scripts/` or `hooks/`
-dir — detected by walking up to the nearest `.claude-plugin/plugin.json`
-marker, so it works for any plugin in this repo, not just one. Silent when
-green; surfaces a failure via `additionalContext` when red. Dev-only: it
-never fires for anyone who has merely *installed* a plugin from this repo,
-only for edits made inside the source tree itself.
+`.claude/settings.json` (committed) registers two repo-wide dev hooks, both dev-only — neither fires for anyone who has merely *installed* a plugin from this repo, only for edits made inside the source tree itself:
+
+- `.claude/hooks/run-tests-on-edit.js` reruns whichever plugin's own test suite after an `Edit`/`Write` lands in that plugin's `scripts/` or `hooks/` dir — detected by walking up to the nearest `.claude-plugin/plugin.json` marker, so it works for any plugin in this repo, not just one. Silent when green; surfaces a failure via `additionalContext` when red.
+- `.claude/hooks/nudge-manifest-curator.js` nudges a follow-up `manifest-curator` audit after an `Edit`/`Write` lands in `.claude-plugin/marketplace.json` or any plugin's `.claude-plugin/plugin.json` — manifest edits are easy to get subtly wrong (stale author info, version drift, schema violations), so a check only helps if something actually reminds you to run it.
 
 ---
 
