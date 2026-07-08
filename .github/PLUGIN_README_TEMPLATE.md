@@ -15,6 +15,11 @@
     (schemas, hook internals, exhaustive config), comparison tables, and any "Tests" section
     (testing lives in CONTRIBUTING.md). Deep detail stays in the code / a linked schema doc.
   - Sections marked (optional) may be dropped when they don't apply.
+  - For a caveat that deserves visual weight (an honest limit, a non-destructive guarantee),
+    use a GitHub alert (`> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`) instead of an italic aside —
+    matches how the plain-language sections already read at a skim. Sparingly: 1-2 per README.
+    Reserve `[!WARNING]`/`[!CAUTION]` for real risk (data loss, a destructive command) — a cost
+    or scope caveat is a `[!NOTE]`, not a warning.
 -->
 
 <div align="center">
@@ -62,9 +67,9 @@ Inside Claude Code, run:
      the README, NOT a lab report. Shape: friendly framing sentence -> one or two simple committed
      SVG bar charts (see hush/razor assets/bench-*.svg — a non-technical reader must get each at a
      glance) -> 2-3 benefit bullets in everyday terms (cost, "0 words", "never broke") -> a plain
-     "how we tested" line -> one honest limit. Only claim numbers you can defend; never headline an
-     underpowered (n<~6) result. GitHub renders repo SVGs via <img src="assets/..."> (the logo
-     proves it). -->
+     "how we tested" line -> one honest limit, as a `> [!NOTE]` alert (see hush/razor for the
+     pattern). Only claim numbers you can defend; never headline an underpowered (n<~6) result.
+     GitHub renders repo SVGs via <img src="assets/..."> (the logo proves it). -->
 
 ## Under the hood
 
