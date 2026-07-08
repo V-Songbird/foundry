@@ -1,21 +1,25 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "songbird-collection",
-  "description": "A custom marketplace of Claude Code plugins for both experienced developers and vibe coders, extending Claude Code with workflows, commands, and integrations that fit how you actually build.",
+  "name": "songbird",
+  "description": "Claude Code plugins by Songbird — tools that make Claude plan better, talk less, build leaner, and stop guessing.",
   "owner": {
-    "name": "Songbird",
-    "email": "songbird@tuta.com"
+    "name": "Victor Villegas",
+    "email": "victor.villegas@tuta.com"
   },
   "plugins": [
     {
       "name": "forge",
-      "source": "./forge",
-      "description": "Investigates your codebase before you build. Parallel domain experts surface integration points and risks, an adversarial critic stress-tests the plan against real code — nothing gets implemented without your sign-off.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/V-Songbird/forge.git",
+        "sha": "2f489f2db469b7af0dbee13606b45f15fa1bbd9c"
+      },
+      "description": "Investigates your codebase before you build, using parallel domain experts and an adversarial critic to stress-test the plan before anything gets implemented.",
       "version": "1.4.1-alpha",
       "license": "MIT",
       "author": {
-        "name": "Songbird",
-        "email": "songbird@tuta.com"
+        "name": "Victor Villegas",
+        "email": "victor.villegas@tuta.com"
       },
       "homepage": "https://github.com/V-Songbird/forge",
       "repository": "https://github.com/V-Songbird/forge",
@@ -40,13 +44,17 @@
     },
     {
       "name": "verity",
-      "source": "./verity",
-      "description": "Fetches current official Claude Code documentation on demand from code.claude.com — gives Claude truth-grounding from primary sources instead of training memory. Also provides a canonical reference for undocumented host MCP tools (spawn_task, mark_chapter, show_widget, and the full ccd_session and visualize families).",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/V-Songbird/verity.git",
+        "sha": "fadecdd1769be1ff79fd185f77a94134a40ec90c"
+      },
+      "description": "Fetches current official Claude Code documentation on demand, giving Claude truth-grounding from primary sources instead of training memory.",
       "version": "0.1.0-alpha",
       "license": "MIT",
       "author": {
-        "name": "Songbird",
-        "email": "songbird@tuta.com"
+        "name": "Victor Villegas",
+        "email": "victor.villegas@tuta.com"
       },
       "homepage": "https://github.com/V-Songbird/verity",
       "repository": "https://github.com/V-Songbird/verity",
@@ -75,13 +83,17 @@
     },
     {
       "name": "foreman",
-      "source": "./foreman",
-      "description": "Prompt-engineering and project-roadmap plugin for Claude Code. /foreman:craft-prompt assembles self-contained, Anthropic-grade prompts via AskUserQuestion, carrying fixed truth-grounding and scope-discipline blocks plus any project-defined custom sections or section omissions from .foreman/config.json. /foreman:init bootstraps a project's ROADMAP.jsonl and Claude-suggestion policy. /foreman:roadmap picks the next task like a software architect and crafts its handoff prompt. /foreman:survey ground-truths the near-term candidates against the actual codebase, on demand, and persists findings back into the roadmap. A commit-triggered hook keeps roadmap status in sync and, opt-in, asks about newly-discovered opportunities (including already-built scope creep); a second hook blocks direct ROADMAP.jsonl edits, forcing changes through the CLI.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/V-Songbird/foreman.git",
+        "sha": "3582b6bd94dc52224806a720b2d14d18c0bc122f"
+      },
+      "description": "Prompt-engineering and project-roadmap plugin that crafts Anthropic-grade prompts and picks, surveys, and tracks your next tasks.",
       "version": "0.14.4-alpha",
       "license": "MIT",
       "author": {
-        "name": "Songbird",
-        "email": "songbird@tuta.com"
+        "name": "Victor Villegas",
+        "email": "victor.villegas@tuta.com"
       },
       "homepage": "https://github.com/V-Songbird/foreman",
       "repository": "https://github.com/V-Songbird/foreman",
@@ -108,13 +120,17 @@
     },
     {
       "name": "hush",
-      "source": "./hush",
-      "description": "Token-lean sessions at the harness level, not the prompt level. Ships a forced output style that rewires the system prompt itself — no preamble, no play-by-play, one-line verdicts when a diagnosis settles, one outcome-first final message at dev-shorthand density (default to fragments, not broken grammar) — plus a PostToolUse hook that mechanically shrinks Bash/PowerShell output — and log-shaped files pulled in via the Read tool (.log anywhere, .txt/.out under a logs dir; source code never touched) — before it enters context (ANSI/progress-bar strip, duplicate collapse, line caps that always preserve warning/error/failure lines regardless of position and mark each omitted span as signal-free so the model trusts the visible slice instead of re-running to recover what it can't see; failures keep ~4x more, verbatim; and when the turn's prompt explicitly asks to enumerate EVERY/ALL/EACH of something the log passes uncapped so nothing is elided to distrust), a dual-mode narration meter (PostToolUse + Stop) that injects one corrective line the moment mid-turn narration crosses budget — inside the offending turn, at most once per turn — and a /hush:hush-compress skill that shrinks a CLAUDE.md/memory file into the same dev-shorthand voice to cut input tokens every session, writing only to a sibling file (never the original) and mechanically verifying nothing structural was lost. Replaces prompt-injection style plugins: same terseness goal, stronger mechanism, and it also cuts the input-token side they never touch. Tune via HUSH_CAP_PASS, HUSH_CAP_FAIL, HUSH_CAP_ENUMERATE, HUSH_NARRATION_BUDGET; disable the meter alone with HUSH_NARRATION=off, or everything with HUSH_DISABLE=1.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/V-Songbird/hush.git",
+        "sha": "2e48b7f4bedd998e6e32220f06770c2c790c7494"
+      },
+      "description": "Token-lean sessions at the harness level — a terse output style, output-shrinking hooks, and log compression cut both input and output tokens.",
       "version": "0.3.7-alpha",
       "license": "MIT",
       "author": {
-        "name": "Songbird",
-        "email": "songbird@tuta.com"
+        "name": "Victor Villegas",
+        "email": "victor.villegas@tuta.com"
       },
       "homepage": "https://github.com/V-Songbird/hush",
       "repository": "https://github.com/V-Songbird/hush",
@@ -141,13 +157,17 @@
     },
     {
       "name": "razor",
-      "source": "./razor",
-      "description": "YAGNI enforcement at the harness level, not the prompt level. Injects a compact first-rung-that-holds ladder (skip it / reuse it / stdlib / platform / installed dep / one line / minimum that works) into the main thread and — gated by agent type — into code-writing subagents only, so read-only Explore/Plan spawns never pay the injection tax. Backs the prompt with evidence-carrying soft gates: a PreToolUse dependency guard that denies the first install of a new package and lists the project's actual installed dependencies in the reason (the retry passes — one forced reconsideration, never a hard block), a per-turn new-file meter that challenges file sprawl once, then self-clears, and a git-grounded build ledger that asks one question, once per session, when the diff grows large with nothing deleted. Boolean on/off (/razor off), no intensity dial. Pairs with hush: hush governs how the agent talks, razor governs what it builds. Tune via RAZOR_DISABLE, RAZOR_DEP_GUARD, RAZOR_FILE_BUDGET, RAZOR_LEDGER_LOC/FILES, RAZOR_AGENT_SKIP/INJECT.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/V-Songbird/razor.git",
+        "sha": "403a3b258b4865a3f0e61a681af2256c25e91427"
+      },
+      "description": "YAGNI enforcement at the harness level — nudges toward the simplest solution and gates against unnecessary dependencies, file sprawl, and unchecked build growth.",
       "version": "0.2.4-alpha",
       "license": "MIT",
       "author": {
-        "name": "Songbird",
-        "email": "songbird@tuta.com"
+        "name": "Victor Villegas",
+        "email": "victor.villegas@tuta.com"
       },
       "homepage": "https://github.com/V-Songbird/razor",
       "repository": "https://github.com/V-Songbird/razor",
@@ -176,13 +196,17 @@
     },
     {
       "name": "jetbrains-router",
-      "source": "./jetbrains-router",
-      "description": "Makes Claude read, search, and edit through your running JetBrains IDE instead of raw disk access. You get the IDE's live error detection without running builds, reads that see your unsaved editor changes, and searches that skip node_modules and other ignored paths via the project index. Auto-detects which IDE is running (WebStorm, IntelliJ IDEA, Rider, PyCharm, and friends) and fails open — everything works normally when no IDE is up. Requires JetBrains 2025.2+ with the MCP Server enabled. Tune via JETBRAINS_ROUTER_DISABLE, JETBRAINS_ROUTER_BYPASS, JETBRAINS_MCP_PREFIX.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/V-Songbird/jetbrains-router.git",
+        "sha": "933381a074b6969f93e29eb3f8c1dcbbe678663b"
+      },
+      "description": "Routes Claude's reads, searches, and edits through your running JetBrains IDE for live error detection, unsaved-change visibility, and index-aware search.",
       "version": "2.0.0-alpha",
       "license": "MIT",
       "author": {
-        "name": "Songbird",
-        "email": "songbird@tuta.com"
+        "name": "Victor Villegas",
+        "email": "victor.villegas@tuta.com"
       },
       "homepage": "https://github.com/V-Songbird/jetbrains-router",
       "repository": "https://github.com/V-Songbird/jetbrains-router",
