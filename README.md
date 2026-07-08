@@ -27,7 +27,7 @@ The first command registers this collection (once); the second installs whicheve
 
 ## The plugins
 
-### [forge](./forge) — Review the plan before writing the code
+### [forge](https://github.com/V-Songbird/forge) — Review the plan before writing the code
 
 Big features fail for the same reason: a problem nobody spotted until the code was already written. Forge investigates first. Describe what you want to build, and a team of parallel AI experts examines your actual codebase, drafts a plan, and an adversarial critic tries to poke holes in that plan — all **before** a single line is written. Nothing gets implemented without your explicit sign-off.
 
@@ -35,7 +35,7 @@ Big features fail for the same reason: a problem nobody spotted until the code w
 /plugin install forge
 ```
 
-### [verity](./verity) — Real documentation instead of guesses
+### [verity](https://github.com/V-Songbird/verity) — Real documentation instead of guesses
 
 When you ask Claude how Claude Code itself works, it may answer from training memory — which ages badly. Verity makes Claude fetch the current official documentation live and answer from the source, citing the exact page it read. Install and forget; it kicks in whenever a Claude Code question comes up.
 
@@ -43,7 +43,7 @@ When you ask Claude how Claude Code itself works, it may answer from training me
 /plugin install verity
 ```
 
-### [foreman](./foreman) — A roadmap for your project, and better prompts for free
+### [foreman](https://github.com/V-Songbird/foreman) — A roadmap for your project, and better prompts for free
 
 Foreman keeps a living task list (`ROADMAP.jsonl`) inside your project: why each task exists, what it is, its status, and the commits that shipped it. Ask "what's next?" and it picks the best next task like a software architect would — then writes a complete, professional prompt to hand that task to a fresh Claude session. It also builds standalone prompts on demand with `/foreman:craft-prompt`.
 
@@ -51,7 +51,7 @@ Foreman keeps a living task list (`ROADMAP.jsonl`) inside your project: why each
 /plugin install foreman
 ```
 
-### [hush](./hush) — Less chatter, lower cost
+### [hush](https://github.com/V-Songbird/hush) — Less chatter, lower cost
 
 Claude can be talkative: progress narration, previews of what it's about to do, walls of command output. Hush trims all of it at the harness level — a forced output style (silence while working, one clear summary at the end), automatic compression of noisy command output before it eats your context window, and a meter that catches mid-turn rambling the moment it starts. Sessions get cheaper and easier to read.
 
@@ -59,7 +59,7 @@ Claude can be talkative: progress narration, previews of what it's about to do, 
 /plugin install hush
 ```
 
-### [razor](./razor) — Stops Claude from over-building
+### [razor](https://github.com/V-Songbird/razor) — Stops Claude from over-building
 
 AI assistants love to add: a new dependency here, five helper files there, an abstraction "for later". Razor pushes back with a simple ladder — don't build it if it isn't needed, reuse what exists, prefer the standard library — and backs the words with mechanical gates: the first attempt to install a new package is challenged once, with the project's *actual* installed-dependency list right in the message; file sprawl gets questioned before it lands; and a git-grounded ledger asks, once per heavy session, whether all that new code is really needed. Never a hard block; always one forced second thought.
 
@@ -67,7 +67,7 @@ AI assistants love to add: a new dependency here, five helper files there, an ab
 /plugin install razor
 ```
 
-### [jetbrains-router](./jetbrains-router) — Claude works through your JetBrains IDE
+### [jetbrains-router](https://github.com/V-Songbird/jetbrains-router) — Claude works through your JetBrains IDE
 
 If you code in WebStorm, IntelliJ IDEA, Rider, PyCharm, or another JetBrains IDE, your editor already knows things Claude's native tools don't: which files have errors right now (no build needed), what you've typed but not saved, and which paths are worth searching. jetbrains-router redirects Claude's file reads, searches, and edits through the IDE's MCP server whenever the IDE is running — and steps aside completely when it isn't.
 
