@@ -25,6 +25,9 @@ plugin-name/
 ├── CHANGELOG.md           # Keep a Changelog format
 ├── LICENSE                # MIT
 ├── README.md              # plain-language intro first, technical depth after
+├── CONTRIBUTING.md        # copied from .github/PLUGIN_CONTRIBUTING_TEMPLATE.md
+├── SECURITY.md            # copied from .github/PLUGIN_SECURITY_TEMPLATE.md
+├── CODE_OF_CONDUCT.md     # copied from .github/PLUGIN_CODE_OF_CONDUCT_TEMPLATE.md
 ├── skills/                # if the plugin has skills
 │   └── skill-name/
 │       ├── SKILL.md       # Claude Code skill definition
@@ -35,10 +38,16 @@ plugin-name/
 └── tests/                 # required when the plugin has scripted behavior
 ```
 
-`README.md`, `CHANGELOG.md`, and `LICENSE` are required in every plugin.
-Community files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`)
-live once at the repo root and cover all plugins — don't duplicate
-them per plugin.
+Each plugin lives in its own repo (mounted here as a git submodule) and
+carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`,
+`SECURITY.md`, and `CODE_OF_CONDUCT.md` — all required. The community files
+are copied from this repo's `.github/` templates
+([`PLUGIN_CONTRIBUTING_TEMPLATE.md`](.github/PLUGIN_CONTRIBUTING_TEMPLATE.md),
+[`PLUGIN_SECURITY_TEMPLATE.md`](.github/PLUGIN_SECURITY_TEMPLATE.md),
+[`PLUGIN_CODE_OF_CONDUCT_TEMPLATE.md`](.github/PLUGIN_CODE_OF_CONDUCT_TEMPLATE.md))
+verbatim; don't hand-drift a plugin's copy from the template. The root
+copies of these files here in claude-plugins govern contributions to the
+marketplace repo itself (manifest curation, templates, this document).
 
 Every plugin README shares one skeleton, tone, and style. Start from
 [`.github/PLUGIN_README_TEMPLATE.md`](.github/PLUGIN_README_TEMPLATE.md):
