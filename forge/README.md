@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="forge" width="120" />
+  <img src="assets/logo.svg" alt="forge" width="240" />
   <h1>forge</h1>
   <p><em>Stop discovering architectural problems in code review.<br>Surface them before implementation starts.</em></p>
 </div>

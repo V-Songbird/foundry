@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="verity" width="120" />
+  <img src="assets/logo.svg" alt="verity" width="240" />
   <h1>verity</h1>
   <p><strong>Stops Claude from guessing about Claude Code. Makes it look up the real documentation instead.</strong></p>
 </div>

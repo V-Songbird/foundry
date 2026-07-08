@@ -18,7 +18,7 @@
 -->
 
 <div align="center">
-  <img src="assets/logo.svg" alt="<plugin>" width="120" />
+  <img src="assets/logo.svg" alt="<plugin>" width="240" />
   <h1><plugin></h1>
   <p><strong><!-- one-line value prop: what it does FOR THE USER, plain language --></strong></p>
 </div>

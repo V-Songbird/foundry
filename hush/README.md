@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="hush" width="120" />
+  <img src="assets/logo.svg" alt="hush" width="240" />
   <h1>hush</h1>
   <p><strong>Makes Claude quieter and your sessions cheaper — less narration, less noise, one clear answer at the end.</strong></p>
 </div>
