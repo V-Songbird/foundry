@@ -1,0 +1,25 @@
+name: Validate marketplace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: marketplace.json must be valid JSON
+        run: node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json', 'utf-8'))"
+
+      - name: every plugin's source.sha must match its submodule's checked-out commit
+        run: node scripts/git-hooks/verify-marketplace-pins.js
