@@ -64,12 +64,25 @@ Inside Claude Code, run:
 
 <!-- (optional — razor/hush only, or any plugin with REAL head-to-head data; drop it entirely
      rather than inventing numbers.) A MARKETING SHOWCASE in the same friendly voice as the top of
-     the README, NOT a lab report. Shape: friendly framing sentence -> one or two simple committed
-     SVG bar charts (see hush/razor assets/bench-*.svg — a non-technical reader must get each at a
-     glance) -> 2-3 benefit bullets in everyday terms (cost, "0 words", "never broke") -> a plain
-     "how we tested" line -> one honest limit, as a `> [!NOTE]` alert (see hush/razor for the
-     pattern). Only claim numbers you can defend; never headline an underpowered (n<~6) result.
-     GitHub renders repo SVGs via <img src="assets/..."> (the logo proves it). -->
+     the README, NOT a lab report. Lead with the HERO: one headline number (an aggregate you can
+     defend — e.g. mean cost across the suite), stated up top and shown as the first chart, framed
+     against the alternative ("~25%, roughly 5x what 'just be brief' manages"). Then, in order:
+       1. Hero chart + the headline sentence.
+       2. A "why" chart (what the reader was missing — e.g. reads dwarf the reply), 1-2 sentences.
+       3. One or two TASK highlights that show the strongest capability, a chart each.
+       4. THE HONEST TABLE: every task, every arm, wins AND ties/losses, cheapest per row in bold,
+          an Average row bolded for your plugin. Disclosing the losses is the trust lever — a deck
+          that only shows wins reads as cherry-picked. Add ONE `> [!NOTE]` naming where it wins vs
+          where it's neutral/loses.
+       5. A plain "how we tested" line (real multi-turn sessions, costs from the API, numbers move
+          a few percent between runs).
+     Charts: committed SVGs a non-technical reader gets at a glance — pill bars on soft tracks, big
+     value labels, one accent colour for your plugin, a top-right stat badge, a one-line takeaway
+     footer. Make them THEME-AWARE with an internal <style> + `@media (prefers-color-scheme:dark)`
+     so they read in GitHub light and dark (see hush/assets/bench-hero.svg as the reference). Keep
+     text left-anchored and inside the viewBox; there's no live renderer here, so estimate widths.
+     Only claim numbers you can defend; never headline an underpowered (n<~6) result. GitHub renders
+     repo SVGs via <img src="assets/..."> (the logo proves it). -->
 
 ## Under the hood
 
