@@ -1,5 +1,8 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="foundry" width="240" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" />
+    <img src="assets/logo.svg" alt="foundry" width="240" />
+  </picture>
   <h1>foundry</h1>
   <p><strong>Claude Code plugins by Victor Villegas</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
 </div>

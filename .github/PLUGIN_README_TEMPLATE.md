@@ -15,6 +15,9 @@
     (schemas, hook internals, exhaustive config), comparison tables, and any "Tests" section
     (testing lives in CONTRIBUTING.md). Deep detail stays in the code / a linked schema doc.
   - Sections marked (optional) may be dropped when they don't apply.
+  - The logo needs two files: `assets/logo.svg` (dark fill, shown in light mode) and
+    `assets/logo-dark.svg` (identical artwork, fill swapped to white, shown in dark mode).
+    The `<picture>`/`<source media="prefers-color-scheme">` markup below picks the right one.
   - For a caveat that deserves visual weight (an honest limit, a non-destructive guarantee),
     use a GitHub alert (`> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`) instead of an italic aside —
     matches how the plain-language sections already read at a skim. Sparingly: 1-2 per README.
@@ -23,7 +26,10 @@
 -->
 
 <div align="center">
-  <img src="assets/logo.svg" alt="<plugin>" width="240" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" />
+    <img src="assets/logo.svg" alt="<plugin>" width="240" />
+  </picture>
   <h1><plugin></h1>
   <p><strong><!-- one-line value prop: what it does FOR THE USER, plain language --></strong></p>
 </div>
