@@ -47,6 +47,17 @@
 
 - **<benefit>.** <one sentence>
 
+## How it works
+
+<!-- (optional — only when the plugin has a real set of distinct triggers/moments worth naming, e.g.
+     razor's gates or hush's compression points.) 4-6 short bullets, bold lead-in on the trigger/moment
+     + one plain sentence on what happens. Still zero jargon — no hook names, no env vars, no schema.
+     Skip this section entirely if "Why you'd want it" is already trigger-framed (e.g. "After each
+     commit, it notices X and records it") — don't add a section that just restates the bullets above.
+     razor and hush are the reference implementations. -->
+
+- **<trigger/moment>** <what happens, one sentence>.
+
 ## Install
 
 Inside Claude Code, run:
@@ -92,12 +103,12 @@ Inside Claude Code, run:
 
 ## Under the hood
 
-<!-- ONE short "if you're curious" SENTENCE, plain language — do NOT enumerate or explain the
-     mechanisms (a curious coder reads the plugin's files; a non-coder doesn't care). Point to
-     the code / a schema doc, and add the "pairs with" cross-link if there is a sibling plugin:
-     "If you're curious, <one-line gist> — it's all there to read in the plugin's files. Pairs
-     naturally with [<sibling>](../<sibling>): …". If the whole section would just repeat "What
-     is this?", drop it. -->
+<!-- ONE short closing sentence, plain language — a pointer to the code / a schema doc (NOT a
+     restatement of "How it works" above), plus the "pairs with" cross-link if there's a sibling
+     plugin: "<one-line pointer, e.g. 'Every check above fires as Claude works'> — read the
+     plugin's files if you want the exact mechanics. Pairs naturally with
+     [<sibling>](https://github.com/V-Songbird/<sibling>): …". If the whole section would just
+     repeat "What is this?" or "How it works", drop it. -->
 
 ## Settings
 
