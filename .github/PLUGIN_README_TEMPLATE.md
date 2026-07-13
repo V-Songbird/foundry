@@ -3,18 +3,37 @@
   Copy this into <plugin>/README.md, fill the placeholders, and DELETE every guidance comment.
   All plugins here share this lean shape, tone, and style.
 
-  THE GOLDEN RULE: short and friendly. If a reader sees a wall of text, they won't read it.
-  Write for a regular user / "vibe coder", not an engineer. Aim for ~50-80 lines total.
+  THE GOLDEN RULE: short, and it should sound like a person wrote it, not a pitch deck.
+  If a reader sees a wall of text or marketing hype, they won't read it.
+  Write for a regular user / "vibe coder", not an engineer. Aim for ~60-110 lines total —
+  a little longer than the old bar, because personality needs room to land a line.
   razor/ and hush/ are the reference implementations for voice; foreman/ shows how lean to go.
 
+  VOICE: dry, deadpan, a little irreverent — like a sharp friend explaining this over a drink,
+  not a marketing brief. Modeled on the TRIP-workflow README's tone (self-aware about how
+  AI-coding-tool README hype usually sounds, happy to poke fun at the pattern it's part of,
+  short punchy sentences, the occasional rhetorical aside). A couple of house adjustments to
+  that model, non-negotiable:
+    - NEVER name a competitor plugin/product by name (TRIP's README does this — ours doesn't).
+      Contrast with a generic category ("a plugin that just tells the model to be brief") and
+      sell on our own merits instead.
+    - No profanity. Dry and irreverent, not crude.
+    - Self-deprecating humor about the PROBLEM ("AI assistants love to add things") or about
+      the genre of README this is ("does it actually work, or is this vibes") is fair game.
+      Don't make the joke at a real project's or a real person's expense.
+  Still no jargon in the plain-language sections (no "context traffic", "PreToolUse", "n=6",
+  "tokens", schema/field names) — a joke about jargon is fine, actual jargon isn't.
+
   House rules:
-  - Warm, plain, second-person, benefit-first prose. Em-dashes are fine. NO exclamation-point
-    hype, NO jargon (no "context traffic", "PreToolUse", "n=6", "tokens", schema/field names).
-  - Never name a competitor plugin — contrast with a generic category, sell on our own merits.
   - Keep ONLY what a user actually wants to read. Cut mechanism deep-dives, reference tables
     (schemas, hook internals, exhaustive config), comparison tables, and any "Tests" section
     (testing lives in CONTRIBUTING.md). Deep detail stays in the code / a linked schema doc.
   - Sections marked (optional) may be dropped when they don't apply.
+  - Badges: License (static, never goes stale) and a "Works with Claude Code" badge are fine.
+    Do NOT hard-code a version number badge — this marketplace's single source of truth for
+    version is the root `marketplace.json` (see CONTRIBUTING.md), and a version baked into the
+    README would drift the moment it's released. If you want a version badge, it has to read
+    the number dynamically (e.g. from a shields.io endpoint) — otherwise leave it out.
   - The logo needs two files: `assets/logo.svg` (dark fill, shown in light mode) and
     `assets/logo-dark.svg` (identical artwork, fill swapped to white, shown in dark mode).
     The `<picture>`/`<source media="prefers-color-scheme">` markup below picks the right one.
@@ -31,8 +50,10 @@
     <img src="assets/logo.svg" alt="<plugin>" width="240" />
   </picture>
   <h1><plugin></h1>
-  <p><strong><!-- one-line value prop: what it does FOR THE USER, plain language --></strong></p>
+  <p><strong><!-- one-line value prop: a blunt clause + its consequence, plain language --></strong></p>
 </div>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude_Code-E5582B)](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
@@ -50,13 +71,16 @@
 ## How it works
 
 <!-- (optional — only when the plugin has a real set of distinct triggers/moments worth naming, e.g.
-     razor's gates or hush's compression points.) 4-6 short bullets, bold lead-in on the trigger/moment
-     + one plain sentence on what happens. Still zero jargon — no hook names, no env vars, no schema.
-     Skip this section entirely if "Why you'd want it" is already trigger-framed (e.g. "After each
-     commit, it notices X and records it") — don't add a section that just restates the bullets above.
-     razor and hush are the reference implementations. -->
+     razor's gates or hush's compression points.) A short 2-row-to-6-row table — "Moment" / "What
+     happens" — reads faster than bullets and gives the section its own visual shape. Bullets are
+     fine too if a table feels forced for your plugin. Still zero jargon — no hook names, no env
+     vars, no schema. Skip this section entirely if "Why you'd want it" is already trigger-framed
+     (e.g. "After each commit, it notices X and records it") — don't add a section that just
+     restates the bullets above. razor and hush are the reference implementations. -->
 
-- **<trigger/moment>** <what happens, one sentence>.
+| Moment | What happens |
+| --- | --- |
+| <trigger/moment> | <what happens, one sentence> |
 
 ## Install
 
