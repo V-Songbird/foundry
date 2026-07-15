@@ -13,7 +13,7 @@
 
 [Claude Code](https://code.claude.com/docs/en/overview) is Anthropic's AI coding assistant. **Plugins** extend it — they teach Claude new workflows, add guardrails, or change how it behaves, all with a one-line install and no configuration.
 
-This is a small, curated collection. Each plugin does one job well, works on its own, and stays out of the others' way. Install one, install all six — they compose.
+This is a small, curated collection. Each plugin does one job well, works on its own, and stays out of the others' way. Install one, install all three — they compose.
 
 ## Install
 
@@ -29,22 +29,6 @@ The first command registers this collection (once); the second installs whicheve
 ---
 
 ## The plugins
-
-### [forge](https://github.com/V-Songbird/forge) — Review the plan before writing the code
-
-Big features fail for the same reason: a problem nobody spotted until the code was already written. Forge investigates first. Describe what you want to build, and a team of parallel AI experts examines your actual codebase, drafts a plan, and an adversarial critic tries to poke holes in that plan — all **before** a single line is written. Nothing gets implemented without your explicit sign-off.
-
-```
-/plugin install forge
-```
-
-### [verity](https://github.com/V-Songbird/verity) — Real documentation instead of guesses
-
-When you ask Claude how Claude Code itself works, it may answer from training memory — which ages badly. Verity makes Claude fetch the current official documentation live and answer from the source, citing the exact page it read. Install and forget; it kicks in whenever a Claude Code question comes up.
-
-```
-/plugin install verity
-```
 
 ### [foreman](https://github.com/V-Songbird/foreman) — A roadmap for your project, and better prompts for free
 
@@ -70,24 +54,13 @@ AI assistants love to add: a new dependency here, five helper files there, an ab
 /plugin install razor
 ```
 
-### [jetbrains-router](https://github.com/V-Songbird/jetbrains-router) — Claude works through your JetBrains IDE
-
-If you code in WebStorm, IntelliJ IDEA, Rider, PyCharm, or another JetBrains IDE, your editor already knows things Claude's native tools don't: which files have errors right now (no build needed), what you've typed but not saved, and which paths are worth searching. jetbrains-router redirects Claude's file reads, searches, and edits through the IDE's MCP server whenever the IDE is running — and steps aside completely when it isn't.
-
-```
-/plugin install jetbrains-router
-```
-
 ### Which one first?
 
 | You want to… | Install |
 | --- | --- |
-| Plan big features safely | **forge** |
-| Get trustworthy answers about Claude Code | **verity** |
 | Track project tasks and hand them off cleanly | **foreman** |
 | Cut token cost and noise | **hush** |
 | Keep the codebase lean | **razor** |
-| Use your JetBrains IDE's brains | **jetbrains-router** |
 
 hush and razor are natural partners: hush governs how Claude *talks*, razor governs what it *builds*.
 
@@ -98,11 +71,8 @@ hush and razor are natural partners: hush governs how Claude *talks*, razor gove
 ```
 foundry/
 ├── foreman/
-├── forge/
 ├── hush/
-├── jetbrains-router/
-├── razor/
-└── verity/
+└── razor/
 ```
 
 Every plugin lives in its own repo, mounted here as a git submodule (see [`.gitmodules`](.gitmodules)). Each ships its metadata in `.claude-plugin/plugin.json` and carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`; the root copies of the community files govern contributions to this marketplace repo itself. The marketplace index is [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) — it is also the single owner of every plugin's version number (plugin.json files carry no version field).
