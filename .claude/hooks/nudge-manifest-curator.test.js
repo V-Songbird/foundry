@@ -26,23 +26,23 @@ describe('isManifestFile', () => {
   });
 
   test('matches plugin.json at any depth', () => {
-    assert.equal(isManifestFile('forge/.claude-plugin/plugin.json'), true);
+    assert.equal(isManifestFile('foreman/.claude-plugin/plugin.json'), true);
   });
 
   test('is case-insensitive', () => {
-    assert.equal(isManifestFile('Forge/.claude-plugin/Plugin.JSON'), true);
+    assert.equal(isManifestFile('Foreman/.claude-plugin/Plugin.JSON'), true);
   });
 
   test('normalizes Windows-style backslash paths', () => {
-    assert.equal(isManifestFile('forge\\.claude-plugin\\plugin.json'), true);
+    assert.equal(isManifestFile('foreman\\.claude-plugin\\plugin.json'), true);
   });
 
   test('ignores unrelated json files', () => {
-    assert.equal(isManifestFile('forge/package.json'), false);
+    assert.equal(isManifestFile('foreman/package.json'), false);
   });
 
   test('ignores non-json files', () => {
-    assert.equal(isManifestFile('forge/.claude-plugin/plugin.md'), false);
+    assert.equal(isManifestFile('foreman/.claude-plugin/plugin.md'), false);
   });
 
   test('handles missing path', () => {

@@ -11,10 +11,10 @@ const { parseStagedSubmoduleChanges, findPluginEntry, evaluate } = require("./ch
 
 describe("parseStagedSubmoduleChanges", () => {
   test("extracts new sha and path from a gitlink diff line", () => {
-    const raw = ":160000 160000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb M\tforge";
+    const raw = ":160000 160000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb M\tforeman";
     const changes = parseStagedSubmoduleChanges(raw);
     assert.equal(changes.length, 1);
-    assert.equal(changes[0].path, "forge");
+    assert.equal(changes[0].path, "foreman");
     assert.equal(changes[0].newSha, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
   });
 
@@ -44,17 +44,17 @@ describe("parseStagedSubmoduleChanges", () => {
 
 describe("findPluginEntry", () => {
   test("finds a plugin by name", () => {
-    const marketplace = { plugins: [{ name: "forge" }, { name: "hush" }] };
+    const marketplace = { plugins: [{ name: "foreman" }, { name: "hush" }] };
     assert.equal(findPluginEntry(marketplace, "hush").name, "hush");
   });
 
   test("returns undefined when not found", () => {
-    const marketplace = { plugins: [{ name: "forge" }] };
+    const marketplace = { plugins: [{ name: "foreman" }] };
     assert.equal(findPluginEntry(marketplace, "missing"), undefined);
   });
 
   test("tolerates a missing plugins array", () => {
-    assert.equal(findPluginEntry({}, "forge"), undefined);
+    assert.equal(findPluginEntry({}, "foreman"), undefined);
   });
 });
 
@@ -66,12 +66,12 @@ describe("evaluate", () => {
 
   test("flags a submodule bump when marketplace.json was not staged at all", () => {
     const problems = evaluate({
-      submoduleChanges: [{ path: "forge", newSha: "a".repeat(40) }],
+      submoduleChanges: [{ path: "foreman", newSha: "a".repeat(40) }],
       marketplaceStaged: false,
       marketplace: null,
     });
     assert.equal(problems.length, 1);
-    assert.match(problems[0], /forge/);
+    assert.match(problems[0], /foreman/);
     assert.match(problems[0], /not staged/);
   });
 
@@ -100,7 +100,7 @@ describe("evaluate", () => {
     const problems = evaluate({
       submoduleChanges: [{ path: "new-plugin", newSha: "e".repeat(40) }],
       marketplaceStaged: true,
-      marketplace: { plugins: [{ name: "forge", source: { source: "url", sha: "f".repeat(40) } }] },
+      marketplace: { plugins: [{ name: "foreman", source: { source: "url", sha: "f".repeat(40) } }] },
     });
     assert.equal(problems.length, 1);
     assert.match(problems[0], /no matching entry/);
@@ -110,13 +110,13 @@ describe("evaluate", () => {
     const okSha = "1".repeat(40);
     const problems = evaluate({
       submoduleChanges: [
-        { path: "forge", newSha: okSha },
+        { path: "foreman", newSha: okSha },
         { path: "hush", newSha: "2".repeat(40) },
       ],
       marketplaceStaged: true,
       marketplace: {
         plugins: [
-          { name: "forge", source: { source: "url", sha: okSha } },
+          { name: "foreman", source: { source: "url", sha: okSha } },
           { name: "hush", source: { source: "url", sha: "9".repeat(40) } },
         ],
       },
