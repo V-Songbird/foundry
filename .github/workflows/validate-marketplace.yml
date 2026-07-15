@@ -23,3 +23,6 @@ jobs:
 
       - name: every plugin's source.sha must match its submodule's checked-out commit
         run: node scripts/git-hooks/verify-marketplace-pins.js
+
+      - name: the git-hook scripts' own tests must pass
+        run: node --test scripts/git-hooks/*.test.js
