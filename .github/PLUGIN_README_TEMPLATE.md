@@ -9,17 +9,22 @@
   a little longer than the old bar, because personality needs room to land a line.
   razor/ and hush/ are the reference implementations for voice; foreman/ shows how lean to go.
 
-  VOICE: dry, deadpan, a little irreverent — like a sharp friend explaining this over a drink,
-  not a marketing brief. Self-aware about how AI-coding-tool README hype usually sounds, happy
-  to poke fun at the pattern it's part of, short punchy sentences, the occasional rhetorical
-  aside. Non-negotiable house rules for that voice:
+  VOICE: dry, deadpan, LOUD with personality — a sharp friend with a strong opinion and two
+  drinks in them, not a marketing brief. Reach for the vivid, concrete, slightly absurd
+  comparison over the safe abstract one ("every session forgets everything the moment it
+  ends," not "state isn't persisted between sessions") — a line should be memorable enough to
+  repeat, not just accurate. Short, confident, declarative sentences. State an opinion bluntly
+  instead of hedging it. Self-aware about how AI-coding-tool README hype usually sounds, happy
+  to poke fun at the pattern it's part of. House rules for that voice, first two non-negotiable:
     - NEVER name another plugin/product/project by name — not competitors, not tools we drew
       ideas from, not repos we used as references. Contrast with a generic category ("a plugin
       that just tells the model to be brief") and sell on our own merits instead. This applies
       to every public record in this marketplace: READMEs, CHANGELOGs, manifests, code comments,
       test names, commit messages, PR text. Names of reference projects live only in gitignored
       private notes (docs/research/), never in anything that ships or gets pushed.
-    - No profanity. Dry and irreverent, not crude.
+    - No profanity, ever. Crude isn't a substitute for funny — if a line only lands because of
+      a swear word, cut the word and find the sharper, cleaner version of the same joke. Loud
+      and blunt is the goal; crude is not.
     - Self-deprecating humor about the PROBLEM ("AI assistants love to add things") or about
       the genre of README this is ("does it actually work, or is this vibes") is fair game.
       Don't make the joke at a real project's or a real person's expense.
