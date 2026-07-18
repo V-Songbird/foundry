@@ -14,7 +14,7 @@ const os = require("os");
 const path = require("path");
 const { execFileSync } = require("child_process");
 
-const { main, scanText, loadBlocklist } = require("./check-reference-names");
+const { main, scanText, loadBlocklist, isExemptPath, addedLinesFromDiff } = require("./check-reference-names");
 
 const NAMES = ["zorblat", "qux.tool"];
 const BLOCKLIST = "# a comment line\nzorblat\n\n  qux.tool  \n";
@@ -108,6 +108,49 @@ describe("scanText", () => {
   });
 });
 
+describe("isExemptPath — READMEs are the one allowed surface", () => {
+  test("matches README.md at the repo root and in any subdirectory", () => {
+    assert.equal(isExemptPath("README.md"), true);
+    assert.equal(isExemptPath("hush/README.md"), true);
+    assert.equal(isExemptPath("docs/guide/README.md"), true);
+  });
+
+  test("is case-insensitive on the basename", () => {
+    assert.equal(isExemptPath("Readme.md"), true);
+    assert.equal(isExemptPath("readme.md"), true);
+  });
+
+  test("does not exempt other docs or a README-ish name", () => {
+    assert.equal(isExemptPath("CHANGELOG.md"), false);
+    assert.equal(isExemptPath("README.txt"), false);
+    assert.equal(isExemptPath("READMEfoo.md"), false);
+    assert.equal(isExemptPath("src/readme.js"), false);
+  });
+});
+
+describe("addedLinesFromDiff — drops added lines in README files only", () => {
+  const diff = (file, body) =>
+    `diff --git a/${file} b/${file}\nindex 000..111 100644\n--- a/${file}\n+++ b/${file}\n@@ -0,0 +1 @@\n+${body}\n`;
+
+  test("keeps an added line in a code file", () => {
+    assert.equal(addedLinesFromDiff(diff("src/foo.js", "beat zorblat")), "+beat zorblat");
+  });
+
+  test("drops an added line in a README", () => {
+    assert.equal(addedLinesFromDiff(diff("README.md", "beat zorblat")), "");
+  });
+
+  test("drops the README line but keeps the CHANGELOG line in a mixed diff", () => {
+    const mixed = diff("README.md", "beat zorblat") + diff("CHANGELOG.md", "beat zorblat");
+    assert.equal(addedLinesFromDiff(mixed), "+beat zorblat");
+  });
+
+  test("ignores removed lines and the +++ header", () => {
+    const d = `diff --git a/notes.md b/notes.md\n--- a/notes.md\n+++ b/notes.md\n@@ -1 +1 @@\n-old zorblat\n+kept\n`;
+    assert.equal(addedLinesFromDiff(d), "+kept");
+  });
+});
+
 describe("loadBlocklist", () => {
   test("reads HOUSE_REFERENCE_BLOCKLIST, trimming blanks and comments", () => {
     withSandbox({ blocklist: BLOCKLIST }, () => {
@@ -197,6 +240,24 @@ describe("main — staged mode", () => {
       fs.writeFileSync(path.join(work, "zorblat.md"), "nothing incriminating\n");
       git("add", "zorblat.md");
       assert.equal(runMain("staged"), 0);
+    });
+  });
+
+  test("passes a blocklisted name staged in a README (the allowed surface)", () => {
+    withSandbox({ blocklist: BLOCKLIST }, (work) => {
+      const git = initRepo(work);
+      fs.writeFileSync(path.join(work, "README.md"), "We beat zorblat on every job.\n");
+      git("add", "README.md");
+      assert.equal(runMain("staged"), 0);
+    });
+  });
+
+  test("still fails a blocklisted name staged in a CHANGELOG", () => {
+    withSandbox({ blocklist: BLOCKLIST }, (work) => {
+      const git = initRepo(work);
+      fs.writeFileSync(path.join(work, "CHANGELOG.md"), "Now faster than zorblat\n");
+      git("add", "CHANGELOG.md");
+      assert.equal(runMain("staged"), 1);
     });
   });
 });

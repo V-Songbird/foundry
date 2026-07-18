@@ -16,18 +16,20 @@
   repeat, not just accurate. Short, confident, declarative sentences. State an opinion bluntly
   instead of hedging it. Self-aware about how AI-coding-tool README hype usually sounds, happy
   to poke fun at the pattern it's part of. House rules for that voice, first two non-negotiable:
-    - NEVER name another plugin/product/project by name — not competitors, not tools we drew
-      ideas from, not repos we used as references. Contrast with a generic category ("a plugin
-      that just tells the model to be brief") and sell on our own merits instead. This applies
-      to every public record in this marketplace: READMEs, CHANGELOGs, manifests, code comments,
-      test names, commit messages, PR text. Names of reference projects live only in gitignored
-      private notes (docs/research/), never in anything that ships or gets pushed.
     - No profanity, ever. Crude isn't a substitute for funny — if a line only lands because of
       a swear word, cut the word and find the sharper, cleaner version of the same joke. Loud
       and blunt is the goal; crude is not.
+    - Never make the joke at a real project's or a real person's expense. You MAY name a
+      competitor here — this is the README, the one surface where naming a rival is allowed, and
+      "beating the giants" framing is welcome — but name it to out-compete it on the merits, not
+      to belittle it. Sell on our own numbers; let the comparison do the talking.
+    - The README is the ONLY place a competitor/reference name may appear. Everywhere else in
+      this marketplace — CHANGELOGs, manifests, code comments, test names, commit messages, PR
+      text — still contrasts with a generic category ("a plugin that just tells the model to be
+      brief"); the real names live only in gitignored private notes (docs/research/). A
+      pre-commit + commit-msg hook enforces this, skipping README.md and always guarding commits.
     - Self-deprecating humor about the PROBLEM ("AI assistants love to add things") or about
       the genre of README this is ("does it actually work, or is this vibes") is fair game.
-      Don't make the joke at a real project's or a real person's expense.
   Still no jargon in the plain-language sections (no "context traffic", "PreToolUse", "n=6",
   "tokens", schema/field names) — a joke about jargon is fine, actual jargon isn't.
 
