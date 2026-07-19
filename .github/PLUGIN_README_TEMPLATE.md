@@ -149,7 +149,7 @@ Inside Claude Code, run:
 
 ```
 /plugin marketplace add V-Songbird/foundry
-/plugin install <plugin>
+/plugin install <plugin>@foundry
 ```
 
 <!-- one line: when it takes effect; "nothing to configure" if true; any one-time step, stated simply.

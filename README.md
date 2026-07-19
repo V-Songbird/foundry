@@ -21,10 +21,10 @@ Inside Claude Code, run:
 
 ```
 /plugin marketplace add V-Songbird/foundry
-/plugin install <plugin-name>
+/plugin install <plugin-name>@foundry
 ```
 
-The first command registers this collection (once); the second installs whichever plugin you want. Uninstalling is just as easy: `/plugin uninstall <plugin-name>`.
+The first command registers this collection (once); the second installs whichever plugin you want. Uninstalling is just as easy: `/plugin uninstall <plugin-name>@foundry`.
 
 ---
 
