@@ -7,7 +7,14 @@
   If a reader sees a wall of text or marketing hype, they won't read it.
   Write for a regular user / "vibe coder", not an engineer. Aim for ~60-110 lines total —
   a little longer than the old bar, because personality needs room to land a line.
-  razor/ and hush/ are the reference implementations for voice; foreman/ shows how lean to go.
+  razor/, hush/, and foreman/ are the reference implementations — all three share one
+  section order: header → badges → TL;DR → What is this? → Why you'd want it → How it works →
+  Install → What you can do → Benchmarks → Under the hood → Settings → Good to know → License
+  (optional sections dropped where they don't apply, never reordered).
+
+  TL;DR: every README opens with a blockquote directly under the badges — 2-3 sentences,
+  under ~50 words: the pain, what the plugin does about it, and one defensible number if you
+  have one. Many readers stop there. Write it last, place it first.
 
   VOICE: dry, deadpan, LOUD with personality — a sharp friend with a strong opinion and two
   drinks in them, not a marketing brief. Reach for the vivid, concrete, slightly absurd
@@ -106,6 +113,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude_Code-E5582B)](https://docs.anthropic.com/en/docs/claude-code)
 
+> **TL;DR** — <!-- 2-3 sentences, under ~50 words: the pain, what the plugin does about it,
+     one defensible number if you have one. The only part many readers see. -->
+
 ---
 
 ## What is this?
@@ -142,11 +152,17 @@ Inside Claude Code, run:
 /plugin install <plugin>
 ```
 
-<!-- one line: when it takes effect; "nothing to configure" if true; any one-time step, stated simply -->
+<!-- one line: when it takes effect; "nothing to configure" if true; any one-time step, stated simply.
+     If there's a sibling plugin, close the section with a one-line cross-sell ("Running <sibling>
+     too? Good instinct — the pair is measured in [Better together](#better-together) below.") —
+     the early ad lives here; the pair NUMBERS stay in Benchmarks where they're earned. -->
 
 ## What you can do
 
-<!-- (optional — only if the plugin has user-facing commands/skills.) A compact table, nothing more.
+<!-- (optional — only if the plugin has user-facing commands/skills.) ONE compact table for
+     every user-facing command — never a separate section per command/feature. A must-know
+     caveat for a command goes right under the table: one plain sentence, or one alert
+     (`> [!IMPORTANT]`) if it's a guarantee worth visual weight. At most one alert here.
 | You want to… | Command |
 | --- | --- |
 | <plain outcome> | `/<plugin>:<command>` |
@@ -188,7 +204,7 @@ Inside Claude Code, run:
 ## Settings
 
 <!-- (optional — only if there are user-relevant knobs.) Lead with "Most people never touch these".
-     A compact table, <=5 rows, everyday wording — not every env var.
+     A compact table — aim for ~5 rows, 7 at most; everyday wording, never every env var.
 | Variable | What it does |
 | --- | --- |
 | `<PLUGIN>_<VAR>` | <plain effect> |
