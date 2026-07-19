@@ -7,6 +7,10 @@
   <p><strong>Claude Code plugins by Victor Villegas</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
 </div>
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude_Code-E5582B)](https://docs.anthropic.com/en/docs/claude-code)
+
+> **TL;DR** — Three small plugins for Claude Code: foreman keeps a project roadmap and writes better prompts, hush cuts chatter and cost, razor stops unnecessary code. Install one or all three — they compose.
+
 ---
 
 ## New here?
@@ -81,10 +85,22 @@ Every plugin lives in its own repo, mounted here as a git submodule (see [`.gitm
 
 ## Development
 
+Run this once after cloning, to enable the commit gates:
+
+```
+git config core.hooksPath scripts/git-hooks
+```
+
 `.claude/settings.json` (committed) registers two repo-wide dev hooks, both dev-only — neither fires for anyone who has merely *installed* a plugin from this repo, only for edits made inside the source tree itself:
 
 - `.claude/hooks/run-tests-on-edit.js` reruns whichever plugin's own test suite after an `Edit`/`Write` lands in that plugin's `scripts/` or `hooks/` dir — detected by walking up to the nearest `.claude-plugin/plugin.json` marker, so it works for any plugin in this repo, not just one. Silent when green; surfaces a failure via `additionalContext` when red.
 - `.claude/hooks/nudge-manifest-curator.js` nudges a follow-up `manifest-curator` audit after an `Edit`/`Write` lands in `.claude-plugin/marketplace.json` or any plugin's `.claude-plugin/plugin.json` — manifest edits are easy to get subtly wrong (stale author info, version drift, schema violations), so a check only helps if something actually reminds you to run it.
+
+Tests, for a plugin that has them:
+
+```
+node --test <plugin>/tests/*.test.js
+```
 
 ---
 
