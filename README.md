@@ -39,7 +39,7 @@ The first command registers this collection (once); the second installs whicheve
 Foreman keeps a living task list (`ROADMAP.jsonl`) inside your project: why each task exists, what it is, its status, and the commits that shipped it. Ask "what's next?" and it picks the best next task like a software architect would — then writes a complete, professional prompt to hand that task to a fresh Claude session. It also builds standalone prompts on demand with `/foreman:craft-prompt`.
 
 ```
-/plugin install foreman
+/plugin install foreman@foundry
 ```
 
 ### [hush](https://github.com/V-Songbird/hush) — Less chatter, lower cost
@@ -47,7 +47,7 @@ Foreman keeps a living task list (`ROADMAP.jsonl`) inside your project: why each
 Claude can be talkative: progress narration, previews of what it's about to do, walls of command output. Hush trims all of it at the harness level — a forced output style (silence while working, one clear summary at the end), automatic compression of noisy command output and bulky log files before they eat your context window, and a meter that catches mid-turn rambling the moment it starts. Sessions get cheaper and easier to read.
 
 ```
-/plugin install hush
+/plugin install hush@foundry
 ```
 
 ### [razor](https://github.com/V-Songbird/razor) — Stops Claude from over-building
@@ -55,7 +55,7 @@ Claude can be talkative: progress narration, previews of what it's about to do, 
 AI assistants love to add: a new dependency here, five helper files there, an abstraction "for later". Razor pushes back with a simple ladder — don't build it if it isn't needed, reuse what exists, prefer the standard library — and backs the words with mechanical gates: the first attempt to install a new package is challenged once, with the project's *actual* installed-dependency list right in the message; file sprawl gets questioned before it lands; and a git-grounded ledger asks, once per heavy session, whether all that new code is really needed. Never a hard block; always one forced second thought.
 
 ```
-/plugin install razor
+/plugin install razor@foundry
 ```
 
 ### Which one first?
