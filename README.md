@@ -4,10 +4,14 @@
     <img src="assets/logo.svg" alt="foundry" width="240" />
   </picture>
   <h1>foundry</h1>
-  <p><strong>Claude Code plugins that help you plan better, talk less, build leaner, and stop guessing.</p>
+  <p><strong>Claude Code plugins that help you plan better, talk less, build leaner, and stop guessing.</strong>strong></p>
 </div>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude_Code-E5582B)](https://docs.anthropic.com/en/docs/claude-code)
+<p align="center">
+    <a href="https://github.com/V-Songbird/foundry/stargazers"><img src="https://img.shields.io/github/stars/V-Songbird/foundry?style=social" alt="GitHub stars"/></a>
+    <a href="https://https://github.com/V-Songbird/foundry/blob/main/LICENSE"><img src="https://img.shields.io/github/license/github/spec-kit" alt="License"/></a>
+    <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/Claude_Code-E5582B" alt="License"/></a>
+</p>
 
 > **TL;DR** — Three small plugins for Claude Code: foreman keeps a project roadmap and writes better prompts, hush cuts chatter and cost, razor stops unnecessary code. Install one or all three — they compose.
 
