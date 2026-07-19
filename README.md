@@ -4,7 +4,7 @@
     <img src="assets/logo.svg" alt="foundry" width="240" />
   </picture>
   <h1>foundry</h1>
-  <p><strong>Claude Code plugins by Victor Villegas</strong> — tools that make Claude plan better, talk less, build leaner, and stop guessing.</p>
+  <p><strong>Claude Code plugins that help you plan better, talk less, build leaner, and stop guessing.</p>
 </div>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude_Code-E5582B)](https://docs.anthropic.com/en/docs/claude-code)
