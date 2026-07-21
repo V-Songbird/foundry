@@ -1,6 +1,10 @@
 # Benchmark harness (local-only, never published)
 .benchmarks/
 
+# Codex plugin ports remain local during development.
+plugins/razor-codex/
+plugins/foreman-codex/
+
 # Python cache directories
 __pycache__/
 .pytest_cache/
@@ -12,6 +16,16 @@ __pycache__/
 .DS_Store
 Thumbs.db
 docs/
+# The Codex Razor and Foreman port dossiers are release-trackable; other local
+# research remains ignored (including the in-progress Hush dossier).
+!docs/
+docs/*
+!docs/codex/
+docs/codex/*
+!docs/codex/razor/
+!docs/codex/razor/**
+!docs/codex/foreman/
+!docs/codex/foreman/**
 
 **/.claude/*
 !/.claude/settings.json
@@ -22,3 +36,7 @@ telos/
 # Roadmap and foreman config are local-only, not published
 ROADMAP.jsonl
 .foreman/
+
+# This repo's dev config ported to other agent CLIs — local-only, not published
+.agents/
+.codex/
