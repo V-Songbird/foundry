@@ -111,7 +111,11 @@
   <p><strong><!-- one-line value prop: a blunt clause + its consequence, plain language --></strong></p>
 </div>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude_Code-E5582B)](https://docs.anthropic.com/en/docs/claude-code)
+<p align="center">
+    <a href="https://github.com/V-Songbird/<!-- plugin name -->/stargazers"><img src="https://img.shields.io/github/stars/V-Songbird/<!-- plugin name -->?style=social" alt="GitHub stars"/></a>
+    <a href="https://https://github.com/V-Songbird/<!-- plugin name -->/blob/main/LICENSE"><img src="https://img.shields.io/github/license/github/spec-kit" alt="License"/></a>
+    <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/Claude_Code-E5582B" alt="License"/></a>
+</p>
 
 > **TL;DR** — <!-- 2-3 sentences, under ~50 words: the pain, what the plugin does about it,
      one defensible number if you have one. The only part many readers see. -->
