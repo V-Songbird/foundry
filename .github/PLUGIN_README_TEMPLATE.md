@@ -9,8 +9,8 @@
   a little longer than the old bar, because personality needs room to land a line.
   razor/, hush/, and foreman/ are the reference implementations — all three share one
   section order: header → badges → TL;DR → What is this? → Why you'd want it → How it works →
-  Install → What you can do → Benchmarks → Under the hood → Settings → Good to know → License
-  (optional sections dropped where they don't apply, never reordered).
+  Install → What you can do → <one feature section> → Benchmarks → Under the hood → Settings →
+  Good to know → License (optional sections dropped where they don't apply, never reordered).
 
   TL;DR: every README opens with a blockquote directly under the badges — 2-3 sentences,
   under ~50 words: the pain, what the plugin does about it, and one defensible number if you
@@ -164,13 +164,28 @@ Inside Claude Code, run:
 ## What you can do
 
 <!-- (optional — only if the plugin has user-facing commands/skills.) ONE compact table for
-     every user-facing command — never a separate section per command/feature. A must-know
+     every user-facing command — never a separate section per command. A feature that needs
+     its own pitch gets the single slot below instead, and only one plugin-wide. A must-know
      caveat for a command goes right under the table: one plain sentence, or one alert
      (`> [!IMPORTANT]`) if it's a guarantee worth visual weight. At most one alert here.
 | You want to… | Command |
 | --- | --- |
 | <plain outcome> | `/<plugin>:<command>` |
 -->
+
+## <one feature, named as what the reader gets>
+
+<!-- (optional — AT MOST ONE per README, and most plugins should have none.) Earn this slot
+     only when a real feature is invisible where it stands: off by default, or buried in a
+     settings row nobody reads. A section here is the discovery fix. Anything already obvious
+     from "What is this?" or a command in the table above does NOT get one.
+     Title it as the payoff in the reader's words, never the internal feature name
+     ("Why-notes that find you later", not "The decision log").
+     TWO short paragraphs, hard cap. First: the pain, what turning it on does, and — if it's
+     off by default — say so plainly and why. Second: at most one adjacent surprise the
+     reader may already have hit. Then link out to a sibling doc for everything else
+     (`decision-log.md` alongside the README, same pattern as a schema doc). Reference
+     material, config tables, and file formats live in that doc, NEVER inlined here. -->
 
 ## Benchmarks
 
