@@ -16,16 +16,25 @@
   under ~50 words: the pain, what the plugin does about it, and one defensible number if you
   have one. Many readers stop there. Write it last, place it first.
 
-  VOICE: dry, deadpan, LOUD with personality — a sharp friend with a strong opinion and two
-  drinks in them, not a marketing brief. Reach for the vivid, concrete, slightly absurd
-  comparison over the safe abstract one ("every session forgets everything the moment it
-  ends," not "state isn't persisted between sessions") — a line should be memorable enough to
-  repeat, not just accurate. Short, confident, declarative sentences. State an opinion bluntly
-  instead of hedging it. Self-aware about how AI-coding-tool README hype usually sounds, happy
-  to poke fun at the pattern it's part of. House rules for that voice, first two non-negotiable:
+  VOICE: warm, plain-spoken, and lightly funny — a friendly expert showing a smart friend
+  their favorite tool, not a marketing brief. Four habits carry it:
+    1. Plain language first. Say the simplest true thing. If a technical term is unavoidable,
+       explain it in plain words in the same sentence. Assume the reader is smart but brand-new
+       to this exact topic.
+    2. Answer first. Put the takeaway in the first sentence of a section — never make the reader
+       hunt for the point. Arrange ideas in logical order; don't jump ahead and double back.
+    3. Easy to skim. Short sentences (aim under ~25 words). Paragraphs of 2-3 sentences around
+       one idea. Bold lead-ins on bullets, one idea per bullet. Name the thing instead of a
+       vague "it"/"this" when the reader might lose track of what you mean.
+    4. Concrete, not abstract. Give the real number ("$0.159 an average session") over "much
+       cheaper." State the why or how alongside the point. The reader should never have to
+       re-read a sentence or look up a word to follow it.
+  Still reach for the vivid, memorable comparison over the safe abstract one ("every session
+  forgets everything the moment it ends," not "state isn't persisted between sessions"). A light
+  joke, a wink, a little warmth is welcome — the goal is friendly and clear, never goofy and
+  never at the reader's expense. House rules, first two non-negotiable:
     - No profanity, ever. Crude isn't a substitute for funny — if a line only lands because of
-      a swear word, cut the word and find the sharper, cleaner version of the same joke. Loud
-      and blunt is the goal; crude is not.
+      a swear word, cut the word and find the cleaner, sharper version of the same joke.
     - Never make the joke at a real project's or a real person's expense. You MAY name a
       competitor here — this is the README, the one surface where naming a rival is allowed, and
       "beating the giants" framing is welcome — but name it to out-compete it on the merits, not
@@ -36,7 +45,7 @@
       brief"); the real names live only in gitignored private notes (docs/research/). A
       pre-commit + commit-msg hook enforces this, skipping README.md and always guarding commits.
     - Self-deprecating humor about the PROBLEM ("AI assistants love to add things") or about
-      the genre of README this is ("does it actually work, or is this vibes") is fair game.
+      the genre of README this is ("does it actually work, or is this just vibes") is fair game.
   Still no jargon in the plain-language sections (no "context traffic", "PreToolUse", "n=6",
   "tokens", schema/field names) — a joke about jargon is fine, actual jargon isn't.
 
@@ -71,34 +80,35 @@
   Your AI assistant writes beautiful commit messages for code that doesn't compile.
   gutter makes it check first.
 
-  ## The problem
+  ## What is this?
 
-  Every AI coding tool ships the same demo: flawless code, first try, confetti.
-  Then you use one for a week and learn its favorite sentence: "This should work now."
-  Should. The load-bearing word in modern software.
+  Every AI coding tool ships the same demo: flawless code, first try, confetti. Then you
+  use one for a week and meet its favorite sentence: "This should work now." Should. The
+  most load-bearing word in modern software.
 
-  gutter is a small set of hooks that turns "should work" into "ran, exit code 0, here's
-  the line that proves it." No dashboard. No subscription. No whitepaper about agentic
-  synergy. It sits in the gutter and catches what rolls off.
+  gutter is a small set of hooks — little scripts that run at the right moment — that turn
+  "should work" into "ran it, exit code 0, here's the line that proves it." No dashboard,
+  no subscription, no whitepaper about synergy. It just sits quietly and catches what
+  rolls past.
 
-  ## What it does
+  ## How it works
 
   | When | What happens |
   |---|---|
   | The assistant claims something works | gutter checks whether anything was actually run |
-  | Nothing was | One polite interruption: run it, or say plainly that you didn't |
-  | Something was, and it failed | The failure gets quoted back before "done" is allowed |
+  | Nothing was | One gentle nudge: run it, or just say plainly that you didn't |
+  | Something ran, and it failed | The failure gets quoted back before "done" is allowed |
 
-  That's the whole trick. You could do this yourself, every time, forever, without ever
-  getting tired of it. You will not.
+  That's the whole trick. You could do this yourself, every time, forever, and never once
+  get tired of it. You will not. That's what gutter is for.
 
-  ## Honest limits
+  ## Good to know
 
-  gutter reads what happened; it can't smell intent. A test suite that passes for the
-  wrong reasons will sail through — that one's still on you. And if you tell it to be
-  quiet, it's quiet: one environment variable, documented below, no hard feelings.
+  gutter reads what happened — it can't read minds. A test suite that passes for the wrong
+  reasons will sail right through, and catching that one is still on you. And if you'd
+  rather it stayed quiet, it will: one setting, documented below, no hard feelings.
 
-  Does it actually work, or is this vibes? We keep the receipts in the repo — every
+  Does it actually work, or is this just vibes? We keep the receipts in the repo — every
   claim above maps to a test you can run in about two seconds.
 -->
 
