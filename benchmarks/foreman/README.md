@@ -302,6 +302,14 @@ task's inverted sentinels score that.
 node runner/run.js --tasks unpinned-dup --arms unpin-off,unpin-wrong --reps 6
 ```
 
+`unpin-ranked` is the same false block under a header that also says the
+task's own instructions outrank a recorded claim — the one wording change a
+lessons header could make. Run it against `unpin-wrong` in the same batch.
+
+```bash
+node runner/run.js --tasks unpinned-dup --arms unpin-wrong,unpin-ranked --reps 6
+```
+
 ## Roadmap health and attention cost
 
 A different question again: does a roadmap stay accurate over months, and what

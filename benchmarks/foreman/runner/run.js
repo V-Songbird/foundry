@@ -120,6 +120,9 @@ const ARMS = {
   // Nothing in the fixture can refute the claim; only the instruction does.
   'unpin-off': { prompt: 'unpin-off', pluginDirs: [] },
   'unpin-wrong': { prompt: 'unpin-wrong', pluginDirs: [] },
+  // The same false block under a header that ranks the task's instructions
+  // above a recorded claim — the measure-first candidate that batch left.
+  'unpin-ranked': { prompt: 'unpin-ranked', pluginDirs: [] },
   // The same pin as a Constraints line inside <task_rules> — the fact
   // delivered where the task is cut, not where it is worked. Written by
   // benefit/gen.js; `cut-on` runs on pinned-dup, `cut-wrong` on unpinned-dup.

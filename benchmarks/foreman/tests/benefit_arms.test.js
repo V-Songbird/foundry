@@ -239,6 +239,13 @@ describe('the uncheckable-lesson arms', () => {
     assert.equal(gen.build('unpin-off'), BASE);
   });
 
+  test('the ranked arm differs from unpin-wrong by the header alone, and the header adds only the ranking', () => {
+    const header = gen.ARMS['unpin-wrong'].split('\n')[0];
+    assert.equal(gen.ARMS['unpin-ranked'].replace(gen.RANKED_HEADER, header), gen.ARMS['unpin-wrong']);
+    assert.ok(gen.RANKED_HEADER.startsWith(header.slice(0, -1)));
+    assert.match(gen.RANKED_HEADER, /instructions outrank them:$/);
+  });
+
   test('the task asks for the very collapse the lesson forbids', () => {
     assert.match(BASE, /collapse any obvious copy-paste duplication/);
     assert.match(gen.PIN_LESSON, /do not unify them/);
