@@ -59,6 +59,11 @@ function verify(root, marketplace) {
     const source = entry.source;
     if (!source || typeof source !== "object" || source.source !== "url" || !source.sha) continue;
 
+    if (source.ref) {
+      problems.push(...require("./check-platform-marketplaces.js").verifyEntry(root, entry, "Claude", marketplace.owner));
+      continue;
+    }
+
     const actualHead = submoduleHead(root, entry.name);
     if (actualHead === null) {
       problems.push(`"${entry.name}": submodule not checked out (was this workflow run with submodules: true?)`);
@@ -89,7 +94,7 @@ function main() {
   const problems = verify(root, marketplace);
 
   if (problems.length === 0) {
-    process.stdout.write("marketplace.json source.sha matches every submodule's checked-out commit and recorded pointer.\n");
+    process.stdout.write("Marketplace release pins are valid for their declared source branches.\n");
     return 0;
   }
 

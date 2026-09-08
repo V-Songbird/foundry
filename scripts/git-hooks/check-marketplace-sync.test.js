@@ -59,6 +59,14 @@ describe("findPluginEntry", () => {
 });
 
 describe("evaluate", () => {
+  test("a branch-selected release is independent of the development gitlink", () => {
+    const problems = evaluate({
+      submoduleChanges: [{ path: "foreman", newSha: "a".repeat(40) }],
+      marketplaceStaged: false,
+      marketplace: { plugins: [{ name: "foreman", source: { source: "url", ref: "Claude", sha: "b".repeat(40) } }] },
+    });
+    assert.deepEqual(problems, []);
+  });
   test("passes when no submodule changes are staged", () => {
     const problems = evaluate({ submoduleChanges: [], marketplaceStaged: false, marketplace: null });
     assert.deepEqual(problems, []);

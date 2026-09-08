@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 
-// Root-repo pre-commit gate: a staged submodule pointer bump (mode 160000)
-// must land in the same commit as a matching "version"+"source.sha" update
-// in .claude-plugin/marketplace.json, or installers either get stale code
-// under a new version label, or /plugin update silently skips a real change
-// (Claude Code resolves version before it ever looks at the git SHA).
+// Legacy catalogs tie gitlinks to release pins. Branch-selected platform
+// catalogs validate their release pins through check-platform-marketplaces.
 
 const path = require("path");
 const { execSync } = require("child_process");
@@ -42,6 +39,11 @@ function evaluate({ submoduleChanges, marketplaceStaged, marketplace, pluginName
     // no version or source.sha for this gate to keep in step.
     if (pluginNames && !pluginNames.includes(pluginName)) continue;
     const shortSha = change.newSha.slice(0, 12);
+
+    // Platform catalogs install from explicit repository revisions. A gitlink
+    // selects a development checkout independently of either release channel.
+    // check-platform-marketplaces validates the staged release pins separately.
+    if (findPluginEntry(marketplace, pluginName)?.source?.ref === "Claude") continue;
 
     if (!marketplaceStaged) {
       problems.push(
@@ -101,7 +103,7 @@ function checkConsistency(root) {
 
   const marketplaceStaged = stagedFileNames(root).includes(MARKETPLACE_PATH);
   let marketplace = null;
-  if (marketplaceStaged) {
+  if (marketplaceStaged || committedPluginNames(root)) {
     try {
       marketplace = readStagedMarketplaceJson(root);
     } catch (err) {

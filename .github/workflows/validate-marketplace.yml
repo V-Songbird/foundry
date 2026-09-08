@@ -18,11 +18,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: fetch plugin platform branches
+        run: git submodule foreach 'git fetch origin "+refs/heads/*:refs/remotes/origin/*"'
+
       - name: marketplace.json must be valid JSON
         run: node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json', 'utf-8'))"
 
-      - name: every plugin's source.sha must match its submodule's checked-out commit
-        run: node scripts/git-hooks/verify-marketplace-pins.js
+      - name: validate both platform catalogs and their pinned manifests
+        run: node scripts/git-hooks/check-platform-marketplaces.js
 
       # Only the pages this repo pins at a commit that already has a nav. Each
       # plugin front page is gated by that plugin's own pre-commit hook, and

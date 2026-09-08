@@ -6,6 +6,9 @@
 
 const sync = require("./check-marketplace-sync.js").main();
 if (sync !== 0) process.exit(sync);
+// Each platform catalog owns its branch and immutable release revision.
+const platforms = require("./check-platform-marketplaces.js").main(["--staged"]);
+if (platforms !== 0) process.exit(platforms);
 // Reference-name scan: private blocklist (gitignored), fail-open when absent.
 process.argv[2] = "staged";
 const names = require("./check-reference-names.js").main();
