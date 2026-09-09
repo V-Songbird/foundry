@@ -51,7 +51,7 @@ function verifyEntry(root, entry, platform, owner) {
       if (!manifest.interface?.composerIcon) errors.push(`${entry.name}: pinned Codex manifest needs a composerIcon`);
       else {
         const icon = manifest.interface.composerIcon;
-        if (!/^\.\/assets\/[A-Za-z0-9._-]+\.svg$/.test(icon)) errors.push(`${entry.name}: invalid composer icon path`);
+        if (!/^\.\/assets\/[A-Za-z0-9._-]+\.(?:svg|png)$/.test(icon)) errors.push(`${entry.name}: invalid composer icon path`);
         else git(repo, ["cat-file", "-e", `${source.sha}:${icon.slice(2)}`]);
       }
       if (!entry.policy?.installation || !entry.policy?.authentication || !entry.category) {

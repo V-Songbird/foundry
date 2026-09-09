@@ -3,12 +3,13 @@ paths:
   - "**/README.md"
   - "**/docs/BENCHMARKS.md"
   - "**/assets/*.svg"
+  - "**/assets/*.png"
 ---
 
 # Coordinated plugin READMEs
 
 This contract applies to Claude/Codex editions. A plugin's main branch is a
-four-file edition selector, checked by check-main-frontpage.js; it does not
+shared product overview with coordinated branding, checked by check-main-frontpage.js; it does not
 carry these exception blocks or benchmark sections. Flint is outside that cleanup.
 
 For each plugin, Claude and Codex share the same product purpose, narrative,
