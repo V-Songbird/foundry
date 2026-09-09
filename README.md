@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" />
-    <img src="assets/logo.svg" alt="foundry" width="240" />
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png" />
+    <img src="assets/banner-light.png" alt="foundry" width="900" />
   </picture>
   <h1>foundry</h1>
   <p><strong>Plugins for Claude Code and Codex that keep the plan, cut the chatter, and stop the over-building.</strong></p>
