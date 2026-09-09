@@ -45,16 +45,20 @@ fallback with Node removed from PATH. The complete local suite passes. The
 [final remote runtime matrix](https://github.com/V-Songbird/foreman/actions/runs/34330907524)
 passes on Windows and Linux, closing the launcher portability blocker.
 
-The three main-selector PRs have passing checks and require review:
+The three main-selector PRs passed their checks and were merged with the owner's
+explicit authorization:
 [Foreman #1](https://github.com/V-Songbird/foreman/pull/1),
 [Hush #3](https://github.com/V-Songbird/hush/pull/3),
 [Razor #1](https://github.com/V-Songbird/razor/pull/1).
-They have not been merged and no protection bypass was used. Foundry's aggregate
-selector check will require their final trees to be integrated first.
+The required approval count was temporarily reduced from one to zero for each
+merge, with status checks retained. Immediately afterward the original ruleset
+was restored and compared field by field. No permanent main protection change
+was made. Foundry's aggregate selector check can now validate the final trees.
 
-The proposed rulesets remain unapplied: automatic approval review rejected their
-creation because it requires explicit authorization for those exact persistent
-branch-protection changes. No protection settings changed. Preservation records
+The six platform rulesets are now active following explicit owner authorization.
+The [applied ruleset receipt](applied-platform-rulesets-2026-09-09.json) records their
+IDs and verified release heads. Each matches the reviewed proposal, and the four
+original default rulesets retain their original settings. Preservation records
 the specifically authorized Windows launcher, its generator and tests; other
 product behavior remains unchanged.
 

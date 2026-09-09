@@ -6,9 +6,10 @@ describe individual phases and must not be read as the current pending list.
 
 Publication is now authorized and underway. Read the [release progress](release-progress-2026-09-09.md)
 for current versions, published pins and Codex installation proof. Foreman's
-Windows launcher correction now passes CI. Main-selector PRs still require
-review, and the proposed rulesets need explicit approval after automatic review
-rejected their creation.
+Windows launcher correction now passes CI. The three main selectors are merged
+and six platform rulesets are active. Temporary approval-count changes were
+restored immediately after each authorized merge. Foundry's final merge and
+post-merge verification are the remaining publication steps.
 
 ## Implemented and checked locally
 
