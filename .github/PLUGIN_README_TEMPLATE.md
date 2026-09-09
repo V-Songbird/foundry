@@ -14,17 +14,15 @@ The required shared sections, in order, are:
 1. What is this?
 2. Why you'd want it
 3. How it works
-4. Install
-5. What you can do
-6. The numbers
-7. Going deeper
-8. Good to know
+4. What you can do
+5. Install
+6. Good to know
+7. The numbers
+8. Going deeper
 9. License
 
-Start with the common logo, product name and short promise; follow with the
-edition's availability, navigation and TL;DR. A decorative mascot can be shared.
-Numerical charts, measured examples and replays belong with their platform's
-benchmark evidence. Never present an inherited measurement as a new model's run.
+Use the approved example-led C style: one short promise, edition availability and navigation, then a concrete situation explaining the product. Put the mascot after the introduction. Avoid a TL;DR that duplicates the promise. Use practical examples and connected prose; use tables for genuinely parallel choices. Put measured charts and recorded demos beside the evidence, with source attribution. Keep limits visible before results. Main overview uses an edition choice in place of native installation. Root uses a plugin choice table before installation.
+
 
 ## Six native exceptions
 
@@ -77,3 +75,7 @@ actual pair with --pair or --git-pair. Check README navigation and verify the
 cited measurements separately. Preserve supplied scope and authorization.
 
 Public community-file templates remain in the other PLUGIN_*_TEMPLATE.md files.
+
+## Approved art direction
+
+Follow docs/shared/launch/tinta-y-oficio.md for Ember and supporting graphics. Hush uses blue, Foreman green, Razor red, including the name pill and decorative README accents. Preserve banners and evidence; use flat fills and organic ink outlines without corner shine.
