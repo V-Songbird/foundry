@@ -4,7 +4,7 @@
     <img src="assets/logo.svg" alt="foundry" width="240" />
   </picture>
   <h1>foundry</h1>
-  <p><strong>Claude Code plugins that keep the plan, cut the chatter, and stop the over-building.</strong></p>
+  <p><strong>Plugins for Claude Code and Codex that keep the plan, cut the chatter, and stop the over-building.</strong></p>
 </div>
 
 <p align="center">
@@ -20,7 +20,7 @@
     <a href="#repository-layout">Repository layout</a>
 </p>
 
-> **TL;DR** — Three small plugins for Claude Code. foreman keeps your project plan alive between sessions. hush cuts the chatter and the cost. razor stops code nobody needed. Install one or all three — they stay out of each other's way.
+> **TL;DR** — foreman keeps your project plan alive between sessions. hush cuts the chatter and the cost. razor stops code nobody needed. All three are available for Claude Code; Foreman and Razor also support Codex.
 
 ---
 
@@ -40,6 +40,22 @@ Inside Claude Code, run:
 ```
 
 The first command registers this collection — you only do it once. The second installs whichever plugin you want. Changed your mind? `/plugin uninstall <plugin-name>@foundry` and it's gone.
+
+### Codex
+
+Foreman and Razor have Codex versions. Run:
+
+```powershell
+codex plugin marketplace add V-Songbird/foundry
+codex plugin add foreman@foundry
+codex plugin add razor@foundry
+```
+
+The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json).
+Both platforms use the name `foundry` and select their own catalog. Each catalog
+installs from the plugin repository's platform branch at a pinned revision.
+Open a new Codex task after installation to load the installed skills and hooks.
+Hush for Codex is not available yet.
 
 ---
 
@@ -91,7 +107,13 @@ foundry/
 └── razor/
 ```
 
-Every plugin lives in its own repo, mounted here as a git submodule (see [`.gitmodules`](.gitmodules)). Each ships its metadata in `.claude-plugin/plugin.json` and carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`. The root copies of the community files govern contributions to this marketplace repo itself. The marketplace index is [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json). It is the single owner of every plugin's version number — the plugin.json files carry no version field.
+Every plugin lives in its own repo, mounted here as a git submodule (see [`.gitmodules`](.gitmodules)), and carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`. The root copies of the community files govern contributions to this marketplace repo itself. The Claude Code catalog is [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json); it owns the Claude release versions and pins each source revision. Codex versions live in each plugin's `.codex-plugin/plugin.json`, with their own catalog at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json).
+
+Foundry itself uses only `main`. Each plugin has three branches: `main` is its
+front page, `Claude` contains the Claude Code plugin, and `Codex` contains the
+Codex version or its unpublished development entry point. The catalogs choose
+the platform branch explicitly; the submodule checkout does not select what
+users install. Hush stays outside the Codex catalog until its port is validated.
 
 [`flint/`](https://github.com/V-Songbird/flint) is mounted the same way but is not a plugin and is not in the marketplace. It is plain text — hush's writing voice and razor's cut-before-adding rules as files you paste into a session with nothing installed. It has no `plugin.json`, no version, and no marketplace entry.
 
