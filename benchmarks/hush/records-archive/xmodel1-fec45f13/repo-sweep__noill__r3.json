@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__noill__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 45,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 73283,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.279792,
+  "numTurns": 37,
+  "durationMs": 71420,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9933
+  },
+  "contextTraffic": 275748,
+  "apiCalls": 8,
+  "toolCalls": 36,
+  "toolResultChars": 23670,
+  "narrationWords": 19,
+  "finalWords": 45,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Good, confirmed shape. Now migrate the 12 non-vendor files (36 call sites total in packages/).",
+    "Verifying nothing's left behind."
+  ],
+  "finalText": "**Migration done.** 12 files, 33 call sites, switched to `db.execute({ sql, params })`.\n\nLeft `[vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js)` on `db.query` — it's marked \"vendored, do not edit, replaced wholesale on upgrade.\"\n\nNext: `db.query` in `[lib/db.js](lib/db.js)` can be dropped once that vendor package updates, since it's the only holdout.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6021323fae292e1d00e60ac8bc70e6477f7c8785800ba8928f5032e0561a1921"
+}

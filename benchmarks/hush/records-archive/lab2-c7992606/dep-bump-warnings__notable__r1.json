@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__notable__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notable",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27633,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11592319999999999,
+  "numTurns": 10,
+  "durationMs": 26081,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1594
+  },
+  "contextTraffic": 193906,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7874,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. Build now exits 0 with 0 errors.**\n\nTwo real bugs, both from the bundler bump's shape changes.\n\n`options.retries` → renamed to `retryCount` but [`options.js:7`](src/core/options.js:7) still read the old name, throwing on `undefined.toFixed`.\n\nUnset flags now come back as `undefined` instead of `false`, but [`retryPolicy.js:8`](src/net/retryPolicy.js:8) only handled `true`/`false` and threw otherwise. Now treats `undefined` as disabled.\n\nThe DEP0xxx and WARN W-series lines are just noise from the bump, not errors.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc0a0ddb364c0849e8ae4d953b8b98c36e7a2a48da31c5469ce0f3b67fae4d3e"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushv2__r1",
+  "batchId": "bake1-92978a50",
+  "seed": "1787816448085",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushv2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 59078,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.332125,
+  "numTurns": 7,
+  "durationMs": 56951,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2276
+  },
+  "contextTraffic": 213495,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 12158,
+  "narrationWords": 6,
+  "finalWords": 63,
+  "finalText": "**Redis went down and took the app with it.**\n\n1. `02:14:07` Redis refused connections at `10.0.0.12:6379`. 13 retries all failed.\n2. Reads went straight to the store. They timed out at 5000ms.\n3. The request queue passed its 500 cap at `02:29:12`.\n4. `02:31:44` worker-2 died out of memory. `02:31:52` supervisor killed the app.\n\nThis log is dated July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5e1a469116a16a32aff10b434ad7cedb4d487a8e4359386f33a8572d52b4add0"
+}

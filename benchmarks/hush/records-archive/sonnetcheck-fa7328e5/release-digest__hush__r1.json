@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 6,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 122951,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.40633060000000004,
+  "numTurns": 15,
+  "durationMs": 121464,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9883
+  },
+  "contextTraffic": 737215,
+  "apiCalls": 14,
+  "toolCalls": 14,
+  "toolResultChars": 37519,
+  "narrationWords": 60,
+  "finalWords": 149,
+  "finalText": "I went through all 380 commits since 4.1 and pulled out the real changes. Most of it was dependency bumps and refactors, but ten things will actually touch users. I've written them into `CHANGELOG.md` under a new 4.2.0 section, dated 2026-08-26.\n\nOne breaking change: an expired token now gets a 401 response instead of 403. Anyone checking for 403 on expired tokens needs to update. One new feature: failed webhook deliveries now retry automatically with backoff. The rest are fixes: crashes on null pagination cursors, duplicate response headers, a double-trimmed trailing slash, empty allowlists breaking requests, a lost trace ID on retry, wrong units in the latency histogram, an HTTP client timer and pool leak, and the database logging full request bodies.\n\nThat last one is worth flagging to your team: it means request bodies, which can include sensitive fields, were showing up in database logs before this fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f4f2d33a16e617f92684264a958cc18608296874f6bd187c4be5d53624586589"
+}

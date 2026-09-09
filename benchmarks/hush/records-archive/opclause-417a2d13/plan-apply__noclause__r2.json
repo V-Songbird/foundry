@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r2",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 3,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 16194,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1369015,
+  "numTurns": 6,
+  "durationMs": 14257,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 844
+  },
+  "contextTraffic": 57642,
+  "apiCalls": 3,
+  "toolCalls": 5,
+  "toolResultChars": 2401,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: parse `--json` in `cli.js`, branch on the writer, leave `report.js` and `format.js` alone.**\n\n1. In [cli.js:9](src/cli.js:9), accept `report --json` in any arg order.\n2. Print `JSON.stringify(buildRows(), null, 2)` instead of `toTable(...)`.\n3. Keep the trailing newline and the `1` exit on bad args.\n\nOne call to make. `toTable` drops `owner` and `slow` on purpose, for width only. So \"same data\" splits two ways. I would give JSON the full `buildRows()` row, all six fields, since the drop is a terminal concern. If you want strict table parity, I mask to `COLUMNS` instead. Say which.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac338ed638957caf961796bc1b69f61c23641d24506aa5c961c368ea8cdc5642"
+}

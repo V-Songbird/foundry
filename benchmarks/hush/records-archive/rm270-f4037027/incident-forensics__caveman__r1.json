@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 88,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 53975,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2197252,
+  "numTurns": 14,
+  "durationMs": 48567,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3242
+  },
+  "contextTraffic": 510862,
+  "apiCalls": 12,
+  "toolCalls": 10,
+  "toolResultChars": 15641,
+  "narrationWords": 0,
+  "finalWords": 204,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Root cause:** dep-4471 (gateway, a.novak, 2026-03-14T02:12:00Z–02:14:00Z) — \"config: connection-per-request for pool isolation.\" This flipped `gateway.pool.perRequest` from `false` to `true` (config generation 119, applied 02:13:41.234Z). Shortly after, the connection pool (fixed size 20) began saturating — every request now claims its own connection instead of sharing — and has never recovered, with the wait queue climbing steadily (13 → 74+ by 03:59Z, last log entry).\n\n**Impact window:** Started 2026-03-14T02:14:18.972Z (first 503, req-07401, `/v1/cart -> billing-svc`), ongoing as of the last log line at 03:59:27Z. No recovery observed. Affects all gateway-routed traffic (`/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`) across billing-svc, orders-svc, catalog-svc, accounts-svc. `/health` checks still return 200, so basic health probes won't catch this.\n\n**Error signature:**\n```\nERROR pool req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n**Scope check:** Worker service (logs/worker.log) unaffected — separate DB pool, all jobs completed normally through and after the incident window. This is gateway-only.\n\n**Action:** Roll back dep-4471 (revert `gateway.pool.perRequest` to `false`), or push a new config generation restoring the prior pool-sharing behavior. Two later deploys shipped after the incident began — dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) — neither touches gateway/pool config, no rollback needed on those.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8df2e331dd40e0e3ae9ca88fa91b07682cf46d0dcdb3171cd0b162fa751b4dbe"
+}

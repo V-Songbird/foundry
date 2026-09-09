@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__secondfact__r1",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19217,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.2004596,
+  "numTurns": 4,
+  "durationMs": 16874,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 859
+  },
+  "contextTraffic": 157420,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23562,
+  "narrationWords": 0,
+  "finalWords": 178,
+  "finalText": "Your Redis box went down at 2:14am. Everything cascaded from there.\n\nHere's the chain:\n\n1. Redis dropped at `02:14:07` with `ECONNREFUSED 10.0.0.12:6379`.\n2. The app fell back to hitting the database directly for every request.\n3. That direct traffic overloaded the store. Timeouts started piling up, one every couple seconds, for the next 17 minutes straight.\n4. The request queue grew the whole time. It started around 50 and climbed past its own limit of 500 by `02:29`.\n5. Redis kept trying to reconnect and failing, about once a minute, 12 tries total.\n6. At `02:31:44` a worker ran out of memory from the backlog and crashed.\n7. Eight seconds later the api gave up too, and the whole service went down.\n\nSo the real cause was Redis dying. The database fallback and the growing queue were just the slow bleed that followed, and the memory crash was what finally killed it. Fixing this means getting Redis back first, and probably capping that request queue so a future Redis outage can't take the whole box down with it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0391daab0ad0c24ba49dccca75bffcf8b8c06ac93ccc21ed918c3706d2577da8"
+}

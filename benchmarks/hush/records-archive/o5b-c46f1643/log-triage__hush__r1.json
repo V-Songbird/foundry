@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "o5b-c46f1643",
+  "seed": "1787818757484",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57712,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38006799999999996,
+  "numTurns": 9,
+  "durationMs": 55705,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2802
+  },
+  "contextTraffic": 280993,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 10793,
+  "narrationWords": 0,
+  "finalWords": 49,
+  "finalText": "**Redis went down and took prod with it.**\n\n1. `02:14:07` UTC: Redis refused connections at `10.0.0.12:6379`.\n2. Every read then hit the store. Timeouts started.\n3. Backlog passed its 500 cap at `02:29:12`.\n4. `02:31:44` `worker-2` ran out of memory. `api` died `02:31:52`.\n\nAll 13 Redis reconnect tries failed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "82701d7fb1266d7ca55b9f9d0aea9f5fbcb2d9240f056857100ed4f4c210162c"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__focus5__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 36,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "focus5",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62246,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.3599035,
+  "numTurns": 19,
+  "durationMs": 60668,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4090
+  },
+  "contextTraffic": 170723,
+  "apiCalls": 7,
+  "toolCalls": 18,
+  "toolResultChars": 16069,
+  "narrationWords": 7,
+  "finalWords": 98,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the codebase."
+  ],
+  "finalText": "**1291 hits across 94 files. Most are safe.**\n\n| Area | Hits | Rule |\n|---|---|---|\n| `services/`, `lib/audit.js` | 1203 | Rename freely |\n| `migrations/*.sql` | 61 | Applied history, never edit |\n| `vendor/reporting-sdk` | 20 | Generated, refresh overwrites edits |\n| `docs/openapi.yaml` | 5 | Frozen public contract |\n| `lib/serialize.js` wire value | 1 | Frozen public field name |\n\n250 SQL strings name the DB column. Those stay.\n\nIn [serialize.js:8](lib/serialize.js:8) flip the left key only. Miss it and `account_id` drops from every response.\n\nNext: ask them for a column-rename migration plan.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "496bc9c1b5f6cbf1842182f58ea661ab1feaf324d37d5145bbf88f0aa53fcd0d"
+}

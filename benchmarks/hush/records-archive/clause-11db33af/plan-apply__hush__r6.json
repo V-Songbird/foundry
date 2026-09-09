@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r6",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 22,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 9907,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06259800000000001,
+  "numTurns": 4,
+  "durationMs": 8312,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 511
+  },
+  "contextTraffic": 75954,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no changes made yet.**\n\n`buildRows()` in [report.js](src/report.js) already returns plain data. `--json` only needs work in [cli.js](src/cli.js:9).\n\n1. Read `--json` out of argv, alongside `command`.\n2. Keep `command !== 'report'` check as is.\n3. Branch the output: `JSON.stringify(rows)` when the flag is set, else the current `toTable(rows)` call.\n\nNo touch to `report.js` or `format.js`. Want me to apply it?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9156b678c64d8b66d8fc3d1c4ec7fe7939f47c43ab6d7aacedd45985ac577e5c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 24,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 44120,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0714364,
+  "numTurns": 13,
+  "durationMs": 42495,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2392
+  },
+  "contextTraffic": 302521,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 7289,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "finalText": "Fixed the coupon bug. The issue was in `pricing.js` — flat coupons (stored in USD) were being subtracted directly from the already-converted total, instead of converting the coupon amount to the target currency first.\n\nFor a $10 coupon on a $100 order in EUR at rate 0.9:\n- Wrong way: 90 - 10 = 80\n- Right way: 90 - 9 = 81\n\nAll 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "30491f57b11f00f052a3a7f45db1cadbc531292c05556696efde01c7efbb3901"
+}

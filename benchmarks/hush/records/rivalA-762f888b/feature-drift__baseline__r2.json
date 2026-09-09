@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 129,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 110034,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7196259999999999,
+  "numTurns": 28,
+  "durationMs": 105064,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6444
+  },
+  "contextTraffic": 649981,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 14677,
+  "narrationWords": 6,
+  "finalWords": 104,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Added key-based dedupe backed by `state`: `createState()` now returns `{ lastSentByKey: new Map() }`, and `route()` drops an event whose key was last *delivered* under 5 minutes ago. The timestamp is recorded only when something actually goes out, so a dropped repeat doesn't extend the window.\n\nTwo judgment calls, both easy to flip:\n- Boundary is strictly under 5 minutes, so a repeat at exactly +5 delivers.\n- Queue deliveries during quiet hours count as \"sent\" for dedupe purposes.\n\nReplay: 0 errors, 99 dropped — the flap repeats (`evt-0711 disk-usage` at +2 min after `evt-0710`, etc.). Totals fell accordingly: `queue=266`, `email=223`, `pager=200`, `sms=112`, `push=112`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "85b35fbf64d5022619b82490dd0bf34556210e5406e60e39e77122da66306bf0"
+}

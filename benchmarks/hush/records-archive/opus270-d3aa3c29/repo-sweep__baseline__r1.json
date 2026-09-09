@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 155510,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.849623,
+  "numTurns": 25,
+  "durationMs": 154558,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11181
+  },
+  "contextTraffic": 632230,
+  "apiCalls": 17,
+  "toolCalls": 24,
+  "toolResultChars": 21349,
+  "narrationWords": 316,
+  "finalWords": 375,
+  "finalText": "Migration finished. I found 38 remaining `db.query` call sites and migrated the 36 that are ours.\n\n**Changed — 12 files, 36 call sites:**\n\n| Package | Files |\n|---|---|\n| accounts | `admin/apiKeyAdmin.js`, `repo/session.js`, `service/teamService.js` |\n| analytics | `repo/cohort.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `admin/variantAdmin.js`, `repo/supplier.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `admin/macroAdmin.js`, `repo/sla.js` |\n\nThat brings first-party code to 75/75 files on `db.execute`.\n\n**Two things I deliberately did not touch:**\n\n1. **`vendor/legacy-orm/adapter.js`** (2 sites) — still on `db.query`. Its header says *\"Vendored copy of legacy-orm 2.1.4. Do not edit — it is replaced wholesale on every upgrade, and local changes are silently lost.\"* Migrating it would be reverted by the next vendor bump, so this needs an upstream fix or a wrapper at the boundary. **This is the one loose end blocking removal of `db.query` from `lib/db.js`.**\n\n2. **`cache.query(...)`** (25 sites) — `lib/cache.js` has its own unrelated `query(key)` method that takes a cache key, not SQL. Name collision only. A blanket find-replace on `.query(` would have silently broken every read-through cache lookup; I scoped the codemod to the literal `db.query(`.\n\n**Verification** — I used a balanced-paren codemod rather than a regex, because the `update*` sites contain nested brackets (`patch[k]`) that a greedy pattern can mangle. Then:\n\n- All 78 files pass `node --check`.\n- Ran every exported function of all 12 files (18 getters, 12 listers, 12 updaters): 54 calls, all recorded as `form: 'execute'`, zero falling through to a shimmed `db.query`.\n- Asserted `?`-placeholder count equals bound-param count at every site, and that the update path preserves param order (`['issued', 250, 'refund-9']`) — the case most at risk from the rewrite.\n- Confirmed the cache path still works and `cache.query(key)` retains its semantics.\n- Sanity-checked the harness against the vendor file to confirm it actually distinguishes `query` from `execute`, rather than passing vacuously.\n- Normalized-diffed a migrated file against an already-migrated sibling: byte-identical, so the new code matches the earlier passes' style. All 225 `execute` sites share one canonical shape.\n\nScratch tooling removed; the tree is back to its original 78 files. Note `execute` also accepts a `timeoutMs` option — nothing needs it yet, but that's the capability the positional form couldn't carry.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7aefc8d37df79dd24e447d10c274df6d514c2891ea6a6c828e112a426c1e71e7"
+}

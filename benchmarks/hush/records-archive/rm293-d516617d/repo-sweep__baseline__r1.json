@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 33,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57770,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3709595,
+  "numTurns": 11,
+  "durationMs": 56281,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3495
+  },
+  "contextTraffic": 220596,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 20215,
+  "narrationWords": 72,
+  "finalWords": 203,
+  "assistantMsgs": 6,
+  "finalText": "All 12 files parse clean. No test suite or root `package.json` in the repo, so there's nothing to run beyond the syntax check.\n\n## Done\n\nMigrated 36 call sites across 12 files to `db.execute({ sql, params })`:\n\n- `packages/accounts` — `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js`\n- `packages/analytics` — `repo/cohort.js`\n- `packages/billing` — `repo/refund.js`, `service/couponService.js`\n- `packages/catalog` — `repo/supplier.js`, `admin/variantAdmin.js`\n- `packages/orders` — `repo/shipment.js`, `service/returnService.js`\n- `packages/support` — `repo/sla.js`, `admin/macroAdmin.js`\n\nTwo judgment calls worth confirming:\n\n**`cache.query(...)` was left alone.** It appears in ~25 files and matches a naive `.query(` grep, but it's a different object from `lib/cache.js` with a single-key signature — unrelated to this migration.\n\n**`vendor/legacy-orm/adapter.js` was not migrated.** It has two `db.query` calls at lines 9 and 13, but the file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local changes silently lost. Editing it would be reverted on the next bump. Since `lib/db.js` notes the driver's next major *drops* `query`, this is a real loose end — it just needs fixing upstream or via a wrapper rather than in the vendored tree. That's the one thing standing between you and deleting `db.query` outright; want me to add a shim, or is retiring the vendored ORM already planned?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62e67821a17761e61b343109f42b5f971d3a4f3d885e40874e9eebeec132aa29"
+}

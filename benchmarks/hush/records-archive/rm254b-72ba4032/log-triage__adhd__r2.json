@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21465,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2931027,
+  "numTurns": 3,
+  "durationMs": 20021,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1586
+  },
+  "contextTraffic": 139726,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60092,
+  "narrationWords": 0,
+  "finalWords": 279,
+  "finalText": "Found it. Here's the timeline:\n\n**Healthy baseline:** 02:00:00 – 02:14:03, normal traffic (`/users`, `/orders`, `/health`), cache hit ratios 90-98%.\n\n**Trigger — Redis died:**\n- `02:14:07.113` `[api] ERROR redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` (line 182)\n- `02:14:07.114` app fails over to direct store reads (cache layer degraded)\n\n**Cascade:** Redis never came back. From 02:14 to 02:31 the log shows a repeating pattern every ~2s across `api`/`worker-1`/`worker-2`/`scheduler`:\n- `cache miss storm` warnings (direct-store reads thrashing)\n- `TimeoutError: request timed out after 5000ms (store overloaded)`\n- `request queue depth` climbing steadily (52 → 568, past the max of 500 around `02:29:06`, line 647)\n- 13 automatic Redis reconnect attempts (`attempt 0` through `attempt 12`, roughly every 2 minutes), **every single one failed** with the same `ECONNREFUSED 10.0.0.12:6379` — Redis host was fully down, not flapping.\n\n**Death spiral:**\n- `02:31:44.902` `[worker-2] ERROR JavaScript heap out of memory (request backlog)` (line 717) — the unbounded queue finally OOM'd a worker\n- `02:31:45.001` supervisor restarts worker-2\n- `02:31:52.318` `[supervisor] FATAL api unresponsive, killing process group — service down` (line 719) — that's the last line in the file; no recovery logged after this.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable at 02:14 and stayed down for the rest of the log (17+ min, 13 failed reconnects). The app's fallback-to-direct-store-reads path isn't load-shedding or backpressure-aware — it let the request queue grow unbounded instead of shedding load, which eventually OOM'd a worker and took the whole API down.\n\n**Next steps to check:** why Redis at 10.0.0.12 was unreachable that long (host/network issue, not app-side), and consider adding backpressure/circuit-breaking on the direct-store fallback so a Redis outage degrades performance instead of taking the whole service down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "47f5aef157bce5fc7e84b3bc49e36b0b65f26b08c59434e2c8f7e1a2d2378a31"
+}

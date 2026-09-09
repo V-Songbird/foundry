@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rx3-a77633ec",
+  "seed": "1786463572387",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32669,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.21027410000000002,
+  "numTurns": 10,
+  "durationMs": 31230,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1826
+  },
+  "contextTraffic": 301778,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8591,
+  "narrationWords": 29,
+  "finalWords": 86,
+  "finalText": "Build passes clean now. 0 errors, exit code 0.\n\nTwo real bugs, both from the bundler bump changing shapes underneath your code:\n\n1. `src/core/options.js:6` — bundler now passes `{ retryCount }`, not `{ retries }`. Was crashing on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags as `undefined` instead of `false`. Strict check threw on that instead of treating it as disabled.\n\nThe rest of the noise (DEP0142, DEP0198, etc.) was genuine deprecation warnings, not bugs — left as-is since they don't break anything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a5d0b4c2af6d83d5a58180c4efdb6fe15a61c8e46b2274a211801d44f6712b9f"
+}

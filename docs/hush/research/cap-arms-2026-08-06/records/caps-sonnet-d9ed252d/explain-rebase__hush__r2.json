@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__hush__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 76,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 7057,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0794502,
+  "numTurns": 1,
+  "durationMs": 5178,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 309
+  },
+  "contextTraffic": 35895,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "Both take commits from one branch onto another, but they leave different history behind.\n\n**Merge** keeps every commit exactly as it happened and adds one new commit that ties the two branches together. Nothing gets rewritten, so it's safe on shared branches. The trade-off is a messier history, with merge commits and side branches mixed in.\n\n**Rebase** replays your commits one by one on top of the other branch, as if you'd started there. History ends up as a straight, clean line with no merge commits. The catch: it rewrites commit history, so if anyone else is working off those commits, their copies will conflict with yours afterward.\n\nRule of thumb:\n- Use **merge** for shared branches like `main`, or anytime you want to preserve exactly what happened.\n- Use **rebase** to clean up your own local branch before opening a pull request, or to keep a feature branch current with `main` without a pile of merge commits.\n- Never rebase a branch other people are already pulling from.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "648f6196b67631736cd3b558b055dde960a9a6fcb2bd476012fd18d15816a18a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36362,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2747055,
+  "numTurns": 11,
+  "durationMs": 34446,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2139
+  },
+  "contextTraffic": 166007,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 15180,
+  "narrationWords": 91,
+  "finalWords": 245,
+  "finalText": "**Green: 625/625 passing**, and `verify.js` confirms it.\n\n## What was actually broken\n\nOne bug, one line, in `orderTotal` (`src/pricing.js:39`):\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on the pre-discount base\nreturn discounted + tax;\n```\n\nTax was being computed against `cents` — the full undiscounted amount — then added to the discounted subtotal. The function's own docstring says the opposite (\"Tax is charged on the amount the customer pays\"), so the code contradicted its stated rule. On a 12000c order at 15% off with 8.25% tax it overcharged by 148c; the 33400c row was off by 668c.\n\nThe fix routes the discounted amount through the existing `applyTax`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThat also collapses the redundant hand-rolled rounding — `applyTax` already rounds, and rounding the tax component separately before adding is a second place for cents to drift.\n\n## Why the wall of text hid it\n\nOnly 3 of 625 cases failed, and the suite is built so that almost every `order totals` row has *either* a zero discount *or* a zero tax. With one of the two at zero, the wrong ordering produces the identical answer — 66 rows passed while the bug was live. The three rows carrying both non-zero values are the only ones that can expose it, and they're the last three of ~66 in that suite, buried mid-run.\n\nThe other eight suites were never broken. Nothing in `cases.js` or `run-tests.js` needed touching.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3ec54c3f82e62d69a0e543d9980b5d7b7f7a3793a83cf03ebbf06297c5cdecb0"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 10,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 64910,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1981312,
+  "numTurns": 18,
+  "durationMs": 63261,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5608
+  },
+  "contextTraffic": 298297,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 11606,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "finalText": "account_id shows up in 94 files. 75 of those are safe to rename together: plain internal code in the accounts, orders, billing, notify and analytics services.\n\nFour places must keep the old name:\n- `vendor/reporting-sdk` — a copied-in package. Gets overwritten wholesale on every vendor refresh.\n- All 12 files in `migrations/` — already run in production. Editing them won't rename a live column, it just breaks their rollback step.\n- `lib/serialize.js` — maps internal fields to the public API. Its comment says this name is frozen by contract.\n- `docs/openapi.yaml` — the public API itself names the field `account_id`, in two object schemas and a query parameter.\n\nOne more worth a quick check: `lib/audit.js` writes `account_id` into every audit log line. Ask the team if old logs get searched by that field name before touching it.\n\nTo actually change the database column, that needs a brand new migration, not an edit to an old one.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fb0964925941b75c3f53d22abb323fb23f1698cd5db0b236558173aceb06eb8"
+}

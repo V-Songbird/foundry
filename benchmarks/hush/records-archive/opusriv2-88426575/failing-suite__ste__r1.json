@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31342,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.2795555,
+  "numTurns": 9,
+  "durationMs": 29767,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1668
+  },
+  "contextTraffic": 174425,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15832,
+  "narrationWords": 38,
+  "finalWords": 199,
+  "finalText": "The suite is green: 625 total, 625 passing, exit code 0.\n\n**What was broken**\n\nOnly 3 of the 625 cases failed. All 3 were in the `order totals` suite, in the `orderTotal` function.\n\nThe function applied the tax to the pre-discount amount, then added that tax to the discounted amount:\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on the full price\nreturn discounted + tax;\n```\n\nThe spec, and the function's own doc comment, say to take the discount off first and tax only what the customer pays. The old code taxed the full price, so every total was too high. For example, `orderTotal(12000, 15, 0.0825)` returned 11190 instead of 11042.\n\n**Why the other 621 cases passed**\n\nThe order-total suite has 66 rows with a zero discount and 12 rows with a zero tax. If one factor is zero, both formulas give the same number. Only the last 3 rows use a non-zero discount and a non-zero tax together, so only those rows exposed the mistake.\n\n**The fix**\n\n`src/pricing.js:39` now reuses the existing helper:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThe other 8 suites were passing before the change, and they still pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1ffdc28d9d258eb47130058b46dcd44cdb82e30bcb35480203aedaf66a7a325a"
+}

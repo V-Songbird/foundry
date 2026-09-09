@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43420,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.5661074999999999,
+  "numTurns": 7,
+  "durationMs": 41844,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2730
+  },
+  "contextTraffic": 231867,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 61457,
+  "narrationWords": 9,
+  "finalWords": 543,
+  "finalText": "## What happened\n\nRedis went down. The service ran without a cache for 17 minutes, the request backlog grew past its limit, and the supervisor killed the service.\n\n**Important:** the log covers `2026-07-04T02:00:00Z` to `2026-07-04T02:31:52Z`. That is July 4, not last night. Either this file is an old copy, or the rotated log for last night is somewhere else. Check this before you act on the report.\n\n## Timeline\n\n| Time (UTC) | Event | Line |\n|---|---|---|\n| 02:00–02:14 | Normal traffic. All requests return 200. Cache hit ratio 0.90–0.98. | 1–181 |\n| 02:14:07.113 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` | 182 |\n| 02:14:07.114 | Cache layer degraded. The service falls back to direct store reads. | 183 |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` | 185 |\n| 02:14:12 | Request queue depth 52. | 186 |\n| 02:15:26 | First Redis reconnect attempt fails. 13 attempts follow, all refused. | 224 |\n| 02:29:12 | Queue depth 502 crosses the stated max of 500. The service does not shed load. | 647 |\n| 02:31:26 | Last reconnect attempt (12) fails. Redis never came back. | 716 |\n| 02:31:44 | `worker-2`: JavaScript heap out of memory (request backlog). | 717 |\n| 02:31:45 | Supervisor restarts worker-2 (exit code 134). | 718 |\n| 02:31:52 | Supervisor kills the api process group. Service down. | 719 |\n\n## Root cause\n\nRedis at `10.0.0.12:6379` refused connections at 02:14:07. `ECONNREFUSED` means that the port was closed, not that the network dropped packets. The Redis process was down or was not listening.\n\nEverything after that is a consequence:\n\n1. Every read went to the backing store instead of the cache.\n2. The store could not take the load, so requests timed out after 5000 ms.\n3. Timed-out requests stayed in the queue, so the queue grew about 30 entries per minute for 17 minutes.\n4. The backlog used all heap memory in worker-2, which crashed with OOM.\n5. The api process stopped responding and the supervisor killed it.\n\n## Counts\n\n- 719 lines total: 348 WARN, 188 ERROR, 2 FATAL.\n- 173 store timeouts, 174 cache miss storm warnings, 173 queue depth warnings.\n- 14 Redis connection errors: 1 initial loss and 13 failed reconnects.\n\n## What to fix\n\n1. **Find out why Redis died.** The app log cannot tell you. Read the Redis host logs for 02:14 UTC.\n2. **Add a circuit breaker on the store.** The service kept sending traffic to an overloaded store for 17 minutes. It must fail fast instead.\n3. **Enforce the queue limit.** The log prints `max 500`, but depth reached 568 and nothing rejected requests. The limit is a label, not a control.\n4. **Use exponential backoff for reconnects.** The 13 attempts are spaced about 80 seconds apart with no change in interval.\n5. **Add a cache stampede guard.** The miss keys cycle through the same 200 values (`orders:1000`–`orders:1199`), so many workers fetch the same key at the same time.\n\nOne detail to watch: line 718 says the supervisor restarted worker-2, but no later line confirms that worker-2 came back. The log ends 7 seconds later, so this can be truncation and not a failed restart.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7add266ca2b1e1b974486510714f19a105e6fb1200d32ff20a5af0512612be78"
+}

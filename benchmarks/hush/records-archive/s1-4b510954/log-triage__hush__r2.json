@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 11,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20468,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.17433780000000001,
+  "numTurns": 5,
+  "durationMs": 18845,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1091
+  },
+  "contextTraffic": 197772,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 7955,
+  "narrationWords": 0,
+  "finalWords": 173,
+  "finalText": "Redis died at `02:14:07` and never came back. All good before that: normal traffic, cache hit ratio 0.98.\n\nThe moment redis dropped, `api` fell back to hitting the store directly for every request. That caused a cache miss storm, and the store couldn't keep up, so requests started timing out after 5000ms. Redis kept trying to reconnect every ~80 seconds, 13 times, all refused, right up to the crash.\n\nWith the store overloaded, the request queue kept growing, from 52 up past 560, never draining. `worker-2` finally ran out of memory holding the backlog and crashed at `02:31:44`. The supervisor restarted it, but eight seconds later `api` also stopped responding, so the whole process group was killed and the service went down.\n\nSo: root cause was redis at `10.0.0.12:6379` going unreachable at `02:14:07` and staying down. Everything after was 17 minutes of cascading backlog until the crash at `02:31:52`. Fixing this means getting redis back up and probably capping the queue so a dead cache can't take the whole service down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e6b1b07d359a9609da6984c6de5dcd8dc7a08ad8fc63c0e698a5cd955ea639de"
+}

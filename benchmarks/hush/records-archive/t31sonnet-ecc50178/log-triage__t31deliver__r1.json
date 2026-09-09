@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__t31deliver__r1",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "t31deliver",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26359,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1515231,
+  "numTurns": 3,
+  "durationMs": 24302,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1687
+  },
+  "contextTraffic": 104765,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 191,
+  "finalText": "Here's the story the logs tell, start to finish.\n\nRedis went down at 2:14:07am. Connection refused, right at 10.0.0.12:6379.\n\nThe app tried to cope. It switched to reading straight from the store instead of the cache. But that store couldn't take the extra load.\n\nFrom there it was a slow spiral. Cache misses kept piling up. Requests kept timing out. The queue of waiting requests grew and grew, past its safe limit of 500 by around 2:29am.\n\nMeanwhile redis kept refusing to reconnect. Attempt after attempt failed, roughly every two minutes, all the way to at least attempt 12 at 2:31am. It never came back.\n\nThe backlog finally broke things. At 2:31:44am, worker-2 ran out of memory and crashed. Eight seconds later, the whole api gave up too. The supervisor killed everything at 2:31:52am.\n\n**Root cause:** Redis at 10.0.0.12 dropped and stayed down. The fallback to direct reads wasn't built to handle real traffic, so the backlog just kept growing until something snapped.\n\n**Worth checking:** why redis went down and stayed down for 17+ minutes, and whether the fallback path needs a circuit breaker instead of letting the queue grow unbounded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "efcf7180c13ffdcbd4c3a15a320deb8b7107d5bfd56a91ff7a4760cbc859f9af"
+}

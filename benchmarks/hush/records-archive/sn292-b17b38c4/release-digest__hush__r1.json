@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 71558,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2288252,
+  "numTurns": 9,
+  "durationMs": 69852,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6038
+  },
+  "contextTraffic": 247472,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 30218,
+  "narrationWords": 0,
+  "finalWords": 84,
+  "assistantMsgs": 1,
+  "finalText": "**Wrote the 4.2.0 entry in [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, only 12 changed behavior. One breaking change: expired tokens now return `401`, not `403`. One feature: webhook retries with backoff. Rest is fixes — null-cursor crashes in four paginated endpoints, `db` logging full request bodies, HTTP client hangs on shutdown/socket-drop, duplicate headers, double-trimmed trailing slashes, a broken empty-allowlist case, dropped trace ids, wrong histogram units.\n\nWorth a look before you ship: the `401`/`403` change and the request-body logging fix, since those could surprise integrators.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e322bf464d469c2c7da4eba61bdd01daf865897183c73018fd7b0d789a29b267"
+}

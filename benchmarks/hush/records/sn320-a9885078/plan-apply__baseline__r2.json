@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__baseline__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 35,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12177,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.0651822,
+  "numTurns": 5,
+  "durationMs": 10877,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 804
+  },
+  "contextTraffic": 95677,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 144,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "This is a small, clean setup, so the plan is simple:\n\n- `buildRows()` in `src/report.js` already returns the full data (including `owner` and `slow`, which the text table deliberately drops per its comment) — that's the \"same data\" the JSON output should use, unfiltered.\n- Add a `toJson(rows)` helper in `src/format.js` (e.g. `JSON.stringify(rows, null, 2)`) alongside `toTable`, so both renderers live in the same module.\n- In `src/cli.js`, parse a `--json` flag out of argv, branch to `toJson` vs `toTable`, and update `USAGE`.\n\nOne thing worth deciding with you: should `--json` output include `owner`/`slow` (full `buildRows()` data) or mirror just the table's columns? I'd lean toward full data since that's the more useful/common expectation for a JSON export flag, and it matches \"same data\" from your ask literally. Let me know if you want that, or the table-only subset, before I make the change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3773e57dad255b79c847d9d4ead8af3784aead099fce2bdefa034ad219099642"
+}

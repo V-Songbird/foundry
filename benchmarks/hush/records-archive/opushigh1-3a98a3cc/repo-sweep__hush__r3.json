@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r3",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 64502,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.49923900000000004,
+  "numTurns": 17,
+  "durationMs": 63531,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3785
+  },
+  "contextTraffic": 351320,
+  "apiCalls": 12,
+  "toolCalls": 16,
+  "toolResultChars": 25863,
+  "narrationWords": 7,
+  "finalWords": 58,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the repository structure."
+  ],
+  "finalText": "**Migrated 36 `db.query` calls across 12 files.**\n\nAll now use `db.execute({ sql, params })`. Output matches the already-migrated files like [user.js:9](packages/accounts/src/repo/user.js:9). Every file passes `node --check`.\n\nTwo calls stay in [adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit. It is replaced on each upgrade.\n\n`cache.query` is untouched. Different thing, same name.\n\nNext: ask `legacy-orm` upstream to move off `db.query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5563bd0c7a89236050c6104ddd5f92a1599fb16e6f0ea28fb58793bb0a5f4653"
+}

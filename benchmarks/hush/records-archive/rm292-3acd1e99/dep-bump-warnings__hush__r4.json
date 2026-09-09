@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32376,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.25159,
+  "numTurns": 10,
+  "durationMs": 30536,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1616
+  },
+  "contextTraffic": 188949,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6395,
+  "narrationWords": 7,
+  "finalWords": 72,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs from the bump, both in the link stage.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:7](src/core/options.js:7) | `options.retries` renamed to `retryCount` | read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag is `undefined`, not `false` | treat `undefined` as off |\n\nThe 8 remaining warnings are real deprecations, not noise. `crypto.createCipher` in `src/legacy/adapter.js` is the one to fix next. It must go before v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f326c1be73d5623d1bebd0ce89d384cf2e4031a7bb321dbf5b27d1fbe84d16a3"
+}

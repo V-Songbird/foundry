@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40661,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2603255,
+  "numTurns": 11,
+  "durationMs": 39035,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2334
+  },
+  "contextTraffic": 150874,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6278,
+  "narrationWords": 7,
+  "finalWords": 80,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the project structure."
+  ],
+  "finalText": "**Build passes now.** Two real bugs hid in the warning noise, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Read `options.retries`, bundler now sends `retryCount` | Read `retryCount`, fall back to `retries` |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag, loader no longer sends `false` | Treat `undefined` as `false` |\n\nThe 8 remaining warnings are real noise. They name files like `src/legacy/adapter.js` that do not exist here.\n\nNext: nothing. Build exits 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "96132a32224ac073c4763efa4b01096f4f1837864eb64a874b3bd1f178191588"
+}

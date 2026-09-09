@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19148,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2830638,
+  "numTurns": 4,
+  "durationMs": 17903,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1125
+  },
+  "contextTraffic": 196633,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 47972,
+  "narrationWords": 0,
+  "finalWords": 191,
+  "finalText": "## What happened (02:14–02:32 UTC, 2026-07-04)\n\n**Root cause: Redis died.**\n\n1. **02:14:07** — `redis connection lost: ECONNREFUSED 10.0.0.12:6379`. App fell back to direct DB reads (no cache).\n2. **02:14:07 → 02:31:26** — 13 reconnect attempts (every ~80s), all failed, same `ECONNREFUSED`. Redis at `10.0.0.12:6379` never came back.\n3. Without cache, every service (`api`, `worker-1`, `worker-2`, `scheduler`) hit repeated 5000ms timeouts against the overloaded store, in a steady cycle: cache-miss storm → timeout → queue depth climbing.\n4. Queue depth rose continuously from ~52 at 02:14 to 570+ by 02:31 (limit was 500) — backlog never drained because Redis stayed down the whole time.\n5. **02:31:44** — `worker-2` OOM-crashed (`JavaScript heap out of memory`) from the backlog.\n6. **02:31:45** — supervisor restarted worker-2, but too late.\n7. **02:31:52** — `api unresponsive, killing process group — service down`. Full outage.\n\n**Bottom line:** Redis at `10.0.0.12:6379` went unreachable and never recovered. That silently degraded caching, which let request backlog grow unbounded for 17+ minutes until a worker OOM'd and took the whole service down.\n\nNext: check why `10.0.0.12:6379` was unreachable (host down? network ACL? Redis crash on that box?) — that's outside this log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eaf9ed1018a004f0a58194e9ce2003e3741ac68061ba67f6b00f6b8745fc846f"
+}

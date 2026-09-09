@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 28,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20755,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1763412,
+  "numTurns": 10,
+  "durationMs": 19430,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1273
+  },
+  "contextTraffic": 197527,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15348,
+  "narrationWords": 38,
+  "finalWords": 74,
+  "finalText": "All 625 tests pass, and the ground-truth verifier confirms it.\n\nThe bug: `orderTotal` in `src/pricing.js` computed tax on the original price instead of the discounted price, even though its own comment said tax should apply after the discount. Fixed by taxing the discounted amount (`applyTax(discounted, taxRate)`), which only showed up in rows where both a discount and a tax were non-zero — most rows had one or the other at zero, masking the bug.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f6d2f06983e8eff7c4883efce740b7be360d6b71b4f0635d775531481dbbf6d"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36609,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23394500000000001,
+  "numTurns": 10,
+  "durationMs": 35178,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1998
+  },
+  "contextTraffic": 127707,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6561,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | read new name, fall back to old |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag now `undefined`, threw | treat as `false` |\n\nThe 8 warnings are hardcoded strings in [build.js:18](build.js:18). They name files like `src/legacy/adapter.js` that do not exist here.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8237a36f1c28ef0fcba06ecc67e72cb6e3471df98a5cd29c8db4718bfba02c32"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 41,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 82497,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47275799999999996,
+  "numTurns": 24,
+  "durationMs": 80745,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5505
+  },
+  "contextTraffic": 258729,
+  "apiCalls": 10,
+  "toolCalls": 23,
+  "toolResultChars": 20456,
+  "narrationWords": 6,
+  "finalWords": 98,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**Four zones must keep `account_id`.** The rest is 94 files.\n\n| Zone | Files | Why |\n|---|---|---|\n| [openapi.yaml](docs/openapi.yaml:16) | 1 | Public contract. Frozen. |\n| [serialize.js](lib/serialize.js:8) `WIRE` values | 1 | Public wire names. |\n| [migrations/](migrations/20250114_create_accounts.sql:9) | 12 | Applied history. Down step breaks. |\n| [vendor/reporting-sdk/](vendor/reporting-sdk/README.md:3) | 4 | `npm run vendor:refresh` overwrites edits. |\n\nAlso 125 SQL strings name the live column. They sit in 25 repo files. A column-rename migration must land first.\n\nSafe now: JS names in 50 http and service files.\n\nNext: sign off on the JS half only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23780003315410ed5da0fedaa7fef0e72a4c025fc3172ad8021ee1476d5051e2"
+}

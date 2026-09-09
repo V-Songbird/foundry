@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 16,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35265,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3750295,
+  "numTurns": 7,
+  "durationMs": 34341,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2272
+  },
+  "contextTraffic": 167615,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 29879,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died at 02:14, prod died at 02:31.**\n\n1. `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` at [logs/app.log:182](logs/app.log:182).\n2. Cache off. Every read hit the store. Store overloaded.\n3. `TimeoutError` after 5000ms, on repeat. Queue grew 52 to 568, max 500.\n4. `worker-2` died on `JavaScript heap out of memory`, code 134.\n5. `api` killed at 02:31:52. Service down.\n\nAll 12 redis reconnect attempts failed. Redis never came back.\n\nNext: find why `10.0.0.12:6379` refuses connects.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ad480176c12f55967b094e191c8688778a2343501f4309d07b0ff341462818f2"
+}

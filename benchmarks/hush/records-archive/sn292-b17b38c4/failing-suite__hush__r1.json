@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26554,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1316086,
+  "numTurns": 10,
+  "durationMs": 24412,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1275
+  },
+  "contextTraffic": 249260,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12929,
+  "narrationWords": 13,
+  "finalWords": 41,
+  "assistantMsgs": 2,
+  "finalText": "**Fixed. Suite's green now: 625 total, 625 passing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:39-43](src/pricing.js:39-43). It taxed the pre-discount amount instead of the discounted one.\n\nChanged `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`. All 3 real failures were this one line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ceabd24cdef90262d22ab2eb453532ffc696a2b2aed59138878700864fc1e524"
+}

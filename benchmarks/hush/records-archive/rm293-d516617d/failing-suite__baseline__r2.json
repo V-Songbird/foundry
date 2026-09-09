@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35004,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2518415,
+  "numTurns": 10,
+  "durationMs": 33349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1899
+  },
+  "contextTraffic": 161188,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12074,
+  "narrationWords": 26,
+  "finalWords": 258,
+  "assistantMsgs": 4,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOf the 701 lines of output, only 3 tests failed — all in the `order totals` suite, and all one bug:\n\n```\nFAIL 433 order totals > total 12000c, 15% off, tax 0.0825\nFAIL 434 order totals > total 8650c, 20% off, tax 0.05\nFAIL 435 order totals > total 33400c, 10% off, tax 0.2\n```\n\n`orderTotal` in `src/pricing.js:39` applied the discount correctly but then computed tax on the **pre-discount** amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nThis contradicts the function's own doc comment (\"take the discount off, then tax what's actually owed\") and overcharges tax on every discounted order. Fixed to tax the discounted subtotal:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\nTwo things worth noting:\n\n- **Why only 3 failures for a bug this broad.** 66 of the 69 rows in that suite have either a zero discount or a zero tax, and with either factor at zero the two formulas agree. Only the three rows with both non-zero could expose it. The suite barely caught this — if you add rows there, make them discount-and-tax combinations.\n- **The other 8 suites were never red.** `applyDiscount`, `applyTax`, `tieredDiscount`, refunds, shipping, loyalty, and rounding all passed before the change too; the wall of text was ~622 passing lines plus a coverage table. Nothing else needed touching, and I changed nothing else.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67ab471e7896871d2ada29f61efa78185a85308f22932a3a9ccb0fe712140b6a"
+}

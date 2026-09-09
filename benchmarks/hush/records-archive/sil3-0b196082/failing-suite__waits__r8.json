@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__waits__r8",
+  "batchId": "sil3-0b196082",
+  "seed": "1787986994570",
+  "orderIndex": 15,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "waits",
+  "rep": 8,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26441,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1219538,
+  "numTurns": 11,
+  "durationMs": 24713,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1264
+  },
+  "contextTraffic": 203683,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 11894,
+  "narrationWords": 13,
+  "finalWords": 32,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Fixed. All 625 tests pass now.**\n\n`orderTotal` in [pricing.js:41](src/pricing.js:41) was taxing the pre-discount amount. Tax should apply after the discount.\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nNo further action needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f5d73549e23dadeeaafff76ddc31f24c6b2006f1443d0b5947480737db8368dd"
+}

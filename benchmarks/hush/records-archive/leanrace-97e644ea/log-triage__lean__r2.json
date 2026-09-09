@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lean__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19636,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.136434,
+  "numTurns": 5,
+  "durationMs": 18080,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 990
+  },
+  "contextTraffic": 191151,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23568,
+  "narrationWords": 0,
+  "finalWords": 99,
+  "finalText": "**Root cause:** Redis went down at 02:14:07 (`ECONNREFUSED 10.0.0.12:6379`).\n\n**Cascade:** App fell back to direct store reads, causing cache-miss storms and mounting request timeouts. Queue depth climbed from 52 toward 568, far past the max of 500. Redis reconnect attempts kept failing every ~90 seconds, up to attempt 12 at 02:31:26.\n\n**Death:** At 02:31:44, `worker-2` ran out of memory from the backlog and crashed. The supervisor restarted it, but at 02:31:52 the api process was unresponsive and got killed, taking the whole service down.\n\n**Fix priority:** get Redis at 10.0.0.12:6379 back online first, that's the trigger for everything else.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9a032790f4b3e29c14846090be8f67ab85277378da1c644edb8081f6563e7ebe"
+}

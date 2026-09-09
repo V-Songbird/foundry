@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__dense-prose__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 0,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 30826,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.05541429999999999,
+  "numTurns": 9,
+  "durationMs": 28697,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1543
+  },
+  "contextTraffic": 206894,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 8413,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "Build is clean now. The real error was buried under those warnings: `ReferenceError: retries is not defined` in `src/core/settings.js:17`.\n\nThe `resolveConfig` function was trying to use a bare `retries` variable that didn't exist. It should have been `env.retries` to pull the value from the config object passed by the caller. I changed line 17 to `maxRetries: env.retries || 3,` so it grabs the value from the environment or falls back to 3.\n\nThe 3 warnings stay (deprecated crypto API, unused export, circular import) but those are genuine issues separate from the build-blocking bug. Build finishes in 41.7s with just those warnings, zero errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9fa38e60e57e54ed12aae224cdb8b571023a1e0d287870553cf523c624a84434"
+}

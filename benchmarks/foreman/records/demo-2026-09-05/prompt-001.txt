@@ -1,0 +1,54 @@
+<task_context>
+You are a Node.js CLI developer working on a small notes tool.
+Your goal is Notes added in one run of the CLI are still listed by a later, separate run — the store persists to a JSON file on disk and reloads it on startup, with no change to the CLI's commands or output.
+Why this task exists: Everything lives in memory. Close the terminal and every note is gone, which makes the tool useless for anything past one sitting.
+</task_context>
+
+Treat every claim in this prompt as a hypothesis to verify against the codebase before acting on it; if reality contradicts it, trust reality, say so in one line, and never create a file or symbol just to make this prompt true — unless `relevant_files` marks that path `MISSING:`, which says the plan named the file before it existed.
+
+This task is ROADMAP.jsonl entry `001`. Mark it `in_progress` before doing anything else — Foreman's picking flow deliberately leaves it `planned` until you do:
+`echo '{"id":"001","status":"in_progress"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status`
+Then take the commit boundary before touching any file:
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/safe-commit.js begin`
+Keep its `baseline.head`. A `dirty:true` result means the tree already carries someone else's changes: tell the user in one line, then do the work and make NO commit at all — leave everything in the tree for them. Never stage around it.
+Before you close, split your checks in two. Anything with a command, you run — never hand a command to the user to run for you. Anything that can only be settled by a human's eyes or hands — how it renders, how it feels to use, whether the motion looks right — has no command, so record it on the entry, one call per check:
+`echo '{"id":"001","notes":"unverified: <the check, and what to look for>"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js annotate`
+Two bars before you write one of those lines. It has to be answerable today: a check that waits on work nobody has built yet goes in your findings, not here. And it has to be genuinely past your reach: where a skill, script or harness in this project already drives the thing, use it and answer the check yourself, and where none exists but one could, say that in your findings instead of sending the user to look by hand again.
+Write none at all when every check ran — an empty list is the normal outcome and is what tells the user there is nothing to look at.
+When the work concludes, close the entry the same way — the status it actually earned (`done`, `dropped`, `rejected`) and your full findings in `notes`. When that earned status is `done`, write `awaiting_acceptance` instead — this project holds finished work for the user's acceptance, and their confirmation makes it `done`; `dropped` and `rejected` close as themselves. Then put the choice to them in the same turn, with AskUserQuestion. Wrote at least one `unverified:` line? The first option is Test — you read those lines back to them and stop, the entry still awaiting. With none, offer accept-the-entry and review-it-first only. Accepting closes it — `echo '{"id":"001","status":"done"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status`. Review leaves it awaiting and you walk them through what changed. Start nothing new until they answer.
+Stage the task's own files with the safe-commit primitive — never `git add -A`:
+`echo '{"id":"001","expected":["<the files this task owns>"]}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/safe-commit.js finish --baseline <baseline.head> --no-commit`
+Then close with `staged:true` (the script folds the staged files into `observed_touches` and stages ROADMAP.jsonl alongside), then commit once with `Foreman: 001` as the final line of the message.
+`echo '{"id":"001","status":"<status>","staged":true,"notes":"<findings>"}' | node ${CLAUDE_PLUGIN_ROOT}/scripts/roadmap.js update-status`
+Also add `model` and `effort` to that close call — what actually ran this task. Omit either one you genuinely don't know rather than guessing — an absent field reads as unrecorded, a wrong one silently poisons the corpus.
+
+<background>
+<relevant_files>
+src/store.js — nextId (5), notes (6), add (8), list (14), markDone (18), reset (25)
+test/store.test.js — assert (4), store (5)
+Pattern: src/cli.js — imports src/store, as this task's files do; read it as the existing analogue before writing new code
+</relevant_files>
+</background>
+
+<task_rules>
+- Load the persisted JSON file from a path under the user home directory when the store initializes, treating a missing or unreadable file as an empty store rather than an error.
+- Write the full store back to that JSON file after every change (add, done, and any other mutation).
+- Leave the existing in-memory store functions' names, signatures, and return values unchanged so the CLI code needs no edits.
+- Cover load-on-start and save-on-change in test/store.test.js, including the missing-file case.
+
+Constraints:
+- Do not change the CLI's commands, flags, argument handling, or printed output.
+- Keep the existing in-memory store functions' signatures and return values intact - persistence wraps them, it does not replace them.
+- The store file lives under the user's home directory, not in the repository or the current working directory.
+- Tests must not write to the real user home directory - point the store at a temporary path.
+Expected file surface: src/store.js, test/store.test.js. Anything beyond this list gets flagged to the user before it is written, not after.
+
+Verification (REQUIRED):
+Run: npm test
+Expected: All tests pass, including new tests covering load-on-start, save-on-change, and a missing store file.
+Do NOT claim success without running this. If it fails, fix and re-run — but after two failed fix attempts, stop and report what is still failing instead of widening the change to make the check pass.
+</task_rules>
+
+Implement: Save notes to a file so they survive a restart.
+
+Closure notes and findings describe only observed work and cite supporting files, commands, commits, or outcomes; never restate planned scope as evidence that it was executed.

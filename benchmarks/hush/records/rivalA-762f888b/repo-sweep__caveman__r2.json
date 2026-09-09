@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 89,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43252,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.33817749999999996,
+  "numTurns": 11,
+  "durationMs": 42210,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2780
+  },
+  "contextTraffic": 191828,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 14845,
+  "narrationWords": 6,
+  "finalWords": 81,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll search for remaining `db.query` calls."
+  ],
+  "finalText": "Migration done. 12 files, 36 call sites converted to `db.execute({ sql, params })`. All parse clean.\n\n```\npackages/accounts/src/admin/apiKeyAdmin.js    packages/catalog/src/admin/variantAdmin.js\npackages/accounts/src/repo/session.js         packages/catalog/src/repo/supplier.js\npackages/accounts/src/service/teamService.js  packages/orders/src/repo/shipment.js\npackages/analytics/src/repo/cohort.js         packages/orders/src/service/returnService.js\npackages/billing/src/repo/refund.js           packages/support/src/admin/macroAdmin.js\npackages/billing/src/service/couponService.js packages/support/src/repo/sla.js\n```\n\nTwo left untouched, on purpose:\n\n- `vendor/legacy-orm/adapter.js:9,13` — vendored legacy-orm 2.1.4, header say \"Do not edit — replaced wholesale on every upgrade, local changes silently lost.\" Real fix = upstream bump or wrapper. Your call.\n- `cache.query(...)` hits across many repo files — different object (`lib/cache.js`), not part of this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "377e35942fc3be8e058fc30a795091d4009e2b8d9c0ba0beecbecdd21e1a3eb3"
+}

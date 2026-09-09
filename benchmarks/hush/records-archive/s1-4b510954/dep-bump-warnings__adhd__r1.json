@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 26,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27527,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.19415610000000003,
+  "numTurns": 11,
+  "durationMs": 26066,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1910
+  },
+  "contextTraffic": 256320,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 10779,
+  "narrationWords": 43,
+  "finalWords": 124,
+  "finalText": "Build is now clean: exit code 0, \"0 errors\". The remaining 8 warnings are all deprecation noise from the dependency bump (Buffer(), sync loader hook, punycode, module.parent, etc.) — not failures.\n\nThe real problem was two bugs the bundler bump exposed in the link stage, both now fixed:\n\n- `src/core/options.js:7` — the new bundler passes options as `{ retryCount }`, but this still read `options.retries` (undefined), which threw on `.toFixed()`.\n- `src/net/retryPolicy.js:8` — the new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled explicit `false`/`true`, so `undefined` fell through to a thrown error. Now `undefined` is treated as disabled, same as `false`.\n\nBuild now completes and links successfully (retry budget resolves to 3, backoff correctly reports disabled).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b27b52f667620204e52177a4dd05a6836435bf5357adc2f4976ecb923a330598"
+}

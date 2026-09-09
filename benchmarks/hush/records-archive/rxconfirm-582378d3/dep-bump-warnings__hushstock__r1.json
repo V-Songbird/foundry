@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushstock__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31735,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20853440000000004,
+  "numTurns": 10,
+  "durationMs": 30180,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1742
+  },
+  "contextTraffic": 247091,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11538,
+  "narrationWords": 20,
+  "finalWords": 114,
+  "finalText": "It builds clean now — exit 0, 0 errors.\n\nTwo real bugs from the bump were hiding in the warning noise, both in the link stage:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `{ retryCount }`, so it crashed on `undefined.toFixed()`. Now reads `retryCount`.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid and threw. The new config loader leaves it `undefined` instead of `false`, so it now just treats anything not `true` as disabled.\n\nEverything else was the deprecation and lint-style noise from the bumped packages — left alone, since none of it was breaking the build. Final run: `build finished in 44.9s with 8 warnings, 0 errors`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "348a560686725f3a96a2734ace503414e1e916dfa051f6f89c0f50dbeca523f9"
+}

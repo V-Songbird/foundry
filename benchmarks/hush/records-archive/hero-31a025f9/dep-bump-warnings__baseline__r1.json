@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28363,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21524880000000002,
+  "numTurns": 10,
+  "durationMs": 26906,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2081
+  },
+  "contextTraffic": 329202,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8990,
+  "narrationWords": 42,
+  "finalWords": 100,
+  "finalText": "Build's clean — exit 0, 0 errors. The remaining 8 warnings are genuine deprecation noise from the bump (not causing failures).\n\nTwo real bugs from the dependency bump, both in the link stage:\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but this code still read `options.retries` (now `undefined`), so `.toFixed(0)` threw. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but the strict boolean check only handled `true`/`false` and threw on anything else. Fixed to treat `undefined` as disabled (matching the old loader's default behavior).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "44edd443a1f33c39997b487efc385f8b359cf50e199315b97f0eeec95332ad97"
+}

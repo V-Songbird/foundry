@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 30,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 153194,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6454713999999999,
+  "numTurns": 33,
+  "durationMs": 147369,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11114
+  },
+  "contextTraffic": 975494,
+  "apiCalls": 22,
+  "toolCalls": 29,
+  "toolResultChars": 29102,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "The dependency check confirms `fast-parse` is pinned at `1.4.2` — the exact version `NOTES.md` says was yanked for a prototype-pollution report (fixed in `1.4.3`). The other three tracked deps (`date-fmt`, `pg-lite`, `redis-min`) all check out fine as-is.\n\n`AUDIT.md` is written with all four findings, ordered by severity:\n\n1. **`src/routes/internal.js`** — unauthenticated internal endpoints (VPN removed in 4.0, auth never added)\n2. **`src/repo/report.js`** — SQL injection via string concatenation in `runSavedReport`\n3. **`config/staging.js`** — plaintext DB password committed\n4. **`package.json`** — `fast-parse` pinned to the yanked, vulnerable `1.4.2`\n\nNo service files were touched — audit only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0ac30fcc724cf7920c6d015b7c5688e23886d65b68c411e59b3d30db880dc163"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28206,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12778920000000002,
+  "numTurns": 12,
+  "durationMs": 26595,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1252
+  },
+  "contextTraffic": 232226,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11769,
+  "narrationWords": 28,
+  "finalWords": 36,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted one, matching the 3 failures (only rows with both a discount and tax nonzero trip it)."
+  ],
+  "finalText": "**Fixed. `625 total, 625 passing, 0 failing`.**\n\n`orderTotal` in [pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Only rows with both a nonzero discount and tax exposed it, hence just 3 failures.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71fa0b0f733796417a917454cc4b1a912cc5cff91908d9677d7786ee99e9d83f"
+}

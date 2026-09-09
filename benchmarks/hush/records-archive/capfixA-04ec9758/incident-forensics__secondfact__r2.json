@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__secondfact__r2",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 22,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "secondfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 76757,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.37481549999999997,
+  "numTurns": 13,
+  "durationMs": 69807,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3290
+  },
+  "contextTraffic": 563632,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 23504,
+  "narrationWords": 0,
+  "finalWords": 131,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 2026-03-14T02:12–02:14Z) shipped config generation 119, changing `gateway.pool.perRequest` from `false` to `true`. Within seconds the connection pool stopped releasing connections. Every error since is the same: `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`. The pool stays maxed at 20/20 and the waiting queue climbs without recovering.\n\n**Impact window:** Started 2026-03-14T02:14:18Z (first 503, `req-07401`). Still ongoing at 03:59:27Z, the end of the current log, with the wait queue at 74 and rising. Gateway only — checked `worker.log` for the same window and workers show no errors, just one unrelated known slow-query warning (OPS-2210).\n\n**Rollback:** Revert `dep-4471`. Specifically, flip `gateway.pool.perRequest` back to `false`. The other two keys in that same config push (`upstreamMs` timeout 2000→2500, `log.sampleRate` unchanged) aren't implicated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "adaee48ef098cdb4cdd52419cbcdda16d9d47e5d19d88c8294ef9803d3938c33"
+}

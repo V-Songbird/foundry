@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__turncmp__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 15,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "turncmp",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 81028,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6097444,
+  "numTurns": 36,
+  "durationMs": 79403,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10019
+  },
+  "contextTraffic": 339055,
+  "apiCalls": 8,
+  "toolCalls": 35,
+  "toolResultChars": 28772,
+  "narrationWords": 55,
+  "finalWords": 65,
+  "finalText": "Migrated the 12 remaining files still on `db.query` — spread across accounts, orders, billing, analytics, support, and catalog — swapping each call for the `db.execute({ sql, params })` form already used elsewhere. Left `vendor/legacy-orm/adapter.js` and all `cache.query` calls untouched, since those aren't part of the migration.\n\n`verify.js` confirms it: every call site moved, nothing else was touched, and all modules still load and run correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4d8aa200b1dbd5643b84391efb5d6665cbce522c3f240c3d4ac74924ed88e9d8"
+}

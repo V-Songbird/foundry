@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 142890,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.663589,
+  "numTurns": 13,
+  "durationMs": 141862,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9667
+  },
+  "contextTraffic": 423117,
+  "apiCalls": 13,
+  "toolCalls": 12,
+  "toolResultChars": 25682,
+  "narrationWords": 11,
+  "finalWords": 846,
+  "finalText": "I've read the whole tree. Here's the assessment.\n\n## How big: 1,291 occurrences across 94 of 97 files\n\nBut volume is misleading — the code is machine-uniform. All 25 `repo/*.js` files are structurally identical to each other, as are all 25 `service/*.js` and all 25 `http/*Routes.js` (verified by normalizing identifiers and hashing: one distinct shape per layer). Mechanically this is three sed patterns, not 94 judgment calls.\n\n| Area | Occurrences | |\n|---|---|---|\n| `services/*/src/repo` | 475 | 125 of these are live DB column names |\n| `services/*/src/service` | 400 | mostly internal |\n| `services/*/src/http` | 325 | 100 are `req.session.account_id` |\n| `migrations/` | 61 | applied history |\n| `vendor/reporting-sdk/` | 20 | generated |\n| `docs/openapi.yaml` | 5 | public contract |\n| `lib/` | 5 | the two that matter most |\n\nRoughly **950 are free internal identifiers**; roughly **340 are contract-bound or migration-gated**.\n\n## Where it must not be renamed\n\n**1. `vendor/reporting-sdk/` (20 occ.)** — README and every file header say do not edit; `npm run vendor:refresh` overwrites the directory wholesale. Also, nothing in this tree imports it (the only reference to `reporting-sdk` outside `vendor/` is the refresh script in `package.json`), so editing it buys nothing and the edit silently vanishes on next refresh.\n\n**2. Applied migrations (61 occ., 12 files)** — every header states the case: applied in production Jan–Jun 2025, editing history renames nothing in a database that already ran it, and it breaks the down step. Don't edit them, and don't rename `20250624_backfill_account_ids.sql` either.\n\n**3. `docs/openapi.yaml` (5 occ.)** — the file itself says renaming a field is a breaking change for every client and needs a new dated version. Covers the `account_id` response property on `Invoice`/`Order` and the `/v2/invoices` query parameter.\n\n**4. `lib/serialize.js:8` — the right-hand side of `WIRE`.** This is the sharpest edge in the repo:\n\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\n\nThe left key is the internal row key; the right is the wire name. The danger is the passthrough at line 19: `if (!WIRE[k] && k !== 'payload') out[k] = v;`. Rename the internal row key to `owner_id` without updating the left side and the mapping stops matching — `account_id` silently drops out of every response and `owner_id` leaks out through the passthrough instead. No error, no test failure unless someone asserts on wire output. This is by far the most likely way the rename breaks production.\n\n**5. The 125 SQL string literals in `repo/*.js`** — these name the actual column. They can only change alongside a *new* migration renaming the column on all 11 tables, deployed in lockstep. Without that migration, they stay `account_id` even if the surrounding JS parameters rename.\n\n**6. `req.session.account_id` (100 occ.)** — nothing in this tree builds the session object; it comes from auth middleware outside the repo. Rename the read without renaming the producer and you get `undefined`. That's not a clean failure: `insertX` guards on falsy account_id and `fetchX` throws, but `pageX`, `removeX`, and the underlying `listX`/`countX`/`deleteX`/`getX` have no guard — they'd happily run `WHERE account_id = undefined`, including on a DELETE. Coordinate with whoever owns the session middleware or leave these alone.\n\n**7. The payload JSON key (25 occ.)** — `JSON.stringify({ ...values, account_id })` writes `account_id` *inside* the `payload` JSONB column. Rename the shorthand and new rows get `owner_id` while ~19 months of existing rows keep `account_id`. `serialize` skips `payload`, so nothing here catches it, but any downstream consumer reading payload will silently split. Keep it explicit (`account_id: owner_id`) or plan a backfill.\n\n**8. `lib/audit.js` (75 call sites)** — audit lines carry `account_id` as a field key. Not marked frozen in code, but log-search filters and compliance queries typically key off field names. Worth one question to whoever owns the log pipeline before flipping it.\n\n## What I'd sign off on\n\nNot \"everywhere\" as written. The defensible version splits in two:\n\n**Phase 1 — today, low risk.** Rename internal JS identifiers only: parameters, locals, destructured keys, comments, error strings. Leave SQL literals, the `WIRE` keys, the payload key, and the `.account_id` property read on `req.session` untouched. That's ~950 occurrences of pure cosmetics. It's cheaply verifiable, too — `lib/db.js` records every query it's asked to run, so you can assert the recorded SQL strings and `serialize()` output are byte-identical before and after. If anything moved, the diff is wrong.\n\n**Phase 2 — separate change, separately gated.** The DB column rename: new migration, the 125 SQL literals, the `WIRE` left key, and the payload key, all in one deploy. On live tables this wants expand/contract (add column → dual-write → backfill → cut over → drop) unless they can take a write outage.\n\n**Never, without a new dated API version:** the public wire name in `serialize.js` and the field names in `openapi.yaml`.\n\nOne framing point worth raising with the platform team: if the motivation is that \"account\" is the wrong domain word, note that the `services/accounts` service and the `accounts` table carry the same word, and this rename touches neither. A field rename alone leaves the vocabulary half-migrated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c0144383acfa0a606b73bad808d2883e4e34eb95fc1ff4ee6f802e1d130e9e14"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 27,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 91950,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.49169650000000004,
+  "numTurns": 20,
+  "durationMs": 90419,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5865
+  },
+  "contextTraffic": 262380,
+  "apiCalls": 10,
+  "toolCalls": 19,
+  "toolResultChars": 19067,
+  "narrationWords": 9,
+  "finalWords": 133,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the codebase to size this up."
+  ],
+  "finalText": "**Big but shallow. 1082 hits across 94 files.**\n\n| Zone | Hits | Why it must not move |\n|---|---|---|\n| repo SQL strings | 125 | column is still `account_id` |\n| [migrations/](migrations) 12 files | 61 | already applied in production |\n| repo JSONB payload key | 25 | shape of stored rows |\n| [vendor/reporting-sdk](vendor/reporting-sdk) | 20 | overwritten by `npm run vendor:refresh` |\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | public contract, frozen field |\n| [lib/audit.js:8](lib/audit.js:8) | 3 | audit log field name |\n| [lib/serialize.js:8](lib/serialize.js:8) wire value | 1 | public JSON key |\n\nAbout 241 are frozen. The other ~841 are JS params and locals. Those rename freely. Rename only the left key in `WIRE`.\n\nNext: make the ticket name these seven zones as out of scope.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "43763d87fc2fe27be0a6197ec64386adabccf346dd326e5bf5684f004ac51f6b"
+}

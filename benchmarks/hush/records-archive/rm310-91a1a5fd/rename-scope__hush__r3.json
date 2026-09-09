@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 85348,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.48431050000000003,
+  "numTurns": 22,
+  "durationMs": 83701,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5875
+  },
+  "contextTraffic": 240381,
+  "apiCalls": 9,
+  "toolCalls": 21,
+  "toolResultChars": 21299,
+  "narrationWords": 6,
+  "finalWords": 123,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**1291 hits, 94 files. Most are safe. Five zones are not.**\n\n| Zone | Hits | Rename |\n|---|---|---|\n| `services/**` JS names | ~1050 | yes |\n| SQL column text in `repo/*.js` | 125 | no |\n| Stored payload key `{...values, account_id}` | 25 | no |\n| `migrations/*.sql` | 61 | no, applied history |\n| `docs/openapi.yaml` | 5 | no, frozen contract |\n| `vendor/reporting-sdk` | 20 | no, regenerated |\n| `WIRE` map in `lib/serialize.js` | 5 | no, both sides |\n\nThe trap is [lib/serialize.js:8](lib/serialize.js:8). Its key reads the DB row. Its value is the public field. Unknown row keys pass through raw.\n\nNext: ask them to prove `WIRE`, SQL text, and payload keys stay untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1e71871802db83018815a149c3ee088528e08e878991faae35208d71ecf952b4"
+}

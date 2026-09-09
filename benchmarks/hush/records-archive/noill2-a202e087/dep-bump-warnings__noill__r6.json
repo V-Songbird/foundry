@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__noill__r6",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37181,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.24850249999999996,
+  "numTurns": 10,
+  "durationMs": 35524,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2023
+  },
+  "contextTraffic": 150120,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6347,
+  "narrationWords": 7,
+  "finalWords": 79,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now, exit 0.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | accept both |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag is now `undefined`, threw | unset means `false` |\n\nThe 8 warnings are still there. Three point at your code: `crypto.createCipher` in `src/legacy/adapter.js`, an unused export in `src/utils/format.js`, and a circular import between `src/core/graph.js` and `src/state/tracker.js`.\n\nNext: say the word and I clear those three.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c72c6cc109522b17fbb1398e20244bbe69d07b4c7efc45e6f98b2ccad62cca5b"
+}

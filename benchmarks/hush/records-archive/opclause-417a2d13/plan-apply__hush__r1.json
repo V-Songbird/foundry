@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r1",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 1,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 16955,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24995900000000004,
+  "numTurns": 7,
+  "durationMs": 15114,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 764
+  },
+  "contextTraffic": 76259,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 2187,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: JSON reads `buildRows()` straight, the table stays untouched.**\n\nOne call to make first. The table drops `owner` and `slow` on purpose, per the note in [format.js:3](src/format.js:3). I read \"same data\" as the full row from `buildRows()`, not the 4 table columns. Say the word if you meant column parity.\n\n```js\n// cli.js\nconst args = argv.slice(1);\nconst json = args.includes('--json');\nif (args.some((a) => a !== '--json')) { /* usage, return 1 */ }\nprocess.stdout.write(json ? JSON.stringify(buildRows(), null, 2) : toTable(buildRows()));\n```\n\nSort order holds either way. `USAGE` gains `[--json]`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a6687516eb628101016df9c65f7a0f417314642b6587fa7ca36e6be660e63d1"
+}

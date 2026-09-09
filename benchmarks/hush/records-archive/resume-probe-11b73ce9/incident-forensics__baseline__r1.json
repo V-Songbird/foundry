@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "resume-probe-11b73ce9",
+  "seed": "1788904576836",
+  "orderIndex": 1,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 4,
+  "wallMs": 146705,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.1260994999999998,
+  "numTurns": 12,
+  "durationMs": 143039,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6972
+  },
+  "contextTraffic": 329087,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 18797,
+  "narrationWords": 18,
+  "finalWords": 528,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll read through the gateway log to find when the 503s began and what the error messages say."
+  ],
+  "finalText": "**On-call handoff: gateway 503s, 2026-03-14**\n\n**Status**\nOngoing as of the end of available logs at 03:59 UTC. No rollback or corrective config change has been recorded. Assume the gateway is still failing until someone confirms otherwise.\n\n**Root cause**\nGateway deploy dep-4471 by a.novak flipped the pool setting gateway.pool.perRequest from false to true. Its stated purpose was \"connection-per-request for pool isolation.\" With the pool still fixed at 20 connections, each concurrent request now takes its own connection instead of sharing. The pool pinned at 20 of 20 in use within two minutes and every request that could not get a connection was rejected with ERR_POOL_EXHAUSTED and returned to the client as a 503. Backend services never returned an error. The gateway fails before reaching them.\n\nThe same deploy also raised gateway.timeout.upstreamMs from 2000 to 2500. That change is harmless on its own but ships in the same generation, so it will revert with the rollback.\n\n**Impact window**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:12 | dep-4471 requests config reload, generation 118 to 119 |\n| 02:13:41 | Generation 119 applied |\n| 02:14:18 | First 503 |\n| 03:02:30 | Connection churn alert, roughly 100x baseline opens |\n| 03:21:05 | On-call paged, 5-minute error rate 71 percent |\n| 03:59 | Log ends, still failing |\n\nOn node-3 alone, 530 of about 1230 requests returned 503 between 02:14 and 03:59. All routes are affected: checkout, cart, session, profile, catalog search, and health. This is one of three gateway nodes. If the config applied fleet-wide, multiply accordingly. Requests that did get a connection completed normally, so this is capacity rejection, not upstream degradation.\n\n**What to roll back**\nRoll back dep-4471 on the gateway. Equivalently, revert gateway config to generation 118 or set gateway.pool.perRequest back to false. Verify by watching pool stats return to single-digit in_use with waiting at 0, and 503s drop to zero within a minute.\n\nDo not roll back dep-4472 (billing-svc) or dep-4473 (catalog-svc). Both shipped after the failures began, neither changed the error pattern, and neither service returned any error.\n\n**Confirmed not involved**\nWorkers are unaffected. All 1080 jobs in worker.log succeeded, the worker DB pool stayed at 1 of 8 in use with nothing waiting, and nothing changed at 02:14. Workers use their own pool and do not route through the gateway.\n\n**Separate issue, not urgent tonight**\nWorker job durations drift linearly from about 330ms to about 2200ms across the whole window, starting an hour before the gateway deploy and unaffected by it. DB wait is flat, so the time is spent outside the database. The most likely candidate is dep-4470 (worker, retry backoff for webhook jobs, 00:48), though all six job types slow down, not just webhooks. Open a ticket and hand to the worker owners. The one slow-query warning at 02:36 is known issue OPS-2210.\n\n**Follow-ups after recovery**\n- Confirm with a.novak whether per-request pooling is actually wanted. If so, it needs a pool sized for concurrent request volume before re-enabling.\n- Check whether the deploy pipeline can gate pool config changes behind a canary on one node.\n- Pull node-1 and node-2 gateway logs to confirm the fleet-wide blast radius.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ebb595560fc3e8532c5a81684fd81cdd4a2669ea14f3561a7110f4202c11fdad"
+}

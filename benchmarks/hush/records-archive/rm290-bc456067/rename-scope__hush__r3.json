@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 45,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 61095,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4315465,
+  "numTurns": 21,
+  "durationMs": 59029,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4117
+  },
+  "contextTraffic": 234075,
+  "apiCalls": 7,
+  "toolCalls": 20,
+  "toolResultChars": 22299,
+  "narrationWords": 8,
+  "finalWords": 118,
+  "assistantMsgs": 2,
+  "finalText": "**1291 hits in 94 files. About 950 are safe to rename.**\n\n| zone | hits | call |\n|---|---|---|\n| service JS names | 950 | rename freely |\n| SQL text in `repo/*.js` | 250 | blocked on a new migration |\n| `migrations/*` | 61 | never, applied history |\n| `vendor/reporting-sdk` | 20 | never, regenerated |\n| `docs/openapi.yaml` | 5 | never, public contract |\n| `lib/serialize.js` WIRE value | 1 | never, frozen wire name |\n\nOne more trap. Repos write `account_id` inside the `payload` JSONB. Renaming that key splits old rows from new.\n\nAsk them to split the PR. Ship the JS rename now. Hold the column rename for its own migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c35aa9b6ac600c8b3e0801b05a6580f4d865b2e00b9814a09478db3b2fe9502"
+}

@@ -1,0 +1,283 @@
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+
+selftest: all instruments valid
+running 144 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260705-231056
+  [1/144] safe-path / baseline #2  LOC=10 correct=1 safe=1 cost=$0.0696375 installs=0
+  [2/144] safe-path / baseline #1  LOC=18 correct=1 safe=1 cost=$0.0723545 installs=0
+  [3/144] safe-path / baseline #0  LOC=8 correct=1 safe=1 cost=$0.0698191 installs=0
+  [4/144] safe-path / ponytail #1  LOC=10 correct=1 safe=1 cost=$0.0436396 installs=0
+  [5/144] safe-path / ponytail #2  LOC=10 correct=1 safe=1 cost=$0.0404873 installs=0
+  [6/144] safe-path / razor #0  LOC=10 correct=1 safe=1 cost=$0.03609710000000001 installs=0
+  [7/144] safe-path / razor #1  LOC=7 correct=1 safe=1 cost=$0.0357469 installs=0
+  [8/144] critic-email / baseline #0  LOC=5 correct=1 safe=1 cost=$0.03132480000000001 installs=0
+  [9/144] safe-path / razor #2  LOC=10 correct=1 safe=1 cost=$0.038309800000000005 installs=0
+  [10/144] critic-email / baseline #1  LOC=5 correct=1 safe=1 cost=$0.0330678 installs=0
+  [11/144] critic-email / baseline #2  LOC=5 correct=1 safe=1 cost=$0.032618 installs=0
+  [12/144] critic-email / ponytail #0  LOC=5 correct=1 safe=1 cost=$0.0395436 installs=0
+  [13/144] critic-email / ponytail #1  LOC=5 correct=1 safe=1 cost=$0.04542 installs=0
+  [14/144] critic-email / ponytail #2  LOC=5 correct=1 safe=1 cost=$0.0397691 installs=0
+  [15/144] critic-email / razor #0  LOC=4 correct=1 safe=1 cost=$0.0346078 installs=0
+  [16/144] critic-email / razor #2  LOC=5 correct=1 safe=1 cost=$0.036485000000000004 installs=0
+  [17/144] critic-email / razor #1  LOC=4 correct=1 safe=1 cost=$0.039885199999999996 installs=0
+  [18/144] rate-limit / baseline #0  LOC=18 correct=1 safe=1 cost=$0.0340606 installs=0
+  [19/144] rate-limit / baseline #1  LOC=17 correct=1 safe=1 cost=$0.03421660000000001 installs=0
+  [20/144] rate-limit / baseline #2  LOC=19 correct=1 safe=1 cost=$0.0353276 installs=0
+  [21/144] rate-limit / ponytail #0  LOC=18 correct=1 safe=1 cost=$0.0445928 installs=0
+  [22/144] rate-limit / ponytail #2  LOC=18 correct=1 safe=1 cost=$0.0367795 installs=0
+  [23/144] rate-limit / ponytail #1  LOC=17 correct=1 safe=1 cost=$0.0510757 installs=0
+  [24/144] safe-path / ponytail #0  LOC=10 correct=1 safe=1 cost=$0.38529595 installs=0
+  [25/144] rate-limit / razor #0  LOC=16 correct=1 safe=1 cost=$0.0345781 installs=0
+  [26/144] rate-limit / razor #1  LOC=18 correct=1 safe=1 cost=$0.0354837 installs=0
+  [27/144] rate-limit / razor #2  LOC=17 correct=1 safe=1 cost=$0.0359094 installs=0
+  [28/144] sql-user / baseline #1  LOC=6 correct=1 safe=1 cost=$0.0309223 installs=0
+  [29/144] sql-user / baseline #0  LOC=6 correct=1 safe=1 cost=$0.034169 installs=0
+  [30/144] sql-user / baseline #2  LOC=6 correct=1 safe=1 cost=$0.0308276 installs=0
+  [31/144] sql-user / ponytail #0  LOC=5 correct=1 safe=1 cost=$0.0349306 installs=0
+  [32/144] sql-user / ponytail #1  LOC=6 correct=1 safe=1 cost=$0.035816100000000003 installs=0
+  [33/144] sql-user / ponytail #2  LOC=4 correct=1 safe=1 cost=$0.036218400000000005 installs=0
+  [34/144] sql-user / razor #0  LOC=6 correct=1 safe=1 cost=$0.032929200000000006 installs=0
+  [35/144] sql-user / razor #1  LOC=4 correct=1 safe=1 cost=$0.0301599 installs=0
+  [36/144] sql-user / razor #2  LOC=6 correct=1 safe=1 cost=$0.031091299999999995 installs=0
+  [37/144] auth-token / baseline #0  LOC=18 correct=1 safe=1 cost=$0.040482899999999995 installs=0
+  [38/144] auth-token / baseline #1  LOC=17 correct=1 safe=1 cost=$0.0342615 installs=0
+  [39/144] auth-token / baseline #2  LOC=20 correct=1 safe=1 cost=$0.0404229 installs=0
+  [40/144] auth-token / ponytail #1  LOC=18 correct=1 safe=1 cost=$0.0394723 installs=0
+  [41/144] auth-token / ponytail #2  LOC=15 correct=1 safe=1 cost=$0.04006 installs=0
+  [42/144] auth-token / razor #0  LOC=15 correct=1 safe=1 cost=$0.0411647 installs=0
+  [43/144] auth-token / razor #1  LOC=15 correct=1 safe=1 cost=$0.0396095 installs=0
+  [44/144] auth-token / razor #2  LOC=15 correct=1 safe=1 cost=$0.0395506 installs=0
+  [45/144] csv-sum / baseline #0  LOC=13 correct=1 safe=1 cost=$0.0335818 installs=0
+  [46/144] csv-sum / baseline #2  LOC=16 correct=1 safe=1 cost=$0.0337737 installs=0
+  [47/144] csv-sum / baseline #1  LOC=13 correct=1 safe=1 cost=$0.0376185 installs=0
+  [48/144] csv-sum / ponytail #0  LOC=12 correct=1 safe=1 cost=$0.043284300000000005 installs=0
+  [49/144] csv-sum / ponytail #2  LOC=12 correct=1 safe=1 cost=$0.0368759 installs=0
+  [50/144] csv-sum / razor #0  LOC=13 correct=1 safe=1 cost=$0.032276200000000005 installs=0
+  [51/144] csv-sum / ponytail #1  LOC=14 correct=1 safe=1 cost=$0.0488624 installs=0
+  [52/144] csv-sum / razor #1  LOC=12 correct=1 safe=1 cost=$0.0438652 installs=0
+  [53/144] csv-sum / razor #2  LOC=12 correct=1 safe=1 cost=$0.032033700000000005 installs=0
+  [54/144] cache / baseline #0  LOC=11 correct=1 safe=1 cost=$0.030909700000000002 installs=0
+  [55/144] cache / baseline #1  LOC=11 correct=1 safe=1 cost=$0.03409330000000001 installs=0
+  [56/144] cache / baseline #2  LOC=11 correct=1 safe=1 cost=$0.032622000000000005 installs=0
+  [57/144] cache / ponytail #0  LOC=11 correct=1 safe=1 cost=$0.0357486 installs=0
+  [58/144] cache / ponytail #2  LOC=11 correct=1 safe=1 cost=$0.035298500000000003 installs=0
+  [59/144] cache / ponytail #1  LOC=11 correct=1 safe=1 cost=$0.037223 installs=0
+  [60/144] cache / razor #0  LOC=11 correct=1 safe=1 cost=$0.0301329 installs=0
+  [61/144] cache / razor #1  LOC=11 correct=1 safe=1 cost=$0.032681 installs=0
+  [62/144] vibe-todo / baseline #0  LOC=101 correct=1 safe=1 cost=$0.0333616 installs=0
+  [63/144] cache / razor #2  LOC=11 correct=1 safe=1 cost=$0.0349044 installs=0
+  [64/144] vibe-todo / baseline #1  LOC=96 correct=1 safe=1 cost=$0.0383726 installs=0
+  [65/144] vibe-todo / ponytail #0  LOC=75 correct=1 safe=1 cost=$0.0355462 installs=0
+  [66/144] vibe-todo / baseline #2  LOC=98 correct=1 safe=1 cost=$0.0343686 installs=0
+  [67/144] vibe-todo / ponytail #1  LOC=70 correct=1 safe=1 cost=$0.0366442 installs=0
+  [68/144] auth-token / ponytail #0  LOC=20 correct=1 safe=1 cost=$0.6719058000000002 installs=0
+  [69/144] vibe-todo / razor #0  LOC=55 correct=1 safe=1 cost=$0.0302676 installs=0
+  [70/144] vibe-todo / ponytail #2  LOC=68 correct=1 safe=1 cost=$0.0415432 installs=0
+  [71/144] vibe-todo / razor #1  LOC=66 correct=1 safe=1 cost=$0.0367886 installs=0
+  [72/144] vibe-todo / razor #2  LOC=0 correct=0 safe=1 cost=$0.0314826 installs=0
+  [73/144] vibe-restapi / baseline #2  LOC=86 correct=1 safe=1 cost=$0.045456399999999994 installs=0
+  [74/144] vibe-restapi / ponytail #0  LOC=0 correct=0 safe=1 cost=$0.0304609 installs=0
+  [75/144] vibe-restapi / baseline #0  LOC=98 correct=1 safe=1 cost=$0.0693817 installs=0
+  [76/144] vibe-restapi / baseline #1  LOC=96 correct=1 safe=1 cost=$0.069846 installs=0
+  [77/144] vibe-restapi / ponytail #1  LOC=0 correct=0 safe=1 cost=$0.0253559 installs=0
+  [78/144] vibe-restapi / razor #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [79/144] vibe-restapi / razor #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [80/144] vibe-restapi / razor #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [81/144] vibe-jsonconf / baseline #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [82/144] vibe-jsonconf / baseline #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [83/144] vibe-jsonconf / baseline #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [84/144] vibe-jsonconf / ponytail #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [85/144] vibe-jsonconf / ponytail #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [86/144] vibe-jsonconf / ponytail #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [87/144] vibe-jsonconf / razor #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [88/144] vibe-jsonconf / razor #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [89/144] vibe-restapi / ponytail #2  LOC=0 correct=0 safe=1 cost=$0.0261709 installs=0
+  [90/144] vibe-jsonconf / razor #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [91/144] dep-slug / baseline #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [92/144] dep-slug / baseline #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [93/144] dep-slug / baseline #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [94/144] dep-slug / ponytail #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [95/144] dep-slug / ponytail #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [96/144] dep-slug / ponytail #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [97/144] dep-slug / razor #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [98/144] dep-slug / razor #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [99/144] dep-slug / razor #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [100/144] dep-toml / baseline #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [101/144] dep-toml / baseline #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [102/144] dep-toml / baseline #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [103/144] dep-toml / ponytail #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [104/144] dep-toml / ponytail #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [105/144] dep-toml / ponytail #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [106/144] dep-toml / razor #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [107/144] dep-toml / razor #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [108/144] dep-toml / razor #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [109/144] dep-uuid / baseline #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [110/144] dep-uuid / baseline #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [111/144] dep-uuid / baseline #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [112/144] dep-uuid / ponytail #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [113/144] dep-uuid / ponytail #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [114/144] dep-uuid / ponytail #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [115/144] dep-uuid / razor #0  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [116/144] dep-uuid / razor #1  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [117/144] dep-uuid / razor #2  LOC=0 correct=0 safe=1 cost=$0 installs=0
+  [118/144] sprawl-todo / baseline #0  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [119/144] sprawl-todo / baseline #1  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [120/144] sprawl-todo / baseline #2  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [121/144] sprawl-todo / ponytail #0  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [122/144] sprawl-todo / ponytail #1  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [123/144] sprawl-todo / ponytail #2  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [124/144] sprawl-todo / razor #0  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [125/144] sprawl-todo / razor #2  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [126/144] sprawl-todo / razor #1  LOC=0 correct=0 safe=0 cost=$0 installs=0
+  [127/144] oh-question / baseline #1  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [128/144] oh-question / baseline #0  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [129/144] oh-question / baseline #2  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [130/144] oh-question / ponytail #0  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [131/144] oh-question / ponytail #1  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [132/144] oh-question / ponytail #2  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [133/144] oh-question / razor #0  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [134/144] oh-question / razor #1  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [135/144] oh-question / razor #2  LOC=2 correct=0 safe=1 cost=$0 installs=0
+  [136/144] oh-typo / baseline #0  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [137/144] oh-typo / baseline #1  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [138/144] oh-typo / baseline #2  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [139/144] oh-typo / ponytail #0  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [140/144] oh-typo / ponytail #1  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [141/144] oh-typo / ponytail #2  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [142/144] oh-typo / razor #0  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [143/144] oh-typo / razor #1  LOC=1 correct=0 safe=1 cost=$0 installs=0
+  [144/144] oh-typo / razor #2  LOC=1 correct=0 safe=1 cost=$0 installs=0
+
+=== auth-token  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     18      1     77097   $0.0384    18.7         0
+  ponytail        1.0    1.0     18      1    140845   $0.2505    79.9         0
+  razor           1.0    1.0     15      1     86779   $0.0401    19.8         0
+
+=== cache  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     11      1     75307   $0.0325    14.8         0
+  ponytail        1.0    1.0     11      1     81765   $0.0361    15.0         0
+  razor           1.0    1.0     11      1     76410   $0.0326    17.3         0
+
+=== critic-email  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0      5      1     75199   $0.0323    13.0         0
+  ponytail        1.0    1.0      5      1     83380   $0.0416    23.0         0
+  razor           1.0    1.0      4      1     85833   $0.0370    18.1         0
+
+=== csv-sum  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     13      1     91986   $0.0350    16.7         0
+  ponytail        1.0    1.0     12      1    127417   $0.0430    19.4         0
+  razor           1.0    1.0     12      1    101812   $0.0361    18.3         0
+
+=== dep-slug  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    1.0      0      0         0   $0.0000     0.4         0
+  ponytail        0.0    1.0      0      0         0   $0.0000     0.7         0
+  razor           0.0    1.0      0      0         0   $0.0000     0.7         0
+
+=== dep-toml  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    1.0      0      0         0   $0.0000     0.4         0
+  ponytail        0.0    1.0      0      0         0   $0.0000     0.6         0
+  razor           0.0    1.0      0      0         0   $0.0000     0.8         0
+
+=== dep-uuid  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    1.0      0      0         0   $0.0000     0.5         0
+  ponytail        0.0    1.0      0      0         0   $0.0000     0.8         0
+  razor           0.0    1.0      0      0         0   $0.0000     0.7         0
+
+=== oh-question  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    1.0      2      1         0   $0.0000     0.8         0
+  ponytail        0.0    1.0      2      1         0   $0.0000     0.8         0
+  razor           0.0    1.0      2      1         0   $0.0000     0.7         0
+
+=== oh-typo  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    1.0      1      1         0   $0.0000     0.7         0
+  ponytail        0.0    1.0      1      1         0   $0.0000     0.8         0
+  razor           0.0    1.0      1      1         0   $0.0000     0.6         0
+
+=== rate-limit  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     18      1     75934   $0.0345    17.5         0
+  ponytail        1.0    1.0     18      1    128966   $0.0441    17.8         0
+  razor           1.0    1.0     17      1     77274   $0.0353    16.8         0
+
+=== safe-path  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     10      1     93679   $0.0706    27.4         0
+  ponytail        1.0    1.0     10      1    121026   $0.1565    71.4         0
+  razor           1.0    1.0     10      1     77564   $0.0367    18.1         0
+
+=== sprawl-todo  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    0.0      0      0         0   $0.0000     0.4         0
+  ponytail        0.0    0.0      0      0         0   $0.0000     0.6         0
+  razor           0.0    0.0      0      0         0   $0.0000     0.6         0
+
+=== sql-user  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0      6      1     75167   $0.0320    13.9         0
+  ponytail        1.0    1.0      5      1     81505   $0.0357    15.2         0
+  razor           1.0    1.0      6      1     76114   $0.0314    13.1         0
+
+=== vibe-jsonconf  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    1.0      0      0         0   $0.0000     0.4         0
+  ponytail        0.0    1.0      0      0         0   $0.0000     0.6         0
+  razor           0.0    1.0      0      0         0   $0.0000     0.6         0
+
+=== vibe-restapi  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     96      3    169235   $0.0616    30.5         0
+  ponytail        0.0    1.0      0      0     27161   $0.0273    11.3         0
+  razor           0.0    1.0      0      0         0   $0.0000     0.6         0
+
+=== vibe-todo  (haiku, n=3) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     98      1     52138   $0.0354    15.5         0
+  ponytail        1.0    1.0     70      1     56060   $0.0379    16.1         0
+  razor         0.667    1.0   60.5    1.0     52154   $0.0328    15.6         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260705-231056\results.json + summary.json (144 cells)

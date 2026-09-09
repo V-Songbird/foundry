@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 21,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 58046,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1456058,
+  "numTurns": 10,
+  "durationMs": 52443,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3466
+  },
+  "contextTraffic": 487763,
+  "apiCalls": 10,
+  "toolCalls": 6,
+  "toolResultChars": 70892,
+  "narrationWords": 36,
+  "finalWords": 227,
+  "finalText": "**ON-CALL HANDOFF: Gateway Pool Exhaustion Incident**\n\n**Status:** Ongoing 503s — requires immediate rollback\n\n---\n\n**ROOT CAUSE**\n\nDeploy `dep-4471` (gateway, 2026-03-14 02:12–02:14 UTC, author: a.novak) deployed config change:\n```\ngateway.pool.perRequest: false → true\n```\n\nThis switched the gateway from reusing connections to acquiring a new connection per request. With a pool size of 20 and normal request load, all 20 connections were exhausted immediately. Subsequent requests queued up waiting for a connection, timing out after 2.5s and returning 503.\n\n---\n\n**IMPACT WINDOW**\n\n- **Config applied:** 2026-03-14T02:13:41.234Z\n- **First 503:** 2026-03-14T02:14:18.972Z (37 seconds later)\n- **Last observed:** 2026-03-14T02:19:47.534Z+ (at minimum 5+ minutes of errors)\n\nErrors follow a consistent rhythm of 4 HTTP 503s per ~60 seconds. All affected requests hit backend services (orders-svc, billing-svc, catalog-svc, accounts-svc) with latencies climbing from 650ms → 750ms+ before failing.\n\nWorkers and internal systems unaffected (they use separate DB pool and bypass the gateway).\n\n---\n\n**ACTION: ROLLBACK**\n\nRoll back `dep-4471` (gateway config):\n```\ngateway.pool.perRequest: true → false  (restore connection reuse)\n```\n\nAlternatively, if reverting config is too slow, increase `gateway.pool.size` from 20 to a higher value temporarily while investigating the per-request isolation intent.\n\n---\n\n**Notes for Follow-up**\n\nIntent was \"pool isolation\" per request, but pool size is inadequate for this mode. Revisit with a.novak whether per-request was necessary or if the problem was something else (e.g., connection leaks that would have shown up differently).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2630c63c5ae5effccc49e95209e8a09a222ad84a8d5bf151532fef3d80605ef7"
+}

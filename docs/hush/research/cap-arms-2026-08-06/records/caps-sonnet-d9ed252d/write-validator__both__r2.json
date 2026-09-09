@@ -1,0 +1,37 @@
+{
+  "key": "write-validator__both__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 91,
+  "task": "write-validator",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 7365,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0806722,
+  "numTurns": 1,
+  "durationMs": 5484,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 351
+  },
+  "contextTraffic": 35997,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 41,
+  "finalText": "```python\nimport re\n\nEMAIL_PATTERN = re.compile(\n    r\"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$\"\n)\n\ndef is_valid_email(email: str) -> bool:\n    return bool(EMAIL_PATTERN.match(email))\n```\n\nChecks for the usual shape: something, an `@`, a domain with a dot. Good enough for form checks, not for guaranteeing the address actually works.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5329a07edb33864656b2a85f6997dd0b6ce6825d15aec2e5c96f18575437f5ac"
+}

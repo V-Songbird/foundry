@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 74,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 102173,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8173219999999999,
+  "numTurns": 9,
+  "durationMs": 101260,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7383
+  },
+  "contextTraffic": 337941,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 78147,
+  "narrationWords": 28,
+  "finalWords": 965,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory.",
+    "The PR sheet stops at 2026-06-17 — let me read the full commit log, which likely covers more."
+  ],
+  "finalText": "380 commits since 4.1. Here's the breakdown by type:\n\n| type | count |\n|---|---|\n| chore | 153 |\n| refactor | 73 |\n| test | 64 |\n| ci | 33 |\n| **fix** | **26** |\n| docs | 20 |\n| **perf** | **10** |\n| **feat** | **1** |\n\nSo ~37 commits out of 380 can possibly matter to a user, and several of those collapse into each other — the same bug class was fixed in 3–5 modules with an identical commit subject.\n\n**Use `commits.log` as your source, not the PR sheet.** The sheet has 127 rows against 380 commits, it contains literal duplicate rows (`bump pino 9.2.0→9.3.1` appears 6 times), and where they overlap they disagree: the webhooks feature is Ana Ruiz in the log (`395fb48`) and Lena Fischer in the sheet (`#4191`). Check attribution before you credit anyone.\n\n## What actually changed\n\n**One new feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (`395fb48`) — touches `src/webhooks/dispatch.js` *and* `src/core/config.js`, so it almost certainly added a config knob. Get the option name and defaults from whoever wrote it; that's the one thing in this release people need docs for.\n\n**Fixes, deduplicated** (the parenthetical is how many modules got the same fix):\n\n- Null cursor in the paginator no longer throws — queue, api, webhooks, db (4)\n- Duplicate header no longer sent — core ×3, billing, http (5)\n- Empty allowlist is handled instead of erroring — store, db, jobs (3)\n- Trailing slash trimmed once, not repeatedly — queue, jobs (2)\n- Trace id survives a retry — api (3)\n- Token parser error messages are more specific — core, billing, queue (3)\n- HTTP: timer cleared when the socket drops (`f66d359`), pool closed on shutdown (`eb874a5`) — these two are real leak fixes, worth their own lines\n- `fix(db): stop logging the whole request body` (`1b55313`) — **request bodies were being written to logs.** This is a privacy fix and anyone with log retention should know about it. I'd call it out explicitly rather than bury it.\n\n**Perf** (10 commits, all internal — I'd write one line, not ten): batched metric writes (queue, db), skipped JSON round-trips on hot paths (core ×2, store, db), removed redundant clones in mappers (api, store, billing), and `perf(api): reuse the parsed schema between requests` (`9f02d92`). No numbers in the log, so don't promise a percentage.\n\n## Things labelled \"refactor\" that are actually breaking\n\nThis is the part I'd push back on before you cut. Four items are filed as refactors but change what users can see:\n\n1. **`refactor(api): drop the unused v1 export route`** (`56dc828`) — touches `router.js`, `handlers.js` and `api.test.js`. A route was deleted from the API. \"Unused\" is an internal-telemetry claim; if it's a published route, its removal is breaking and belongs under Breaking with the path named.\n2. **`fix(auth): return 401 for an expired token instead of 403`** (`1d2bd55`) — correct behaviour, but any client branching on 403 breaks silently. This is a breaking change filed as a fix.\n3. **`stop re-exporting the internal error types`** — 8 commits across core, db, jobs, auth, billing. If those types were reachable from the package entry point, `import { SomeError }` now fails. Somebody needs to check whether they were in the public surface.\n4. **`use the right units in the latency histogram`** (`59402bc`, `1f2bc4e`) — metric values change magnitude. Dashboards and alert thresholds built on them will read wrong after upgrade. Operators need this in the notes.\n\nAlso worth resolving: 11 `delete the dead feature-flag branch` commits across 7 modules. If any of those flags was documented or settable, behaviour changed with no note.\n\n## Two things I could not determine from the log\n\n- **Minimum Node version.** There are 5 `docs: note the minimum node version`, 4 `chore: pin the node version in .nvmrc`, and 6 `ci: run the suite on node 22`. That pattern is consistent with either \"we documented what was already true\" or \"we raised the floor.\" Check `engines` in `package.json` against 4.1 — if it moved, it's the headline Breaking entry.\n- **Whether the v1 export route was public.** Determines if item 1 above is Breaking or omitted entirely.\n\n## Draft\n\nDependency bumps: nothing but patch/minor on both runtime (pino, zod, pg, fastify, knex, ioredis, undici, nanoid, dotenv) and dev deps. No majors, no advisories referenced. Per your \"only what someone installing would notice\" rule, I left them out.\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on 403\n  for expiry need to be updated.\n- The latency histograms in `store` and `core` now report the correct units.\n  Existing dashboards and alert thresholds on those metrics will need rescaling.\n- The v1 export route has been removed.            <!-- CONFIRM it was public -->\n- Internal error types are no longer re-exported.  <!-- CONFIRM they were reachable -->\n- <!-- Minimum Node version, if engines actually moved. -->\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n  <!-- name the config option + defaults from src/core/config.js -->\n\n### Fixed\n- Request bodies are no longer written to the logs.\n- Paginating past the end no longer throws on a null cursor.\n- A duplicate header is no longer sent on outbound requests.\n- An empty allowlist is now treated as empty rather than raising.\n- The trace id is preserved across a retry.\n- The HTTP client no longer leaks a timer when the socket drops, and closes\n  its pool on shutdown.\n- Trailing slashes are trimmed once instead of repeatedly.\n- Token parser errors say what actually failed.\n```\n\nThe four `CONFIRM` markers are the only blockers — everything else is ready. Want me to write this into `CHANGELOG.md`?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bec8f07bf0c0fc6191815e9b67819e2c4db0742ca64cdb96a3be7b205c018b0d"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r8",
+  "batchId": "clause5-84a67d02",
+  "seed": "1787982777257",
+  "orderIndex": 7,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 8,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 9768,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0632368,
+  "numTurns": 4,
+  "durationMs": 8173,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 568
+  },
+  "contextTraffic": 76007,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 1,
+  "finalText": "**Plan:** parse `--json` in `main`, and print `JSON.stringify(buildRows())` instead of `toTable(...)` when set.\n\n```js\nfunction main(argv) {\n  const command = argv[0];\n  const json = argv.includes('--json');\n  if (command !== 'report') {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const rows = buildRows();\n  process.stdout.write((json ? JSON.stringify(rows) : toTable(rows)) + '\\n');\n  return 0;\n}\n```\n\n`buildRows()` in `[report.js](src/report.js:11)` already returns the full data set, so no changes needed there. Just wire the flag through `[cli.js](src/cli.js:8)`.\n\nWant me to make this edit?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59ab25a221bcdf9038eaeecad65cdad4eb81ed09b469eb483f2d3a9aee5554c2"
+}

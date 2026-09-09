@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 95,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 70613,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5623065,
+  "numTurns": 13,
+  "durationMs": 64283,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4597
+  },
+  "contextTraffic": 761227,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 60933,
+  "narrationWords": 78,
+  "finalWords": 255,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing/unresolved as of last log entry (03:59:27Z) — no rollback or recovery seen in logs yet.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, 2026-03-14 02:12:00Z–02:14:00Z) — *\"config: connection-per-request for pool isolation.\"* It flipped `gateway.pool.perRequest: false -> true` (config generation 118→119, applied 02:13:41.234Z). This caused connections to be acquired per-request without being returned to the pool, saturating the fixed-size-20 pool. Once full, every new request queues behind it — the wait queue has grown monotonically ever since (13 waiting at first failure → 74+ by end of log), with no self-recovery.\n\n**Impact window:**\n- First warning sign: 02:14:14.920Z (`WARN pool acquire slow: waited 100ms`)\n- First 503: **02:14:18.972Z**\n- Ongoing through end of available logs: 03:59:27.974Z (~1h45m and counting)\n- Scope: **gateway only** — confirmed via `logs/worker.log` that worker jobs (separate, smaller pool, size 8) ran clean throughout with normal latencies; no 503s, no pool exhaustion, no errors there. This is not a shared upstream/DB issue — it's isolated to the gateway's own pool.\n\n**Rollback target:**\n`dep-4471` — gateway, a.novak — revert `gateway.pool.perRequest` back to `false` (and likely no need to touch `gateway.timeout.upstreamMs`, which also changed 2000→2500 in the same push but isn't implicated).\n\n**Other deploys in the window (checked, not implicated — landed after the 503s started):**\n- dep-4472, billing-svc, 02:41:00Z (r.okafor, invoice pdf template fix)\n- dep-4473, catalog-svc, 03:20:00Z (m.silva, cache ttl 60s→300s)\n\n**Next step:** roll back dep-4471's config change (or push `perRequest: false` as generation 120) and confirm pool `waiting` drains back to 0 and 503s stop.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "27994645c54638ba8eb091488689f4969d07a4e79573823334cf32fe786bfe72"
+}

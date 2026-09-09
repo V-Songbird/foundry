@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__lean__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25910,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13393760000000002,
+  "numTurns": 10,
+  "durationMs": 23892,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1857
+  },
+  "contextTraffic": 267009,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8185,
+  "narrationWords": 0,
+  "finalWords": 86,
+  "finalText": "Build's clean now, exit code 0.\n\nTwo real bugs were hiding under the deprecation noise, both from the bundler bump changing shapes:\n\n- `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the right field.\n- `src/net/retryPolicy.js` threw when a flag came back `undefined`, but the new config loader leaves unset flags `undefined` instead of `false`. Now treats `undefined` as disabled, same as `false`.\n\nThe rest was harmless deprecation spam (`fs.exists`, `Buffer()`, punycode, etc.) — left as-is since those aren't breaking anything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31bf961d280c4926df31a0fd5870a9a782fc7d28ff28fd7b2470b8cf481c02f5"
+}

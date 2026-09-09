@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18378,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1660818,
+  "numTurns": 4,
+  "durationMs": 16880,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 877
+  },
+  "contextTraffic": 161853,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 12040,
+  "narrationWords": 0,
+  "finalWords": 189,
+  "finalText": "Everything traces back to one event at 02:14:07 — Redis at `10.0.0.12:6379` dropped with `ECONNREFUSED`, and things spiraled from there.\n\n1. **02:14:07** — Redis connection lost, api falls back to direct store reads (no cache).\n2. That fallback triggers a cache-miss storm, and the store can't keep up — steady `TimeoutError` and growing request queue depth from there on.\n3. Redis retries every ~80s and fails every single time, 13 attempts total, never recovering.\n4. Queue depth climbs for 17 minutes straight, from 52 up past 565.\n5. **02:31:44** — `worker-2` runs out of heap memory from the backlog and gets killed.\n6. **02:31:52** — the api stops responding entirely and the supervisor kills the whole process group. That's the outage.\n\nRoot cause: the Redis host at `10.0.0.12` went unreachable and never came back, and there was no circuit breaker or backpressure to stop requests piling up once the cache was gone — so the backlog eventually took the whole service down with it.\n\nWorth checking next: why `10.0.0.12` refused connections, and adding a queue cap or shed-load mechanism so a cache outage can't cascade into an OOM crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a947923358f710a7f1b32eb6f04e517470ab9d2294a7aba5c68f122e0a01c04a"
+}

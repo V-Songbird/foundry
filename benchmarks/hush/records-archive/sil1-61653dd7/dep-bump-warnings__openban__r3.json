@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__openban__r3",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "openban",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31819,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.249652,
+  "numTurns": 10,
+  "durationMs": 30095,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1602
+  },
+  "contextTraffic": 188661,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6323,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n`TypeError: Cannot read properties of undefined (reading 'toFixed')` came from [src/core/options.js:7](src/core/options.js:7). The bundler renamed `retries` to `retryCount`. It now takes either.\n\n[src/net/retryPolicy.js:8](src/net/retryPolicy.js:8) threw on an unset flag. The new loader gives `undefined`, not `false`. Unset now means off.\n\nThe 8 warnings are real deprecations. `Buffer()`, `punycode`, `crypto.createCipher` and more. Worth a separate pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75d9d8e9c8b4cc890dae8ad638bd4dbdc249750902113bf4331dbef9317549a8"
+}

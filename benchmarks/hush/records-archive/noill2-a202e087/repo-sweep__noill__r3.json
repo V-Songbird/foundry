@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__noill__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 41,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 131753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.969589,
+  "numTurns": 60,
+  "durationMs": 130063,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13136
+  },
+  "contextTraffic": 458606,
+  "apiCalls": 12,
+  "toolCalls": 59,
+  "toolResultChars": 43901,
+  "narrationWords": 6,
+  "finalWords": 62,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migrated 12 files, 36 call sites, from `db.query` to `db.execute`.** All pass `node --check`.\n\nTwo calls stay on `db.query`, both in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit. Upgrades overwrite it.\n\nNo tests exist in the repo. I left `cache.query` alone. It is a different API.\n\nNext: decide the vendor plan. Wrap it or wait for a `legacy-orm` release that drops `db.query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4656066248d4b4074d49fa9b6145b75de3e3028e2b884ba39f57dc2ac0b04ec"
+}

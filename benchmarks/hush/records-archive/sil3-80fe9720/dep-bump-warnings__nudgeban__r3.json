@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__nudgeban__r3",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nudgeban",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32022,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.2496875,
+  "numTurns": 10,
+  "durationMs": 30062,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1590
+  },
+  "contextTraffic": 188770,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6168,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n[options.js:6](src/core/options.js:6) read `options.retries`. The new shape is `retryCount`. It now takes either.\n\n[retryPolicy.js:8](src/net/retryPolicy.js:8) threw on `undefined`. The new loader leaves unset flags unset. That now means off.\n\nThe 8 remaining warnings are real deprecations in `src/legacy` and `src/utils`. They do not break the build. Worth cleaning up next if you want zero output.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d43bf0a3d99d16740db54e5077a2fb557c4df56b10144c989207d5d84a75b57d"
+}

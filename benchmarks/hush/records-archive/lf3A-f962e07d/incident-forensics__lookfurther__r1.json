@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__lookfurther__r1",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "lookfurther",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 224557,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 0.930251,
+  "numTurns": 15,
+  "durationMs": 217903,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15039
+  },
+  "contextTraffic": 528874,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 11577,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "finalText": "**Handoff is written to `INCIDENT-HANDOFF.md`.**\n\nRoot cause is `gateway.pool.perRequest` going `false -> true`. Every request grabs its own connection now. The pool of 20 saturates and never drains. Roll back `dep-4471`, the gateway config deploy.\n\nImpact ran 02:14:18Z to 03:59:27Z and had not recovered. 530 of 636 requests failed. Only `/health` stayed green, which is why the page came 67 minutes late.\n\nTwo things I flagged for the next shift. 106 `/v1/profile` requests logged no result at all. And these logs are dated March 14, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83843d66068938855a8e2177b18f05e3b518ea2371c3602dcb0ced0024655b45"
+}

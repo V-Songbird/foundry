@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22456,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.297492,
+  "numTurns": 3,
+  "durationMs": 21120,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1692
+  },
+  "contextTraffic": 140436,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60172,
+  "narrationWords": 0,
+  "finalWords": 293,
+  "finalText": "Here's the timeline. This was a Redis outage that cascaded into an OOM crash.\n\n**02:00–02:14** — Normal operation. `/users`, `/orders`, `/health` all 200s, cache hit ratio 90–98%.\n\n**02:14:07** — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. The app falls back to direct store (DB) reads, and immediately hits a **cache miss storm** on `orders:*` keys.\n\n**02:14:07 → 02:31:26** — Cascading overload, repeating every ~20s cycle:\n- Direct reads to the store time out after 5000ms (`store overloaded`)\n- Request queue depth climbs steadily and *never drains*: 52 → 500 (the stated max) around 02:29:06, then blows straight past it to 568 by 02:31:24 — so the \"max 500\" queue cap wasn't actually enforced/backpressured.\n- 13 Redis reconnect attempts (0–12), roughly every 2 minutes, all failing with the same `ECONNREFUSED 10.0.0.12:6379` — Redis never came back the whole time.\n\n**02:31:44.902** — `worker-2` dies: `JavaScript heap out of memory (request backlog)` — the unbounded, un-drained queue exhausted memory.\n\n**02:31:45.001** — Supervisor restarts worker-2 (exit code 134 = SIGABRT from the OOM).\n\n**02:31:52.318** — Supervisor gives up: `api unresponsive, killing process group — service down`.\n\n**Root cause:** Redis at `10.0.0.12:6379` went down and stayed down for the full 17-minute window. The fallback-to-direct-store path had no effective backpressure — the queue-depth \"max 500\" was logged but not enforced — so requests piled up faster than 5s timeouts could drain them, and the backlog eventually OOM'd a worker and took the whole process group down with it.\n\n**Worth checking:**\n1. Why Redis at `10.0.0.12:6379` went unreachable at 02:14:07 (that's outside this log — worth checking Redis host/infra logs).\n2. Why the queue depth cap (500) didn't actually reject/shed load once exceeded.\n3. Whether the direct-store fallback needs a circuit breaker instead of retrying every request for 17 minutes straight.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "febf08a068e64044318adc939791dd0dd7aadb2db2caa68fad71c3faa029212c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 7,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 103526,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3410034,
+  "numTurns": 14,
+  "durationMs": 101468,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8598
+  },
+  "contextTraffic": 632769,
+  "apiCalls": 13,
+  "toolCalls": 13,
+  "toolResultChars": 23491,
+  "narrationWords": 28,
+  "finalWords": 245,
+  "finalText": "I read all 380 commits, not just the 128-row PR sheet, and wrote 4.2.0 into `CHANGELOG.md`.\n\nAlmost everything really was noise. But 11 things will land in front of users:\n\n**Breaking**\nAn expired token now returns `401` instead of `403`. Anyone checking for `403` needs to update that.\n\n**Added**\nFailed webhook deliveries now retry with backoff instead of just failing.\n\n**Fixed**\n- The HTTP client no longer hangs when a socket drops. Its connection pool also closes cleanly on shutdown.\n- Paginated responses in the queue, API, webhooks, and database no longer crash on a null cursor.\n- The database stopped logging full request bodies. That was a real data-exposure bug.\n- Trace ids now survive a retry instead of changing partway through.\n- The latency histogram now reports correct units.\n- A trailing slash in a URL is no longer double-trimmed.\n- An empty allowlist is now handled correctly, in the store, database, and jobs code.\n- Duplicate response headers are gone, and token-parser error messages are clearer.\n\nOne thing worth flagging: several of these same fixes showed up more than once, in different modules, months apart. The null-cursor crash was fixed in the queue in May, then again in the API, then webhooks, then the database in June. Same for the duplicate-header bug and the empty-allowlist bug. Looks like the same class of bug kept getting copy-pasted into new code before anyone caught it. Might be worth a linter rule once 4.2 ships.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1cbb1d9558d2088669379645c5cc560a0f86c0764d9736679f661c5bbe976264"
+}

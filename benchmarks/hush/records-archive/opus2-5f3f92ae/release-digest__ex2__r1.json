@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ex2__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ex2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 105768,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.841151,
+  "numTurns": 17,
+  "durationMs": 104213,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7059
+  },
+  "contextTraffic": 667441,
+  "apiCalls": 16,
+  "toolCalls": 16,
+  "toolResultChars": 42611,
+  "narrationWords": 8,
+  "finalWords": 131,
+  "finalText": "Drafted 4.2.0 into `CHANGELOG.md`. Out of 380 commits, 17 lines matter.\n\nFour things I'd have you confirm before publishing:\n\n- **`refactor(api): drop the unused v1 export route`** is filed as Breaking. The commit calls it unused. If it was never public, cut that line.\n- **Empty allowlist** and **trailing slash** — I described the symptom, not the new behavior. The commits don't say. Worth a glance at `src/`.\n- **Node floor.** Fifteen commits touch `.nvmrc`, the Node docs, and CI on Node 22. No source change proves a floor moved, so I left it out. It may belong under Breaking.\n- **Perf has no heading** in your format. I folded it into Added as one line.\n\nRuntime dependencies moved by patch or minor only. No majors, so nothing to warn about.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8c3fa4b385568b8c4b298eaf973a4fcba116959bdf06c5ff1aea8161f951a7da"
+}

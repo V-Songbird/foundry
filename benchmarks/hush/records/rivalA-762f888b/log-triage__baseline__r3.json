@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 14,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39138,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5177835000000001,
+  "numTurns": 6,
+  "durationMs": 38312,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2358
+  },
+  "contextTraffic": 178746,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 61030,
+  "narrationWords": 6,
+  "finalWords": 547,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "Here's what the log shows. One caveat up front: **these entries are dated 2026-07-04, 02:00–02:31 UTC** — roughly two months before today, not last night. Either `app.log` hasn't rotated/been updated since July, or you're looking at the wrong file for last night's incident.\n\n## What happened\n\nA Redis outage cascaded into a full service crash over ~17 minutes.\n\n**02:00:00 – 02:14:03 — Healthy.** Everything 200s. Cache hit ratio logged at 0.90–0.98 (`app.log:2`, `:173`). No errors at all.\n\n**02:14:07 — Trigger: Redis died.** (`app.log:182`)\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\nWARN  [api] cache layer degraded — falling back to direct store reads\n```\n`ECONNREFUSED` (not a timeout) means the Redis process at `10.0.0.12:6379` was gone or refusing connections — a crash, restart, or firewall/SG change on that host. Nothing in this log explains *why* Redis went down; that answer is on the Redis side.\n\n**02:14:08 onward — Cascade.** With the cache gone, the app fell back to direct store reads. Immediately:\n- Cache-miss storms on `orders:1000`–`orders:1199` (a repeating 200-key hot set)\n- `TimeoutError: request timed out after 5000ms (store overloaded)` — 173 of them, spread almost perfectly evenly across all four components (api 43, scheduler 43, worker-1 44, worker-2 43). Nothing was isolated; the whole fleet was blocked on the same backing store.\n- Request queue depth climbing linearly, +3 every ~6s, from 52 at 02:14:12 to 568 at 02:31:24.\n\n**02:15:26 – 02:31:26 — 13 failed reconnects.** Attempts 0 through 12, all `ECONNREFUSED`, every 80 seconds on the dot. Redis never came back during the window.\n\n**02:31:44 — Death.** (`app.log:717-719`)\n```\nERROR [worker-2] JavaScript heap out of memory (request backlog)\nFATAL [supervisor] worker-2 exited with code 134, restarting\nFATAL [supervisor] api unresponsive, killing process group — service down\n```\nExit 134 = SIGABRT, the standard V8 OOM abort. The backlog of queued requests ate the heap. Log ends there — no recovery recorded.\n\n## Three things that turned an outage into an outage-plus-crash\n\n1. **The queue limit isn't enforced.** Depth crosses its own stated max at `app.log:647` (`depth 502 (max 500)`) and keeps climbing to 568 with no shedding, no 503s, no backpressure. `max 500` is apparently a log label, not a bound. This is what OOM'd worker-2 — it's the most actionable bug in here.\n\n2. **Reconnect has no backoff.** 80s flat between all 13 attempts. Not harmful at that interval, but there's also no circuit breaker: every request kept trying the cache path and falling through to an already-saturated store for 17 straight minutes.\n\n3. **No cache stampede protection.** 200 hot keys cycling repeatedly means many concurrent requests for the same missing key each hit the store independently. Request coalescing / single-flight would have cut store load by a large factor.\n\n## What I'd check next\n\n- Redis host `10.0.0.12` logs around 02:14:00 — that's the actual root cause and it isn't in this file.\n- Whether `api` ever came back (supervisor killed the process group; nothing after 02:31:52 here).\n- The store's own metrics — \"store overloaded\" is the app's interpretation; confirm it was saturation and not a second failure.\n\nWant me to dig into the source for the queue-limit and reconnect logic? `package.json` points at `src/server.js`, but that directory isn't present here — only `logs/` and `package.json` are in this folder.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53f1d0fd50fde5ebddb671a55a258b5ff2d097118aeb12a5d472e4561c6a0c1b"
+}

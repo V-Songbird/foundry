@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15052,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1858493,
+  "numTurns": 3,
+  "durationMs": 12816,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 776
+  },
+  "contextTraffic": 112681,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23535,
+  "narrationWords": 0,
+  "finalWords": 133,
+  "finalText": "Redis went down at 02:14:07 UTC and dragged everything else with it.\n\nOnce `10.0.0.12:6379` stopped answering, the app fell back to hitting the store directly. That caused cache miss storms and 5 second timeouts across `api`, `worker-1`, `worker-2`, and `scheduler`.\n\nThe request queue never stopped growing. It passed its cap of 500 around 02:29 and kept climbing past 568, since nothing was shedding load. Redis reconnect attempts kept failing every few minutes, all the way to attempt 12 at 02:31:26.\n\nAt 02:31:44 `worker-2` ran out of memory from the backlog and crashed. The supervisor restarted it, but 7 seconds later the `api` process stopped responding entirely and got killed. That's the outage.\n\nRoot cause: Redis at `10.0.0.12:6379` refusing connections, with no backpressure to stop the queue from growing unbounded while it was down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "062dec33c6e4d6fbc1e4cbd8f99a8b4566993a69ab8aeb71a320311b91ca69a3"
+}

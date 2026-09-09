@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__oldstyle__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25249,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.15363259999999998,
+  "numTurns": 7,
+  "durationMs": 23261,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1389
+  },
+  "contextTraffic": 286633,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 14799,
+  "narrationWords": 0,
+  "finalWords": 190,
+  "finalText": "Nothing before 02:14 but routine health checks — clean baseline. Now I have the full story.\n\n**Redis died, and nothing gave the app a way out.**\n\nAt 02:14:07, the app lost its connection to Redis at `10.0.0.12:6379`. It fell back to hitting the store directly, but that store couldn't handle the load. Requests to `/orders` started timing out at 5 seconds, over and over, every few seconds, for the next 17 minutes.\n\nThe app kept trying to reconnect to Redis every 80 seconds. Every single attempt failed, 13 tries in a row, right up to the end.\n\nWith no caching and no working reconnect, the backlog of requests just kept growing. It crossed the 500-item limit at 02:29:12 and kept climbing past 568.\n\nAt 02:31:45, `worker-2` finally gave out. It exited with code 134, which means it crashed on an assertion failure, likely from running out of memory holding all those queued requests.\n\n**What to check first:** why Redis at `10.0.0.12` went down at 02:14, and why the app has no circuit breaker or request-shedding when the cache disappears. Right now one dead dependency takes the whole app with it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b2d84905081ab50751910e223ca16ab4b6a3e44999fd1d99bb7e6e0ccd6420c6"
+}

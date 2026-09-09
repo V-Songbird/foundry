@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "ab2-7ddf2162",
+  "seed": "1787387594651",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26594,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1260038,
+  "numTurns": 9,
+  "durationMs": 24920,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1820
+  },
+  "contextTraffic": 163480,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 12816,
+  "narrationWords": 0,
+  "finalWords": 244,
+  "finalText": "This touches 94 files and about 1,082 spots, spread across accounts, orders, billing, notify, and analytics. Most of that is safe to rename since it's internal code and repo layers.\n\nThree places must stay as `account_id`, though.\n\n1. **`docs/openapi.yaml`** — this is the public API. The field is marked \"Frozen field name.\" Renaming it breaks every outside client. It would need a whole new dated API version instead.\n2. **`lib/serialize.js`** — this turns database rows into the JSON answers sent to clients. The comment there says the public side of that map is frozen by the API contract, so it has to keep saying `account_id` even if the internal name changes.\n3. **`vendor/reporting-sdk/`** (3 files) — this is vendored, auto-generated code. Its own comment says \"Do not edit\" because it gets overwritten next time someone runs the update command. Any fix has to happen upstream, not here.\n\nOne more spot worth flagging: `lib/audit.js` writes `account_id` into audit log lines. If audit logs get read by anything outside this codebase, that name may need to stay too, worth asking the platform team.\n\nThe database migration files (`migrations/*.sql`) already ran in production, so editing them won't rename anything live. They're just history, safe to leave alone, but the actual database column rename would need a brand new migration, not an edit to old ones.\n\nSo: safe to rename in around 90 files, must stay frozen in the API docs, the wire serializer, and the vendored SDK.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95cee3c8f8237d3a2178746a08ca6c55e6521a561bc33bbe1e532783b53fcd6d"
+}

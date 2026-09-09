@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__says__r3",
+  "batchId": "it6a-6e7860b7",
+  "seed": "1787885368504",
+  "orderIndex": 2,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "says",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 109902,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush-says:HushSays",
+  "costUsd": 0.532347,
+  "numTurns": 16,
+  "durationMs": 100882,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5442
+  },
+  "contextTraffic": 442931,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 8963,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "assistantMsgs": 4,
+  "finalText": "Wrote [HANDOFF.md](HANDOFF.md).\n\nRoot cause is `gateway.pool.perRequest: false -> true` in config `generation 119`. Pool of 20 saturates. Churn hits 4180 opens per 5m against a baseline of 40.\n\nWindow runs `02:14:18.972Z` to `03:59:27.974Z`, 530 `503`s. **The log ends still erroring, so treat this as live.** Counts are `node-3 of 3` only.\n\nRoll back `dep-4471`. Faster still, flip `perRequest` back to `false` and reload.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a22f828aad1dd9784730dce7c121e583890e11a361aa404e294cff140126e15"
+}

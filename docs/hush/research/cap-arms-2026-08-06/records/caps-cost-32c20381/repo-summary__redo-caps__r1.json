@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__redo-caps__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 10,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 23442,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0415712,
+  "numTurns": 9,
+  "durationMs": 21617,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1349
+  },
+  "contextTraffic": 113032,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 4375,
+  "narrationWords": 0,
+  "finalWords": 176,
+  "finalText": "This is a small order-management API with five pieces working together:\n\n**server.js** is the door. It checks that every request has a valid bearer token, then hands off to the router.\n\n**auth.js** handles those tokens — HMAC-signed tokens in the format `<userId>.<signature>`. The secret comes from an environment variable, or falls back to `dev-secret` locally.\n\n**routes.js** is the dispatch table. Three endpoints: `GET /users` and `GET /orders` both read through a cache, while `POST /orders` writes directly to storage and lets the cache handle its own invalidation.\n\n**cache.js** is a tiny LRU cache (256 entries, no timeout). It just holds onto reads so the same query doesn't hit the store twice.\n\n**store.js** is where data actually lives. It's in-memory, not a real database — everything expires 15 minutes after it's written. The API gives you users and orders with those 15-minute lifespans.\n\nThe flow on a read: token check → route lookup → cache hit or store fetch → JSON back. On a write: token check → route lookup → store + cache update → response.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f6a6f6d1b416163917ffda2c202aca890cea6a4cd644d641394bf952355faa04"
+}

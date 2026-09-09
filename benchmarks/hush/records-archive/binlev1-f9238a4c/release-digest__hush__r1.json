@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 20,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 77960,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5835925,
+  "numTurns": 13,
+  "durationMs": 76315,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5492
+  },
+  "contextTraffic": 249409,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 41714,
+  "narrationWords": 8,
+  "finalWords": 108,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the repository structure."
+  ],
+  "finalText": "**Drafted 4.2.0 into [CHANGELOG.md:3](CHANGELOG.md:3).** 380 commits, 13 user-facing.\n\nThree breaking changes hide under `refactor` and `fix` labels. The `v1` export route is gone. Eight commits stopped re-exporting error types from `core`, `db`, `auth`, `jobs`, `billing`. Expired tokens now return `401`, not `403`.\n\nOne feature: webhook retry with backoff. Everything else is deps, tests, and CI.\n\nTwo calls to check. I put the `401` change under Breaking, though it shipped as a `fix`. I left perf work out, since your template allows only three headings.\n\n`docs: note the minimum node version` never touched `engines`, so I claimed no Node bump.\n\nNext: confirm the `401` placement and the release date.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "261da37b9c26054b6401c07d916d67000a103be237236f38003f8b22519902e9"
+}

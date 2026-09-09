@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21809,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.103131,
+  "numTurns": 9,
+  "durationMs": 19937,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1592
+  },
+  "contextTraffic": 113697,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 12562,
+  "narrationWords": 0,
+  "finalWords": 164,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**~1,080 occurrences across 94 files.** Mostly repo/service/route layers in `orders`, `billing`, `accounts`, `notify`, `analytics` — mechanical, safe to rename internally.\n\nThree places must stay `account_id`:\n\n1. **Public API contract** — [docs/openapi.yaml](docs/openapi.yaml) and the wire map in [lib/serialize.js:8](lib/serialize.js:8) explicitly freeze it. Every client reads this field name; renaming breaks them.\n2. **Applied SQL migrations** (14 files, e.g. [migrations/20250114_create_accounts.sql](migrations/20250114_create_accounts.sql)) — already run in production. Editing them doesn't rename live DB columns and breaks the down-step. A real rename needs a new migration, not an edit.\n3. **`vendor/reporting-sdk`** (4 files) — third-party vendored code, not ours to rename.\n\n`lib/audit.js` also hardcodes `account_id` in log lines — worth confirming whether audit log consumers expect that exact key before touching it.\n\nNet: the in-repo rename is mechanical and large, but this isn't a same-day job if it includes a DB column rename — that needs its own migration, deploy, and dual-read/write window. I'd sign off on the code-layer rename, not on touching the frozen contract, migrations, or vendor code.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c235a864c71c6b0278c938a6de6795b702bb0291a360b54559f8509da3a163bb"
+}

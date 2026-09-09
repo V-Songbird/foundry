@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r3",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34842,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1255658,
+  "numTurns": 11,
+  "durationMs": 33332,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1849
+  },
+  "contextTraffic": 201490,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 9973,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean now.** Exit 0, `0 errors`, just the 8 expected deprecation warnings.\n\nTwo real bugs from the bump, both fixed:\n\n1. [src/core/options.js](src/core/options.js) — bundler now sends `retryCount`, code still read `options.retries` and threw.\n2. [src/net/retryPolicy.js](src/net/retryPolicy.js) — unset flags now come back `undefined` instead of `false`, so `isBackoffEnabled` threw. Treats `undefined` as `false` now.\n\nThe remaining warnings (`Buffer()`, `fs.exists`, punycode, etc.) are just noise from the dep bump, not blocking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8d3b53f1a361c35aef24d736ea716d726384190d09ad98312e123bb180ff7af2"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 129641,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5766525,
+  "numTurns": 26,
+  "durationMs": 128284,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7286
+  },
+  "contextTraffic": 407700,
+  "apiCalls": 13,
+  "toolCalls": 25,
+  "toolResultChars": 17604,
+  "narrationWords": 27,
+  "finalWords": 550,
+  "assistantMsgs": 3,
+  "finalText": "## Scope\n\n**1,286 occurrences across 94 files.** It's uniformly `account_id` — no `accountId`/`AccountId` variants anywhere, so there's exactly one spelling to chase.\n\n| Area | Files | Hits | Safe to rename? |\n|---|---|---|---|\n| `services/**` (5 services × http/service/repo) | 75 | 1,200 | Mostly yes — with one carve-out |\n| `migrations/` | 12 | 61 | **No** |\n| `vendor/reporting-sdk/` | 4 | 20 | **No** |\n| `docs/openapi.yaml` | 1 | 5 | **No** |\n| `lib/` | 2 | 5 | Partly |\n\nThe services layer splits evenly: 25 http files (325), 25 service files (400), 25 repo files (475). It's the same four-function CRUD shape repeated per entity, so the bulk is mechanical.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` + the right-hand side of `lib/serialize.js`.** `serialize.js:7-11` is the internal→wire map, and the comment is explicit: the keys on the right are the frozen public contract. `account_id` is a required response property on `Invoice` and `Order` and a public query parameter on `/v2/invoices`. The rename is fine on the left (`owner_id: 'account_id'`), fatal on the right — that's a breaking change for every client and needs a new dated API version.\n\n**2. `migrations/` — all 12 files.** Every one carries the header \"editing one does not rename anything in a database that already ran it, and it breaks the down step.\" Editing applied migrations changes nothing in production and desyncs the down path. If the team actually wants the *column* renamed, that's a new forward migration, not a find/replace.\n\n**3. `vendor/reporting-sdk/` — 4 generated files.** README says do not edit; `npm run vendor:refresh` overwrites the directory wholesale. Any rename there silently reverts on the next refresh. Note these files aren't imported by any service today, so they can simply be excluded.\n\n**4. The SQL string literals inside `services/**/repo/*.js` — ~200 of the 475 repo-layer hits.** This is the one that a blind sweep will get wrong. Lines like `'SELECT * FROM cohorts WHERE account_id = ?'` (`services/analytics/src/repo/cohort.js:10`) name the **database column**, not a JS identifier. Renaming those breaks every query at runtime, and tests that mock `db.execute` won't catch it. The JS parameter can become `owner_id`; the string contents must stay until a migration renames the column.\n\n## Two judgment calls to raise before you sign\n\n- **JSONB payloads.** `insertCohort` writes `JSON.stringify({ ...values, account_id })` (`repo/cohort.js:35`) — the key is persisted *inside* the row data. Renaming it means new rows carry `owner_id` while every existing row carries `account_id`, and nothing backfills them. This pattern repeats across the repo layer.\n- **`lib/audit.js:8`** stamps `account_id` on every audit line. If anything downstream (SIEM, log queries, retention tooling) reads that field by name, the rename is a silent break outside this repo — I can't see those consumers from here.\n\n## My read\n\nThe safe version of this is ~75 service files, internal identifiers only, leaving SQL literals, the wire map's right side, OpenAPI, migrations, and vendor untouched. That's a large-but-boring diff with a clean review story.\n\nThe version the requester probably has in their head — \"everywhere\" — is not signable today: it silently spans a public API break, a schema migration, and persisted JSON. I'd approve the internal-identifier rename and split the column rename and any API change into their own tracked work.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f169d9265a061b34e3b01753a6e03ead3f8dc81c06b1d250ce23a0502d2edb1"
+}

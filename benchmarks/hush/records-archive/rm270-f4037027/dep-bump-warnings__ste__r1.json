@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25608,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.11990519999999999,
+  "numTurns": 10,
+  "durationMs": 24640,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1954
+  },
+  "contextTraffic": 219375,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 8619,
+  "narrationWords": 31,
+  "finalWords": 140,
+  "finalText": "Build is clean now — exit 0, 0 errors. What was going on:\n\n- The bulk of the \"screen full of warnings\" is just harmless Node deprecation noise (`DEP0142`, `DEP0198`, etc.) plus a couple of real-but-minor lint-style warnings (unused export, circular import) — those are still there (8 warnings total) but don't fail the build.\n- The actual build failure was two bugs the dependency bump introduced at the link stage:\n  - `src/core/options.js:7` — the new bundler passes options as `{ retryCount }`, but the code still read `options.retries`, so it threw on `undefined.toFixed`. Fixed to read `options.retryCount`.\n  - `src/net/retryPolicy.js:8` — the new config loader leaves an unset flag as `undefined` instead of `false`, but the strict check only handled `true`/`false` and threw otherwise. Added an `undefined` → `false` case.\n\nBoth are one-line fixes; build now completes and emits `dist/bundle.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d858d1d9a175d9890ec25b144bfb308d2b3f355df129471bb19e137be645b1af"
+}

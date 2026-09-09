@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 123,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 35111,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.059542000000000005,
+  "numTurns": 10,
+  "durationMs": 33515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1941
+  },
+  "contextTraffic": 211447,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8710,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "finalText": "Build is clean now. Two bugs from the package bump:\n\n1. **options.js** — the new bundler passes `retryCount` instead of `retries`. Changed the field name to match.\n2. **retryPolicy.js** — the new config loader leaves unset flags as `undefined`, but the check only handled `true` or `false`. Added a case to treat `undefined` as disabled.\n\nBoth link stages pass, bundle emits fine. The 8 remaining warnings are all old deprecations (like `fs.exists`, `Buffer()` constructor) that are just noise from legacy code.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c43a70e38c16078cf3b5d5c3ffcc2ea0d93a8ad3509bcf0e79c52f5a1896abab"
+}

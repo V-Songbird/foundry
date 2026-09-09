@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38075,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.353367,
+  "numTurns": 10,
+  "durationMs": 36269,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1961
+  },
+  "contextTraffic": 150206,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6586,
+  "narrationWords": 7,
+  "finalWords": 79,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**The build passes now.** Two real bugs, both from the bump.\n\n| file | bug | fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag is now `undefined`, not `false` | treat unset as `false` |\n\nThe 8 warnings are still there. They are deprecation notices printed by `fakepack` itself. Your source cannot silence them.\n\nNext: fix the deprecated calls in `src/legacy/` if you want a clean log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75a3081e1cf6a186983b75ca2c8289c262d50c7a8046fb87fed2aa6c48ef8bb6"
+}

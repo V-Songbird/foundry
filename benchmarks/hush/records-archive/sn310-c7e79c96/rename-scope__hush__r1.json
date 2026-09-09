@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24028,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0941138,
+  "numTurns": 8,
+  "durationMs": 22316,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1658
+  },
+  "contextTraffic": 109657,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 6578,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**About 94 files** touch `account_id`, across `services/orders`, `notify`, `billing`, `analytics`, `accounts`, plus `migrations` and `docs/openapi.yaml`. Mechanical rename in application code, but three spots must stay `account_id`:\n\n1. [docs/openapi.yaml:40](docs/openapi.yaml:40) — public query param, marked \"frozen\" contract.\n2. [lib/serialize.js:8](lib/serialize.js:8) — wire format map, explicitly frozen for existing API clients.\n3. `vendor/reporting-sdk/**` — vendored/generated, comment says \"do not edit,\" and its `account_id` field talks to the external SDK's own schema.\n\nAlso don't touch old files under `migrations/` (e.g. `20250114_create_accounts.sql`) — the DB column rename needs a new migration, not edits to history.\n\nNext: confirm with platform team whether `owner_id` should reach the public API at all, since `serialize.js` and `openapi.yaml` say no.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "055640a8806ab7b7193dc5b54262e8204cd41999cdeef59a601e1b738ea6462f"
+}

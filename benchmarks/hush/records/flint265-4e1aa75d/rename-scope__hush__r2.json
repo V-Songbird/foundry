@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 34,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51162,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38633149999999994,
+  "numTurns": 18,
+  "durationMs": 49382,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3080
+  },
+  "contextTraffic": 227415,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 21966,
+  "narrationWords": 6,
+  "finalWords": 82,
+  "assistantMsgs": 2,
+  "finalText": "**Big but mostly mechanical.** About 1,200 hits in 94 files, five services.\n\nFour places it must not be renamed:\n\n| Zone | Why |\n|---|---|\n| [`docs/openapi.yaml`](docs/openapi.yaml) | public contract, frozen |\n| [`lib/serialize.js:8`](lib/serialize.js:8) | wire value stays `account_id` |\n| `vendor/reporting-sdk` | regenerated, edits lost |\n| `migrations/*.sql` | applied, editing is fake |\n\nAlso 125 SQL column refs in repos. Those need a real column migration first.\n\nSafe today is the JS variable rename only. Sign off scoped to that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ebd32b8c8ead76e2e7759a15827ccfa8ad0c042b6d4b272896dee342bf0522e"
+}

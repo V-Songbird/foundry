@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__hush__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 99,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 41662,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07790250000000001,
+  "numTurns": 13,
+  "durationMs": 39814,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2719
+  },
+  "contextTraffic": 292555,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 14365,
+  "narrationWords": 16,
+  "finalWords": 70,
+  "finalText": "Found the leak. In `processOrder.js`, when `run()` threw an error during order validation, the connection release was never reached because it came after the await. Connections with bad payloads were left in the pool's in-use set indefinitely, starving new requests.\n\nFixed it by wrapping the call in try-finally so the release runs regardless of failure. All 4 tests pass now — the pool fully recovers even when orders fail validation.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d531784f815eed001ebd4a256d90de30c95f600c84580a53ce0c43ba5748dd65"
+}

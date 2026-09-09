@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42677,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2981045,
+  "numTurns": 8,
+  "durationMs": 40719,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1936
+  },
+  "contextTraffic": 172827,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 16837,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "assistantMsgs": 1,
+  "finalText": "**`Redis` went down and took the service with it.**\n\n| time (UTC) | event |\n|---|---|\n| 02:14:07 | `redis` at `10.0.0.12:6379` refused, cache off |\n| 02:14:10 | store reads hit `TimeoutError` at 5000ms |\n| 02:29:12 | queue depth passes max 500 |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `supervisor` killed api, service down |\n\nAll 13 reconnect tries failed with `ECONNREFUSED`. [logs/app.log](logs/app.log) ends there, no recovery. Note the log is dated 2026-07-04, not last night.\n\nNext: find why `10.0.0.12:6379` refuses connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16fd23aef4abca03bb07f7d367657fd89bdbe7426829ed2cdc6c20a071896189"
+}

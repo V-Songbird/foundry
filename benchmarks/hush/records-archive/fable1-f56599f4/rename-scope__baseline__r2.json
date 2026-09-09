@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 60308,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7525225,
+  "numTurns": 26,
+  "durationMs": 59463,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4662
+  },
+  "contextTraffic": 171608,
+  "apiCalls": 6,
+  "toolCalls": 25,
+  "toolResultChars": 29152,
+  "narrationWords": 18,
+  "finalWords": 425,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey every place `account_id` appears in the repo and classify them by whether a rename is safe."
+  ],
+  "finalText": "**Bottom line:** \"everywhere\" is not a safe scope. The rename is mechanically large but mostly uniform, and four areas must be excluded or handled as separate, versioned changes. I'd sign off only on a scoped version.\n\n**How big it is**\n\n| Area | Files | Occurrences |\n|---|---|---|\n| services (http, repo, service layers) | 75 | 1200 |\n| migrations | 12 | 61 |\n| vendor/reporting-sdk | 4 | 20 |\n| lib (serialize, audit) | 2 | 5 |\n| docs/openapi.yaml | 1 | 5 |\n| **Total** | **94** | **1291** |\n\nThe service code is a single repeated pattern across five services, so a scripted rename covers it. There are no camelCase variants to chase.\n\n**Where it must not be renamed**\n\n- **Public API wire format** (`lib/serialize.js` line 8 and the OpenAPI spec). The response field and the `/v2/invoices` query parameter are documented as frozen. Renaming them is a breaking change for every client and requires a new dated API version. The serializer exists precisely so internal names can change without touching the wire. The left side of that map may change. The right side must not.\n- **Applied migrations** (all 12 files). Each is marked as applied in production. Editing them renames nothing in the real database and breaks the down step. The rename needs a new migration that alters each column, rebuilds the indexes, and updates the FK.\n- **Vendored reporting SDK** (`vendor/reporting-sdk`). The README says do not edit. Any change is wiped by the next vendor refresh, and the key is the upstream SDK's request and response contract. Callers must map owner_id to account_id at the boundary instead.\n- **Stored JSONB payload key.** Every repo insert writes `account_id` into the payload column. Renaming the key changes the shape of new rows while old rows keep the old key. Anything reading the payload must handle both, or the data needs a backfill.\n\n**Two more things to confirm before signing**\n\n- The routes read the account from `req.session.account_id`, and nothing in this repo sets that session. The auth middleware lives elsewhere, so that name is a cross-repo contract.\n- The audit log emits an `account_id` field on every line. Any dashboards or alerts keyed on that field break silently if it changes.\n\n**Recommendation:** approve a rename of internal variables and parameters in the service layers plus a new column-rename migration. Reject changes to the serializer's wire side, the OpenAPI spec, existing migrations, and the vendored SDK. Ask for a decision on the payload key and audit field before merging.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01b052a58343ada11f3a4d0cd98891d45c1a2f970ce0be85a866a6a1ffd8a8ae"
+}

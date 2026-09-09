@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__notable__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 25,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "notable",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74778,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2692798,
+  "numTurns": 36,
+  "durationMs": 73306,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9701
+  },
+  "contextTraffic": 244704,
+  "apiCalls": 7,
+  "toolCalls": 35,
+  "toolResultChars": 23413,
+  "narrationWords": 21,
+  "finalWords": 67,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirmed the target shape. Now migrating each non-vendor file with the same three-call pattern.",
+    "Verifying no `db.query` calls remain outside vendor."
+  ],
+  "finalText": "**Migration done.** 12 files moved from `db.query(sql, params)` to `db.execute({ sql, params })`.\n\n`vendor\\legacy-orm\\adapter.js` still calls `db.query`. Left it alone: its header says it's a vendored copy overwritten on every upgrade, so local edits get silently lost.\n\nNext: decide how to handle the vendor adapter, since `db.query` is deprecated and slated for removal. Options are patching upstream, wrapping the adapter, or overriding it in your own shim.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf8a00cdde08094906c93d03796d9921c4927d34ecf09d30196ee99b02e61ae8"
+}

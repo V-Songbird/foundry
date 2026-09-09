@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51548,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.18601399999999998,
+  "numTurns": 12,
+  "durationMs": 44945,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3578
+  },
+  "contextTraffic": 366704,
+  "apiCalls": 10,
+  "toolCalls": 8,
+  "toolResultChars": 15778,
+  "narrationWords": 0,
+  "finalWords": 253,
+  "assistantMsgs": 4,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** ACTIVE — not yet resolved as of last log entry (2026-03-14 03:59:27Z)\n\n**Impact window:** 2026-03-14 02:14:19Z → ongoing (currently ~1h45m and counting)\n\n**Root cause:** Gateway connection pool exhaustion (`ERR_POOL_EXHAUSTED`, pool size 20, pinned at `in_use=20`). Triggered by deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\"), which applied config generation 119 at 02:13:41Z and flipped `gateway.pool.perRequest: false -> true`. First pool-exhaustion 503 hit 38s later at 02:14:18.972Z.\n\nAffects all backends behind the gateway roughly evenly (billing-svc, orders-svc, catalog-svc, accounts-svc) — points to the shared gateway pool as the bottleneck, not any one downstream service. Backlog is worsening over time: `waiting` count on exhaustion errors has grown from ~13 (02:14Z) to ~70+ (03:59Z), and 503 latency has grown from ~660ms to ~850ms.\n\nWorkers are unaffected — `worker.log` shows a separate, healthy DB pool (`size=8`, `in_use=1`, `waiting=0`) and all jobs completing normally throughout. Confirms this is scoped to the gateway's connection-per-request change, not a broader infra issue.\n\n**Rollback target:** `dep-4471` (gateway, deployed 02:12:00Z–02:14:00Z by a.novak). Revert `gateway.pool.perRequest` back to `false` (config generation 119 → prior).\n\n**Ruled out:**\n- `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) — both post-date the first 503, not the trigger, though worth a sanity check post-rollback since those services appear in the error traffic.\n- Worker-side DB slow query (OPS-2210, known issue) at 02:36Z — unrelated, pre-existing.\n\n**Next steps for on-call:** roll back dep-4471 / revert the `perRequest` flag, then watch `ERR_POOL_EXHAUSTED` and `waiting` counts in gateway.log drop back to zero to confirm recovery.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e2c1d5c6cf24d521813262c260bfa0963d1d1991d3b71b063c45d5be433a4817"
+}

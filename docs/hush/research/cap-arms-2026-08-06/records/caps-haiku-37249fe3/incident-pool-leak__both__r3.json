@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 107,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 58813,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0984146,
+  "numTurns": 17,
+  "durationMs": 57123,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3238
+  },
+  "contextTraffic": 453986,
+  "apiCalls": 14,
+  "toolCalls": 16,
+  "toolResultChars": 14266,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "Found and fixed the connection leak. The worker was crashing on invalid orders without returning the connection to the pool.\n\n**Root cause:** In `src/jobs/processOrder.js`, when an order failed validation (throwing \"invalid order payload\"), the function exited before reaching `pool.release(conn)`. Each failed order leaked a connection until all 5 were exhausted.\n\n**The fix:** Wrapped the async operation in try/finally so connections always get released, even when `run()` throws. The API handler already used this pattern safely via `withConnection()`, but the worker did the raw acquire/release manually without error handling.\n\n**Tests:** All 4 tests pass, including the one that explicitly checks for this leak scenario.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8c11a9ea0e243f40a3a5ffbfae0545e61d6d75e37c2ec432cc09bab0455807a5"
+}

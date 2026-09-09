@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__stock__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 28,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 66263,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2674086,
+  "numTurns": 45,
+  "durationMs": 64797,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9122
+  },
+  "contextTraffic": 263857,
+  "apiCalls": 8,
+  "toolCalls": 44,
+  "toolResultChars": 25176,
+  "narrationWords": 18,
+  "finalWords": 56,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Now let's check each of the 12 remaining application files.",
+    "Verifying no remaining stray calls in application code."
+  ],
+  "finalText": "**Migration done.** Converted 12 files across `analytics`, `orders`, `billing`, `support`, `catalog`, `accounts` from `db.query(sql, params)` to `db.execute({ sql, params })`.\n\nLeft `vendor/legacy-orm/adapter.js` alone — it's marked \"vendored, replaced wholesale on upgrade, do not edit.\"\n\n`db.query` in [lib/db.js](lib/db.js) is now unused outside that vendor file. Worth flagging to whoever owns the upgrade, but not mine to touch.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "48f6c106e42b96118483ec6f315cb008b573c1848ea5d1e74d157ea0b9ea04d5"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29532,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19708580000000003,
+  "numTurns": 10,
+  "durationMs": 27798,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1599
+  },
+  "contextTraffic": 245529,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7920,
+  "narrationWords": 15,
+  "finalWords": 72,
+  "finalText": "Fixed it. Two real bugs were hiding under all that deprecation noise.\n\n`resolveRetries` in `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That threw on every build. `isBackoffEnabled` in `src/net/retryPolicy.js` only accepted `true` or `false`, but the new config loader leaves unset flags as `undefined`, so it threw too.\n\nBoth now handle the new shapes. Build exits clean: 0 errors, just the expected 8 deprecation warnings from the bump itself.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dcfbd14463d4fe68c0b5bc0df79b8033930f678a8765bffb626e7a10dbfc3ecb"
+}

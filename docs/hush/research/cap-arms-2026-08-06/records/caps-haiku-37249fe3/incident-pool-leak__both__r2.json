@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 103,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 39460,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07466119999999998,
+  "numTurns": 11,
+  "durationMs": 37771,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2067
+  },
+  "contextTraffic": 338765,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 10121,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "Connection leak was in `processOrder.js`. When an order failed, `run()` threw but the connection never got released — no try/finally guarding the release. Pool filled up and stayed maxed out.\n\nFixed by wrapping the `run()` call in try/finally, same pattern as `withConnection`. All 4 tests now pass: failed orders properly release their connections, even under concurrent load.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "889dd7c1d26df6b52a7eeb8c0cec5d6c30667381815f0f986e5453b8b514ec42"
+}

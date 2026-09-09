@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 47,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 250658,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9953800999999999,
+  "numTurns": 17,
+  "durationMs": 249336,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 21866
+  },
+  "contextTraffic": 819900,
+  "apiCalls": 12,
+  "toolCalls": 15,
+  "toolResultChars": 73749,
+  "narrationWords": 67,
+  "finalWords": 193,
+  "finalText": "I went through all 380 commits and cross-checked them against the merged-PR sheet. Most of it really is dependency bumps, refactors, and test/CI churn — but I found 11 PRs that map to genuine `fix`/`feat` changes, and wrote them into `CHANGELOG.md` under 4.2.0:\n\n**Breaking** — expired tokens now return `401` instead of `403`.\n**Added** — failed webhook deliveries now retry with exponential backoff.\n**Fixed** — 8 bugs: request bodies no longer get logged in full (db), duplicate trailing slashes (queue/jobs), an empty-allowlist bug (jobs), trace IDs dropped on retry (api), wrong latency-histogram units (store), a null-cursor crash in the webhook paginator, a duplicate response header (http), and a vague token-parser error (queue).\n\nOne thing worth flagging: `history/commits.log` contains many near-duplicate `fix(...)` commits across other modules (e.g. \"drop the duplicate header\" also shows up for `core` and `billing`, \"guard the null cursor\" also for `queue`/`api`/`db`) that never appear as their own row in `merged-prs.tsv`. I treated the PR sheet as the source of truth for what actually shipped and left those out — but if your team tracks merges differently and those commits did ship independently, let me know and I'll add matching entries.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "484045712ee6ed991bb680a1caa1c95e6c47248d7bdffb23de6bed81965e3689"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 72644,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3261096,
+  "numTurns": 19,
+  "durationMs": 66329,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4057
+  },
+  "contextTraffic": 898391,
+  "apiCalls": 19,
+  "toolCalls": 15,
+  "toolResultChars": 18599,
+  "narrationWords": 21,
+  "finalWords": 197,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, by a.novak, \"config: connection-per-request for pool isolation\") pushed config generation 119 live at 02:13:41Z. It flipped `gateway.pool.perRequest` from `false` to `true`, so every request started claiming its own database connection instead of sharing from the pool. The pool only holds 20 connections. It ran dry in under 30 seconds, and every request past that point queues for a connection that never frees up in time, and times out with a 503. Confirmed by `logs/gateway.log`: every error since is `ERR_POOL_EXHAUSTED`, no other error type appears.\n\n**Impact window:** Started 2026-03-14 02:14:19 UTC (first 503, `req-07401`). Still ongoing as of the last log line, 2026-03-14 03:59:28 UTC, and getting worse — the queue of requests waiting for a connection grew from 13 to 74 over that stretch. Not self-healing.\n\n**Rollback:** Revert `dep-4471` on the gateway service. That means setting `gateway.pool.perRequest` back to `false` (the `gateway.timeout.upstreamMs` bump from 2000 to 2500 in the same deploy is likely harmless and can stay).\n\n**Not affected:** Checked `worker.log` for the same window — workers stayed healthy throughout, no 503s or pool errors, jobs finishing normally with near-zero DB wait. This is a gateway-only incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e026cd1f3deeed632bf607e8a209b0b580de5e264ea100264ff06cad07b53c8a"
+}

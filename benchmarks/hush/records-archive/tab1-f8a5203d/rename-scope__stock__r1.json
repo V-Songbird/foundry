@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r1",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 19,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 60804,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14070539999999998,
+  "numTurns": 9,
+  "durationMs": 59239,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5377
+  },
+  "contextTraffic": 113326,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 11815,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "This rename is **big but safe** outside three spots.\n\n1082 hits across 94 files. Mostly service and repo code.\n\nThree places must keep `account_id`.\n\n| Location | Why |\n|---|---|\n| [`vendor/reporting-sdk/`](vendor/reporting-sdk/src/schema.js:3) | vendored, generated — do not edit |\n| [`lib/serialize.js:8`](lib/serialize.js:8), `docs/openapi.yaml` | public API field, frozen by contract |\n| [`migrations/20250114_create_accounts.sql:3`](migrations/20250114_create_accounts.sql:3) | already applied in prod, editing doesn't rename the live column |\n\nEverywhere else it's internal, safe to rename.\n\nNext, rename the internals only. Add a fresh migration for the DB column. Leave the wire name alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e75de191f7870cf4aedec9a5ad8872b9ef7f3308a385be6b4022eb319c08f6b8"
+}

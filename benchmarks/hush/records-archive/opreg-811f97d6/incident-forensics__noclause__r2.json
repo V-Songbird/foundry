@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__noclause__r2",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 180406,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8338919999999999,
+  "numTurns": 21,
+  "durationMs": 174226,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11481
+  },
+  "contextTraffic": 567461,
+  "apiCalls": 20,
+  "toolCalls": 17,
+  "toolResultChars": 15010,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 4,
+  "finalText": "Handoff written to [HANDOFF.md](HANDOFF.md).\n\nRoot cause is pool exhaustion from `dep-4471`, which gives each request its own connection against a pool of 20. Window ran `02:14:18.972Z` to `03:59:27.974Z` and was still open at log end. 530 of 636 requests failed, 83%.\n\nTwo things flagged in the doc. `/health` passed all 180 checks while traffic burned. The log is `node-3 of 3`, so confirm the other two nodes.\n\nNext: roll back `dep-4471`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ea4a56f9de55d6fbbaf90bde0afad1b3abf88281d29936bcdf1d993dcc1b0c47"
+}

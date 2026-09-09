@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 117,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 59395,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08804580000000001,
+  "numTurns": 13,
+  "durationMs": 57648,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3838
+  },
+  "contextTraffic": 316478,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 13643,
+  "narrationWords": 11,
+  "finalWords": 127,
+  "finalText": "The issue was **premature rounding** in the coupon stacking logic. The code was rounding USD amounts after applying each coupon, but before converting to the target currency. This lost precision that matters when exchange rates multiply the error.\n\nFor example, with GBP (rate 0.78):\n- Correct path: 19.98 → apply 10% → 17.982 → convert → 14.02596 → round → **14.03**\n- Buggy path: 19.98 → apply 10% → 17.982 → round early → 17.98 → convert → 14.0244 → round → **14.02**\n\nThe fix was to remove the `round()` calls after applying each coupon and only round once at the very end, after currency conversion. This matches the reference implementation and prevents the rounding error from cascading through the exchange rate.\n\nAll 40 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e94d5e64a9af3234443044ed6a34d1c0959f1fe54a38fc6550a56ed9382fbbb4"
+}

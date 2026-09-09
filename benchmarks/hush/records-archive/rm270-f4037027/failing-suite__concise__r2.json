@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__concise__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 31,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26756,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.15508320000000003,
+  "numTurns": 11,
+  "durationMs": 25872,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1630
+  },
+  "contextTraffic": 402505,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 10549,
+  "narrationWords": 40,
+  "finalWords": 67,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` in `src/pricing.js:39-43`: tax was calculated on the pre-discount `cents` instead of the discounted amount, contradicting the function's own docstring (\"discount has to come off the base before the rate is applied to it\"). Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)` — the only 3 failures (all \"order totals\" cases with nonzero discount and tax) now pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5a24b583b0bf9f84f302bb2c7aa3662e7311d78889d1e01cd7535eb297d76559"
+}

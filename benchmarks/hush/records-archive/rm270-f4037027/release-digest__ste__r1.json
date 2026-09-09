@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 40,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 159158,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.41510460000000005,
+  "numTurns": 14,
+  "durationMs": 158226,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13629
+  },
+  "contextTraffic": 645768,
+  "apiCalls": 13,
+  "toolCalls": 13,
+  "toolResultChars": 34705,
+  "narrationWords": 67,
+  "finalWords": 203,
+  "finalText": "I've added the 4.2.0 entry to `CHANGELOG.md`. Out of 380 commits, most were dependency bumps, refactors, tests, and CI churn — I filtered those out and kept only what a person installing the package would notice:\n\n**Breaking** — expired tokens now return 401 instead of 403, since that's a status-code contract change some clients will have hardcoded around.\n\n**Added** — automatic retry with exponential backoff for failed webhook deliveries (the one real new feature this cycle).\n\n**Fixed** — 10 items, the two most notable being: the database no longer logs full request bodies (a privacy fix), and paginated list endpoints for queues, the API, webhooks, and the database no longer crash on a null cursor. The rest cover a duplicated response header, an HTTP pool/timer leak, trailing-slash handling, empty-allowlist handling, a dropped trace ID on retry, wrong latency-histogram units, and unclear token-parser error messages.\n\nI deliberately left out a cluster of `perf(...)` commits (batching metric writes, skipping a JSON round-trip, avoiding an extra clone, reusing a parsed schema) — they read as internal optimizations with no described user-visible symptom, so they didn't meet the \"would someone notice\" bar. Worth a skim if you want a second opinion on that call before it ships.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b8fc05404a0cda5d5caa9682f4c3b57e8ae18ecbd33d40a8bcb488da34e36c7a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29530,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2056107,
+  "numTurns": 10,
+  "durationMs": 28219,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1987
+  },
+  "contextTraffic": 235197,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 15909,
+  "narrationWords": 67,
+  "finalWords": 125,
+  "finalText": "Build's clean now — exit 0, 0 errors. There were two real bugs under all the deprecation noise, both in `src/`, caused by the bundler bump changing shapes it hands to your code:\n\n- **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but this code still read `options.retries` (undefined), so `.toFixed(0)` threw. Fixed to read `retryCount`.\n- **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, and this strict boolean check threw on anything but `true`/`false`. Added an `undefined` → `false` (disabled) case.\n\nThe rest of the ~950 lines (DEP0142/0198/0233/0250/0267, tree-shaking notes, dedupe passes) is just deprecation/informational noise from the bump and isn't blocking anything — worth cleaning up eventually (e.g. swapping `fs.exists`/`Buffer()`/`punycode` usages) but not build-breaking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "94857e281e98f41cfc72dcf2e312fe738325e6e9f226a7c7d9bb9d041e9af8b4"
+}

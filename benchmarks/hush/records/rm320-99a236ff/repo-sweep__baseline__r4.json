@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__baseline__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 39,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 136196,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.866959,
+  "numTurns": 59,
+  "durationMs": 135017,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13653
+  },
+  "contextTraffic": 309250,
+  "apiCalls": 9,
+  "toolCalls": 58,
+  "toolResultChars": 39136,
+  "narrationWords": 29,
+  "finalWords": 187,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by finding what's still using the old API.",
+    "Pattern is uniform. Migrating all 12 in-repo files:",
+    "Now verifying — check what's left and that everything still parses:"
+  ],
+  "finalText": "Migration is complete. 12 files, 36 call sites converted from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nAll files pass `node --check`. There's no package.json or test suite in the repo, so no tests to run.\n\n**One call site deliberately left alone:** `vendor/legacy-orm/adapter.js:9,13` still calls `db.query`. It's a vendored copy of legacy-orm 2.1.4 with a header saying it's replaced wholesale on every upgrade and local edits are silently lost — migrating it in place would be reverted by the next vendor bump. Since `lib/db.js` says the driver's next major drops `query()` entirely, that's a real blocker worth tracking separately: either upgrade legacy-orm to a version that uses `execute`, or wrap the vendored module behind a local shim that translates positional calls. Let me know if you want me to build that shim.\n\nI also left `cache.query(...)` calls untouched throughout — that's `lib/cache.js`, an unrelated API.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fa0d97c677300f1e685041dfa123cadf900a011dd07b951eec6657c8e22163a"
+}

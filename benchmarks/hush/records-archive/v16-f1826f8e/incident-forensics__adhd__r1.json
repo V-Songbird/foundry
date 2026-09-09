@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 42,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51390,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2435214,
+  "numTurns": 10,
+  "durationMs": 45337,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2500
+  },
+  "contextTraffic": 352080,
+  "apiCalls": 9,
+  "toolCalls": 6,
+  "toolResultChars": 9816,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, finished 02:14:00Z) — \"connection-per-request for pool isolation.\" Broke connection reuse; pool (cap 20) exhausted almost immediately, wait queue grew unbounded (13 → 74+) and never drained.\n\n**Impact window:** 2026-03-14T02:14:14.920Z → still failing at 03:59:27Z (end of available log, no recovery observed). 530 total 503s across `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`.\n\n**Scope:** Gateway only. Workers (`logs/worker.log`) unaffected — separate pool, stayed healthy (`waiting=0`) straight through the window.\n\n**Rollback target:** `dep-4471` (gateway). No other deploy in the window touches the gateway or its pool config.\n\nNext: revert dep-4471 and confirm pool `waiting` drops to 0 in gateway.log after redeploy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09268535c1df8d8f03bd99dfeb57051a648d55315081fea4741391e2ffddcda3"
+}

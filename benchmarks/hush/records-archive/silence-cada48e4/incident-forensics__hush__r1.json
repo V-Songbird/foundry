@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61824,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2180084,
+  "numTurns": 12,
+  "durationMs": 55401,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3487
+  },
+  "contextTraffic": 513906,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 9284,
+  "narrationWords": 0,
+  "finalWords": 223,
+  "finalText": "**On-Call Handoff — Gateway 503s, night of March 13–14, 2026**\n\n**Root cause**\nDeploy `dep-4471` to the gateway, shipped by `a.novak` between 2:12 and 2:14 AM, flipped a config flag: `gateway.pool.perRequest` went from `false` to `true` (applied as config generation 119 at 2:13:41 AM). That change made every request grab its own database connection instead of sharing a pool. The pool only holds 20 connections, so it filled up almost immediately.\n\n**Impact window**\nFirst 503 hit at 2:14:18 AM, 37 seconds after the config change landed. The log runs out at 3:59:27 AM still showing failures, so as of the last recorded line the gateway had not recovered. That's at least 1 hour 45 minutes of impact, possibly ongoing.\n\nEach failure shows the same pattern: a request fails with a 503 in 650 to 850 milliseconds, immediately followed by an `ERR_POOL_EXHAUSTED` error saying all 20 connections are in use. The backlog of stuck requests grew the whole time, from 13 waiting near the start to 74 waiting by 3:59 AM. In total, 530 requests failed this way, spread across `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, and `/v1/checkout`, hitting `billing-svc`, `orders-svc`, `catalog-svc`, and `accounts-svc` on the backend.\n\nBackground job workers were not affected. `logs/worker.log` covers the same night and shows zero errors.\n\n**Rollback**\nRoll back `dep-4471` on the gateway. Specifically, revert `gateway.pool.perRequest` from `true` back to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9dfe959c36ca1e5576a38a3b9a0c95edeaf167b538b1f7c435daeddfa1cdd3ab"
+}

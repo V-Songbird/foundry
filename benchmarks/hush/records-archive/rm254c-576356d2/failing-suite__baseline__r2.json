@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 34,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23489,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.18088579999999999,
+  "numTurns": 10,
+  "durationMs": 22151,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1322
+  },
+  "contextTraffic": 233212,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12976,
+  "narrationWords": 50,
+  "finalWords": 65,
+  "finalText": "All 625 tests pass now.\n\n`orderTotal` in `src/pricing.js` was computing tax on the pre-discount amount instead of the discounted amount, so it only broke rows where both a discount and a tax rate were non-zero (3 of 625 cases — everything else has a zero in one of those fields, which masked the bug). Fixed by applying the tax rate to `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2ee633c1886f40353862ef48fe992e840ce3d60aba1415c9430c36918b679723"
+}

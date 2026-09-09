@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rx6-32022f5c",
+  "seed": "1786465409125",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25074,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.16797049999999997,
+  "numTurns": 9,
+  "durationMs": 23619,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1637
+  },
+  "contextTraffic": 198409,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5849,
+  "narrationWords": 25,
+  "finalWords": 68,
+  "finalText": "Builds clean now, exit code 0.\n\nTwo real bugs, both from the bundler bump:\n\n1. `src/core/options.js:6` — still read `options.retries`, but the new bundler passes `retryCount`. Threw on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js:7` — old config loader returned `false` for unset flags; new one returns `undefined`, and the strict check threw instead of treating that as disabled.\n\nThe rest (8 warnings) is normal deprecation noise from the bump, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a12fb66de90b737de87fca13e30c86bc5cfdc8ba4a619e7c493fe88736773e7b"
+}

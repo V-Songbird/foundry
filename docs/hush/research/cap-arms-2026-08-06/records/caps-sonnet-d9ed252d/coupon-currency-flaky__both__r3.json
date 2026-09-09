@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 119,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 43776,
+  "check": {
+    "pass": false,
+    "score": 0,
+    "detail": "tests exit 1"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2209602,
+  "numTurns": 10,
+  "durationMs": 42208,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2085
+  },
+  "contextTraffic": 275420,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 9432,
+  "narrationWords": 0,
+  "finalWords": 150,
+  "finalText": "Found it: `engine.js` rounds to 2 decimal places twice mid-calculation — once after the percent coupon (`engine.js:24`) and once after the flat coupon (`engine.js:27`) — before ever converting to the order's currency. The correct math (and what the reference check in the test file does) is to round once, at the very end, in the target currency's own decimals.\n\nThat early rounding only shows up once you convert to a currency with a different rate than USD, since the rounded penny gets multiplied by the exchange rate and drifts. That's why every one of the 10 failures uses `SAVE10PCT` plus a non-USD currency (GBP, CAD, JPY) — flat-only or no-coupon orders round out fine, and USD orders don't drift since its rate is 1.\n\n30 of 40 cases pass, 10 fail, all matching that pattern. Want me to fix `engine.js` so it converts first and rounds once at the end?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5199630bad95a6646cf4dafc20767de68b4f325a9d2d62d70d854aaa07dceb5e"
+}

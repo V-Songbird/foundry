@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37162,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12358440000000001,
+  "numTurns": 11,
+  "durationMs": 35763,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1644
+  },
+  "contextTraffic": 222695,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7914,
+  "narrationWords": 10,
+  "finalWords": 75,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Two real bugs, both from the options-shape change. Fixing both."
+  ],
+  "finalText": "**Build passes now, 0 errors.**\n\nThe screenful of `DEP0*` and `note:` lines was just noise from the bump. Two real bugs, same cause, both in the link stage:\n\n- [src/core/options.js](src/core/options.js) read `options.retries`, but the new bundler passes `retryCount`. Threw on `.toFixed`.\n- [src/net/retryPolicy.js](src/net/retryPolicy.js) threw when `backoffEnabled` was `undefined` instead of `false`, which the new config loader now returns for unset flags.\n\nFixed both. `node build.js` now exits 0 with 8 warnings, 0 errors.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3f48d45049c80a3cf76634199bc9871bde990bac8a2e9a89c3838ccbabc1eba3"
+}

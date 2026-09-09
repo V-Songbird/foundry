@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 94,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 123948,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5538095,
+  "numTurns": 13,
+  "durationMs": 116814,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7140
+  },
+  "contextTraffic": 389765,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 10665,
+  "narrationWords": 5,
+  "finalWords": 739,
+  "finalText": "## On-call handoff — gateway 503 incident\n\n**Status at handoff:** unresolved. Errors were still firing at the end of available log data. No rollback has been performed.\n\n### Root cause\n\nGateway connection pool exhaustion, triggered by deploy `dep-4471` (gateway, author a.novak, 02:12:00–02:14:00Z), summary \"config: connection-per-request for pool isolation\".\n\nThe change appears to have switched the gateway from connection reuse to opening a fresh connection per request. The pool is size 20 and was pinned at full utilisation from onset onward, with a growing queue of waiters. Every request that could not acquire a connection was returned to the client as a 503.\n\nTwo log signals support this:\n\n```\n2026-03-14T02:14:18.972Z ERROR pool  req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n2026-03-14T03:02:30.904Z WARN  pool  connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\nThe churn figure is roughly 104x baseline, which is the behaviour a connection-per-request configuration would produce. `in_use` never dropped below 20 after onset.\n\n### Impact window\n\nOnset was 2026-03-14T02:14:14.920Z, the first `acquire slow` warning. The first 503 followed at 02:14:18.972Z, 19 seconds after `dep-4471` finished deploying.\n\nThe last log entry is 2026-03-14T03:59:27.974Z and is still a 503, so the confirmed impact window is at least 1 hour 45 minutes and was ongoing when the logs end. There is no recovery gap anywhere in the window.\n\nScope: 530 total 503 responses, running at roughly 50 per 10 minutes once fully degraded. All five routes affected (`/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`) across all four upstreams (accounts, billing, catalog, orders). Every access-log error in the window is a 503; there are no other error statuses. The waiter queue peaked at 271. On-call was paged at 03:21:05Z at a 71% five-minute error rate, roughly 67 minutes after onset.\n\nNote that these logs are from node-3 of 3. Per-node figures above may need multiplying by three for true customer impact.\n\n### Recommended action\n\nRoll back `dep-4471`. It is the only gateway deploy in the file, and the only deploy of any kind within 27 minutes of onset. Confirm recovery by watching gateway pool `in_use` fall below 20 and the `waiting` count return to 0.\n\nThe two later deploys, `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z), both landed after errors were already established and cannot be the trigger. They should not be rolled back on the strength of this incident.\n\n### Confidence and gaps\n\nThe link between `dep-4471` and the errors rests on timing plus a matching mechanism. The gateway log lines carry no deploy ID or build version, so nothing in the data ties them causally. The 19-second gap and the churn ratio make this a strong inference rather than a proven one. Diffing the `dep-4471` config change would confirm it before or alongside the rollback.\n\n### Separate issue, please do not close with this incident\n\nWorker job durations are climbing linearly across the entire window, from a 327ms average in the 01:00 bucket to 2197ms by 03:50 — a steady +110ms per 10 minutes. `db_wait` stays flat at 12ms or below throughout, so the time is being spent in the job body rather than waiting on the database.\n\nThis is almost certainly not gateway fallout. The climb is already underway in the first log bucket, well before 02:14, and the slope shows no inflection at the gateway onset. Worker pools stayed healthy the whole time (`size=8 in_use=1 idle=7 waiting=0`, unchanged across all 18 stats samples), and no worker job failed — all 1080 completed successfully.\n\nThe better fit is `dep-4470` (worker, 00:48–00:55Z, \"retry backoff for webhook jobs\"), which landed about five minutes before the log window opens. Unbounded retry accumulation would produce this shape. That link is unconfirmed: the logs start at 01:00, after the deploy, so the pre-deploy baseline is not visible. Pulling worker logs from before 00:48 would settle it.\n\nAt the current rate, workers cross five seconds per job in roughly four hours. Because nothing is failing, no alert will fire on this. It warrants its own ticket.\n\nOne unrelated worker warning appeared, a known issue already tracked as OPS-2210 (`slow query 1.9s: SELECT * FROM orders WHERE status = ?`, unindexed scan). Not connected to either problem.\n\n### Data caveat\n\nThe log timestamps are 2026-03-14, but today's date is 2026-08-27. Either these are archived logs rather than last night's, or there is clock skew on the gateway hosts. Worth resolving before acting, since a rollback decision assumes the incident is live.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2526f050e5ae5535f1b1761760236596589703ec0fabc3b1ef37957cac9d3acd"
+}

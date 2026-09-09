@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 89,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64887,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2298282,
+  "numTurns": 13,
+  "durationMs": 60246,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4127
+  },
+  "contextTraffic": 536066,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 16188,
+  "narrationWords": 0,
+  "finalWords": 219,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing at time of log capture (last log line 03:59:44Z, still failing)\n\n**Impact window:** 2026-03-14 02:14:14Z → ongoing\n- First warning sign: `02:14:14.920Z` (`WARN pool` — slow connection acquire)\n- First customer-facing failure: `02:14:18.972Z` (`503`)\n- Affected routes: `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/catalog/search`, `/v1/orders` (all requests proxying through the gateway's connection pool to billing/orders/catalog/accounts-svc)\n- Not affected: worker fleet (`logs/worker.log` clean throughout, separate DB connection path)\n\n**Root cause:** dep-4471 (`gateway`, author **a.novak**, deployed `02:12:00–02:14:00Z`, \"config: connection-per-request for pool isolation\") applied config generation 119 at `02:13:41.234Z`, flipping `gateway.pool.perRequest: false -> true`. ~33s later the connection pool saturated (`size=20, in_use=20, idle=0`) and has stayed pinned there since — every request now fails with `ERR_POOL_EXHAUSTED` once the queue backs up. The `waiting` count has climbed continuously since onset (13 → 70+), confirming connections aren't being released, not just under-provisioned.\n\n**Rollback target:** **dep-4471** (gateway) — revert the `gateway.pool.perRequest` change back to `false` (or roll back the whole deploy/config generation 119). This is the only deploy in the window that touches the gateway or its pool; the other nearby deploys (dep-4470 worker retry backoff, dep-4472 billing invoice fix, dep-4473 catalog cache TTL) are unrelated services/timing and not implicated.\n\n**Verify fix:** watch `pool stats` lines in `logs/gateway.log` return to `in_use < size` with `waiting=0`, and confirm `503`/`ERR_POOL_EXHAUSTED` entries stop.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a75434b3b81660cc5dfc263c869605a4e48e201f66c53ce087179313a391f3ed"
+}

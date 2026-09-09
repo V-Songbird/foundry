@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__cellonly__r2",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "cellonly",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16952,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1751142,
+  "numTurns": 4,
+  "durationMs": 15072,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 712
+  },
+  "contextTraffic": 115877,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 126,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\n`Redis` died at `02:14:07` with `ECONNREFUSED 10.0.0.12:6379`. `api` fell back to direct store reads. Reconnect attempts failed every 80s for 17 minutes, up through attempt 12 at `02:31:26`.\n\nMeanwhile the store fallback couldn't keep up: constant `cache miss storm` and `TimeoutError` after 5000ms, and request queue depth climbed steadily from 52 to 568, past its max of 500.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog, restarted, then at `02:31:52` `[supervisor]` killed the whole process group: service down.\n\nRoot cause is the `Redis` connection drop. It never recovered on its own.\n\nNext: check why `Redis` at `10.0.0.12:6379` went unreachable, and add a queue depth cap or backpressure so a cache outage can't OOM workers again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7ec328209084759c0ea5a0f6197f4645718084268dcbf7671cc8a22453ddd37a"
+}

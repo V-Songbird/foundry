@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r6",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 71,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 6,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 79020,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.42664459999999993,
+  "numTurns": 16,
+  "durationMs": 72911,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5098
+  },
+  "contextTraffic": 664438,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 24391,
+  "narrationWords": 0,
+  "finalWords": 303,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27.974Z). No recovery seen in `gateway.log`.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, author a.novak, 2026-03-14 02:12–02:14 UTC) — *\"config: connection-per-request for pool isolation\"* — flipped `gateway.pool.perRequest: false -> true` via config reload (generation 118→119, applied 02:13:41.234Z). With a fixed pool size of 20, switching to per-request connection allocation exhausted the pool almost immediately. Every 503 is paired with `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, and the `waiting` count has climbed continuously since (13 at onset → 172+ by 03:55), meaning it's a worsening backlog, not a transient blip.\n\n**Impact window:**\n- **Start:** 2026-03-14 02:14:18.972Z (first 503, `req-07401 /v1/cart -> billing-svc`), ~19 min after the deploy started and ~38s after the config actually applied.\n- **End:** none — still failing at end of available log (03:59:27.974Z). Pool `waiting` queue is climbing, not draining.\n- **Volume:** 530 total 503s logged in the window, hitting all backend services (orders, catalog, accounts, billing) roughly evenly — confirms it's the shared gateway pool, not one upstream.\n- **Scope:** gateway only. Cross-checked `worker.log` for the same window — job workers used a separate DB pool that stayed healthy the entire time (`size=8 in_use=1 idle=7 waiting=0` at every stats interval), zero errors, only one unrelated pre-existing WARN (`OPS-2210` slow query). No worker impact.\n\n**Rollback target:**\n**`dep-4471`** (gateway) — revert `gateway.pool.perRequest` to `false` (or push a new config generation restoring it). This is the only deploy that lines up with the onset time; other deploys in the window (`dep-4472` billing-svc 02:41, `dep-4473` catalog-svc 03:20) shipped after the outage was already underway and are unrelated.\n\n**Suggested immediate fix:** roll back the `perRequest` flag; if pool sizing needs to stay changed, `size=20` will need to be raised significantly to support connection-per-request under current traffic.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ff0d84428c1aaae9057dfb9dd3abba5ab57f00217e8cbb68c7c3add032f1a4e"
+}

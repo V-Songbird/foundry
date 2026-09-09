@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 32,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 26509,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.25574474999999997,
+  "numTurns": 6,
+  "durationMs": 25544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 806
+  },
+  "contextTraffic": 63890,
+  "apiCalls": 3,
+  "toolCalls": 5,
+  "toolResultChars": 2615,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan: branch in `cli.js` only.**\n\n`toTable` drops `owner` and `slow`. See [format.js:5](src/format.js:5). JSON would come from `buildRows()` instead. So it carries all six fields. Fine by me, but your call.\n\n```js\nconst json = argv.includes('--json');\nconst rows = buildRows();\nconst out = json ? JSON.stringify(rows, null, 2) : toTable(rows);\nprocess.stdout.write(out + '\\n');\n```\n\nAlso update `USAGE`. No tests exist to extend.\n\nNext: your go, and the fields call.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9d3443d1a05d88d60a0dd5ed192d9f0be676177609d42ab5ddfcd90432b99488"
+}

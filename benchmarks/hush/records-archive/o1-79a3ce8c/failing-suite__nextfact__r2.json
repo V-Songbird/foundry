@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__nextfact__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 34,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35120,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.39480950000000004,
+  "numTurns": 11,
+  "durationMs": 31317,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1563
+  },
+  "contextTraffic": 352124,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 15469,
+  "narrationWords": 8,
+  "finalWords": 73,
+  "finalText": "**Fixed. All 625 tests pass.**\n\nOnly three cases were ever red. All three were in `order totals`.\n\n`orderTotal` in `src/pricing.js` charged tax on the full price. It should charge tax on the discounted price. Then it added that tax on, instead of taxing the discounted total.\n\nMost rows had a zero discount or zero tax, which hid it. Only rows with both showed the gap.\n\nThe fix reuses `applyTax` on the discounted amount.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "321ef99316f8651bf925e4787ec9214017b9baa8308b30e1a2964fed7b344a80"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 13,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 91542,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1576674,
+  "numTurns": 53,
+  "durationMs": 90247,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10851
+  },
+  "contextTraffic": 204589,
+  "apiCalls": 7,
+  "toolCalls": 52,
+  "toolResultChars": 25726,
+  "narrationWords": 104,
+  "finalWords": 73,
+  "finalText": "Done! I've successfully migrated all 12 remaining files from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n- packages/support/src/repo/sla.js\n- packages/billing/src/service/couponService.js\n- packages/accounts/src/service/teamService.js\n- packages/orders/src/service/returnService.js\n- packages/catalog/src/repo/supplier.js\n- packages/catalog/src/admin/variantAdmin.js\n- packages/accounts/src/repo/session.js\n- packages/analytics/src/repo/cohort.js\n- packages/orders/src/repo/shipment.js\n- packages/support/src/admin/macroAdmin.js\n- packages/accounts/src/admin/apiKeyAdmin.js\n- packages/billing/src/repo/refund.js\n\nAll calls in the packages directory now use the new API. The only remaining references are in verify.js (the verification script) and vendor/legacy-orm/adapter.js (legacy vendor code), which you'll likely want to leave untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83940e002c7911a6f9129cadd042094f7e7d92f8f64c2851c0ae797085f5a5ac"
+}

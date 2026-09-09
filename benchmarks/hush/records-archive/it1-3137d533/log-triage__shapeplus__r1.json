@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__shapeplus__r1",
+  "batchId": "it1-3137d533",
+  "seed": "1787877630962",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "shapeplus",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34507,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-shapeplus:HushShapePlus",
+  "costUsd": 0.415795,
+  "numTurns": 7,
+  "durationMs": 32370,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1652
+  },
+  "contextTraffic": 162326,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 9283,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died and took the service with it.**\n\nOne cause. `redis` at `10.0.0.12:6379` refused connections at `02:14:07`. Cache went to direct store reads.\n\n| What | Detail |\n|---|---|\n| Timeouts | 173 `TimeoutError` after 5000ms |\n| Queue | 52 grew to 568, max is 500 |\n| Reconnects | 13 tries, all `ECONNREFUSED` |\n| End | `worker-2` heap OOM, then `api` killed at `02:31:52` |\n\nReconnect backoff is flat near 80s. It never backed off further. Fix `redis` first. Then cap the queue so a cache loss cannot OOM the workers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed3d94905c50c356e4e25985d9fefca5efb7091a023b8bfdae875e7217c5e1f5"
+}

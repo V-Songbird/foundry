@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76585,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.319162,
+  "numTurns": 10,
+  "durationMs": 74976,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4678
+  },
+  "contextTraffic": 236846,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 9993,
+  "narrationWords": 6,
+  "finalWords": 631,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\n**One-line version:** Redis went away at 02:14:07 and never came back. The service ran cache-less for 17 minutes, back-pressure built until the queue blew past its limit, worker-2 OOM'd, and the supervisor killed the process group at 02:31:52.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Normal. Only INFO/DEBUG, all requests 200. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **root cause** |\n| 02:14:07.114 | `WARN cache layer degraded — falling back to direct store reads` |\n| 02:14:08.202 | Cache miss storm begins (`orders:*`) — 174 occurrences, never stops |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — 173 total |\n| 02:14:12.254 | Queue depth warnings start at 52 (max 500), rising ~3 every 6s |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts to 10.0.0.12:6379, **all ECONNREFUSED**, fixed ~80s interval |\n| **02:29:12.359** | Queue depth 502 — **crosses the 500 limit**, no shedding kicks in |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### The causal chain\n\nRedis at `10.0.0.12:6379` refused connections (ECONNREFUSED = nothing listening, i.e. the Redis process/host was down, not a network partition or an auth failure). The app degraded gracefully *in name only*: it fell back to direct store reads, which meant every request that used to be a cache hit now hit the backing store. The store couldn't take it — 5s timeouts started 3 seconds later. Timed-out requests kept queueing rather than being rejected, so the queue grew monotonically from 52 to 568 with no shedding at the documented max of 500. That unbounded backlog is what exhausted worker-2's heap (exit 134 = SIGABRT, V8's OOM abort), and the api process was wedged badly enough that the supervisor killed everything ~7s later.\n\n### Two things worth flagging\n\n1. **The real outage started at 02:14, not 02:31.** The last successful request in the log is `02:14:03.137 GET /orders 200`. After Redis dropped there are **zero** successful requests logged — only warnings and timeouts. Your monitoring probably paged on the 02:31 FATAL, but customers were down for 17 minutes before that.\n\n2. **The reconnect logic never backs off and never gives up.** Attempts 0–12 are spaced at a flat ~80s. There's no exponential backoff, no circuit breaker, and critically nothing that sheds load while the cache is unavailable. The fallback path assumes the store can absorb 100% of traffic, which it demonstrably can't.\n\n### Caveats on the data\n\n- **Ignore the latency and cache-hit numbers.** Request latency cycles 12→145ms and resets, and cache hit ratio cycles 0.90→0.98, both on a fixed repeating pattern for the entire pre-incident period. These are synthetic/placeholder values, not real measurements — the `75ms` right before the failure is the same point in the cycle as the `75ms` at 02:00:43, not degradation.\n- The log timestamps are **2026-07-04**, roughly seven weeks ago — not last night. Either this is an archived file or the log rotation/clock is off. Worth confirming you're looking at the right incident.\n- The four components (`api`, `worker-1`, `worker-2`, `scheduler`) emit messages in strict round-robin, so the component tag on any given line isn't a reliable attribution of where an error originated.\n\n### Where I'd look next\n\nThe single most useful artifact would be Redis-side logs or host metrics for `10.0.0.12` around 02:14:00 — this log tells you Redis vanished but nothing about *why*. The fixes on the app side are backoff + circuit breaker on the Redis client, and enforcing the 500 queue max by shedding rather than just warning about it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67b4d7628af83d3fb2e8163b9dea29ae735b2d795a3d1a9c9d0e9f2c5b95ce2c"
+}

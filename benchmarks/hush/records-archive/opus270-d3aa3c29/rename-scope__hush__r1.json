@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 130605,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7433745,
+  "numTurns": 20,
+  "durationMs": 129417,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9273
+  },
+  "contextTraffic": 487134,
+  "apiCalls": 13,
+  "toolCalls": 19,
+  "toolResultChars": 24645,
+  "narrationWords": 8,
+  "finalWords": 104,
+  "finalText": "**94 files, 1,291 mentions.** About 950 are safe local renames.\n\nNever rename these:\n\n| Place | Mentions | Why |\n| --- | --- | --- |\n| `vendor/reporting-sdk/` | 20 | `npm run vendor:refresh` overwrites edits |\n| `migrations/` | 61 | Already run in production |\n| `docs/openapi.yaml` | 5 | Public field, frozen by contract |\n| `lib/serialize.js` right side | 1 | The public JSON key |\n\nThree more need more than a rename:\n1. 125 sit inside SQL as the live column name.\n2. 25 write `account_id` into saved `payload` JSON.\n3. 100 read `req.session.account_id`. Nothing here sets it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ab7e242a4e538f3aa46a2ef5a48146e8653c8c25576bd93ae8a7b7993dc906ef"
+}

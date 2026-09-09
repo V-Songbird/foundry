@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__t31deliver__r2",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "t31deliver",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28849,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26438,
+  "numTurns": 9,
+  "durationMs": 26784,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1353
+  },
+  "contextTraffic": 170816,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15147,
+  "narrationWords": 7,
+  "finalWords": 94,
+  "finalText": "All 625 pass now.\n\nOnly 3 cases were really broken, all in the order totals suite. The rest of the wall of text was noise.\n\nThe bug was in `orderTotal` in `src/pricing.js`. It took the discount off, but then figured the tax on the **full** price instead of the discounted one. So customers were taxed on money they never paid.\n\nThe fix is one line: tax the discounted amount.\n\nMost rows had either no discount or no tax, so they looked fine either way. Only the three rows with both could show the problem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ba7e0c08b1a19631e8a60b12cc2f73758d9458b75e17e03a771ce1447fd9c2f8"
+}

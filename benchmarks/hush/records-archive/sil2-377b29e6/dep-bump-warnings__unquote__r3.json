@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__unquote__r3",
+  "batchId": "sil2-377b29e6",
+  "seed": "1787898445241",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "unquote",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36492,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-unquote:HushUnquote",
+  "costUsd": 0.189076,
+  "numTurns": 10,
+  "durationMs": 34515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1751
+  },
+  "contextTraffic": 189411,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6494,
+  "narrationWords": 7,
+  "finalWords": 82,
+  "assistantMsgs": 2,
+  "finalText": "**The build passes now.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:7](src/core/options.js:7) | `retries` renamed to `retryCount` | Read either key |\n| [retryPolicy.js:8](src/net/retryPolicy.js:8) | Unset flag is now `undefined`, not `false` | Treat `undefined` as off |\n\n`node build.js` exits 0. The 8 warnings left are all real deprecations, like `DEP0198 Buffer()` and `W1042 crypto.createCipher`. They are printed by the bundler, not by your code paths. Say the word and I'll clear those next.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "97f48834d63353c3b620492e7ab045a83764d449a7c2376871869f62ea547697"
+}

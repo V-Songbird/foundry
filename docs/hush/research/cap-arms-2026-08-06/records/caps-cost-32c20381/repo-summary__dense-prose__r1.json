@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__dense-prose__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 9,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 28105,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0497096,
+  "numTurns": 10,
+  "durationMs": 25945,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1637
+  },
+  "contextTraffic": 170138,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 4947,
+  "narrationWords": 0,
+  "finalWords": 209,
+  "finalText": "This is a Node.js HTTP server that manages user orders. It's small and lean — five files that form a clean stack.\n\n**server.js** is the entry point. It creates an HTTP server that checks every request for a bearer token, then hands off to the router if the token is valid.\n\n**auth.js** handles that token verification. It uses HMAC signatures — tokens look like `userId.signature`, and it compares against a shared secret from the environment.\n\n**routes.js** is the URL dispatcher. It has three endpoints: `GET /users` and `GET /orders` both read through the cache layer, while `POST /orders` writes straight to the store. Reads that hit the cache avoid database calls entirely.\n\n**cache.js** is a tiny LRU cache — 256 entries, no expiration. When a read comes in, it checks the cache first. Hits get bumped to most-recent; misses call the loader function, which talks to the store.\n\n**store.js** is the data layer. It keeps everything in a Map with a 15-minute TTL per record. It's a stand-in for a real database — anything older than 15 minutes expires. The store tracks users and their order lists.\n\nThe flow: request → authenticate → route → (cache hit or store read) → response. Writes skip the cache to stay fresh.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "46a38ff09e5012a392f9fc10cdcc23749e633578174fc835dd286fc5fda3105c"
+}

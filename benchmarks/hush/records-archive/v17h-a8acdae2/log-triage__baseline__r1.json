@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 17591,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.0745179,
+  "numTurns": 2,
+  "durationMs": 15780,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1002
+  },
+  "contextTraffic": 74998,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 60098,
+  "narrationWords": 0,
+  "finalWords": 226,
+  "finalText": "Looking at the log, here's the root cause of your prod failure:\n\n**Redis went down at 02:14:07 UTC** — the connection refused error at line 182. That's the trigger that cascades everything.\n\n**What happened next:**\n1. **Cache layer degraded** (line 183) — the API fell back to direct database reads\n2. **Immediate cache miss storm** (lines 184+) — with no cache, every request hammering the database\n3. **Database got overloaded** (line 185) — requests started timing out after 5 seconds\n4. **Queue backlog exploded** (lines 186+) — requests piled up faster than they could be processed. The queue hit its 500-item max by line 647 and kept growing\n5. **Worker OOM death** (line 717) — worker-2 ran out of memory trying to buffer the backed-up requests, exited with code 134\n6. **Cascading restart failure** (line 719) — supervisor killed the whole service because API became unresponsive\n\n**The timeline:** Redis dies → service tries 12+ reconnection attempts (all fail) → ~17 minutes of exponential degradation → OOM and service death.\n\nThe underlying issue is the **complete dependency on Redis without fallback degradation**. Once cache was gone, there was no circuit breaker or request limiting to prevent the queue from growing unbounded. The system went from healthy to dead in a cascade.\n\nDo you know why Redis became unreachable (10.0.0.12:6379)? Network issue, Redis process crash, or something else?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5420a3483e154aaedc273728386f96bf9b32b00a69653373d55fe0250c1dbaad"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__askless__r1",
+  "batchId": "shp1-c38fe11f",
+  "seed": "1787868013773",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "askless",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33456,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-askless:HushAskless",
+  "costUsd": 0.41515100000000005,
+  "numTurns": 10,
+  "durationMs": 31557,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1618
+  },
+  "contextTraffic": 189189,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6494,
+  "narrationWords": 7,
+  "finalWords": 70,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read either key |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is now `undefined`, threw | Treat as `false` |\n\nThe 8 remaining warnings are real deprecations. Things like `Buffer()` and `punycode`. They do not break the build. Say the word and I clear them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9ede894198a13aba0d09bea56ba93fd37f1a068d3a59fc2bbee108afefad3895"
+}

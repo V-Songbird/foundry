@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 114096,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6226039999999999,
+  "numTurns": 14,
+  "durationMs": 112490,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7838
+  },
+  "contextTraffic": 326415,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 29833,
+  "narrationWords": 72,
+  "finalWords": 522,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the repo structure and the existing changelog format.",
+    "Let me extract the user-facing commit types across all 380 commits.",
+    "I've got the full picture. Here's the shape of it: 380 commits, of which **38 touch behavior** (1 feat, 27 fix, 10 perf). The rest is 153 chores, 73 refactors, 64 tests, 33 CI, 20 docs — zero user impact.\n\nLet me write the entry into the placeholder."
+  ],
+  "finalText": "Written into `CHANGELOG.md:3`. The reasoning behind the cuts, and four things you should decide before it ships:\n\n**What I dropped, and why it's safe**\n\nOf 380 commits, 342 are invisible to installers: dependency bumps (16 unique packages, all patch/minor — `vitest 1.6→2.0` and `esbuild 0.21→0.23` are the only majors and both are dev-only), plus refactors, tests, CI, and docs. The refactors are all internal-symbol churn — renaming `Ctx` to `RequestCtx`, moving the config loader, splitting router files. One is worth knowing about but not printing: `refactor(db): stop re-exporting the internal error types`. If anyone was importing those, they'd break, but they were internal, so it's a judgment call whether you owe them a line.\n\nAlso note the history repeats itself heavily — the same fix subject lands 2-4 times across different modules (`guard the null cursor in the paginator` appears in queue, api, webhooks, and db). I collapsed those into one user-facing line each rather than four, since a user experiences one bug, not four.\n\n**Four things to confirm**\n\n1. **I promoted two fixes to Breaking.** The 401/403 change (`#4223`) and the reworded parser messages are labeled `fix:` in the log with no `BREAKING CHANGE` footer anywhere in the 380 commits. But a client branching on 403 breaks silently on upgrade. Your call whether that clears the bar for a major-version note — I put them under Breaking because silent breakage is the worst kind. Move them down if you disagree.\n\n2. **\"An empty allowlist is handled explicitly\" is deliberately vague, and you should fix that.** Three commits (`store`, `db`, `jobs`) say `handle an empty allowlist` and none say which direction. If it previously fail-*opened* — empty list meaning \"allow everything\" — that's a security fix and deserves plain language plus possibly an advisory. If it threw, it's a minor robustness note. I couldn't tell from subjects and stats alone, and I wasn't willing to guess in a published changelog.\n\n3. **`fix(core): drop the duplicate header` landed three times** — 05-09 on `clock.js`, then 06-06 *and* 06-16 both on `errors.js`. The same fix twice in the same file ten days apart usually means it regressed or a merge clobbered it. Worth confirming it's actually fixed on `release/4.2` before you claim it. Same pattern on `fix(api): keep the trace id across the retry` (three times, 05-22, 06-01, 06-13).\n\n4. **The perf work isn't in the entry.** Ten commits — batching metric writes, skipping a JSON round-trip on hot paths, reusing the parsed schema between requests, dropping clones in mappers. Plausibly real wins, but nothing in the history carries a number, and your template's own rule is \"only what someone installing this would notice.\" Without a benchmark I'd be inventing the magnitude. If you have numbers from somewhere else, this deserves a line and I'd add a `### Performance` heading, breaking the three-heading convention.\n\n**One gap:** both files stop at 2026-06-17 — the last commit is `98f3372`, the last PR `#4245`. You're cutting on 08-30, so if anything landed in those ten weeks, it isn't represented here and isn't in what I wrote. I dated the entry 2026-08-30 on the assumption you're shipping tomorrow.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "adcf2c7b082f499cbd3a4286e42a6220fe4fa213ae8c79a8938ecb4e26b544f3"
+}

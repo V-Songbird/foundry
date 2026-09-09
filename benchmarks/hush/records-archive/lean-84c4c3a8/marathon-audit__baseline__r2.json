@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 34,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 161181,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6084479,
+  "numTurns": 33,
+  "durationMs": 154795,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13276
+  },
+  "contextTraffic": 743071,
+  "apiCalls": 18,
+  "toolCalls": 29,
+  "toolResultChars": 24098,
+  "narrationWords": 0,
+  "finalWords": 124,
+  "finalText": "`package.json` confirms the fourth issue: `fast-parse` is still pinned at `1.4.2`, exactly the version `NOTES.md` says was yanked for prototype pollution (fix is `1.4.3`). No direct `require`/`import` of it exists anywhere under `src/` — it's a dangling direct dependency rather than something actively exercised in this codebase — but it's still what `npm install` resolves today.\n\n`AUDIT.md` is written with all four findings, ordered by severity:\n\n1. **Critical** — SQL injection via string concatenation, `src/repo/report.js`\n2. **High** — internal endpoints with no auth check, `src/routes/internal.js`\n3. **High** — plaintext staging DB password, `config/staging.js`\n4. **Medium** — yanked `fast-parse` dependency, `package.json`\n\nNo service files were touched — verified by re-running `verify.js`, which passed (`OK AUDIT.md names all four findings and the service was left alone`).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bd93d8acdd5e7c0f434a94b24ccb131ee3bb0303ce4120b3fb7271531ed34c49"
+}

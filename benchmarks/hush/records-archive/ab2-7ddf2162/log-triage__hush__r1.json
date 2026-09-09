@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "ab2-7ddf2162",
+  "seed": "1787387594651",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18897,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1504664,
+  "numTurns": 5,
+  "durationMs": 16976,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1095
+  },
+  "contextTraffic": 207011,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23659,
+  "narrationWords": 0,
+  "finalWords": 221,
+  "finalText": "Here's the story, start to finish.\n\nAt 2:14 AM, the connection to your redis cache broke. The error was `ECONNREFUSED 10.0.0.12:6379`, meaning nothing was listening on that address anymore. The app kept running by reading straight from the main store instead, but that store wasn't built to take the full load.\n\nFrom there it snowballed for 17 minutes straight:\n\n1. Every skipped cache lookup hit the main store instead.\n2. The store couldn't keep up, so requests started timing out after 5 seconds.\n3. Timed-out requests piled up in the queue, which grew from a handful to over 570, way past its limit of 500.\n4. The app tried to reconnect to redis 12 times between 2:14 and 2:31. Every attempt failed.\n\nAt 2:31:44, one of the two worker processes ran out of memory, choking on the backlog of piled-up requests. It crashed and the system tried to restart it. Eight seconds later, the main app itself stopped responding, and the system killed everything. That's the moment prod went down, 2:31:52 AM.\n\n**Root cause:** the redis cache server at `10.0.0.12:6379` went unreachable and never came back. Nothing in the log shows it recovering. Worth checking why that box dropped off the network, and adding a cap on the request queue so a redis outage can't spiral into an out-of-memory crash again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fbf3cf403aa33f961ef1755e454f36160e2d3ad11a5501d77bbfb9567b2ce943"
+}

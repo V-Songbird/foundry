@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "sn291-a1dafbca",
+  "seed": "1787887694776",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26536,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1657758,
+  "numTurns": 7,
+  "durationMs": 24292,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1454
+  },
+  "contextTraffic": 260512,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 27969,
+  "narrationWords": 0,
+  "finalWords": 157,
+  "assistantMsgs": 1,
+  "finalText": "**Root cause: `Redis` went down and the app never recovered.**\n\nAt `02:14:07` `[api]` lost its `Redis` connection (`ECONNREFUSED 10.0.0.12:6379`) and fell back to direct store reads.\n\n1. That fallback triggered a cache miss storm, hammering the store directly.\n2. Requests started timing out at 5000ms across `worker-1`, `worker-2`, and `scheduler`.\n3. Queue depth climbed steadily from ~52 to 568 (limit 500), well past capacity.\n4. `Redis` reconnect attempts (7 through 12, every ~2 min) all failed the whole time.\n5. At `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog and crashed.\n6. At `02:31:52` the supervisor killed the process group: **service down.**\n\nSo it wasn't a code bug, `Redis` at `10.0.0.12:6379` never came back, and nothing capped the queue or backed off, so the backlog eventually OOM'd a worker and took the whole service down. Next step would be fixing that host and adding backpressure/circuit-breaking so a `Redis` outage can't cascade like this again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d4156d905ea17e0fdb5262ccbc44d368d6799b59cd03a7e8d483b634a1da0451"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r3",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28203,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3154753,
+  "numTurns": 4,
+  "durationMs": 26772,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1955
+  },
+  "contextTraffic": 185975,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60363,
+  "narrationWords": 9,
+  "finalWords": 351,
+  "finalText": "Found it. Here's the timeline:\n\n**Normal operation:** 02:00:00 – 02:14:03 — steady GET /users, /orders, /health traffic, nothing unusual (routine DEBUG cache-ratio and cron-tick lines).\n\n**Trigger — Redis died:**\n- `02:14:07.113` `logs/app.log:182` — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\n- `02:14:07.114` `logs/app.log:183` — api falls back to direct store reads (cache bypassed)\n\n**Cascade:** With the cache gone, every read hit the backing store directly, which couldn't handle the load:\n- Repeating \"cache miss storm\" warnings (worker-1/2, scheduler, api) as keys got requested with no cache to serve them\n- Repeating `TimeoutError: request timed out after 5000ms (store overloaded)` from every service (api, worker-1, worker-2, scheduler), roughly every ~2s from 02:14:10 onward\n- `request queue depth` climbs steadily and monotonically: 52 at 02:14:12 → crosses its own stated max of 500 around `02:29:12` (line 647, depth 502) and keeps growing to 568 by 02:31:24 (line 714) — so whatever \"max 500\" was supposed to enforce, it wasn't actually shedding load\n- Redis reconnect attempts (`logs/app.log:224,265,306,347,388,429,470,511,552,593,634,675,716`) fire roughly every 140s, attempts 0 through 12, and **every single one fails** with the same ECONNREFUSED — Redis never came back during the whole incident window\n\n**Failure:**\n- `02:31:44.902` `logs/app.log:717` — worker-2 hits `JavaScript heap out of memory (request backlog)` — the unbounded queue growth finally exhausted memory\n- `02:31:45.001` `logs/app.log:718` — supervisor restarts worker-2\n- `02:31:52.318` `logs/app.log:719` — api itself goes unresponsive and the supervisor kills the whole process group → **service down**\n\n**Root cause:** Redis at `10.0.0.12:6379` became unreachable at 02:14:07 and never recovered. The app's cache-fallback path sent all traffic straight to the backing store, which couldn't absorb it, causing timeouts across every service. The request queue's \"max 500\" cap didn't actually stop growth (it kept climbing past 500 for another ~2.5 minutes), so the backlog eventually OOM'd worker-2, and the api followed shortly after, taking down the whole service at 02:31:52.\n\n**What to check next:** why Redis at 10.0.0.12 went down/stayed down for 17+ minutes, and why the queue-depth cap of 500 wasn't enforced as a hard backpressure limit (it should have started shedding/rejecting requests instead of letting the queue reach 568+).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bd5e750b29ef5edaedff3cc57db45b0e83bcda7c7b7413507906979af5a820af"
+}

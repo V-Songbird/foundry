@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 209603,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9836415,
+  "numTurns": 17,
+  "durationMs": 203210,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13769
+  },
+  "contextTraffic": 634092,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 30699,
+  "narrationWords": 22,
+  "finalWords": 869,
+  "assistantMsgs": 6,
+  "finalText": "## On-call handoff — gateway 503s, 2026-03-14\n\n**Status at handoff: ONGOING.** Log ends 03:59:27Z still erroring. Not self-recovering — assume still broken unless you've confirmed otherwise.\n\n---\n\n### Root cause\n\nGateway config change `gateway.pool.perRequest: false -> true`, applied 02:13:41.234Z by `dep-4471` (a.novak, \"config: connection-per-request for pool isolation\").\n\nThe gateway now opens a fresh upstream connection per request instead of reusing idle ones, but the pool is still capped at `size=20`. It saturates immediately and never drains. Every request past the first 20 concurrent queues, times out, and returns 503.\n\nEvidence chain:\n\n```\n02:13:41.234Z INFO  config  gateway.pool.perRequest: false -> true\n02:14:14.920Z WARN  pool    acquire slow: waited 100ms for a connection      (+33s)\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms     (+98s)\n03:02:30.904Z WARN  pool    connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\nThat churn line — 100× baseline open rate — is the direct measurement of the mechanism. Pool stats flip at the same boundary and never recover:\n\n```\n02:10:58  size=20 in_use=10 idle=10 waiting=0\n02:15:58  size=20 in_use=20 idle=0  waiting=12    ← idle stays 0 for the rest of the log\n```\n\nTwo keys shipped alongside it: `gateway.timeout.upstreamMs: 2000 -> 2500` (irrelevant to cause, but it lengthens each failing request's hold time — likely making things marginally worse) and `gateway.log.sampleRate: 1.0 -> 1.0` (no-op).\n\n**Confidence: high, not certain.** The log shows the key flipped and the pool exhausted 33 seconds later; it does not contain the gateway's connection-lifecycle internals. Confirmation signal after rollback is `idle` climbing back off zero in the 5-min `INFO pool stats` lines.\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **First error** | 02:14:18.972Z — `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| **Last log entry** | 03:59:27.974Z, still failing |\n| **Duration** | ≥ 1h 45m, open-ended |\n| **Clean baseline** | 01:00–02:10, 560 requests, zero 503s |\n\nSeverity ramps to total within six minutes:\n\n| Window | Access | 503s | Rate |\n|---|---|---|---|\n| 02:10–02:19 | 68 | 30 | 44% |\n| 02:20 → end | 60/win | 50/win | 83% |\n\n**That 83% understates it. The surviving 17% is entirely `/health`** — all 180 health checks returned 200 with `pool_wait=2ms` throughout. Real customer-facing error rate from 02:20 onward is **100%**.\n\nBlast radius is total, not partial: 530 × 503, spread evenly across all four upstreams (accounts 133, catalog 133, billing 132, orders 132) and all five customer routes (`/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`). Checkout and cart are both fully down.\n\nEvery failure logs a paired line, same req id:\n\n```\nERROR access  req-NNNNN /v1/checkout -> accounts-svc 503 850ms\nERROR pool    req-NNNNN ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 74)\n```\n\nFailure latency creeps 659ms → 944ms over the window, consistent with a growing queue.\n\n**Workers unaffected.** `logs/worker.log` covers the identical window: 1080 jobs, 1080 `finished ok`, zero errors, and its DB pool reads `size=8 in_use=1 idle=7 waiting=0` on all 18 stats lines. Workers reach the DB directly and never traverse the gateway. Gateway-only incident. (One `WARN db slow query` at 02:36 is self-tagged as pre-existing OPS-2210 — ignore.)\n\n---\n\n### Roll back\n\n**`dep-4471`.** Revert `gateway.pool.perRequest` to `false` (generation 119 → 118). Suggest also reverting `upstreamMs` to 2000 to get back to a known-good generation wholesale.\n\n**Do not roll back anything else.** `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both landed *after* onset — they can't be causal, and the error rate is flat across both windows with no step change. They're in the blast radius of a wholesale revert but are not implicated. Leave them. `dep-4468/4469/4470` all finished by 00:55, with 75 clean minutes after.\n\nVerify recovery on: `idle` > 0 in `INFO pool stats`, no new `ERR_POOL_EXHAUSTED`, and the churn rate returning toward the stated baseline of 40 opens/5m.\n\n---\n\n### Two follow-ups (not blocking the rollback)\n\n1. **Alerting missed a total outage for 67 minutes.** First page is 03:21:05Z (`error_rate 5m avg is 71%`), against a first error at 02:14:18. `/health` passed green the entire time because health checks are cheap enough to win the pool race — so any health-based alerting saw a healthy gateway while 100% of customer traffic failed. Two gaps: the error-rate threshold sits above 71%, and health checks aren't representative of real traffic.\n2. **A deploy went out into the outage.** `dep-4473` shipped 03:20, 66 minutes into a 100%-error period and one minute before anyone was paged. Deploy gating isn't reading gateway error rate.\n\n---\n\n### Reading caveats for whoever picks this up\n\n- **`waiting=N` wraps.** It climbs to 271, resets to ~12, climbs again — visible in both per-request lines (~03:39) and the 5-min stats (232 at 03:10:58 → 12 at 03:15:58). Those resets are a counter artifact, **not** recovery; `in_use=20 idle=0` never breaks. Don't trust absolute queue depth past ~271.\n- **Sub-minute timestamps aren't monotonic** (e.g. `03:38:58.600` precedes `03:38:02.872`). Cosmetic; don't infer ordering within a minute.\n- **Ignore the worker duration trend.** Job times ramp 602ms → 1922ms across the window, which looks like a second incident on a graph. It's an artifact: the ramp is exactly 3.19× for all six job types, consecutive durations differ by exactly +31ms, it starts before the config change, and it shows no inflection at 02:14. Not a real signal.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fda4dca280eb42d896ec953346c8358a67fb965fe29e5fc6efee7a91ed9106b"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 124,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 52010,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21920619999999996,
+  "numTurns": 9,
+  "durationMs": 50012,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1681
+  },
+  "contextTraffic": 314179,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 7955,
+  "narrationWords": 23,
+  "finalWords": 91,
+  "finalText": "Build's clean now, 0 errors.\n\nTwo real bugs were hiding in all that deprecation noise, both from the bundler bump changing option shapes:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated a missing `backoffEnabled` flag as an error, but the new config loader leaves unset flags as `undefined` instead of `false`. Now it defaults to disabled, like before.\n\nThe rest of the warnings (deprecated `Buffer()`, `punycode`, unused exports, circular imports) are just noise from the bump and don't block anything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68c2cd02914ffa5be3f0d2592a952127fca30539a56ef0fde2ad73293de02d46"
+}

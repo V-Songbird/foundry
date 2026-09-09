@@ -1,0 +1,45 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 72531,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2721642,
+  "numTurns": 45,
+  "durationMs": 71176,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10164
+  },
+  "contextTraffic": 276942,
+  "apiCalls": 9,
+  "toolCalls": 44,
+  "toolResultChars": 21973,
+  "narrationWords": 66,
+  "finalWords": 77,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "Good, this confirms the migration pattern. Now let's look at each of the remaining files.",
+    "All 12 files follow an identical pattern. Let me check an already-migrated file to match the exact target style.",
+    "Good, the pattern matches exactly. Now I'll apply the migration to each of the 11 application files (excluding the vendored `vendor/legacy-orm/adapter.js`, which is explicitly marked do-not-edit).",
+    "Now let's verify remaining `db.query` usages."
+  ],
+  "finalText": "All 11 application files are migrated. The only remaining `db.query` usage is in `vendor\\legacy-orm\\adapter.js`, which its header explicitly marks as a vendored file that's overwritten wholesale on every upgrade — editing it would just be discarded, so I left it as-is (it should instead be handled via an upgrade or wrapper if `db.query` is ever removed).\n\n**Note:** I didn't touch `cache.query(...)` calls (e.g. in `cohort.js`, `shipment.js`, etc.) — that's a different module (`lib/cache.js`), unrelated to this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "30b444912c596fa3f5ace150094da78c41ce590fe70cd2d512d5001d862c8697"
+}

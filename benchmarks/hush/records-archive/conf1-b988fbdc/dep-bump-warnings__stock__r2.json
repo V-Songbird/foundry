@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r2",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22463,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.106674,
+  "numTurns": 9,
+  "durationMs": 20790,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1353
+  },
+  "contextTraffic": 167056,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7858,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit 0, 0 errors.\n\nThe bump changed two call sites the migration missed.\n\n- [options.js:7](src/core/options.js:7) read `options.retries`, but the new bundler passes `retryCount`. Fixed to match.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) threw on `undefined` flags. New config loader leaves unset flags undefined instead of `false`, so added that case, treated as disabled.\n\nThe remaining 8 warnings are just deprecation noise from the bump, not real bugs. Nothing else to do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "46631a06506763f0791f566d4d78b464bd8188a5240bfb0e6cfed82d0cf23540"
+}

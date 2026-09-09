@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__flint__r4",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 15,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "flint",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35694,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.2870735,
+  "numTurns": 14,
+  "durationMs": 34548,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2484
+  },
+  "contextTraffic": 141386,
+  "apiCalls": 6,
+  "toolCalls": 13,
+  "toolResultChars": 14689,
+  "narrationWords": 7,
+  "finalWords": 78,
+  "assistantMsgs": 2,
+  "finalText": "**Big but shallow: 1082 hits across 94 files.**\n\nSafe to rename: 75 service files plus [lib/audit.js](lib/audit.js). Local names only.\n\n| Must not rename | Why |\n|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | Public contract, frozen |\n| [lib/serialize.js:8](lib/serialize.js#L8) WIRE values | Keys clients read |\n| `migrations/` (12 files) | Applied history |\n| `vendor/reporting-sdk/` (4 files) | Generated, gets overwritten |\n\nAlso the SQL strings in every `repo/` file. The column stays `account_id`. A separate migration would be needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fb4a2d66d6a09e58e0736401a3998782b6b6677cf8fa86de882870bf120da9a5"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "dep-bump-warnings__noclause__r2",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26636,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1141094,
+  "numTurns": 10,
+  "durationMs": 24959,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1499
+  },
+  "contextTraffic": 193134,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7777,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 1,
+  "finalText": "**Build's clean. Exit 0.**\n\nTwo real bugs from the bump, both fixed:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the right field.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) threw whenever a flag was `undefined` instead of `false`. Now treats anything but `true` as disabled.\n\nThe rest was just deprecation noise from the dep bump, harmless. Build now finishes with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b0999f03e8da29df4c166c740adca36628c0b216e476b6df90fb58d3eb53e984"
+}

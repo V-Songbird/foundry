@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 83,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 10880,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0228545,
+  "numTurns": 1,
+  "durationMs": 8977,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 577
+  },
+  "contextTraffic": 27055,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 220,
+  "finalText": "**Merge** creates a new commit that joins two branches together — both histories stay in the tree, so you see they ran in parallel. **Rebase** replays your commits on top of the target branch, rewriting history to look like a straight line of work.\n\nThe key tradeoff: merge is safe and honest (the tree shows what really happened), but your history gets tangled with dots and crossing lines. Rebase cleans up your history into something easy to read, but it rewrites commits, so never do it to work you've already pushed.\n\n**Reach for merge** when the branch is shared or public — main, release branches, anything someone else might have pulled. It's the safer move. Also use it when you want the history to *show* that two pieces of work happened at the same time.\n\n**Reach for rebase** on your own feature branches before you push, to tidy things up — squash your WIP commits into logical units, catch up with main without a messy merge commit. The rule is simple: rebase only work that's just yours.\n\n**Practical pattern**: develop your feature with commits as messy as you want. When you're ready to push, rebase onto main to clean it up and stay current. Once it's pushed and someone else might pull it, switch to merging to keep things stable.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5ecdf79fa603a702f91f8c15b82a175dd96517d357d8db5d78d1aa2d03312be5"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 21,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 69420,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.40105399999999997,
+  "numTurns": 14,
+  "durationMs": 68013,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4374
+  },
+  "contextTraffic": 331978,
+  "apiCalls": 12,
+  "toolCalls": 13,
+  "toolResultChars": 7537,
+  "narrationWords": 62,
+  "finalWords": 344,
+  "finalText": "The build is green: `exit=0`, `build finished in 44.9s with 8 warnings, 0 errors`.\n\n**Your hunch was right — but it was worse than warnings.** The build was actually *failing* (exit 1). Two real bugs from the bump, sequential, so the first masked the second:\n\n**1. `src/core/options.js:7` — options renamed.** The bumped bundler passes `{ retryCount }`, but this call site still read `options.retries` → `TypeError: Cannot read properties of undefined (reading 'toFixed')`. Now reads `retryCount` with a fallback to `retries`, so it works against both old and new bundler.\n\n**2. `src/net/retryPolicy.js:7` — unset flags changed representation.** The old config loader returned `false` for unset flags; the new one leaves them `undefined`. The strict `=== false` / `=== true` check threw on `undefined`. Now unset (`undefined`/`null`) means off, matching the previous default — while a genuinely wrong type (e.g. `\"yes\"`) still throws, so this doesn't paper over real misconfiguration.\n\n**On the 8 remaining warnings — I left them, and I don't think you can fix them from source.** Every file they blame is missing:\n\n```\nsrc/legacy/adapter.js, src/legacy/bufferShim.js, src/utils/format.js,\nsrc/core/graph.js, src/state/tracker.js  — none exist\n```\n\nThey're hardcoded string literals in `build.js` (the `DEPRECATIONS` array at :18-24 and the `W1042`/`W2213`/`W3307` pushes at :46-48), printed unconditionally from a loop over a synthetic module list. The only real source in this tree is the two files I fixed. So \"clean\" here means zero errors, which you now have; driving the warning count to 0 would mean deleting those literals from `build.js` — that's silencing the log, not fixing anything, so I didn't. If those warnings are meant to reflect a real upstream codebase, that code isn't in this directory and I'd want to see it before touching it.\n\nWorth noting the log is misleading in two ways: it reports \"8 warnings\" but prints 39 warning lines (the deprecations repeat every 6th module), and it printed \"8 warnings\" identically on both the failing and passing runs — the count is a static `DEPRECATIONS.length + 3`, not a tally. Don't use that number to judge whether the build got better.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "96c98433ab1a415a2f11eb1b69622225ab12b8c836474a051cbf273eff8dd8e6"
+}

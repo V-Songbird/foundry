@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__brieflouder__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "brieflouder",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 55059,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "brieflouder:Brieflouder",
+  "costUsd": 0.20909619999999998,
+  "numTurns": 10,
+  "durationMs": 53376,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5072
+  },
+  "contextTraffic": 209002,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 30231,
+  "narrationWords": 0,
+  "finalWords": 99,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry to** [CHANGELOG.md](CHANGELOG.md).\n\nOut of 380 commits, almost all were dep bumps, refactors, and test churn. Real user-facing changes:\n\n- One breaking change: expired tokens now return `401`, not `403`.\n- One feature: webhook deliveries retry with exponential backoff.\n- Nine fix themes, each hit the same bug across several modules (paginator null-cursor crash, duplicate header on retry, doubled trailing slash, empty-allowlist errors, dropped trace id, wrong histogram units, leaky parser errors, client hangs on shutdown/socket drop, full request bodies in logs).\n\nNext: check the `401`/`403` call is really meant as breaking, not just a bugfix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "81ee270edced20dd709835882605022d25375893dba1500f5aae01eba4e0924f"
+}

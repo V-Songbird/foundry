@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__parts__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 33,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "parts",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25807,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.21133839999999998,
+  "numTurns": 10,
+  "durationMs": 24217,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1592
+  },
+  "contextTraffic": 278889,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8180,
+  "narrationWords": 12,
+  "finalWords": 95,
+  "finalText": "Build's clean now, exit code 0.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing shapes on you.\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands it `retryCount`. That crashed the link step outright.\n2. `src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag. The new config loader leaves it `undefined` when unset, so it threw instead of just treating that as off.\n\nFixed both. The rest of the output, the DEP warnings and dedupe lines, is just noise from the version bump, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ff037e68d7b315ef8d9be1be48d17b2dd66f94f6dc1bb68980cbb8cd9b86b192"
+}

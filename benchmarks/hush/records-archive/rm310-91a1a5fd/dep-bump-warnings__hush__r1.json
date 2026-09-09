@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42837,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27718899999999996,
+  "numTurns": 12,
+  "durationMs": 41206,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2201
+  },
+  "contextTraffic": 176451,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 7957,
+  "narrationWords": 7,
+  "finalWords": 79,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Exit 0.\n\nTwo real bugs, both from the bump:\n\n- [src/core/options.js:6](src/core/options.js:6) read `options.retries`. The new shape is `retryCount`. It threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`.\n- [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) threw on an unset flag. The new loader gives `undefined`, not `false`.\n\nThe 8 warnings are still there. All are deprecation notices from `build.js` about files that do not exist here.\n\nNext: point me at the real `src/legacy` code if you want those warnings cleared too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "07b299912eb2108bb6470da9c60650421142d14e9ef73f8ce52bd1048ad0f981"
+}

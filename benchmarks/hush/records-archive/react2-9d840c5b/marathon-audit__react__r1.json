@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__react__r1",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 41,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 101486,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5662011,
+  "numTurns": 28,
+  "durationMs": 94526,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7016
+  },
+  "contextTraffic": 725688,
+  "apiCalls": 16,
+  "toolCalls": 24,
+  "toolResultChars": 22434,
+  "narrationWords": 0,
+  "finalWords": 112,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json` — the exact version `NOTES.md` says was yanked for a prototype-pollution bug. `1.4.3` has the fix and it was never picked up. The other three deps check out fine against the notes.\n\n`AUDIT.md` is written, four findings ranked by severity:\n\n1. **SQL injection** — `src/repo/report.js`, `runSavedReport()` pastes filter and sort straight into the query.\n2. **Auth bypass** — `src/routes/internal.js`, the VPN it relied on is gone and no middleware replaced it.\n3. **Committed credential** — `config/staging.js`, a live DB password in source.\n4. **Yanked dependency** — `package.json`, `fast-parse` stuck on the pulled `1.4.2`.\n\nNothing in the service itself was touched — only `AUDIT.md` was added.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a43ba1da54b1336d405bc02f81db3931b3055fe848965a45b614341797985396"
+}

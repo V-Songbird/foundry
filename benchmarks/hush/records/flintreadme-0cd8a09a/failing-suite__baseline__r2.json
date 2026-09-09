@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44427,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2888095,
+  "numTurns": 12,
+  "durationMs": 43263,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2477
+  },
+  "contextTraffic": 197192,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 11843,
+  "narrationWords": 57,
+  "finalWords": 312,
+  "assistantMsgs": 4,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was actually broken:** one bug, in `orderTotal` (`src/pricing.js:39`). Only 3 of the 625 cases failed, all in the \"order totals\" suite:\n\n```\norderTotal(12000, 15, 0.0825)  expected 11042  actual 11190\norderTotal(8650,  20, 0.05)    expected  7266  actual  7353\norderTotal(33400, 10, 0.2)     expected 36072  actual 36740\n```\n\nThe function applied the discount correctly but then computed tax off the **pre-discount** base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nSo the customer was taxed on money they never paid — the overcharge scales with discount × rate, which is why the 10%-off-at-20%-tax row was off by $6.68 while the smaller rows were off by ~$1.\n\n**The fix** — tax the discounted amount, which is what the function's own docstring says it does (\"Tax is charged on the amount the customer pays\"):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nTwo notes on the shape of this:\n\n- The bug hid because of the case data, not the code. 66 of the 69 order-total rows have either a zero discount or a zero tax, and with either factor at zero the two orderings agree. Only the 3 hand-added rows at the bottom of `orderTotals()` in `cases.js:80-82` have both non-zero. That's a coverage lesson worth keeping — if anyone adds an ordering-sensitive step later, it needs a row with every factor non-zero or it'll pass while broken.\n- I routed the fix through the existing `applyTax` rather than writing `discounted + roundCents(discounted * taxRate)`. Those differ by a cent on some inputs because the latter rounds twice, and `applyTax`'s single rounding is what `cases.js:89` specifies.\n\nTo read a red run in future, the useful filter is `node run-tests.js 2>&1 | Select-String 'FAIL|expected:|actual:'` — it drops the ~1200 ok lines and the coverage table.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6025ce3cb89b13889c4385082ce8efb115e7cef49fda229c840b711de4ff7553"
+}

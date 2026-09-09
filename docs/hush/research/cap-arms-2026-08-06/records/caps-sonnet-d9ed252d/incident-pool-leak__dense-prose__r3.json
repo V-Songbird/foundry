@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 105,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31177,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2462567,
+  "numTurns": 12,
+  "durationMs": 29569,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1746
+  },
+  "contextTraffic": 327839,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 14551,
+  "narrationWords": 0,
+  "finalWords": 86,
+  "finalText": "Found it: `processOrder` in `src/jobs/processOrder.js` acquired a connection but only released it on success, so any failed order left the connection stuck in-use forever.\n\nThe logs matched exactly — each `invalid order payload` job bumped `pool in-use` by one and it never came back down, until the pool hit 5/5 and started throwing `pool exhausted`, then the workers and API gave up around 2am.\n\nFixed by wrapping the run call in `try/finally`, same pattern the API handler already used via `withConnection`. All 4 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d82b803826ba94a3e1ad65a18d58d1fa2bc33d6f0fbf73537ddcd39ad2e75bce"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__turncmp__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 34,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "turncmp",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 138911,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6695989,
+  "numTurns": 29,
+  "durationMs": 131479,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10302
+  },
+  "contextTraffic": 820206,
+  "apiCalls": 19,
+  "toolCalls": 25,
+  "toolResultChars": 27661,
+  "narrationWords": 34,
+  "finalWords": 112,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json` — that's the exact version `NOTES.md` says was yanked over a prototype-pollution report, with `1.4.3` as the fix. The other three pinned deps (`tiny-router`, `pg-lite`, `redis-min`) are current, and `date-fmt` is just flagged unmaintained-but-harmless.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. **Unauthenticated internal routes** (`src/routes/internal.js`) — metrics dump and cache flush open to anyone.\n2. **SQL injection by concatenation** (`src/repo/report.js`) — filter and sort fields spliced straight into the query.\n3. **Committed staging password** (`config/staging.js`) — plaintext credential, unlike prod and dev.\n4. **Yanked dependency** (`package.json`) — `fast-parse` still on the pulled `1.4.2`.\n\nNo service files were touched, just the new `AUDIT.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9cbdc150c02f8cd33dfa83ca8c5c406bc005d9321457c5736778da0de51439c4"
+}

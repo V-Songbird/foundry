@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32994,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.22116049999999998,
+  "numTurns": 10,
+  "durationMs": 31687,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1695
+  },
+  "contextTraffic": 371198,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 6128,
+  "narrationWords": 37,
+  "finalWords": 95,
+  "finalText": "Build's clean. 0 errors, exit code 0.\n\nTwo real bugs, both from the bundler bump changing shapes the code didn't adapt to:\n\n1. `src/core/options.js:6` — read `options.retries` but the new bundler passes `retryCount`. Crashed on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js:7` — treated unset flags as an error, but the new config loader leaves them `undefined` instead of `false`. Now treated as `false` (disabled).\n\nThe other 8 warnings in the log (deprecated `fs.exists`, `Buffer()`, unused export, circular import, etc.) are pre-existing noise, not bump-caused — left alone since they don't break the build. Want those cleaned up too?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e56b2df58c5e7f0dd0144f75ac6a4eb9a700e57ae2a7b3e2d15818b7c4881702"
+}

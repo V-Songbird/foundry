@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__fern__r2",
+  "batchId": "s5v-be69388b",
+  "seed": "1787820296138",
+  "orderIndex": 15,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "fern",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 49910,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.20003880000000002,
+  "numTurns": 12,
+  "durationMs": 41534,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2552
+  },
+  "contextTraffic": 423206,
+  "apiCalls": 11,
+  "toolCalls": 8,
+  "toolResultChars": 17237,
+  "narrationWords": 0,
+  "finalWords": 125,
+  "finalText": "Handoff, ready to paste.\n\n```\nGATEWAY 503 INCIDENT — ON-CALL HANDOFF\n\nRoot cause:\nDeploy dep-4471 (gateway, a.novak, 02:12-02:14 UTC) applied\nconfig generation 119, flipping gateway.pool.perRequest\nfalse -> true. This exhausted the connection pool\n(size 20) almost immediately, producing sustained\nERR_POOL_EXHAUSTED errors and 503s.\n\nImpact window:\nStart: 2026-03-14T02:14:18Z (first 503, req-07401)\nOngoing at last log line checked (02:16:32Z, still erroring)\nScope: gateway only. Worker fleet (logs/worker.log) stayed\nhealthy throughout, separate pool, db_wait normal, no errors.\n\nRollback:\nRevert dep-4471 (gateway config gen 119 -> 118), specifically\ngateway.pool.perRequest back to false.\nDo not touch dep-4472 (billing-svc, 02:41Z) or dep-4473\n(catalog-svc, 03:20Z) — both post-date the errors and are\nunrelated.\n```\n\nNext: confirm current status, log may extend past 02:16 with recovery or ongoing errors worth checking before rollback.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d890f3e0c258fbc3e7bb2c940a182f97717ee87c3f5dd60c78b26fa55ae99a71"
+}

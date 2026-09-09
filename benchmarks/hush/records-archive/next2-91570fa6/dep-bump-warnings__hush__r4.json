@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30720,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12919380000000003,
+  "numTurns": 12,
+  "durationMs": 28870,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1689
+  },
+  "contextTraffic": 227631,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 9985,
+  "narrationWords": 9,
+  "finalWords": 82,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Fix confirmed. Two real bugs, not just deprecation noise."
+  ],
+  "finalText": "**Build is clean.** Exit 0, `0 errors`.\n\nTwo real bugs from the bump, both now fixed:\n\n1. [options.js:7](src/core/options.js:7) — bundler now sends `retryCount`, code still read `options.retries` (`undefined`), threw on `.toFixed(0)`.\n2. [retryPolicy.js:8](src/net/retryPolicy.js:8) — new config loader leaves unset flags `undefined` instead of `false`, so the strict check threw instead of treating it as disabled.\n\nThe remaining 8 `WARN DEP...` lines are genuine deprecation noise from the bumped packages, not build-breaking. Worth scheduling a cleanup pass later, but nothing to do now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ff89a28448048fa2cbd11795014b2fb6355135dd596cf0cbc9f09f1187d208c4"
+}

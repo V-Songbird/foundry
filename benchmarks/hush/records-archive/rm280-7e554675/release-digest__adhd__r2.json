@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 46,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 93156,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5563939999999999,
+  "numTurns": 10,
+  "durationMs": 91698,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6166
+  },
+  "contextTraffic": 301814,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 32202,
+  "narrationWords": 59,
+  "finalWords": 506,
+  "finalText": "Drafted into `CHANGELOG.md:3`. Here's the reasoning behind it.\n\n## The shape of the release\n\n380 commits, and you're right that it's mostly noise: 153 chores, 73 refactors, 64 tests, 33 CI. That's 85% with zero user impact. The signal is 1 feat, 26 fixes, 10 perf, plus three refactors that quietly changed the public surface.\n\n## Three things I pulled up to Breaking\n\nThese weren't labeled breaking, which is the main risk in this release:\n\n- **`fix(auth): return 401 for an expired token instead of 403`** (`1d2bd55`, #4223). Filed as a fix, but it's a contract change. Anyone catching 403 to trigger a re-login silently stops working.\n- **`stop re-exporting the internal error types`** — eight commits across core, db, jobs, auth, billing. Individually each reads like cleanup; together they removed error types from the package root. Any consumer importing those from the top level gets a build failure.\n- **`refactor(api): drop the unused v1 export route`** (`56dc828`, #4152). \"Unused\" is a claim about your telemetry, not about your users. Removing a route is breaking unless you've confirmed nothing calls it.\n\n## What I deliberately left out\n\n- **All 60+ dependency bumps.** Every one is patch/minor, and the majority are dev tooling. Nothing an installer notices.\n- **The 10 perf commits.** Your template has three headings and says \"only what someone installing this package would notice.\" Batching metric writes and skipping a JSON round-trip are real, but nobody notices them as a release note. If you want a nod to them, one line under Added — \"Assorted hot-path improvements in the API, store, and DB layers\" — is the most I'd write.\n- **The ~40 \"rename internal Ctx type\" / \"drop unused v2 debug helper\" refactors.** Self-describing as internal, and the file stats back it up.\n\nI collapsed the duplicated fixes too. The null-cursor paginator bug was fixed four separate times in queue, api, webhooks, and db; duplicate headers five times across core, http, and billing. Same bug class, one line each.\n\n## Two things to check before you publish\n\n**The release date.** I put 2026-08-28 for tomorrow's cut, but the last commit is 2026-06-17 — a ten-week gap. If there's a later branch that didn't make it into this export, you're missing commits.\n\n**The Node floor.** Five separate `docs: note the minimum node version` commits, plus `ci: run the suite on node 22` and three `.nvmrc` pins. That's a lot of activity around one number. If the supported minimum actually moved, it belongs under Breaking and it's the single most disruptive item in the release. I couldn't confirm it — the log gives me filenames but not diffs, and the `.nvmrc` commits have stat lines touching `tsconfig.json` and `CODEOWNERS`, which looks like generator noise. Worth one `git show` on `731bdf8` to settle it.\n\nOne note on sourcing: the merged-PR sheet is incomplete. `fix(http): clear the timer when the socket drops` and `fix(http): close the pool on shutdown` are both in the commit log with no corresponding PR row. I worked from the commit log throughout.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "35ac188f99e7e31cb24fc9ea7618eb64a348f7ae15e81f0ce3b0f6aa7066a3c3"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 95,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 93859,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.450114,
+  "numTurns": 15,
+  "durationMs": 86279,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4136
+  },
+  "contextTraffic": 415936,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 5943,
+  "narrationWords": 0,
+  "finalWords": 220,
+  "finalText": "```\nON-CALL HANDOFF — gateway 503s (node-3 of 3)\n\nROOT CAUSE\n  dep-4471 set gateway.pool.perRequest: false -> true (config gen 119,\n  applied 02:13:41Z). Each request now takes its own connection instead\n  of sharing. The pool is still size 20, so it saturates and requests\n  queue until they time out.\n  Every 503 carries the same line:\n    ERROR pool ERR_POOL_EXHAUSTED acquiring connection from pool\n    (size 20, in_use 20, waiting 271)\n  Corroborating: WARN pool connection churn: 4180 opens in the last 5m,\n  baseline is 40 (03:02:30Z).\n\nIMPACT WINDOW\n  Starts 2026-03-14T02:14:18.972Z, 18s after dep-4471 finished.\n  Still failing at log end 03:59:27.974Z. Not yet recovered.\n  530 of 636 requests failed after onset, about 83%.\n  All four upstreams hit evenly: accounts, billing, catalog, orders.\n  On-call paged 03:21:05Z at 71% 5m error rate.\n\nROLL BACK\n  dep-4471, gateway, a.novak. Revert config to generation 118.\n  Only gateway deploy in the window. Next nearest is dep-4472 at 02:41Z.\n\nNOT RELATED\n  Workers are clean. 1080 jobs, zero failures, pool idle throughout.\n  Their job time climbs from 327ms to 2197ms, but that starts 01:00Z,\n  over an hour before the deploy. Cause is OPS-2210, an unindexed scan\n  on SELECT * FROM orders WHERE status = ?. Separate ticket.\n\nCAVEAT\n  Logs cover 2026-03-14, not last night. Confirm this is the incident\n  you mean. Data is node-3 only, so the other two nodes are unverified.\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "833ee4df86385a73f72df4c731e06049e5ae2643d84fe5f03f3e651a412f5a73"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "s5v-be69388b",
+  "seed": "1787820296138",
+  "orderIndex": 13,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 84067,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4034034,
+  "numTurns": 18,
+  "durationMs": 75805,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4834
+  },
+  "contextTraffic": 963169,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 45833,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "finalText": "**Root cause:** `dep-4471`, a gateway deploy by a.novak, finished at 2:14 AM on March 14th. Its summary: \"config: connection-per-request for pool isolation.\" The first pool error hit at 2:14:14 AM, the same minute. No other deploy lines up.\n\n**Impact window:** 2:14:14 AM to at least 3:59:44 AM on March 14th, still going when the log ends. That's at least 1 hour 45 minutes.\n\n**What broke:** The gateway's connection pool holds 20 connections. It filled up and never drained. Every few minutes: a slow wait, then a burst of 503s tagged `ERR_POOL_EXHAUSTED`. The line of stuck requests grew from 13 to 74, and wait times climbed from 100ms to 890ms. Checkout, cart, session, and order requests were hit hardest, mostly ones routed to `billing-svc` and `orders-svc`. Health checks stayed green the whole time.\n\n**Ruled out:** Checked `worker.log` for the same stretch. All jobs finished fine, no errors. This stayed a gateway-only problem.\n\n**Roll back:** `dep-4471` on gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d9a9dc39658df7bbb584b4231ff7ec8313d3ed4e9fc2f40ca1ea1a0c19376df1"
+}

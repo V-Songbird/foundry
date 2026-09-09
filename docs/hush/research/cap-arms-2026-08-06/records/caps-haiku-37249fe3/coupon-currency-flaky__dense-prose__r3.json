@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 116,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 52369,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0848224,
+  "numTurns": 12,
+  "durationMs": 50387,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3356
+  },
+  "contextTraffic": 310631,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 14415,
+  "narrationWords": 140,
+  "finalWords": 70,
+  "finalText": "All 40 tests pass now. The bug was rounding USD amounts after each discount step — it lost the fractional cents. When those rounded amounts got converted and rounded again, they ended up one or two cents off.\n\nThe fix: apply both discounts without rounding, convert to the target currency, then round once at the very end. That's exactly what the test's reference implementation does, and what the contract requires.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2fe5206ce0bc2117fab8e275dbd65ab2a1d4cfb9aa94707138d9e5b255e27a76"
+}

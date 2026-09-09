@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushstock__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21527,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1922678,
+  "numTurns": 3,
+  "durationMs": 19976,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1473
+  },
+  "contextTraffic": 111174,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 180,
+  "finalText": "Redis died and everything backed up until a worker ran out of memory. Here's the timeline.\n\n**What happened.** At 02:14:07 the app lost its connection to Redis at 10.0.0.12:6379. It fell back to hitting the database directly, which it wasn't built to handle at that volume.\n\nFrom there things spiraled for about 17 minutes:\n- Cache misses piled up and requests started timing out at the 5 second mark.\n- The request queue grew past its cap of 500, eventually hitting 568.\n- Redis reconnect attempts kept failing, roughly every 80 seconds, all the way to attempt 12 at 02:31:26.\n- At 02:31:44, `worker-2` ran out of memory from the backlog and crashed.\n- The supervisor restarted it, but 7 seconds later the api itself stopped responding and the whole process group was killed. Service down at 02:31:52.\n\n**Root cause:** Redis at 10.0.0.12:6379 going unreachable, with no circuit breaker to stop the fallback path from overwhelming the database.\n\nWorth checking next: why Redis dropped at 10.0.0.12, and whether a queue cap or circuit breaker could stop this cascade next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2bbdd6a8f3b392d173217e01287e3a874d19ffc3a8657b72158545ead3908ec9"
+}

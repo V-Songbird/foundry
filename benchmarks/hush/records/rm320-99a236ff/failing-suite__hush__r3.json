@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 21,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32354,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27312349999999996,
+  "numTurns": 11,
+  "durationMs": 30753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1427
+  },
+  "contextTraffic": 188518,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 11715,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Green. 625 passing, 0 failing.**\n\nThree cases failed, all in `order totals`. `orderTotal` taxed the full price, not the discounted one.\n\n```\norderTotal(12000, 15, 0.0825)  expected 11042, got 11190\n```\n\nFix in [src/pricing.js:39](src/pricing.js:39). Tax now runs on the discounted amount.\n\nOnly rows with both a discount and a tax caught it. The other 66 rows had one or the other at zero.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8b749da132afcc59181c9c60a328c01a019d55d48ad539d388b4b17a736b66a"
+}

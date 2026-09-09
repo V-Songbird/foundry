@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48885,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3192695,
+  "numTurns": 8,
+  "durationMs": 46608,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2679
+  },
+  "contextTraffic": 226190,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 9971,
+  "narrationWords": 0,
+  "finalWords": 396,
+  "finalText": "**Note first:** log covers `2026-07-04T02:00`–`02:31` UTC — ~7 weeks old, not last night. Either wrong file, or log rotation/shipping broken. Confirm before acting.\n\n## What happened\n\nRedis died, cache fell away, store got hammered, memory exploded, supervisor killed everything. ~17.5 min, single cause.\n\n**Timeline**\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Healthy. All 200s, cache hit ratio 0.90–0.98 |\n| 02:14:07 | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:03 | last successful request logged — **no 200 after this point** |\n| 02:14:10 | first `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:15:26–02:31:26 | 13 reconnect attempts, all ECONNREFUSED, same IP |\n| 02:29:12 | queue depth 502 crosses `max 500` |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Counts:** 174 cache-miss-storm WARN, 173 TimeoutError, 173 queue-depth WARN, 13 reconnect failures, 1 OOM, 2 FATAL.\n\n## Root cause\nRedis at `10.0.0.12:6379` refused connections at 02:14:07 and never came back. Everything after is downstream. Fallback to direct store reads made things worse: 100% miss traffic hit backing store, 5s timeouts, requests piled up in queue instead of shedding, queue backlog ate heap, worker-2 OOM (code 134 = SIGABRT), api unresponsive, supervisor killed process group.\n\nNote: cache miss keys ran `orders:1000`→`orders:1119` monotonically — no repeats. Cache stampede on unique keys, not one hot key.\n\n## Real problems exposed\n1. **No load shedding.** Queue kept accepting past `max 500` — cap not enforced, only logged. This is what turned a cache outage into a total outage.\n2. **Fallback has no circuit breaker.** Store timing out at 5000ms every request, still got retried. Should trip and fail fast.\n3. **Reconnect has no backoff.** Attempts fixed ~80s apart, 13 tries, no growth, no give-up path or alert escalation.\n4. **Timeout 5000ms too long** for a fallback path — 5s per stuck request × unbounded queue = heap death.\n\n## Next\nCheck why Redis went down at 02:14:07 — nothing in this log explains it. Need Redis-side logs / infra events for that window. Also fix the log freshness issue first, else you're blind.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aedf34c4be131eec6ca5b986b1220944a3947daa9b866146a95921f3236c64e5"
+}

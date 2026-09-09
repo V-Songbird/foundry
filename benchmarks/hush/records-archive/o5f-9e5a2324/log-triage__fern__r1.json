@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fern__r1",
+  "batchId": "o5f-9e5a2324",
+  "seed": "1787842333516",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fern",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41035,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.3046255,
+  "numTurns": 8,
+  "durationMs": 38878,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1738
+  },
+  "contextTraffic": 174783,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 18898,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "finalText": "Redis at `10.0.0.12:6379` refused connections at 02:14:07. That is the root cause.\n\nCache fell back to direct store reads. The store then timed out on nearly every call. All 13 reconnect tries got `ECONNREFUSED`, so Redis never came back.\n\nQueue depth passed its max of 500 at 02:29:12. `worker-2` hit `JavaScript heap out of memory` at 02:31:44. The supervisor killed the api group at 02:31:52.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8820602435de7a1c71c0f07430df223313162f49ceec541016abdc2202a7dcac"
+}

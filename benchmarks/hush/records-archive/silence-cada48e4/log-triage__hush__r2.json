@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23543,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1555028,
+  "numTurns": 5,
+  "durationMs": 22049,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1384
+  },
+  "contextTraffic": 205634,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23578,
+  "narrationWords": 0,
+  "finalWords": 132,
+  "finalText": "**Redis died, and everything backed up until it crashed.**\n\nAt 2:14 AM, Redis (the cache server at `10.0.0.12:6379`) dropped its connection. The app kept working, but fell back to hitting the main store directly for every request.\n\nThat fallback couldn't keep up. Requests started timing out after 5 seconds, and the backlog of waiting requests grew nonstop, from 52 up to 568 by the end. Redis tried to reconnect 12 times over 17 minutes and failed every time.\n\nAt 2:31:44 AM, `worker-2` ran out of memory from the backlog and crashed. The supervisor tried to restart it, but 7 seconds later the whole `api` process stopped responding and got killed. That's when the service went down, at 2:31:52 AM.\n\n**Next step:** get Redis back up first, since nothing recovers until it does.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4f6e9998127bfeb9c5cfa5e4c6fc2641a2a8545d0184dac328f0ebec7848cc42"
+}

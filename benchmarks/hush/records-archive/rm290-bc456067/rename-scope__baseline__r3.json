@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76964,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.389521,
+  "numTurns": 15,
+  "durationMs": 75516,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5380
+  },
+  "contextTraffic": 200532,
+  "apiCalls": 7,
+  "toolCalls": 14,
+  "toolResultChars": 17126,
+  "narrationWords": 9,
+  "finalWords": 582,
+  "assistantMsgs": 2,
+  "finalText": "## Size\n\n**94 files, ~1,080 lines, ~1,290 raw occurrences.** It's large but extremely repetitive — the codebase is 25 entities stamped from the same template across three layers:\n\n| Zone | Files | Notes |\n|---|---|---|\n| `services/*` (billing, accounts, orders, notify, analytics) | 75 | 25 × `repo`/`service`/`http`, near-identical |\n| `migrations/*.sql` | 12 | all applied in production |\n| `vendor/reporting-sdk` | 4 | generated, marked \"Do not edit\" |\n| `lib/` (`serialize.js`, `audit.js`) | 2 | contract + log boundary |\n| `docs/openapi.yaml` | 1 | public API contract |\n\nThe genuinely mechanical part — JS function params, locals, and internal object keys in the 75 service files — is maybe 70% of the hits and is safe. The rest is where the sign-off risk lives.\n\n## Where it must not be renamed\n\n**Hard no — these are contracts, not code:**\n\n1. **`docs/openapi.yaml`** — `account_id` is a required response field and a public query param on `/v2/invoices`. The doc says renaming needs a new dated API version. Out of scope for an internal rename.\n2. **`lib/serialize.js:8`** — the right-hand side of the `WIRE` map is the public field name. The internal key (left side) may be renamed; `'account_id'` on the right must not move. This one file is what keeps the rename from leaking to clients — it's the whole safety valve, and it's currently identity-mapped, so a blind sed silently breaks every client.\n3. **`migrations/*.sql` (all 12)** — already applied in production. Editing them renames nothing in a live DB and breaks the `-- down` steps. Note `accounts (account_id)` is the referenced PK, so renaming the *column* is a separate migration project, not part of this.\n4. **SQL string literals in the 25 repo files (~125 of them)** — e.g. `'SELECT * FROM invoices WHERE account_id = ?'`. The JS variable can be `owner_id`; the column name inside the string cannot change without item 3.\n5. **`vendor/reporting-sdk/**` (20 hits)** — vendored generated code, overwritten by `npm run vendor:refresh`, and it's a third-party request/response shape. Not imported by any service today, so just leave it alone.\n\n**Needs a decision before you sign, not a blanket yes:**\n\n6. **JSONB payload writes — 25 sites** like `JSON.stringify({ ...values, account_id })` in the repos. This key is *persisted data*, not a variable. Rename it and new rows disagree with every existing row. Treat as a data migration or keep the key literal.\n7. **`req.session.account_id` — 100 sites.** If the session is a signed cookie/JWT, renaming the claim invalidates in-flight sessions on deploy. Needs a dual-read window or must stay.\n8. **`lib/audit.js` + 75 `audit(...)` call sites.** The audit field name likely feeds log queries, dashboards, and possibly compliance retention. Cheap to rename in code, expensive downstream. Confirm with whoever owns log search.\n\n## My read for the sign-off\n\n**There are zero test files in the repo.** A 1,300-occurrence mechanical rename with no test suite and five contract boundaries embedded in the blast radius is the actual risk here — not the size.\n\nI'd sign off on scope 1 only: rename JS identifiers inside `services/*`, leaving SQL string literals, the `WIRE` right-hand side, `migrations/`, and `vendor/` untouched. That's a real cleanup, fully reversible, and reviewable as a diff where every remaining `account_id` is deliberate. Ask for items 6–8 as separate changes with their own migration/compat plans, and make the PR add a check that `serialize.js`'s wire values and `openapi.yaml` still say `account_id` — otherwise nothing stops the next sweep from breaking the API.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "975bd103a5712841d96db50d00909d4c41377c19e35ba12084d1e7ed0154fab2"
+}

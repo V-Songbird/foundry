@@ -1,0 +1,39 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "optight-dcb8a227",
+  "seed": "1787984813545",
+  "orderIndex": 3,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31136,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.254251,
+  "numTurns": 11,
+  "durationMs": 29728,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1242
+  },
+  "contextTraffic": 163480,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 11701,
+  "narrationWords": 7,
+  "finalWords": 55,
+  "assistantMsgs": 2,
+  "finalText": "**Green. 625 passing, 0 failing.**\n\nOne real bug, in `orderTotal`. It taxed the pre-discount base. The doc comment said tax the discounted amount.\n\nOnly 3 rows had both a discount and a tax. Those were the 3 failures.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nFix is at [src/pricing.js:40](src/pricing.js:40). Nothing else needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf6fc05c277e7c57e11222c955e2cbf5f0b2fa3787fde653e5456709880debd7"
+}

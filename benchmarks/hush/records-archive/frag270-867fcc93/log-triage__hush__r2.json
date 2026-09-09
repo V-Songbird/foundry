@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 67250,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37136099999999994,
+  "numTurns": 8,
+  "durationMs": 65350,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3631
+  },
+  "contextTraffic": 216227,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 10761,
+  "narrationWords": 6,
+  "finalWords": 60,
+  "finalText": "**Redis died and took prod down.**\n\n```\n02:14:07  Redis refused connections at 10.0.0.12:6379\n02:29:12  request queue passed its 500 limit\n02:31:44  worker-2 ran out of memory\n02:31:52  api killed, service down\n```\n\nAll times are July 4 UTC, not last night. The cache vanished. Every read hit the store instead. It could not keep up. All 13 reconnect tries failed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01f6a712dcb5b4e966a5c21c2524731be35129cf44ff90cc82be133dbfefd140"
+}

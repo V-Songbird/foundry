@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__both__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 77,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17731,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0901712,
+  "numTurns": 1,
+  "durationMs": 15950,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 977
+  },
+  "contextTraffic": 36011,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 147,
+  "finalText": "Both combine two branches, but they treat history differently.\n\n**Merge** joins your branch and the other one with a new commit that has two parents. Nothing gets rewritten, so you keep the real story, including all the back and forth. The tradeoff is the history can look tangled, with lots of joining points.\n\n**Rebase** takes your commits and replays them one by one, as if you'd started from the other branch's tip. History ends up as one clean, straight line. But it builds new commits to do that, so anything you rebase gets rewritten.\n\nThat rewriting is the key thing to watch. Rewriting commits nobody else has yet is safe. Rewriting commits someone already pulled causes real pain for them.\n\nSo as a rule of thumb: rebase your own work to tidy it up before you share it, and merge once a branch is shared or pushed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e9dacf3e42f48bf75f237a3322e2782c5b28f4e4febe480462a9fdcae003807f"
+}

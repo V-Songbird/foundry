@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 50,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19023,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.17431489999999997,
+  "numTurns": 7,
+  "durationMs": 17310,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 878
+  },
+  "contextTraffic": 229417,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 7476,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "finalText": "Builds clean now, `0 errors`.\n\nThe real bug was in `src/core/settings.js`: `resolveConfig` referenced an undefined variable `retries` instead of `env.retries`, which threw and aborted the link stage. Changed it to `env.retries || 3`.\n\nThe other three lines were just warnings, not errors — a deprecated `crypto.createCipher` call, an unused export, and a circular import. Build still reports those 3 warnings but exits 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0162fe7c88ed8dd87512c540ceff8bf56c13b893eff8d7dd2042be4720468b53"
+}

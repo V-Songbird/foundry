@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 57944,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.22204900000000002,
+  "numTurns": 17,
+  "durationMs": 52538,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4068
+  },
+  "contextTraffic": 448137,
+  "apiCalls": 14,
+  "toolCalls": 13,
+  "toolResultChars": 21183,
+  "narrationWords": 21,
+  "finalWords": 245,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "Only 3 hits total in 1100 lines — let me see what they are and check the window around 02:12–02:14Z specifically."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z) — 503s have not stopped, backlog is still growing.\n\n**Impact window:** 2026-03-14 02:14:18Z → still active at end of log (03:59:27Z), ~1h45m and counting. First warning sign at 02:14:14Z (`pool acquire slow`), first hard 503 four seconds later at 02:14:18.972Z.\n\n**Root cause:** `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\"), deployed 02:12:00Z–02:14:00Z. It flipped `gateway.pool.perRequest: false -> true` (config generation 118→119, applied 02:13:41Z). Within ~33 seconds the fixed-size connection pool (20 connections) saturated — every failing request logs `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, and the waiting queue climbs continuously (18 → 71+) rather than draining, so it's a sustained degradation, not a transient blip.\n\n**Scope:** Gateway only — `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` failing across all backend services (billing, orders, catalog, accounts); `/health` still returns 200 since it bypasses the pool. Confirmed via `logs/worker.log` that the worker's independent DB pool stayed healthy throughout (`db_wait` in single-digit ms, idle connections available) — no downstream/DB-side issue, isolated to the gateway's connection-per-request change.\n\n**Action: roll back `dep-4471`.** Revert `gateway.pool.perRequest` to `false` (and consider reverting the paired `gateway.timeout.upstreamMs` bump 2000→2500 from the same deploy, though that's secondary). No other deploy in the window is implicated — checked `deploys.csv` for everything from 22:00Z–03:25Z (catalog-svc analyzer bump, accounts-svc rate limit, worker retry backoff, billing-svc template fix, catalog-svc cache TTL) and none touch the gateway or overlap the onset time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ebfbc3fbd2e6b9659b6fda9eb2e1d5830a0b0d5fefc0a70aa83f7cf7e3591a55"
+}

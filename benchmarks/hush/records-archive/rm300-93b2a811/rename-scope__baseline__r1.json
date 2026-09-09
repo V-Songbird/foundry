@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 40,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 107468,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5313599999999999,
+  "numTurns": 24,
+  "durationMs": 106223,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7540
+  },
+  "contextTraffic": 279219,
+  "apiCalls": 11,
+  "toolCalls": 23,
+  "toolResultChars": 20657,
+  "narrationWords": 31,
+  "finalWords": 677,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to scope this.",
+    "1082 occurrences across 94 files. Let me look at the categories that matter — vendor code, migrations, the API contract, and the serialization boundary."
+  ],
+  "finalText": "## How big it is\n\n**~1,286 occurrences across 94 files**, but the shape matters more than the number:\n\n| Area | Files | Hits | Character |\n|---|---:|---:|---|\n| `services/` | 75 | 1,200 | Mechanical — perfectly uniform template |\n| `migrations/` | 12 | 61 | **Do not touch** |\n| `vendor/reporting-sdk/` | 4 | 20 | **Do not touch** |\n| `lib/` | 2 | 5 | Mixed — one line is a hard boundary |\n| `docs/openapi.yaml` | 1 | 5 | **Do not touch** |\n\nThe services tier is 25 entities × 3 layers (http/service/repo), and every file of a given layer has an *identical* hit count — 13 in each http file, 16 in each service file, 19 in each repo file. That's a generated-looking template, so it's a scripted rename plus review, not 75 files of judgment. Realistically half a day, and the risk isn't in the volume.\n\n## Where it must not be renamed\n\n**1. `lib/serialize.js:8` — the public wire name.** The right-hand side of `WIRE` is the field every client reads. Frozen.\n\n**2. `docs/openapi.yaml` — the API contract.** `account_id` is a required response field on `Invoice` and `Order` and a public query parameter. The file says renaming one needs a new dated version. (Worth noting: no handler actually reads `req.query.account_id` — that parameter is documented but unimplemented.)\n\n**3. `migrations/*.sql` — applied history.** All 12 record production apply dates. Editing them renames nothing in a database that already ran them and breaks the `down` steps. A column rename requires a *new* migration.\n\n**4. `vendor/reporting-sdk/` — generated, and dead.** Overwritten by `npm run vendor:refresh` (pinned at 3.8.1), and it's the third party's wire format anyway. Also: nothing in the repo imports it. Zero benefit, guaranteed to be reverted.\n\n## The one that will bite you\n\nThe boundary is more fragile than \"don't edit `serialize.js`.\" Rows come from `SELECT *`, so **the row key *is* the DB column name**, and `serialize` has a pass-through branch:\n\n```js\nfor (const [k, v] of Object.entries(row)) {\n  if (!WIRE[k] && k !== 'payload') out[k] = v;   // lib/serialize.js:18-20\n}\n```\n\nIf the column ever becomes `owner_id`, `row.account_id` goes undefined, `WIRE` emits nothing, and the fallback loop emits `out.owner_id` instead — **the public JSON silently changes even though nobody edited the frozen map.** No error, no test failure, just a changed contract in production.\n\nSo the real rule for signoff is: **the DB column `account_id` must not be renamed as part of this change.** That's a separate project — new migration, backfill, dual-read window — not a same-day approval.\n\nTwo related items in the same category:\n\n- **Stored JSONB.** All 25 repos do `JSON.stringify({ ...values, account_id })`. A code rename makes new rows carry `owner_id` inside `payload` while every existing row still says `account_id`. Needs a backfill or a read-side fallback, or you get a silently bimodal column.\n- **`lib/audit.js:8`.** Every audit line is keyed on `account_id`. Nothing in this repo consumes the exported `lines`, so I can't confirm it either way — but if a log pipeline or SIEM queries that field, it's an external consumer. Worth one question to whoever owns audit ingestion before you sign.\n\n## What I'd sign off on\n\nApprove the **internal identifier rename** — function parameters, destructured keys, local variables, error message text across the 75 service files. That's the 1,200 hits and it's genuinely low-risk, provided three things stay literal:\n\n- the SQL strings (`WHERE account_id = ?`, `INSERT INTO … (account_id, payload)`)\n- the row property reads (`row.account_id`) and the payload write key\n- `WIRE` in `serialize.js`\n\nOne caveat to set expectations: this leaves the codebase reading `params: [owner_id]` against `WHERE account_id = ?`. That's correct but it's a seam, and a seam invites the next person to \"finish the job\" and take the column with it.\n\nI'd make the approval conditional on a guard test that asserts `serialize()` output still contains `account_id` — that converts the silent failure above into a red build, which is the only thing standing between an internal rename and a client-visible break.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d2cf4aa79e79b75ff248aae62c2d789687f8d055f7edb669e729e394e929c509"
+}

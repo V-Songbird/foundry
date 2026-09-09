@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__lean__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 102038,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5736924999999999,
+  "numTurns": 18,
+  "durationMs": 100525,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7187
+  },
+  "contextTraffic": 338859,
+  "apiCalls": 10,
+  "toolCalls": 17,
+  "toolResultChars": 21789,
+  "narrationWords": 8,
+  "finalWords": 117,
+  "finalText": "1291 mentions across 94 files. Most are plain variable names.\n\n| Zone | Hits | Verdict |\n|---|---|---|\n| Service JS variables | 1079 | Safe to rename |\n| Repo SQL column refs | 125 | Needs a DB migration first |\n| Applied `migrations/*.sql` | 61 | Do not edit, that is history |\n| `vendor/reporting-sdk` | 20 | Do not edit, refresh overwrites it |\n| `docs/openapi.yaml` + `lib/serialize.js` wire value | 6 | Frozen public field names |\n\nThe column rename would touch 12 tables plus their indexes. Every one carries a foreign key to `accounts`.\n\nMy advice: approve the JS-variable rename today. Send the column and API rename back as separate work.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "82a312629ad0a145ed325d724873a1f9e38b90d58bbddb71ab670d39244fbced"
+}

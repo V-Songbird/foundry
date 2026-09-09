@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65971,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.35338860000000005,
+  "numTurns": 18,
+  "durationMs": 59424,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4524
+  },
+  "contextTraffic": 752398,
+  "apiCalls": 14,
+  "toolCalls": 14,
+  "toolResultChars": 50789,
+  "narrationWords": 20,
+  "finalWords": 258,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing (unresolved as of end of log window)\n\n**Impact window:** 2026-03-14 02:14:18Z → still failing at 03:59:27Z (end of available log data — not yet recovered)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` via config reload (generation 118→119, applied 02:13:41Z). Instead of isolating connections per request as intended, it stopped connections being returned to the shared pool. The pool (fixed size 20) pinned at `in_use=20` within ~30s and has stayed saturated since, so every request that can't acquire a connection queues and times out as a 503.\n\nFirst failure: 02:14:18.972Z\n```\nERROR access req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool   req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\nWaiting queue and response times have climbed steadily since (13 → 74+ waiters, 659ms → 850ms+) with no recovery — this is not self-healing.\n\n**Deploy to roll back:** `dep-4471` (gateway, started 02:12:00Z, finished 02:14:00Z, author a.novak). Only deploy in the window that touches the gateway; the two later deploys (`dep-4472` billing-svc 02:41Z, `dep-4473` catalog-svc 03:20Z) landed after the 503s were already underway and are unrelated.\n\n**Blast radius:** Gateway only. `worker.log` for the same window shows zero errors and normal `db_wait` times throughout — job workers and the DB are unaffected, so this isn't a shared-resource/DB issue, it's isolated to the gateway's own connection pool config.\n\n**Next step:** Revert `gateway.pool.perRequest` to `false` (or roll back dep-4471 entirely) and confirm the `waiting` count in `pool stats` drains back toward 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fd7d7da1be257b888118cd4cbe4fa290bbf29baab1844671efc27f3065da73aa"
+}

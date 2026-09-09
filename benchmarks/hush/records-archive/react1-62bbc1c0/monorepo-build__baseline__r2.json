@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33129,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19131089999999998,
+  "numTurns": 9,
+  "durationMs": 31845,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2017
+  },
+  "contextTraffic": 284226,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 7099,
+  "narrationWords": 109,
+  "finalWords": 95,
+  "finalText": "Fixed. The root cause was in `packages/shared/config.js` — `resolveRelease` merged the defaults, per-package overrides, and CLI flags with `Object.assign`, which is a shallow merge. Any package overriding just one key inside `output` (e.g. `@acme/api` setting `output.format`, `@acme/web`/`@acme/cli` setting `output.entry`) wiped out the rest of the nested `output` object — dropping `output.dir`, which the bundle stage requires and aborted the build.\n\nI replaced it with a recursive `deepMerge` that merges nested plain objects layer by layer instead of overwriting them wholesale. `node build.js` now exits 0 with \"5 warnings, 0 errors\", and `verify.js` confirms the fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "496be2b5e790dcf1511ca14fb4cfda9e4ad8fd430da182eabb11bdd36606f01a"
+}

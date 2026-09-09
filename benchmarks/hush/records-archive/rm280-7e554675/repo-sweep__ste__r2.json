@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 59,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48056,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.34890499999999997,
+  "numTurns": 12,
+  "durationMs": 46621,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2885
+  },
+  "contextTraffic": 244249,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 14348,
+  "narrationWords": 7,
+  "finalWords": 145,
+  "finalText": "The migration is complete for the application code.\n\n**Changed files (12):**\n- `packages/accounts/src/repo/session.js`\n- `packages/accounts/src/admin/apiKeyAdmin.js`\n- `packages/accounts/src/service/teamService.js`\n- `packages/analytics/src/repo/cohort.js`\n- `packages/billing/src/repo/refund.js`\n- `packages/billing/src/service/couponService.js`\n- `packages/catalog/src/repo/supplier.js`\n- `packages/catalog/src/admin/variantAdmin.js`\n- `packages/orders/src/repo/shipment.js`\n- `packages/orders/src/service/returnService.js`\n- `packages/support/src/repo/sla.js`\n- `packages/support/src/admin/macroAdmin.js`\n\nEach call changed from `db.query(sql, params)` to `db.execute({ sql, params })`. The SQL strings and the parameter arrays stay the same. `node --check` passes on all files under `packages`. The repository has no package.json and no test runner, so I ran no tests.\n\n**Left on the old call:** `vendor/legacy-orm/adapter.js` (lines 9 and 13). The file header says that it is a vendored copy of legacy-orm 2.1.4, and that an upgrade replaces the file and loses local edits. A fix must go upstream or into a wrapper. Tell me if you want that wrapper.\n\n**Not touched:** `cache.query(...)` calls in the repo files. These use the cache handle, not the database handle.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c99ae7f69d90929f5591d62f67c83172017615be87dccfd8750fe24176725694"
+}

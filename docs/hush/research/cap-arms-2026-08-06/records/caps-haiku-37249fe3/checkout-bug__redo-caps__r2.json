@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 30,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 43779,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06758729999999999,
+  "numTurns": 12,
+  "durationMs": 42081,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2530
+  },
+  "contextTraffic": 269430,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 5575,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "finalText": "Fixed it. The flat coupon amount was being subtracted in USD from a total that had already been converted to the target currency. The fix converts the coupon amount to match the customer's currency before subtracting.\n\nThe change in `src/services/pricing.js` now converts flat coupons to the target currency (e.g., $10 USD becomes 9 EUR at 0.9 rate) before subtracting from the order total. All five tests pass — the specific issue with flat coupons in non-USD currencies, plus the percent coupon and USD cases, all work correctly now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a91d63584d14920f4902248b38b20227bcff74f75cfac0e99012f5737ea66e84"
+}

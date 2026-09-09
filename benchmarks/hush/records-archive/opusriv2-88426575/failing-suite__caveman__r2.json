@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__caveman__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27967,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.281605,
+  "numTurns": 9,
+  "durationMs": 25418,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1198
+  },
+  "contextTraffic": 226697,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 12066,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "finalText": "Green. 625/625.\n\n3 failures, one bug: `orderTotal` taxed pre-discount base.\n\n`src/pricing.js:41`\n```js\nconst tax = roundCents(cents * taxRate);      // before\nconst tax = roundCents(discounted * taxRate); // after\n```\n\nDoc comment above already said tax goes on the discounted amount — code contradicted it. Only cases with both non-zero discount and non-zero tax failed, which is why 0%-off rows passed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "38283b7b0a9691166284328426e47e6f45f8c67b25536720d5a5cb6acf92e714"
+}

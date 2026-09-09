@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 62,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53329,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.419612,
+  "numTurns": 9,
+  "durationMs": 52370,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3507
+  },
+  "contextTraffic": 201117,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 30081,
+  "narrationWords": 5,
+  "finalWords": 591,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I look at history/ first."
+  ],
+  "finalText": "380 commits since 4.1. Roughly 12 matter to users; rest is deps/refactor/test/CI noise.\n\n## What actually changed\n\n**Breaking (probably — verify before ship)**\n- `refactor(api): drop the unused v1 export route` (56dc828) — touches `src/api/handlers.js` and `test/api.test.js`, not just dead code. If any caller still hits the v1 export endpoint, it 404s now.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits across `core/errors.js`, `db`, `auth`, `jobs`, `billing`. Labeled \"internal\", but if those types were reachable from package entry point, `import { SomeError } from '<pkg>'` breaks.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55) — status code change. Anyone branching on 403 breaks. Correct fix, still breaking.\n\n**Added**\n- `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48) — only feature in whole release. Touches `src/core/config.js`, so likely new config knob. Get the option name and defaults from Ana Ruiz before writing this line.\n\n**Fixed (user-visible)**\n- Null cursor in paginator no longer throws — 6 scopes (api, db, queue, webhooks, store...). One real bug, fixed in each module.\n- HTTP timer now cleared when socket drops (f911982-adjacent, `src/http/client.js`) — was a leak/hang.\n- HTTP pool closed on shutdown — process no longer hangs on exit.\n- Request body no longer written to logs (1b55313, `src/db/pool.js`) — privacy/PII fix. Worth calling out explicitly; users may need to re-check log retention.\n- Latency histogram now uses correct units (59402bc, 1f2bc4e) — dashboards and alert thresholds on that metric will shift. Breaking for observability configs.\n- Duplicate header dropped; trailing slash trimmed once (was double-trimming); empty allowlist handled instead of failing; token parser error message clearer; trace id preserved across retry.\n\n**Perf** — JSON round-trip skipped on hot path, mapper clone removed, metric writes batched, parsed schema reused. No API change; mention as one line or skip.\n\n**Deps that reach users** — runtime bumps only: `fastify` 4.28.0→4.28.1, `pg` 8.12.0→8.13.0, `knex` 3.1.0→3.1.2, `ioredis` 5.4.1→5.4.2, `undici` 6.19.2→6.19.5, `pino` 9.2.0→9.3.1, `zod` 3.23.6→3.23.8, `nanoid` 5.0.7→5.0.8, `dotenv` 16.4.5→16.4.7. All patch/minor. The rest (eslint, prettier, vitest, tsx, typescript, esbuild, husky) are dev-only — leave out.\n\n**Open question:** 5 `docs: note the minimum node version` commits plus `ci: run the suite on node 22`. Suggests the supported Node floor moved. Log doesn't say to what. If it did move, that's the biggest breaking item in the release and it's currently undocumented. Check `.nvmrc` / `package.json#engines`.\n\n## Draft entry\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- Expired tokens now return `401` instead of `403`. Update any code that\n  branches on the status.\n- The latency histogram now reports the correct units. Dashboards and alert\n  thresholds built on it need to be rescaled.\n- Internal error types are no longer re-exported from the package root.\n- The v1 export route has been removed.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Paginating past the last page no longer throws on a null cursor.\n- The HTTP client clears its timer when the socket drops, and closes its pool\n  on shutdown, so the process can exit cleanly.\n- Request bodies are no longer written to the logs.\n- An empty allowlist is treated as empty instead of erroring.\n- The trace id survives a retry.\n- A trailing slash is trimmed once, not twice.\n- Duplicate headers are no longer sent.\n```\n\nFour Breaking lines rest on inference from commit subjects — no source tree here to confirm. Verify the v1 route and the error re-exports against actual public surface before shipping; drop the lines if they were genuinely internal.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed0aea41e966a23be2ad98d8a15c19b7d007888263b23093980d75b7d8386bee"
+}

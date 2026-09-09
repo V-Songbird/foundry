@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 27,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 107668,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8532265,
+  "numTurns": 13,
+  "durationMs": 104778,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6457
+  },
+  "contextTraffic": 492304,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 73121,
+  "narrationWords": 16,
+  "finalWords": 516,
+  "finalText": "Draft is in `CHANGELOG.md:3`. Here's what's behind it.\n\n## The shape of the release\n\n380 commits, of which **37 are user-visible**: 1 feat, 26 fix, 10 perf. The other 343 are chore (153), refactor (73), test (64), ci (33), docs (20) — nothing an installer would notice.\n\nThe 26 fixes collapse to **11 distinct bugs**. Most were fixed once per module, so the same bug shows up 3–5 times in the log (null cursor in api/db/queue/webhooks, duplicate header in core/billing/http, empty allowlist in db/jobs/store, and so on). Don't let the raw count inflate the notes.\n\n## What I put under Breaking, and why\n\nNone of these are labeled `feat!` or `BREAKING CHANGE` — three of the four are labeled `refactor`. They're breaking anyway:\n\n- **401 vs 403 on expired token** (`1d2bd55`) — labeled `fix`, but it's a contract change for any client branching on the status.\n- **`stop re-exporting the internal error types`** — 8 commits across core, db, jobs, auth, billing. Each one narrows the package's export surface. Anyone doing `import { SomeError } from '<pkg>'` breaks at build time.\n- **`drop the unused v1 export route`** (`56dc828`) — \"unused\" is an internal claim; it touched `src/api/router.js`, `handlers.js`, and the API tests. If a customer was calling it, it's a removed endpoint.\n- **latency histogram units** (`59402bc`, `1f2bc4e`) — a fix, but silently changes what every existing dashboard reports.\n\nI'd rather over-flag these and have you cut them than ship a `4.2.0` that breaks someone's import.\n\n## Left out deliberately\n\n- **All 16 dependency bumps.** Seven are dev-only (typescript, vitest, eslint, prettier, esbuild, tsx, husky). The nine that ship — fastify, pg, knex, ioredis, undici, pino, zod, nanoid, dotenv — are all patch or small-minor with no behavior note in the log. Say the word if your convention is to list shipped deps regardless.\n- **All 10 perf commits.** Mapper clones, JSON round-trips, batched metric writes, cached parsed schema. Real work, but there are no numbers anywhere in the history, and \"we made it faster\" with no figure isn't something an installer notices. If someone benchmarked these, one line with an actual number would earn its place.\n\n## Three things to check before you cut\n\n1. **History stops at 2026-06-17.** That's ten weeks before tomorrow's cut. Either the branch has been frozen since June, or this export is stale and I'm missing commits. Worth confirming — it's the one thing that could change the notes materially.\n2. **Minimum Node version.** Three separate `docs: note the minimum node version` commits, and CI moved to Node 22 — but every one of those touches only docs/README/workflow files. No `engines` change is visible. If the floor actually moved, that's a Breaking bullet I don't have.\n3. **The webhook retry config.** `395fb48` touched `src/core/config.js` alongside `webhooks/dispatch.js`, which suggests it added tunable knobs (attempts, base delay). I can't see option names from stat lines only — if they're user-facing, the Added bullet should name them.\n\nOn 1 and 2, I couldn't resolve them from the history alone; the draft assumes the log is complete and the Node floor is unchanged.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bb649957736f4cd0df95b795a0fd8351d90b535230f1719b22582a08aaf6a5fd"
+}

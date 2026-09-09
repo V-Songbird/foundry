@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13902,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2954229,
+  "numTurns": 3,
+  "durationMs": 12493,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 782
+  },
+  "contextTraffic": 146297,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 193,
+  "finalText": "**Timeline:**\n\n- 02:00–02:14 — normal, healthy. All GET /users, /orders, /health 200, cache hit ~90-98%.\n- 02:14:07 — root cause: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` (api). Redis instance went down.\n- Right after — cache degraded, fallback to direct store reads → cache miss storm start, store overloaded → TimeoutError spam every service, request queue depth climb steady (52 up to 568, max 500 — breached ~02:25:48).\n- 02:14–02:31 — 13 redis reconnect attempts (0 through 12), each 2min apart, all ECONNREFUSED. Redis never came back.\n- 02:31:44 — worker-2: `JavaScript heap out of memory (request backlog)` — queue backlog ate all memory.\n- 02:31:45 — supervisor restart worker-2 (exit code 134).\n- 02:31:52 — FATAL: api unresponsive, supervisor kill process group. **Service down.**\n\n**Root cause:** Redis at 10.0.0.12:6379 dropped connection at 02:14:07, never recovered (12 failed reconnects over 17min). Fallback to direct store reads overloaded backend, timeouts cascade, request queue grew unbounded past max (500) to 568, worker-2 OOM'd on backlog, took whole service down.\n\n**Fix direction:** why redis unreachable (network/host/OOM on redis box?), add backpressure/circuit breaker instead of unbounded queue growth, cap queue hard at max not just log warn.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "11d43d30cdd24cc3415d6acbf362ea3dcfc9891f069a3446e3914797ae0d6575"
+}

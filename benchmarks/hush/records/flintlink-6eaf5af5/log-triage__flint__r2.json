@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__flint__r2",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28936,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.263441,
+  "numTurns": 7,
+  "durationMs": 27650,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1387
+  },
+  "contextTraffic": 159213,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 13147,
+  "narrationWords": 0,
+  "finalWords": 127,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died and took prod with it.** One cause, 17 minutes to death.\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379`, cache falls back to direct store reads |\n| 02:14:10 | First `TimeoutError` after 5000ms, store overloaded |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, all refused |\n| 02:29:12 | Queue depth passes the 500 cap at 562 |\n| 02:31:44 | `worker-2` hits `JavaScript heap out of memory`, exits 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nRedis at `10.0.0.12:6379` never came back. Cache hit ratio was 0.98 right before, so every read went to the store. No recovery in the log. Next: check why Redis refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "362216847a03cc4f2caa5bf8c737ccac84212f8e36115bff3838225bd8ae8682"
+}

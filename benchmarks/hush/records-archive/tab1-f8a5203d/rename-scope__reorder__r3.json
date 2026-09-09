@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__reorder__r3",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 24,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "reorder",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26689,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0955616,
+  "numTurns": 7,
+  "durationMs": 25091,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1726
+  },
+  "contextTraffic": 82753,
+  "apiCalls": 3,
+  "toolCalls": 6,
+  "toolResultChars": 11760,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big.** `account_id` shows up 1082 times across 94 files.\n\nThree places it must stay frozen:\n\n- [docs/openapi.yaml:19](docs/openapi.yaml:19) — public API contract, says renaming breaks every client\n- [lib/serialize.js:8](lib/serialize.js:8) — wire-format map, comment says internal renames must not reach here\n- `vendor/reporting-sdk/*` — third-party vendor code, not ours to touch\n\nAlso check [lib/audit.js:8](lib/audit.js:8), audit lines may be read by other systems.\n\nOld SQL migrations reference the column too. Don't edit those, add a new migration to rename the DB column.\n\nNext: internal service code and repos can rename safely, the three frozen spots above can't.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a9b0f7e0d403d29fdae33f0a5ac79e28db4accb74e7261de34588a90de727f84"
+}

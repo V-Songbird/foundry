@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 168164,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7656285,
+  "numTurns": 16,
+  "durationMs": 160049,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10335
+  },
+  "contextTraffic": 518621,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 21399,
+  "narrationWords": 26,
+  "finalWords": 665,
+  "assistantMsgs": 6,
+  "finalText": "## Incident Handoff — Gateway 503s\n\n**Status:** Ongoing at end of log (03:59:27Z). Not self-recovering.\n**Severity:** All customer-facing routes returning 503. Health checks green — do not trust dashboards.\n\n---\n\n### Root cause\n\nGateway config generation 119 set `gateway.pool.perRequest: false -> true`, making each request hold a dedicated connection for its full lifetime instead of sharing. Pool size stayed at `20`, so in-flight concurrency is now hard-capped at 20. Requests beyond that queue and fail:\n\n```\n2026-03-14T02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nThe same reload raised `gateway.timeout.upstreamMs: 2000 -> 2500`, which compounds it — each connection is held 25% longer before release.\n\nThis is gateway-local, **not** an upstream outage. Supporting evidence:\n\n- Pool stats flip at the config apply and never recover: `in_use=3..11 idle=9..17 waiting=0` before 02:13 → `in_use=20 idle=0` with a growing wait queue (peak `waiting=271`) for the rest of the log.\n- 503s are spread evenly across all four upstreams (accounts 133, catalog 133, billing 132, orders 132) and all five customer routes (106 each). An upstream fault would be lopsided.\n- `ERR_POOL_EXHAUSTED` is the **only** error code in the file — 530 occurrences, one per 503, same request ID and timestamp.\n- Degradation is worsening, not stable: 503 latency 659ms at onset → 850ms at 03:59.\n\n### Impact window\n\n| | |\n|---|---|\n| **Start** | `2026-03-14T02:14:18.972Z` — first 503, 37s after generation 119 applied |\n| **End** | Still failing at `03:59:27.974Z` (end of log) |\n| **Duration** | ≥ 1h 45m |\n| **Volume** | 530 × 503, steady ~50 per 5 min |\n| **Affected** | `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — all equally |\n| **Not affected** | `/health` (0 × 503) — apparently takes no pooled connection |\n| **Partial degradation** | 212 requests succeeded only after queuing 100–890ms (avg 495ms) |\n\nNote this is node-3 of 3. These numbers are one node's share; if the config applied fleet-wide, multiply by ~3.\n\n**Detection gap:** on-call not paged until `03:21:05Z` (`error_rate 5m avg is 71%`) — **67 minutes after onset**. Almost certainly because `/health` stayed 200 throughout. Worth a follow-up: health checks should traverse the connection pool.\n\n### Roll back\n\n**`dep-4471`** — gateway, `02:12:00Z–02:14:00Z`, author **a.novak**, *\"config: connection-per-request for pool isolation.\"*\n\nRevert gateway config to **generation 118**. Only `pool.perRequest` needs to go back to `false` to restore service; reverting the whole generation is the safer single action.\n\nIf per-request isolation is wanted for its own reasons, do **not** re-apply it without first raising pool size well above peak concurrency — at the observed queue depth, 20 is roughly an order of magnitude short.\n\nRuled out:\n- `dep-4472` (billing-svc 02:41) and `dep-4473` (catalog-svc 03:20) — both shipped *mid-incident*, after 503s began. Neither changed the error pattern.\n- `dep-4470` (worker 00:48) — `worker.log` is clean: 1,080 jobs, 0 failures, pool flat at `in_use=1 idle=7 waiting=0` throughout.\n- `dep-4468` / `dep-4469` — 3–4h prior, pool healthy until 02:13.\n\n---\n\n### Separate item — do not conflate\n\n`worker.log` shows job durations on a linear ramp of **+110ms per 10 min** (327ms avg at 01:00 → 2,197ms at 03:50, ~11×), uniform across all six job types, with `db_wait` flat at ~5ms and throughput unchanged. Time is being spent in-process, not on the database — looks like a leak. It is **already in progress at the start of the log** and shows no inflection at 02:14, so it is unrelated to the 503s and rolling back `dep-4471` will not touch it. Needs pre-01:00 worker logs and replica heap metrics. File separately.\n\nThe single `WARN db slow query 1.9s ... OPS-2210` at 02:36 is pre-existing and already ticketed; it does not explain the ramp.\n\n---\n\nOne flag: these logs are timestamped **2026-03-14**, about five months before today's date. If you were expecting last night's data, you may be looking at an archived file rather than the current one — worth confirming before acting on the rollback.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "49c13b0fcafc39ff335900aeb37f070326359d80d4b303389646f0adc486184c"
+}

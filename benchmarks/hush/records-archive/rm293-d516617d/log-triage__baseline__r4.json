@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57894,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3116915,
+  "numTurns": 9,
+  "durationMs": 56487,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3629
+  },
+  "contextTraffic": 182024,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 11551,
+  "narrationWords": 8,
+  "finalWords": 675,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\n**Bottom line:** Redis went away, the cache-less fallback path overwhelmed the backing store, request queues grew unbounded until a worker OOM'd, and the supervisor killed the process group. Total time from first error to service down: **17 minutes 45 seconds**.\n\n**One caveat up front:** the log covers `2026-07-04T02:00 → 02:31 UTC` — about eight weeks ago, not last night. Either `logs/app.log` is a stale/rotated copy, or log shipping has been broken since July. Worth checking before you act on this as the cause of last night's outage.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Healthy. All 200s, cache hit ratio 0.90–0.98, latency 12–145ms |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins (`orders:1000`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52 / 500 |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts (`0`–`12`), ~80s apart, **all ECONNREFUSED** |\n| 02:29:12 | Queue depth **502** — crosses the 500 max |\n| 02:31:24 | Queue depth 568 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### The causal chain\n\n1. **Redis at `10.0.0.12:6379` refused connections** — `ECONNREFUSED`, not a timeout. That's a dead/not-listening process or a closed port, not network flakiness or slowness. It never came back during the whole window.\n2. **The app degraded to direct store reads** rather than shedding load. Cache hit ratio had been ~95%, so this meant roughly a 20× read amplification hitting the backing store instantly.\n3. **The store buckled** — 173 `TimeoutError` at 5000ms each. Every timed-out request held a slot for 5 full seconds.\n4. **Queues grew linearly and unbounded** — depth climbed steadily from 52 to 568 over ~17 min (~3 per sample, dead-linear). The `max 500` was logged but evidently never enforced; nothing rejected requests when it was exceeded at 02:29.\n5. **Backlog ate the heap** — worker-2 OOM'd (exit 134 = SIGABRT, the V8 OOM abort). ~2.5 min after crossing the queue cap.\n6. **Supervisor killed everything** 7 seconds later when api stopped responding.\n\n### Notable details\n\n- **Zero successful requests after 02:14:03.** The last 2xx is `GET /orders 200 75ms` at 02:14:03.137, four seconds before Redis dropped. From that point the log is 100% WARN/ERROR — this was a hard, total outage from the first second, not a gradual degradation.\n- **The reconnect logic never gave up and never backed off meaningfully** — 13 attempts at a flat ~80s interval to the same IP for 17 minutes. No failover, no circuit breaker.\n- **No cron ticks after 02:09:28.** `cleanup-expired-sessions` ran at 02:00, 02:04, 02:09 and then never again — the scheduler was starved along with everything else.\n- **The supervisor restarted worker-2 but killed the group 7s later.** The restart was pointless; it would have OOM'd again on the same backlog.\n\n### What I'd fix\n\n1. **Root cause is Redis, not the app** — find out why `10.0.0.12:6379` died and stayed dead for 17+ minutes with no failover. That's the actual incident. A replica/sentinel setup would have made this a non-event.\n2. **The `max 500` queue cap is decorative.** It's logged in every warning and then sailed past to 568. Enforce it — reject with 503 above the limit instead of buffering into the heap.\n3. **Add a circuit breaker on the cache-miss fallback.** Falling through 100% of a 95%-hit-rate cache directly onto the store is a guaranteed thundering herd. Serve stale, or fail fast, but don't forward everything.\n4. **5000ms timeout is too long** under saturation — it's what let the backlog accumulate. Shorter timeout + load shedding.\n5. **Fix the log freshness question** before anything else, so you're diagnosing the right night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ed82de49caaa4a384a076bb15c75b5b726f4541ecd5fbe5f6cf60b7f4b8e7ad"
+}

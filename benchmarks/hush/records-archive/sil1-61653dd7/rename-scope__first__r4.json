@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__first__r4",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 14,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "first",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48682,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.352842,
+  "numTurns": 16,
+  "durationMs": 46972,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2989
+  },
+  "contextTraffic": 188754,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 19796,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "assistantMsgs": 1,
+  "finalText": "**Big but mostly safe: 1291 hits in 94 files.**\n\nFour zones must keep `account_id`:\n\n| Zone | Hits | Why |\n| --- | --- | --- |\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | Public contract. Rename breaks clients. |\n| [lib/serialize.js:8](lib/serialize.js:8) `WIRE` values | 2 | Frozen wire names. |\n| `migrations/*.sql` | 61 | Applied history. Edits break the down step. |\n| `vendor/reporting-sdk` | 20 | Regenerated. Edits get wiped. |\n\nThe DB column is also still `account_id`. That name is baked into ~250 SQL lines in the repo files. Renaming those needs a real column migration first.\n\nSign off only if the plan is JS identifiers, not wire or SQL names.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fed369a29b5789e81666493d08fe71c6652d5424cfd1d876fb8e19f157b8053b"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42391,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2930355,
+  "numTurns": 14,
+  "durationMs": 41098,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2372
+  },
+  "contextTraffic": 212976,
+  "apiCalls": 10,
+  "toolCalls": 13,
+  "toolResultChars": 11071,
+  "narrationWords": 33,
+  "finalWords": 233,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by exploring the project and running the suite.",
+    "Single root cause: `orderTotal` taxes the **undiscounted** base while the spec (and its own doc comment) says tax applies to the discounted amount."
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n## What was actually broken\n\nOf the 625 cases, only 3 failed — all in `order totals`, all one root cause in `src/pricing.js:39`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← tax on the FULL base\nreturn discounted + tax;\n```\n\nTax was computed on the pre-discount amount, then added to the discounted subtotal. The function's own doc comment says the opposite (\"the discount has to come off the base before the rate is applied\"), so the code contradicted its stated contract.\n\nIt hid because almost every row in that suite has either a zero discount or a zero tax rate — with either factor zero, both orderings give the same number. Only the three rows with *both* non-zero could expose it (e.g. `orderTotal(33400, 10, 0.2)` → 36740 instead of 36072; the error scales with `base × pct × rate`).\n\n## The fix\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThis also drops the ad-hoc `roundCents(cents * taxRate)` in favour of the existing `applyTax` helper, so rounding stays consistent with the rest of the module. One rounding step on the discount, one on the tax — matching what the cases expect.\n\nNothing else was wrong: `tiers.js`, refunds, shipping, loyalty and rounding all passed untouched. I removed the temp `out.txt` I used to capture the run.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c5b4e2e6e23bea87b038b3f18626bdc7fde29c6e1c0b30d348691da9b933ab77"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__notrunc__r1",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18652,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13188,
+  "numTurns": 5,
+  "durationMs": 17070,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1336
+  },
+  "contextTraffic": 117773,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 26866,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis going down at `02:14:07` and never reconnecting is what took prod out.**\n\n`[api]` lost `redis` at `10.0.0.12:6379` with `ECONNREFUSED`. Cache fell back to direct store reads.\n\nThat triggered constant cache-miss storms and `TimeoutError`s on every service. Queue depth climbed steadily from 52 to over 570.\n\n`redis` reconnect attempts failed 12 times in a row, roughly every 90 seconds, and never succeeded.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog and crashed. At `02:31:52` `api` went unresponsive and the supervisor killed the process group.\n\nNext: check why `redis` at `10.0.0.12:6379` was unreachable.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c87fd34d9b5c1952d9297e394a1615c27ef0341a5fee3778695413f38b6aeca"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29628,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11518220000000001,
+  "numTurns": 11,
+  "durationMs": 27774,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2397
+  },
+  "contextTraffic": 113297,
+  "apiCalls": 4,
+  "toolCalls": 10,
+  "toolResultChars": 12828,
+  "narrationWords": 0,
+  "finalWords": 104,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big, but mostly mechanical.** `account_id` shows up 1082 times across 94 files — services, repos, routes, migrations, vendor code, docs.\n\nThree places must keep `account_id` as-is:\n\n- [lib/serialize.js:8](lib/serialize.js:8) — the public wire field is frozen by the API contract, documented in `docs/openapi.yaml`\n- `vendor/reporting-sdk/src/*` — third-party code, not ours to rename\n- `migrations/*.sql` — already applied in prod; editing history breaks the down step. A rename needs a new migration, not edits to old ones\n\nEverything else — internal service/repo/route code, `lib/audit.js` — is safe to rename.\n\nNext: confirm with platform team that the public API field stays `account_id` even after the internal rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "431594f98460c77dddd2b99e39117542e2175e62c1d8a5ea93e5f05a4786f93c"
+}

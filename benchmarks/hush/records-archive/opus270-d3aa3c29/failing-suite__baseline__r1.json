@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39050,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.303239,
+  "numTurns": 10,
+  "durationMs": 38026,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2602
+  },
+  "contextTraffic": 199261,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 13796,
+  "narrationWords": 126,
+  "finalWords": 301,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n## What was broken\n\nOne bug, in `orderTotal` (`src/pricing.js`). It applied the discount and the tax to the *same* base and added them together, instead of taxing the discounted amount:\n\n```js\n// before\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // tax on the full pre-discount base\nreturn discounted + tax;\n\n// after\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThe customer was being taxed on money they didn't pay — always an overcharge, growing with the discount. The three failing rows were over by 148c, 87c and 668c.\n\n## Why it looked worse than it was\n\nThe runner prints a line per case, so 3 real failures sat inside 625 lines of output. Filtering to the `N failing` block at the bottom (or `grep '^  FAIL'`) gives you the whole story in a few lines.\n\nTwo things worth noting:\n\n- **The tests were right and the code was wrong** — I didn't touch `cases.js`. The spec at `cases.js:89` and the doc comment at `src/pricing.js:34-38` both already described discount-then-tax; only the implementation disagreed.\n- **The suite barely caught this.** 66 of the 69 `orderTotal` cases have either a zero discount or a zero tax, and both orderings give identical answers in those cases. Only the three hand-added rows at `cases.js:80-82` have both non-zero. If those rows hadn't been there this would have shipped with 100% green. Worth adding a few more mixed discount+tax rows to the generated loop so the coverage isn't resting on three hardcoded lines — say so if you'd like me to.\n\nOne incidental cleanup: `applyTax` was exported and tested but never actually used by `orderTotal`. It now is, so the tax path has a single implementation rather than two that could drift.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cc148c3fe36f9fd6f12c7254469387532a68b8b492d8e606a8014935dc02f602"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushv2__r3",
+  "batchId": "leaky1-033affa6",
+  "seed": "1787817689918",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushv2",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35097,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.288316,
+  "numTurns": 10,
+  "durationMs": 32950,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1693
+  },
+  "contextTraffic": 208030,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6254,
+  "narrationWords": 0,
+  "finalWords": 50,
+  "finalText": "**The build passes now.** Two real bugs, not noise.\n\n1. `src/core/options.js` read `options.retries`. The bump renamed it `retryCount`. It now accepts either.\n2. `src/net/retryPolicy.js` threw on an unset flag. Unset now means off, like before.\n\nThe 8 warnings are printed by the bundler itself. Fixing those means touching the packages.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4812123c6d9e2eab81e0fd7f066c53d1d97b90eec92d7eac9fc7b774e45e936a"
+}

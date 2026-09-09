@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r2",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 2,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13672,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0813026,
+  "numTurns": 6,
+  "durationMs": 11774,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 728
+  },
+  "contextTraffic": 131359,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 3211,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refresh.js`, not `tokens.js:6`.**\n\nThe log's `auth.internal responded 400` with `invalid_grant` matches the non-recoverable branch in [refresh.js:14-16](src/auth/refresh.js:14). That branch returns `undefined` instead of throwing.\n\n`session.js:7` awaits that `undefined`, then passes it to `decode`, which crashes at `tokens.js:6` doing `undefined.split('.')`.\n\nStack trace is accurate about the crash site but not the cause. Fix belongs in `refresh.js:15` — should throw/propagate instead of swallowing the revoked-token case.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fd6b0b16aa0e35a6ba3ccf54c0a25e1c0f1eac3ad22ffa86621e4d1fe87baef8"
+}

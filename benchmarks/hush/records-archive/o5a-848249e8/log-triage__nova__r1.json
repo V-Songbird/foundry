@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__nova__r1",
+  "batchId": "o5a-848249e8",
+  "seed": "1787818512985",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "nova",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 46815,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "nova:Nova",
+  "costUsd": 0.2819255,
+  "numTurns": 8,
+  "durationMs": 44493,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1745
+  },
+  "contextTraffic": 219038,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 9469,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "**Redis died and took prod down with it.**\n\n- `02:14:07` Redis at `10.0.0.12:6379` refused connections. Cache dropped to direct store reads.\n- Store could not keep up. 173 `TimeoutError: request timed out after 5000ms (store overloaded)`.\n- Queue depth climbed from 52 to 568, past the 500 cap at `02:29:12`.\n- All 13 reconnect tries failed, same `ECONNREFUSED`, last at `02:31:26`.\n- `02:31:44` worker-2 hit `JavaScript heap out of memory (request backlog)`, then `02:31:52` supervisor killed api. Service down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fcbbea16374f0d08a8ad6c6f7ba9923793b7d2ee398531d971f14f2dd6c350a5"
+}

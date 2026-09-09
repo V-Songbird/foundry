@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 37,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 126893,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6072623,
+  "numTurns": 10,
+  "durationMs": 125691,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11406
+  },
+  "contextTraffic": 401315,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 73138,
+  "narrationWords": 81,
+  "finalWords": 238,
+  "finalText": "Done. Out of 380 commits, only 28 actually change behavior — one feature and 27 fixes — everything else (dep bumps, refactors, CI/test churn) is noise. A few things worth flagging before you publish:\n\n**The one thing I'd double-check myself:** the auth status-code change (401 instead of 403 for expired tokens). I put it under Breaking rather than Fixed because anyone whose client branches on 403 will silently break on upgrade — but you know if that's actually a documented/relied-upon status code for this API. Worth a second look.\n\n**Dedup note:** several fixes appear 2-4 times in the commit log with identical messages across different modules (e.g. \"guard the null cursor in the paginator\" hit queue, api, webhooks, and db separately; \"drop the duplicate header\" hit core three separate times). I collapsed these into one changelog line each, naming all affected modules, rather than listing every commit — that's almost certainly what happened (same bug pattern copy-pasted across modules) rather than a fix regressing and being reapplied, but I can't verify that from the log alone.\n\n**Left out:** a handful of `perf(...)` commits (batching metric writes, skipping a JSON round-trip, avoiding a clone) — no benchmarks in the log to back a real \"faster now\" claim, so I didn't want to promise something I couldn't quantify. Say the word if you want them added anyway.\n\nThe CHANGELOG.md now has the 4.2.0 section in place, dated for tomorrow's cut.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "df0dade32216d8c1546306c9136728b2275f996cd2fabd8917f84984f05d3ff3"
+}

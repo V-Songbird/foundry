@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 32,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 118953,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.680333,
+  "numTurns": 48,
+  "durationMs": 111347,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8380
+  },
+  "contextTraffic": 663185,
+  "apiCalls": 15,
+  "toolCalls": 44,
+  "toolResultChars": 27652,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "finalText": "`AUDIT.md` is written, four findings, worst first, no service code touched.\n\n1. **`src/repo/report.js`** — SQL injection through the saved-report filter value, pasted into the query with no binding and no allow-list check.\n2. **`src/routes/internal.js`** — metrics and cache-flush endpoints have no auth check, a leftover from when a VPN covered them before the 4.0 migration.\n3. **`config/staging.js`** — a real staging database password checked into the repo in plaintext.\n4. **`package.json`** — pinned to `fast-parse` 1.4.2, which the publisher yanked over a prototype-pollution bug. 1.4.3 is the fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7edec678dd232d1ea8834078cb2218b8de55475ce018d6f0897cc846fa93752"
+}

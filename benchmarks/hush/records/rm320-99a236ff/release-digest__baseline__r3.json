@@ -1,0 +1,46 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 109054,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8323914999999998,
+  "numTurns": 10,
+  "durationMs": 107846,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7444
+  },
+  "contextTraffic": 380767,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 73504,
+  "narrationWords": 59,
+  "finalWords": 540,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet only runs to 2026-06-17. Let me read the commit log.",
+    "Let me extract the user-visible categories systematically.",
+    "Both files end at **2026-06-17** and the log is complete (380 commit lines, matching its own header). Here's the entry.",
+    "One line overstepped what the log supports — fixing it:"
+  ],
+  "finalText": "Written into `CHANGELOG.md:3`. Here's what I found and the reasoning behind it.\n\n## The shape of the release\n\n380 commits. 1 feature, ~26 fixes, 10 perf, and roughly 340 commits of dependency bumps, refactors, tests, CI, and chores that nobody installing this will ever notice. Your instinct was right — but four user-facing changes are **hiding inside commits labeled `refactor`**, which is the part worth reading carefully.\n\n## The things I'd flag hardest\n\n**Two breaking changes are mislabeled as refactors.**\n\n- `refactor(*): stop re-exporting the internal error types` — eight commits across `core`, `auth`, `db`, `jobs`, and `billing` (`2e61589`, `5d4de73`, `d988aed`, `4d83260`, `d7cf97b`, `9b717dc`, `b5cfbc3`, `8639397`). \"Internal\" describes intent, not reality: if a name was reachable via an export, removing it breaks anyone importing it. This is the single most likely source of upgrade breakage in 4.2, and it appears nowhere in the PR sheet as anything but cleanup.\n- `refactor(api): drop the unused v1 export route` (`56dc828`) — it touches `router.js`, `handlers.js`, and the tests. \"Unused\" is a claim about your telemetry, not about your users. A removed route is a removed route.\n\n**The histogram fix is breaking, not a fix.** `fix(core|store): use the right units in the latency histogram` (`1f2bc4e`, `59402bc`) silently changes the magnitude of every recorded value. I filed it under Breaking rather than Fixed on your own precedent — 4.1 put the seconds→milliseconds `timeout` change under Breaking, and this is the same class of change. Anyone with a p99 alert wired to these will have it fire or go silent on upgrade.\n\n**The 401/403 change** (`1d2bd55`) is a deliberate status-code change to auth. Correct, but callers distinguishing expired from forbidden will need to adapt.\n\n## What I deliberately left out\n\n**The 10 perf commits.** Batched metric writes, skipped JSON round-trips, avoided clones, a reused parsed schema. Your template pins three headings and none of them fit a change with no observable behavior. If you want them, it needs a fourth heading — your call, not mine to make silently.\n\n**All 16 dependencies.** I checked every bump for a major jump. The only two are `vitest 1.6.0→2.0.1` and `esbuild 0.21.4→0.23.0`, both dev/build-time only. Every runtime dep (`fastify`, `pg`, `knex`, `ioredis`, `pino`, `undici`, `zod`, `nanoid`, `dotenv`) moved by patch or minor. Nothing an installer would notice.\n\n## Two things to check before you cut\n\n**The history stops on 2026-06-17.** Both files end there — that's ten weeks before today. Either the export is stale, or `release/4.2` genuinely froze in June. If it's the former, there's a chunk of the release I haven't seen and these notes are incomplete. Worth confirming first; it's the one thing that could invalidate the rest.\n\n**The minimum Node version is unresolved.** Five `docs: note the minimum node version` commits, six `ci: run the suite on node 22`, and four `.nvmrc` pins — but not one of them touches `engines` in `package.json` in a way I can distinguish from the dep-bump noise. CI testing on 22 doesn't by itself mean you dropped 18 or 20. If `engines` did change, that's another Breaking line and a fairly loud one. I didn't assert it because the log doesn't support it either way.\n\nI dated it 2026-08-30 for tomorrow's cut — adjust if you're tagging today.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa4d24953a27d04f2a7cf1434f1106808da0a36cf8fa3ac54abd61050b593013"
+}

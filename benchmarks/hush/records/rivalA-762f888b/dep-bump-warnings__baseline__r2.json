@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 25,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36772,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2475795,
+  "numTurns": 10,
+  "durationMs": 35962,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2447
+  },
+  "contextTraffic": 167317,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6097,
+  "narrationWords": 33,
+  "finalWords": 277,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll take a look at the project and reproduce the build first.",
+    "Confirmed: the noise is deprecation warnings, but the build actually **fails** at the link stage. Two real breakages from the bump:"
+  ],
+  "finalText": "The build succeeds now (exit 0, `0 errors`). Your hunch was right — buried in the log noise were two genuine failures, not warnings:\n\n**1. `src/core/options.js` — options shape mismatch (this was the hard error)**\nThe bump renamed `retries` → `retryCount`, but this call site still read `options.retries`, so it threw `TypeError: Cannot read properties of undefined (reading 'toFixed')` and aborted the link stage. Now it accepts either key, preferring the new one.\n\n**2. `src/net/retryPolicy.js` — strict flag check (would have hit you next)**\nThe old config loader returned `false` for unset flags; the new one leaves them `undefined`. The strict check threw on `undefined`. It now treats unset as the old default (disabled) while still rejecting genuinely non-boolean values.\n\nFixing only #1 would have moved the failure to #2, so both needed doing.\n\n**On the remaining warnings:** the build is clean in the sense that matters (0 errors), but the log still carries the deprecation warnings the bump introduced. Those are real deprecations in your source, not bundler noise, and each needs a code change rather than a suppression:\n\n- `crypto.createCipher` in `src/legacy/adapter.js` — removed in v5, needs `createCipheriv`. This is the one I'd prioritize; it's also a weak-key API.\n- `fs.exists` (`src/legacy/adapter.js`), `Buffer()` constructor (`src/legacy/bufferShim.js`), sync loader hook, `punycode`, `module.parent`.\n- Plus code-quality ones: an unused export in `src/utils/format.js` and a circular import between `src/core/graph.js` and `src/state/tracker.js` with undefined resolution order.\n\nI left those alone since they're warnings and not what was breaking the build, and those files aren't present in this working tree — only `src/core/options.js` and `src/net/retryPolicy.js` exist here. Happy to work through them if you point me at the full source tree.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8d5ec5f88594f7fa76eaff29377a6c4677ca0e60b9d1188ab3d40e67ddc34f66"
+}

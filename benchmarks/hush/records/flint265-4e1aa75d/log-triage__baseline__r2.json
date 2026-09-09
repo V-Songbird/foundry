@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 82187,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3775075,
+  "numTurns": 9,
+  "durationMs": 80514,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5132
+  },
+  "contextTraffic": 215573,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 12616,
+  "narrationWords": 8,
+  "finalWords": 632,
+  "assistantMsgs": 2,
+  "finalText": "Dug through all 719 lines. Here's what happened.\n\n## First, a date mismatch\nThe log covers **2026-07-04 02:00–02:31 UTC** — about 8 weeks ago, not last night. Either this is an archived copy or you've been handed the wrong file. Worth confirming before you action any of this.\n\n## Timeline (17m45s, single cascade)\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. All 200s, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache-miss storm begins (`orders:1000`, then sequential to `orders:1119`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts (0–12), **all** ECONNREFUSED, all from `[api]` |\n| 02:29:12 | Request queue depth crosses its own limit: `502 (max 500)` |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## Root cause\nRedis at `10.0.0.12:6379` went away. `ECONNREFUSED` (not a timeout) means nothing was listening on that port — the redis process was down or restarting, or the port was closed off. It never came back during the log window: 13 reconnects over 16 minutes, all refused. **The trigger is outside this service** — you'll need redis-side logs to explain why it died.\n\n## Why a cache outage became a total outage\nThe redis loss alone shouldn't kill you. Four things in this app turned it into a hard down:\n\n1. **Unbounded cache-bypass fallback.** \"Falling back to direct store reads\" sent 100% of traffic to the backing store — traffic that was 90–98% cache-served a second earlier. The store buckled immediately (`store overloaded` timeouts started 3 seconds in). No circuit breaker, no serve-stale, no fail-fast.\n\n2. **The queue limit isn't enforced.** Depth is logged as `(max 500)` but climbed straight through it: 52 → 502 at 02:29:12 → 568 at the end. The max is a label, not a cap. No load shedding.\n\n3. **Backlog held in memory.** 5s timeouts × unbounded queue = heap growth until worker-2 OOM'd at 02:31:44 (exit 134 = SIGABRT).\n\n4. **Reconnect strategy is weak.** Fixed ~80s interval, no exponential backoff or jitter, and only 13 attempts in 16 minutes. Also, *every* reconnect line is tagged `[api]` — `worker-1`, `worker-2` and `scheduler` never log a redis event at all, so either they don't reconnect or they don't instrument it. Both are a problem.\n\n## The blunt part\n**Zero successful requests after 02:14:07.** Not one 200, not one health check, in the entire 17 minutes. This was a full outage from the first second — the supervisor kill at 02:31:52 was just the formal recording of a death that had already happened. Your MTTD is effectively \"17 minutes until the process died,\" which suggests nothing was alerting on the error rate.\n\n## Notes / limits\n- Cache-miss keys are perfectly sequential (`orders:1000`…`1119`, step 3). That's consistent with a scan/enumeration workload hammering the store, not random user traffic — worth checking what generates those.\n- The pre-incident latency numbers ramp 12ms→145ms then reset repeatedly. That's a repeating sawtooth, not a degradation trend — I don't read it as a precursor.\n- I only have this one file. No redis logs, no infra/deploy events, no metrics — so the \"why did redis die\" question is genuinely unanswerable from here.\n\n**Highest-value fixes, in order:** enforce the 500 queue cap with load shedding → add a circuit breaker on the store-read fallback → exponential backoff with jitter on redis reconnect → alert on error rate, not just on process death.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6245b187cd004a3abd3d253afb9b9126c6826d5b31f2f1cb1978cdffa05d8aad"
+}

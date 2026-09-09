@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 42,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 117247,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5580642,
+  "numTurns": 9,
+  "durationMs": 115756,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9957
+  },
+  "contextTraffic": 325654,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 70646,
+  "narrationWords": 0,
+  "finalWords": 182,
+  "finalText": "CHANGELOG.md updated, section 4.2.0 added.\n\nWent through all 380 commits + PR sheet. Real signal buried under repeated dep bumps and templated refactors (same rename/collapse/split noise across every module). Found:\n\n**Breaking** — auth now returns 401 not 403 for expired tokens. Client code branching on 403 will break.\n\n**Added** — webhook retry with exponential backoff (only real feat commit in whole range).\n\n**Fixed** — grouped by root cause, since same bug hit multiple modules separately:\n- null-cursor crash in paginator (db/api/queue/webhooks, 4 separate fixes)\n- empty allowlist handling (store/db/jobs, 3 fixes)\n- double-trim trailing-slash bug (queue/jobs)\n- HTTP hangs — timer leak on socket drop + pool not closing on shutdown\n- trace ID dropped across API retries\n- db client was logging full request body — worth flagging, sensitive-data exposure\n- duplicate response header (core/billing/http)\n- token-parse error messages tightened (core/billing/queue)\n- latency histogram wrong units (core/store)\n\nLeft out: all `chore(deps)`, all `refactor`/`ci`/`test`/`docs` commits — no user-visible behavior change. Also skipped perf commits (JSON round-trip skip, clone avoidance, schema reuse) — internal hot-path tuning, no observable contract change worth a line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "57713affc5318c844be9ef87b4fd701f1a3c8256419500d6cbe8a4e0c708fb69"
+}

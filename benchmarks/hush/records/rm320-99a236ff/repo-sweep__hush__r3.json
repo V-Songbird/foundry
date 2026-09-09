@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 36,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 67595,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.388351,
+  "numTurns": 14,
+  "durationMs": 65795,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4067
+  },
+  "contextTraffic": 205633,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 16550,
+  "narrationWords": 8,
+  "finalWords": 52,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding the remaining call sites."
+  ],
+  "finalText": "**Migrated 12 files to `db.execute`.**\n\nEach had 3 call sites. All 36 now pass `{ sql, params }`.\n\n[vendor\\legacy-orm\\adapter.js:9](vendor/legacy-orm/adapter.js:9) still calls `db.query`. Its header says do not edit. Upgrades overwrite it wholesale.\n\nAll 75 package files parse under `node --check`. No tests exist to run.\n\nNext: keep the `query` shim for `legacy-orm`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "90a5da6be11e5ab1b64dc61b2fee5ba8bd99ccf00fff23f76b108b35ab258ea9"
+}

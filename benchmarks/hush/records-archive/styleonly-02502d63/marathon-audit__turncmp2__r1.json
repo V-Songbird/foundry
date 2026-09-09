@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__turncmp2__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 32,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "turncmp2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 130240,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5904216,
+  "numTurns": 33,
+  "durationMs": 121147,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9108
+  },
+  "contextTraffic": 869308,
+  "apiCalls": 20,
+  "toolCalls": 29,
+  "toolResultChars": 27761,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "`fast-parse` is the only dependency issue — pinned at 1.4.2, which was yanked for a prototype-pollution report, with 1.4.3 as the fix. Everything else checks out clean against `NOTES.md`.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. `src/routes/internal.js` — internal routes reachable with no auth at all\n2. `src/repo/report.js` — SQL built by string concatenation\n3. `config/staging.js` — plaintext database password committed\n4. `package.json` — `fast-parse` still pinned to the yanked 1.4.2\n\nNo service code was touched. The verifier confirms it: `OK AUDIT.md names all four findings and the service was left alone`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0c023c05652621f9e3e3dd0446a4cce7c9db1044d36542b7b248e19e77c626dd"
+}

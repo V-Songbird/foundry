@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28921,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19619569999999997,
+  "numTurns": 11,
+  "durationMs": 27404,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1851
+  },
+  "contextTraffic": 238856,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 14898,
+  "narrationWords": 45,
+  "finalWords": 48,
+  "finalText": "Fixed. `orderTotal` in `src/pricing.js` was charging tax on the pre-discount amount instead of the discounted amount — a one-line bug (`cents * taxRate` → should tax the discounted total). Changed it to `applyTax(discounted, taxRate)`; suite is now 625/625 passing and `verify.js` confirms the fix is legitimate (spec/runner untouched).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d8aaa62c3f7cb10d378ac48be91f3058ca5d4f8d639f7ab6bbc984c7e8bd5c2"
+}

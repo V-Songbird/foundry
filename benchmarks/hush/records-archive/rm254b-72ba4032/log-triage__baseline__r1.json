@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20563,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.41155719999999996,
+  "numTurns": 3,
+  "durationMs": 18992,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1608
+  },
+  "contextTraffic": 139702,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 343,
+  "finalText": "Found it. Here's the timeline of what happened:\n\n**02:00 – 02:14** — Normal operation. `api`, `worker-1`, `worker-2`, `scheduler` all serving requests fine, cache hit ratio 90-98%.\n\n**02:14:07.113Z — Root cause: Redis died.**\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\nWARN  [api] cache layer degraded — falling back to direct store reads\n```\nRedis at `10.0.0.12:6379` became unreachable and never recovered for the rest of the log.\n\n**02:14 – 02:31** — Cascading overload. With cache gone, every service fell back to direct store reads:\n- Repeating `cache miss storm` warnings on nearly every key\n- Repeating `TimeoutError: request timed out after 5000ms (store overloaded)` from `api`, `worker-1`, `worker-2`, `scheduler` in rotation, every ~2 seconds for 17+ minutes\n- Request queue depth climbed steadily and linearly: 52 → 500 (its stated max) around **02:29:06**, then kept climbing past the max to 568 by 02:31 — the backpressure limit was never actually enforced\n- `api` tried to reconnect to Redis 13 times (attempts 0–12, roughly every 2 minutes from 02:15:26 to 02:31:26) — **every single attempt failed** with the same ECONNREFUSED\n\n**02:31:44.902Z** — `worker-2` crashed: `JavaScript heap out of memory (request backlog)` — the unbounded queue growth finally exhausted memory.\n\n**02:31:45.001Z** — Supervisor restarted `worker-2`.\n\n**02:31:52.318Z** — Fatal: `api unresponsive, killing process group — service down`. Full outage.\n\n**Bottom line:** Redis (10.0.0.12:6379) went down at 02:14 and never came back. The app fell back to hitting the primary store directly instead of failing fast/shedding load, so the store overloaded and every request started timing out. The request queue had a stated max of 500 but kept growing past it unchecked, eventually exhausting `worker-2`'s heap and taking the whole API down ~18 minutes after the initial Redis failure.\n\n**Likely next steps:** find out why Redis at `10.0.0.12` went down/unreachable (that's the actual trigger, not in this log), and separately fix the app-side issues that turned a cache outage into a full outage — the queue depth cap isn't actually enforced, and there's no circuit breaker to stop hammering an overloaded store once timeouts start cascading.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67f9e6acb369d3b32df231dfa205a4bdcb1912002f75f041572340e5e893c13e"
+}

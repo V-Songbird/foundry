@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 4,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30742,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19338629999999998,
+  "numTurns": 10,
+  "durationMs": 29298,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2416
+  },
+  "contextTraffic": 230115,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 10977,
+  "narrationWords": 81,
+  "finalWords": 92,
+  "finalText": "Both pass. The build was failing after lint because `resolveRelease()` in `packages/shared/config.js` used a shallow `Object.assign` to merge defaults → package overrides → CLI flags, so any layer touching `output` or `sourcemap` wiped out the sibling keys from earlier layers (e.g. `@acme/api`'s `output: { format: 'esm' }` override was silently dropping `output.dir`). I replaced it with a `deepMerge` that merges nested plain objects key-by-key while still letting later layers win. `node build.js` now exits 0 and `node verify.js` confirms the layering rule holds correctly (including for overrides the build fixture never exercised).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5774897b8c86125597a0df7b268061396f4e37a7044772411f2e746d15c7f0af"
+}

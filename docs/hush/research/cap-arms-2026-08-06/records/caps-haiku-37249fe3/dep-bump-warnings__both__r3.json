@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 130,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 47230,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08895900000000002,
+  "numTurns": 17,
+  "durationMs": 45670,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2860
+  },
+  "contextTraffic": 363167,
+  "apiCalls": 11,
+  "toolCalls": 16,
+  "toolResultChars": 17503,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "finalText": "Build is clean now. Two real bugs hiding in the warnings:\n\n1. **src/core/options.js** — accessing `options.retries` when the new bundler sends `options.retryCount`. Changed to read the right property name.\n\n2. **src/net/retryPolicy.js** — throwing an error when `backoffEnabled` is undefined, but the new config loader leaves unset flags undefined instead of false. Changed to return false for that case.\n\nThe remaining 8 warnings are deprecations from the dependency bump itself — those are noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ab6f28a1076cd41645bf2734bcf221fb0005254565bfe40da39aa7858aa8680a"
+}

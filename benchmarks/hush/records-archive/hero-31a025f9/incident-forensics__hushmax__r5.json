@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hushmax__r5",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 68,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushmax",
+  "rep": 5,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 50365,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3054932,
+  "numTurns": 11,
+  "durationMs": 43842,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2492
+  },
+  "contextTraffic": 472634,
+  "apiCalls": 11,
+  "toolCalls": 7,
+  "toolResultChars": 12175,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\"), deployed 02:12–02:14 on 2026-03-14. It flipped `gateway.pool.perRequest` from `false` to `true` and raised `gateway.timeout.upstreamMs` from 2000 to 2500. 33 seconds after the config applied, the connection pool started exhausting: `ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting N)`, with the wait queue growing continuously.\n\n**Impact window:** Started 02:14:18 on 2026-03-14. Still ongoing at the end of the log, 03:59:27, wait queue up to 74. No self-recovery seen. Gateway only — `worker.log` for the same window shows no pool errors, timeouts, or failed jobs.\n\n**Rollback:** Revert `dep-4471`. That's the deploy to roll back.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dcf8c32ff6f41f6f83783a0e30db16f55ddfe63485cf003968ec045160e95de8"
+}

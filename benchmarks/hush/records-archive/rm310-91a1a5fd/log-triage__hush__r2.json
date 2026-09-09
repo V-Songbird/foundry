@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 67422,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.43804000000000004,
+  "numTurns": 12,
+  "durationMs": 64033,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3042
+  },
+  "contextTraffic": 186938,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11149,
+  "narrationWords": 7,
+  "finalWords": 135,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by checking the log file."
+  ],
+  "finalText": "**Redis died, and the cache loss ran the service into the ground.**\n\nAt `02:14:07` Redis at `10.0.0.12:6379` refused connections. Cache hit ratio had been healthy at `0.98` right before. The app fell back to direct store reads, and the store could not take the load.\n\n| Time | Event |\n|---|---|\n| `02:14:07` | `redis connection lost: connect ECONNREFUSED` |\n| `02:14:03` | last request that returned `200` |\n| `02:29:12` | queue depth passed the `500` cap |\n| `02:31:44` | `worker-2` heap out of memory, exit `134` |\n| `02:31:52` | `api unresponsive, killing process group — service down` |\n\nAll 13 `redis reconnect` tries failed, spaced 80s apart. 173 `TimeoutError` lines at a flat 10 per minute for 17 minutes.\n\nNext: check why Redis at `10.0.0.12` went down. It never came back.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0d33a9e111abaf2927a834f4e0e4b3d8ae75dd06ee0e60fdbf02f4562f57cb90"
+}

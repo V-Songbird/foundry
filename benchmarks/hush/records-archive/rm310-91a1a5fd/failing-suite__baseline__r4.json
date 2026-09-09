@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 22,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32840,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.23889799999999997,
+  "numTurns": 12,
+  "durationMs": 31652,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1897
+  },
+  "contextTraffic": 162212,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 8133,
+  "narrationWords": 20,
+  "finalWords": 181,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the suite.",
+    "One real bug, in `orderTotal`. Everything else passes."
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n**What was actually broken:** 3 of 625 cases, all in the `order totals` suite. `orderTotal` in `src/pricing.js:39` applied the discount correctly but then computed tax off the *original* base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxes the pre-discount amount\nreturn discounted + tax;\n```\n\nSo the customer got taxed on money they never paid. `orderTotal(12000, 15, 0.0825)` returned 11190 instead of 11042 — the 148c gap is exactly 8.25% of the 1800c discount.\n\nThe reason it hid so well: 66 of the 69 order-total rows have either a zero discount or a zero tax rate, and with either factor at zero the two orderings give identical results. Only the three rows with both non-zero could expose it.\n\n**Fix** (`src/pricing.js:39`) — tax the discounted amount, which is what the function's own doc comment says it does:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThat also reuses the existing `applyTax` instead of open-coding the rounding. No test cases or other modules were touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e79ecd0ed40188de7173f944f84ab974e8b3dbc0ed53a8e8618f8f98f2949844"
+}

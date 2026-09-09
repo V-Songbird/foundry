@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 121109,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4034436,
+  "numTurns": 11,
+  "durationMs": 119837,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10738
+  },
+  "contextTraffic": 456199,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 70785,
+  "narrationWords": 129,
+  "finalWords": 204,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll look at the history directory and existing changelog format first.",
+    "Now I have the full picture. Let me cross-reference a few of the recurring \"fix\" patterns against the merged-PR sheet to make sure I'm not missing context, then check the docs file that documents the retry envelope (relevant to the webhook feature).",
+    "Good, that confirms the webhook retry feature is the only `feat`. Here's what I found: underneath ~380 commits of dependency bumps and templated refactors (rename types, drop unused helpers, move files — same phrasing repeated across a dozen modules, clearly not user-facing), there's one real feature and a cluster of genuine bug fixes, several of which show the same bug class fixed module-by-module. I'll write these up in the CHANGELOG format and add the 4.2.0 section."
+  ],
+  "finalText": "I've added the 4.2.0 section to CHANGELOG.md. Summary of how I got there:\n\nOut of ~380 commits, almost everything was dependency bumps or templated refactors that recur near-identically across a dozen modules (rename `Ctx`→`RequestCtx`, drop unused v2 debug helper, move config loader, stop re-exporting internal error types, etc.) — pure noise, correctly excluded.\n\nWhat survived as real user-facing change:\n\n- **Breaking**: expired tokens now return `401` instead of `403` — worth flagging since it's an observable contract change, not just a fix.\n- **Added**: webhook delivery retry with exponential backoff (the one `feat` commit in the whole range).\n- **Fixed**: 10 items, several of which are the *same bug fixed repeatedly in different modules* over weeks (duplicate header on retry; null-cursor paginator crash; trailing-slash double-trim; empty-allowlist crash; wrong latency-histogram units; vague token-parser errors) — I collapsed each of those into one line naming all the affected modules rather than listing them as 15+ separate near-duplicate entries. Also flagged the request-body-logging fix since it's a privacy-relevant one.\n\nOne thing worth flagging: `history/` only runs through 2026-06-17, over two months before tomorrow's cut — if there's more recent work not captured in this digest, you'll want to sanity-check nothing after that date is missing before publishing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "126bb443ca3d1e30e4604c9059ad599e45d0eeddd2366d79a01d918a2d5ba0b8"
+}

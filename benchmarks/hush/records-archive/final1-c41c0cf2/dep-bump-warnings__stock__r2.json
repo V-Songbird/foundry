@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27035,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11783020000000001,
+  "numTurns": 10,
+  "durationMs": 25030,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1666
+  },
+  "contextTraffic": 198276,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8052,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** Exit code `0`, 8 warnings, 0 errors.\n\nTwo real bugs from the bump, both fixed:\n\n1. [options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler hands `retryCount`. Threw on `undefined.toFixed`.\n2. [retryPolicy.js:7](src/net/retryPolicy.js:7) threw when a flag was `undefined`. New config loader leaves unset flags `undefined` instead of `false`, so it now treats that as disabled.\n\nRemaining warnings are just deprecation noise from the bump, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "17782bfb35dce974dab1e8456c8652ce5395378bf4a2b8d011aa450432d662d3"
+}

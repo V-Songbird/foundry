@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 154,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 205809,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9321785,
+  "numTurns": 21,
+  "durationMs": 202080,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13583
+  },
+  "contextTraffic": 623443,
+  "apiCalls": 21,
+  "toolCalls": 17,
+  "toolResultChars": 20752,
+  "narrationWords": 6,
+  "finalWords": 664,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll look at the log file."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status at handoff: ONGOING.** The log ends at 03:59:27Z still erroring at 83%. Assume this is live unless you've confirmed otherwise.\n\n---\n\n### Root cause\n\nGateway connection pool exhaustion, caused by a config change to the gateway's own pool behavior.\n\nDeploy **dep-4471** (a.novak, 02:12–02:14Z, *\"config: connection-per-request for pool isolation\"*) applied generation 119 at 02:13:41.234Z:\n\n```\ngateway.pool.perRequest:    false -> true    <- this one\ngateway.timeout.upstreamMs: 2000 -> 2500\ngateway.log.sampleRate:     1.0 -> 1.0       (no-op)\n```\n\nWith `perRequest=true`, every request checks out its own upstream connection instead of sharing. Against an unchanged `size=20` pool that saturates immediately. First failure follows **37.7 seconds later**. Single error signature, 530 occurrences, 1:1 with every 503:\n\n```\nERROR pool req-NNNNN ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n`in_use=20/20` on every instance. Wait queue grows monotonically and never drains (`waiting=12` at 02:15 → `232` at 03:10). No upstream errors anywhere in the log — requests fail before reaching a backend.\n\n### Impact window\n\n| | |\n|---|---|\n| **First 503** | 02:14:18.972Z (`req-07401`) — first WARN 4s earlier at 02:14:14.920Z |\n| **Steady state** | 02:20Z onward, flat 83.3% (50 of 60 req per 10 min) |\n| **End** | Not observed — still 83.3% at 03:59:27Z |\n| **Duration** | 1h 45m and counting |\n| **Volume** | 530 of 1,228 requests failed (43.2% of window; 83.3% at steady state) |\n\n**Affected:** `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 failures each, spread evenly across all four upstreams (accounts 133, catalog 133, billing 132, orders 132). Checkout and cart are down, so treat as revenue-impacting.\n\n**Not affected:** `/health` (180 reqs, 100% clean) and `/v1/profile` (74 reqs, 100% clean) — neither takes a pooled connection. **This is why the node stayed in rotation and why detection lagged 67 minutes** (on-call paged 03:21:05Z at 71% 5m error rate). Worth a follow-up: the health check does not exercise the failing path.\n\n**Workers unaffected.** Separate pool (`size=8`, `in_use=1`, `waiting=0` on all 18 samples), 1,080/1,080 jobs OK, throughput flat across 02:14. No action needed there.\n\n### Roll back\n\n**dep-4471.** Revert `gateway.pool.perRequest` to `false` (config generation 119 → 118).\n\nPrefer the targeted key revert over a full generation rollback if your tooling allows — `upstreamMs 2000→2500` is harmless and unrelated. If you want to keep per-request isolation, the alternative is raising `gateway.pool` size well above 20, but **roll back first, tune second**; don't try to size your way out during the incident.\n\n**Do not roll back** dep-4472 (billing, 02:41) or dep-4473 (catalog, 03:20). Both shipped *after* onset, the error rate is identical either side of each, and neither could produce failures spread evenly across all four upstreams. dep-4473 overlaps the 03:21 page by coincidence — the page is error-rate-triggered on a threshold already breached for an hour.\n\n**Verify after rollback:** `INFO pool stats` should show `waiting=0` and `in_use` back in the 3–11 range (its pre-incident band) within one 5-minute stats interval.\n\n### Open items for the next shift\n\n1. **Scope check — this log is node-3 of 3.** I have no data on nodes 1 and 2. Confirm whether they took the same config generation; if the deploy was fleet-wide, assume all three are down.\n2. **Health check gap** — `/health` stayed green through a total outage of the pooled paths. Should exercise a pooled connection.\n3. **Unrelated, pre-existing: worker job latency drift.** Durations ramp 327ms → 2,197ms, perfectly linear at +110ms/10min, already climbing 74 min *before* the incident with zero inflection at 02:14, and `db_wait` flat at 0–12ms. Not part of this incident — file separately. The ramp is already underway at the first log line, so its true start is outside this window.\n4. `OPS-2210` (unindexed `SELECT * FROM orders`) logged once at 02:36 — known, unrelated.\n\n**Data caveat:** some gateway log lines are out of order sub-minute (the 02:12:12 config line is written after 02:12:40 access lines; sub-second rollovers around 03:40 look buggy). Minute-level ordering is sound; don't build timing arguments on sub-second sequencing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9dba7febadb637878bb0cc4836e214bdc6cd3c96880b779e57b131dc3aa02809"
+}

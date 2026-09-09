@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 163,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 14654,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0316785,
+  "numTurns": 2,
+  "durationMs": 13084,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 838
+  },
+  "contextTraffic": 56465,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "finalText": "Redis crashed at 02:14:07 and never came back. That broke your cache layer, so every request went straight to your data store instead. The store got hammered with cache misses and started timing out. Requests piled up in the queue waiting for responses. By 02:31:44, the backlog filled memory and your worker process ran out of heap. The supervisor saw the crash, tried restarting, but when the API didn't respond it killed the whole service.\n\nRoot cause: Redis connection down on `10.0.0.12:6379`. The 12 reconnect attempts failed between 02:14 and 02:31. Until that gets fixed or you route around it, the cascade repeats — cache goes down, store gets crushed, memory fills, service dies.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6bc380ae30e218f4c28d56c9ff461b6cdbf09ff41775a79a760790731bfecbe4"
+}

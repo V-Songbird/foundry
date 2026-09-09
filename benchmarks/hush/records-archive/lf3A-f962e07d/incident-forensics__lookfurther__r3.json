@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__lookfurther__r3",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 34,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "lookfurther",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 248264,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 1.1254374999999999,
+  "numTurns": 24,
+  "durationMs": 241455,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 16341
+  },
+  "contextTraffic": 786172,
+  "apiCalls": 21,
+  "toolCalls": 20,
+  "toolResultChars": 15019,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "Written to `HANDOFF.md`.\n\nThe short version. Roll back `dep-4471`, the gateway config change at 02:12. It flipped `gateway.pool.perRequest` to `true`, so every request grabs its own connection from a pool of 20. Impact runs 02:14:19 to at least 03:59, where the log ends.\n\nOne number I got wrong earlier. There are four upstreams, not five. All four fail evenly.\n\nTwo things in the file you may not expect. Every non-health request has failed since onset, so it is 100% of real traffic. And this log is node-3 of 3, so check the other two nodes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c46b1e19a260e00838fb34c5ab9ed7b5f07b8ed320414b9e72f687a00b4256a0"
+}

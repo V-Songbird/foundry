@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 55,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 34811,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.060946200000000006,
+  "numTurns": 11,
+  "durationMs": 32858,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2073
+  },
+  "contextTraffic": 238086,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 5463,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "finalText": "Build is clean. The error was buried on line 17 of `src/core/settings.js` — it referenced an undefined variable `retries` instead of pulling it from the passed environment object.\n\nFixed it by adding `retries: 1` to the defaults and changing `maxRetries: retries` to `maxRetries: env.retries || DEFAULTS.retries`. Now it falls back to the default when not provided.\n\nThe build completes with the three warnings still there (deprecated-api, unused-export, circular-import), but those are just notes — no errors now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d0bb695a6342150dafb33be757b0e6ad037e26499477a4a37a069aed13fc610"
+}

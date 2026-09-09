@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 34,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 145401,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6231312,
+  "numTurns": 27,
+  "durationMs": 139860,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11635
+  },
+  "contextTraffic": 853343,
+  "apiCalls": 20,
+  "toolCalls": 23,
+  "toolResultChars": 32429,
+  "narrationWords": 59,
+  "finalWords": 116,
+  "finalText": "Confirmed the fourth finding first: `package.json` pins `fast-parse` at `1.4.2`, which `NOTES.md` explicitly flags as yanked for a prototype-pollution report (fix is `1.4.3`) — the other three deps NOTES.md mentions (`date-fmt`, `pg-lite`, `redis-min`) are all fine as-is.\n\n`AUDIT.md` is written with all four findings, ordered by severity:\n\n1. **Critical** — `src/routes/internal.js`: auth middleware imported but never applied, now internet-reachable since the VPN it relied on was retired.\n2. **High** — `config/staging.js`: plaintext DB password committed to source.\n3. **High** — `src/repo/report.js`: SQL built by concatenation in `runSavedReport`, injectable via saved-report filters (currently dormant/unreachable, noted as such).\n4. **Medium** — `package.json`: `fast-parse` pinned to the yanked `1.4.2`.\n\nNo service files were touched — only `AUDIT.md` was created.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16cd041a7f56f7fc696fb1862da6df129fb1c1dde03317d290b6ff3dfe8526f7"
+}

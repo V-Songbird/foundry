@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__noill__r3",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 22,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 142175,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.9551924999999999,
+  "numTurns": 61,
+  "durationMs": 140342,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13533
+  },
+  "contextTraffic": 447602,
+  "apiCalls": 12,
+  "toolCalls": 60,
+  "toolResultChars": 39208,
+  "narrationWords": 6,
+  "finalWords": 80,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migration done in `packages/`.** 12 files, 36 calls moved to `db.execute({ sql, params })`.\n\nAll `packages/` and `lib/` files pass `node --check`. Zero `db.query` left outside vendor.\n\nLeft alone on purpose:\n\n| Thing | Why |\n|---|---|\n| `[vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9)` | Header says do not edit. Replaced on upgrade. |\n| `cache.query` calls | Different API. Not part of this. |\n| `db.query` in `[lib/db.js:13](lib/db.js:13)` | The deprecated method itself. |\n\nNext: drop `db.query` from `lib/db.js` once vendor is off it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3862cb50002112fc0125b7f4f98f96e9ed0fd0a65e555201dbcae280113bf33b"
+}

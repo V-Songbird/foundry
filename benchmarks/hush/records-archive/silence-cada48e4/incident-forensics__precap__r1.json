@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__precap__r1",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 70757,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.301543,
+  "numTurns": 16,
+  "durationMs": 64506,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3970
+  },
+  "contextTraffic": 765351,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 19813,
+  "narrationWords": 0,
+  "finalWords": 256,
+  "finalText": "Here's the handoff, ready to paste:\n\n```\nON-CALL HANDOFF — Gateway 503s\n\nROOT CAUSE\nDeploy dep-4471 (gateway, a.novak, \"config: connection-per-request\nfor pool isolation\") landed at 2026-03-14T02:13:41Z as config\ngeneration 119. It flipped gateway.pool.perRequest from false to\ntrue. That change made requests stop sharing pooled connections;\neach one grabbed its own. The pool is capped at 20 connections and\nwas overrun within 33 seconds.\n\nFirst warning:  2026-03-14T02:14:14.920Z — connection acquire took\n                100ms (normal is single-digit ms)\nFirst failure:  2026-03-14T02:14:18.972Z — req-07401, /v1/cart,\n                503 after 659ms\n                ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting 13)\n\nErrors are still active as of the last log line, 2026-03-14T03:59:27.974Z\n(size 20, in_use 20, waiting 74). Wait queue and error latency have\nboth grown steadily, so this has not self-recovered.\n\nIMPACT WINDOW\nStarted:  2026-03-14 02:14:18 UTC\nOngoing:  through at least 2026-03-14 03:59:27 UTC (end of captured\n          log — assume still live until confirmed otherwise)\nDuration so far: at least 1 hour 45 minutes\n\nAffected routes: /v1/cart, /v1/session, /v1/checkout, /v1/orders,\n/v1/catalog/search — all failing with 503 across every upstream\n(billing-svc, orders-svc, catalog-svc, accounts-svc).\nNot affected: /health (steady 200s), worker.log shows all 4 job\nreplicas running clean the whole window — this is gateway-only.\n\nROLLBACK\nRoll back dep-4471 on the gateway service. Revert\ngateway.pool.perRequest to false (or raise the pool size well past\n20 if per-request connections are wanted long-term). No other\ndeploy in that window touches the gateway — the next one,\ndep-4472 (billing-svc, 02:41 UTC), is unrelated and shipped after\nthe incident started.\n```\n\nThat's the whole handoff, done and ready to hand off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c5fe20dde2353e28472df4b5b7815f192eff6f6050d5dbf821faeed640afbf7c"
+}

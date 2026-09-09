@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 56404,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.76717675,
+  "numTurns": 24,
+  "durationMs": 55604,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4156
+  },
+  "contextTraffic": 142994,
+  "apiCalls": 5,
+  "toolCalls": 23,
+  "toolResultChars": 35996,
+  "narrationWords": 16,
+  "finalWords": 498,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase for every `account_id` occurrence and sort them by whether renaming is safe."
+  ],
+  "finalText": "I have the full picture. No further tool calls are needed.\n\n**Bottom line:** the rename is bigger than a find-and-replace, and \"everywhere\" is not safe. Roughly 1,290 occurrences across 94 files, but they split into four boundaries that must stay `account_id` and one large internal zone where the rename is mechanical. I would sign off only on a scoped version.\n\n**Where it must not be renamed**\n\n- **Public API wire format.** The serializer map in `lib/serialize.js` maps internal row keys to public JSON keys, and the comment there says the right-hand side is frozen. The OpenAPI doc in `docs/openapi.yaml` lists `account_id` as a required response field on Invoice and Order and as a query parameter on the invoices endpoint. Renaming it is a breaking change for every client and, per the spec's own policy, needs a new dated API version.\n- **Applied migrations.** All 12 files under `migrations/` are marked as applied in production. Editing them renames nothing in the live database and breaks the down step. A database rename needs a new migration that renames the column, the foreign keys, and the 12 indexes, plus a deploy plan for the window where old code reads a renamed column.\n- **Vendored reporting SDK.** The four files under `vendor/reporting-sdk/src` are a generated copy of an upstream package. The README says edits are overwritten by the refresh script. The SDK's request and response shape uses `account_id`, so any caller must keep passing that key regardless of the internal name.\n- **Session middleware contract.** All 100 route handlers read the ID from the session object. Whatever populates the session lives outside this repo, so the key it writes cannot change here without a coordinated change upstream.\n\n**Two hidden traps inside the internal zone**\n\n- **Data at rest inside JSONB.** Every repo insert also embeds the ID inside the JSON payload column. Existing rows will carry the old key forever unless backfilled, so anything reading payload keys must accept both.\n- **Audit log consumers.** Every audit line is emitted with an `account_id` key, across 69 call sites plus the helper in `lib/audit.js`. If anything downstream indexes or alerts on that field, renaming it silently breaks those queries.\n\n**What is safe to rename now**\n\nThe 75 service files under `services/*/src` are uniform and mechanical: local variables, function parameters, error messages, and comments. The 475 occurrences in SQL strings in the repo layer are only safe once the column migration has actually run. Until then they must keep `account_id` or the queries fail.\n\n**Recommendation for sign-off**\n\nApprove as a phased change, not a single sweep. Phase one renames JavaScript identifiers in the services and adds a translation at the serializer, audit helper, session read, and SDK call boundary so the wire names stay `account_id`. Phase two, if the platform team actually wants the database column renamed, is a new migration plus a compatibility window. The public API field, the applied migrations, and the vendored SDK should be explicitly excluded in whatever ticket you approve.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c6aeb37f6a00610e5704245079ed452c77fc137b421e3d1ff4ad6de1885252f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 32,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25023,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.180909,
+  "numTurns": 9,
+  "durationMs": 23245,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1527
+  },
+  "contextTraffic": 228045,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 4480,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "finalText": "**Found it: the flat coupon was applied after currency conversion, but it's stored in USD.**\n\n`pricing.js` converted the subtotal to the checkout currency first, then subtracted the coupon's USD amount as if it were in that currency. A $10 coupon on a 90€ total became 80€ off instead of the correct 81€.\n\nFixed by subtracting the flat coupon from the USD subtotal before converting. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4904922a51880479196d6f579c4b4282d9288b57c7ce9133a01153e70c85b976"
+}

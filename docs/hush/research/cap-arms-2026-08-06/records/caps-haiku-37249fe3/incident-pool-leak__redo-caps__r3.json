@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 104,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 46622,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08282860000000002,
+  "numTurns": 13,
+  "durationMs": 44996,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2711
+  },
+  "contextTraffic": 327453,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 16115,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "Connection leak was in `processOrder.js` — when the `run()` callback threw (like on invalid order payloads), the release never fired because there was no try-finally. Workers failed their jobs, connections got stuck in the inUse set, and the pool exhausted to zero available.\n\nThe API handlers used the safe `withConnection` wrapper with try-finally, so they recovered fine. But `processOrder` was manually acquiring and releasing, leaving a gap. Fixed it by wrapping the await in try-finally. All tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5ab6764ec56fce3dd0d512298f082f270402ef4624a0a0226763071c7422f3d2"
+}

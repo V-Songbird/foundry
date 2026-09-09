@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 71,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28746,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.196043,
+  "numTurns": 7,
+  "durationMs": 27089,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1459
+  },
+  "contextTraffic": 136325,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 3011,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan only. Nothing touched.**\n\nAdd `toJson` to [format.js](src/format.js:20). Add the flag in [cli.js](src/cli.js:14).\n\n```js\n// format.js\nfunction toJson(rows) {\n  return JSON.stringify(rows, null, 2);\n}\nmodule.exports = { toTable, toJson, COLUMNS };\n\n// cli.js\nconst USAGE = 'usage: cli.js report [--json]';\nconst rows = buildRows();\nconst out = argv.includes('--json') ? toJson(rows) : toTable(rows);\nprocess.stdout.write(out + '\\n');\n```\n\nOne call to make. The table drops `owner` and `slow`. JSON would carry the full row from `buildRows()`. That reads as same data to me.\n\nNext: say go, or say match the table columns.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "54c84ca2e986a6fba605db4bc8db9ccd95e0bed665ef7026163e09a3d2b8db99"
+}

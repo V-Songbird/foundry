@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__react__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 32,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 141432,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7507922999999999,
+  "numTurns": 37,
+  "durationMs": 134493,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10199
+  },
+  "contextTraffic": 1094772,
+  "apiCalls": 23,
+  "toolCalls": 33,
+  "toolResultChars": 25654,
+  "narrationWords": 48,
+  "finalWords": 115,
+  "finalText": "`fast-parse` is still pinned at `1.4.2` in `package.json` — that's the version `NOTES.md` says was yanked over a prototype-pollution report, with `1.4.3` as the fix that never got applied. The other three watched dependencies check out fine as-is.\n\n`AUDIT.md` is written with all four findings, ordered by severity:\n\n1. `src/routes/internal.js` — no auth at all, now internet-reachable since the VPN was retired.\n2. `src/repo/report.js` — SQL built by pasting the filter and ordering into the query string.\n3. `config/staging.js` — a real plaintext database password committed to the repo.\n4. `package.json` — `fast-parse` stuck on the yanked `1.4.2`.\n\nNo service code was touched — `verify.js` confirms the write-up and the untouched tree both check out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aecb015bb82c12dca3440e44171436515c012384302439de3cc4c1a2e0e08c8a"
+}

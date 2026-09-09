@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__noill__r2",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 51,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 73798,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.4134745,
+  "numTurns": 20,
+  "durationMs": 72271,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5089
+  },
+  "contextTraffic": 200746,
+  "apiCalls": 8,
+  "toolCalls": 19,
+  "toolResultChars": 17913,
+  "narrationWords": 7,
+  "finalWords": 106,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the repository structure."
+  ],
+  "finalText": "This touches **94 files, and 17 must not change**.\n\n| Zone | Files | Rename? |\n|---|---|---|\n| `services` | 75 | Yes |\n| `migrations` | 12 | No, applied history |\n| `vendor/reporting-sdk` | 4 | No, regenerated |\n| `docs/openapi.yaml` | 1 | No, public contract |\n| `lib` | 2 | Partly |\n\n125 SQL strings name the DB column. Those stay unless a migration renames it. [lib/serialize.js:8](lib/serialize.js:8) maps internal to public. Only the left key may change. The stored `payload` JSON key is data too.\n\nNext: split it in two stages. Code names now. Column and wire names later, or never.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b1a11e06e51d2b0c93eb310a3a73b65e87f63e46313466a078f3f87fe78463e6"
+}

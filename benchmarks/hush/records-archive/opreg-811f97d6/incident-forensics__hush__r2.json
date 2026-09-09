@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 128274,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.641215,
+  "numTurns": 21,
+  "durationMs": 122166,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7094
+  },
+  "contextTraffic": 519305,
+  "apiCalls": 20,
+  "toolCalls": 17,
+  "toolResultChars": 11002,
+  "narrationWords": 0,
+  "finalWords": 50,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`, the gateway connection-per-request config. It drains the 20 connection pool. Every 503 pairs with `ERR_POOL_EXHAUSTED`.\n\nWindow runs 02:14:18.972Z to 03:59:27.974Z, still open. 530 of 636 requests failed. The only 200s were `/health`.\n\nRoll back `dep-4471`. The worker slowdown is logged as separate.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "33bc52dbe4bff70259bb59360e1437cde4f163f596a0d1e98a7f5fd565b5c2b7"
+}

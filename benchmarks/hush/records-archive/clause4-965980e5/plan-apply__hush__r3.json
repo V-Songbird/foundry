@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r3",
+  "batchId": "clause4-965980e5",
+  "seed": "1787982716052",
+  "orderIndex": 2,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14932,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0782744,
+  "numTurns": 6,
+  "durationMs": 13059,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 745
+  },
+  "contextTraffic": 128059,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 2145,
+  "narrationWords": 0,
+  "finalWords": 62,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, not yet applied.**\n\n`buildRows()` in [report.js](src/report.js:11) returns full rows. `toTable()` in [format.js](src/format.js:14) prints only 4 of 6 fields, by design.\n\n1. Add `--json` parsing in [cli.js](src/cli.js:8)\n2. On that flag, `JSON.stringify(buildRows())` instead of `toTable(...)`\n\nOne call to make: JSON output could include all fields, or just match the table's 4 columns. \"Same data\" suggests all fields. Confirm before I write it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b67b60c2119a4869e451d520b6bbfc2f1dd75df1984408b114115d8d5c9c1520"
+}

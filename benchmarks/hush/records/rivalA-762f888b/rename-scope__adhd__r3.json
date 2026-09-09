@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 112,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 65193,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.351711,
+  "numTurns": 7,
+  "durationMs": 64263,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4338
+  },
+  "contextTraffic": 170198,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 20112,
+  "narrationWords": 30,
+  "finalWords": 517,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this is.",
+    "Now let me look at the boundary cases — vendor code, migrations, the public API spec, and the shared lib."
+  ],
+  "finalText": "## Size\n\n**1,291 raw matches across 94 files** — but that number oversells it. The codebase is extremely uniform: 25 identical service triplets (repo/service/http) across 5 services, each file structurally a copy of the others.\n\n| Area | Files | Matches | Rename? |\n|---|---|---|---|\n| `services/*/src/{repo,service,http}` JS identifiers | 75 | ~900 | Yes — mechanical |\n| SQL string literals inside repo files | (25) | 125 | **No** |\n| `migrations/*.sql` | 11 | 61 | **No** |\n| `vendor/reporting-sdk` | 4 | 12 | **No** |\n| `docs/openapi.yaml` | 1 | 5 | **No** |\n| `lib/serialize.js` | 1 | 1 | Half — see below |\n| `lib/audit.js` | 1 | 2 | Judgment call |\n\nSo it's roughly **900 renameable occurrences in 75 near-identical files** — a scripted rename plus review, not 1,291 hand edits.\n\n## Where it must not be renamed\n\n**1. SQL column names (125 lines in repo files).** This is the trap. `services/billing/src/repo/invoice.js:10` reads:\n\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\nparams: [account_id, id],\n```\n\nThe JS parameter can become `owner_id`; the string `account_id` is a live database column and cannot, unless someone also ships a column-rename migration. A blanket `sed` over `services/` silently breaks every query in the platform. Any diff you sign off on should touch **425 repo lines but leave 125 of them alone**.\n\n**2. `migrations/` (61).** Every file is marked applied in production. Editing history doesn't rename anything in a DB that already ran it, and it breaks the down steps.\n\n**3. `vendor/reporting-sdk/` (12).** README: \"Do not edit… replaced wholesale by `npm run vendor:refresh`.\" Nothing in the repo imports it today, so it's easy to sweep up by accident and the edits would vanish on next refresh anyway.\n\n**4. The public wire format — `docs/openapi.yaml` (5) and the right-hand side of `lib/serialize.js`.** `account_id` is a required response field and a query parameter on `/v2/invoices` and `/v2/orders`, documented as frozen. Renaming it is a breaking change for every client and needs a new dated API version.\n\n`lib/serialize.js:9` is the seam, and it's the one line that needs an *asymmetric* edit:\n\n```js\nconst WIRE = {\n  account_id: 'account_id',   // becomes  owner_id: 'account_id'\n```\n\nKey renames, value stays. All 25 http modules go through it, so if that line is done right the internal rename never reaches clients.\n\n## One thing to decide before signing\n\n`lib/audit.js:8` does `{ event, account_id: fields.account_id, ...fields }`. Once callers pass `owner_id`, that field goes `undefined` and the spread quietly appends `owner_id` instead — **the audit log schema changes without anything failing**. All 25 services call it. If anything downstream queries audit lines by `account_id`, that needs a coordinated change or a dual-write; ask the platform team what consumes those lines.\n\n## Verdict\n\nReasonable to approve, with three conditions: the rename script is scoped to JS identifiers only (not string literals), `migrations/` and `vendor/` are excluded outright, and `serialize.js` keeps `account_id` on the wire. The audit-log question is the only one I'd want answered before it merges — it's the failure that won't announce itself.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3341af55373654437259d3871dd9811321a6868a282306525aac1dd736fee5a0"
+}

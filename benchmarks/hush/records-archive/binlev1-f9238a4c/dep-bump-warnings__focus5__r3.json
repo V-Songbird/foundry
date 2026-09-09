@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__focus5__r3",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "focus5",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37202,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.2434995,
+  "numTurns": 10,
+  "durationMs": 35753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1980
+  },
+  "contextTraffic": 149457,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6358,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** Exit `0`, 0 errors.\n\nTwo real bugs, both from the bump:\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read both, default `0` |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is now `undefined` | Treat unset as off |\n\nThe 8 warnings are still printed. They are hardcoded strings in [build.js:18](build.js:18) and lines 46 to 48. No source file backs them.\n\nNext: nothing, unless you want those warning lines cut too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc552b261870696217ac1031598bbc6ce86bad5a74741fac376a6ad755ecb067"
+}

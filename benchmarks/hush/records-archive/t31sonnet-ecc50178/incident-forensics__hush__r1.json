@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 21,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69345,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5044962999999999,
+  "numTurns": 15,
+  "durationMs": 61556,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3274
+  },
+  "contextTraffic": 771072,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 43404,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 02:12–02:14Z) flipped config `gateway.pool.perRequest` from `false` to `true`. That change went live at 02:13:41Z. The pool started maxing out at 20/20 connections and never recovered, `ERR_POOL_EXHAUSTED` on every request past that point.\n\n**Impact window:** 02:14:18Z to end of log (03:59:27Z), still failing when the log cuts off. No sign of recovery in the data we have.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window, jobs ran clean the whole time.\n\n**Action:** Roll back `dep-4471` on the gateway, specifically revert `gateway.pool.perRequest` to `false`. That's the only change in `deploys.csv` that lines up with the start time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ccd75007d5636a3777d0ea0307a5a0e51438ac42eb50b8a1cde9e434cd2b77b0"
+}

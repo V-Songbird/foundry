@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15943,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1186972,
+  "numTurns": 4,
+  "durationMs": 13938,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 820
+  },
+  "contextTraffic": 115741,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\n`[app.log:182](logs/app.log:182)` Redis connection dropped at `02:14:07`.\nCache fell back to direct store reads.\nThat caused miss storms and timeouts.\nQueue depth climbed past its `500` max.\nRedis reconnects kept failing, 12 attempts total.\nWorker-2 hit `JavaScript heap out of memory` at `02:31:44` `[app.log:717](logs/app.log:717)`.\nSupervisor then killed the process group, `[app.log:719](logs/app.log:719)`.\n\nNext: check why Redis at `10.0.0.12:6379` was unreachable for 17 minutes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c6359055906abbf851f0d94e089d94746a1a35cb7fd9a84f8c6e8864b883380a"
+}

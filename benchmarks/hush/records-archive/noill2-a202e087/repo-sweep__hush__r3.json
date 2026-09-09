@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 40,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62767,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5061079999999999,
+  "numTurns": 15,
+  "durationMs": 61178,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3513
+  },
+  "contextTraffic": 275904,
+  "apiCalls": 8,
+  "toolCalls": 14,
+  "toolResultChars": 38239,
+  "narrationWords": 6,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look for remaining `db.query` usages."
+  ],
+  "finalText": "**Migrated 12 files off `db.query`.** All 36 call sites now use `db.execute({ sql, params })`.\n\n`node --check` passes on every file. No test runner in the repo.\n\nTwo calls stay in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit. Upgrades overwrite it. `lib/db.js` still ships `query` as deprecated.\n\nNext: wrap or drop the vendored adapter before the driver's next major.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c8f6ddaa74d285922f567809e2d4978c661bcbcc4dbc6418c8b79fb216f29bf4"
+}

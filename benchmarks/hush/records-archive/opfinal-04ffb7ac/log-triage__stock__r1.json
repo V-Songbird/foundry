@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 68848,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.44131149999999997,
+  "numTurns": 10,
+  "durationMs": 67365,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3903
+  },
+  "contextTraffic": 195395,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8164,
+  "narrationWords": 0,
+  "finalWords": 120,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died and the whole service went with it.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost` ECONNREFUSED `10.0.0.12:6379` at [logs/app.log:182](logs/app.log:182) |\n| 02:14:07 | cache degraded, falls back to direct store reads |\n| 02:14:10 | store overloads, `TimeoutError` after 5000ms begins |\n| 02:15:26 | reconnects start, 13 tries, all refused |\n| 02:29:12 | queue depth 502 passes the 500 max |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | supervisor kills `api`, service down |\n\nNothing was wrong before 02:14. Zero requests succeeded after. Redis never came back. Start with why `10.0.0.12:6379` refused connections. Then add a breaker so a cache loss cannot drown the store.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "632bd50539ce1e4eb21507395af285c37d78d189927baa9576334584f171b8ca"
+}

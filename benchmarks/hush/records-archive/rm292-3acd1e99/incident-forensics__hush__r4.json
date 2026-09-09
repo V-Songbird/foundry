@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 102355,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.573826,
+  "numTurns": 17,
+  "durationMs": 95319,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5261
+  },
+  "contextTraffic": 516397,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 11120,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `gateway.pool.perRequest: false -> true` in config generation 119. The 20-connection pool ran dry 37 seconds later. Roll back `dep-4471` by `a.novak`.\n\nImpact ran `02:14:18Z` to `03:59:27Z` and is still open at the log's end. 530 failed, 698 passed.\n\nTwo things the note flags for you. `/health` kept returning 200, so checks hid it. This log is node-3 of 3, so check the other two nodes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "572e2d45d4a7b51672a852b2bb5e7631da63a6c3c63989b96a7823a020a0c12b"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__oldstyle__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34273,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16002699999999997,
+  "numTurns": 14,
+  "durationMs": 32594,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2619
+  },
+  "contextTraffic": 250727,
+  "apiCalls": 6,
+  "toolCalls": 13,
+  "toolResultChars": 15207,
+  "narrationWords": 0,
+  "finalWords": 163,
+  "finalText": "Big, but mechanical: 1,082 hits across 94 files, mostly the five services' repo/service/route layers doing straightforward internal renames.\n\nThree spots must keep `account_id` exactly as-is:\n\n1. **`docs/openapi.yaml`** and **`lib/serialize.js`** — the public API. Both files say outright that `account_id` is a frozen wire field; renaming it breaks every client and needs a whole new API version.\n2. **`vendor/reporting-sdk/`** (4 files) — a vendored copy of a third-party package. Its README says not to edit it; changes get wiped by `npm run vendor:refresh`.\n3. **The 12 files in `migrations/`** — already applied in production. Editing history there doesn't rename any live column and breaks the down-migration. A schema rename would need a new migration, not edits to old ones.\n\nEverything else, the internal function params, SQL queries, and JSON payload keys in the `orders`, `notify`, `billing`, `analytics`, and `accounts` services, is safe to rename mechanically. Just keep the DB column and public field mapped to `account_id` in `serialize.js` even after the internal name changes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7234738f2460da399633b208d02a3bb74a9318adf9777bb5daa2578f2d268235"
+}

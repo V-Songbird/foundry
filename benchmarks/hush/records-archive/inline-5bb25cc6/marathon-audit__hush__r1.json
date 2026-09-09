@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 32,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 135131,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7895905999999999,
+  "numTurns": 39,
+  "durationMs": 128000,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9220
+  },
+  "contextTraffic": 906837,
+  "apiCalls": 21,
+  "toolCalls": 35,
+  "toolResultChars": 21913,
+  "narrationWords": 0,
+  "finalWords": 106,
+  "finalText": "The dependency check confirms `fast-parse` is still pinned at `1.4.2`, the version `NOTES.md` says was yanked for a prototype-pollution bug — `1.4.3` has the fix. Everything else in `package.json` matches what `NOTES.md` says is fine.\n\n`AUDIT.md` is written, all four findings ranked worst to best:\n\n1. **SQL injection** in `src/repo/report.js` — filter and order-by are pasted into the query unchecked.\n2. **No auth** on `src/routes/internal.js` — metrics and cache-flush open to the internet since the VPN was retired.\n3. **Plaintext password** in `config/staging.js`, unlike prod and dev.\n4. **Yanked dependency** — `fast-parse` still on `1.4.2` in `package.json`.\n\nThe service itself wasn't touched, only `AUDIT.md` was added.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4b34f4cfeb7295438d11f7b6bc57e6ea8ca5c5879d94af2e983884b84e499f41"
+}

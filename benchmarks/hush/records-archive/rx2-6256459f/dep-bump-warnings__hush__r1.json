@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40644,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24704600000000002,
+  "numTurns": 12,
+  "durationMs": 38693,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2098
+  },
+  "contextTraffic": 359585,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 10297,
+  "narrationWords": 9,
+  "finalWords": 95,
+  "finalText": "Builds clean now, 0 errors.\n\nTwo real bugs were hiding under the deprecation noise, both from the bundler bump:\n\n1. `src/core/options.js` read `options.retries`, but the new bundler passes `retryCount`. That `undefined.toFixed()` was the actual build-breaking crash.\n2. `src/net/retryPolicy.js` only accepted `true`/`false` for the backoff flag, but the new config loader leaves unset flags as `undefined` — so it threw instead of just defaulting off.\n\nFixed both. Build now exits 0 with retry budget resolving to 3 and backoff correctly disabled. The remaining 8 warnings are the deprecation noise from the bump — harmless, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2c3c3df2c484eef8b4b2216cf2239e81aa425782608b0bdcf5e0b63eb8fc1df3"
+}

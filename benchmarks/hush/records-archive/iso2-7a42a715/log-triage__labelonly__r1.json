@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__labelonly__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26863,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11871980000000001,
+  "numTurns": 4,
+  "durationMs": 25157,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 818
+  },
+  "contextTraffic": 115676,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 148,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Root cause: Redis went down at `02:14:07` and the app never recovered.**\n\nTimeline:\n1. `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\n2. App fell back to direct store reads, triggering cache miss storms\n3. Store got overloaded, requests timed out at 5000ms\n4. Reconnect attempts to Redis kept failing every ~2 min, up to attempt `12` at `02:31:26`\n5. Request queue depth climbed unchecked from 52 to 568 (limit was 500)\n6. `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog and crashed (exit code 134)\n7. `02:31:52` supervisor killed the whole process group — **service down**\n\nSo: Redis outage → no circuit breaker on the fallback path → queue backlog grew forever → OOM crash → full outage. Full log saved at `<path> if you need to check anything else.\n\nNext: restore Redis at `10.0.0.12:6379` and check why queue depth had no backpressure past 500.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4f3cada91807893a853e1f49a8e850549cf2251f0fde4959d00e070165a2acee"
+}

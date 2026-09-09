@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 47531,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.294694,
+  "numTurns": 15,
+  "durationMs": 46298,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2883
+  },
+  "contextTraffic": 210161,
+  "apiCalls": 10,
+  "toolCalls": 14,
+  "toolResultChars": 8127,
+  "narrationWords": 26,
+  "finalWords": 306,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and figuring out how to run the suite.",
+    "Three failures, all in `orderTotal` — one bug. Fixing it:"
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n## What was actually broken\n\nOf the 625 cases, only 3 failed — all in the `order totals` suite, all one bug in `src/pricing.js:39` `orderTotal`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on the pre-discount base\nreturn discounted + tax;\n```\n\nIt applied the discount correctly, but then computed tax off the **original** `cents` instead of the discounted amount — so it overcharged tax on the discounted-away portion. Its own docstring said the opposite (\"tax is charged on the amount the customer pays\"), so the code was out of step with the documented intent, not the intent being wrong.\n\nThe reason only 3 rows caught it: the suite generates 54 rows with a 0% discount and more with a 0% tax rate, and in either case the two orderings agree. Only rows with both non-zero can expose it — there are exactly 3.\n\n## The fix\n\n`src/pricing.js:39`:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nThis also reuses `applyTax` rather than re-implementing the tax-and-round step inline, so the rounding behavior now matches the rest of the module.\n\nChecked against the three failures: 12000c/15%/8.25% → 10200 × 1.0825 = 11041.5 → 11042 ✓; 8650c/20%/5% → 7266 ✓; 33400c/10%/20% → 36072 ✓.\n\nOne note worth flagging, though it's outside what the tests cover: `roundCents` is documented as \"half rounds up, matching the ledger\", but it's `Math.round`, which rounds half *away from zero* only for positives — for negative values (e.g. refunds/credits) `Math.round(-0.5)` is `-0`, i.e. half rounds *up toward zero*. Every case in the suite is positive so nothing fails, but if negative cents ever flow through, that's a discrepancy with the stated ledger rule. I left it alone since fixing it wasn't part of getting the suite green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "11c90bb44ff2ede022b12b842af7deeea6df393c86cdd10aea56fed7c4cf2493"
+}

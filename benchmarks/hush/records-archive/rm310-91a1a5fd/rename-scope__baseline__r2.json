@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 96601,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4482635000000001,
+  "numTurns": 21,
+  "durationMs": 95035,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6254
+  },
+  "contextTraffic": 238429,
+  "apiCalls": 10,
+  "toolCalls": 20,
+  "toolResultChars": 16513,
+  "narrationWords": 33,
+  "finalWords": 776,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to scope this.",
+    "1082 occurrences across 94 files. Let me look at the categories that matter — the vendor SDK, migrations, the public API spec, and a representative service."
+  ],
+  "finalText": "## Size\n\n**~1,290 occurrences on 1,082 lines across 94 files.** But the raw number overstates the work — the distribution matters more:\n\n| Area | Files | Occurrences | Character |\n|---|---|---|---|\n| `services/*/repo/` | 25 | 425 | Mechanical **but contains real SQL column names** |\n| `services/*/service/` | 25 | 375 | Purely mechanical (params, object keys) |\n| `services/*/http/` | 25 | 225 | Mechanical, but reads a session field |\n| `migrations/` | 12 | 61 | **Do not touch** |\n| `vendor/reporting-sdk/` | 4 | 20 | **Do not touch** |\n| `lib/` | 2 | 5 | Contract boundary |\n| `docs/openapi.yaml` | 1 | 5 | **Do not touch** |\n\n75 of the 94 files are a perfectly uniform `repo`/`service`/`http` triple repeated across 25 entities in 5 services. That part is a genuinely safe find/replace — it's one pattern copied 25 times, not 75 distinct problems. The other 19 files are where the sign-off risk lives.\n\n## Where it must not be renamed\n\n**1. The public API contract — `docs/openapi.yaml` and `lib/serialize.js:8`**\n\n`account_id` is a documented response field on `Invoice` and `Order`, and a query parameter on `/v2/invoices`. The spec states renaming is a breaking change requiring a new dated version. `lib/serialize.js` is the chokepoint that enforces this — the right-hand side of the `WIRE` map is the wire format:\n\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\n\nThe left key can be renamed with the internal rename; the string on the right cannot. This one line is what keeps the internal rename from leaking to customers.\n\n**2. `vendor/reporting-sdk/` (4 files, 20 occurrences)**\n\nGenerated third-party code, replaced wholesale by `npm run vendor:refresh`. Any edit is silently reverted on the next refresh. Worth knowing: nothing in the repo imports this SDK, so it's inert either way — but it will show up in the grep and should be excluded explicitly, not renamed and forgotten.\n\n**3. `migrations/*.sql` (12 files, all applied in production)**\n\nEvery file is marked applied, dates from 2025-01-14 to 2025-06-24. Editing them renames nothing in a database that already ran them, and it breaks the `-- down` steps (which reference `accounts_account_id_idx` etc. by name). History is append-only here.\n\n**4. The one I'd hold the sign-off on: SQL column identifiers in the repo layer**\n\nThere are **250 SQL statements** where `account_id` is the actual Postgres column, not a JS name:\n\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\nparams: [account_id, id],\n```\n\nThe parameter can be renamed. The string cannot — not until a *new* migration runs `ALTER TABLE … RENAME COLUMN` on all 10 tables plus the indexes and the FK references to `accounts (account_id)`. A blind repo-wide replace produces code that passes review and lints clean, then throws `column \"owner_id\" does not exist` on every query in production. If the test suite mocks `lib/db.js`, it will stay green the whole way. **This is the failure mode I'd expect from a mechanical rename**, and it's the thing to confirm the platform team has planned for.\n\nNote also `insertInvoice` writes `account_id` into the `payload` JSONB blob (`repo/invoice.js:35`) — renaming that key makes new rows inconsistent with every existing row, and JSONB keys aren't fixed by an `ALTER TABLE`.\n\n## Two things to decide, not assume\n\n- **`req.session.account_id` — 100 read sites.** This is the *only* way `account_id` enters the system (nothing reads it from query, body, params, or headers — good, that's the tenant-isolation property holding). But the session object is minted outside this repo. Renaming the read requires coordinating with whatever issues sessions, or all 100 handlers read `undefined` and every request 500s at the `if (!account_id) throw` guards. Cheap alternative: leave the session key alone and rename only downstream of it.\n- **`lib/audit.js:8`** — every audit line is emitted with an `account_id` field. Not frozen by anything in this repo, but it's an emitted record shape; any log query, dashboard, or retention tool keyed on it breaks silently. Needs a check outside this codebase before you sign off.\n\n## Recommendation\n\nThe rename is safe and mostly mechanical for **~800 occurrences** in the service and http layers (minus the session decision). It is *not* a rename at all for the remaining ~490 — those are a schema migration (250 SQL sites + 61 migration lines), a versioned API change (6), and an exclusion list (20).\n\nI'd sign off on the internal rename today, conditional on: migrations and `vendor/` excluded from the replace, `serialize.js`'s wire values and `openapi.yaml` untouched, and the column rename split into its own migration-gated change rather than riding along in the same commit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f4220b195367505ddbf2c2ed12f15a0c0ed9b28fb985f00ba98f8a3b3dde566b"
+}

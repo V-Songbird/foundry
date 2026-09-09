@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__concise__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62676,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.355533,
+  "numTurns": 17,
+  "durationMs": 61207,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3942
+  },
+  "contextTraffic": 177456,
+  "apiCalls": 6,
+  "toolCalls": 16,
+  "toolResultChars": 19737,
+  "narrationWords": 7,
+  "finalWords": 516,
+  "finalText": "## Size: ~1,082 occurrences across 94 files\n\n| Zone | Files | Hits | Verdict |\n|---|---|---|---|\n| `services/*/src/{http,service,repo}` | 75 | 1,025 | Renameable (with a caveat below) |\n| `migrations/*.sql` | 12 | 37 | **Must not rename** |\n| `vendor/reporting-sdk/` | 5 | 12 | **Must not rename** |\n| `docs/openapi.yaml` | 1 | 5 | **Must not rename** |\n| `lib/serialize.js`, `lib/audit.js` | 2 | 3 | Partial — see below |\n\nThe 1,025 service hits are mechanically uniform: 25 entities × 4 services, each with a route (9), service (15), and repo (17) file, all following the identical shape as `services/billing/src/repo/invoice.js`. That part is a genuine find-and-replace.\n\n## Where it must not be renamed\n\n**1. `migrations/` (37 hits).** Every file is stamped \"Applied in production on \\<date\\>\" and says editing it renames nothing in a DB that already ran it, while breaking the down step (`migrations/20250128_create_invoices.sql:3`). The column stays `account_id` unless someone writes a *new* migration with `ALTER TABLE ... RENAME COLUMN` — which is a separate, much larger project (25 tables, indexes, FKs to `accounts (account_id)`).\n\n**2. `docs/openapi.yaml` + the public wire format (5 hits).** The spec declares every field a frozen contract needing a new dated version to change (`docs/openapi.yaml:6`). `account_id` is a required response property on `Invoice`/`Order` and a public query parameter.\n\n**3. `vendor/reporting-sdk/` (12 hits).** Marked generated, \"Do not edit,\" overwritten by `npm run vendor:refresh`. Any edit is silently lost on the next refresh. Nothing in the codebase imports it, so it's inert anyway.\n\n## The one spot that needs hand-editing, not replacing\n\n`lib/serialize.js:7-11` is the internal→public boundary:\n\n```js\nconst WIRE = {\n  account_id: 'account_id',   // key = internal, value = public\n```\n\nThe **key** follows the rename; the **value** must stay `'account_id'`. A blind global replace turns this into `owner_id: 'owner_id'` and silently renames the field in every API response — a breaking change for all clients with no compile error and no test failure at the rename site. This is the highest-risk line in the change.\n\n## Two judgment calls for you\n\n- **`req.session.account_id`** (100 hits, one per route file). The session object is produced by auth middleware outside this repo. Renaming the read side requires the session producer to change in the same deploy, or every request loses its account scope — and since the repos throw only on falsy `account_id` at insert (`repo/invoice.js:32`), reads would quietly return `undefined`-scoped queries instead. Confirm ownership of that middleware before signing off.\n- **`lib/audit.js:8`** emits `account_id` into every audit line. Not marked frozen, but if anything downstream (SIEM, compliance queries) parses these, the key is a de facto contract.\n\n## Recommendation\n\nApprovable as scoped to the 75 service files, provided: (a) `migrations/`, `vendor/`, and `docs/` are excluded by path; (b) `lib/serialize.js` is edited by hand and reviewed as its own hunk; (c) the session middleware change ships atomically. The repos will then contain `owner_id` JS identifiers passed into SQL that still says `WHERE account_id = ?` (~5 such literals per repo file, ~125 total) — correct, but worth a comment so the next reader doesn't \"fix\" it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75efca9bc41438dd22084de3847b7f1f36ad8f6568fb022843f4be0a30b2a688"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r5",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35596,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24759350000000002,
+  "numTurns": 11,
+  "durationMs": 34016,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1885
+  },
+  "contextTraffic": 150786,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6947,
+  "narrationWords": 8,
+  "finalWords": 78,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project structure."
+  ],
+  "finalText": "**The build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Read `options.retries`, now `retryCount` | Read new name, fall back to old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag | Treat `undefined` as `false` |\n\nThe 8 remaining `WARN` lines are real noise. They flag dead code like `crypto.createCipher` and a circular import.\n\nNext: clean up those 8 warnings if you want a silent build.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8308b758a3045e39fd63cc9aaa0b77c6ef5c34595d8fd1773afc9b8ad799abb4"
+}

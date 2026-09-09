@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 143,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 23582,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.039728,
+  "numTurns": 8,
+  "durationMs": 22117,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1571
+  },
+  "contextTraffic": 85160,
+  "apiCalls": 3,
+  "toolCalls": 7,
+  "toolResultChars": 4271,
+  "narrationWords": 0,
+  "finalWords": 192,
+  "finalText": "It's a straightforward order-management API built on Node's built-in `http` module. Here's how the five pieces fit:\n\n**server.js** is the entry point. It creates an HTTP server that checks every incoming request for a valid auth token, then hands it off to the router. No token, no request gets through.\n\n**auth.js** handles the tokens. They're HMAC-signed bearer tokens in the format `<userId>.<signature>`, verified with a shared secret from the `AUTH_SECRET` environment variable.\n\n**routes.js** is the dispatcher. It defines three endpoints: `GET /users` and `GET /orders` (both read-cached), and `POST /orders` (writes straight to the store). Reads bounce through the cache; writes bypass it and clear the affected cache entries.\n\n**cache.js** is a tiny LRU cache — 256 entries, no expiration. It just absorbs repeated reads to avoid hammering the store. The store itself manages freshness with its own TTL.\n\n**store.js** is the data layer — a mock in-memory database that stands in for a real one. Every record lives for 15 minutes after its last write, then expires automatically. It stores users and orders.\n\nThe flow is clean: request → auth → route → cache (for reads) → store → JSON response.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b7e60c22e78c596e6e9bab7afdba58515c29bde76f604de4b60c15e2ac80f38f"
+}

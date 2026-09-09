@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r3",
+  "batchId": "why1-9bdca161",
+  "seed": "1788002457000",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26786,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1312292,
+  "numTurns": 12,
+  "durationMs": 25222,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1411
+  },
+  "contextTraffic": 231736,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12976,
+  "narrationWords": 26,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: only the 3 order-total cases with both a nonzero discount and tax fail. `orderTotal` taxes the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Fixed. Suite is green: 625 passing, 0 failing.**\n\n`orderTotal` in [src/pricing.js:39-43](src/pricing.js:39) taxed the pre-discount amount instead of the discounted one. Spec requires tax on the discounted total.\n\nOnly 3 cases exposed it, since most rows zeroed out discount or tax.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(discounted * taxRate);\nreturn discounted + tax;\n```\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ff67688d2de19cc9d085b9d9b05753b4a95c0eb203fa1a5de9fe2df8454c256"
+}

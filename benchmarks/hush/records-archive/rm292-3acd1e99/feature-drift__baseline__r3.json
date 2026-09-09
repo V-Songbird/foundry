@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 53,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 142332,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.925503,
+  "numTurns": 33,
+  "durationMs": 133678,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7752
+  },
+  "contextTraffic": 938039,
+  "apiCalls": 30,
+  "toolCalls": 28,
+  "toolResultChars": 16175,
+  "narrationWords": 19,
+  "finalWords": 212,
+  "assistantMsgs": 7,
+  "finalText": "Dedup is in at `src/router.js:38`, backed by `state.lastSentAt` (a `Map` of key → last delivery time) that `createState()` now seeds — the scratch state finally gets used.\n\nReplay:\n- **dropped: 99**, essentially all of the ~100 synthetic flaps in `events.js` (same key, +2 min)\n- the trace shows the pattern cleanly: `at 1` quota-warning → queue, `at 3` same key → dropped; then `at 25`, well outside the window, delivers again\n- every channel count falls proportionally; 0 route errors\n\nTwo judgment calls, both easy to flip:\n\n**Only actual deliveries arm the window.** A repeat suppressed at `at 3` doesn't push the window out to `at 8` — it's still measured from the `at 1` send. So a rapid burst delivers once every 5 minutes rather than being silenced indefinitely.\n\n**A queued notification counts as sent.** During quiet hours the first of a repeating key goes to `queue` and arms the window, so the repeat is dropped instead of also queueing. If you'd rather dedup only against real deliveries and let the queue collect everything, that's moving one line.\n\nThe window is strictly under 5 minutes (`< 5`), so a repeat exactly 5 minutes later delivers. Nothing in this dataset lands on that boundary, so the counts above are identical either way.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aaf884c4152fcfa9136623fca43c1cea58530a88a9de7d7a42af9e19225628ce"
+}

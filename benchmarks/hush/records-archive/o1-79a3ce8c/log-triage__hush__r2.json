@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48516,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5458310000000001,
+  "numTurns": 14,
+  "durationMs": 46821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3437
+  },
+  "contextTraffic": 269347,
+  "apiCalls": 7,
+  "toolCalls": 13,
+  "toolResultChars": 40431,
+  "narrationWords": 6,
+  "finalWords": 88,
+  "finalText": "**Redis went down at 02:14. Everything after that was fallout.**\n\n```\n02:14:07  redis refused connections at 10.0.0.12:6379\n02:14:07  cache off, every read goes to the store\n02:14→02:31  173 timeouts, queue climbs 52 → 568\n02:29:12  queue passes its own 500 limit\n02:31:44  worker-2 runs out of memory\n02:31:52  supervisor kills the api, service down\n```\n\nAll 13 reconnect tries failed the same way. Redis was never coming back on its own. Nothing turned requests away as the queue grew. That is what turned an outage into a crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "de093e365e875e5cb308ee77739efa3c291b70ab3f8fdeec5abf1b0628f90a68"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__noill__r2",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40898,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.251956,
+  "numTurns": 10,
+  "durationMs": 39249,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2370
+  },
+  "contextTraffic": 148998,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6275,
+  "narrationWords": 0,
+  "finalWords": 56,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build now passes.** Two real bugs, not noise.\n\n`resolveRetries` read `options.retries`. The bump renamed it `retryCount`. [options.js:6](src/core/options.js:6) takes both now. `isBackoffEnabled` threw on an unset flag. [retryPolicy.js:7](src/net/retryPolicy.js:7) treats `undefined` as off.\n\nThe 8 warnings remain. `build.js` prints them as fixed strings. They name deps, not our code.\n\nNext: nothing, unless you want those deps chased upstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b0acd0be2eea5486faaab7f5067699b7a0f96985f07d173a2ff3db21d8270e1b"
+}

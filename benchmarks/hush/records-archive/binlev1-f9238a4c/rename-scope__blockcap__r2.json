@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__blockcap__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 39,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "blockcap",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49191,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.34226,
+  "numTurns": 18,
+  "durationMs": 47635,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2893
+  },
+  "contextTraffic": 198365,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 15815,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big: 1082 hits in 94 files.** Safe to rename: the 5 services, 75 files, plus [lib/audit.js](lib/audit.js).\n\nFour zones must keep `account_id`:\n\n| Zone | Why |\n|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | Public contract. Frozen field. |\n| [lib/serialize.js:8](lib/serialize.js:8) | Right side of `WIRE` is the wire name. |\n| `migrations/*.sql` 12 files | Applied history. Edits break `down`. |\n| `vendor/reporting-sdk/` 4 files | Generated. `vendor:refresh` wipes edits. |\n\nAlso: 125 SQL strings in 25 repo files name the real column. Rename the JS vars only, or ship a column migration first.\n\nNext: ask them if a column rename is in scope. That doubles the job.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a096baeb67beb85981d3ad64006e9d15b241c408a94582ca5fd8ca1ef5754c8"
+}

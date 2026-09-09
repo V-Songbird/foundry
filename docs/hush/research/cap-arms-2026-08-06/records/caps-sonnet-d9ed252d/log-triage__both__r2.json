@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__both__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 161,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25170,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.31400639999999996,
+  "numTurns": 5,
+  "durationMs": 23245,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1209
+  },
+  "contextTraffic": 230767,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 53173,
+  "narrationWords": 0,
+  "finalWords": 224,
+  "finalText": "Redis went down at 02:14:07 and never came back. That set off a chain reaction that killed prod 17 minutes later.\n\n**Timeline:**\n1. `02:14:07` — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). The app fell back to hitting the database directly for every request.\n2. From there, steady cache miss storms and 5-second timeouts on `api`, `worker-1`, `worker-2`, and `scheduler`, all reporting the store as overloaded.\n3. The request queue climbed almost the whole time, from 52 up to 568 (max was 500), meaning it was backed up over its limit for the last several minutes.\n4. Redis tried to reconnect 12 times (every ~2 minutes) and failed every single time. It never recovered.\n5. `02:31:44` — `worker-2` ran out of memory, likely from the backlog of queued requests piling up in memory.\n6. `02:31:45` — `worker-2` crashed and restarted.\n7. `02:31:52` — the `api` process stopped responding and got killed. Service went down.\n\n**Root cause:** Redis dropped and stayed unreachable for the whole 17 minutes. With no cache, every request hit the database, requests piled up faster than they could finish, and eventually a worker ran out of memory and took the service down with it.\n\n**Next step:** worth checking why `10.0.0.12:6379` was unreachable for that long and adding a hard cap on queue depth so a dead cache degrades service instead of crashing it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "608797da03704e0672b24dcc311ac28b1b1717110b9f3fc3302c9585040d287f"
+}

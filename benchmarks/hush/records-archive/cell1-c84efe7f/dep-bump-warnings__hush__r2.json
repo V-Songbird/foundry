@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33086,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13567880000000002,
+  "numTurns": 12,
+  "durationMs": 31401,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2038
+  },
+  "contextTraffic": 255096,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 7942,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes clean now, exit 0.**\n\nTwo real bugs, not noise, were hiding behind the deprecation spam:\n\n- `[src/core/options.js:7](src/core/options.js:7)` read `options.retries`, but the bumped bundler now passes `retryCount`. Threw on `undefined.toFixed()`.\n- `[src/net/retryPolicy.js:8](src/net/retryPolicy.js:8)` threw when `backoffEnabled` was `undefined`, since the new config loader stopped defaulting unset flags to `false`.\n\nFixed both: read `retryCount`, and treat `undefined` as disabled.\n\nNext: nothing, build finishes with `8 warnings, 0 errors`, rest is deprecation noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "29155ca0702671624341cd716820f779214f5e3f3e9a00c5702b94ca8bd31b93"
+}

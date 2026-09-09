@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 35,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 149649,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5685086,
+  "numTurns": 51,
+  "durationMs": 144193,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11094
+  },
+  "contextTraffic": 711734,
+  "apiCalls": 17,
+  "toolCalls": 47,
+  "toolResultChars": 28161,
+  "narrationWords": 54,
+  "finalWords": 65,
+  "finalText": "AUDIT.md is written with all four findings, ordered by severity:\n\n1. **SQL injection** in `src/repo/report.js` (string-concatenated query, three unvalidated fields)\n2. **Missing auth** on `src/routes/internal.js` (stale VPN assumption, now internet-reachable)\n3. **Hardcoded credential** in `config/staging.js` (plaintext DB password in source control)\n4. **Yanked dependency** — `fast-parse` pinned at `1.4.2` in `package.json`, per NOTES.md's prototype-pollution flag\n\nNo service code was touched — only `AUDIT.md` was created.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "34f42a3bbaced3238e48a8c3c8ce1936cf8175bc5f39dac04762d0f97659a303"
+}

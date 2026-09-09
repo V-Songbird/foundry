@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37465,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24545999999999996,
+  "numTurns": 10,
+  "durationMs": 35969,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2515
+  },
+  "contextTraffic": 152086,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 7292,
+  "narrationWords": 29,
+  "finalWords": 236,
+  "assistantMsgs": 3,
+  "finalText": "The build passes now — exit 0, both link stages green.\n\n**The two real bugs** (both were hard failures, not noise — the first one masked the second):\n\n1. `src/core/options.js:6` — the bump renamed the option `retries` → `retryCount`, but this call site still read `options.retries`, so it threw `Cannot read properties of undefined (reading 'toFixed')`. Now reads `retryCount` with a fallback to the old name, and throws a clear `TypeError` if it's not a number.\n\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` where the old one returned `false`. The strict check threw on `undefined`. Now `undefined` means off (the old default); other non-boolean values still error.\n\n**The warnings are still there — I did not clear them,** and they can't be fixed from this repo:\n\n- All 8 are hardcoded string literals printed by `build.js` itself (`DEPRECATIONS` at `build.js:18` plus three one-off pushes at lines 46–48). They aren't produced by analyzing your code.\n- The files they name (`src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, `src/core/graph.js`, `src/state/tracker.js`) don't exist here — `src/` only contains `core/options.js` and `net/retryPolicy.js`.\n\nSo \"building clean\" in the sense of zero warnings isn't reachable from this checkout. If the real project has those `src/legacy/*` files somewhere I haven't been pointed at, send me that tree and I'll work through the deprecations (`fs.exists`→`fs.access`, `Buffer()`→`Buffer.from()`, `crypto.createCipher`→`createCipheriv`, and the `graph.js`↔`tracker.js` cycle, which is the one I'd treat as genuinely risky rather than cosmetic).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fd6d92affae3572879346d3c9706b333a92182b508126dffe1aa12c8e8d489ac"
+}

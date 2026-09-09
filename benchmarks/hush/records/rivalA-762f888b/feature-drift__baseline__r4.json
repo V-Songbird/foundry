@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 137,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 123912,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7143165,
+  "numTurns": 28,
+  "durationMs": 118735,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7496
+  },
+  "contextTraffic": 658611,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 15389,
+  "narrationWords": 13,
+  "finalWords": 180,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "Straightforward mapping. Implementing exactly the four routes:"
+  ],
+  "finalText": "Dedupe is in, keyed off `state` (`src/router.js:37-40`), with `createState()` now returning `{ lastSentAt: new Map() }`.\n\nReplay:\n\n- `dropped: 99`, `route() errors: 0` — the flap repeats (`+2 min`, same key) are exactly what disappears; you can see the pairs above where the first fires and the second is dropped\n- everything else keeps its prior shape: `critical → pager=200`, `high → sms=112, email=112`, quiet-hour `queue=266`\n\nTwo judgment calls, both easy to flip:\n\n- **Window is exclusive** — a repeat at exactly 5 minutes after the last send goes through; only strictly-under-5 is dropped. The 2-minute flaps in `events.js` don't sit on that edge, so nothing here depends on it.\n- **Queued counts as sent** — a quiet-hour event that went to `queue` starts the 5-minute clock, so a repeat right after it is dropped rather than queued again. If the queue is meant to be a holding area that shouldn't suppress the next copy, I'd only record on real deliveries.\n\nDedupe applies to critical too, since you didn't carve it out — that's what produces `pager=200` instead of 225.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "411624ece9310a12978aa838a9d289510941904e8fb53c1024221c9ce0bf65a3"
+}

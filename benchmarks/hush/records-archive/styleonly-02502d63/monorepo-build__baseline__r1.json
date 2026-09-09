@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38812,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20810459999999997,
+  "numTurns": 11,
+  "durationMs": 37547,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2240
+  },
+  "contextTraffic": 268521,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 13426,
+  "narrationWords": 92,
+  "finalWords": 112,
+  "finalText": "Both pass.\n\n**Root cause:** `packages/shared/config.js` merged config layers with a shallow `Object.assign`, so a package override that only touched one nested key (e.g. `@acme/api` setting `output.format: 'esm'`) wiped out the sibling keys (`output.dir`, `output.entry`) instead of merging into them. That's what `build.js`'s bundle stage caught as `EBUNDLE07 config-incomplete`.\n\n**Fix:** replaced it with a non-mutating recursive `deepMerge` that merges nested plain objects (`output`, `sourcemap`) key-by-key across defaults → package overrides → CLI flags, while leaving scalars to overwrite normally.\n\n`node build.js` now exits 0 with \"5 warnings, 0 errors\", and `node verify.js` (which specifically checks the layering rule with an override combo the fixture never shipped, plus that `RELEASE_DEFAULTS` isn't mutated) also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7f52cffbcc8ec0e8689a9b232a78c64bc6c5f4874aa515a05763840826af8c52"
+}

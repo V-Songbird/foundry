@@ -1,0 +1,43 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 302267,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.234816,
+  "numTurns": 21,
+  "durationMs": 297279,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 20812
+  },
+  "contextTraffic": 633728,
+  "apiCalls": 19,
+  "toolCalls": 17,
+  "toolResultChars": 31459,
+  "narrationWords": 24,
+  "finalWords": 906,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by looking at the log file.",
+    "I only did a level-count sanity check on worker.log earlier. Let me actually go through it."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** ACTIVE, unmitigated at end of available logs\n**Severity:** High — 83% of customer traffic failing on affected node\n**Incident window:** 2026-03-14 02:14:18Z → ongoing (last log line 03:59:27Z, 1h45m and counting)\n**Paged:** 03:21:05Z, 67 minutes after onset\n\n---\n\n### Root cause\n\nConfig generation 119 set `gateway.pool.perRequest: false -> true`. The gateway now opens a new upstream connection per request against a fixed pool of `size=20`. The pool exhausts permanently and every request that needs a connection fails.\n\nSingle error signature, 530 occurrences, 1:1 with every 503:\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n                        (size 20, in_use 20, waiting 13)\n```\n\nConfirming evidence:\n- Pool pinned at `in_use=20 idle=0` continuously from 02:15 onward; never recovers.\n- `03:02:30Z WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — 100× increase, the signature of per-request connections.\n- Wait queue climbs monotonically, ~3/min, reaching 271 waiters.\n- Failures are uniform across all four upstreams (orders, catalog, accounts, billing) and all five customer routes — rules out any upstream-specific fault.\n\nThe change was intended to give pool isolation so one slow upstream couldn't starve the others. It starved all of them simultaneously instead.\n\n---\n\n### Roll back this\n\n**`dep-4471`** — gateway, a.novak, 2026-03-14 02:12–02:14Z, *\"config: connection-per-request for pool isolation\"*\n\n**Action: revert config generation 119 → 118.** This is config-only; no redeploy or image rollback is needed.\n\nThe minimum required change is `gateway.pool.perRequest` back to `false`. Generation 119 carried two other keys — be aware a full generation revert also takes them:\n\n| Key | 119 value | Notes |\n|---|---|---|\n| `gateway.pool.perRequest` | `false -> true` | **This is the cause. Must revert.** |\n| `gateway.timeout.upstreamMs` | `2000 -> 2500` | Not implicated — 503s fail at 660–850ms, well under either value. Safe either way. |\n| `gateway.log.sampleRate` | `1.0 -> 1.0` | No-op. |\n\nTimeline tying the deploy to the onset:\n\n```\n02:12:00     dep-4471 starts\n02:12:12.820 config reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234 generation 119 applied — perRequest false -> true\n02:14:00     dep-4471 finishes\n02:14:14.920 first acquire-slow warning        (+33.7s)\n02:14:18.972 first 503 / ERR_POOL_EXHAUSTED    (+37.7s)\n```\n\n**Do not roll back anything else.** `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both shipped *after* the onset and are not implicated. `dep-4470` (worker, 00:48) is followed by 79 minutes of clean gateway traffic. Note that dep-4473 went out 60+ minutes into the incident as unrelated routine work — worth raising at review whether deploys should have been frozen.\n\n---\n\n### Impact window\n\n| Window | Requests | 503s | Rate |\n|---|---|---|---|\n| 01:00 – 02:14 | 560 | 0 | 0% |\n| 02:14 – 02:20 | 68 | 30 | 44% |\n| 02:20 – 03:59 | 60 / 10min | 50 / 10min | **83% sustained** |\n\nEvery customer route affected: `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`. Degradation is progressive — 503 latency drifted 659ms → 850ms, and acquire-slow waits went 100ms → 687ms.\n\n**The real failure rate is worse than 83%.** Two requests per minute (`/v1/checkout` and `/v1/profile` slots) log an acquire-slow warning and then produce no completion line at all — no 503, no 200. They hang. Any dashboard counting status codes cannot see them.\n\n---\n\n### Two things to fix beyond the rollback\n\n**1. Health checks masked the outage — this is why it ran 105 minutes.**\n`/health` returned 200 on **all 180 checks** with `pool_wait=2ms`, straight through the outage. The load balancer had no signal to evict node-3. The health check does not exercise the connection pool, so it reports green while 83% of real traffic fails. This needs a real dependency check.\n\n**2. Check nodes 1 and 2.**\nThe log header reads `node-3 of 3`. This is one node's log; the other two aren't in this directory. The reload was pipeline-driven, so they almost certainly took generation 119 as well — **assume all three are affected until verified.**\n\n---\n\n### Verifying the rollback\n\nWatch for, in order:\n1. `pool stats` returning to `in_use` well under 20 with `waiting=0` (healthy baseline was `in_use=3–10, idle=10–17`).\n2. `ERR_POOL_EXHAUSTED` stops appearing.\n3. Connection opens dropping back toward the stated baseline of ~40 per 5m.\n4. 503 rate → 0 on non-health routes.\n\n---\n\n### Unrelated open issue — do not conflate\n\n`worker.log` shows **zero errors**; 1080/1080 jobs `finished ok`, and its DB pool is flat at `in_use=1 idle=7 waiting=0` for all 18 samples. The workers were not affected by this incident and need no cleanup.\n\nHowever, worker job duration ramps linearly from 200ms to 2324ms (~11×) across the window, about +11ms/min. It **starts at 01:00, 74 minutes before the gateway broke, and passes through 02:14 as a dead-straight line** with no inflection — a separate problem, not fallout from this one. `db_wait` stays flat at 5ms, so the time is inside job execution, not DB contention. All six job types degrade identically.\n\nNothing is failing yet, which is why it isn't paging. At the current slope it reaches ~4s/job by 07:00.\n\nPossible lead, unconfirmed: `dep-4470` (worker, \"retry backoff for webhook jobs\") finished 00:55, five minutes before the log starts — so there's no pre-deploy baseline in what I have. The deploy was webhook-scoped while the ramp is uniform across all job types, so it would have to be something process-wide it touched. **Pull worker logs from before 01:00 to settle this.** Worth its own ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d9384dce9310fd00cd30c7ba7c70c4d511ec2811608455d1229ae35dcb20ae04"
+}

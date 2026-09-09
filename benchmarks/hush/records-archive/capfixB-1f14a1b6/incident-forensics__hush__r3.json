@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 34,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 63495,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47341179999999994,
+  "numTurns": 14,
+  "durationMs": 55632,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3232
+  },
+  "contextTraffic": 696935,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 41187,
+  "narrationWords": 0,
+  "finalWords": 129,
+  "finalText": "**Root cause.** `dep-4471` shipped to the gateway (node-3 of 3) at 02:12–02:14Z by a.novak: \"config: connection-per-request for pool isolation.\" Right after, the connection pool got stuck at 20/20 in use and never freed a slot. The wait queue only grew, from 13 requests waiting up to 74+ by the end of the log. That's a leak, not a traffic spike.\n\n**Impact window.** First slow-acquire warning at 02:14:14Z. First 503 at 02:14:18Z, on `/v1/cart`. Still failing at 03:59:27Z, the last line in the log, so this was not self-resolving. Hit `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, and `/v1/catalog/search`. `/health` kept returning 200 the whole time.\n\n**Scope.** Gateway only. `worker.log` shows its own pool steady at `size=8 in_use=1 idle=7` throughout, and jobs kept finishing fine during the outage.\n\n**Roll back:** `dep-4471` (gateway, a.novak).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31cbed344e0e57117240e4e9f5e573b33f8cea4908a45d638b91341414eb2bbf"
+}

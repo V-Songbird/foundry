@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40266,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.36934049999999996,
+  "numTurns": 9,
+  "durationMs": 38623,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1879
+  },
+  "contextTraffic": 133194,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 12017,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died and took the service with it.** No app bug.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `Redis` at `10.0.0.12:6379` refuses connects, cache falls back to direct store reads ([app.log:182](logs/app.log#L182)) |\n| 02:14–02:31 | Queue depth climbs 52 to 568, past the max of 500 |\n| 02:31:45 | `worker-2` dies of heap exhaustion, code 134 |\n| 02:31:52 | `api` killed, service down |\n\nAll 13 reconnect tries got `ECONNREFUSED`, so the `Redis` box was down the whole 17 minutes, not flapping.\n\nNext: check why `Redis` stopped at 02:14, and cap the queue so a cache loss sheds load instead of running out of memory.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "492ff9b7576576a5ac867e69c9c61dde7aac935ecd19f3132da59b53012ff5a3"
+}

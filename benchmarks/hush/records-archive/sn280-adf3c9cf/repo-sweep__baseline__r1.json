@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 72665,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.28298100000000004,
+  "numTurns": 44,
+  "durationMs": 71303,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9820
+  },
+  "contextTraffic": 327987,
+  "apiCalls": 9,
+  "toolCalls": 43,
+  "toolResultChars": 22077,
+  "narrationWords": 72,
+  "finalWords": 61,
+  "finalText": "All 12 remaining call sites are migrated to `db.execute({ sql, params })`. The only leftover `db.query` is in `vendor/legacy-orm/adapter.js`, which is explicitly marked as a vendored file that's replaced wholesale on upgrade — I left that alone rather than editing code that isn't ours to maintain. Note the `cache.query` calls in several files are a separate, unrelated API and weren't touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a38224879830e973d5d553f26554d62c214b97d362e51237989539806be137da"
+}

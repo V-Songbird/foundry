@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r5",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 69,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 5,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 71931,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.37365550000000003,
+  "numTurns": 14,
+  "durationMs": 66339,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4734
+  },
+  "contextTraffic": 579197,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 17787,
+  "narrationWords": 0,
+  "finalWords": 266,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** ONGOING — not yet mitigated as of last log entry (03:59:27Z)\n\n**Root cause**\nDeploy `dep-4471` (gateway, author a.novak, 02:12–02:14Z, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` via config generation 119, applied at 02:13:41.234Z. This exhausts the fixed 20-connection pool — every request now claims its own connection instead of sharing/reusing one, and demand quickly outstrips the pool. Every error in gateway.log (530 occurrences, no other error type present) is `ERR_POOL_EXHAUSTED`, `in_use` pinned at 20, with `waiting` climbing from 13 at the start to 74+ by the end of the log.\n\n**Impact window**\n- **Start:** 2026-03-14 02:14:18.972Z (first 503, ~30s after config gen 119 applied)\n- **End:** none — still failing and worsening at 03:59:27Z (last logged 503), queue depth still climbing. Treat as unresolved.\n- Scope: gateway only. Confirmed via worker.log — all 1100 job entries across the same window (01:00–03:59Z) show `finished ok`, no errors, no discontinuity at 02:14. Workers hit the DB directly and were unaffected.\n\n**Action: roll back `dep-4471`**\nRevert the gateway config change — either roll back the full deploy or just flip `gateway.pool.perRequest` back to `false`. That's the fastest path to recovery. Before re-attempting the \"pool isolation\" change, it needs a larger pool size or genuine connection reuse; the current pool (20 connections) can't support one-connection-per-request under normal load.\n\n**Not related, no action needed**\n- `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) both landed after the incident started and aren't implicated.\n- worker.log has one `WARN` at 02:36:22Z for a slow unindexed `orders` query — pre-existing known issue `OPS-2210`, unrelated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8a6727504df6492f56edacf15f8f1e244fa7256e18d5071989f285acd0a41f0"
+}

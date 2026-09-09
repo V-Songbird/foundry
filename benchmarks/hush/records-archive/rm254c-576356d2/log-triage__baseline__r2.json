@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 11,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20409,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2932407,
+  "numTurns": 3,
+  "durationMs": 19228,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1538
+  },
+  "contextTraffic": 139703,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 266,
+  "finalText": "Here's the sequence of events, reconstructed from `logs/app.log`:\n\n**Normal operation** (02:00–02:14): steady traffic across `api`, `worker-1`, `worker-2`, `scheduler` — health checks, orders/users requests, ~90-98% cache hit ratio.\n\n**02:14:07.113Z — Root cause**: Redis at `10.0.0.12:6379` drops (`ECONNREFUSED`). The api layer immediately falls back to direct DB reads (`cache layer degraded`).\n\n**02:14:07 → 02:31:26 — Cascading overload** (~17 min): with no cache, every service (api/worker-1/worker-2/scheduler) hits a repeating pattern every ~2s: cache-miss storm → 5000ms request timeout → growing request queue depth. The queue climbs essentially linearly from 52 to 568, blowing through its stated max of 500 around **02:29:06**. In parallel, 13 automated Redis reconnect attempts (numbered 0–12, roughly every 140s) all fail with the same `ECONNREFUSED` — Redis never comes back.\n\n**02:31:44.902Z — Crash**: `worker-2` dies with `JavaScript heap out of memory (request backlog)` — the unbounded queue growth from the timeout storm exhausted its heap.\n\n**02:31:45.001Z**: supervisor restarts worker-2, but it's too late.\n\n**02:31:52.318Z — Outage**: `api` becomes fully unresponsive; the supervisor kills the whole process group. Log ends here — **service down**.\n\n**Bottom line**: This was a single point of failure. Redis (10.0.0.12:6379) went down and never recovered despite 13 reconnect attempts over 17 minutes. The cache fallback path had no backpressure/circuit breaker, so requests just kept queuing against an overloaded store until a worker OOM'd and took the whole service with it.\n\n**Worth checking next**: why Redis at `10.0.0.12` was unreachable for 17+ min straight (host/network issue vs. Redis crash), and adding a circuit breaker + queue depth cap so a downstream cache outage degrades gracefully instead of cascading into an OOM kill.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e8835fa8d3cabcd514c30d8e6757ddbd81a5a5e73d80e120ec9220328c6de9d5"
+}

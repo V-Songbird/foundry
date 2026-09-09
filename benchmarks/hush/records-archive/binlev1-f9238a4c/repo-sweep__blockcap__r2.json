@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__blockcap__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 32,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "blockcap",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54083,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.39543649999999997,
+  "numTurns": 12,
+  "durationMs": 52212,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3267
+  },
+  "contextTraffic": 199250,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 24081,
+  "narrationWords": 7,
+  "finalWords": 63,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding the remaining callers."
+  ],
+  "finalText": "**Migrated 12 files off `db.query`.** All 36 calls now use `db.execute({ sql, params })`. All 12 files load clean under `node`.\n\nLeft `vendor/legacy-orm/adapter.js` alone. Its header says do not edit, since upgrades overwrite it. It still holds 2 `db.query` calls at [adapter.js:9](vendor/legacy-orm/adapter.js:9) and [adapter.js:13](vendor/legacy-orm/adapter.js:13).\n\n`cache.query` is a separate API. Untouched.\n\nNext: decide the vendor file. Options are pin the driver or patch upstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "206ad6b4206a18000783e8242ec759db2d6b076a9617687f0bd0732f0c8af851"
+}

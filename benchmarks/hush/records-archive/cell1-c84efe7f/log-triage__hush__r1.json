@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21080,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1757164,
+  "numTurns": 3,
+  "durationMs": 19365,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1196
+  },
+  "contextTraffic": 90849,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 120,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Root cause: Redis went down, and the fallback path couldn't handle the load.**\n\nAt `02:14:07` `redis connection lost` (`ECONNREFUSED 10.0.0.12:6379`). App fell back to direct store reads. That triggered a cache miss storm and 5000ms timeouts on every request.\n\nQueue depth climbed for 17 minutes straight, `52` to `568` against a max of `500`. Redis reconnect attempts failed every ~2 minutes, 12 times total, never recovered.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog. Supervisor restarted it, but at `02:31:52` `api` went unresponsive and the whole process group was killed.\n\nFull log saved at `<path>\n\nNext: fix or failover Redis at `10.0.0.12:6379`, and add a queue-depth circuit breaker so timeouts shed load instead of piling up.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "87883822f697e96ed8f499e6347061d5ffa53932de2a8439c1b9cea1902739cb"
+}

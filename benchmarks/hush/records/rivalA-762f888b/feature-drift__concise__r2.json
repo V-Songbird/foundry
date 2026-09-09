@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__concise__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 125,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 139739,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.795334,
+  "numTurns": 32,
+  "durationMs": 134903,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8265
+  },
+  "contextTraffic": 769706,
+  "apiCalls": 29,
+  "toolCalls": 27,
+  "toolResultChars": 14685,
+  "narrationWords": 18,
+  "finalWords": 178,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "The spec is a straight priority→channel mapping, so that's what I'll write."
+  ],
+  "finalText": "Dedup is in, using the `state` scratch object that was already scaffolded.\n\n- `createState()` now returns `{ lastSentAtByKey: new Map() }`; `route()` records `event.at` per key only when it actually returns channels.\n- A repeat is dropped when `event.at - lastSent <= 5`. The window is measured from the **last send**, not the last event, so a sustained flap can't ratchet the window forward indefinitely — after 5 minutes one gets through and becomes the new anchor.\n- The check runs before quiet-hour handling, so a suppressed repeat is dropped outright rather than queued, and a queued notification counts as \"sent\" for the key.\n\nReplay: 99 dropped, 0 errors. I verified every one of those 99 drops has a prior *delivered* event with the same key within 5 minutes — no incidental drops. Deliveries fall accordingly (pager 225→200, queue 300→266).\n\nTwo boundary calls worth a glance: I treated exactly 5 minutes apart as a duplicate (`<= 5`), and the `key` in `events.js` rolls over every 60 events, so the same subject can legitimately re-send under a new key.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "faf3f4b75fe2dbcef7b36ab7a10e77b67f3a14201b670e9bea4995af0afd519d"
+}

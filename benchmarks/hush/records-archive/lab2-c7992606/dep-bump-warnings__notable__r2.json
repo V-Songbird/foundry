@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__notable__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notable",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24358,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10068440000000001,
+  "numTurns": 9,
+  "durationMs": 22822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1309
+  },
+  "contextTraffic": 161689,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5537,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is green now.**\n\nTwo real bugs, both from the bundler bump:\n\n- [options.js:7](src/core/options.js:7) read `options.retries`, but the new bundler passes `retryCount`. Fixed to match.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) threw on `undefined`. The new loader leaves unset flags undefined instead of `false`. Now treated as disabled.\n\nRest of the \"screen full\" was deprecation noise from the bump itself, harmless. Build now exits 0 with 8 warnings, 0 errors.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2e615d23c59fe7c7f3277e0d1ecb141ae687b3dfd702a0bc4b5694d465192bf3"
+}

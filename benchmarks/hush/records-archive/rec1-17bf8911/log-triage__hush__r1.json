@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15385,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11978099999999998,
+  "numTurns": 4,
+  "durationMs": 13792,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 930
+  },
+  "contextTraffic": 115787,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\n`redis` at `10.0.0.12:6379` dropped at `02:14:07Z` (`ECONNREFUSED`). Cache fell back to direct store reads, which couldn't keep up.\n\nFrom there queue depth climbed non-stop, 52 to 568 over 17 minutes, with steady `TimeoutError` and cache-miss-storm warnings. 12 redis reconnect attempts all failed through `02:31:26Z`, redis never came back.\n\nAt `02:31:44Z` `worker-2` hit `JavaScript heap out of memory` from the backlog. Supervisor restarted it, but `02:31:52Z` `[supervisor]` killed the whole process group, `api unresponsive`.\n\nFull detail in [`b341979e.txt`](<path>).\n\nNext: fix or restart redis at `10.0.0.12:6379`, and add a queue-depth cap so a future redis outage degrades instead of OOMs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d43efd9fe6b64726ec9ac3aeaa758371a1fd12ad3a308ceb3b4a502ccabfbad"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush-core-only__r2",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 23,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush-core-only",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 103394,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6312252,
+  "numTurns": 48,
+  "durationMs": 97058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8044
+  },
+  "contextTraffic": 657942,
+  "apiCalls": 15,
+  "toolCalls": 44,
+  "toolResultChars": 27454,
+  "narrationWords": 17,
+  "finalWords": 108,
+  "finalText": "The dependency check confirms it: `package.json` still pins `fast-parse` at `1.4.2`, and `NOTES.md` says that exact version was yanked over a prototype-pollution report, with `1.4.3` as the fix. Nothing else in `NOTES.md` needs action — `date-fmt` is called out as unmaintained but harmless, and `pg-lite`/`redis-min` are current.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. SQL injection in `src/repo/report.js` — filter and sort values pasted straight into the query\n2. No auth on `src/routes/internal.js` — leftover from the dropped VPN requirement\n3. Hardcoded staging DB password in `config/staging.js`\n4. `fast-parse` still on the yanked `1.4.2`, needs `1.4.3`\n\nService code wasn't touched — this was audit only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e0c569393ff6cf6ea231a4c31583f17df385a5f194ee381177b5617db526be64"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hushstock__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 27,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 82369,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5900005,
+  "numTurns": 43,
+  "durationMs": 80761,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10426
+  },
+  "contextTraffic": 360281,
+  "apiCalls": 9,
+  "toolCalls": 42,
+  "toolResultChars": 24563,
+  "narrationWords": 34,
+  "finalWords": 62,
+  "finalText": "Found 11 straggler files still calling `db.query` and moved every call over to `db.execute({ sql, params })`.\n\n- `cohort.js`, `returnService.js`, `shipment.js`, `refund.js`, `couponService.js`, `macroAdmin.js`, `sla.js`, `variantAdmin.js`, `supplier.js`, `teamService.js`, `session.js`\n\nLeft `cache.query` and `vendor/legacy-orm/adapter.js` alone — the cache calls aren't the database, and the vendor file gets overwritten on every upgrade anyway. The repo's own verify script confirms it: `node verify.js` passed clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c4c518597dfe06f7d553e4feca99e492a6526f49ccb4aff7e4ce9300c6dfd81"
+}

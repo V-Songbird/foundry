@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rx6-32022f5c",
+  "seed": "1786465409125",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 41546,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24586670000000002,
+  "numTurns": 12,
+  "durationMs": 39830,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1954
+  },
+  "contextTraffic": 361163,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 10527,
+  "narrationWords": 4,
+  "finalWords": 88,
+  "finalText": "It builds clean now, exit 0.\n\nTwo real bugs were hiding under the warning spam, both from the bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated a missing `backoffEnabled` flag as an error, but the new config loader leaves unset flags as `undefined` instead of `false`. Now it treats `undefined` as disabled, same as before.\n\nThe rest (deprecation notices, tree-shaking notes, dedupe spam) is just noise from the version bump, not worth chasing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92d23336873e73fdee4f8b5be1c87d5b47f2353e35c4432ab69e95ec927d172c"
+}

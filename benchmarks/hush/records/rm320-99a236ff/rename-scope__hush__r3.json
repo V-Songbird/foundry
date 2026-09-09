@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 74122,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.39778900000000006,
+  "numTurns": 20,
+  "durationMs": 72668,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4591
+  },
+  "contextTraffic": 199082,
+  "apiCalls": 8,
+  "toolCalls": 19,
+  "toolResultChars": 18305,
+  "narrationWords": 6,
+  "finalWords": 115,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**A blanket rename is not safe.** 1291 hits, 94 files.\n\n| Zone | Hits | Verdict |\n| --- | --- | --- |\n| Service JS vars and params | ~950 | Safe to rename |\n| SQL text in repo files | 250 | Needs a real migration first |\n| `migrations/*.sql` | 61 | Frozen. Applied history |\n| `vendor/reporting-sdk` | 20 | Frozen. Regenerated on refresh |\n| `docs/openapi.yaml` | 5 | Frozen. Public contract |\n\n`docs/openapi.yaml` names the frozen public field. So does the right side of `WIRE`, at [lib/serialize.js:8](lib/serialize.js:8).\n\nAudit lines carry it too, at [lib/audit.js:8](lib/audit.js:8). Log consumers read that key.\n\nNext: sign off on the JS identifiers only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f15817f9efacf8335c32a7d98a4c7337c7c4fe8feb010e5514142233fd4a6fca"
+}

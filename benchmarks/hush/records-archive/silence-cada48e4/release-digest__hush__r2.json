@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 156350,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5471252,
+  "numTurns": 15,
+  "durationMs": 154874,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13259
+  },
+  "contextTraffic": 822158,
+  "apiCalls": 14,
+  "toolCalls": 14,
+  "toolResultChars": 79972,
+  "narrationWords": 8,
+  "finalWords": 161,
+  "finalText": "`CHANGELOG.md` now has the 4.2.0 entry. Out of 380 commits, one thing changes what your API returns, one thing is brand new, and ten things were broken and now aren't.\n\nOne breaking change: an expired token now returns `401` instead of `403`. Anyone branching on that status code needs to update. One new feature: failed webhook deliveries now retry themselves with backoff. The rest are real bugs, several of which showed up in more than one service as the same mistake got copied around — a null cursor crashing pagination, a header sent twice, a trailing slash trimmed twice, an empty allowlist mishandled, trace IDs lost on retry, wrong units in latency metrics, a leaked timer, a connection pool that wouldn't close, and one that logged whole request bodies including sensitive data.\n\nI left out the performance commits (skipping a JSON round-trip, avoiding a clone, batching metric writes) since none of them came with numbers to back a real \"faster\" claim.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e5550c2509966b8af197f5791e7327bd929cc005329fa2841517b1405d353fea"
+}

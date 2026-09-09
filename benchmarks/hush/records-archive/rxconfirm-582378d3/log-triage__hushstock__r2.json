@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushstock__r2",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17510,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1817069,
+  "numTurns": 3,
+  "durationMs": 15797,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 751
+  },
+  "contextTraffic": 111235,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 120,
+  "finalText": "Redis dropped at 02:14:07 and never came back. The app tried reconnecting every 80 seconds and failed all 12 times, right up to the crash.\n\nWith no cache, every request fell through to the store, which started timing out. Queue depth was supposed to cap at 500, but it kept climbing anyway, past 560, so requests just piled up instead of getting rejected.\n\nThat backlog is what killed it. At 02:31:44 `worker-2` ran out of memory and got restarted, but the `api` process never recovered and the whole service went down at 02:31:52.\n\nSo: Redis outage → no backpressure on the queue → memory exhaustion → crash. The queue-depth cap not actually capping anything is the piece worth fixing first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "45d1d5f6fc0197ce1771e580fbaa52b1541b78cbb2ac1c4153bb03556768e5de"
+}

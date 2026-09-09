@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__concise__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 73,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 60781,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.582655,
+  "numTurns": 6,
+  "durationMs": 59860,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4462
+  },
+  "contextTraffic": 180482,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 68482,
+  "narrationWords": 10,
+  "finalWords": 647,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory."
+  ],
+  "finalText": "I read all 380 commits and the PR sheet. Roughly 90% is dependency bumps, CI/test churn, and rename/move refactors. Here's the signal.\n\n## What users would actually notice\n\n**Behavior changes that could break someone**\n\n1. `fix(auth): return 401 for an expired token instead of 403` (1d2bd55, PR #4223) — status code change on a public path. Anyone branching on 403 breaks silently.\n2. `refactor(*): stop re-exporting the internal error types` — landed 8 times across `db`, `core`, `jobs`, `auth`, `billing` (5d4de73, d988aed, d7cf97b, b5cfbc3, 8639397, …). Labelled \"refactor,\" but it removes exports from the package surface. If those types were reachable from the package entry point, this is a breaking import change.\n3. `refactor(api): drop the unused v1 export route` (56dc828, PR #4152) — a removed HTTP route, not an internal cleanup. \"Unused\" per the author, but that's a claim about *their* callers.\n\n**New**\n- `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48, PR #4191) — the only feature in the release. Touches `src/core/config.js`, so it likely added a config knob worth documenting.\n\n**Fixed** (deduped from 26 fix commits, many landed 2–4× across modules)\n- Null cursor in the paginator crashed — `queue`, `api`, `webhooks`, `db`\n- Trailing slash trimmed twice in URLs — `queue`, `jobs`\n- Empty allowlist mishandled — `db`, `store`, `jobs`\n- Duplicate header sent on a request — `core`, `http`, `billing` (5 commits)\n- Trace id lost across a retry — `api` (3 commits)\n- HTTP client leaked a timer when the socket dropped, and didn't close the pool on shutdown (f66d359, eb874a5) — hangs on exit\n- Latency histogram reported wrong units — `store`, `core`\n- **Request bodies were being written to logs** (1b55313, PR #4157) — privacy/security relevant, worth calling out explicitly\n- Token parser error messages tightened — `core`, `billing`, `queue`\n\n**Perf** (real, but no heading for it in your format)\n`perf(api): reuse the parsed schema between requests` (9f02d92), batched metric writes in queue/db, skipped JSON round-trips on hot paths, dropped clones in mappers.\n\n**Deps:** runtime bumps are all patch/minor — fastify 4.28.1, pg 8.13.0, knex 3.1.2, ioredis 5.4.2, undici 6.19.5, pino 9.3.1, zod 3.23.8, nanoid 5.0.8, dotenv 16.4.7. Nothing that changes your peer surface. Everything else is dev tooling.\n\n## Draft\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- An expired token now returns 401 instead of 403.\n- The internal error types are no longer re-exported. Import them from their\n  own module, or match on the error code instead.\n- The v1 export route is gone. Use the current export endpoint.\n\n### Added\n- Webhook deliveries that fail are now retried with exponential backoff.\n\n### Fixed\n- Request bodies are no longer written to the logs.\n- Paginating past the last page no longer throws on a null cursor.\n- The HTTP client no longer leaks a timer when the socket drops, and closes\n  its pool on shutdown.\n- A trace id now survives a retry.\n- URLs with a trailing slash are no longer double-trimmed.\n- An empty allowlist is now treated as empty rather than as \"allow all\".\n- The latency histogram reports milliseconds, not seconds.\n```\n\nThree things to confirm before you ship this:\n\n- **The empty-allowlist fix** — I inferred \"was treated as allow-all\" from the commit titles alone; the log has no bodies. If it was actually deny-all, that's a much smaller note. Worth a 30-second look at `src/store/cache.js`.\n- **Whether the un-re-exported error types were ever public.** If they weren't reachable from the package root, drop that bullet from Breaking entirely.\n- **Node version.** CI moved to node 22, `.nvmrc` got pinned, and three separate docs commits \"note the minimum node version\" — but I saw no `engines` change in any diffstat. If the floor did move, that belongs in Breaking; if it's docs catching up to an existing floor, it doesn't.\n\nWant me to write this into `CHANGELOG.md` at the placeholder?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d595e3a1772fb7b23b2ae217efcf682c1166fc1cf4190c79586115c8247ad847"
+}

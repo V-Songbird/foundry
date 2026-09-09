@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 45,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83875,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.7784794999999999,
+  "numTurns": 11,
+  "durationMs": 82483,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5935
+  },
+  "contextTraffic": 376142,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 73352,
+  "narrationWords": 39,
+  "finalWords": 661,
+  "finalText": "I read all 380 commits and the 127-row PR sheet. Here is what I found.\n\n## The signal-to-noise split\n\n| Type | Commits | User-visible? |\n|---|---|---|\n| chore | 153 | No |\n| refactor | 73 | Mostly no — 2 exceptions below |\n| test | 64 | No |\n| ci | 33 | No |\n| fix | 26 | Yes |\n| docs | 20 | No |\n| perf | 10 | Yes |\n| feat | 1 | Yes |\n\n37 commits carry user-visible change. They collapse to about 14 distinct facts, because the same fix landed in 2 to 4 modules under separate commits. For example, \"guard the null cursor in the paginator\" landed four times: `api`, `db`, `queue`, and `webhooks`. That is one fact for a reader, not four.\n\n## Three things hide in the refactors\n\nThese carry a `refactor:` prefix, but they change the public surface. Verify each against the diff before you publish.\n\n1. **`stop re-exporting the internal error types`** — 8 commits across `core`, `db`, `auth`, `billing`, and `jobs`. If any consumer imports those error classes today, the import breaks.\n2. **`refactor(api): drop the unused v1 export route`** (`56dc828`, PR #4152) — the subject says \"unused\". The diff touches `src/api/router.js`, `src/api/handlers.js`, and `test/api.test.js`. A removed HTTP route is breaking for anyone who calls it.\n3. **`fix(auth): return 401 for an expired token instead of 403`** (`1d2bd55`) — a status-code change. A client that branches on 403 breaks. It carries a `fix:` prefix, but it belongs under Breaking.\n\n## Dependency bumps\n\n16 distinct bumps, all patch or minor. Nine are runtime dependencies: `fastify`, `pg`, `knex`, `ioredis`, `pino`, `undici`, `zod`, `nanoid`, `dotenv`. Seven are build or test tooling. No major version. Nothing here needs a changelog line.\n\n## Draft entry\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- The package no longer re-exports the internal error types. Import them from\n  the public entry point instead.\n- The v1 export route is removed.\n- An expired token now returns 401. It returned 403 before.\n\n### Added\n- Failed webhook deliveries retry with exponential backoff.\n\n### Fixed\n- The HTTP client clears its timer when the socket drops.\n- The HTTP client closes the pool on shutdown.\n- Outgoing requests no longer carry a duplicate header.\n- The paginator no longer fails on a null cursor.\n- An empty allowlist no longer causes an error.\n- A URL keeps one trailing slash, not two.\n- The database layer no longer logs the whole request body.\n- The latency histogram reports the correct units.\n- The trace id survives a retry.\n- The token parser reports what is wrong in the error message.\n```\n\nTwo notes on the draft:\n\nThe `feat(webhooks)` commit (`395fb48`) also touches `src/core/config.js`. It likely adds a config option for the backoff. Check the diff. If the option exists, name it in the Added line.\n\nThe 10 `perf` commits have no heading in your template. They cover four themes: skip a JSON round-trip on the hot path, batch the metric writes, avoid a clone in the mapper, and reuse the parsed schema between requests. I left them out to keep the three headings. If you want them, one line under Added works: \"Lower request latency on the hot path.\"\n\n## Open questions\n\n- **Minimum Node version.** Six `docs: note the minimum node version` commits and four `ci: run the suite on node 22` commits appear. I cannot tell from the log whether the supported floor moved. If it moved, that is a Breaking line. Check `.nvmrc` and the `engines` field.\n- **Source disagreement.** The PR sheet covers 127 rows against 380 commits, and it omits the `undici` bumps entirely. I treated `commits.log` as authoritative. The sheet also lists duplicate rows with the same title under different authors, for example #4120 and #4121.\n\nTell me which of the three breaking items you confirm, and I will write the entry into `CHANGELOG.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c52a627e715693b488f1c537e1de19a51bcdcfd012823e7c532bdc31d513942"
+}

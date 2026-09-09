@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 14,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 71962,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.489731,
+  "numTurns": 14,
+  "durationMs": 70512,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5104
+  },
+  "contextTraffic": 278311,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 27743,
+  "narrationWords": 71,
+  "finalWords": 231,
+  "finalText": "Migration is finished and the verifier passes.\n\n**What was left on the old call:** 12 files, 36 call sites — three per file, the same `getXById` / `listXs` / `updateX` trio:\n\n| Package | Files |\n|---|---|\n| accounts | `admin/apiKeyAdmin.js`, `repo/session.js`, `service/teamService.js` |\n| analytics | `repo/cohort.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `admin/variantAdmin.js`, `repo/supplier.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `admin/macroAdmin.js`, `repo/sla.js` |\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the formatting the earlier passes used verbatim.\n\n**What I deliberately did not touch:**\n\n- `cache.query(...)` — 25 sites across the repo. Same method name, unrelated API (`lib/cache.js`), so a blind name-based sweep would have broken it. Count is unchanged at 25.\n- `vendor/legacy-orm/adapter.js` — 2 `db.query` calls left as-is, since vendored code gets replaced on upgrade.\n\nI used a paren/quote-aware codemod rather than a line regex, because the `updateX` shape has commas inside both the concatenated SQL and the spread params (`[...keys.map((k) => patch[k]), id]`) that a naive split would have mangled. The script lived outside the repo and is now deleted.\n\nFinal state: `packages/` has 0 `db.query`, 225 `db.execute`, 25 `cache.query`. `node verify.js` reports *\"OK every db.query call site moved to db.execute, and nothing else moved\"* — which includes its runtime check that every `get*`/`list*` export still loads, executes, and passes a string `sql` plus an array `params`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "298944168db576493205c714c86c6ca95327177f00d63813a0e11f14800d104c"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 32,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 133044,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.0085419999999998,
+  "numTurns": 61,
+  "durationMs": 131351,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13039
+  },
+  "contextTraffic": 465420,
+  "apiCalls": 11,
+  "toolCalls": 60,
+  "toolResultChars": 52405,
+  "narrationWords": 6,
+  "finalWords": 72,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migrated 12 files off `db.query`.** 36 call sites now use `db.execute({ sql, params })`.\n\nLeft alone on purpose:\n\n| What | Why |\n|---|---|\n| `vendor/legacy-orm/adapter.js` 2 calls | File says do not edit, replaced on upgrade |\n| `cache.query(key)` 20 calls | Different API, takes a cache key |\n\n`node --check` passes on every file. No tests exist in the repo.\n\nNext: patch or drop `vendor/legacy-orm` before the driver removes `query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "33422989197880bc84725aa5df3fa1c06ffc807c73b132fdc7430004d82b82dd"
+}

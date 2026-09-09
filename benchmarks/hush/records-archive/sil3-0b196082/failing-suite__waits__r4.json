@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__waits__r4",
+  "batchId": "sil3-0b196082",
+  "seed": "1787986994570",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "waits",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24729,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1225486,
+  "numTurns": 10,
+  "durationMs": 23090,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1343
+  },
+  "contextTraffic": 203562,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11742,
+  "narrationWords": 27,
+  "finalWords": 49,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the analysis: only `orderTotal` fails, exactly the 3 rows where both discount and tax are non-zero — matching the comment in `cases.js` about that ordering trap."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:41](src/pricing.js:41). It taxed the original price instead of the discounted price, so any order with both a discount and a tax rate came out wrong. Fixed by taxing `discounted` instead of `cents`.\n\nNo further action needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "96e4e98c397245a3adedb772a963b03b1e2a8068cc79f48ca6e5f93456d4ce91"
+}

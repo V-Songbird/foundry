@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 52,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 89535,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.48387940000000007,
+  "numTurns": 38,
+  "durationMs": 88447,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10517
+  },
+  "contextTraffic": 419915,
+  "apiCalls": 8,
+  "toolCalls": 37,
+  "toolResultChars": 51619,
+  "narrationWords": 75,
+  "finalWords": 91,
+  "finalText": "Migration finished — all 12 app files switched from `db.query(sql, params)` to `db.execute({ sql, params })`, matching the already-migrated pattern exactly.\n\nI deliberately left `vendor/legacy-orm/adapter.js` untouched: it's a vendored third-party file with a comment saying it's overwritten wholesale on every upgrade and local edits are silently lost, so patching it wouldn't stick. If you still want `db.query` gone everywhere, that one needs either an upstream fix/upgrade or a wrapper shim at the call site instead of an in-place edit — let me know if you want me to do the latter.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4db1431e5fd61df4a48c0a5e0d463e9072e3eb605acb9d1351e3f649d713429c"
+}

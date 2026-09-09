@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51397,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32807850000000005,
+  "numTurns": 16,
+  "durationMs": 49959,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3454
+  },
+  "contextTraffic": 163668,
+  "apiCalls": 7,
+  "toolCalls": 15,
+  "toolResultChars": 14845,
+  "narrationWords": 7,
+  "finalWords": 96,
+  "assistantMsgs": 2,
+  "finalText": "**1082 hits across 94 files.** Three zones must not change.\n\n| Zone | Files | Do |\n|---|---|---|\n| `services/*` JS | 75 | Rename |\n| [`docs/openapi.yaml`](docs/openapi.yaml), [`lib/serialize.js:8`](lib/serialize.js:8) | 2 | Freeze |\n| [`vendor/reporting-sdk/`](vendor/reporting-sdk/README.md) | 4 | Freeze |\n| `migrations/*.sql` | 12 | Freeze |\n\n`account_id` is the public API field name. Vendor files get overwritten by `npm run vendor:refresh`. Applied migrations are history.\n\nOne trap in the safe zone. Repo SQL strings name the real column. Keep those strings until a new migration renames it.\n\nSign off on the `services/*` rename only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9f2cd57b9e65502c55b1ba5fbd8bb0486952bb758bf6f30c178dd03c99c5c0bc"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57293,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6217584999999999,
+  "numTurns": 7,
+  "durationMs": 55691,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3530
+  },
+  "contextTraffic": 254032,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 70142,
+  "narrationWords": 8,
+  "finalWords": 567,
+  "finalText": "Read both. 380 commits, 127 PRs. Signal count: **1 feat, 23 fix commits, 9 perf**. Rest is deps/CI/test/docs — zero user impact.\n\nDedupe note: many fixes appear multiple times (same fix landed in several modules; PR sheet also has bot-duplicated dep bumps). Grouped by what user actually sees.\n\n## Draft 4.2.0 section\n\n```markdown\n## 4.2.0 — 2026-08-27\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on 403\n  to trigger a re-auth need to look at 401.\n- The v1 export route has been removed. Use the current export endpoint.\n- Internal error types are no longer re-exported from the package root. Import\n  them from the module that owns them, or catch on the error code instead.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it closes\n  its pool on shutdown.\n- Paginating past the last page no longer throws on a null cursor.\n- The trace id survives a retry, so a retried request is no longer untraceable.\n- Request bodies are no longer written to the database log.\n- Latency histograms report the correct units. Recorded values change; dashboards\n  scaled against the old numbers need adjusting.\n- An empty allowlist is treated as empty, not as \"allow everything\".\n- A trailing slash on a URL is trimmed once, not repeatedly.\n- Responses no longer carry a duplicated header.\n- Token parse failures give a specific error message instead of a generic one.\n\n### Performance\n- Hot paths skip a JSON round-trip, the response mapper avoids an extra clone,\n  metric writes are batched, and the request schema is parsed once and reused.\n```\n\n## Verify before ship\n\nThree items need your confirmation — commit subjects call them internal/unused, but they touch public surface:\n\n1. **`refactor(api): drop the unused v1 export route`** (56dc828, #4152) — \"unused\" per author, but a route is public. If anyone still calls it, breaking. If truly deprecated in 4.0/4.1, keep it in Breaking anyway.\n2. **`stop re-exporting the internal error types`** (8 commits: db, core, jobs, auth, billing) — breaking only if those types were reachable from the package entrypoint. Check `src/index` exports.\n3. **`fix(auth): return 401 for an expired token instead of 403`** (1d2bd55, #4223) — labeled `fix`, but it is a contract change. Listed as Breaking above; downgrade to Fixed if you disagree.\n\nAlso: **`perf(api): reuse the parsed schema between requests`** (9f02d92) caches parsed schema across requests. If any caller mutates the schema object, that mutation now leaks between requests. Worth a look, not a note.\n\n## Deliberately dropped\n\n- 60+ dep bumps (pino, eslint, vitest, esbuild, typescript, pg, knex, zod, undici, ioredis, fastify, prettier, husky, nanoid, dotenv, tsx). All patch/minor, none transitively exposed. `undici 6.19.2→6.19.5` and `pg 8.12.0→8.13.0` are the only runtime deps worth a line if you list deps at all.\n- All `refactor:` (Ctx→RequestCtx rename, config loader move, router splits, dead flag branches, v2 debug helper) — internal.\n- All `ci:`, `test:`, `chore:` — internal.\n- `docs: note the minimum node version` appears 4x but only touches docs/README, no `engines` change in package.json diffs. Not a real Node bump. CI did add node 22 to the matrix — support added, not minimum raised.\n\nNo `Removed`/`Deprecated` heading in your existing shape, so removals sit under Breaking. Want me to write it into CHANGELOG.md?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c7c095a9b1864c9cda4d384089fb4f2460758ed409427c23f2c7dd385d4bf93"
+}

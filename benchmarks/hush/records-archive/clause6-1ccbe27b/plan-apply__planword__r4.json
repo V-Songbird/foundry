@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__planword__r4",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 10,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "planword",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11257,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07129440000000001,
+  "numTurns": 5,
+  "durationMs": 9721,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 604
+  },
+  "contextTraffic": 102621,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 1,
+  "finalText": "I'd check `argv` for `--json` in `cli.js:9` and branch the output.\n\n```js\nconst jsonFlag = argv.includes('--json');\nprocess.stdout.write(\n  (jsonFlag ? JSON.stringify(buildRows(), null, 2) : toTable(buildRows())) + '\\n'\n);\n```\n\n`buildRows()` already carries the full data, `owner` and `slow` included. `toTable` drops those two on purpose, so JSON mode should use `buildRows()` output directly, not go through `format.js`.\n\nNext: implement in `cli.js`, add a test for `--json`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5e2f45ce7020f8a04c72b60ebad546d0fd3a2b8e3e4fb196997c0ea95d0772f0"
+}

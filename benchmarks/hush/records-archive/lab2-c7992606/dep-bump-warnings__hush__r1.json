@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30313,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13661520000000002,
+  "numTurns": 11,
+  "durationMs": 28651,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1670
+  },
+  "contextTraffic": 262769,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 10238,
+  "narrationWords": 10,
+  "finalWords": 64,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed the two real bugs. Now fixing both call sites."
+  ],
+  "finalText": "**Build is clean. Exit 0, 0 errors.**\n\nTwo real bugs from the bump, both fixed:\n\n- [options.js:7](src/core/options.js:7) read `options.retries`, but the new bundler passes `retryCount`. Threw `TypeError` on `.toFixed`.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) treated unset flags as invalid. New config loader leaves them `undefined` instead of `false`, so it threw. Now `undefined` maps to `disabled`.\n\nThe rest was deprecation noise (`DEP0142`, `DEP0198`, etc), harmless.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7dca6aff5b5181c22bcc5c28988b5c9845a4315b00651643c9a5bb566adb22b5"
+}

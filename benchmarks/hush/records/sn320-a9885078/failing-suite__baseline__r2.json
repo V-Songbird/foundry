@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20471,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1125704,
+  "numTurns": 10,
+  "durationMs": 19130,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1403
+  },
+  "contextTraffic": 189912,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11885,
+  "narrationWords": 38,
+  "finalWords": 37,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed: only `order totals` fails (3 cases). The bug is in `orderTotal` — it applies tax to the original amount instead of the discounted amount, contradicting its own doc comment (\"tax the amount the customer pays\"). Fixing it."
+  ],
+  "finalText": "All 625 cases pass now. The bug was in `orderTotal` (`src/pricing.js:41`): it computed tax on the pre-discount amount instead of the discounted amount, contradicting the function's own doc comment. Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d0ae187f727a3a9047a7f2a10702bf6e94a1edbfcaef9150856b2f2b2ca5feda"
+}

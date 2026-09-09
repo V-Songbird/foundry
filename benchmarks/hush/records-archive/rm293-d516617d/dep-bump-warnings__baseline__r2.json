@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39924,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.264856,
+  "numTurns": 10,
+  "durationMs": 38499,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2290
+  },
+  "contextTraffic": 205399,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7402,
+  "narrationWords": 43,
+  "finalWords": 221,
+  "assistantMsgs": 4,
+  "finalText": "The build passes now (exit 0). You were right that it wasn't all noise — the build was actually **failing**, not just warning.\n\n**Two real bugs**, both from the bump, and sequential (fixing the first exposes the second):\n\n1. `src/core/options.js:6` — the bundler renamed the option `retries` → `retryCount`. This call site wasn't updated, so `options.retries.toFixed()` threw a `TypeError` and aborted the link stage. Now it accepts either shape, with a clear type error if neither is a number.\n\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` where the old one returned `false`. The strict boolean check threw on that. An absent flag now means disabled, matching pre-bump behavior; other non-boolean values still error.\n\n**What I left alone:** the 8 remaining warnings are genuine noise for build purposes — Node deprecations (`fs.exists`, `Buffer()`, `punycode`, `module.parent`, sync loader hooks) plus three bundler lint warnings. Worth flagging two of those as real follow-up work, though they don't break the build:\n\n- `W3307 circular-import: src/core/graph.js <-> src/state/tracker.js` — resolution order is undefined, which is a latent correctness risk.\n- `W1042 crypto.createCipher` in `src/legacy/adapter.js` — deprecated and cryptographically unsafe (no IV); should move to `createCipheriv`. Marked \"remove before v5.\"\n\nSay the word if you want me to clear those too — they're a separate, larger change than getting the build green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3135991f6bcbd82025e7209f05e60efd563bc3124a8a0833d899155e761a873f"
+}

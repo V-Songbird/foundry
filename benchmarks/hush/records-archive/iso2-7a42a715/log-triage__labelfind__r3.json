@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__labelfind__r3",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20415,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1202842,
+  "numTurns": 4,
+  "durationMs": 18923,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 967
+  },
+  "contextTraffic": 115731,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\n`redis` at `10.0.0.12:6379` dropped at `02:14:07`. Reconnects failed 12 times straight, never recovered.\n\nCache fell back to direct store reads. Miss storms and `TimeoutError`s followed on every service.\n\nQueue depth climbed past its `500` cap, hit `568`. Backlog caused `worker-2` to hit heap `OOM` at `02:31:44`.\n\n`supervisor` restarted `worker-2`, then killed the whole process group at `02:31:52`. Service went down.\n\nFull detail: [b341979e.txt](<path>)\n\nNext: fix `redis` reachability at `10.0.0.12`, then add a queue-depth circuit breaker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cc4b80be98b390a938b02ec1920c7cd7051c5d83938f6ab5dad00ce1bb411e74"
+}

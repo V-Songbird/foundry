@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__prevnext__r2",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31057,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1385068,
+  "numTurns": 12,
+  "durationMs": 29495,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1851
+  },
+  "contextTraffic": 279017,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 8104,
+  "narrationWords": 11,
+  "finalWords": 76,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Let me check the tail for exit status and final line."
+  ],
+  "finalText": "**Build passes now, exit 0.**\n\nTwo real bugs, both from the shape/default changes the bump brought in:\n\n- `[src/core/options.js:6](src/core/options.js:6)` read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the right field.\n- `[src/net/retryPolicy.js:7](src/net/retryPolicy.js:7)` threw on unset flags because the new config loader leaves them `undefined` instead of `false`. Now treats `undefined` as disabled.\n\nThe rest, `DEP0142`/`DEP0198`/etc., are just deprecation noise from the bumped packages, not bugs. Build now finishes clean: `8 warnings, 0 errors`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8e16214f00ec2c640a11904482cd866d1025d45a710acf9ea1bf1dbccf8d7ae"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 45,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80934,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.46710450000000003,
+  "numTurns": 21,
+  "durationMs": 79192,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5418
+  },
+  "contextTraffic": 282855,
+  "apiCalls": 9,
+  "toolCalls": 20,
+  "toolResultChars": 16720,
+  "narrationWords": 8,
+  "finalWords": 118,
+  "assistantMsgs": 2,
+  "finalText": "**Big but shallow: 1082 hits across 94 files.**\n\n| Zone | Hits | Rename? |\n|---|---|---|\n| Service JS names in `services/` | 900 | Yes |\n| SQL column refs in `*/repo/*.js` | 125 | No. Needs an `ALTER TABLE` first |\n| Applied migrations in `migrations/` | 37 | No. Editing history breaks the down step |\n| `vendor/reporting-sdk/` | 12 | No. `npm run vendor:refresh` overwrites it |\n| [docs/openapi.yaml](docs/openapi.yaml:16) | 5 | No. Frozen public field |\n| [lib/serialize.js:8](lib/serialize.js:8) WIRE value | 1 | No. That key is the wire name |\n\nSo 900 of 1082 are truly free. The other 182 are contract or history.\n\nAsk for a column-rename migration before you sign.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "de91eb8ab22fb418b7715dee9fe77d1648a9ecb5d8f1280f8f0a6b2398b9ebf1"
+}

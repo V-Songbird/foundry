@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 72,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 1,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17014,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0803312,
+  "numTurns": 1,
+  "durationMs": 15283,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 321
+  },
+  "contextTraffic": 36011,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 171,
+  "finalText": "Both save your work, but they tell a different story afterward.\n\n**Merge** keeps history as it happened. It joins two branches with a new merge commit that has two parents. You see every side branch and when it rejoined.\n\n**Rebase** rewrites history. It takes your commits and replays them on top of the other branch, one by one, as if you'd started there. The result looks like a straight line, no branch commit.\n\nA quick way to picture it:\n\n```mermaid\nflowchart LR\n  A[main] --> B[main]\n  A --> C[your commits]\n  B --> D[merge commit]\n  C --> D\n```\n\nReach for merge on shared branches, like bringing a feature into `main`. It's honest about what happened and never rewrites commits others may have pulled.\n\nReach for rebase on your own branch, before you share it, to clean up your commits or catch your branch up with `main` without a clutter commit. Never rebase a branch someone else is already working from — it changes commit history, and their copy won't match yours anymore.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a30cddf8426bcf043b77eb1c4dafc8eebeece80bcefa5c15fea9de637a8ace0"
+}

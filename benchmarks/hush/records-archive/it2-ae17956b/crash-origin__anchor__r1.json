@@ -1,0 +1,38 @@
+{
+  "key": "crash-origin__anchor__r1",
+  "batchId": "it2-ae17956b",
+  "seed": "1787878022171",
+  "orderIndex": 8,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "anchor",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 13430,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-anchor:HushAnchor",
+  "costUsd": 0.160351,
+  "numTurns": 7,
+  "durationMs": 11319,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 665
+  },
+  "contextTraffic": 101672,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3868,
+  "narrationWords": 7,
+  "finalWords": 64,
+  "assistantMsgs": 2,
+  "finalText": "**Open [src/auth/refresh.js:15](src/auth/refresh.js:15).**\n\nThat `return undefined` is the origin. `auth.internal` sends `invalid_grant`. It is not in `RECOVERABLE`. So `refreshToken` swallows the error and returns nothing.\n\n`session.js:7` passes that `undefined` to `decode`. `tokens.js:6` then calls `.split` on it and throws. Those two lines are victims, not causes.\n\nThe real question is what line 15 should do instead. A revoked token is a `401`, not a `500`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2bb6d7626c5ef1431c48d1c7eb7fcd846d27174faedcf38f27266f0f766590cd"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r3",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 17,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 91026,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2711178,
+  "numTurns": 12,
+  "durationMs": 89556,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7932
+  },
+  "contextTraffic": 302557,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 32100,
+  "narrationWords": 0,
+  "finalWords": 127,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry** in [CHANGELOG.md](CHANGELOG.md).\n\nOut of ~380 commits, one breaking change, one feature, ten real fixes — the rest was deps and refactors.\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook retries with exponential backoff\n- Fixed: full request body no longer logged, trace id survives retries, duplicate response header, pagination crash on missing cursor, latency histogram units, socket/pool leaks, and a few more\n\nWorth a second look: \"handle an empty allow list\" and \"tighten the token parser error message\" — the commit titles don't say what the old behavior actually was, so I wrote the safest accurate reading. If either touches access control or leaks token data, you'll want to word those more precisely from the diff itself before publishing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d5ebbeb2af66774bb1b440301eb78754641576cee388ddac146dd00ffaad5c4"
+}

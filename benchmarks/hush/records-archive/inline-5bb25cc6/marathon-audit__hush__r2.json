@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 33,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 95602,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6653858,
+  "numTurns": 29,
+  "durationMs": 88508,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6760
+  },
+  "contextTraffic": 682404,
+  "apiCalls": 16,
+  "toolCalls": 25,
+  "toolResultChars": 22680,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "`package.json` still pins `fast-parse` at `1.4.2` — the exact version `NOTES.md` says was yanked over a prototype-pollution report, with `1.4.3` as the fix. No code under `src/` imports it directly, so there's no live exploit path today, but it's still a vulnerable version sitting in the tree.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. SQL injection in `src/repo/report.js` — filter and sort pasted into the query unparameterized.\n2. No auth on `src/routes/internal.js` — the VPN it relied on is gone.\n3. Hardcoded staging DB password in `config/staging.js`.\n4. `fast-parse` pinned to the yanked `1.4.2`.\n\nService code wasn't touched, as asked.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98ff3f56c81c0ac54e0a5ce8623b0f78c8200b6bad002c144f5cb83b78b1a180"
+}

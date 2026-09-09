@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__labelfind__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 27,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 106386,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2885132,
+  "numTurns": 12,
+  "durationMs": 104903,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9373
+  },
+  "contextTraffic": 293145,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 31609,
+  "narrationWords": 0,
+  "finalWords": 100,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**4.2.0 notes are in [CHANGELOG.md](CHANGELOG.md).**\n\nSifted 380 commits and the PR sheet for real behavior changes, past the dependency bumps and refactors.\n\nOne breaking change: expired tokens now return `401` instead of `403`.\n\nOne feature: webhook deliveries retry with exponential backoff.\n\nTen fixes worth noting, including a null-cursor crash across four endpoints, duplicate response headers, a trailing-slash bug, dropped trace IDs on retry, wrong latency-histogram units, and the db logging full request bodies.\n\nNext: check the `401`/`403` change and the request-body logging fix with whoever owns those areas before you ship, since they're the two most likely to surprise someone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3bd8a5a494c4f52341d7ce919b74f3ed341fc981926246b46d2f997d2943a03e"
+}

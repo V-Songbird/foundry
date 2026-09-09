@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33711,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22172619999999998,
+  "numTurns": 10,
+  "durationMs": 32210,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1943
+  },
+  "contextTraffic": 315576,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7250,
+  "narrationWords": 25,
+  "finalWords": 100,
+  "finalText": "Found it and fixed it. `packages/shared/config.js` used `Object.assign` to layer package overrides onto the release defaults, which is a shallow merge. Any package overriding part of a nested object like `output` or `sourcemap` — `@acme/api`, `@acme/web`, `@acme/cli` — wiped out the sibling keys, so the bundle stage's `output.dir` check failed and the build aborted with `EBUNDLE07`.\n\nI replaced it with a proper deep merge that only replaces a key outright when it's not a nested object on both sides, otherwise merges recursively. `node build.js` now exits 0 with 5 warnings and 0 errors, and `verify.js` confirms the config merges correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b70c5c1081ae3540c2558f1b5096c43ce15e369dd57373c71fe345ec59c8d2a1"
+}

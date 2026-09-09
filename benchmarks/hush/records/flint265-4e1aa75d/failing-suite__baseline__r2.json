@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 15,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37074,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.284555,
+  "numTurns": 11,
+  "durationMs": 35272,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1988
+  },
+  "contextTraffic": 216106,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12240,
+  "narrationWords": 59,
+  "finalWords": 161,
+  "assistantMsgs": 4,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n**What was actually broken:** exactly one bug, in `src/pricing.js:41`. `orderTotal` computed tax off the original `cents` instead of the discounted amount:\n\n```js\nconst tax = roundCents(cents * taxRate);   // pre-discount base\nreturn discounted + tax;\n```\n\nThat contradicts the function's own docstring (\"Tax is charged on the amount the customer pays\"). Replaced with `applyTax(discounted, taxRate)`.\n\n**Why only 3 of 625 cases caught it:** the order-totals suite is 66 rows with either a zero discount or a zero tax — those pass either way, since with `pct=0` discounted == cents and with `rate=0` tax is 0. Only the three rows with both non-zero (12000c/15%/8.25%, 8650c/20%/5%, 33400c/10%/20%) can expose the ordering, and all three failed, always overcharging (+148, +87, +668 cents). No other suite touched `orderTotal`, so nothing else was affected.\n\nTo read a red run in future: `node run-tests.js 2>&1 | Select-String '^\\s*FAIL'` skips the wall of `ok` lines and the coverage table.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3d3f13f8f5a854eec664348bd55dfd3438aa7396f3d6bbced8e382628c7d614a"
+}

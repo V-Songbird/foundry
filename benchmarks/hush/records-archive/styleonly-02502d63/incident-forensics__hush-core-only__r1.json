@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush-core-only__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 26,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush-core-only",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 81235,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3615522,
+  "numTurns": 14,
+  "durationMs": 74295,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3437
+  },
+  "contextTraffic": 498087,
+  "apiCalls": 13,
+  "toolCalls": 10,
+  "toolResultChars": 11877,
+  "narrationWords": 0,
+  "finalWords": 124,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\"), deployed 02:12–02:14 UTC. 18 seconds after it finished, the pool started throwing `ERR_POOL_EXHAUSTED`. Pool cap is 20 connections, `in_use` pinned at 20, and `waiting` climbed the whole time — 13 at the first error, 74 by the end of the log. It never recovered.\n\n**Impact window:** 2026-03-14 02:14:18 UTC to at least 03:59:27 UTC, the last timestamp in `logs/gateway.log`. Still active when the log cuts off — no resolution recorded. Gateway only: `logs/worker.log` shows zero errors and normal `db_wait` times across the same window.\n\n**Rollback target:** `dep-4471` on `gateway`. The two other deploys near that window, `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20), don't touch pooling and aren't implicated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e826a504a5fc977bb6554de75c1664b378bfe3eb8051980d63f5575952af8136"
+}

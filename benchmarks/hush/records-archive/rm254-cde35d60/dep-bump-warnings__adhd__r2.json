@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26035,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.176958,
+  "numTurns": 10,
+  "durationMs": 24661,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1688
+  },
+  "contextTraffic": 251096,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7137,
+  "narrationWords": 23,
+  "finalWords": 95,
+  "finalText": "Build's clean now (exit 0, 0 errors). The huge scroll of deprecation/dedupe noise was harmless, but two real bugs from the bump were buried in it:\n\n1. **`src/core/options.js`** — the bumped bundler now passes options as `{ retryCount }` instead of `{ retries }`; `resolveRetries` was still reading the old field, so it crashed calling `.toFixed()` on `undefined`. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`; `isBackoffEnabled` only handled explicit `true`/`false` and threw on `undefined`. Now treats `undefined` as disabled (matching old default behavior).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "478cb9f4c0e0e520e8411df49e80faf85441c006881e6ec7726078d9064cfa6a"
+}

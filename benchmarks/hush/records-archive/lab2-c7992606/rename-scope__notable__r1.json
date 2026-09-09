@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__notable__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 30,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "notable",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29964,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1183658,
+  "numTurns": 13,
+  "durationMs": 28296,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2327
+  },
+  "contextTraffic": 169799,
+  "apiCalls": 6,
+  "toolCalls": 12,
+  "toolResultChars": 7375,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Bigger than it looks, and three places must stay `account_id`.**\n\nScope: 94 files touch `account_id`, across `services/orders`, `notify`, `billing`, `analytics`, `accounts`. Most are internal service/repo/route code — safe to rename.\n\nDo not rename:\n- `[lib/serialize.js:8](lib/serialize.js:8)` — comment says it's \"frozen by the API contract,\" mirrors `[docs/openapi.yaml:16](docs/openapi.yaml:16)`. Renaming breaks every client reading the public JSON field.\n- `vendor/reporting-sdk/*` (4 files) — vendored, `[README.md](vendor/reporting-sdk/README.md)` says don't edit, overwritten by `npm run vendor:refresh`.\n- `migrations/*.sql` (11 files) — each is marked applied in production. Editing a shipped migration doesn't rename the live DB column and breaks the down step. The actual column rename needs a new migration, not edits to old ones.\n\n`lib/audit.js` embeds `account_id` too, worth confirming with platform team whether audit log format is also a frozen contract before touching it.\n\nNext: sign off on renaming the ~90 internal service files, but carve out `lib/serialize.js`, `vendor/reporting-sdk`, and all `migrations/*.sql` as out of scope, plus a real DB migration for the column itself.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa1e82b7666c5770839d0df202b6cbfb4b7758fa1a82fb8e571886adcff281c8"
+}

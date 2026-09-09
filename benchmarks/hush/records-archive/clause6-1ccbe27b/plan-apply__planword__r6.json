@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__planword__r6",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 15,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "planword",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11810,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0718528,
+  "numTurns": 5,
+  "durationMs": 10196,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 644
+  },
+  "contextTraffic": 102729,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 58,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, not yet applied.**\n\n`buildRows()` in [report.js](src/report.js) already gives full rows, `owner` and `slow` included. `toTable()` in [format.js](src/format.js) drops those two on purpose, for width.\n\n```js\n// cli.js\nif (argv.includes('--json')) {\n  process.stdout.write(JSON.stringify(buildRows(), null, 2) + '\\n');\n  return 0;\n}\nprocess.stdout.write(toTable(buildRows()) + '\\n');\n```\n\nNo changes needed in `report.js` or `format.js`. Say the word and I'll wire it in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1d3c0b63dd2081cfb6970c5d4ee94233ca2965c2181b3a67acdab3dc94ab8b63"
+}

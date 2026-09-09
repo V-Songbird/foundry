@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13080,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2851547,
+  "numTurns": 3,
+  "durationMs": 11645,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 742
+  },
+  "contextTraffic": 141361,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 202,
+  "finalText": "## What happened\n\n**Root cause:** Redis died. At `02:14:07.113Z`, `[api]` lost its Redis connection (`ECONNREFUSED 10.0.0.12:6379`) and fell back to hitting the primary datastore directly for every request.\n\n**Cascade (02:14 – 02:31):** With cache bypassed, the store got overloaded — repeating pattern of `cache miss storm` warnings, 5s timeouts on api/worker-1/worker-2/scheduler, and steadily climbing request queue depth (52 → 568, cap 500). Redis reconnect attempts fired every ~2 min (13 attempts, `attempt 0`→`attempt 12`) and all failed — Redis never came back.\n\n**Death spiral:** Queue depth blew past its max of 500 around 02:29-02:30. At `02:31:44.902Z`, `worker-2` hit **JavaScript heap out of memory** from the backlog and crashed (exit 134). Supervisor tried to restart it, but at `02:31:52.318Z` the `api` process itself became unresponsive and the supervisor killed the whole process group — **service down**.\n\n**Bottom line:** Redis at `10.0.0.12:6379` went unreachable and never recovered; without a circuit breaker, the app kept slamming the primary store on every cache miss until request backlog exhausted memory and took the process down. Fix priorities: get Redis back up / add HA failover, and add a circuit breaker + backpressure (shed load or fail fast) so a cache outage can't cascade into an OOM crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ad5e37a0f71e0de1f7c7b7beb329bf3c73a749af25fe93f593c553760c6b5e47"
+}

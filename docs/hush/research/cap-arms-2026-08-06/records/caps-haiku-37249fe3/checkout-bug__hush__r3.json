@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 34,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 49823,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08048200000000001,
+  "numTurns": 12,
+  "durationMs": 48115,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2924
+  },
+  "contextTraffic": 361371,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 7300,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "Fixed the checkout total bug. The issue was in `src/services/pricing.js` — when applying a flat-amount coupon, the code subtracted the USD coupon value directly from the already-converted total, treating it as if it were in the customer's currency.\n\n**What was happening:**\n- $100 order in EUR with $10 flat coupon: 100 × 0.9 (EUR rate) − 10 = **80** ❌\n\n**What should happen:**\n- Convert the coupon too: (100 − 10) × 0.9 = **81** ✓\n\n**The fix:** Convert the flat coupon amount to the target currency before subtracting it. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d789c23dfc984048aaed581f598a799f747b4b098e38cfdd42e2d60ae25cfa62"
+}

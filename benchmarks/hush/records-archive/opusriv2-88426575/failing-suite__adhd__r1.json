@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29420,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24440850000000003,
+  "numTurns": 10,
+  "durationMs": 27464,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1664
+  },
+  "contextTraffic": 161454,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12068,
+  "narrationWords": 70,
+  "finalWords": 171,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\nWhat was actually broken — a single bug, three symptoms:\n\n`orderTotal` in `src/pricing.js` applied tax to the **original** amount instead of the discounted one:\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed the pre-discount base\nreturn discounted + tax;\n```\n\nThe function's own doc comment says \"take the discount off, then tax what's actually owed,\" and the spec in `cases.js:89` agrees (`round(round(cents * (1 - pct/100)) * (1 + rate))`). Fixed to:\n\n```js\nreturn roundCents(discounted * (1 + taxRate));\n```\n\nWhy the wall of text only showed 3 failures: the `order totals` suite is 69 rows, but 66 of them have either a zero discount or a zero tax rate — with either factor zero, both formulas give the same answer. Only the three rows at the bottom of `cases.js` (`12000c/15%/8.25%`, `8650c/20%/5%`, `33400c/10%/20%`) have both non-zero, so those were the only ones that could expose the ordering mistake. Everything else in the suite (tiers, refunds, shipping, loyalty, rounding) was already correct.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5ae31b31325713f6a4bcd0cc146ee48ef31b1e5e5016624070eb178265fdaabc"
+}

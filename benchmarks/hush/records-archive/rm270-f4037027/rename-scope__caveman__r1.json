@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__caveman__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 65,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 42345,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.15828940000000002,
+  "numTurns": 8,
+  "durationMs": 40950,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2856
+  },
+  "contextTraffic": 311728,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 11553,
+  "narrationWords": 38,
+  "finalWords": 267,
+  "finalText": "Got full picture. Summary:\n\n**Scope:** big. ~90 files, ~1270 hits, across 5 services (accounts, analytics, billing, notify, orders) — repo, service, HTTP route layer all use `account_id`. Plus 10 migration files (DB column, FK, index names) and docs/openapi.yaml.\n\n**Must NOT rename:**\n\n1. **`lib/serialize.js` — `WIRE` map.** Comment says explicit: public JSON field frozen by API contract. Internal rename must stop before this map; right-hand side stays `account_id`.\n2. **`docs/openapi.yaml`** — public API contract. Every field here is a promise to external clients. Renaming breaks callers.\n3. **`vendor/reporting-sdk/**`** — third-party vendored copy (reporting-sdk@3.8.1), overwritten wholesale by `npm run vendor:refresh`. README: \"Do not edit these files.\" Any edit gets clobbered next refresh anyway.\n4. **`lib/audit.js`** — audit log field. Same risk class as wire format: past + future audit lines must decode consistently; renaming breaks historical trail continuity. Flag for sign-off, not silent rename.\n5. **DB columns in `migrations/*.sql`** — 10 already-applied migration files (accounts, invoices, payments, orders, line_items, shipments, pageviews, funnels, emails, digests, + index/backfill migrations). Editing old migration files does nothing to live DB. Renaming the column for real needs new forward migration (`ALTER TABLE ... RENAME COLUMN`) per table, plus FK/index renames, coordinated with app deploy (expand-contract, not a find/replace).\n\n**Bottom line:** internal repo/service/http code (~90 files) — safe to rename mechanically. Public wire contract (serialize.js WIRE map, openapi.yaml), audit log, vendor SDK, and actual DB schema — must not (or can't, in vendor's case) just get text-replaced. This isn't a same-day sign-off as a clean rename — it's an internal rename now, plus a separate planned DB migration and API-versioning decision for the frozen fields.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d24dfce6793b2d4f6ed0be3caa2072f018e8340b6ea68df9352d021021dfa084"
+}

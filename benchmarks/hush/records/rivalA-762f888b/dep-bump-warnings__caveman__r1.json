@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 22,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31835,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2630035,
+  "numTurns": 10,
+  "durationMs": 30839,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2079
+  },
+  "contextTraffic": 164899,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6138,
+  "narrationWords": 6,
+  "finalWords": 149,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Build green, exit 0. Two real bugs, both from bump — not noise:\n\n1. `src/core/options.js:7` — bundler renamed options key `retries` to `retryCount`. Old read threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`. Now reads `retryCount`, falls back to `retries`, throws clear `TypeError` if neither is number.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined`, old returned `false`. Strict check threw. Now `undefined` maps to `false` — matches old default (backoff disabled). Non-boolean junk still throws.\n\nRest is noise: 8 warnings left are deprecation notices (`fs.exists`, `Buffer()`, `punycode`, `crypto.createCipher`, unused-export, circular-import). Build counts them but they don't fail it.\n\nWorth queuing separately, not blocking:\n- `crypto.createCipher` in `src/legacy/adapter.js` — removed in v5, and it derives keys with no IV. Real security debt.\n- circular import `src/core/graph.js <-> src/state/tracker.js` — \"resolution order is undefined\" bites later.\n\nThose files aren't in this tree, so I left them alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6d9d18262a3aefa52769917d4c9b6c0f577b6a3cd907459d7896aa9e03dfadf3"
+}

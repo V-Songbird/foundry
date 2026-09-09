@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 53,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28203,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.2042587,
+  "numTurns": 9,
+  "durationMs": 26530,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1667
+  },
+  "contextTraffic": 326100,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 6694,
+  "narrationWords": 45,
+  "finalWords": 59,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` in `src/pricing.js:41`: it calculated tax on the original pre-discount amount instead of the discounted amount, even though the function's own comment said tax must apply to what the customer actually pays. I changed `cents * taxRate` to `discounted * taxRate`, and the 3 failing \"order totals\" cases now pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dc5cfbd29d4371eafe650b0819728459721647ff892da5842e4535e4cafa59f9"
+}

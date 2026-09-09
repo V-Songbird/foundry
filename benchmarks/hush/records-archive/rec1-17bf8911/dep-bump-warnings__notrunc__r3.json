@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__notrunc__r3",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27381,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11376139999999998,
+  "numTurns": 10,
+  "durationMs": 25599,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1458
+  },
+  "contextTraffic": 193291,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7874,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** 0 errors, exit code 0.\n\nTwo real bugs, both from the bundler bump:\n\n- [options.js:7](src/core/options.js:7) read `options.retries`, but the new bundler passes `retryCount`. Fixed to read `options.retryCount`.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) threw when `backoffEnabled` was `undefined`, since the new config loader leaves unset flags as `undefined` instead of `false`. Added an `undefined` case that returns `false`.\n\nThe rest of the noise (`DEP0142`, `DEP0198`, circular-import, unused-export, etc) is just deprecation chatter, not build-breaking.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ff32cb5fdef30a970b97ec7057c6a1a4968fbcb925c74bddf95ff3341a6f7181"
+}

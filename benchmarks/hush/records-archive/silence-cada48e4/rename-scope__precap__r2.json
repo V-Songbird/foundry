@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__precap__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "precap",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35225,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.133266,
+  "numTurns": 9,
+  "durationMs": 33769,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2516
+  },
+  "contextTraffic": 164573,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 12871,
+  "narrationWords": 0,
+  "finalWords": 234,
+  "finalText": "Real size: 1,082 places use `account_id`, spread across 94 files in 5 services (orders, notify, billing, analytics, accounts) plus the shared `lib/` folder, `vendor/`, `docs/`, and 13 database migration files. It touches every layer: routes, services, and repo files in each service.\n\nThree places must keep the old name:\n\n1. **The public API.** `docs/openapi.yaml` and `lib/serialize.js` both say, in plain words, that `account_id` is a frozen field name. Every outside client reads it by that name. Renaming it breaks their code unless you ship a new API version.\n2. **The vendored SDK.** `vendor/reporting-sdk/` is generated code marked \"do not edit.\" It gets overwritten automatically, so any rename there would vanish on the next refresh.\n3. **Past database migrations.** The column was created in `migrations/20250114_create_accounts.sql` and thirteen other migration files reference it as a foreign key. Editing old migration files is unsafe. Renaming the column needs a brand new migration that runs `ALTER TABLE ... RENAME COLUMN`, not edits to history.\n\nOne more thing worth flagging: `lib/audit.js` writes `account_id` into every audit log line, and 25 service files call it. That's a shared surface too, so it should move in lockstep with the rest, not get missed.\n\nSo the safe scope is: rename the column and its use inside the five services' internal code and the new migration, but leave the public API contract, the vendored SDK, and old migration files exactly as they are.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "45ced9ffdfdbc7b145a00c4dfce96375516b084ce1f8a55fb28b525c8db13aa7"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__react__r2",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 61117,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1509654,
+  "numTurns": 12,
+  "durationMs": 54478,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3681
+  },
+  "contextTraffic": 488267,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 33257,
+  "narrationWords": 0,
+  "finalWords": 53,
+  "finalText": "On-call handoff written. The smoking gun is dep-4471 — the \"connection-per-request for pool isolation\" config change finished at 02:14:00Z, and 503s started 18 seconds later. The broken config held all 20 connections and never released them, so the queue backed up and requests started failing immediately. Workers weren't touched. Roll back that deploy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d2fb611fbb0962723757e6fbc42ad533456a4fd3eb118e587eb2f3573c6e120b"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 33,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 82228,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.47707,
+  "numTurns": 21,
+  "durationMs": 80766,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5822
+  },
+  "contextTraffic": 281142,
+  "apiCalls": 9,
+  "toolCalls": 20,
+  "toolResultChars": 21667,
+  "narrationWords": 22,
+  "finalWords": 649,
+  "assistantMsgs": 3,
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files** (1,082 distinct lines). It breaks down cleanly because the codebase is template-generated — every service follows an identical routes/service/repo triple:\n\n| Zone | Occurrences | Files |\n|---|---|---|\n| `services/**` (25 route + 25 service + 25 repo files) | 1,200 | 75 |\n| `migrations/*.sql` | 61 | 12 |\n| `vendor/reporting-sdk/` | 20 | 5 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/` (audit, serialize) | 5 | 2 |\n\nThe 1,200 in `services/` are mechanically uniform (9 per route file, 15 per service file, 17 per repo file), so the bulk is genuinely a find-and-replace. The risk is entirely in the ~180 that are *not* internal identifiers.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` — public API contract (5).** The file states it outright: every field named there is part of the contract, renaming needs a new dated version. `account_id` is a required response property on `Invoice` and `Order` and a public query parameter on `/v2/invoices`.\n\n**2. `lib/serialize.js` — the wire boundary (the critical one).** `WIRE` maps internal row key → public JSON key:\n\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\n\nThe **left** side must become `owner_id`; the **right** side must stay `'account_id'`. A blind global replace rewrites both, silently renames the field in every API response, and breaks every client. This single line is the difference between an internal refactor and a breaking change — `lib/serialize.js:8`.\n\n**3. `migrations/*.sql` — applied history (61).** All twelve carry the header \"Applied in production… editing one does not rename anything in a database that already ran it, and it breaks the down step.\" Editing them changes nothing in prod and corrupts rollback. A real column rename needs a *new* migration.\n\n**4. `vendor/reporting-sdk/` — vendored generated code (20).** README: \"Do not edit these files… replaced wholesale by `npm run vendor:refresh`, which overwrites anything changed here.\" Edits are lost on the next refresh, and `account_id` there is the upstream vendor's request/response shape anyway (`buildSchemaRequest`, `parseSchemaResponse`) — it's a third-party wire format, not ours to rename.\n\n**5. SQL string literals inside repos (~125 — 5 per repo file × 25).** e.g. `'SELECT * FROM invoices WHERE account_id = ? AND id = ?'`. These name the **database column**, not a JS variable. They can only be renamed in lockstep with a new column-rename migration and a deploy plan. If the team wants a code-only rename today, these must stay `account_id` while the surrounding JS parameters become `owner_id`.\n\n**Two things to flag but decide on:**\n\n- `repo/*.js:35` — `JSON.stringify({ ...values, account_id })` writes the key into the `payload` JSONB. Renaming it makes new rows structurally inconsistent with every existing row. Not public (serialize strips `payload`), but it's persisted data, so treat it like the SQL.\n- `lib/audit.js` — every audit line carries `account_id`. Internal, so renameable, but if any log pipeline, SIEM query, or dashboard filters on that key, they break silently. Worth a question to whoever owns log ingestion.\n\n## My read for sign-off\n\nRoughly **1,100 safe, mechanical renames and ~180 that are load-bearing**. The scary part isn't the volume, it's that a `sed -i s/account_id/owner_id/g` across the repo looks like it works — the tests pass, the services compile — and ships a breaking API change plus a rollback-broken migration set.\n\nI'd sign off conditional on: the rename is scoped to `services/**` JS identifiers and the *left* side of `WIRE` only; `docs/`, `migrations/`, and `vendor/` are excluded from the diff entirely; SQL literals and the payload key are left alone unless a column-rename migration ships with it. Those exclusions are easy to verify in review — the diff should touch zero files outside `services/` and `lib/`, and `lib/serialize.js` should show exactly one changed token.\n\nWant me to produce the scoped rename itself, or a checklist you can hand back to the platform team?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "889e9455470cd8c80dac7cac88fa221c61a31575b7a006f93b95be85dc71d437"
+}

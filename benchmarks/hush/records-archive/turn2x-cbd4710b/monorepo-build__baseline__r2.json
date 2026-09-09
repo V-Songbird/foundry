@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32441,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21077010000000002,
+  "numTurns": 12,
+  "durationMs": 31223,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2206
+  },
+  "contextTraffic": 296492,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 11944,
+  "narrationWords": 108,
+  "finalWords": 111,
+  "finalText": "Both the build and the verification suite pass now (exit 0), with the original 5 lint warnings still intact but no errors.\n\n**Root cause:** `packages/shared/config.js` used `Object.assign({}, RELEASE_DEFAULTS, overrides, cliFlags)` to layer config — a shallow merge. Since `output` and `sourcemap` are nested objects, any layer that overrode just one key inside them (e.g. `@acme/api`'s `output: { format: 'esm' }`) replaced the *entire* nested object, wiping out sibling keys like `output.dir`. That's what tripped the bundle stage's `output.dir` check and aborted the build.\n\n**Fix:** replaced the shallow merge with a recursive `mergeLayer` that merges nested plain objects key-by-key instead of overwriting them wholesale, while leaving non-object values (and `RELEASE_DEFAULTS` itself) untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "833723ba9521bfe1da8f30111838583aa78238d46fcc9904ca6724678cc876ae"
+}

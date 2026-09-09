@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 21,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29056,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21067800000000003,
+  "numTurns": 10,
+  "durationMs": 27375,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1722
+  },
+  "contextTraffic": 250708,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 10092,
+  "narrationWords": 15,
+  "finalWords": 92,
+  "finalText": "Build's clean now, exit code 0.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing shapes it handed to your code:\n\n1. `src/core/options.js` read `options.retries`, but the new bundler sends `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as an error, but the new config loader leaves it `undefined` instead of `false`. Fixed to just treat that as off.\n\nThe rest was genuine noise — deprecation warnings from the bump (`fs.exists`, `Buffer()`, `punycode`, etc.) — safe to leave for now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bba777a2631035f8ff864d247e5f44294bc74299e087402a85bad4e31302ace5"
+}

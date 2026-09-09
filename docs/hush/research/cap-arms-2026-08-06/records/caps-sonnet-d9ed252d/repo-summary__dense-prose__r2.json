@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 137,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20202,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1457732,
+  "numTurns": 8,
+  "durationMs": 18456,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1131
+  },
+  "contextTraffic": 148484,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 4286,
+  "narrationWords": 0,
+  "finalWords": 194,
+  "finalText": "It's a small five-file Node server with no outside dependencies. Here's how a request flows through it:\n\n```mermaid\nflowchart LR\n    A[server.js] -->|checks token| B[auth.js]\n    A -->|passes request| C[routes.js]\n    C -->|reads| D[cache.js]\n    C -->|writes| E[store.js]\n    D -->|misses go to| E\n```\n\n- **`server.js`** opens the HTTP port and checks every request for a valid token before anything else runs.\n- **`auth.js`** makes those tokens. Each one is a user ID plus a signed stamp, checked with a timing-safe compare so no one can guess a valid one bit by bit.\n- **`routes.js`** is the small table of what each URL does. Reads (`GET /users`, `GET /orders`) go through the cache. The write (`POST /orders`) skips it and goes straight to the store.\n- **`cache.js`** is a 256-slot memory cache that keeps recent reads around so the store isn't hit every time.\n- **`store.js`** holds the actual data in memory. Nothing sticks around forever — each record quietly expires 15 minutes after it was last written.\n\nOne thing worth knowing early on: this store is in-memory only, so a restart wipes everything. It reads like a stand-in for a real database that hasn't been built yet.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "61d59c888a2b2810fa6b644f29a3c4f878c92bce64212620dcfcc4154e43e4d3"
+}

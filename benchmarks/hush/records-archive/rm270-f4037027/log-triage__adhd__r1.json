@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17473,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2977302,
+  "numTurns": 4,
+  "durationMs": 15704,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 923
+  },
+  "contextTraffic": 189569,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60188,
+  "narrationWords": 0,
+  "finalWords": 239,
+  "finalText": "## What happened\n\n**02:14:07** — Redis died: `ECONNREFUSED 10.0.0.12:6379`. App fell back to direct store reads instead of failing gracefully.\n\n**02:14:08 → 02:31:26** — 17 minutes of cascading degradation:\n- Every request now hit the store directly → constant `TimeoutError: request timed out after 5000ms (store overloaded)`\n- Request queue depth climbed steadily from ~52 up to 568 (way past the max of 500)\n- Redis reconnect attempts (0 through 12, roughly every 2 min) all failed the whole time — Redis never came back\n- Cache miss storm warnings throughout, since nothing could repopulate the cache\n\n**02:31:44** — `worker-2` hit **JavaScript heap out of memory** from the backlog of unprocessed requests, and got restarted by the supervisor.\n\n**02:31:52** — `api` became unresponsive; supervisor killed the whole process group. **Service down.**\n\n## Root cause\nRedis went unreachable and never recovered. The fallback path (direct store reads on cache miss) had no circuit breaker or backpressure — it kept accepting requests and retrying the overloaded store instead of shedding load, so the queue grew unbounded until a worker OOM'd and took the API down with it.\n\n## Recommendation\nAdd a circuit breaker / load-shedding on cache-miss fallback (reject or 503 once queue depth crosses a threshold, e.g. 200) so a downstream Redis outage degrades gracefully instead of cascading into an OOM crash. Also worth confirming why Redis at 10.0.0.12:6379 was down for 17+ minutes — that's outside this log's scope.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed786ea1779494871966a4e05a4495e2f9ff4cd4408c47fd97416c6db6208d1b"
+}

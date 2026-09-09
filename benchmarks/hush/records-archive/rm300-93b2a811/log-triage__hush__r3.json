@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40663,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.315881,
+  "numTurns": 8,
+  "durationMs": 39174,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1921
+  },
+  "contextTraffic": 170855,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 18602,
+  "narrationWords": 6,
+  "finalWords": 126,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log now."
+  ],
+  "finalText": "**Redis died, and the app never recovered.** One root cause, not many.\n\nAt `02:14:07` `Redis` at `10.0.0.12:6379` refused connections. The cache fell back to direct store reads. That triggered a cache miss storm, then `TimeoutError` after 5000ms on every worker. Queue depth climbed from 52 to 568 and passed the 500 cap at `02:29:12`. At `02:31:44` `worker-2` hit `JavaScript heap out of memory`. The supervisor killed the process group at `02:31:52`.\n\n| Fact | Value |\n| --- | --- |\n| Last good request | `02:14:03` [logs/app.log:181](logs/app.log:181) |\n| Reconnect tries | 13, all `ECONNREFUSED` |\n| Retry gap | fixed 80s, no backoff |\n\nNext: check why `Redis` at `10.0.0.12` went down. The retry loop needs backoff and the queue needs a hard cap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0b0c69dbdc28b137ce76ffe1fc72cb1d0f88e12ff429dcac634c2ae83da85eaf"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13100,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2949052,
+  "numTurns": 3,
+  "durationMs": 11656,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 768
+  },
+  "contextTraffic": 145924,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60172,
+  "narrationWords": 0,
+  "finalWords": 217,
+  "finalText": "Root cause found — Redis died, and the fallback path took the whole service down with it.\n\n**Timeline:**\n1. **02:14:07** — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). App fell back to direct store reads instead of failing gracefully.\n2. **02:14:07 – 02:31:26** — No cache = every request hit the DB directly. Request queue climbed from 52 → 568 (max was 500, so it was already over budget for a while), timeouts fired every few seconds on `api`/`worker-1`/`worker-2`/`scheduler`. Redis reconnect attempts (0 through 12, every ~2 min) all failed — Redis never came back.\n3. **02:31:44** — `worker-2` OOM'd (`heap out of memory`) from the backlog piling up in memory.\n4. **02:31:45** — supervisor restarted worker-2 (exit code 134).\n5. **02:31:52** — `api` stopped responding entirely; supervisor killed the whole process group. **Full outage.**\n\n**Root cause:** Redis at `10.0.0.12:6379` dropped and never reconnected (12 failed attempts over ~17 min). The cache-miss fallback to direct store reads had no circuit breaker or backpressure — it just kept queuing requests until memory ran out and the process died.\n\nNext: check why Redis at `10.0.0.12` went down (host/network issue, OOM on the Redis box itself, etc.) — that's outside this log. Want me to grep for anything else in the log first, or is this enough to open the incident writeup?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a925af82d1897a10f52596acb65a4272bd9856992dd44d338bff5c13e413e8de"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 85,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 132219,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.5958789999999999,
+  "numTurns": 14,
+  "durationMs": 126701,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7996
+  },
+  "contextTraffic": 417898,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 10951,
+  "narrationWords": 8,
+  "finalWords": 604,
+  "finalText": "# On-Call Handoff — Gateway 503 Incident\n\n**Prepared by:** <email>\n**Source data:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n**Status at handoff:** not mitigated. The log ends while the gateway still returns 503.\n\n**Note on dates.** All three files cover 2026-03-14, 01:00Z to 04:00Z. They do not cover last night. If you expect data from 2026-08-26, this data set is the wrong one. The report below describes the 2026-03-14 window.\n\n---\n\n## 1. Root cause\n\nDeploy `dep-4471` set `gateway.pool.perRequest` from `false` to `true`. The gateway then opened a new connection for each request. The connection pool holds 20 connections. The pool filled and stayed full.\n\nEvidence:\n\n- The config line is in the gateway log at 02:13:41.234Z.\n- The pool log shows `size 20, in_use 20` on every error, for 105 minutes.\n- The wait queue grew from 13 to a peak of 271.\n- A churn warning at 03:02:30.904Z records 4180 connection opens in 5 minutes. The baseline is 40.\n\nThe error text is the same on all 530 failures:\n\n```\nERROR pool  req-NNNNN ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n**Confidence: high, but not proven.** Three sources agree on the time and the change. I did not read the gateway source code. The rollback is the test.\n\n---\n\n## 2. Impact window\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:00 | `dep-4471` starts |\n| 02:13:41.234 | Config generation 119 applied |\n| 02:14:14.920 | First slow-acquire warning |\n| **02:14:18.972** | **First 503** |\n| 03:21:05.282 | On-call paged, 5-minute error rate 71% |\n| 03:59:27.974 | Last log line, still a 503 |\n\n**Duration: 1 hour 45 minutes and counting.** The gateway did not recover.\n\nError rate: 0% before 02:14. 44% in the 02:10 window. **83% from 02:20 to the end of the log.**\n\nScope: 530 of 1228 requests failed. All four upstreams failed (`billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc`) in near-equal numbers. All five business paths failed, including `/v1/checkout`. `/health` still returned 200, so monitors that check only `/health` did not see this.\n\n---\n\n## 3. Roll back this deploy\n\n```\ndep-4471  gateway  2026-03-14T02:12:00Z  a.novak\nconfig: connection-per-request for pool isolation\n```\n\nDo these steps:\n\n1. Revert `gateway.pool.perRequest` to `false`.\n2. Roll the gateway config back to generation 118.\n3. Watch the pool log for `in_use` below 20.\n4. Confirm that the 503 rate falls to 0%.\n5. Contact a.novak before any re-deploy of `dep-4471`.\n\nLeave `gateway.timeout.upstreamMs` at 2500. That key changed in the same reload. It is not implicated.\n\n**Do not roll back the other deploys.** `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) shipped after the 503s started. Neither can be the cause.\n\n---\n\n## 4. Open item — separate incident\n\nThe workers are healthy on this failure mode. All 1080 jobs finished ok. The worker pool stayed at `size=8 in_use=1 waiting=0` for the full window.\n\nThe workers have a different problem. Average job duration grew from 327ms to 2197ms, at a steady rate of +110ms per 10 minutes. `db_wait` stayed flat at 5ms.\n\nTwo facts separate it from the gateway incident:\n\n- The climb was already underway at 01:00, which is 74 minutes before `dep-4471`.\n- The slope does not change at 02:14.\n\nThe flat `db_wait` and the linear growth suggest a leak in the worker process. Open a separate ticket. To find the start time, pull worker logs from before 01:00Z.\n\nOne related warning is in the log:\n\n```\n2026-03-14T02:36:22.838Z WARN db  slow query 1.9s: SELECT * FROM orders WHERE status = ? — unindexed scan, known issue OPS-2210\n```\n\nThis is a single event under a known issue. It does not explain a three-hour linear climb.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c4153160a3b4f682689ddab957f6b89e789edf48b774a2790131c1ab4d54514"
+}

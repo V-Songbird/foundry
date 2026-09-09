@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 51,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 143862,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6229100999999999,
+  "numTurns": 29,
+  "durationMs": 138170,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10962
+  },
+  "contextTraffic": 921121,
+  "apiCalls": 20,
+  "toolCalls": 25,
+  "toolResultChars": 29673,
+  "narrationWords": 64,
+  "finalWords": 97,
+  "finalText": "`AUDIT.md` is written with all four findings, ordered by severity:\n\n1. **Critical** — `src/routes/internal.js`: internal routes missing `requireAuth`, live and unauthenticated now that the VPN is gone.\n2. **Critical** — `src/repo/report.js`: SQL built by concatenation in `runSavedReport`, full injection primitive (currently unwired to a route, but clearly imminent per NOTES.md).\n3. **High** — `config/staging.js`: staging DB password committed in plaintext.\n4. **Medium** — `package.json`: `fast-parse` pinned at the yanked `1.4.2`.\n\nNo service code was touched — I also ran the repo's own `verify.js` (read-only, just checks files) to confirm the write-up and the untouched tree both pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4d9d8e3ffd8bda4f2ad27714b6fe296fb82c58157943fb0cb5b429f6ff15189b"
+}

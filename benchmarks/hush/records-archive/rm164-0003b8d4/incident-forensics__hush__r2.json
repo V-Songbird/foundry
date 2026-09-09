@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 55,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 73743,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.40844919999999996,
+  "numTurns": 17,
+  "durationMs": 66689,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4045
+  },
+  "contextTraffic": 659974,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 16494,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "finalText": "Saved to `INCIDENT_HANDOFF.md`.\n\nRoot cause: `dep-4471` flipped `gateway.pool.perRequest` to `true` without raising pool size, so the pool of 20 connections saturated. First 503 hit at 02:14:18Z, four minutes after the deploy started, and it was still ongoing at the end of the log with the wait queue up to 74.\n\nImpact was gateway-only. Workers stayed clean through the same window. Roll back `dep-4471` to fix it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f8684e668f5ae2ec18d013bc673a8f720e6a0b959b4f80738009a9ed2d4f6154"
+}

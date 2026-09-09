@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__blockcount__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "blockcount",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 76326,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "blockcount:Blockcount",
+  "costUsd": 0.23318959999999997,
+  "numTurns": 13,
+  "durationMs": 74670,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6083
+  },
+  "contextTraffic": 288763,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 26486,
+  "narrationWords": 0,
+  "finalWords": 141,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry to [CHANGELOG.md](CHANGELOG.md:20).**\n\nOut of 380 commits and 127 PRs, one real feature and ten real fixes. Everything else was dep bumps, refactors, and internal test/CI churn.\n\nAdded: webhooks now retry with exponential backoff on failed delivery.\n\nFixed: expired tokens return `401` not `403`, request bodies no longer land in logs, a duplicate response header is gone, pagination no longer throws on a null cursor, the HTTP client stops hanging on socket drop and closes its pool on shutdown, trailing slashes trim once, empty allowlists work right, latency metrics report correct units, trace ids survive retries, token parser errors read clearer.\n\nNo breaking changes this cycle, so that heading is omitted, matching how `4.0.3` did it.\n\nNext: check the wording against how you'd describe the `401`/`403` change to API consumers, since that's the one with real integration impact.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1b525c2a023d7fadae7b8a4cd6dce36c7b287a88ec2ff928d1124963a24f1e6a"
+}

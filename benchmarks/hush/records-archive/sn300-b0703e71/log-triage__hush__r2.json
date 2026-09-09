@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16011,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11715079999999999,
+  "numTurns": 4,
+  "durationMs": 14430,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 675
+  },
+  "contextTraffic": 115766,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 119,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis dropped, and the cascade killed prod.**\n\nAt `02:14:07` Redis at `10.0.0.12:6379` refused connections. `api` fell back to direct store reads, and cache miss storms plus 5000ms timeouts started immediately.\n\nRedis reconnect attempts kept failing every ~80s (attempts 7 through 12, last at `02:31:26`) and never recovered. Meanwhile queue depth climbed steadily from 52 to 568, way past the max of 500.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog, `02:31:45` supervisor restarted it, and by `02:31:52` `api` was unresponsive and the supervisor killed the whole process group. That's the outage.\n\nFull log saved at `<path> if you need raw lines.\n\nNext: fix or restart the Redis host at `10.0.0.12:6379` first, that's the root cause.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e3f97ec85fa448aa196ec3c5f53806386707f533b9cedcb6bd6e147bfdd55bc4"
+}

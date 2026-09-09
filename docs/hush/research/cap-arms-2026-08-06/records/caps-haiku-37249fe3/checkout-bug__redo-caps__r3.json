@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 32,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 43253,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0690579,
+  "numTurns": 12,
+  "durationMs": 41576,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2724
+  },
+  "contextTraffic": 270814,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 5583,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "All 5 tests pass. The bug was that flat coupons were being subtracted after currency conversion, treating them as if they were already in the target currency. Since coupon amounts are stored in USD, they need to be subtracted in USD first, then the result gets converted.\n\nFor example, a $100 order in EUR with a $10 coupon was calculating as (100 EUR × 0.9) - 10 = 80, but should be (100 - 10) × 0.9 = 81.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ab87410f09a4f06d06ff845d6daccb954c3c1dedcb8dc46d0577f315b5e528f6"
+}

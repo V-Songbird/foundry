@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36531,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2870065,
+  "numTurns": 7,
+  "durationMs": 34388,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1386
+  },
+  "contextTraffic": 174558,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 17136,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died at `02:14:07` and never came back.** That took the service down 17 minutes later.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:10 | First `TimeoutError` after 5000ms, store overloaded |\n| 02:29:12 | Queue depth passes the 500 cap |\n| 02:31:44 | `worker-2` dies, `JavaScript heap out of memory` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nAll 13 reconnect tries got `ECONNREFUSED` on the same host. No good request logged after `02:14:03`. Next step is to check why `10.0.0.12:6379` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aed6f11b8a26bab8ea6a86965a69e85d3e715c8d4a814fe6019507a96a31e0b0"
+}

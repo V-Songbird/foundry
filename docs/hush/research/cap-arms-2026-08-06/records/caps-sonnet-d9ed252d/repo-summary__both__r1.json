@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 135,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33069,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1520723,
+  "numTurns": 8,
+  "durationMs": 31499,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1532
+  },
+  "contextTraffic": 148709,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 4286,
+  "narrationWords": 0,
+  "finalWords": 206,
+  "finalText": "This is a small Node HTTP service, five files, no framework. Here's how a request flows through it.\n\n```mermaid\nflowchart LR\n  A[server.js] -->|checks token| B[auth.js]\n  A -->|passes user in| C[routes.js]\n  C -->|reads| D[cache.js]\n  D -->|on miss| E[store.js]\n  C -->|writes| E\n```\n\n- **`server.js`** — starts the HTTP server, checks the login token on every request, then hands off to the routes.\n- **`auth.js`** — makes and checks bearer tokens. A token is just a user id plus a signed hash, using a shared secret from the environment.\n- **`routes.js`** — the small table of endpoints: get a user, list orders, add an order. Reads go through the cache, writes go straight to storage.\n- **`cache.js`** — a small \"remember the last 256 things\" cache sitting in front of storage, to avoid repeat reads.\n- **`store.js`** — the actual data, kept in memory. Each record quietly expires 15 minutes after it was last written.\n\nOne thing worth knowing: `routes.js` says writes should clear the cache, but `POST /orders` never does that. So after someone adds an order, a `GET /orders` can still hand back the old list until it ages out of the cache. Worth fixing if order lists need to stay accurate right after a write.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "feafadbf26333c40d670eb977edebee65cabbeabc0d5e5962a1e461a0814b31d"
+}

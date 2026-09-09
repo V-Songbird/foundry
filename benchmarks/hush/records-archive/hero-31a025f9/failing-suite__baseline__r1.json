@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 24,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17295,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1777477,
+  "numTurns": 8,
+  "durationMs": 16064,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1085
+  },
+  "contextTraffic": 226756,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 14637,
+  "narrationWords": 26,
+  "finalWords": 58,
+  "finalText": "All 625 cases pass and `verify.js` confirms the fix is legitimate.\n\nThe bug: `orderTotal` in `src/pricing.js` was computing tax on the pre-discount amount instead of the discounted amount, contradicting the rule that \"tax is charged on the amount the customer pays.\" Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)` — a one-line fix, no test or spec changes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "08764653da8a5b4bbd5978a18f4ead35ae43e7b3d3d87fa067cda73e8723bb73"
+}

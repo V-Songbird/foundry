@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r6",
+  "batchId": "clause2-37db0fa3",
+  "seed": "1787981563072",
+  "orderIndex": 11,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16031,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08046940000000001,
+  "numTurns": 7,
+  "durationMs": 14469,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 843
+  },
+  "contextTraffic": 128896,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 2183,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no edits made.**\n\n`buildRows()` in [report.js](src/report.js) already carries every field, `owner` and `slow` included. `toTable()` in [format.js](src/format.js) drops those two on purpose for width.\n\n1. In `cli.js`, parse `--json` out of argv.\n2. If set, `JSON.stringify(buildRows(), null, 2)` instead of `toTable`.\n3. Skip `format.js` entirely, since JSON wants the full row, not the table's trimmed columns.\n\nNext: say go and I'll make the edit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a9338d8b205160f07d8aef2633319638ad6187ce137efa0368749082440d4ba8"
+}

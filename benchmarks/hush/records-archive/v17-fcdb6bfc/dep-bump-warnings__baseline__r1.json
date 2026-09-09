@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39262,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2080589,
+  "numTurns": 11,
+  "durationMs": 37750,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2206
+  },
+  "contextTraffic": 322913,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 7358,
+  "narrationWords": 58,
+  "finalWords": 95,
+  "finalText": "Build is clean now, exit 0.\n\nThe bulk of the noise (DEP0142/DEP0198/etc., tree-shaking notes, dedupe lines) was just chatter from the dependency bump — no action needed there. Two real bugs were hiding in the link stage, both caused by the new bundler's changed option shapes:\n\n- `src/core/options.js` — `resolveRetries` still read `options.retries`, but the bumped bundler now passes `retryCount`. Fixed to read the new field.\n- `src/net/retryPolicy.js` — `isBackoffEnabled` threw on `undefined`, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` the same as `false` (disabled).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cd55277e932bdf4eef3a01cbd524e852dca49e82783d4a28f22e0b92068d8d62"
+}

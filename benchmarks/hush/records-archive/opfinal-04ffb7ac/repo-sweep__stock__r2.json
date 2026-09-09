@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__stock__r2",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 18,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 129755,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8968694999999999,
+  "numTurns": 60,
+  "durationMs": 128073,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12813
+  },
+  "contextTraffic": 345655,
+  "apiCalls": 10,
+  "toolCalls": 59,
+  "toolResultChars": 42139,
+  "narrationWords": 6,
+  "finalWords": 57,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**Migrated 12 files, 36 call sites, to `db.execute({ sql, params })`.** All parse clean under `node --check`.\n\nTwo `db.query` calls remain, both in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). That file says do not edit, since upgrades overwrite it. You need a wrapper or an upstream fix there.\n\nI left `cache.query` alone in 18 files. It takes a cache key, not SQL.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "334647e26746a43ced4112fd8b992223ce61bdd7f4bfbe7dd46c37797c45d4ee"
+}

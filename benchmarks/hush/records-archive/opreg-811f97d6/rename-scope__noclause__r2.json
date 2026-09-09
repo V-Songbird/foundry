@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__noclause__r2",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 55902,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3543765,
+  "numTurns": 17,
+  "durationMs": 54434,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3750
+  },
+  "contextTraffic": 193922,
+  "apiCalls": 8,
+  "toolCalls": 16,
+  "toolResultChars": 15029,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "assistantMsgs": 1,
+  "finalText": "**Big but bounded: 1082 lines across 94 files.** Four zones must keep `account_id`.\n\n| Zone | Why |\n|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | public contract, frozen |\n| [lib/serialize.js:8](lib/serialize.js) | wire name, frozen |\n| `migrations/*.sql`, 12 files | applied history |\n| `vendor/reporting-sdk`, 4 files | generated, overwritten |\n\n125 SQL strings name the DB column. They sit in `services/*/src/repo/*.js`. That column stays until a new migration.\n\nSafe to rename: 75 service files, plus [lib/audit.js](lib/audit.js). Ask them to rename symbols, not text.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f9e9ca358589d3451178e8640d82c258e4bca464a3e55a7a1f7e62046efb5423"
+}

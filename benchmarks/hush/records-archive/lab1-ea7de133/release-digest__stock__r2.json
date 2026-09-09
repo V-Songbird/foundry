@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__stock__r2",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 16,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 52514,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1972268,
+  "numTurns": 10,
+  "durationMs": 50944,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4256
+  },
+  "contextTraffic": 213065,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 29411,
+  "narrationWords": 32,
+  "finalWords": 115,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "No breaking changes this cycle — the one behavior change (401 vs 403) reads as a fix, not a contract break.\n\nNow I'll draft the CHANGELOG entry in the file's established shape."
+  ],
+  "finalText": "**Wrote the 4.2.0 entry into [CHANGELOG.md](CHANGELOG.md).**\n\nOf 380 commits, only one feature and nine fixes touch users. Everything else was deps, refactors, tests, and CI.\n\n- One `feat`: webhook deliveries now retry with exponential backoff\n- Nine `fix`es, several repeated across modules: null cursors crashing pagination, double-trimmed trailing slashes, broken empty-allowlist handling, a duplicate HTTP header, full request bodies in logs, wrong latency units, leaky parser error messages, dropped trace ids on retry, and a wrong 403 on expired tokens (now 401)\n\nNo breaking changes this cycle. Worth a glance: the 401/403 change alters a status code some clients may branch on, so you may want to call it out more loudly than I did.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0eefb9998ec4cefee53387e2d27dec684d6bdffc3a59c348b936769a6e9b56b0"
+}

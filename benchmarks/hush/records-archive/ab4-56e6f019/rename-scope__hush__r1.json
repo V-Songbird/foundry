@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 10,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27971,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1362562,
+  "numTurns": 11,
+  "durationMs": 26268,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2016
+  },
+  "contextTraffic": 206539,
+  "apiCalls": 5,
+  "toolCalls": 10,
+  "toolResultChars": 10996,
+  "narrationWords": 0,
+  "finalWords": 243,
+  "finalText": "It's about 94 files, but most of that is safe. Here's the real shape of it.\n\n**Safe to rename:** the internal code in `services/orders`, `services/notify`, `services/billing`, `services/analytics`, and `services/accounts` — function args, SQL params, variable names. That's the bulk of the 94 files and it's low risk.\n\n**Must not be renamed, four spots:**\n1. **`docs/openapi.yaml`** — `account_id` is a public API field and query parameter. The file says renaming it breaks every client and needs a whole new dated API version.\n2. **`lib/serialize.js`** — turns internal rows into public JSON. The public-facing key must stay `account_id` even if the internal one changes, so this file's outer name is frozen by that same API contract.\n3. **`vendor/reporting-sdk/`** (3 files) — this is vendored, auto-generated third-party code. It says right in the file not to hand-edit it, since a refresh script overwrites local changes anyway.\n4. **The 9 `migrations/*.sql` files** — these already ran in production between January and June 2025. Editing an applied migration doesn't rename anything in the live database, and it breaks the rollback step. An actual rename of the database column would need a brand new migration, which is a separate, bigger job than a code rename.\n\nSo: sign off on renaming it inside the five services' own code, but block the public API layer, the vendored SDK, and the applied migrations. If the platform team wants the database column itself renamed, that's a follow-up project, not part of today's change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9c625efe4962dbff01056428c67091649630c4a816231f0a1453d0e093261580"
+}

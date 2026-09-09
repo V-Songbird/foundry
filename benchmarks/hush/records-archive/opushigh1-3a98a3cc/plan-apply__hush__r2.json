@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 67,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19249,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1639255,
+  "numTurns": 7,
+  "durationMs": 18319,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1172
+  },
+  "contextTraffic": 82532,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 2926,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**The change fits in `cli.js` alone.**\n\nOne call to make first. `buildRows()` gives six fields. `toTable` drops `owner` and `slow` on purpose. I would print all six in JSON. Same rows, no lossy trim.\n\n```js\n// src/cli.js\nconst USAGE = 'usage: cli.js report [--json]';\n\nfunction main(argv) {\n  const [command, ...flags] = argv;\n  if (command !== 'report' || flags.some((f) => f !== '--json')) {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const rows = buildRows();\n  const out = flags.includes('--json')\n    ? JSON.stringify(rows, null, 2)\n    : toTable(rows);\n  process.stdout.write(out + '\\n');\n  return 0;\n}\n```\n\n`report.js` and `format.js` stay untouched.\n\nNext: say go, or say trim JSON to the table's four columns.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "17e63090f8eaaafeadc47f78bcb96640605ef524d1a4b60abd4deec25c4c669f"
+}

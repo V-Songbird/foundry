@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 240905,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.2607795,
+  "numTurns": 22,
+  "durationMs": 235470,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 16546
+  },
+  "contextTraffic": 773052,
+  "apiCalls": 20,
+  "toolCalls": 18,
+  "toolResultChars": 50327,
+  "narrationWords": 8,
+  "finalWords": 701,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Incident:** Gateway connection pool exhaustion → sustained 503s\n**Prepared by:** <email> · 2026-08-29\n**Sources:** `logs/gateway.log` (node-3 of 3), `logs/worker.log`, `deploys.csv`\n\n> ⚠️ **Read first:** these logs cover **2026-03-14 01:00–03:59 UTC** — about 5½ months ago, not last night. If you're responding to a live incident, confirm you're looking at the right log file before acting on any of this.\n\n---\n\n### Root cause\n\nConfig change **`gateway.pool.perRequest: false → true`** made the gateway take a fresh connection per request against a fixed 20-connection pool. The pool saturated within seconds and never recovered.\n\nApplied at **02:13:41.234Z** as config generation `118 → 119`. Supporting evidence:\n\n- `connection churn: 4180 opens in the last 5m, baseline is 40` — ~100× increase, the direct signature of per-request connections.\n- All 530 failures are `ERR_POOL_EXHAUSTED ... (size 20, in_use 20)` — pool 100% saturated on every one.\n- Pool stats pinned at `in_use=20 idle=0` from 02:15:58 onward, queue depth climbing to 170+.\n- The same generation also set `upstreamMs: 2000 → 2500`; that is **not** the cause — 503s fire at 600–999ms, well under either timeout.\n\n**Confidence: high, but not proven.** Timing, mechanism, and the deploy's own description all align, and no other change is in the window. It hasn't been confirmed by a revert.\n\n### Impact window\n\n| | |\n|---|---|\n| **First error** | `02:14:18.972Z` — `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| **First precursor** | `02:14:14.920Z` — `acquire slow: waited 100ms` (4s earlier) |\n| **On-call paged** | `03:21:05.282Z` — `error_rate 5m avg is 71%` (**67 min after onset**) |\n| **End of log** | `03:59:27.974Z` — still failing, no recovery |\n| **Duration** | ≥1h 45m, open-ended |\n\n- **530 of 1228 requests failed.** Error rate went 0% → **83.3%**, and held at exactly 83.3% in every 15-minute bucket to the end of the log.\n- Affected: `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search` — all paths, all four upstreams.\n- Degrading, not stable: 503 latency 600ms → 999ms, acquire waits 100ms → 890ms.\n- **Workers unaffected.** 1080 jobs all `finished ok`, `db_wait` flat at 5ms, pool `in_use=1 idle=7` untouched. Blast radius was the gateway only.\n- **Only node-3 of 3 is in evidence.** Assume all three unless you check the others.\n\n### Roll back this\n\n```\ndep-4471 · gateway · 2026-03-14T02:12:00Z–02:14:00Z · a.novak\n\"config: connection-per-request for pool isolation\"\n```\n\nRevert `gateway.pool.perRequest` to `false` (config generation 119 → 118). If a full revert is undesirable, raising pool size well above peak concurrency is a valid stopgap — but revert is the smaller, better-understood change.\n\n**Explicitly not these:** `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both shipped *after* onset, and the error rate was unchanged across both.\n\n### Verify the fix\n\n1. `idle` climbs off zero in the `INFO pool stats` line — the single clearest signal.\n2. `ERR_POOL_EXHAUSTED` stops; access lines return 200 with `pool_wait` back to 0–3ms.\n3. Churn returns toward the stated baseline of ~40 opens / 5m.\n4. Confirm on **all three nodes**, not just node-3.\n\n### Watch out for\n\n- **The per-request `waiting=N` counter is unreliable.** It climbs to ~271 then resets to ~12 (visible around 03:15 and 03:40). That's a counter artifact — `in_use=20 idle=0` and rising latencies run straight through those resets. **Do not read a reset as recovery.** Trust the 5-minute `INFO pool stats` line instead.\n\n### Open items (not blocking)\n\n1. **`/health` returned 200 for the entire incident** while 83% of real traffic failed — so the node stayed in rotation and nothing auto-mitigated. Health checks don't exercise the pool. This is likely why detection took 67 minutes. Worth fixing regardless of this incident.\n2. **Worker jobs are slowing linearly** — 354ms → 2170ms avg over three hours, constant slope, no ceiling. **Unrelated to this incident** (predates onset, no inflection at 02:14, `db_wait` flat). Possibly `dep-4470` (worker, 00:48–00:55, \"retry backoff for webhook jobs\"), but that finished 5 min before the log starts so there's no baseline to compare against. Needs pre-00:48 worker logs. **Separate ticket.**\n3. `OPS-2210` (unindexed `SELECT * FROM orders WHERE status = ?`, one WARN at 02:36) — known issue, not a contributor.\n\n---\n\nWant this saved to a file, or adjusted for a specific handoff template?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b61f51c297d7a409269f2c9d501ed67388acfc30bd307386359c9b1ab63d7350"
+}

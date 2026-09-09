@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 114,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 45224,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.26468040000000004,
+  "numTurns": 12,
+  "durationMs": 43477,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2691
+  },
+  "contextTraffic": 364510,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 10050,
+  "narrationWords": 0,
+  "finalWords": 126,
+  "finalText": "**Found it: `engine.js` was rounding twice.**\n\nAfter a percent coupon, and again after a flat coupon, it rounded the running total to 2 decimal places while still in USD — before converting to the cart's actual currency. That extra rounding step nudged the number just enough that converting and rounding again landed a cent off.\n\nIt only showed up when a percent coupon (`SAVE10PCT`) was paired with a non-USD currency (GBP, CAD, JPY) — USD carts and flat-only coupons never hit the bug, which is why it looked random to Finance.\n\nFixed by letting the total run at full precision through both discounts and only rounding once, at the very end, after converting to the target currency.\n\n`node --test tests/pricing-matrix.test.js`: 40/40 pass, 107ms. Nothing committed yet.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3628f48812f30888ed5205f8a16306e3ca6b1e6b9e1b904b04752071096da62f"
+}

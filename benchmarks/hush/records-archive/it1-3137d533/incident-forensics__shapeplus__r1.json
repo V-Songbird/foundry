@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__shapeplus__r1",
+  "batchId": "it1-3137d533",
+  "seed": "1787877630962",
+  "orderIndex": 3,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "shapeplus",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 99683,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush-shapeplus:HushShapePlus",
+  "costUsd": 0.5022085000000001,
+  "numTurns": 16,
+  "durationMs": 91845,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5067
+  },
+  "contextTraffic": 435623,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 6942,
+  "narrationWords": 0,
+  "finalWords": 228,
+  "assistantMsgs": 4,
+  "finalText": "```markdown\n# On-call handoff — gateway 503s\n\n## Status\nONGOING. Still firing at the end of the log, 2026-03-14T03:59:27Z.\n\n## Root cause\nDeploy dep-4471 applied gateway config generation 119, flipping\ngateway.pool.perRequest from false to true. Each request now takes its\nown connection from a pool still sized at 20. The pool saturates and\ncallers queue. Every 503 carries:\n\n  ERROR pool req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n  (size 20, in_use 20, waiting 13)\n\nQueue depth grows from 13 to 271 and never drains.\n\n## Impact window\nStart   2026-03-14T02:14:18.972Z  (first 503, req-07401)\nEnd     none — open at log end 03:59:27Z\nVolume  530 of 636 requests failed, 83%. Steady 5/min.\nRoutes  /v1/cart, /v1/catalog/search, /v1/checkout, /v1/orders, /v1/session\nNote    /health stayed 200 across all 180 checks, so the load balancer\n        never ejected the node. Failures were invisible to LB health.\n\n## Action\nRoll back dep-4471 (gateway, a.novak, finished 02:14:00Z). Revert\ngateway.pool.perRequest to false. If per-request pooling is wanted,\nraise the pool size well past 20 first.\n\n## Not related\nWorkers are clean — 1079 jobs, zero errors. Job time drifts 200ms to\n2324ms across the whole 3 hours, starting before the deploy. Cause is\nan unindexed scan on orders, already tracked as OPS-2210. Separate.\n```\n\n**Handoff is above.** The one judgment call is the `perRequest` link. The log shows the config change and the pool errors, not a stated causal line between them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2c99ddae67a18c83100b4d5c8cee213d8dbee715df15c2bbac2ffea33bcc9fe2"
+}

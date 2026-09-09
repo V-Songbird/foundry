@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushmax__r2",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18230,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1635429,
+  "numTurns": 4,
+  "durationMs": 16708,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 906
+  },
+  "contextTraffic": 158080,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 8825,
+  "narrationWords": 0,
+  "finalWords": 146,
+  "finalText": "Nothing led up to it. Everything ran clean until 02:14, then Redis just dropped.\n\nRedis went unreachable at 02:14:07. The app fell back to hitting the database directly, which it couldn't handle. From there it snowballed for 17 minutes: cache misses piled up, requests started timing out, and the request queue kept growing past its limit of 500. Redis tried to reconnect the whole time and failed 12 times in a row. At 02:31:44, `worker-2` ran out of memory from the backlog and crashed. The supervisor restarted it, but the API was already stuck, so at 02:31:52 it killed the whole process group and the service went down.\n\nSo the real root cause is the Redis outage at 02:14, not the crash itself. Worth checking why `10.0.0.12:6379` went unreachable, and adding a queue depth cap so a cache outage can't take the whole service down again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9a701b8226a693757c31b43c2f77e8ef5d62ff9da96b627676404702711af78c"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "dep-bump-warnings__noclause__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27155,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1097294,
+  "numTurns": 9,
+  "durationMs": 25434,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1548
+  },
+  "contextTraffic": 167719,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7964,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now, 0 errors.**\n\nTwo real bugs, both from the bump:\n\n- `resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Fixed in [options.js](src/core/options.js).\n- `isBackoffEnabled` threw on `undefined`, but the new config loader leaves unset flags `undefined` instead of `false`. Now treats `undefined` as disabled, in [retryPolicy.js](src/net/retryPolicy.js).\n\nThe rest of the warning wall is deprecation noise from the new deps, unrelated to these two.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92134b6c2d08c4d2decc7ba98c0242aeff37ab5787024be585b8ecb1a9ffc0ce"
+}

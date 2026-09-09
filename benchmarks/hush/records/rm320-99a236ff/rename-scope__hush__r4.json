@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 47,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62044,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.353059,
+  "numTurns": 17,
+  "durationMs": 60453,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4080
+  },
+  "contextTraffic": 167642,
+  "apiCalls": 7,
+  "toolCalls": 16,
+  "toolResultChars": 16074,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**About 1291 hits in 94 files. Four zones must not change.**\n\n| Zone | Why |\n| --- | --- |\n| `vendor/reporting-sdk/` (20) | Generated. `npm run vendor:refresh` overwrites edits. |\n| `docs/openapi.yaml` (5) plus the `WIRE` values in [lib/serialize.js:8](lib/serialize.js:8) | Public field name. Renaming breaks every client. |\n| `migrations/*.sql`, all applied (61) | History. Editing breaks the down step. |\n| `account_id` inside repo SQL strings | Real DB column. Needs its own migration. |\n\nThe rest is service JS, roughly 1200 hits. That part is mechanical.\n\nAlso check `req.session.account_id` and the audit key in [lib/audit.js:8](lib/audit.js:8). Both cross a system boundary.\n\nNext: ask if the DB column is in scope. That answer splits this into one PR or three.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6b9d355da120c54c2992414906ca08ec2fb654baefc4dd9242d37371fc973678"
+}

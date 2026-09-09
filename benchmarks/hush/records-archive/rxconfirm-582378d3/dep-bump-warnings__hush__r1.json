@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35441,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.34922719999999996,
+  "numTurns": 11,
+  "durationMs": 33789,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1911
+  },
+  "contextTraffic": 343730,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 46846,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "It builds clean now, 0 errors.\n\nTwo spots hadn't caught up with the new bundler's option shape. `src/core/options.js` was still reading `options.retries`, but the bundler now sends `retryCount` — that undefined was crashing on `.toFixed()`. `src/net/retryPolicy.js` rejected anything that wasn't strictly `true` or `false`, but the new config loader leaves unset flags as `undefined` — now that's treated as backoff off, same as the old default.\n\nThe rest was just noise: 8 deprecation warnings from the bump itself (`fs.exists`, `Buffer()`, `punycode`, and a few others), unrelated to the crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "db7809ab1261b026166d49fff79c3550f9724d923de96cfef4bbd41514329f70"
+}

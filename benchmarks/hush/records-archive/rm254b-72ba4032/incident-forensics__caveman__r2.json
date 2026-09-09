@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 92,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 110339,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6453020999999999,
+  "numTurns": 14,
+  "durationMs": 103614,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3303
+  },
+  "contextTraffic": 830652,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 84649,
+  "narrationWords": 20,
+  "finalWords": 225,
+  "finalText": "Confirmed: log ends at 03:59:27 still ERROR/503, ongoing — never recovered within captured window.\n\nHandoff below.\n\n---\n\n**ON-CALL HANDOFF — Gateway 503s**\n\n**Status:** ONGOING, not self-resolved. Log ends 2026-03-14T03:59:27.974Z still throwing 503s.\n\n**Impact window:** 2026-03-14T02:14:18.972Z (first 503) through end of available log (03:59:27Z), 1h45m+ and counting. Not a blip — sustained, waiting queue growing unbounded (13 to 74+ waiters).\n\n**Root cause:** dep-4471 (gateway, a.novak, deployed 02:12–02:14Z): \"config: connection-per-request for pool isolation.\" Applied config generation 119 at 02:13:41Z, changed:\n\n```\ngateway.pool.perRequest: false -> true\n```\n\nThat change starves the connection pool — first WARN (slow acquire) at 02:14:14.920Z, first hard failure 4s later at 02:14:18.972Z:\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nPool stuck at size 20 / in_use 20 ever since, waiting count climbs every cycle, never drains.\n\n**Scope:** Gateway only. Cross-checked worker.log same window — all jobs finished ok, db_wait stayed single-digit ms, zero errors. Not a shared DB/infra issue.\n\n**Rollback target:** **dep-4471** on gateway — revert `gateway.pool.perRequest` back to `false`. (The other config keys changed in that same deploy — `upstreamMs` 2000→2500 — are not the cause, can stay or revert with it, don't matter.)\n\n**Not the cause:** dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) shipped after the incident started — unrelated, no need to touch.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "96257f0760e4a86d208b442eba6d46067d54f4750bf615cc12035ce17817d205"
+}

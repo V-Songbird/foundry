@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14886,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2967282,
+  "numTurns": 3,
+  "durationMs": 13549,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 870
+  },
+  "contextTraffic": 146286,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 218,
+  "finalText": "Root cause chain, in order:\n\n**02:14:07** — Redis lost: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` (api). Cache layer degrades to direct store reads.\n\n**02:14:08 onward** — direct-store fallback overloads. Cache miss storms + `TimeoutError: request timed out after 5000ms (store overloaded)` repeat every ~2s across api/worker-1/worker-2/scheduler, nonstop for 17+ minutes.\n\n**02:14:07 → 02:31:26** — 13 redis reconnect attempts (0 through 12), all fail same ECONNREFUSED 10.0.0.12:6379. Redis at that address never came back.\n\n**Meanwhile** — request queue depth climbs steady whole time: 52 → 568, blew past stated max of 500 around 02:29:06 (depth 499→502) and kept climbing, unbounded — queue cap not enforced.\n\n**02:31:44** — worker-2: `JavaScript heap out of memory (request backlog)`. Backlog memory pressure crash.\n\n**02:31:45** — supervisor restarts worker-2 (exit code 134 = SIGABRT/OOM abort).\n\n**02:31:52** — `api unresponsive, killing process group — service down`. Full outage.\n\nBottom line: Redis at 10.0.0.12:6379 died at 02:14:07 and never reconnected (13 attempts, all refused). Fallback to direct store reads had no backpressure/circuit breaker — queue grew unbounded instead of shedding load, worker-2 OOM'd on the backlog, api went unresponsive, supervisor killed everything at 02:31:52.\n\nFix priorities: get Redis back up / find why 10.0.0.12:6379 refused connections, and add queue depth cap enforcement (or circuit breaker on store) so degraded mode can't OOM the process next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e60573c17e7cedc54f80ab7ae009930d5eb821aad7306af427d84ebf0be3ac6a"
+}

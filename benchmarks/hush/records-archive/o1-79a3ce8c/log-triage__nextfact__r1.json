@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__nextfact__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48859,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.6525349999999999,
+  "numTurns": 8,
+  "durationMs": 45388,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2758
+  },
+  "contextTraffic": 300429,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 31286,
+  "narrationWords": 5,
+  "finalWords": 94,
+  "finalText": "**Redis went down and took the whole service with it.**\n\n1. `02:14:07` Redis refused connections at `10.0.0.12:6379`.\n2. The cache fell back to reading the store directly.\n3. Every order lookup missed. The store buckled.\n4. Requests timed out at 5 seconds. The queue grew.\n5. `02:29:12` the queue passed its cap of 500.\n6. `02:31:44` worker-2 ran out of memory and died.\n7. `02:31:52` the supervisor killed the api. Service down.\n\nRedis never came back. All 13 reconnect tries failed.\nNo request succeeded after `02:14:03`.\nFix Redis first. Everything else followed from it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0e7974a89170c1e9fd798d35a41e27f2887d18ed3d9c99e0c21f1cc2a8fc791e"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__shape__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 11,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "shape",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 114875,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8064810000000001,
+  "numTurns": 17,
+  "durationMs": 113334,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7640
+  },
+  "contextTraffic": 538220,
+  "apiCalls": 13,
+  "toolCalls": 16,
+  "toolResultChars": 44689,
+  "narrationWords": 8,
+  "finalWords": 147,
+  "finalText": "Drafted 4.2.0 into `CHANGELOG.md`. Out of 380 commits, 15 matter to someone installing this: three breaking, one feature, eleven fixes. The rest is 130 dependency bumps, 90 tests, and 90 refactors that never cross the package boundary.\n\nTwo things to check before you cut:\n\n**The log stops at 2026-06-17.** That's 68 days ago. If work continued on `release/4.2` after that, this digest is missing it.\n\n**Node minimum.** Five \"note the minimum node version\" commits, six \"run the suite on node 22\", three `.nvmrc` pins — but every one of them touched only docs or CI, never an `engines` field. If 4.2 actually requires Node 22, that's a fourth breaking entry and I couldn't confirm it from the log.\n\nI left the 12 `perf` commits out. None carry a number, and your heading comment says three headings only. Say the word if you want a line for them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a0fad68544619a2de3276928f5fca3cb28d24f4fc11c5ef3a0a0148846814f08"
+}

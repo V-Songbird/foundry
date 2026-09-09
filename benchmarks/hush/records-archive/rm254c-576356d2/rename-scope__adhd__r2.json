@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__adhd__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 70,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 42841,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20979959999999997,
+  "numTurns": 12,
+  "durationMs": 41542,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3478
+  },
+  "contextTraffic": 169016,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 18874,
+  "narrationWords": 0,
+  "finalWords": 307,
+  "finalText": "Here's the shape of it.\n\n**Scope: ~94 files, but only genuinely risky in a few spots**\n\n- `account_id` is the FK/column name on **10 tables** (accounts, invoices, payments, orders, shipments, funnels, pageviews, emails, line_items, digests), all referencing `accounts.account_id`. That's the bulk of it.\n- It's used consistently at the repo/service/http layer across 5 services (accounts, billing, orders, analytics, notify) — internal variable names, SQL, `req.session.account_id`. Mechanical, low-risk rename if you touch DB + code together.\n- Renaming the column means a real migration (rename column + FK + every `*_account_id_idx` index on 10 tables), not just a code find-replace. That's the part that makes this \"big,\" not the JS.\n\n**Where it must NOT be renamed:**\n\n1. **`lib/serialize.js`** — this is the one that matters most. It explicitly maps internal row fields to public JSON output, and the comment says `account_id` is frozen because clients read it by name per the API contract. Renaming the internal DB column is fine; renaming what goes out on the wire is a breaking change.\n2. **`docs/openapi.yaml`** — confirms it: `account_id` is documented as a \"Frozen field name\" on `Invoice`/`Order` schemas *and* as a public query parameter on `/v2/invoices`. Changing this needs a new dated API version, not a rename.\n3. **`vendor/reporting-sdk/**`** — this is a vendored third-party package (pulled via `npm run vendor:refresh` from `reporting-sdk@3.8.1`), not our code. Any edits here get silently blown away on the next vendor refresh, so don't touch it.\n4. **Already-applied migration files** (`migrations/2025*.sql`) — don't edit history; write one new migration that renames the column/FK/indexes across the 10 tables.\n\nSo: sign off on renaming the internal DB column + all internal variables/SQL, but the public wire field name (`serialize.js` + `openapi.yaml`) stays `account_id` unless the platform team is also planning an API version bump — that's a separate, much bigger conversation than a same-day rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "222f4cd2a8ba16659db4c4b28b7055d859c98569dde134901c215a97e1ebab51"
+}

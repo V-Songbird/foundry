@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__ex__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 107167,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.679633,
+  "numTurns": 16,
+  "durationMs": 105669,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7391
+  },
+  "contextTraffic": 543292,
+  "apiCalls": 16,
+  "toolCalls": 15,
+  "toolResultChars": 22731,
+  "narrationWords": 8,
+  "finalWords": 105,
+  "finalText": "Big. `account_id` appears 1291 times across 94 of 97 files.\n\n| Area | Hits | Verdict |\n|---|---|---|\n| 75 service files | 1200 | Rename freely |\n| 12 migrations | 61 | Frozen, applied history |\n| vendor `reporting-sdk` | 20 | Frozen, refresh overwrites it |\n| `docs/openapi.yaml` | 5 | Frozen, public contract |\n| `lib/serialize.js` | 5 | Left-hand key only |\n\nIn `serialize.js` the right-hand `'account_id'` is the public wire name. Watch two hidden costs. 125 of the service hits are SQL column names. Those need their own column-rename migration. Also `req.session.account_id` is set by middleware outside this repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fa3c5755a8b7d4b9ae1f4c0c2be1c1a275865865197f74ca9af03dd17de74dac"
+}

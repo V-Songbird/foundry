@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__stock__r1",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 18,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 69262,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2706596,
+  "numTurns": 36,
+  "durationMs": 67805,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9691
+  },
+  "contextTraffic": 245947,
+  "apiCalls": 7,
+  "toolCalls": 35,
+  "toolResultChars": 24288,
+  "narrationWords": 26,
+  "finalWords": 61,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirmed pattern. Now migrating each of the 12 non-vendor files (all repos/services follow the same three-call shape).",
+    "Let me verify nothing's left except the vendor file."
+  ],
+  "finalText": "**Migration done.** All 12 remaining call sites now use `db.execute({ sql, params })`.\n\nLeft `vendor/legacy-orm/adapter.js` on `db.query`. It's marked \"vendored, do not edit — replaced wholesale on upgrade,\" so a local edit would just get lost.\n\n`cache.query` calls in a few repo files are unrelated, a different module, untouched.\n\nNext: `db.query` can drop from `lib/db.js` once `legacy-orm` is upgraded or replaced.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e6399a483e6888ab3f6499db116ce88da5b3cf62ac9915868e768b63eaa8b5f"
+}

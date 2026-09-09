@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56393,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47545699999999996,
+  "numTurns": 11,
+  "durationMs": 54682,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3668
+  },
+  "contextTraffic": 270990,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 31998,
+  "narrationWords": 0,
+  "finalWords": 128,
+  "assistantMsgs": 1,
+  "finalText": "**14 user-visible changes out of 380 commits.** Draft is in [CHANGELOG.md:3](CHANGELOG.md:3).\n\nThe rest is 100+ dep bumps, refactors, tests, and CI. None of it ships.\n\nThree items I flagged as breaking are judgment calls:\n\n| Change | Why breaking |\n|---|---|\n| `stop re-exporting the internal error types` | 8 commits, 5 modules. Imports break. |\n| `drop the unused v1 export route` | Called unused. Verify no one hits it. |\n| `return 401 for an expired token instead of 403` | Callers may branch on 403. |\n\nTwo things to check. Six `ci: run the suite on node 22` commits touch only CI and docs, so I left the min node version out. And four `perf` commits are real but have no heading in your shape.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "225c38b645f3b7f18febea198f291b6b1829bdc7d82f2f49c56250482991a4e7"
+}

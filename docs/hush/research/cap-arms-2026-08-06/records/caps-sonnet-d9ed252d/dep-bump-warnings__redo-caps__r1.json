@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__redo-caps__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 122,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34813,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21730999999999998,
+  "numTurns": 10,
+  "durationMs": 33116,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2010
+  },
+  "contextTraffic": 277573,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8225,
+  "narrationWords": 0,
+  "finalWords": 99,
+  "finalText": "Build's clean now — 0 errors, exit code 0.\n\nIt wasn't just noise: the bundler bump changed how options get passed in, and two spots hadn't caught up.\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler sends `retryCount`. That was throwing on every build.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid and threw, but the new config loader leaves it `undefined` instead of `false`. Now `undefined` just means backoff's off, same as before.\n\nThe rest of the warnings — deprecation notices, tree-shaking notes, dedupe logs — are just noise from the bump and don't need fixing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "44b617176c58cd39113496d9735cf94c0003afc7ce442c5179ca814696b63bf4"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 159510,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.3686340000000001,
+  "numTurns": 62,
+  "durationMs": 158319,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14449
+  },
+  "contextTraffic": 560305,
+  "apiCalls": 12,
+  "toolCalls": 61,
+  "toolResultChars": 39987,
+  "narrationWords": 6,
+  "finalWords": 63,
+  "finalText": "**Migration done in `packages/`.** 12 files still used `db.query`. All 36 calls now use `db.execute({ sql, params })`.\n\nI left `vendor/legacy-orm/adapter.js` alone. Its top comment says edits are wiped on upgrade. Two `db.query` calls remain there.\n\nI ran every exported function. All 325 database calls used the new form. No syntax errors.\n\n`cache.query` is a different thing, so I did not touch it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eeae0c11444512e7a6cadfa2ca338c42c75f82f2b2bb3cf942eee076e3eb6d8b"
+}

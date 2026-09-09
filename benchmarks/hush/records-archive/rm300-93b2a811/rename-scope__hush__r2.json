@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 87483,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47572349999999997,
+  "numTurns": 22,
+  "durationMs": 86071,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6040
+  },
+  "contextTraffic": 257537,
+  "apiCalls": 10,
+  "toolCalls": 21,
+  "toolResultChars": 17006,
+  "narrationWords": 6,
+  "finalWords": 117,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**Big, but mostly safe.** 1291 hits in 94 files.\n\n| Zone | Hits | Rename? |\n|---|---|---|\n| `services` JS names | 1075 | yes |\n| `services` SQL strings | 125 | no |\n| [migrations](migrations) | 61 | no |\n| [vendor/reporting-sdk](vendor/reporting-sdk) | 20 | no |\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | no |\n| [lib/serialize.js:8](lib/serialize.js#L8) `WIRE` | 5 | left key only |\n\nFour zones are frozen. The DB column is still `account_id`. Those migrations already ran in production. Vendor is overwritten by `npm run vendor:refresh`. `openapi.yaml` is the public contract. One more trap sits in [repo/invoice.js:35](services/billing/src/repo/invoice.js#L35). It writes the key into stored `payload` JSON.\n\nNext: sign off on the 1075 JS names only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53790b2c348552798c1c2e5ec08571f9496162fd89ff857b1942021a7a4c0dd0"
+}

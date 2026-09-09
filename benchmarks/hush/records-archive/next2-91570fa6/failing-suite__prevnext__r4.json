@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__prevnext__r4",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 14,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24710,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1283772,
+  "numTurns": 11,
+  "durationMs": 23038,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1412
+  },
+  "contextTraffic": 228268,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 11509,
+  "narrationWords": 13,
+  "finalWords": 49,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "tiers.js looks correct. Fix orderTotal to tax the discounted amount, then run tests."
+  ],
+  "finalText": "**Suite is green: 625 total, 0 failing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:39](src/pricing.js:39). It taxed the original amount instead of the discounted one, so any order with both a discount and a tax came out wrong.\n\nFixed by taxing `discounted` instead of `cents`. No other functions were broken.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be48b740dbc107c39d061ba80c04cae434773d7670d2c4882fcafde3e9990ce2"
+}

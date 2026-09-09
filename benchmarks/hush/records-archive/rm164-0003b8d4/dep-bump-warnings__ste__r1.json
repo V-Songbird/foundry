@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28059,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20451729999999999,
+  "numTurns": 10,
+  "durationMs": 26652,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1846
+  },
+  "contextTraffic": 236384,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 15900,
+  "narrationWords": 90,
+  "finalWords": 116,
+  "finalText": "Build's clean now — exits 0.\n\nTwo real bugs from the bump, both in the link stage of `build.js`:\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but `resolveRetries` still read `options.retries`, which was `undefined` and threw on `.toFixed()`. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only handled explicit `true`/`false` and threw on anything else. Simplified it to `flags.backoffEnabled === true`, which treats `undefined` as disabled.\n\nThe rest of the ~950-line wall (`WARN DEP0142`, `DEP0198`, etc., plus the `dedupe:` spam) is just deprecation noise from the bumped packages, not build-breaking — that's expected and unrelated to the crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "28d6f365122adf0d97fffbe7da25879b17fce85357750bac742c5d4ba51ed239"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r7",
+  "batchId": "clause5-84a67d02",
+  "seed": "1787982777257",
+  "orderIndex": 6,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 7,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 9439,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0631842,
+  "numTurns": 4,
+  "durationMs": 7961,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 522
+  },
+  "contextTraffic": 76182,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 50,
+  "assistantMsgs": 1,
+  "finalText": "**Plan:** parse `--json` in `[cli.js](src/cli.js)`, branch after `buildRows()`.\n\n```js\nconst rows = buildRows();\nconst json = argv.includes('--json');\nprocess.stdout.write((json ? JSON.stringify(rows) : toTable(rows)) + '\\n');\n```\n\n`buildRows()` already returns plain objects, so no changes needed in `report.js`. Update `USAGE` to mention the flag.\n\nSay the word and I'll make the edit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "160a791999b37808209692878adc2eac827d71346fd384839a1772ff316ff849"
+}

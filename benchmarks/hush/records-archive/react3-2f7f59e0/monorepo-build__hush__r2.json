@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 14,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35769,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2539407,
+  "numTurns": 9,
+  "durationMs": 34202,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2299
+  },
+  "contextTraffic": 363012,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 12647,
+  "narrationWords": 29,
+  "finalWords": 85,
+  "finalText": "Found it: `packages/shared/config.js` merged the release config with a shallow `Object.assign`, so any package overriding just `output.format` (like `@acme/api`) lost the rest of `output` — including `dir` — which crashed the bundle stage right after the lint warnings.\n\nI changed it to merge `output` and `sourcemap` separately from the top-level keys, so overrides only change the field they name. Build now exits clean with `74.3s, 5 warnings, 0 errors`, and `verify.js` confirms the merge behaves correctly for every layering case (defaults, package overrides, CLI flags).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c99bd944eb51fd85563fc80c1c25ea396ff6ae11a38b62edf174aa8aa7cb30b2"
+}

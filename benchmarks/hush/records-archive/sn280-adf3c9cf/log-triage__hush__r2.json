@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11346,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11080860000000001,
+  "numTurns": 3,
+  "durationMs": 9175,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 472
+  },
+  "contextTraffic": 106605,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "finalText": "Redis died at 02:14:07, `ECONNREFUSED 10.0.0.12:6379`.\n\nCache fell back to direct store reads, which triggered cache miss storms and request timeouts. Queue depth climbed for 17 minutes straight, past its 500 cap.\n\n12 redis reconnect attempts all failed, same host.\n\nAt 02:31:44, worker-2 hit an out of memory crash from the backlog. Supervisor killed the whole process group 8 seconds later. Service went down.\n\nRoot cause: Redis at 10.0.0.12:6379 became unreachable and never recovered.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4b9577bcbfbb0e20ff81a2cbca823d582c1fe0908700108e0e5d489a93ea3554"
+}

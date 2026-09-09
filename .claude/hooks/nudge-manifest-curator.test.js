@@ -52,6 +52,12 @@ describe('isManifestFile', () => {
 });
 
 describe('main (end-to-end)', () => {
+  test('recognizes Codex patches without a synthetic file_path', () => {
+    const result = runHook({ tool_name: 'apply_patch', tool_input: { command:
+      '*** Begin Patch\n*** Update File: foreman/.codex-plugin/plugin.json\n@@\n-old\n+new\n*** End Patch' } });
+    assert.equal(result.status, 0);
+    assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /foreman\/\.codex-plugin\/plugin.json/);
+  });
   test('emits additionalContext for an Edit to marketplace.json', () => {
     const result = runHook({ tool_name: 'Edit', tool_input: { file_path: '.claude-plugin/marketplace.json' } });
     assert.equal(result.status, 0);

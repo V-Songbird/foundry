@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 74796,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7400470000000001,
+  "numTurns": 10,
+  "durationMs": 73177,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4698
+  },
+  "contextTraffic": 388003,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 72398,
+  "narrationWords": 42,
+  "finalWords": 411,
+  "assistantMsgs": 4,
+  "finalText": "**What the noise actually was:** 153 chores (mostly the same dep bumped 4–7 times each — `pino` alone appears 11 times), 73 refactors, 64 test changes, 33 CI. None of it reaches a user. The runtime deps that did move (`pg`, `knex`, `ioredis`, `undici`, `zod`, `fastify`, `nanoid`, `dotenv`, `pino`) are all patch/minor, so there's nothing to pass along.\n\n**Four things worth your attention before you publish:**\n\n1. **The Breaking section is my judgment call, not the commits' — three of those four entries are labeled `refactor` and say \"unused\" or \"internal\".** The v1 route and the error-type re-exports were part of the shipped surface whether or not you consider them internal, so removing them breaks anyone who used them. If you have download or usage data showing nobody did, downgrade them to a note. But the default for a `.0` release should be to warn.\n\n2. **The 401/403 change (#4223) is the one most likely to page someone.** It's a one-line `fix` commit in the sheet, and it silently changes control flow for every client that treats 403 as terminal and 401 as refresh-and-retry.\n\n3. **The histogram units fix cuts both ways.** Metrics are correct now, which means historical series have a discontinuity at the upgrade. I wrote the line to say thresholds need rechecking — worth confirming with whoever owns the dashboards.\n\n4. **I left perf out entirely.** There are 10 perf commits (JSON round-trip on hot paths, batched metric writes, schema reuse in the API). They're real, but none carry a number, and the three-heading shape has nowhere to put them. If you want them mentioned, the honest version is one line under Added like \"assorted hot-path improvements\" — I'd rather not imply a speedup we can't quantify.\n\nTwo things I couldn't determine from `history/`:\n\n- **The minimum Node version.** Four `docs: note the minimum node version` commits and CI moving to Node 22, but nothing changing `engines`. That reads as documenting an existing floor, not raising one — so I didn't write a line. Confirm against `package.json`, because a raised floor belongs in Breaking.\n- **Whether the webhook retry is configurable.** The feat commit touches `src/core/config.js`, which suggests a new option with a default. If there's a knob, its name and default should be in the Added line.\n\nI dated it **2026-08-28**. Note the last commit in the log is 2026-06-17 — if there are ten more weeks of work on the branch, this log doesn't have it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60d47586f7dcfcbeacdc85a747459cae5ece9acbbe4caaa5f7bb0b40cae8da15"
+}

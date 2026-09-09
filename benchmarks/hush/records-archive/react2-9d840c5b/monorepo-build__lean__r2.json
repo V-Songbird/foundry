@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__lean__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 14,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33076,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2580513,
+  "numTurns": 12,
+  "durationMs": 31576,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2152
+  },
+  "contextTraffic": 402115,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 9393,
+  "narrationWords": 16,
+  "finalWords": 87,
+  "finalText": "Found it: `resolveRelease` in `packages/shared/config.js` used `Object.assign` to layer defaults, package overrides, and CLI flags — a shallow merge, so any package overriding part of `output` or `sourcemap` (like `@acme/api`, `@acme/web`, `@acme/cli`) silently dropped the rest of that object, including `output.dir`. That's what tripped the bundle stage after lint.\n\nI replaced it with a proper recursive deep merge that only replaces the specific keys a layer names, leaving the rest intact. `node build.js` now exits 0 with \"5 warnings, 0 errors,\" and `node verify.js` confirms the fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b51cfbe16a6d3d70a4a967c2dd7969369c409c46a90d471555d9b14ed7529f56"
+}

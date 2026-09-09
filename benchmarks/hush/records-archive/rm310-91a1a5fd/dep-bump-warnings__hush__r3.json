@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41326,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.262849,
+  "numTurns": 11,
+  "durationMs": 39672,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2034
+  },
+  "contextTraffic": 173581,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7215,
+  "narrationWords": 7,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n`resolveRetries` read `options.retries`. The bump renamed it `retryCount`. Now takes either. [src/core/options.js:6](src/core/options.js:6)\n\n`isBackoffEnabled` threw on `undefined`. Unset flags used to be `false`. Now `undefined` means off. [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7)\n\nThe 8 warnings are hardcoded strings in `build.js`. They name files like `src/legacy/adapter.js` that do not exist here.\n\nNext: nothing. Errors gone, exit 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "90caa8313c4801e2eafb3ba639d9870a56a96fd2a89d8094f52b86b25a98c3a7"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49442,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3288175,
+  "numTurns": 11,
+  "durationMs": 47691,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2258
+  },
+  "contextTraffic": 261744,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 7177,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "finalText": "**Build is green again.** Exit code `0`, no errors.\n\nYou were right, two of them were real. Both came from the bundler bump.\n\n1. `src/core/options.js` still read `options.retries`. The new shape is `retryCount`. It now reads the new name, falling back to the old.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader leaves it `undefined`. That now means off, like before.\n\nThe remaining 8 warnings are just noise. They are deprecation notices printed by the bundler itself. The files they name are not in this project.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d3b66b80ddfc162ac4bc6afdb129b39ef004b5c1d40c5bb7d3e1e8d206a1c41c"
+}

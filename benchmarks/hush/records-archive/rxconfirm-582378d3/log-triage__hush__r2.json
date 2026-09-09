@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18803,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.187938,
+  "numTurns": 3,
+  "durationMs": 16986,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1142
+  },
+  "contextTraffic": 111446,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 134,
+  "finalText": "**Prod went down because the cache server died and nothing could catch the fallout.**\n\nHere's the order of events, all on 2026-07-04:\n1. 02:14:07 — Redis (the fast cache) dropped: `connect ECONNREFUSED 10.0.0.12:6379`.\n2. The app fell back to slower direct reads. Requests started timing out.\n3. The backlog of waiting requests grew nonstop for 17 minutes, past its own limit of 500.\n4. Redis tried to reconnect 12 times. Every attempt failed.\n5. 02:31:44 — one worker ran out of memory from the pileup.\n6. 02:31:52 — the supervisor killed the whole app to stop it.\n\nSo the real cause is Redis at `10.0.0.12` going unreachable and staying that way. Worth checking why it never came back, and adding a limit so a stuck queue can't take the whole app down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e438e412d8b2169e59eb1926b3dd043f401c050c44b30ceb896623fad7c4a05d"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__both__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 115,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38656,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2275909,
+  "numTurns": 10,
+  "durationMs": 37077,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2217
+  },
+  "contextTraffic": 282465,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 9101,
+  "narrationWords": 0,
+  "finalWords": 120,
+  "finalText": "Found it. `computeTotal` in `src/pricing/engine.js` was rounding to 2 decimal places in USD after each coupon step, before converting to the order's currency. Real pricing math should only round once, at the very end, in the target currency's own decimals.\n\nThat extra rounding baked in a fraction of a cent that then got scaled by the exchange rate — invisible for USD (rate 1) but off by a cent for GBP, CAD, and some JPY carts once a percent coupon was involved. Flat-only coupons happened to survive because they don't leave an odd fraction behind.\n\nI removed the two intermediate `round()` calls so USD math stays exact until the final currency conversion and rounding. All 40 tests pass now, `0.11s`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "41ec0c258917d3fa66808abddfc6f651d69a2918e418c0e96df91fa5393a40ee"
+}

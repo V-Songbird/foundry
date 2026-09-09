@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 40,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36459,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28396,
+  "numTurns": 14,
+  "durationMs": 34806,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2206
+  },
+  "contextTraffic": 172524,
+  "apiCalls": 6,
+  "toolCalls": 13,
+  "toolResultChars": 11949,
+  "narrationWords": 5,
+  "finalWords": 120,
+  "assistantMsgs": 2,
+  "finalText": "**Big: ~1290 hits in 94 files.** Four places must keep `account_id`.\n\n| Zone | Hits | Why |\n|---|---|---|\n| `services/**` JS vars | ~950 | Safe to rename |\n| SQL strings in `services/**` | ~250 | Column stays until a migration renames it |\n| `migrations/*.sql` (12) | 61 | Applied history. Editing breaks the down step |\n| `vendor/reporting-sdk` | 20 | Generated. `npm run vendor:refresh` overwrites |\n| `docs/openapi.yaml` + `lib/serialize.js` | 10 | Frozen public wire contract |\n\n`[lib/serialize.js:8](lib/serialize.js:8)` is the seam. Rename the left key only, keep the right one `account_id`.\n\nMy call: safe to sign off if scoped to JS names. Ask them to confirm the wire map and vendor dir are untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5a86c09a568992271f22bf3dfcf8e4df65dbccaa846d9c588e90c0c52330ca2c"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70461,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.37583799999999995,
+  "numTurns": 18,
+  "durationMs": 68987,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3946
+  },
+  "contextTraffic": 234113,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 19352,
+  "narrationWords": 27,
+  "finalWords": 611,
+  "assistantMsgs": 3,
+  "finalText": "## Size: 1,082 occurrences across 94 files\n\nBreakdown by area:\n\n| Area | Occurrences | Files |\n|---|---|---|\n| `services/billing` | 288 | 22 |\n| `services/accounts` | 288 | 22 |\n| `services/orders` | 240 | 18 |\n| `services/analytics` | 192 | 15 |\n| `services/notify` | 192 | 15 |\n| `vendor/reporting-sdk` | 20 | 4 |\n| `migrations/*.sql` | 59 | 12 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/` (audit, serialize) | 5 | 2 |\n\nThe service code is highly repetitive — the same `http → service → repo` trio duplicated per entity (`invoiceRoutes.js` / `invoiceService.js` / `invoice.js`, ×~60 entities). Mechanically that's the easy 90%. But **125 of those occurrences are inside SQL string literals** (`'SELECT * FROM invoices WHERE account_id = ?'`), which are database column names, not JS identifiers. A find-and-replace hits them indiscriminately.\n\n## Four places it must not be renamed\n\n**1. `docs/openapi.yaml` + `lib/serialize.js` — the public API contract.** `serialize.js` is the exact boundary; its `WIRE` map exists to keep the internal name separate from the public one:\n\n```js\nconst WIRE = {\n  account_id: 'account_id',   // public field name — frozen by the API contract\n```\n\nAn internal rename should change the **key** only, leaving the value `'account_id'`. The OpenAPI spec says renaming a field there is a breaking change needing a new dated version. `account_id` also appears as a public query parameter on `/v2/invoices`. A blind replace silently changes every API response payload — the code keeps compiling and every client breaks.\n\n**2. `vendor/reporting-sdk/` (20 occurrences).** Generated, vendored, `Do not edit`. It's overwritten by `npm run vendor:refresh` (pinned to `reporting-sdk@3.8.1` in `package.json`), so edits are lost on the next refresh — and `account_id` there is the upstream wire format for the reporting API anyway. Callers must adapt at the call site instead.\n\n**3. `migrations/*.sql` (59 occurrences, 12 files).** All are already applied in production, and each carries the header: *\"Applied migrations are history: editing one does not rename anything in a database that already ran it, and it breaks the down step.\"* Editing them changes nothing in the real database, desyncs the schema from the files, and breaks rollback. A column rename requires a **new** forward migration.\n\n**4. The 125 in-SQL references, until that migration exists and has run.** `WHERE account_id = ?` names a live column. Renaming the JS variable is safe; renaming it inside the SQL string is a runtime failure the moment it executes — and `lib/db.js` is a test double that swallows every query and returns `[]`, so nothing locally will tell you the SQL is wrong.\n\n## What I'd flag before signing off\n\n- **There is no test suite.** Zero test or spec files in the repo. Nothing catches a mis-rename before production.\n- **This is really two changes, not one.** (a) an internal identifier rename across ~950 service occurrences, and (b) a database column rename requiring a new migration plus a deploy sequence (expand → backfill → contract) so old and new code can run concurrently. If the team only wants the readability win, do (a) alone and leave the column as `account_id`, mapping at the repo layer.\n- **Ask what problem this solves.** The `WIRE` map, the frozen OpenAPI fields, and the applied migrations mean the name can never fully disappear — you'll end up with `owner_id` in application code and `account_id` on the wire and in the schema. That two-name split may be worse for comprehension than the status quo.\n\nMy recommendation: approve scope (a) with the four exclusions above written into the PR description, and require scope (b) as a separate change with its own migration and rollout plan.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a1635189dd7bf2c0fbccf313653ad5d2897dd59bcffacb2e9d45bb10f8bd8a96"
+}

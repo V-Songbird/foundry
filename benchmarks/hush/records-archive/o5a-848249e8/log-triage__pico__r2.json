@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__pico__r2",
+  "batchId": "o5a-848249e8",
+  "seed": "1787818512985",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "pico",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39744,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "pico:Pico",
+  "costUsd": 0.30251,
+  "numTurns": 7,
+  "durationMs": 37709,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1427
+  },
+  "contextTraffic": 203367,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 17749,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "Redis died and took the app with it.\n\n- `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache off, reads hit the store direct.\n- Cache miss storm, then `TimeoutError: request timed out after 5000ms (store overloaded)` on all four procs.\n- 13 reconnect tries, all refused. Redis never came back.\n- Queue climbed steady. Passed the cap at `02:29:12`, depth 502 of 500.\n- `02:31:44` `worker-2` hit `JavaScript heap out of memory`, exit 134. `02:31:52` supervisor killed the group. Service down.\n\nRoot cause is Redis at `10.0.0.12:6379`. Start there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1b28514fa93b101b5e8f7b86e5dee2e11cfd01ff3ca86baef387ac72328a0081"
+}

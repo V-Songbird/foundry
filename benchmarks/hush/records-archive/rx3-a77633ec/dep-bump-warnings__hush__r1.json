@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rx3-a77633ec",
+  "seed": "1786463572387",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33842,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20700469999999999,
+  "numTurns": 10,
+  "durationMs": 32104,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1782
+  },
+  "contextTraffic": 276891,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7801,
+  "narrationWords": 0,
+  "finalWords": 101,
+  "finalText": "Build's clean now — exit 0, 0 errors.\n\nTwo real bugs were hiding under the deprecation noise, both from the bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `{ retryCount }`. Fixed to read `retryCount`.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid and threw. The new config loader leaves unset flags as `undefined` instead of `false`, so it now treats `undefined` as disabled, same as before.\n\nThe rest — the 8 warnings about deprecated Node APIs, an unused export, and a circular import — are just noise from the bump, not build breakers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6e99f9b0755e6eaa9afe53535d61525acfb1ac93f2a8ceeb5e2da1285ad6f1ea"
+}

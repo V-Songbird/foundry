@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 121321,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6781210000000001,
+  "numTurns": 25,
+  "durationMs": 112694,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6943
+  },
+  "contextTraffic": 660759,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 12419,
+  "narrationWords": 17,
+  "finalWords": 158,
+  "assistantMsgs": 7,
+  "finalText": "Dedup is in, keyed on `event.key` with the 5-minute window tracked in `state`.\n\nReplay: **99 dropped**, 0 errors. That's exactly the flap count the generator produces — `events.js:24` emits a repeat on every 9th index (99 of them, each firing 2 minutes after its predecessor with the same key), and each one is now suppressed. No non-flap events collide, since other same-key events land hours apart.\n\nThree judgment calls worth confirming:\n- **Boundary is inclusive** — a repeat at exactly 5 minutes is dropped (`<= 5`); 6 minutes gets through.\n- **A queued notification counts as \"sent\"**, so it starts the 5-minute timer for its key. Quiet-hour repeats are suppressed rather than piling into the queue.\n- **The timer doesn't refresh on a dropped repeat.** A key flapping every 2 minutes delivers once, then again at the 6-minute mark, rather than being silenced forever.\n\nDedup also applies to `critical` — say the word if pages should bypass it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2636146a5a35fd9365b46699a8f93d8bbc66ad7b0d8dc9998fe2c51be313f95c"
+}

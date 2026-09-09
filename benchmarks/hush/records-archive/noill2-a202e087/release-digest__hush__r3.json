@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 100273,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5555885,
+  "numTurns": 18,
+  "durationMs": 98745,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7560
+  },
+  "contextTraffic": 228245,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 28311,
+  "narrationWords": 8,
+  "finalWords": 255,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the repository structure."
+  ],
+  "finalText": "**380 commits hold 11 user-facing changes.** One is a feature. Four may break people:\n\n| Change | Who it hurts |\n|---|---|\n| Expired token returns `401`, not `403` | Clients keyed on `403` |\n| Latency histogram units corrected | Dashboards and alerts |\n| Internal error types no longer re-exported | Anyone importing them |\n| `v1` export route dropped | Callers of that route |\n\nDraft below leaves out the perf wins. No heading fits them.\n\n```markdown\n## 4.2.0 — 2026-08-30\n\n### Breaking\n- An expired token now returns `401` instead of `403`. It used to return `403`.\n- The latency histogram now reports the right units. Dashboards and alerts built\n  on the old values need updating.\n- The internal error types are no longer re-exported from `core`, `db`, `auth`,\n  `billing` and `jobs`. Import them from their own modules.\n- The unused `v1` export route is gone.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client clears its timer when the socket drops, and closes the pool on\n  shutdown.\n- The paginator no longer throws on a null cursor.\n- A trailing slash is now trimmed once, not twice.\n- Duplicate headers are no longer sent.\n- An empty allowlist no longer throws.\n- The trace id survives a retry.\n- The request body is no longer written to the logs.\n- The token parser gives a clearer error message.\n```\n\nNext: confirm the four risky ones. Their commits call three of them refactors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "801fb7fff060e4e52ba539b4cbb24f252444f0c2aabe1b38b491120e419f3846"
+}

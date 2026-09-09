@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__hush__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 64,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12725,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08611520000000002,
+  "numTurns": 1,
+  "durationMs": 10851,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 753
+  },
+  "contextTraffic": 35894,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "finalText": "React re-renders a child by default whenever its parent re-renders, no matter if the props are the same. Wrapping the child in `React.memo` fixes that, since it makes React check the props before re-rendering.\n\nIf you already use `memo` and it still re-renders, the usual cause is a prop that looks the same but isn't — an inline function or object literal in the parent's JSX. Each render makes a brand new one in memory, so `memo`'s check sees it as changed even though it reads the same. Wrap those with `useCallback` (functions) or `useMemo` (objects) in the parent.\n\nIf you share the two components, I can point at the exact prop causing it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "332a8cf41e557515c8d1adcf3df2dca8072694f70bf1ed354e92bb9eab20d139"
+}

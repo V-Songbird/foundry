@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 52,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 95766,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8168355,
+  "numTurns": 20,
+  "durationMs": 89792,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5453
+  },
+  "contextTraffic": 1336393,
+  "apiCalls": 20,
+  "toolCalls": 16,
+  "toolResultChars": 82273,
+  "narrationWords": 19,
+  "finalWords": 202,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing as of last log entry (03:59:27.974Z) — not yet resolved.\n\n**Root cause**\nDeploy `dep-4471` (gateway, author a.novak, \"config: connection-per-request for pool isolation\") shipped 02:12:00Z–02:14:00Z and applied config generation 119 at `02:13:41.234Z`, flipping `gateway.pool.perRequest: false -> true`. This exhausted the fixed 20-connection pool almost immediately — every error since is `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, with the `waiting` queue climbing monotonically (13 → 70+) rather than recovering.\n\n**Impact window**\n- First symptom (slow acquire WARN): `2026-03-14T02:14:14.920Z`\n- First 503: `2026-03-14T02:14:18.972Z`\n- Still erroring at end of available logs: `2026-03-14T03:59:27.974Z` (~1h45m and counting)\n- Scope: gateway only. Cross-checked `worker.log` for the same window — worker pool (`size=8`) stayed flat at `in_use=1/idle=7/waiting=0` the entire time, all jobs completed `ok`, no correlated errors. Not a shared-DB/downstream issue.\n\n**Rollback**\nRoll back `dep-4471` on gateway (revert `gateway.pool.perRequest` to `false`, or the whole config generation 119 → 118). No other deploy is implicated:\n- `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) both land after errors were already underway and are unrelated services.\n\n**Not related / can ignore**\nOne unrelated WARN in worker.log at 02:36:22.838Z — known slow-query issue `OPS-2210`, isolated, no connection to this incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3ee40f39728b5fdce136dd3a6ce433b4e15d756958eccfad7b7eda28e3052cfc"
+}

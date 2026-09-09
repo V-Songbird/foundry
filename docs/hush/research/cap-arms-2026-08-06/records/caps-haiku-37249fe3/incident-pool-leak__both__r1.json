@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 96,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 44286,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08191920000000001,
+  "numTurns": 15,
+  "durationMs": 42568,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2271
+  },
+  "contextTraffic": 353676,
+  "apiCalls": 11,
+  "toolCalls": 14,
+  "toolResultChars": 14581,
+  "narrationWords": 32,
+  "finalWords": 62,
+  "finalText": "**Found and fixed the leak.**\n\nConnection wasn't getting released when order validation failed. In `processOrder.js`, the code acquired a connection but had no try-finally, so when `run()` threw an error, `pool.release()` never ran. The connection stayed locked until the process crashed.\n\nAdded a try-finally block around the handler call to guarantee release, matching the pattern in `handleRequest`. All 4 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "294094e25a939d41cd9c8ae711fd246af137777c103404d196f7a60db8b8aa42"
+}

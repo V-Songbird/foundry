@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39794,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2453246,
+  "numTurns": 11,
+  "durationMs": 38385,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1977
+  },
+  "contextTraffic": 360979,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 10306,
+  "narrationWords": 8,
+  "finalWords": 93,
+  "finalText": "It's building clean now, exit 0.\n\nThe wall of noise was mostly harmless deprecation warnings from the bump, but two spots had real bugs from an options-shape change:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. Undefined `.toFixed()` was crashing the link step.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as an error instead of a default `false`, since the new config loader leaves it `undefined` rather than `false`.\n\nFixed both. Build now finishes with 8 warnings, 0 errors — the rest really is just noise from the dependency bump.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d7a15e9b73c493eec919e0576dd7b35133dbd51dc40044f0243ccfa39499910"
+}

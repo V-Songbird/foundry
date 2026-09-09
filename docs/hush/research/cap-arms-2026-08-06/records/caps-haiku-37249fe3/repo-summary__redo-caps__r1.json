@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 133,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 29133,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.049760399999999996,
+  "numTurns": 14,
+  "durationMs": 27410,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1974
+  },
+  "contextTraffic": 145647,
+  "apiCalls": 5,
+  "toolCalls": 13,
+  "toolResultChars": 4880,
+  "narrationWords": 0,
+  "finalWords": 181,
+  "finalText": "This is a simple Node.js order-management API. Here's how the pieces fit:\n\n**Request flow:**\n1. **server.js** — Entry point. Runs an HTTP server that checks every request's `Authorization` header. If the token is bad, it returns 401. Otherwise it passes the request down to the router.\n\n2. **routes.js** — Route table. Three endpoints: `GET /users` and `GET /orders` (both read from cache first), and `POST /orders` (writes straight through). Queries come from URL params, responses are JSON.\n\n3. **auth.js** — Token verification. Uses HMAC-SHA256 bearer tokens in the format `userId.signature`. Secret comes from the `AUTH_SECRET` environment variable (defaults to `dev-secret`).\n\n4. **store.js** — Data storage. In-memory Map that acts as a stand-in database. Each record expires 15 minutes after it's written. Two kinds of data: users and orders (orders list per user).\n\n5. **cache.js** — Read-through LRU cache. 256-entry limit, no expiration (the store handles TTL). On a cache hit, the entry moves to the end to mark it most-recent.\n\nThe app is a tiny order API with auth, caching, and in-memory storage — all written in plain Node without frameworks.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a06e6fba1e0e5d6a1c420c7b0780651c4ec58041e4512a4d0dcb177d8912c659"
+}

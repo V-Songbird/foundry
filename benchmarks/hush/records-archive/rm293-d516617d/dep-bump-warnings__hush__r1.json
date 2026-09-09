@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34828,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27196000000000004,
+  "numTurns": 10,
+  "durationMs": 33150,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1769
+  },
+  "contextTraffic": 193566,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 9681,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "finalText": "**The build passes now, exit 0.** Two real bugs from the bump, not noise.\n\n`[options.js:6](src/core/options.js:6)` read `options.retries`, but the new bundler passes `retryCount`. It now takes either. `[retryPolicy.js:7](src/net/retryPolicy.js:7)` threw on an unset flag. Unset now means `false`, the old default.\n\n8 warnings remain. All are deprecation notices in `src/legacy`, `punycode`, and `crypto.createCipher`. Those files are not in this tree. Say the word and I will chase them where they live.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "52f7d1b1b7ebc48d473a66b51c0ff95e47691464614443703560964c21fc5d76"
+}

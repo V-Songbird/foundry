@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 119,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52954,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.3626295,
+  "numTurns": 7,
+  "durationMs": 51878,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3298
+  },
+  "contextTraffic": 189011,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 20636,
+  "narrationWords": 5,
+  "finalWords": 370,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll scan the codebase first."
+  ],
+  "finalText": "**Size: ~1290 occurrences, 94 files.** But only ~2/3 is safely renameable. Four zones must not be renamed.\n\n## Breakdown by zone\n\n| Zone | Files | Renameable? |\n|---|---|---|\n| `services/*/src/{repo,service,http}` — JS locals, params, object keys | 75 | Yes (~940) |\n| SQL column names inside repo query strings | 25 repos, 125 hits | **No — not by rename alone** |\n| `lib/serialize.js` WIRE values + `docs/openapi.yaml` | 2 | **No — frozen public API** |\n| `migrations/*.sql` | 12 (37 hits) | **No — applied history** |\n| `vendor/reporting-sdk/src/*` | 4 (20 hits) | **No — generated, overwritten** |\n\n## Must NOT rename\n\n1. **`docs/openapi.yaml` + right-hand side of `WIRE` in `lib/serialize.js:9`.** Public field name and `/v2/invoices?account_id=` query param. File says so itself: \"frozen by the API contract\"; OpenAPI says rename needs a new dated version. Break here = break every client. Left-hand key can change; value `'account_id'` cannot.\n2. **`vendor/reporting-sdk/**`.** Vendored 3.8.1, `npm run vendor:refresh` overwrites. Also it's the vendor's wire format, not yours. Edits silently revert next refresh.\n3. **`migrations/*.sql` (12 files).** Already applied in prod. Editing renames nothing in a live DB and breaks the `down` steps. New `ALTER TABLE` migration only.\n4. **SQL strings in the 25 repo files.** `WHERE account_id = ?` refers to the actual DB column. Sed'ing those to `owner_id` breaks every query until a migration lands. Sequence: ship column migration first (or add `owner_id` alias view), then code.\n\n## Also flag\n\n- **`lib/audit.js:8`** emits `account_id` into audit lines. Anything downstream (SIEM, log queries, retention tooling) reads that key. Treat as an external contract — verify before renaming.\n- **`req.session.account_id`** (75 hits, all `http/` files). Session is populated by middleware outside this repo. Not renameable unilaterally.\n- **No tests in repo.** Zero safety net for a 940-occurrence mechanical change.\n\n## Sign-off recommendation\n\nDon't approve as one change. Split:\n1. Internal JS identifiers only, everything else pinned (`serialize.js` boundary makes this safe and invisible).\n2. DB column migration + repo SQL, separately, with expand/contract.\n3. Public API field — separate dated API version, or never.\n\nIf they want it as one sweeping `sed`, that's a no — it silently breaks the API contract, the vendor SDK, and the migration down-steps.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "673dc6426f87792a5965c638028ba6aa08ec7b1e2ede9e2ef406fcc998c31a18"
+}

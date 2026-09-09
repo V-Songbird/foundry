@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 33,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14995,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0722096,
+  "numTurns": 5,
+  "durationMs": 13429,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 647
+  },
+  "contextTraffic": 102976,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 61,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan:** in `[cli.js](src/cli.js:8)`, check argv for `--json` and call `JSON.stringify(buildRows())` instead of `toTable`.\n\nOne catch: `toTable` drops `owner` and `slow`. JSON should probably keep full rows from `buildRows`, so `--json` output has more fields than the table. Worth confirming that's wanted before I add it.\n\nNext: say go, and whether `--json` should match the table's columns or the full row data.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "81ce22cd73439fd4cc722bf776acf137c8b7fcbdcb0c776def11dfea1b4ba482"
+}

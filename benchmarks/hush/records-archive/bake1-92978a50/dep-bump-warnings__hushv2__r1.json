@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushv2__r1",
+  "batchId": "bake1-92978a50",
+  "seed": "1787816448085",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushv2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38348,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.299538,
+  "numTurns": 10,
+  "durationMs": 36568,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1746
+  },
+  "contextTraffic": 210572,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7664,
+  "narrationWords": 7,
+  "finalWords": 61,
+  "finalText": "**The build passes now.** You were right, two warnings were real bugs.\n\n1. The bundler renamed one setting. `src/core/options.js` still read the old name `retries`. It now reads `retryCount`, and falls back to the old one.\n2. Unset flags now come back as `undefined`. `src/net/retryPolicy.js` threw on that. Unset now means off.\n\nThe other 8 warnings are just old-API notices. Harmless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0b76def7bb108fef2fee75fe24b0b0a1219ea43efc686ca369922c5e2dfaf78f"
+}

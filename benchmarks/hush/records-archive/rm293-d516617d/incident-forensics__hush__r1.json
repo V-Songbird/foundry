@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 86183,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4131975,
+  "numTurns": 12,
+  "durationMs": 78308,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4558
+  },
+  "contextTraffic": 310122,
+  "apiCalls": 11,
+  "toolCalls": 8,
+  "toolResultChars": 4884,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`, the gateway config change `connection-per-request for pool isolation`. It drains the 20-slot pool. Impact runs `02:14:18.972Z` to `03:59:27.974Z`, still firing at log end. 530 503s, all `ERR_POOL_EXHAUSTED`.\n\nRoll back `dep-4471` only. The two later deploys shipped after the errors began.\n\nThe doc flags two open items: `node-1` and `node-2` were never checked, and the worker latency drift needs its own ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca49fd61f2f44854b317fbeabd94fd57f64a71de92ad4c03267ffae2c8667a94"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 61,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52785,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.4052569999999999,
+  "numTurns": 19,
+  "durationMs": 51324,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3663
+  },
+  "contextTraffic": 228364,
+  "apiCalls": 7,
+  "toolCalls": 18,
+  "toolResultChars": 24773,
+  "narrationWords": 5,
+  "finalWords": 379,
+  "finalText": "## Size\n\n**1,082 matching lines / ~1,290 occurrences across 94 files.** Breakdown:\n\n| Area | Files | Lines |\n|---|---|---|\n| `services/**` (5 services × 25 entities × route/service/repo) | 75 | 1,082 |\n| `migrations/**` | 12 | 61 |\n| `vendor/reporting-sdk/**` | 4 | 20 |\n| `docs/openapi.yaml` | 1 | 5 |\n| `lib/` (audit, serialize) | 2 | 5 |\n\nThe service code is highly repetitive — every entity follows the same route/service/repo template (9/15/17 hits per file), so a scripted rename handles the bulk. But of those 1,082 service lines, **350 occurrences are inside SQL strings** (`WHERE account_id = ?`, `INSERT INTO invoices (account_id, ...)`), which are database column names, not variables.\n\n## Four places it must not be renamed\n\n1. **`docs/openapi.yaml` + `lib/serialize.js`** — the public API contract. `serialize.js` maps internal row keys to wire keys, and the file states the right-hand side is frozen; OpenAPI says renaming a field is a breaking change requiring a new dated version. Rename the *internal* (left) side only; the wire name stays `account_id`. Same for the `/v2/invoices?account_id=` query param.\n\n2. **`vendor/reporting-sdk/**`** — vendored generated code, README says do not edit; `npm run vendor:refresh` overwrites it wholesale. (It's also not imported by any service, so nothing forces the change.)\n\n3. **`migrations/*.sql`** — already applied in production. Editing history doesn't rename anything in a live DB and breaks the down steps. A column rename needs a *new* forward migration.\n\n4. **SQL identifiers in repo files** — these reference the actual column. They can only change after (3) lands, and only in lockstep with it. Renaming the JS parameter is safe; renaming the string `account_id` inside the SQL is not.\n\nAlso note `lib/audit.js` writes `account_id` into every audit line — that's an emitted record format downstream consumers may parse; treat it as a contract question, not a mechanical rename.\n\n## Sign-off recommendation\n\nApprove as a **JS-identifier-only rename** (params, local vars, object keys in service/route/repo signatures) — that's mechanical and safe. Hold back the column rename as a separate, sequenced piece of work (new migration → dual-read → cutover), and require the wire mapping in `serialize.js` to keep emitting `account_id`. If they're proposing one sweeping find-and-replace, that's a no: it breaks every API client and every applied migration's down step.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "002e880ca2ffa54791743b6aee8dd687a118bad4574b8de8f32402eac19a3290"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ex__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 66698,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.64369,
+  "numTurns": 13,
+  "durationMs": 65236,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4287
+  },
+  "contextTraffic": 433893,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 39862,
+  "narrationWords": 6,
+  "finalWords": 162,
+  "finalText": "**Redis went away and took everything with it.** One note: the log is dated `2026-07-04`, not last night.\n\n| Time (UTC) | What happened |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. All `200`s, cache hit ratio `0.90`–`0.98`. |\n| 02:14:07.113 | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | Cache turned off, every read went straight to the store. |\n| 02:14:10 onward | Store buckled. 173 × `TimeoutError ... after 5000ms`. |\n| 02:29:12 | Queue depth passed its own limit, `502 (max 500)`. |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nRedis refused all 14 reconnects, spaced a flat 80 seconds apart, never backing off. No request succeeded after 02:14:03. Death took 17 minutes 45 seconds.\n\nTwo things to fix: cap the queue so it sheds load instead of eating memory, and find why `10.0.0.12:6379` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fb9ec7dc1a0a41b279f4ac827bf53c721e37d816faf4e72136e57b5d9e804369"
+}

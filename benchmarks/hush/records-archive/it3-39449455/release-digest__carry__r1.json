@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__carry__r1",
+  "batchId": "it3-39449455",
+  "seed": "1787878427787",
+  "orderIndex": 1,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "carry",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70564,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-carry:HushCarry",
+  "costUsd": 0.5111145,
+  "numTurns": 12,
+  "durationMs": 68588,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4243
+  },
+  "contextTraffic": 313014,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 29193,
+  "narrationWords": 7,
+  "finalWords": 121,
+  "assistantMsgs": 2,
+  "finalText": "**Drafted 4.2.0 in [CHANGELOG.md:3](CHANGELOG.md:3).** 380 commits, 3 things users feel.\n\nOnly one real feature. Webhook retries with backoff. The rest are 11 distinct fixes and 4 perf wins. I folded perf into nothing since none change behavior.\n\nThree breaking items need your call:\n\n| Change | Risk |\n|---|---|\n| Expired token now `401`, was `403` | Breaks callers keyed on `403` |\n| Internal error types no longer re-exported | Breaks imports, never documented |\n| v1 export route dropped | Marked \"unused\" in the PR |\n\nTwo open questions. `docs: note the minimum node version` landed 5 times but no `engines` change. Confirm the floor. And the empty-allowlist fix may flip an insecure default. Worth checking before you ship.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3d640ec15354d2faa1b2c8dbf18fb2fc2f50e468846125bb2f510e5732cf6d53"
+}

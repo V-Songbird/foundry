@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__cellonly__r2",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "cellonly",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24698,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0958834,
+  "numTurns": 8,
+  "durationMs": 23107,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1333
+  },
+  "contextTraffic": 136179,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 5720,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** 0 errors now.\n\nTwo real bugs, not noise, both from the bundler bump:\n\n- [options.js:6](src/core/options.js:6) still read `options.retries`, but the new bundler passes `retryCount`. Threw on link.\n- [retryPolicy.js:6](src/net/retryPolicy.js:6) threw when `backoffEnabled` was `undefined`. The new config loader leaves flags unset instead of `false`, so this needed to treat \"not true\" as disabled.\n\nThe rest were just deprecation/dedupe log spam, left alone.\n\nNext: nothing. Build passes with 8 harmless warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bafafad02a271b94dc3259547db1819edf8db2a964e5d72503d887b8e2cdce18"
+}

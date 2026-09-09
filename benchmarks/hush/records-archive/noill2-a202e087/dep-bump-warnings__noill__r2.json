@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__noill__r2",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34731,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.24269600000000002,
+  "numTurns": 11,
+  "durationMs": 33150,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1924
+  },
+  "contextTraffic": 149377,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 5888,
+  "narrationWords": 7,
+  "finalWords": 81,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build is green now.** The bump broke two things, both real.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Reads `options.retries`, bundler now sends `retryCount` | Accept both |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, strict check threw | `undefined` means off |\n\nThe 8 warnings stay. They are `DEP0142` and friends from the new deps. The files they name, like `src/legacy/adapter.js`, are not in this repo.\n\nNext: nothing, unless you want those deprecated calls chased down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "035042a80391bd178c3cf79cc2f9dacdc07925e6d8e4b6d75df59a0494784b20"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__concise__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 22,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 22808,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.23620649999999996,
+  "numTurns": 10,
+  "durationMs": 20233,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1157
+  },
+  "contextTraffic": 164757,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11581,
+  "narrationWords": 6,
+  "finalWords": 71,
+  "finalText": "Green — 625/625 passing.\n\nOnly 3 of the 625 cases were actually failing, all in `orderTotal`: it applied tax to the **undiscounted** base (`cents * taxRate`) and added that to the discounted amount, contradicting its own docstring. The other 622 cases pass because they use either a zero discount or a zero tax, which masks the ordering bug.\n\nFix in `src/pricing.js:39`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "13689b4e7f90e75de68bff56da9012ab9812ca34f3433c3c28721979e077516b"
+}

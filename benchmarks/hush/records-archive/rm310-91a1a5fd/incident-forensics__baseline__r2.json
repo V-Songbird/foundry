@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 59,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 258890,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9912055000000001,
+  "numTurns": 19,
+  "durationMs": 253391,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 17939
+  },
+  "contextTraffic": 475557,
+  "apiCalls": 17,
+  "toolCalls": 15,
+  "toolResultChars": 19787,
+  "narrationWords": 8,
+  "finalWords": 919,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "Here's the handoff. Copy-paste ready.\n\n---\n\n# On-Call Handoff — Gateway 503s\n\n**Status:** 🔴 ACTIVE — unresolved as of last log line\n**Severity:** Sev-1 — total loss of API traffic\n**Prepared from:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n\n## TL;DR\n\nA gateway config change turned on connection-per-request, which saturated the gateway's 20-connection pool in under a minute. Every `/v1/*` request has failed since **02:14 UTC**. **Roll back `dep-4471`.** The bad config was still live when the logs end.\n\n## Root cause\n\n**`dep-4471` — gateway — a.novak — \"config: connection-per-request for pool isolation\"**\n\nConfig generation 118 → 119 applied at `02:13:41.234Z`, changing three keys:\n\n```\ngateway.pool.perRequest:    false -> true     <-- the culprit\ngateway.timeout.upstreamMs: 2000 -> 2500      <-- not implicated\ngateway.log.sampleRate:     1.0 -> 1.0        <-- no-op\n```\n\n`perRequest: true` makes every request open its own connection instead of reusing a pooled one. The gateway logged the consequence directly:\n\n```\n02:14:18.972Z ERROR access req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool   req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n03:02:30.904Z WARN  pool   connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\nChurn ran ~100× baseline against a pool of 20. It saturated in 38 seconds and never drained — `in_use=20/20` on every subsequent error, with the wait queue climbing from 13 to a plateau of ~271.\n\n**Chain of evidence:** deploy window 02:12:00–02:14:00 → config reload requested 02:12:12.820 → generation applied 02:13:41.234 → first slow-acquire warning 02:14:14.920 → **first 503 at 02:14:18.972, 19s after the deploy reported finished.** The deploy summary and the config diff describe the same change in the same words.\n\n## Impact window\n\n| | |\n|---|---|\n| **Start** | `2026-03-14T02:14:18.972Z` (first 503, `req-07401`) |\n| **End** | **None — still failing at `03:59:27.974Z`, when the log ends** |\n| **Confirmed duration** | **≥ 1h 45m**, ongoing |\n| **Detection gap** | 67 minutes — on-call paged at `03:21:05.282Z` (`error_rate 5m avg is 71%`) |\n| **Rollback** | Never happened. No second config reload in the log; generation 119 still live 105 min after the page |\n\n**Blast radius:**\n\n- **530 × HTTP 503** out of 1,228 requests\n- After 02:20 the failure rate pins at **83% of all traffic — and 100% of real API traffic**\n- The only endpoint still returning 200 is `/health` (80 req). Every `/v1/checkout`, `/v1/cart`, `/v1/orders`, `/v1/session`, `/v1/catalog/search` call fails\n- Failures spread evenly across all four upstreams (accounts 133, catalog 133, billing 132, orders 132) — confirms gateway-local, not an upstream fault\n- Latency on failed requests drifts 659ms → 921ms as the queue deepens\n\n## Action: roll back `dep-4471`\n\n**Primary fix — set `gateway.pool.perRequest` back to `false`.**\n\nMy recommendation is to revert the **entire generation 119 → 118** rather than just the one key. `upstreamMs 2000→2500` isn't implicated (failures land at 600–999ms, nowhere near either timeout) but it isn't needed either, and a full revert gets you to a known-good state without a novel config combination nobody has run in production.\n\n**Verify recovery against these specific signals:**\n\n1. `pool_wait` returns to `0–2ms` on access lines\n2. Pool stats show `waiting=0`, `in_use` well below 20\n3. Churn drops back toward the 40-opens-per-5m baseline\n4. `/v1/*` endpoints return 200 — don't use `/health` to judge recovery, it stayed green through the entire outage\n\n**Before you declare scope, check nodes 1 and 2.** Every line here comes from `node-3 of 3`. Confirm they show the same generation-119 apply and the same 02:14 onset before writing blast radius into the postmortem.\n\n## Explicitly ruled out\n\n- **The database and backing services.** `worker.log` shows 1,080 jobs, all `finished ok`, zero errors. Worker pool sat at `in_use=1 idle=7 waiting=0` through the entire incident; `db_wait` flat at 5.0ms avg. Nothing downstream was under pressure.\n- **`dep-4468`, `dep-4469`, `dep-4470`** — 4h10m, 2h43m and 1h19m before onset, all during a clean stretch, none touch the gateway.\n- **`dep-4472`, `dep-4473`** — both shipped *after* onset (02:41 and 03:20), so neither can be causal.\n- **`OPS-2210`** — one slow query at 02:36, known and ticketed, does not recur.\n\n## Follow-ups (not blocking rollback)\n\n1. **Worker latency ramp — separate ticket.** Job duration climbs linearly 200ms → 2,324ms (~11× for `reindex`) across the window. It predates the incident, its slope is unchanged at 02:14, and `db_wait` stays flat — so it's a worker-process resource leak, unrelated to this outage. `dep-4470` is the nearest suspect but the log starts at 01:00, too late to see a pre-deploy baseline.\n2. **67-minute detection gap.** The `acquire slow` warnings started 4 seconds *before* the first 503. Alerting on pool wait time would have paged an hour earlier than the error-rate threshold did.\n3. **Deploys during an active incident.** `dep-4472` and `dep-4473` shipped into a gateway failing 83% of requests; `dep-4473` started 65 seconds before the page fired. Worth a deploy-freeze-on-elevated-error-rate discussion.\n\n## Data caveats — read before acting\n\n- These logs are dated **2026-03-14**, not last night. Confirm you're looking at the current incident and not a stale capture.\n- The worker log is arithmetically too regular (duration ≈ `200 + index × 1.85`, exact 31ms per-type offsets), which makes me suspect these files are generated rather than production captures. The gateway analysis is internally consistent either way, but verify provenance before anyone opens a leak investigation on item 1.\n- Worker lines are aggregated across **4 replicas** with no replica ID, so a single sick replica would be invisible in the averages.\n\n---\n\nWant me to save this to a file, or trim it to a short version for the incident channel?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8769826c0a9086b19b85b76bc410f9e31543532a6a86012fc78c9de2c1167fad"
+}

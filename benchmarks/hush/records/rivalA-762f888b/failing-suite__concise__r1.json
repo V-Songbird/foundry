@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__concise__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 40,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28779,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20529799999999998,
+  "numTurns": 8,
+  "durationMs": 27797,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1660
+  },
+  "contextTraffic": 140082,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 5614,
+  "narrationWords": 10,
+  "finalWords": 167,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project.",
+    "Found it. Fixing:"
+  ],
+  "finalText": "Green — 625/625.\n\nOnly 3 of the 625 were actually failing, all in `orderTotal` (`src/pricing.js:39`). The rest of the wall of text was passing tests and a coverage table.\n\n**The bug:** the function applied tax to the *pre-discount* base while returning the *post-discount* subtotal — contradicting its own doc comment (\"tax what's actually owed\"). So every order was overcharged by `discount × taxRate`, and the error scaled with order size (148c → 668c across the three cases).\n\n**The fix:** tax the discounted amount, reusing the existing `applyTax` helper:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nOne note worth flagging: `roundCents` uses `Math.round`, and its comment says \"half rounds up, matching the ledger.\" That's true for positives but not negatives (`Math.round(-2.5)` is `-2`). Nothing in the suite exercises negative cents, so it's not what was breaking you — but if refunds ever flow through `proratedRefund` or `applyDiscount` with negative inputs, it'll be off by a cent. Happy to tighten it if that's a real case.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60c375a18f4dbf934bfeb9d2f6538290e516bb030c13f3d121d60188369f60e6"
+}

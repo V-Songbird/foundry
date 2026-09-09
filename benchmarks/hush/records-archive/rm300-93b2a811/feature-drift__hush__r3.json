@@ -1,0 +1,40 @@
+{
+  "key": "feature-drift__hush__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 52,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 111361,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6785494999999999,
+  "numTurns": 28,
+  "durationMs": 103190,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5760
+  },
+  "contextTraffic": 663398,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 13804,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "assistantMsgs": 5,
+  "narrationTexts": [],
+  "finalText": "**Same-key repeats within 5 minutes now drop.** See [src/router.js:31](src/router.js:31).\n\n`state` holds `lastSentAt`, a key to minute map. Only non-empty routes record a send, so a dropped repeat does not extend the window. Queue sends do count.\n\n`node simulate.js` runs clean. 99 dropped, zero errors.\n\nI read \"in the last 5 minutes\" as a strict gap under 5. A repeat at exactly 5 minutes sends.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3d5684f6e6f4687d40734890e25a77bbd77beff63f7f9b93296e16f0108d0825"
+}

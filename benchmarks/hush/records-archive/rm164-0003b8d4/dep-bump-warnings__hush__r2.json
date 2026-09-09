@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29933,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20243559999999997,
+  "numTurns": 10,
+  "durationMs": 28349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1691
+  },
+  "contextTraffic": 248196,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7813,
+  "narrationWords": 16,
+  "finalWords": 89,
+  "finalText": "Builds clean now, exit 0.\n\nThe real problem was two spots that never got updated for the new bundler's option shapes.\n\n1. `src/core/options.js` read `options.retries`, but the bumped bundler now sends `retryCount`. That was throwing on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js` required `backoffEnabled` to be strictly `true` or `false`, but the new config loader leaves it `undefined` when unset. That threw too.\n\nBoth now handle the new shapes, and the rest of the warnings are just noisy deprecation notices from the bump, not bugs. Build finishes with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d83356ff6c2ef928fe28be13f5039ae759c4a62d2e8ab2186a51513bde6831f6"
+}

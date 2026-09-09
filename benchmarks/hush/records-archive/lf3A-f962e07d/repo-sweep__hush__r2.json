@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 20,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 55535,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5691904999999999,
+  "numTurns": 13,
+  "durationMs": 53825,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3066
+  },
+  "contextTraffic": 385667,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 40823,
+  "narrationWords": 0,
+  "finalWords": 51,
+  "finalText": "**Migration finished.** 36 call sites in 12 files moved to `db.execute`.\n\nTwo things I deliberately left alone:\n- `cache.query` is a different thing. All 25 uses stayed.\n- `vendor/legacy-orm/adapter.js` is vendored code. Its 2 calls stayed.\n\n`node verify.js` passes: \"OK every db.query call site moved to db.execute, and nothing else moved\".",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6602b2eba2f77b8e6a76a9863d824a898e4965f99c0b50326ade43bbda26fc6a"
+}

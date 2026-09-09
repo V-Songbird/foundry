@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13474,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2854569,
+  "numTurns": 3,
+  "durationMs": 12101,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 766
+  },
+  "contextTraffic": 141349,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 216,
+  "finalText": "## Root cause: Redis outage → cascading overload → OOM crash\n\n**02:14:07** — Redis at `10.0.0.12:6379` drops (`ECONNREFUSED`). `api` falls back to direct store reads, and cache misses start storming.\n\n**02:14:07 – 02:31:26** — Redis never comes back. 13 reconnect attempts (every ~2 min) all fail with the same `ECONNREFUSED`. Meanwhile, with no cache, every request hits the backing store directly:\n- Constant `TimeoutError: request timed out after 5000ms (store overloaded)` from api/worker-1/worker-2/scheduler on a tight rotation.\n- Request queue depth climbs steadily from 52 → 568 (over the configured max of 500 by ~02:25:48).\n\n**02:31:44** — `worker-2` hits `JavaScript heap out of memory` from the growing request backlog and gets restarted by the supervisor (exit code 134).\n\n**02:31:52** — `api` becomes unresponsive; supervisor kills the whole process group. **Service down.**\n\n**Bottom line:** Redis went unreachable and never recovered. Without a circuit breaker or queue cap enforcement, requests kept piling up against the timed-out backing store instead of failing fast, and the unbounded backlog eventually OOM'd a worker and took the whole service down. Fixes to consider: enforce the queue-depth cap (it blew past 500 with no apparent effect), add a circuit breaker to shed load when Redis is down instead of hammering the store, and investigate why Redis at `10.0.0.12` was unreachable for 17+ minutes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b16b740ab8073d146d07a3fbc9a1ab537b20ddd1838aa48b7424886017301d7e"
+}

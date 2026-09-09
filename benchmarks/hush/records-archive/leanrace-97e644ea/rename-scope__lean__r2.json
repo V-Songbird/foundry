@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__lean__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25518,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11577580000000001,
+  "numTurns": 10,
+  "durationMs": 23283,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1741
+  },
+  "contextTraffic": 154423,
+  "apiCalls": 4,
+  "toolCalls": 9,
+  "toolResultChars": 14370,
+  "narrationWords": 0,
+  "finalWords": 198,
+  "finalText": "This is a big rename: **1,082 occurrences across 94 files**, roughly 10 microservices worth of repo/service/route layers plus a vendor SDK, migrations, and docs.\n\n**It's mostly mechanical.** The bulk is internal DB column names and function params (`account_id`) repeated across repo/service/route triples for each of ~30 resources (orders, billing, notify, analytics, accounts). That part is a straightforward, if large, find-and-replace plus a real DB column-rename migration.\n\n**Three places must not be renamed, and the code says so explicitly:**\n\n1. `vendor/reporting-sdk/` (9 hits) — vendored, generated code. Comment says \"Do not edit,\" it's overwritten by `npm run vendor:refresh`.\n2. `lib/serialize.js` and `docs/openapi.yaml` (public API layer) — `account_id` is the frozen public JSON field name and query param. Renaming breaks every external client; comment calls it a contract change needing a new API version.\n3. Already-applied migrations (`migrations/20250114_create_accounts.sql`, `20250624_backfill_account_ids.sql`, etc., ~9 files) — these already ran in production. Editing them doesn't rename anything live and breaks the down-step; a real rename needs a *new* migration, not edits to history.\n\nSo: sign off on the internal rename (repo/service code), but scope it to exclude vendor code and the public API surface, and require a new migration rather than touching old ones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f2120b027681810718a3b5da05fc7ef9d7854c533539b3254151dd29de6b0de0"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__concise__r1",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 26993,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.28478499999999995,
+  "numTurns": 9,
+  "durationMs": 25136,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1526
+  },
+  "contextTraffic": 175301,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 18989,
+  "narrationWords": 36,
+  "finalWords": 172,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**.\n\nOnly 3 of the 625 cases were actually failing, all in the `order totals` suite, all one bug in `src/pricing.js:39` `orderTotal`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on the pre-discount amount\nreturn discounted + tax;\n```\n\nIt applied the discount but then charged tax on the original `cents`, so every order with both a non-zero discount *and* a non-zero tax was overcharged by `discount × taxRate` (e.g. `orderTotal(33400, 10, 0.2)` returned 36740 instead of 36072 — $6.68 too much). The other 66 rows in that suite passed only because they had a zero discount or zero tax, which hides the ordering mistake.\n\nFixed to tax the discounted amount, matching the function's own doc comment:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nWorth knowing: this is a real overcharge bug, not a bad test — if this shipped, any customer with a discount on a taxed order paid tax on money they never spent, so past invoices may need checking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a6f086b18ec2604ee401c1b18404ed1f9e1b76fbb1d28d913ca8d4f90a3cce75"
+}

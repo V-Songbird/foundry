@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 118,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 48084,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07750259999999999,
+  "numTurns": 13,
+  "durationMs": 46416,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3065
+  },
+  "contextTraffic": 251194,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 14915,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "finalText": "The pricing engine was rounding after each coupon got applied. When you stack a percent discount with another discount and convert to a different currency, those intermediate roundings baked in errors before the final conversion happened.\n\nThe fix: remove the two `round()` calls after applying each coupon (engine.js lines 24 and 27). Let the values stay precise through all the discount math, then round once at the very end in the target currency's decimal places.\n\nAll 40 tests pass now — the percent coupon stacking works correctly across USD, EUR, GBP, CAD, and JPY.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "672b1929195839efad1c3be57d1ce0feede12655cee27e11d2bf48050ac5ab32"
+}

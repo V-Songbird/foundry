@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 36754,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1292344,
+  "numTurns": 15,
+  "durationMs": 35204,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2550
+  },
+  "contextTraffic": 202435,
+  "apiCalls": 7,
+  "toolCalls": 14,
+  "toolResultChars": 8132,
+  "narrationWords": 0,
+  "finalWords": 127,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Confirmed. Explicit \"do not edit,\" overwritten wholesale on refresh.\n\n**Don't sign off on a blanket rename.** `account_id` hits 94 files but three spots are load-bearing, not cosmetic.\n\n- [lib/serialize.js:8](lib/serialize.js:8) — wire key is frozen, comment says internal renames must not cross this map\n- [docs/openapi.yaml:19](docs/openapi.yaml:19) — public API field and query param, explicitly \"frozen field name\"\n- `vendor/reporting-sdk/**` — vendored copy, README says \"do not edit,\" gets overwritten by `npm run vendor:refresh`\n\nAlso worth flagging: [lib/audit.js:8](lib/audit.js:8) writes `account_id` into audit log lines, likely read by log consumers.\n\nSafe path: rename internal DB columns, repo/service variables, and TS types freely. Keep the wire-format key and vendor code as `account_id`. Skip the vendor dir entirely.\n\nNext: send platform team the serialize.js and openapi.yaml constraints before they scope the PR.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c02f76d231a4ad09c7cf730ef3fc6189eabaf3b3f5bb98eb92af4c665d03b9a5"
+}

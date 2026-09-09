@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 71,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 87421,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.487777,
+  "numTurns": 21,
+  "durationMs": 86142,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6184
+  },
+  "contextTraffic": 281530,
+  "apiCalls": 9,
+  "toolCalls": 20,
+  "toolResultChars": 19716,
+  "narrationWords": 15,
+  "finalWords": 516,
+  "finalText": "## Size\n\n| Zone | Files | Lines | Occurrences |\n|---|---:|---:|---:|\n| `services/` | 75 | 1025 | 1200 |\n| `migrations/` | 12 | 37 | 61 |\n| `vendor/reporting-sdk/` | 4 | 12 | 20 |\n| `lib/` | 2 | 3 | 5 |\n| `docs/openapi.yaml` | 1 | 5 | 5 |\n| **Total** | **94** | **1082** | **1291** |\n\nThe `services/` part is 25 entities across 5 services. Each entity has the same three files: `http/*Routes.js` (9 lines), `service/*Service.js` (15 lines), `repo/*.js` (17 lines). The shape repeats exactly, so the work is mechanical, not 94 separate decisions.\n\n## Where it must not be renamed\n\n**1. The public API contract — `docs/openapi.yaml` (5).**\n`account_id` is a required response field on `Invoice` and `Order`, and a query parameter on `GET /v2/invoices`. The file states that a rename is a breaking change and needs a new dated version.\n\n**2. The wire map — `lib/serialize.js:8`.**\nThe value on the right is the public key. Rename the left key only:\n\n```js\nowner_id: 'account_id',   // internal -> frozen public name\n```\n\nThis one is a trap. Lines 18-19 copy every unmapped row key straight into the response. If the internal name changes and `WIRE` does not, `owner_id` leaks to every client silently. No error occurs.\n\n**3. The SQL column name — 125 lines in the 25 `repo/*.js` files.**\nExample, `services/billing/src/repo/invoice.js:10`:\n\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\n```\n\nThe database column is `account_id`. A blind find-and-replace edits the string too, and every query fails at runtime. Rename the column only with a new migration.\n\n**4. Stored JSON keys — 25 `insert*` functions.**\n`repo/invoice.js:35` writes `account_id` into the `payload` JSONB column. Old rows keep the old key forever. A rename here splits stored data into two key names.\n\n**5. Applied migrations — `migrations/*.sql` (61).**\nAll 12 migrations ran in production between 2025-01-14 and 2025-06-24. Editing them renames nothing in a live database and breaks the `-- down` steps.\n\n**6. Vendored SDK — `vendor/reporting-sdk/` (20).**\nThe README marks the files as generated. `npm run vendor:refresh` overwrites any local edit. `account_id` is also the upstream request and response format.\n\n**7. Check before you touch — `lib/audit.js` (2).**\nEvery audit line carries an `account_id` field. Ask the owners of the log queries and dashboards first. This is not code-visible, so I cannot confirm it from the repo.\n\n## What is safe\n\nAbout 1050 occurrences: local variables, function parameters, and internal object keys inside `services/`. Those names never cross a boundary.\n\n## Recommendation for sign-off\n\nApprove an **internal-only rename**. Change the JavaScript identifiers, keep the column name, the stored JSON key, the wire map values, the migrations, and the vendored SDK. Under that scope the change is safe to land in one pass, and rows keep the `account_id` key that `serialize.js` expects.\n\nDo not approve it as one find-and-replace. Two of the traps, the SQL strings and the `WIRE` map, fail without an error message. If the team wants the database column renamed too, that is a separate migration and a separate review.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ce3fcf24ba9214686656321478707ab3a2f5b12d2d8324d45a875f9725d0f43d"
+}

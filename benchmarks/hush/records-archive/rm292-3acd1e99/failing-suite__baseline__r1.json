@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29447,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2447315,
+  "numTurns": 10,
+  "durationMs": 27742,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1641
+  },
+  "contextTraffic": 161169,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11783,
+  "narrationWords": 130,
+  "finalWords": 115,
+  "assistantMsgs": 4,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\nThe fix routes tax through the discounted subtotal instead of the original base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nUsing `applyTax` rather than an inline `roundCents(discounted * (1 + taxRate))` keeps the rounding rule in one place, and matches the suite's expectation of `round(round(cents * (1 - pct/100)) * (1 + rate))` — round after discount, round again after tax. That intermediate rounding matters: it's why the previous version's separate `discounted + tax` shape couldn't have been fixed by just swapping the multiplicand in every case.\n\nNothing else was touched — the other 8 suites were passing already, and `src/tiers.js` is correct as written.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e60704b3465b97a65691aca8bae977cedfa70547d57273cd71e881a4809edb41"
+}

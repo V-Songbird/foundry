@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__prevnext__r3",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33340,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13860719999999999,
+  "numTurns": 12,
+  "durationMs": 31835,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1909
+  },
+  "contextTraffic": 278139,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 8042,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit 0, `0 errors`.\n\nTwo real bugs, not noise, both from the bump's options-shape change:\n\n- [src/core/options.js](src/core/options.js) — `resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Threw on `undefined.toFixed()`. Fixed to read `retryCount`.\n- [src/net/retryPolicy.js](src/net/retryPolicy.js) — `isBackoffEnabled` threw on unset flags, since the new loader leaves them `undefined` instead of `false`. Now just checks `=== true`, unset defaults to disabled.\n\nThe rest is deprecation warnings (`Buffer()`, `fs.exists`, `punycode`, etc.) — harmless noise, left alone. Nothing left to do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "46920e08e270abb0ecb47fcc70913ffa02328b285bc789480ee33d38e5394fe3"
+}

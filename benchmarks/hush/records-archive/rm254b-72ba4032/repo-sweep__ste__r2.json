@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 57,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84145,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6496777,
+  "numTurns": 46,
+  "durationMs": 82879,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10968
+  },
+  "contextTraffic": 362766,
+  "apiCalls": 9,
+  "toolCalls": 45,
+  "toolResultChars": 42884,
+  "narrationWords": 74,
+  "finalWords": 75,
+  "finalText": "All 12 non-vendored call sites are migrated to `db.execute({ sql, params })`; the `@deprecated` tag on `db.query` in `lib/db.js:12` can now be actioned (or the method removed) once you're ready.\n\nOne file left on `db.query`: `vendor/legacy-orm/adapter.js`. It's explicitly marked \"do not edit — replaced wholesale on every upgrade,\" so I left it as-is. If that adapter needs to move too, it'll require either patching upstream `legacy-orm` or keeping `db.query` around as a shim for it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10c3e80f3802f36d856c43941f206c9bcef780b5530205616ffef155a1cd2e0d"
+}

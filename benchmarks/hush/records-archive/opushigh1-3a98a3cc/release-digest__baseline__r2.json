@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 103759,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.862772,
+  "numTurns": 11,
+  "durationMs": 103000,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7115
+  },
+  "contextTraffic": 453087,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 78274,
+  "narrationWords": 39,
+  "finalWords": 873,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the repo layout and the existing CHANGELOG shape.",
+    "The PR sheet stops at 2026-06-17 — let me read the full commit log, which likely goes further.",
+    "Now let me extract the user-facing categories systematically."
+  ],
+  "finalText": "I read all 380 commits and all 127 PR rows. Here's what's actually in there.\n\n## Bottom line\n\n380 commits → **13 distinct user-visible changes**. The rest is noise:\n\n| Type | Commits | User-visible? |\n|---|---|---|\n| chore (117 of these are dep bumps) | 153 | No |\n| refactor | 73 | 3 items, see Breaking |\n| test | 64 | No |\n| ci | 33 | No |\n| fix | 26 | 12 distinct bugs |\n| docs | 20 | No |\n| perf | 10 | No measurable claim |\n| feat | 1 | Yes |\n\nTwo things inflate the raw counts: **the same change is logged many times.** `bump pino 9.2.0 → 9.3.1` appears as 12 separate commits; only 16 distinct dependency bumps exist. And the same bug is fixed in 4 different modules under 4 commits. I deduped by subject line throughout.\n\n## The three items your commit types are hiding\n\nThese are labeled `refactor` and `fix`, but they're contract changes. This is the part I'd most want you to look at before tomorrow:\n\n1. **`stop re-exporting the internal error types`** — 8 commits across `core`, `db`, `jobs`, `auth`, `billing` (`2e61589`, `5d4de73`, `d988aed`, `4d83260`, `d7cf97b`, `9b717dc`, `b5cfbc3`, `8639397`). Names that were reachable from the package root in 4.1 no longer are. Anyone doing `import { SomeDbError } from 'pkg'` breaks on upgrade. Highest-risk item in the release, and nothing in the log frames it as breaking.\n2. **`drop the unused v1 export route`** — `56dc828`, touches `src/api/router.js` + `handlers.js`. \"Unused\" is the author's assertion, not a fact the log establishes. If it was a public HTTP route, removing it is breaking regardless of traffic.\n3. **`return 401 for an expired token instead of 403`** — `1d2bd55`. A client branching on 403 for expiry silently changes behavior. Filed as a `fix`, but it's a response-contract change.\n\nI'd also argue **the latency histogram unit fix** (`59402bc` store, `1f2bc4e` core) belongs under Breaking for operators — correcting units silently rescales every existing dashboard and alert threshold. Your call whether that clears the bar for this changelog.\n\n## Draft entry\n\nMatches the 4.1.0 shape — same three headings, same order:\n\n```markdown\n## 4.2.0 — 2026-09-09\n\n### Breaking\n- Internal error types are no longer re-exported from the package root. If you\n  imported error classes from `core`, `db`, `jobs`, `auth`, or `billing`,\n  import them from their defining module instead.\n- The v1 export route has been removed from the API.\n- An expired token now returns 401 instead of 403.\n- The latency histogram now reports in the documented units. Dashboards and\n  alert thresholds built against 4.1 will need rescaling.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Paginating past the last page no longer throws on a null cursor.\n- An empty allowlist is now treated as empty rather than as \"allow all\".\n- Trailing slashes in a configured URL are trimmed once, not repeatedly.\n- Duplicate headers are no longer sent on a retried request.\n- The trace id is preserved across a retry.\n- An HTTP request timer is cleared when the socket drops mid-request, so the\n  process no longer stays alive holding a dead timer.\n- The HTTP connection pool is closed on shutdown.\n- Request bodies are no longer written to the database query log.\n- Token parser errors now say what was wrong with the token.\n```\n\nTwo notes on the draft. The \"empty allowlist\" and \"duplicate headers\" wordings are my reconstruction of what the bug *was* from the subject line — the log doesn't state the symptom, so please sanity-check those two against the diffs. And I left `perf` out entirely: 10 commits, no benchmark numbers anywhere, and your header comment says to write only what someone installing would notice. Micro-optimizations without numbers don't clear that bar. Say the word if you want a line for them anyway.\n\n## Needs a human before you ship\n\n- **Minimum Node version.** Five `docs: note the minimum node version` commits, six `ci: run the suite on node 22`, three `.nvmrc` pins. That's a strong smell that the floor moved — but nothing in the log confirms `engines.node` actually changed. If it did, it's breaking and has to be in the notes. Check `package.json`.\n- **Runtime vs. dev dependency split.** Of the 16 bumps, I'd classify `fastify`, `pino`, `pg`, `knex`, `ioredis`, `undici`, `zod`, `dotenv`, `nanoid` as runtime and the rest as dev — but that's inference from what these libraries typically are, not from `package.json`, which isn't in `history/`. All 16 are patch or minor within the same major, so none should need a changelog line either way.\n- **The window may be stale.** Both files stop at 2026-06-17, twelve weeks before tomorrow's cut. If anything landed on `release/4.2` after that date, it isn't in what you gave me.\n\nOne caveat on my method: the file stat lines in `commits.log` are unreliable — `chore: regenerate the lockfile` shows `tsconfig.json`, `chore: add the editorconfig back` shows `package.json`. So I classified from subject lines only and didn't use file paths as evidence for any of the calls above.\n\nWant me to write the entry into `CHANGELOG.md` at the marker?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "085c8081cfb43d7d87ec8355f6ed56b18cf6488b4bb1ca43d87791223b956437"
+}

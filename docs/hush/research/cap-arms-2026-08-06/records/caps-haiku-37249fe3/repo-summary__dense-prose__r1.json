@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 134,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 26818,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.040694,
+  "numTurns": 8,
+  "durationMs": 24854,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1278
+  },
+  "contextTraffic": 112363,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 4271,
+  "narrationWords": 0,
+  "finalWords": 183,
+  "finalText": "This is a Node.js API with five pieces that stack neatly.\n\n**The stack, bottom to top:**\n\n`store.js` holds the data — an in-memory map of users and orders. Each record lives for 15 minutes after it's written, then expires.\n\n`cache.js` sits in front of the store. It's a 256-slot LRU cache that remembers reads so repeated queries don't hit the store. No time limit — it only clears out old entries when you hit the size cap.\n\n`routes.js` defines the three endpoints: `GET /users` and `GET /orders` read from the cache, `POST /orders` writes straight to the store and bypasses the cache.\n\n`auth.js` validates bearer tokens using HMAC-SHA256. Tokens are signed with a shared secret from the environment. Every token is a userId plus its signature.\n\n`server.js` is the front door. It creates an HTTP server that checks the auth header on every request, rejects anything unsigned, then hands the authed request to the router.\n\nWhen a request comes in, it flows: check token → route lookup → read from cache (or store if it's a miss) → write returns straight to store.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf5ba4231737d30c6b4b9c8504b3f36fefba23e4d1d7bb1f6e388e39a2a1d379"
+}

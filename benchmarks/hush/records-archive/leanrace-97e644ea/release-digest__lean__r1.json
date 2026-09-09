@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__lean__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 133783,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3524454,
+  "numTurns": 11,
+  "durationMs": 132201,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11186
+  },
+  "contextTraffic": 472175,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 33618,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "finalText": "Added the 4.2.0 section to `CHANGELOG.md`. Of ~380 commits, only 27 were real fixes or features; everything else was dependency bumps, renames, or internal refactors.\n\nOne real behavior change stands out as breaking: expired tokens now return `401` instead of `403` — worth flagging loudly since integrations checking for `403` will break. The other fixes (null-cursor pagination crashes, double-trimmed trailing slashes, empty-allowlist handling, a logged request body, duplicate headers, dropped trace ids, wrong latency units, vague token errors) each landed piecemeal across several modules, so I merged each into one bullet. The one new feature is webhook retry with exponential backoff.\n\nWorth double-checking with whoever owns auth: the 401/403 switch is the one item likely to need a migration note for API consumers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2cc00cebde1398ab3b6b3aabd89a16644dfad2b5560f06908aad330952364724"
+}

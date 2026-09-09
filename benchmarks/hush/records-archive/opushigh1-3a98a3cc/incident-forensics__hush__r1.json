@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 155183,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.742964,
+  "numTurns": 17,
+  "durationMs": 151384,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10868
+  },
+  "contextTraffic": 473594,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 9373,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff is at [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest` to true. Pool is 20 connections. One per request drains it.\n\nWindow: `02:14:18.972Z` to `02:59:27.974Z`. Wrong. Last 503 is `03:59:27.974Z`. That is 1h45m, still open.\n\nNew fact worth knowing. After onset, 530 of 636 requests failed. The 106 that passed were all `/health`. That is likely why nobody got paged.\n\nNext: roll back `dep-4471`, or flip that one key to false.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a32980ce22a514e0e85a459ffcb6fa3e3cd1374774a8608e8efc83f8e48f9092"
+}

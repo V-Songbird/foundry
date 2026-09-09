@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 84113,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.772334,
+  "numTurns": 9,
+  "durationMs": 82605,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5692
+  },
+  "contextTraffic": 372847,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 71765,
+  "narrationWords": 64,
+  "finalWords": 428,
+  "finalText": "Written to `CHANGELOG.md:3`.\n\n## What the numbers look like\n\n380 commits since 4.1.0. Of those, 1 is a feature, 26 are fixes, 10 are perf. The other 343 are dependency bumps, refactors, tests, CI and docs. Nobody installing the package notices those.\n\nThe 26 fixes collapse to 9 lines, because the same bug got fixed in 4 to 6 modules under separate commits. For example, \"guard the null cursor in the paginator\" landed in api, db, queue and webhooks. A reader cares about the behavior, not about the module count.\n\n## Judgment calls you must check\n\n**The four Breaking items are the risk in this release.** Three of them arrived labeled as `fix` or `refactor`, so they are easy to miss:\n\n- **401 instead of 403** (`1d2bd55`) is a `fix`, but it changes a status code that clients branch on.\n- **The histogram unit** (`59402bc`, `1f2bc4e`) is a `fix`, but every dashboard and alert built on that metric now reads a different number. The log does not say which unit it moved to. Confirm before you publish.\n- **\"stop re-exporting the internal error types\"** (8 commits) is a `refactor`, but it removes symbols from the public surface. The word \"internal\" means the team never intended them as public. It does not mean nobody imported them.\n- **The v1 export route** (`56dc828`) is a `refactor` that the author calls \"unused\". A route is external surface. Verify that no customer calls it.\n\nIf you disagree on any of these, the honest place for them is Fixed, not Breaking. I put them in Breaking because a wrong guess there costs a user a broken deploy.\n\n## What I left out\n\n**The 10 perf commits.** Your template allows three headings only, and internal speedups (extra clone removed, JSON round-trip skipped, parsed schema reused) change no contract. One is different: `perf(queue): batch the metric writes` and `perf(db): batch the metric writes` change **when** metrics arrive, not just how fast. If your users graph those metrics at a fine resolution, that belongs in the notes. Tell me and I will add it.\n\n**The webhook backoff config.** `395fb48` touched `src/core/config.js` alongside `src/webhooks/dispatch.js`, so the feature probably ships a new setting. The log shows filenames only, not the option name. If a user must set something to get the retries, that line needs the option name.\n\n**Placement.** The `<!-- 4.2.0 goes here -->` comment sits at the bottom of the file, but 4.1.0 and 4.0.3 run newest first. I followed the existing order and put 4.2.0 at the top. Move it if the comment was literal.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d05911f4666916114128f12bdf0d1869fd3d67ea7272254d5b8230df8ab3fc2f"
+}

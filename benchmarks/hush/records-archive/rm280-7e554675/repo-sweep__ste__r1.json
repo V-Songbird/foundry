@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 52,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54123,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.45994650000000004,
+  "numTurns": 11,
+  "durationMs": 52732,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3380
+  },
+  "contextTraffic": 262952,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 32236,
+  "narrationWords": 54,
+  "finalWords": 172,
+  "finalText": "The migration is complete.\n\n**Changed files (12)**\n\n- `packages/accounts/src/admin/apiKeyAdmin.js`\n- `packages/accounts/src/repo/session.js`\n- `packages/accounts/src/service/teamService.js`\n- `packages/analytics/src/repo/cohort.js`\n- `packages/billing/src/repo/refund.js`\n- `packages/billing/src/service/couponService.js`\n- `packages/catalog/src/admin/variantAdmin.js`\n- `packages/catalog/src/repo/supplier.js`\n- `packages/orders/src/repo/shipment.js`\n- `packages/orders/src/service/returnService.js`\n- `packages/support/src/admin/macroAdmin.js`\n- `packages/support/src/repo/sla.js`\n\nEach file had three call sites. The rewrite is mechanical: `db.query(sql, params)` becomes `db.execute({ sql, params })`. The SQL strings and the parameter arrays are unchanged, so behaviour is the same. All 78 JavaScript files pass `node --check`.\n\n**Not changed**\n\n- `vendor/legacy-orm/adapter.js` (lines 9 and 13) still calls `db.query`. The file header says that the vendored copy is replaced on every upgrade, and that local edits are lost. I left it alone. To remove the last two call sites, you must upgrade `legacy-orm`, or wrap the adapter in your own module.\n- `cache.query(...)` in several repo files is a different API on the cache handle. It is not part of this migration.\n\nOne note: `db.execute` accepts a `timeoutMs` option that `db.query` could not carry. I did not add it anywhere. If specific call sites need a timeout, tell me which ones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "faaf71dfb635b31e08dfb7baccb106e3e9fdaa6f3dd421aeefba5587b1ba37ae"
+}

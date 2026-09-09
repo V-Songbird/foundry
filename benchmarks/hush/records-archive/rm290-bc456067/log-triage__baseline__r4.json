@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 75045,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.35911600000000005,
+  "numTurns": 9,
+  "durationMs": 73553,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4401
+  },
+  "contextTraffic": 239119,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 11350,
+  "narrationWords": 6,
+  "finalWords": 712,
+  "assistantMsgs": 2,
+  "finalText": "Dug through all 719 lines. Here's what happened.\n\n## TL;DR\nRedis died at **02:14:07**, the app fell back to hitting the datastore directly with no protection, and the resulting stampede built an unbounded request backlog for ~17 minutes until a worker OOM'd and the supervisor killed the API. Nothing in the app ever recovered — the outage was one root cause plus a total absence of back-pressure.\n\n## Timeline (UTC, 2026-07-04)\n\n| Time | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Fully healthy. 170 requests, all 200. Cache hit ratio 0.90–0.98. Latency sawtooth 12→145ms, repeating and resetting each cycle — normal, **no leading indicator of the failure**. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **patient zero** |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08.202 | First `cache miss storm: key orders:1000` |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — 3 seconds after Redis dropped |\n| 02:14:12 | Queue depth 52 (max 500), climbing steadily +3 per sample |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts (0–12), **every one ECONNREFUSED**, at a flat ~80s interval |\n| **02:29:12.359** | Queue depth **502 — crosses the stated max of 500**. Nothing happens. No shedding, no 503s. Depth keeps growing. |\n| 02:31:24 | Queue depth 568 — still accepting work |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (134 = SIGABRT, the V8 OOM abort) |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Zero successful requests after 02:14:03.** The last 200 is `GET /orders` at 02:14:03.137. So this wasn't a 17-minute degradation ending in a crash — it was a 17m45s hard outage that *ended* in a crash. Log ends at the FATAL; there's no recovery recorded.\n\n## Root cause\nRedis at `10.0.0.12:6379` stopped accepting connections. `ECONNREFUSED` (not a timeout) means the host was up and actively rejecting — the Redis process was dead or not bound to that port. It never came back during the window. **The cause of the Redis death is not in this log** — you'll need Redis's own logs / the host's dmesg or systemd journal for 02:14:07 to close that out.\n\n## What turned a dependency outage into a full outage\nThe Redis failure was the trigger; these four made it fatal:\n\n1. **No cache stampede protection.** 174 `cache miss storm` warnings — every miss went straight through to the store. No request coalescing, no single-flight, no negative caching.\n2. **The queue limit isn't enforced.** `max 500` appears in every warning, but depth sailed past it to 568 with no load shedding. That's a log label, not a limit. This is what converted backlog into OOM.\n3. **5000ms timeouts are far too long under this failure mode.** 173 timeouts, each holding a connection and its buffers for 5 full seconds while more work piles in behind it.\n4. **Reconnect never recovered and never escalated.** Only 13 attempts in 16 minutes at a fixed ~80s interval. Also worth noting: **every reconnect log line is from `[api]`** — `worker-1`, `worker-2`, and `scheduler` never log a reconnect attempt at all, so they may not be trying to reconnect independently.\n\n## Suggested follow-ups\n- **Fix first:** enforce the 500 queue cap — reject with 503 above it. That alone converts this from \"service down + OOM\" into \"degraded with partial errors.\"\n- Add a circuit breaker on the store path so cache misses fail fast instead of queueing behind 5s timeouts.\n- Add single-flight/coalescing on cache misses.\n- Drop the store timeout to ~500–1000ms on the cache-fallback path.\n- Exponential backoff with jitter on Redis reconnect, and verify workers reconnect too.\n- Alert on queue depth crossing the max and on `cache layer degraded` — both fired ~15 minutes before the crash and were plenty of runway.\n\nOne thing I couldn't check: `package.json` references `src/server.js`, but there's no `src/` in this directory — only `package.json` and `logs/`. If you point me at the actual source I can confirm whether the queue cap and reconnect backoff are what I'm inferring from the log shape.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4116eec7d77531eba5afb7933f7c491ca5bf924bd96ef455d671f86f028f877d"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "leak1-3c2fae62",
+  "seed": "1787986431022",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27299,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1268298,
+  "numTurns": 12,
+  "durationMs": 25449,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1269
+  },
+  "contextTraffic": 229360,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11577,
+  "narrationWords": 17,
+  "finalWords": 34,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed: only `order totals` fails, tax is applied to the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\n`orderTotal` was taxing the pre-discount amount instead of the discounted one.\n\nFixed in [src/pricing.js:39](src/pricing.js:39) by taxing `discounted` via `applyTax` instead of `cents`.\n\nNo other suites were broken.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be2ed61faabf8f02587b4ae59f799ce319b0ab2ee52f284fca7600527cc18a45"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush-core-only__r2",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush-core-only",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33451,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2110341,
+  "numTurns": 9,
+  "durationMs": 31870,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1642
+  },
+  "contextTraffic": 309802,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 6903,
+  "narrationWords": 9,
+  "finalWords": 65,
+  "finalText": "Found it: `packages/shared/config.js` merged layers with `Object.assign`, so any package overriding one key inside `output` or `sourcemap` (like `@acme/api` setting `output.format`) wiped out the sibling keys (`output.dir`), and the bundle stage aborted on the first such package.\n\nReplaced it with a merge that combines nested objects instead of overwriting them. Build now finishes clean — 0 errors, the same 5 pre-existing lint warnings as before.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac1bfbeb9348d29d2a6779ecb80b79ee45a451b4445f5b5c225fd6aca2a4ec0a"
+}

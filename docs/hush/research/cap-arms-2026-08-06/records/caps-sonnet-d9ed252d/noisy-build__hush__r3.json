@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__hush__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 59,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23743,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1842648,
+  "numTurns": 7,
+  "durationMs": 21989,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1344
+  },
+  "contextTraffic": 230339,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 7613,
+  "narrationWords": 0,
+  "finalWords": 91,
+  "finalText": "Builds clean now. `src/core/settings.js` had a `ReferenceError` — it referenced an undefined variable `retries` instead of `env.retries`, which crashed the link stage every time.\n\nFixed it to fall back to a `DEFAULT_MAX_RETRIES` constant of `3` when the caller doesn't pass one. The build now finishes: `build finished in 41.7s with 3 warnings, 0 errors`, exit code 0. Those 3 warnings are just noise (a deprecated API, an unused export, a circular import) — none of them block the build, so I left them alone unless you want those cleaned up too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fba97d8904eedb74507f6918e5ce745e2338fe93ad8599ead4598308c27d1870"
+}

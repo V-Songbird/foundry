@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 25,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 86720,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7594225000000001,
+  "numTurns": 9,
+  "durationMs": 85232,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5626
+  },
+  "contextTraffic": 365524,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 73394,
+  "narrationWords": 21,
+  "finalWords": 613,
+  "assistantMsgs": 3,
+  "finalText": "Drafted into `CHANGELOG.md:3`. Here's what the history actually contains and how I got there.\n\n## The shape of it\n\n380 commits. By type: 153 chore, 73 refactor, 64 test, 33 ci, 26 fix, 20 docs, 10 perf, **1 feat**. So ~87% of the branch is invisible to anyone installing the package.\n\nThe merged-PR sheet adds nothing — I checked every one of its 127 titles against the commit log and all of them have a counterpart. It's a subset view, and it's noisy in its own right (duplicate rows, e.g. #4120 and #4121 are the same pino bump under different authors). You can ignore it and read only `commits.log`.\n\nThe dependency bumps look like 106 commits but are 16 actual version changes, each landing repeatedly under different authors — pino appears 12 times, all `9.2.0 → 9.3.1`. Nine are runtime deps (pino, fastify, pg, knex, ioredis, undici, zod, nanoid, dotenv), all patch or patch-ish. Seven are dev-only (typescript, vitest, eslint, prettier, esbuild, tsx, husky). Nothing there changes behaviour for an installer, so none of it made the notes.\n\n## The three judgment calls\n\n**I promoted three \"fix\"/\"refactor\" commits into Breaking.** The conventional-commit prefixes undersell them:\n\n- `1d2bd55` \"fix(auth): return 401 for an expired token instead of 403\" — correct as a fix, but it changes a status code. Anyone with a `catch (403)` refresh path breaks silently.\n- Eight `stop re-exporting the internal error types` commits across auth/billing/core/db/jobs. Labelled refactor, but re-exports *are* the public surface. If those types were reachable from the package entry point, imports break.\n- `56dc828` \"drop the unused v1 export route\" — \"unused\" is an internal claim about internal telemetry, not about your users' code.\n\n**I also put the histogram-units fix under Breaking**, which is the one I'd most expect you to push back on. It's genuinely a bug fix (`59402bc`, `1f2bc4e`), but the user-visible effect is that every recorded latency value changes magnitude. Dashboards and alert thresholds go wrong on upgrade. That behaves like a break even though it reads like a fix. Move it down to Fixed if you'd rather, but it needs to stay loud either way.\n\n**I dropped all 10 perf commits.** They're real (JSON round-trip on hot paths, batched metric writes, cloning removed from mappers, `9f02d92` reusing the parsed schema between requests), but the template says three headings and says to write only what someone would notice — and I have no numbers to justify a claim. If you have benchmark figures for the schema-reuse one, that's the single item worth a line.\n\nI also collapsed repeats: \"guard the null cursor in the paginator\" landed four times across queue/api/webhooks/db, \"handle an empty allowlist\" three times, \"keep the trace id across the retry\" three times. Each is one user-facing statement, not three.\n\n## Two things to check before you cut\n\n**The date is a guess.** I used 2026-08-28. The last commit on the branch is 2026-06-17 — a ten-week gap to your cut. If there's a later branch or an unmerged batch, I haven't seen it.\n\n**The minimum Node version is unresolved and I deliberately left it out.** There are four `docs: note the minimum node version` commits, four `ci: run the suite on node 22`, and several `.nvmrc` pins — but the docs and CI commits only touch `README.md`, `docs/`, `.nvmrc`, and `ci.yml`. Nothing touches an `engines` field that I can see from the stat lines alone. A minimum-Node bump is the single most disruptive thing a release can carry, so it shouldn't go in on inference. Worth thirty seconds with `git show` on `package.json` to settle it — if `engines` moved, that's your first Breaking bullet and it outranks everything above it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cb8f9fff8e33920c6cd28517bb8b2870be6b384290ad0cbf1b6cb99fd6170bbf"
+}

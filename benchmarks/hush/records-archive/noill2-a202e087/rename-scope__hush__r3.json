@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 52,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 59333,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3660515,
+  "numTurns": 18,
+  "durationMs": 57638,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4275
+  },
+  "contextTraffic": 170007,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 16801,
+  "narrationWords": 5,
+  "finalWords": 110,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the codebase."
+  ],
+  "finalText": "**Big but shallow.** About 1,291 hits in 94 files, and most are one safe mechanical rename.\n\n| Must not rename | Hits | Why |\n|---|---|---|\n| `vendor/reporting-sdk/` | 20 | `npm run vendor:refresh` overwrites it |\n| `migrations/*.sql` | 61 | Already applied in prod |\n| SQL in `services/*/repo/` | 125 lines | Column stays until a rename migration |\n| `docs/openapi.yaml` | 5 | Public contract |\n| `lib/serialize.js` WIRE values | 1 | Frozen wire name |\n\nThe rest are JS params and locals. Those rename fine.\n\nNext: sign off on the JS rename only. Keep the wire, DB column, and vendor names as they are.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "380802c45645721e152de4b0fc40b95afa4d7fb3d6f186ba7eeede2b2b850fa2"
+}

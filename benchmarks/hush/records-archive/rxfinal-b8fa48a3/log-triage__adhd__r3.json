@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13426,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2952326,
+  "numTurns": 3,
+  "durationMs": 12161,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 797
+  },
+  "contextTraffic": 145924,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60092,
+  "narrationWords": 0,
+  "finalWords": 181,
+  "finalText": "Root cause: Redis died at 02:14:07, and nothing broke the resulting overload loop until it took the whole service down at 02:31:52.\n\n**Timeline:**\n1. `02:14:07` — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`), cache fell back to direct DB reads\n2. `02:14:07 → 02:31:26` — 17 min death spiral: cache misses → DB timeouts (5000ms) → queue depth climbing every cycle (52 → 568, past the max of 500 around 02:25:48)\n3. `02:14–02:31` — 13 redis reconnect attempts, all failed, roughly every 2 minutes\n4. `02:31:44` — `worker-2` OOM crash (\"JavaScript heap out of memory\") from the backlog\n5. `02:31:45` — supervisor restarted worker-2\n6. `02:31:52` — `api` went unresponsive, supervisor killed the whole process group — **service down**\n\nLog ends there — no recovery entries after the kill.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable and never came back. The app had no circuit breaker / backpressure, so it kept queuing and retrying against an overloaded DB until memory ran out.\n\nNext: check what happened to the Redis host at `10.0.0.12` around `02:14:07` (that's your actual root cause, not the app crash).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "118b1b0c9fe76c8b459c242cbeb3eef20f233629734e0787c4b299df097fabc2"
+}

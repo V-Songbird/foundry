@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 97189,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.574522,
+  "numTurns": 22,
+  "durationMs": 87748,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5556
+  },
+  "contextTraffic": 554714,
+  "apiCalls": 19,
+  "toolCalls": 17,
+  "toolResultChars": 10954,
+  "narrationWords": 14,
+  "finalWords": 114,
+  "assistantMsgs": 7,
+  "finalText": "Dedupe is in `src/router.js:26-38`, backed by a `lastSentAt` Map in `createState()`.\n\n99 repeats dropped — that matches the ~1-in-9 flaps in `events.js`, which re-fire the same key 2 minutes later. Two decisions worth confirming:\n\n- **Boundary**: `at - lastSentAt <= 5` — a repeat exactly 5 minutes later is dropped. Say the word if you want it to get through instead.\n- **What counts as \"sent\"**: only a non-empty result records a timestamp, so a dropped repeat doesn't extend the suppression window, and a queued quiet-hours delivery does start one. That means a queue write suppresses a repeat 3 minutes later even if the repeat would have gone to a live channel.\n\n0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a4c9fa0a35e2f2d7e88d99bfdab99a476641b65ba8127c140a815305f1d4dd57"
+}

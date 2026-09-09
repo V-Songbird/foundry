@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 47516,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.309918,
+  "numTurns": 14,
+  "durationMs": 46274,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2597
+  },
+  "contextTraffic": 223920,
+  "apiCalls": 10,
+  "toolCalls": 13,
+  "toolResultChars": 12262,
+  "narrationWords": 51,
+  "finalWords": 271,
+  "assistantMsgs": 3,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOf the 700 lines of output, only 3 cases failed — all in the `order totals` suite, and all three were the only rows in that suite with a non-zero discount *and* a non-zero tax rate:\n\n```\norderTotal(12000, 15, 0.0825)  expected 11042  actual 11190\norderTotal(8650,  20, 0.05)    expected  7266  actual  7353\norderTotal(33400, 10, 0.2)     expected 36072  actual 36740\n```\n\n`orderTotal` applied the discount to the base, but computed the tax off the **undiscounted** base and added it on:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- cents, not discounted\nreturn discounted + tax;\n```\n\nSo the customer was taxed on money they never paid — the overcharge is exactly `discount × taxRate` (e.g. 1800c discount × 8.25% = 148c, matching the reported delta). The other 66 rows in that suite all have either a 0% discount or a 0 tax rate, which makes the two orderings agree — that's why the bug hid behind so much passing output.\n\nThe function's own doc comment already specified the correct rule (\"Tax is charged on the amount the customer pays\"), and `cases.js:89` encodes it as `round(round(cents * (1 - pct/100)) * (1 + rate))`. Fix in `src/pricing.js:39`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nReusing `applyTax` rather than inlining the arithmetic keeps the rounding behaviour identical to the tax suite's — one round on the discount, one on the taxed result, which is what the spec expects. I changed only that function; the other eight suites were passing before and after.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8b815409e23b17014b7485c13b3037904b4b40216d7ff2e9c8ea8136df6658be"
+}

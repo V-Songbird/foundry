@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 47,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 106882,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5128045,
+  "numTurns": 18,
+  "durationMs": 105533,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7696
+  },
+  "contextTraffic": 272591,
+  "apiCalls": 9,
+  "toolCalls": 17,
+  "toolResultChars": 17539,
+  "narrationWords": 53,
+  "finalWords": 670,
+  "assistantMsgs": 5,
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files.** It's uniform, generated-looking code — 25 near-identical repo/service/http triples across 5 services (accounts, billing, orders, analytics, notify). Mechanically it's a big but boring rename; the risk is entirely in *where it must stop*.\n\n| Zone | Files | Occ. | Rename? |\n|---|---|---|---|\n| `services/*/src/service/` | 25 | 400 | ✅ safe — pure internal params |\n| `services/*/src/repo/` — JS identifiers | 25 | 325 | ✅ safe |\n| `services/*/src/http/` — local vars | 25 | 225 | ✅ safe |\n| `services/*/src/http/` — `req.session.account_id` | 25 | 100 | ⚠️ blocked on auth service |\n| `services/*/src/repo/` — SQL column refs | 25 | 125 | ⛔ until a migration lands |\n| `services/*/src/repo/` — JSON payload writes | 25 | 25 | ⛔ persisted data |\n| `migrations/` | 12 | 61 | ⛔ never |\n| `vendor/reporting-sdk/` | 4 | 20 | ⛔ never |\n| `docs/openapi.yaml` | 1 | 5 | ⛔ breaking change |\n| `lib/serialize.js` `WIRE` values | 1 | ~2 | ⛔ frozen |\n\nRoughly **955 safe / 336 must-not**.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` + the right-hand side of `WIRE` in `lib/serialize.js`.** `account_id` is a public response field *and* a public query parameter on `/v2/invoices`. `serialize.js:3-8` is explicit that these are frozen and that an internal rename must not cross that map. This is the one hard \"no\" — renaming it is a breaking change for every client and needs a new dated API version. The good news: the map is exactly the seam that lets you do the rest. Change the left key to `owner_id`, leave `'account_id'` on the right.\n\n**2. `migrations/` (12 files, applied in production).** Every file says so at the top. Editing an applied migration renames nothing in a DB that already ran it and breaks the down step. The column rename needs a **new** migration (`ALTER TABLE ... RENAME COLUMN`, ×25 tables, plus the 25 `*_account_id_idx` indexes and the FKs to `accounts(account_id)`).\n\n**3. `vendor/reporting-sdk/` (4 files).** Marked `generated. Do not edit` — `npm run vendor:refresh` overwrites it. It's also a third-party wire format, so the field genuinely is `account_id`. Note: **nothing in the repo imports it** (zero callers outside `vendor/`), so it's inert either way — but a blind sed will hit it.\n\n**4. The 125 SQL column references in `repo/`.** Not \"never,\" but they can't change in the same commit as the JS rename — they're only valid after the migration in #2 has actually run. Same for the 25 `JSON.stringify({ ...values, account_id })` payload writes: existing rows already have `account_id` inside `payload`, so renaming the write without backfilling the JSON silently splits reads across two key names.\n\n**5. `req.session.account_id` — 100 reads, and nothing in this repo sets it.** No middleware, no auth module, no assignment anywhere. The session shape is produced by something outside this codebase, so those 100 reads can only be renamed in lockstep with whatever owns the session. Worth asking the platform team directly — this is the flag most likely to be missed.\n\n## Sign-off recommendation\n\nI'd sign off on it **split into three commits**, not one:\n\n1. Internal-only rename — services + repo JS identifiers + http local vars (~950 occurrences), with `serialize.js` absorbing the change at the boundary. Zero external effect, fully reversible.\n2. New migration renaming the 25 columns/indexes/FKs + `payload` JSON backfill, then flip the 125 SQL strings.\n3. `req.session` — only after the auth owner confirms.\n\nAnd add a guard so this doesn't regress: `vendor/`, `migrations/`, and `docs/openapi.yaml` should be excluded from the rename tooling explicitly rather than by care.\n\nOne thing I could not determine from this repo: who owns `req.session` and whether the audit sink in `lib/audit.js` (which stamps `account_id` on every line, `audit.js:8`) is consumed downstream by anything that reads the field by name. If those log lines feed a dashboard or SIEM, that field is a fourth frozen surface. I'd get an answer on both before today's sign-off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63f2bfd1d8402c9abc7d2d6fccc3d39ae348c90d312bc79ca9e7a681a1f89ea1"
+}

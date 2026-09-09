@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 33,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21200,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1903031,
+  "numTurns": 11,
+  "durationMs": 19730,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1375
+  },
+  "contextTraffic": 235322,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15275,
+  "narrationWords": 31,
+  "finalWords": 70,
+  "finalText": "Suite is green: 625/625 passing, and `verify.js` confirms the fix is correct (not a spec/runner hack).\n\nThe bug: `orderTotal` in `src/pricing.js` was charging tax on the pre-discount amount instead of the discounted amount, contradicting its own doc comment (\"tax the amount the customer pays\"). Only rows with both a nonzero discount and tax exposed it, which is why almost everything else looked fine. Fixed by taxing `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ee28593d4901527a2fbffa8de09d492e7535116cb254a1b302c88be09b25755"
+}

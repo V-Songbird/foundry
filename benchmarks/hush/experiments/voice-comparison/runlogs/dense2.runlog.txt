@@ -1,0 +1,41 @@
+48 runs (4 tasks x 2 arms x 6 reps), model=sonnet, tag=dense2
+SKIP incident-followup__hushold__r1  (already on disk)
+SKIP incident-followup__hushold__r2  (already on disk)
+SKIP incident-followup__hushold__r3  (already on disk)
+SKIP incident-followup__hushold__r4  (already on disk)
+SKIP incident-followup__hushold__r5  (already on disk)
+SKIP incident-followup__hushold__r6  (already on disk)
+SKIP incident-followup__hush__r1  (already on disk)
+SKIP incident-followup__hush__r2  (already on disk)
+SKIP incident-followup__hush__r3  (already on disk)
+SKIP incident-followup__hush__r4  (already on disk)
+SKIP incident-followup__hush__r5  (already on disk)
+SKIP incident-followup__hush__r6  (already on disk)
+SKIP checkout-session__hushold__r1  (already on disk)
+SKIP checkout-session__hushold__r2  (already on disk)
+SKIP checkout-session__hushold__r3  (already on disk)
+SKIP checkout-session__hushold__r4  (already on disk)
+SKIP checkout-session__hushold__r5  (already on disk)
+SKIP checkout-session__hushold__r6  (already on disk)
+SKIP checkout-session__hush__r2  (already on disk)
+node:fs:1193
+  binding.rmdir(path);
+          ^
+
+Error: EBUSY: resource busy or locked, rmdir 'X:\Temp\hush-bench\dense2\checkout-session__hush__r1'
+    at rmdirSync (node:fs:1193:11)
+    at _rmdirSync (node:internal/fs/rimraf:236:5)
+    at rimrafSync (node:internal/fs/rimraf:194:7)
+    at Object.rmSync (node:fs:1239:10)
+    at oneRun (D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\runner\run.js:136:6)
+    at worker (D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\runner\run.js:201:26)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Promise.all (index 2)
+    at async main (D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\runner\run.js:204:3) {
+  errno: -4082,
+  code: 'EBUSY',
+  syscall: 'rmdir',
+  path: 'X:\\Temp\\hush-bench\\dense2\\checkout-session__hush__r1'
+}
+
+Node.js v22.22.2

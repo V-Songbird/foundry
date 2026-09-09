@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__caveman__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 50,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 66868,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29970460000000004,
+  "numTurns": 20,
+  "durationMs": 65782,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5340
+  },
+  "contextTraffic": 724581,
+  "apiCalls": 16,
+  "toolCalls": 19,
+  "toolResultChars": 21005,
+  "narrationWords": 139,
+  "finalWords": 77,
+  "finalText": "Migration done. All 12 app files switched `db.query(sql, params)` to `db.execute({ sql, params })`, syntax-checked clean.\n\nOne holdout left: `vendor\\legacy-orm\\adapter.js` — still on `db.query`. Left untouched on purpose: file header says it's a vendored copy, overwritten wholesale on every upgrade, local edits silently lost. Fixing it here won't stick. Real fix needs to happen upstream in the legacy-orm package itself, or wrap it with an adapter shim outside the vendor dir if you need it converted now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6e4c0458ca9f87fc3c283dce21b30d9311b75eee8e669f9b785ee98cccf13267"
+}

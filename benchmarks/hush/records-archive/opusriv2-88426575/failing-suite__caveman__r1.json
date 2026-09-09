@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__caveman__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30801,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.28048100000000004,
+  "numTurns": 11,
+  "durationMs": 29018,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1544
+  },
+  "contextTraffic": 225807,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8801,
+  "narrationWords": 6,
+  "finalWords": 84,
+  "finalText": "Green. 625/625.\n\nOnly 3 real failures, all `orderTotal` — rows with both discount and tax non-zero. Rest of wall was noise.\n\nBug: tax computed on pre-discount base, then added.\n\n```js\nconst tax = roundCents(cents * taxRate);   // cents, not discounted\nreturn discounted + tax;\n```\n\nContradicted own doc comment (\"tax what's actually owed\"). Fix in `src/pricing.js:39`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nHidden because 66 of 69 order rows had zero discount or zero tax — both paths agree there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "19b15c2cd20d280311a2e631676d560ec91978c47e38a82dc0fbe4b8620dd634"
+}

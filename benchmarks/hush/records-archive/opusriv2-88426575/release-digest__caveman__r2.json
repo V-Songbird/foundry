@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 28,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 74306,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.43523,
+  "numTurns": 8,
+  "durationMs": 72171,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4540
+  },
+  "contextTraffic": 226588,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 25837,
+  "narrationWords": 0,
+  "finalWords": 555,
+  "finalText": "Dug through 380 commits / 127 PRs. Real signal: **1 feature, 3 behavior changes users can break on, ~11 distinct fixes**. Rest = dep bumps (many merged twice or thrice by different authors), refactors, CI, tests.\n\n## What actually changed\n\n**Breaking-ish (3)**\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55) — status code change on hot path. Anyone branching on 403 breaks.\n- `refactor(api): drop the unused v1 export route` (56dc828) — touched `src/api/handlers.js` +50, `router.js`, `test/api.test.js`. \"unused\" is an internal claim; route removal is public surface. Verify before shipping as non-breaking.\n- `stop re-exporting the internal error types` — 8 commits across core, db, jobs, auth, billing (4d83260, 2e61589, d7cf97b, 5d4de73, 9b717dc, d988aed, b5cfbc3, 8639397). Any consumer importing those types from package entry points breaks. TS users hit compile errors.\n\n**Added (1)**\n- `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48) — also touched `src/core/config.js`, so likely new config knob. Only feat in whole range.\n\n**Fixed (deduped across scopes)**\n- HTTP timer not cleared when socket drops (f66d359)\n- HTTP pool not closed on shutdown (eb874a5)\n- Null cursor in paginator (api, queue, webhooks, db)\n- Duplicate header sent (http, core, billing)\n- Trailing slash trimmed twice (queue, jobs)\n- Empty allowlist crashed (store, db, jobs)\n- Whole request body logged by DB layer (1b55313) — log-hygiene / possible PII leak, worth calling out\n- Trace id lost across retry (api)\n- Wrong units in latency histogram (store, core) — metrics dashboards shift\n- Token parser error message tightened (core, billing, queue)\n\n**Perf, no API change** — batched metric writes, skipped JSON round-trip on hot path, dropped extra clone in mapper, parsed-schema reuse. Not in your 3 headings; mention in release blog if you want.\n\n**Noise, skip** — all dep bumps patch/minor. Runtime: pg 8.12.0→8.13.0, knex 3.1.0→3.1.2, ioredis 5.4.1→5.4.2, fastify 4.28.0→4.28.1, pino 9.2.0→9.3.1, zod 3.23.6→3.23.8, nanoid 5.0.7→5.0.8, dotenv 16.4.5→16.4.7. Dev-only: eslint, prettier, vitest 1→2, esbuild 0.21→0.23, typescript, tsx, husky.\n\n**Open question:** `docs: note the minimum node version` ×4, `ci: run the suite on node 22` ×7, `chore: pin the node version in .nvmrc` ×4 — but no `engines` change visible in any stat line. If min Node actually rose, that's Breaking and I can't confirm it from the log. Check `package.json` engines.\n\n## Draft section\n\n```markdown\n## 4.2.0 — 2026-08-27\n\n### Breaking\n- An expired token now returns 401 instead of 403.\n- The v1 export route has been removed. Use the current export endpoint.\n- Internal error types are no longer re-exported from the package entry\n  points. Import them from their own modules, or match on error codes.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it\n  closes its pool on shutdown.\n- A paginator no longer throws on a null cursor.\n- Requests no longer carry a duplicate header.\n- A URL with a trailing slash is trimmed once, not twice.\n- An empty allowlist is handled instead of throwing.\n- The database layer no longer logs the whole request body.\n- The trace id survives a retry.\n- The latency histogram reports the correct units.\n- The token parser error message says what actually went wrong.\n```\n\nDate placeholder is tomorrow. Want me to write it into `CHANGELOG.md`?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2372fe3efc33c8ebfc4ec696351f3d4c20e4ca4c4afeff334d59c52a820dccda"
+}

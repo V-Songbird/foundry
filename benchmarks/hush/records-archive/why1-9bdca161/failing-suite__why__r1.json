@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__why__r1",
+  "batchId": "why1-9bdca161",
+  "seed": "1788002457000",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "why",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37245,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1419506,
+  "numTurns": 10,
+  "durationMs": 35747,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2683
+  },
+  "contextTraffic": 207447,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11878,
+  "narrationWords": 10,
+  "finalWords": 47,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms exactly the 3 order-total cases predicted. Applying the fix."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the original price instead of the discounted price, so tax and discount got applied independently rather than tax-on-discounted-amount.\n\nChanged `tax = roundCents(cents * taxRate)` to `tax = roundCents(discounted * taxRate)`.\n\nNext: nothing, all 625 cases pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f2514c3cb673ae73b714abc821ecc2c96aef70632f6c8bd804ea8225eaa35179"
+}

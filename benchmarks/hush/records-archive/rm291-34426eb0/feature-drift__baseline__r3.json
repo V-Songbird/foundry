@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 52,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 128210,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.801205,
+  "numTurns": 30,
+  "durationMs": 119580,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7275
+  },
+  "contextTraffic": 842544,
+  "apiCalls": 27,
+  "toolCalls": 25,
+  "toolResultChars": 15920,
+  "narrationWords": 7,
+  "finalWords": 113,
+  "assistantMsgs": 6,
+  "finalText": "Dedup added. `route()` now checks `state.lastSentAt` (a `Map` of key → minute of last delivery) before anything else, and only a real delivery starts the window.\n\nReplay: 0 errors, 99 dropped — that's the flap pattern in `events.js` (every 9th event repeats the previous key 2 minutes later; 100 flaps, the first has no prior send). Spot-checked `evt-0018` at minute 273 dropping against its 2-minutes-earlier twin.\n\nTwo calls worth naming:\n- A queued notification counts as sent, so it starts the 5-minute window and suppresses repeats. If the queue should be exempt, that's a one-line change.\n- The window is exclusive: a repeat at exactly 5 minutes goes through, only `< 5` drops.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca54672191269c8795dd61b9cbc9242efc890ee01a24a227e871b5033d4b51b4"
+}

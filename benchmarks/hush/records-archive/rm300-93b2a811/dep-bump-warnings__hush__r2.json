@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36225,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.240859,
+  "numTurns": 10,
+  "durationMs": 34815,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1835
+  },
+  "contextTraffic": 149279,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6183,
+  "narrationWords": 7,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n`resolveRetries` read `options.retries`, but the bundler now sends `retryCount`. Fixed in [options.js:6](src/core/options.js:6). `isBackoffEnabled` threw on an unset flag. The new loader gives `undefined`, not `false`. Fixed in [retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe 8 warnings are still there. They are deprecation notices, harmless for now.\n\nNext: fix `crypto.createCipher` in `src/legacy/adapter.js` before v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59471af794e90b2e3a4a46d8a087a43015097aa88d78824fa46c584381e1f5e0"
+}

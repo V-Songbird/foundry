@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17189,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0775506,
+  "numTurns": 3,
+  "durationMs": 15693,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1008
+  },
+  "contextTraffic": 90215,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 118,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\n`redis` at `10.0.0.12:6379` dropped at `02:14:07Z` (`ECONNREFUSED`). Cache fell back to direct store reads, triggering cache-miss storms and store overload.\n\nTimeouts piled up across `api`, `worker-1`, `worker-2`, `scheduler`. Queue depth climbed from 52 to 568, past its max of 500. Reconnect attempts to redis kept failing, at least 12 tries, all refused, over 17 minutes.\n\nAt `02:31:44Z` `worker-2` hit `JavaScript heap out of memory` from the backlog. Supervisor restarted it, then at `02:31:52Z` marked `api` unresponsive and killed the process group. Service down.\n\nRoot cause is the redis connection loss, not the app. Fix redis reachability at `10.0.0.12:6379` first, then look at why queue depth had no circuit breaker before OOM.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67fd6ef53b82ea84aa416cff01f579fda355e5c8e000d8bdd63448bcf8145127"
+}

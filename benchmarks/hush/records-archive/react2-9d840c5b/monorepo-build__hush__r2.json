@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 13,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33867,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24704940000000003,
+  "numTurns": 10,
+  "durationMs": 31948,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2302
+  },
+  "contextTraffic": 359366,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 9184,
+  "narrationWords": 14,
+  "finalWords": 78,
+  "finalText": "Found it and fixed it. `packages/shared/config.js` used `Object.assign` to layer defaults, package overrides, and CLI flags — a shallow merge, so any override touching `output` or `sourcemap` wiped out the sibling keys instead of just changing the one named. `@acme/api`, `@acme/web`, and `@acme/cli` all did this, which is why bundling failed with `config-incomplete`.\n\nI changed the merge to combine nested objects key-by-key instead of replacing them wholesale. Build now finishes clean: **0 errors, 5 warnings**, `verify.js` also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "24ae5d691fc18e2fe3ee9d7c5695eaee787f0b462f0715b5640bba6af1a6d66e"
+}

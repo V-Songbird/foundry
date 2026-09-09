@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r4",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23419,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1702746,
+  "numTurns": 10,
+  "durationMs": 22124,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1684
+  },
+  "contextTraffic": 215171,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 8136,
+  "narrationWords": 18,
+  "finalWords": 102,
+  "finalText": "Build is clean now (exit 0, 0 errors). The screen full of warnings was mostly harmless deprecation noise from `fakepack`, but two real bugs from the bump were buried in there:\n\n- `src/core/options.js` — still read `options.retries`, but the new bundler passes `retryCount`. Threw `Cannot read properties of undefined (reading 'toFixed')` and aborted the build.\n- `src/net/retryPolicy.js` — the new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled explicit booleans and threw on `undefined`.\n\nFixed both call sites to match the new shapes; the build now finishes with only the expected deprecation warnings (0 errors).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67bdf06d1f4257dfc5a76957e2599357c3186cdaffd548ed30656d7a29e38c54"
+}

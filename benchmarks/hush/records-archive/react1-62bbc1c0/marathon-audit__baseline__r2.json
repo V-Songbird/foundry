@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 35,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 130468,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6097404,
+  "numTurns": 27,
+  "durationMs": 124696,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8639
+  },
+  "contextTraffic": 1110210,
+  "apiCalls": 27,
+  "toolCalls": 23,
+  "toolResultChars": 20768,
+  "narrationWords": 0,
+  "finalWords": 62,
+  "finalText": "`AUDIT.md` is written and verified — all four findings confirmed against `NOTES.md`, ordered by severity, no service code touched:\n\n1. **Critical** — SQL injection in `src/repo/report.js` (string-concatenated filter/order clauses)\n2. **Critical** — unauthenticated internal routes in `src/routes/internal.js` (missing `router.use(requireAuth)`)\n3. **High** — plaintext DB password committed in `config/staging.js`\n4. **Medium** — `package.json` pinned to yanked, prototype-pollution-vulnerable `fast-parse@1.4.2` (fix is `1.4.3` per `NOTES.md`)",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f955e61d8807ab00acb45e040ed75d50b4304425b9adc8626bebe73ff96519e6"
+}

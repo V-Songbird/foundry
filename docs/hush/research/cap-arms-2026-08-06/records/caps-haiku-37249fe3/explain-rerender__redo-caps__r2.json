@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 65,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 10659,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0230775,
+  "numTurns": 1,
+  "durationMs": 8777,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 621
+  },
+  "contextTraffic": 27056,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 198,
+  "finalText": "The most common culprit: the **parent component is re-rendering**, so React re-renders the child automatically. Even with the same props, the child runs again.\n\nIf the props really are identical, the issue is usually that objects, arrays, or functions are recreated each render — so they're the same value but different references. Inline functions and object literals are the usual suspects:\n\n```jsx\n// ❌ Creates a new function every render\n<Child onClick={() => doSomething()} />\n\n// ❌ Creates a new object every render\n<Child style={{ color: 'red' }} />\n\n// ✓ Reuse the same reference\nconst handleClick = () => doSomething()\nconst childStyle = { color: 'red' }\n<Child onClick={handleClick} style={childStyle} />\n```\n\nIf you want to stop the child from re-rendering when the parent does, wrap it with `React.memo`:\n\n```jsx\nconst Child = React.memo(({ prop }) => {\n  return <div>{prop}</div>\n})\n```\n\nThis tells React to skip re-rendering the child unless its props actually change. But it won't help if you're passing new object references each time — the memo check will see them as different.\n\nWhat does your parent component look like, or what props are you passing? That'd show if it's one of these patterns.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bfd7ca0ab2a125ac100ade992db562a50b470112f55d1ff20af5146a8db539e2"
+}

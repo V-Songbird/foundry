@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 55,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76994,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4306025,
+  "numTurns": 18,
+  "durationMs": 75432,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5736
+  },
+  "contextTraffic": 176336,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 21295,
+  "narrationWords": 5,
+  "finalWords": 101,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the codebase."
+  ],
+  "finalText": "Big but mostly mechanical: **94 files, about 1,290 hits.** Roughly 1,080 are safe.\n\nFour zones must keep `account_id`:\n\n| Zone | Hits | Why |\n|---|---|---|\n| `migrations/` | 61 | Applied in prod. Edits break the down step. |\n| SQL strings in `*/repo/*.js` | 125 | Real DB column. Needs its own migration. |\n| `vendor/reporting-sdk/` | 20 | Generated. `vendor:refresh` overwrites edits. |\n| [openapi.yaml](docs/openapi.yaml:16), `WIRE` value in [serialize.js](lib/serialize.js:8) | 6 | Frozen public contract. |\n\nThe `payload` JSON key is a fifth trap. New rows would disagree with old.\n\nNext: require the diff to skip those zones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3e9e09c3e086c62ad7b3ea2b841ed47a62db3419e8db97435e6259c4fa91f46"
+}

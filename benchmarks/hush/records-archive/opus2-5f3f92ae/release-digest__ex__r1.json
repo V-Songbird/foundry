@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ex__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 97282,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7371504999999999,
+  "numTurns": 15,
+  "durationMs": 95783,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6252
+  },
+  "contextTraffic": 528382,
+  "apiCalls": 13,
+  "toolCalls": 14,
+  "toolResultChars": 40900,
+  "narrationWords": 8,
+  "finalWords": 152,
+  "finalText": "Wrote the 4.2.0 entry at the top of `CHANGELOG.md`, dated 2026-08-25.\n\nOf 380 commits, 47 touch behavior. The rest are dependency bumps, tests, CI, and refactors that move code without changing it.\n\nThree things need your call before you ship:\n\n| Item | Why it needs you |\n|---|---|\n| Node version | Five commits say \"note the minimum node version\" but only touch docs. CI moved to Node 22. Nothing changed `engines` in `package.json`, so I did not claim a bump. |\n| v1 export route | The commit calls it \"unused.\" If it was public, this is breaking as written. If it never shipped, cut that bullet. |\n| Perf bullet | It sits under **Added** because your template has no fourth heading. Move or drop it. |\n\nTwelve commits drop a \"v2 debug helper\" from `src/`. I left those out as internal. Worth a glance if any were exported.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "94361903f3ffae5990877ac9010240ce18148ec8957c9f4bab2a0290262ffa94"
+}

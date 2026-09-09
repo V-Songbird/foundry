@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26238,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1881488,
+  "numTurns": 7,
+  "durationMs": 24903,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1955
+  },
+  "contextTraffic": 254804,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 10576,
+  "narrationWords": 74,
+  "finalWords": 123,
+  "finalText": "Both the build and the verify check pass now.\n\nRoot cause: `resolveRelease` in `packages/shared/config.js` merged config layers with `Object.assign`, which is a shallow merge. Since `output` and `sourcemap` are nested objects, a package override that only set `output.format` (e.g. `@acme/api`) silently wiped out `output.dir` and `output.entry` from the defaults, so `cfg.output.dir` came out `undefined` — that's what threw `EBUNDLE07 config-incomplete` and aborted the build.\n\nFix: replaced the shallow `Object.assign` with a `deepMerge` that recursively merges nested plain objects (defaults → package overrides → CLI flags, later layers still win per-key), without mutating the source objects. `build.js` now exits 0, and `verify.js` confirms the layering rule holds correctly for cases the original fixture didn't even exercise (e.g. a partial CLI `output.dir` override on `@acme/web`).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c8160f90eebc6266b3032b1388124ce6083ea8ca79591ebcff91d062efabd41"
+}

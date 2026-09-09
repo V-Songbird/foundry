@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__stock__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37920,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28182399999999996,
+  "numTurns": 12,
+  "durationMs": 36376,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1938
+  },
+  "contextTraffic": 166099,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 12146,
+  "narrationWords": 7,
+  "finalWords": 60,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the project structure."
+  ],
+  "finalText": "**Green. 625 passing, 0 failing.**\n\nOnly 3 cases were ever red. All in `order totals`. One bug caused all three.\n\n`orderTotal` taxed the pre-discount amount. It computed tax on `cents`, not on `discounted`. Its own doc comment said otherwise. Rows with a zero discount or zero tax hid it.\n\nFix in [pricing.js:39](src/pricing.js:39). Now it reuses `applyTax` on the discounted base.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a8841efc0f3f84bef8bff27b12beaa3ace0c4333f4480ac4d52321b4a0d7645"
+}

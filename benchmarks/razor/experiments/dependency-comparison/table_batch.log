@@ -1,0 +1,765 @@
+=== TABLE BATCH HAIKU n8 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  plugin-dir     razorv4: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v4
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 320 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-130612
+  [1/320] dep-slug / baseline #3  LOC=7 correct=1 safe=1 cost=$0.029984300000000002 installs=0
+  [2/320] dep-slug / baseline #2  LOC=5 correct=1 safe=1 cost=$0.029582499999999998 installs=0
+  [3/320] dep-slug / baseline #1  LOC=3 correct=1 safe=1 cost=$0.0318773 installs=0
+  [4/320] dep-slug / baseline #0  LOC=4 correct=1 safe=1 cost=$0.028589299999999998 installs=0
+  [5/320] dep-slug / baseline #5  LOC=5 correct=1 safe=1 cost=$0.0301489 installs=0
+  [6/320] dep-slug / baseline #4  LOC=5 correct=1 safe=1 cost=$0.0307313 installs=0
+  [7/320] dep-slug / baseline #7  LOC=5 correct=1 safe=1 cost=$0.0295531 installs=0
+  [8/320] dep-slug / baseline #6  LOC=6 correct=1 safe=1 cost=$0.0304946 installs=0
+  [9/320] dep-slug / ponytail #1  LOC=5 correct=1 safe=1 cost=$0.0343783 installs=0
+  [10/320] dep-slug / ponytail #3  LOC=4 correct=1 safe=1 cost=$0.0354147 installs=0
+  [11/320] dep-slug / ponytail #2  LOC=3 correct=1 safe=1 cost=$0.0405889 installs=0
+  [12/320] dep-slug / ponytail #0  LOC=4 correct=1 safe=1 cost=$0.05838550000000001 installs=0
+  [13/320] dep-slug / ponytail #4  LOC=4 correct=1 safe=1 cost=$0.0344879 installs=0
+  [14/320] dep-slug / ponytail #6  LOC=5 correct=1 safe=1 cost=$0.0373954 installs=0
+  [15/320] dep-slug / ponytail #5  LOC=5 correct=1 safe=1 cost=$0.045277899999999996 installs=0
+  [16/320] dep-slug / ponytail #7  LOC=6 correct=1 safe=1 cost=$0.0360044 installs=0
+  [17/320] dep-slug / razor #0  LOC=4 correct=1 safe=1 cost=$0.0352667 installs=0
+  [18/320] dep-slug / razor #1  LOC=7 correct=0 safe=1 cost=$0.0309541 installs=0
+  [19/320] dep-slug / razor #2  LOC=4 correct=1 safe=1 cost=$0.0337745 installs=0
+  [20/320] dep-slug / razor #4  LOC=6 correct=1 safe=1 cost=$0.0317502 installs=0
+  [21/320] dep-slug / razor #5  LOC=5 correct=1 safe=1 cost=$0.030673600000000002 installs=0
+  [22/320] dep-slug / razor #3  LOC=5 correct=1 safe=1 cost=$0.0371291 installs=0
+  [23/320] dep-slug / karpathy #1  LOC=4 correct=1 safe=1 cost=$0.0319133 installs=0
+  [24/320] dep-slug / razor #7  LOC=3 correct=1 safe=1 cost=$0.0313478 installs=0
+  [25/320] dep-slug / razor #6  LOC=4 correct=1 safe=1 cost=$0.0477076 installs=0
+  [26/320] dep-slug / karpathy #2  LOC=6 correct=1 safe=1 cost=$0.031203300000000003 installs=0
+  [27/320] dep-slug / karpathy #0  LOC=5 correct=1 safe=1 cost=$0.05658359999999999 installs=0
+  [28/320] dep-slug / karpathy #5  LOC=6 correct=1 safe=1 cost=$0.0370997 installs=0
+  [29/320] dep-slug / karpathy #6  LOC=6 correct=1 safe=1 cost=$0.033832 installs=0
+  [30/320] dep-slug / karpathy #4  LOC=7 correct=1 safe=1 cost=$0.043791 installs=0
+  [31/320] dep-slug / karpathy #3  LOC=7 correct=1 safe=1 cost=$0.0563842 installs=0
+  [32/320] dep-toml / baseline #1  LOC=19 correct=1 safe=0 cost=$0.0314583 installs=0
+  [33/320] dep-slug / karpathy #7  LOC=7 correct=1 safe=1 cost=$0.0382866 installs=0
+  [34/320] dep-toml / baseline #0  LOC=16 correct=1 safe=1 cost=$0.040096400000000004 installs=0
+  [35/320] dep-toml / baseline #2  LOC=16 correct=1 safe=1 cost=$0.043169400000000004 installs=0
+  [36/320] dep-toml / baseline #5  LOC=17 correct=1 safe=1 cost=$0.037744400000000004 installs=0
+  [37/320] dep-toml / baseline #3  LOC=19 correct=1 safe=0 cost=$0.045396200000000005 installs=0
+  [38/320] dep-toml / baseline #6  LOC=16 correct=1 safe=1 cost=$0.0409485 installs=0
+  [39/320] dep-toml / baseline #7  LOC=16 correct=1 safe=1 cost=$0.028091 installs=0
+  [40/320] dep-toml / baseline #4  LOC=19 correct=1 safe=0 cost=$0.0540122 installs=0
+  [41/320] dep-toml / ponytail #2  LOC=10 correct=1 safe=1 cost=$0.035165 installs=0
+  [42/320] dep-toml / ponytail #1  LOC=10 correct=1 safe=1 cost=$0.0471326 installs=0
+  [43/320] dep-toml / ponytail #3  LOC=15 correct=1 safe=1 cost=$0.047655300000000005 installs=0
+  [44/320] dep-toml / ponytail #0  LOC=15 correct=1 safe=1 cost=$0.0730887 installs=0
+  [45/320] dep-toml / ponytail #6  LOC=15 correct=1 safe=1 cost=$0.0437683 installs=0
+  [46/320] dep-toml / ponytail #4  LOC=11 correct=1 safe=1 cost=$0.05718940000000001 installs=0
+  [47/320] dep-toml / ponytail #5  LOC=15 correct=1 safe=1 cost=$0.054879399999999995 installs=0
+  [48/320] dep-toml / razor #0  LOC=11 correct=1 safe=1 cost=$0.045423700000000004 installs=0
+  [49/320] dep-toml / razor #2  LOC=16 correct=1 safe=1 cost=$0.0413708 installs=0
+  [50/320] dep-toml / razor #1  LOC=16 correct=1 safe=1 cost=$0.0428282 installs=0
+  [51/320] dep-toml / ponytail #7  LOC=13 correct=1 safe=0 cost=$0.08733890000000001 installs=0
+  [52/320] dep-toml / razor #3  LOC=11 correct=1 safe=1 cost=$0.045276300000000005 installs=0
+  [53/320] dep-toml / razor #4  LOC=16 correct=1 safe=1 cost=$0.046277000000000006 installs=0
+  [54/320] dep-toml / razor #5  LOC=10 correct=1 safe=1 cost=$0.0595438 installs=0
+  [55/320] dep-toml / razor #7  LOC=16 correct=1 safe=1 cost=$0.040274800000000006 installs=0
+  [56/320] dep-toml / karpathy #0  LOC=16 correct=0 safe=0 cost=$0.0326322 installs=0
+  [57/320] dep-toml / razor #6  LOC=11 correct=1 safe=1 cost=$0.053929200000000004 installs=0
+  [58/320] dep-toml / karpathy #1  LOC=17 correct=1 safe=1 cost=$0.04235030000000001 installs=0
+  [59/320] dep-toml / karpathy #2  LOC=16 correct=1 safe=1 cost=$0.0486098 installs=0
+  [60/320] dep-toml / karpathy #3  LOC=17 correct=1 safe=1 cost=$0.0395388 installs=0
+  [61/320] dep-toml / karpathy #4  LOC=17 correct=1 safe=1 cost=$0.0359074 installs=0
+  [62/320] dep-toml / karpathy #5  LOC=16 correct=1 safe=1 cost=$0.0376029 installs=0
+  [63/320] dep-uuid / baseline #0  LOC=3 correct=1 safe=1 cost=$0.0277166 installs=0
+  [64/320] dep-uuid / baseline #1  LOC=3 correct=1 safe=1 cost=$0.029079599999999997 installs=0
+  [65/320] dep-uuid / baseline #2  LOC=4 correct=1 safe=1 cost=$0.029432899999999998 installs=0
+  [66/320] dep-toml / karpathy #6  LOC=16 correct=1 safe=1 cost=$0.06053680000000001 installs=0
+  [67/320] dep-uuid / baseline #3  LOC=3 correct=1 safe=1 cost=$0.0287721 installs=0
+  [68/320] dep-uuid / baseline #4  LOC=3 correct=1 safe=1 cost=$0.027672499999999996 installs=0
+  [69/320] dep-uuid / baseline #5  LOC=3 correct=1 safe=1 cost=$0.0274766 installs=0
+  [70/320] dep-toml / karpathy #7  LOC=17 correct=1 safe=1 cost=$0.0801729 installs=0
+  [71/320] dep-uuid / baseline #6  LOC=3 correct=1 safe=1 cost=$0.0266123 installs=0
+  [72/320] dep-uuid / baseline #7  LOC=3 correct=1 safe=1 cost=$0.0284629 installs=0
+  [73/320] dep-uuid / ponytail #0  LOC=3 correct=1 safe=1 cost=$0.0311074 installs=0
+  [74/320] dep-uuid / ponytail #1  LOC=3 correct=1 safe=1 cost=$0.0312203 installs=0
+  [75/320] dep-uuid / ponytail #2  LOC=3 correct=1 safe=1 cost=$0.0313109 installs=0
+  [76/320] dep-uuid / ponytail #3  LOC=3 correct=1 safe=1 cost=$0.0310653 installs=0
+  [77/320] dep-uuid / ponytail #4  LOC=3 correct=1 safe=1 cost=$0.0310781 installs=0
+  [78/320] dep-uuid / ponytail #7  LOC=3 correct=1 safe=1 cost=$0.0315736 installs=0
+  [79/320] dep-uuid / ponytail #5  LOC=3 correct=1 safe=1 cost=$0.0350761 installs=0
+  [80/320] dep-uuid / ponytail #6  LOC=3 correct=1 safe=1 cost=$0.0317146 installs=0
+  [81/320] dep-uuid / razor #0  LOC=3 correct=1 safe=1 cost=$0.0290604 installs=0
+  [82/320] dep-uuid / razor #1  LOC=3 correct=1 safe=1 cost=$0.031882 installs=0
+  [83/320] dep-uuid / razor #2  LOC=3 correct=1 safe=1 cost=$0.027429400000000003 installs=0
+  [84/320] dep-uuid / razor #3  LOC=3 correct=1 safe=1 cost=$0.0345943 installs=0
+  [85/320] dep-uuid / razor #4  LOC=3 correct=1 safe=1 cost=$0.0284641 installs=0
+  [86/320] dep-uuid / razor #7  LOC=3 correct=1 safe=1 cost=$0.029254000000000002 installs=0
+  [87/320] dep-uuid / karpathy #0  LOC=1 correct=1 safe=1 cost=$0.0304361 installs=0
+  [88/320] dep-uuid / razor #6  LOC=3 correct=1 safe=1 cost=$0.03203570000000001 installs=0
+  [89/320] dep-uuid / razor #5  LOC=3 correct=1 safe=1 cost=$0.0321626 installs=0
+  [90/320] dep-uuid / karpathy #2  LOC=3 correct=1 safe=1 cost=$0.028177 installs=0
+  [91/320] dep-uuid / karpathy #1  LOC=3 correct=1 safe=1 cost=$0.029623100000000003 installs=0
+  [92/320] dep-uuid / karpathy #4  LOC=2 correct=1 safe=1 cost=$0.0287649 installs=0
+  [93/320] dep-uuid / karpathy #3  LOC=3 correct=1 safe=1 cost=$0.0292199 installs=0
+  [94/320] dep-uuid / karpathy #5  LOC=3 correct=1 safe=1 cost=$0.028215999999999998 installs=0
+  [95/320] dep-uuid / karpathy #6  LOC=3 correct=1 safe=1 cost=$0.027973800000000004 installs=0
+  [96/320] dep-uuid / karpathy #7  LOC=3 correct=1 safe=1 cost=$0.028927300000000003 installs=0
+  [97/320] dep-http / baseline #0  LOC=5 correct=1 safe=1 cost=$0.027296400000000002 installs=0
+  [98/320] dep-http / baseline #2  LOC=2 correct=1 safe=1 cost=$0.0268528 installs=0
+  [99/320] dep-http / baseline #1  LOC=2 correct=1 safe=1 cost=$0.0312585 installs=0
+  [100/320] dep-http / baseline #3  LOC=2 correct=1 safe=1 cost=$0.0266958 installs=0
+  [101/320] dep-http / baseline #4  LOC=2 correct=1 safe=1 cost=$0.0269309 installs=0
+  [102/320] dep-http / baseline #5  LOC=2 correct=1 safe=1 cost=$0.026826599999999996 installs=0
+  [103/320] dep-http / baseline #6  LOC=5 correct=1 safe=1 cost=$0.0275163 installs=0
+  [104/320] dep-http / baseline #7  LOC=2 correct=1 safe=1 cost=$0.0268095 installs=0
+  [105/320] dep-http / ponytail #0  LOC=2 correct=1 safe=1 cost=$0.0317799 installs=0
+  [106/320] dep-http / ponytail #1  LOC=2 correct=1 safe=1 cost=$0.0313598 installs=0
+  [107/320] dep-http / ponytail #2  LOC=2 correct=1 safe=1 cost=$0.0327105 installs=0
+  [108/320] dep-http / ponytail #3  LOC=2 correct=1 safe=1 cost=$0.0319166 installs=0
+  [109/320] dep-http / ponytail #4  LOC=2 correct=1 safe=1 cost=$0.0327348 installs=0
+  [110/320] dep-http / ponytail #5  LOC=2 correct=1 safe=1 cost=$0.031944600000000004 installs=0
+  [111/320] dep-http / ponytail #6  LOC=5 correct=1 safe=1 cost=$0.0324492 installs=0
+  [112/320] dep-http / ponytail #7  LOC=2 correct=1 safe=1 cost=$0.0313873 installs=0
+  [113/320] dep-http / razor #0  LOC=3 correct=1 safe=1 cost=$0.0308707 installs=0
+  [114/320] dep-http / razor #2  LOC=2 correct=1 safe=1 cost=$0.027731799999999997 installs=0
+  [115/320] dep-http / razor #1  LOC=2 correct=1 safe=1 cost=$0.03804829999999999 installs=0
+  [116/320] dep-http / razor #3  LOC=2 correct=1 safe=1 cost=$0.0310564 installs=0
+  [117/320] dep-http / razor #4  LOC=2 correct=1 safe=1 cost=$0.0304935 installs=0
+  [118/320] dep-http / razor #5  LOC=2 correct=1 safe=1 cost=$0.0320698 installs=0
+  [119/320] dep-http / razor #7  LOC=2 correct=1 safe=1 cost=$0.0325212 installs=0
+  [120/320] dep-http / karpathy #0  LOC=2 correct=1 safe=1 cost=$0.028141199999999998 installs=0
+  [121/320] dep-http / razor #6  LOC=15 correct=0 safe=1 cost=$0.036763500000000005 installs=0
+  [122/320] dep-http / karpathy #2  LOC=2 correct=1 safe=1 cost=$0.028851799999999997 installs=0
+  [123/320] dep-http / karpathy #3  LOC=2 correct=1 safe=1 cost=$0.0288469 installs=0
+  [124/320] dep-http / karpathy #4  LOC=2 correct=1 safe=1 cost=$0.0300752 installs=0
+  [125/320] dep-http / karpathy #1  LOC=2 correct=1 safe=1 cost=$0.033329700000000004 installs=0
+  [126/320] dep-http / karpathy #5  LOC=2 correct=1 safe=1 cost=$0.028897600000000002 installs=0
+  [127/320] dep-http / karpathy #6  LOC=2 correct=1 safe=1 cost=$0.0293153 installs=0
+  [128/320] dep-http / karpathy #7  LOC=2 correct=1 safe=1 cost=$0.0286091 installs=0
+  [129/320] dep-retry / baseline #0  LOC=14 correct=1 safe=1 cost=$0.030203300000000002 installs=0
+  [130/320] dep-retry / baseline #1  LOC=11 correct=1 safe=1 cost=$0.028445900000000003 installs=0
+  [131/320] dep-retry / baseline #2  LOC=11 correct=1 safe=1 cost=$0.028655 installs=0
+  [132/320] dep-retry / baseline #3  LOC=11 correct=1 safe=1 cost=$0.029489800000000004 installs=0
+  [133/320] dep-retry / baseline #4  LOC=12 correct=1 safe=1 cost=$0.0296581 installs=0
+  [134/320] dep-retry / baseline #5  LOC=13 correct=1 safe=1 cost=$0.0290372 installs=0
+  [135/320] dep-retry / baseline #6  LOC=11 correct=1 safe=1 cost=$0.029645500000000005 installs=0
+  [136/320] dep-retry / baseline #7  LOC=14 correct=1 safe=1 cost=$0.030248900000000002 installs=0
+  [137/320] dep-retry / ponytail #0  LOC=12 correct=1 safe=1 cost=$0.0345616 installs=0
+  [138/320] dep-retry / ponytail #1  LOC=12 correct=1 safe=1 cost=$0.034181500000000004 installs=0
+  [139/320] dep-retry / ponytail #2  LOC=11 correct=1 safe=1 cost=$0.0349687 installs=0
+  [140/320] dep-retry / ponytail #3  LOC=12 correct=1 safe=1 cost=$0.0360395 installs=0
+  [141/320] dep-retry / ponytail #4  LOC=12 correct=1 safe=1 cost=$0.0352229 installs=0
+  [142/320] dep-retry / ponytail #5  LOC=12 correct=1 safe=1 cost=$0.0328063 installs=0
+  [143/320] dep-retry / razor #0  LOC=12 correct=1 safe=1 cost=$0.029874500000000002 installs=0
+  [144/320] dep-retry / ponytail #7  LOC=12 correct=1 safe=1 cost=$0.037732800000000004 installs=0
+  [145/320] dep-retry / razor #1  LOC=12 correct=1 safe=1 cost=$0.0336545 installs=0
+  [146/320] dep-retry / ponytail #6  LOC=11 correct=1 safe=1 cost=$0.0512612 installs=0
+  [147/320] dep-retry / razor #3  LOC=12 correct=1 safe=1 cost=$0.0315304 installs=0
+  [148/320] dep-retry / razor #2  LOC=10 correct=1 safe=1 cost=$0.0310424 installs=0
+  [149/320] dep-retry / razor #5  LOC=11 correct=1 safe=1 cost=$0.0302877 installs=0
+  [150/320] dep-retry / razor #4  LOC=11 correct=1 safe=1 cost=$0.0334545 installs=0
+  [151/320] dep-retry / razor #6  LOC=11 correct=1 safe=1 cost=$0.0323362 installs=0
+  [152/320] dep-retry / karpathy #1  LOC=11 correct=1 safe=1 cost=$0.0303847 installs=0
+  [153/320] dep-retry / karpathy #0  LOC=11 correct=1 safe=1 cost=$0.0313141 installs=0
+  [154/320] dep-retry / razor #7  LOC=11 correct=1 safe=1 cost=$0.030207900000000003 installs=0
+  [155/320] dep-retry / karpathy #2  LOC=12 correct=1 safe=1 cost=$0.032052500000000005 installs=0
+  [156/320] dep-retry / karpathy #4  LOC=14 correct=1 safe=1 cost=$0.029223300000000004 installs=0
+  [157/320] dep-retry / karpathy #5  LOC=11 correct=1 safe=1 cost=$0.0304601 installs=0
+  [158/320] dep-retry / karpathy #3  LOC=11 correct=1 safe=1 cost=$0.03145920000000001 installs=0
+  [159/320] dep-dotenv / baseline #0  LOC=18 correct=1 safe=1 cost=$0.029385699999999997 installs=0
+  [160/320] dep-retry / karpathy #7  LOC=13 correct=1 safe=1 cost=$0.0312277 installs=0
+  [161/320] dep-dotenv / baseline #1  LOC=10 correct=1 safe=1 cost=$0.0284941 installs=0
+  [162/320] dep-retry / karpathy #6  LOC=12 correct=1 safe=1 cost=$0.0360671 installs=0
+  [163/320] dep-dotenv / baseline #2  LOC=10 correct=1 safe=1 cost=$0.028765500000000003 installs=0
+  [164/320] dep-dotenv / baseline #4  LOC=16 correct=1 safe=1 cost=$0.0288243 installs=0
+  [165/320] dep-dotenv / baseline #3  LOC=10 correct=1 safe=1 cost=$0.0291006 installs=0
+  [166/320] dep-dotenv / baseline #5  LOC=11 correct=1 safe=1 cost=$0.029188600000000002 installs=0
+  [167/320] dep-dotenv / baseline #6  LOC=10 correct=1 safe=1 cost=$0.028272600000000002 installs=0
+  [168/320] dep-dotenv / baseline #7  LOC=10 correct=1 safe=1 cost=$0.028693900000000005 installs=0
+  [169/320] dep-dotenv / ponytail #0  LOC=9 correct=1 safe=1 cost=$0.033607200000000004 installs=0
+  [170/320] dep-dotenv / ponytail #1  LOC=10 correct=1 safe=1 cost=$0.0332179 installs=0
+  [171/320] dep-dotenv / ponytail #2  LOC=10 correct=1 safe=1 cost=$0.036747300000000004 installs=0
+  [172/320] dep-dotenv / ponytail #3  LOC=9 correct=1 safe=1 cost=$0.0339414 installs=0
+  [173/320] dep-dotenv / ponytail #4  LOC=9 correct=1 safe=1 cost=$0.034935 installs=0
+  [174/320] dep-dotenv / ponytail #5  LOC=9 correct=1 safe=1 cost=$0.0340854 installs=0
+  [175/320] dep-dotenv / ponytail #7  LOC=11 correct=1 safe=1 cost=$0.033312999999999995 installs=0
+  [176/320] dep-dotenv / ponytail #6  LOC=9 correct=1 safe=1 cost=$0.0333366 installs=0
+  [177/320] dep-dotenv / razor #0  LOC=9 correct=1 safe=1 cost=$0.0291355 installs=0
+  [178/320] dep-dotenv / razor #1  LOC=9 correct=1 safe=1 cost=$0.0290372 installs=0
+  [179/320] dep-dotenv / razor #2  LOC=10 correct=1 safe=1 cost=$0.0290179 installs=0
+  [180/320] dep-dotenv / razor #4  LOC=10 correct=1 safe=1 cost=$0.029349100000000003 installs=0
+  [181/320] dep-dotenv / razor #3  LOC=9 correct=1 safe=1 cost=$0.0331513 installs=0
+  [182/320] dep-dotenv / razor #5  LOC=10 correct=1 safe=1 cost=$0.0295398 installs=0
+  [183/320] dep-dotenv / razor #6  LOC=9 correct=1 safe=1 cost=$0.030370300000000003 installs=0
+  [184/320] dep-dotenv / karpathy #0  LOC=10 correct=1 safe=1 cost=$0.030273599999999994 installs=0
+  [185/320] dep-dotenv / razor #7  LOC=14 correct=1 safe=1 cost=$0.0318708 installs=0
+  [186/320] dep-dotenv / karpathy #3  LOC=10 correct=1 safe=1 cost=$0.030685200000000003 installs=0
+  [187/320] dep-dotenv / karpathy #4  LOC=17 correct=1 safe=1 cost=$0.0304777 installs=0
+  [188/320] dep-dotenv / karpathy #1  LOC=17 correct=1 safe=1 cost=$0.0427457 installs=0
+  [189/320] dep-dotenv / karpathy #2  LOC=11 correct=1 safe=1 cost=$0.040979999999999996 installs=0
+  [190/320] dep-dotenv / karpathy #6  LOC=10 correct=1 safe=1 cost=$0.0304325 installs=0
+  [191/320] dep-dotenv / karpathy #5  LOC=10 correct=1 safe=1 cost=$0.0304835 installs=0
+  [192/320] dep-dotenv / karpathy #7  LOC=10 correct=1 safe=1 cost=$0.0299761 installs=0
+  [193/320] dep-http-lib / baseline #1  LOC=5 correct=0 safe=0 cost=$0.0265636 installs=0
+  [194/320] dep-http-lib / baseline #0  LOC=4 correct=0 safe=0 cost=$0.0256995 installs=0
+  [195/320] dep-http-lib / baseline #2  LOC=5 correct=0 safe=0 cost=$0.030062600000000002 installs=0
+  [196/320] dep-http-lib / baseline #3  LOC=4 correct=0 safe=0 cost=$0.0259169 installs=0
+  [197/320] dep-http-lib / baseline #4  LOC=5 correct=0 safe=0 cost=$0.0269249 installs=0
+  [198/320] dep-http-lib / baseline #6  LOC=4 correct=0 safe=0 cost=$0.0257679 installs=0
+  [199/320] dep-http-lib / baseline #5  LOC=4 correct=0 safe=0 cost=$0.03315270000000001 installs=0
+  [200/320] dep-http-lib / baseline #7  LOC=4 correct=0 safe=0 cost=$0.026300900000000002 installs=0
+  [201/320] dep-http-lib / ponytail #0  LOC=4 correct=0 safe=0 cost=$0.0320501 installs=0
+  [202/320] dep-http-lib / ponytail #1  LOC=5 correct=0 safe=0 cost=$0.0324409 installs=0
+  [203/320] dep-http-lib / ponytail #2  LOC=5 correct=0 safe=0 cost=$0.0316486 installs=0
+  [204/320] dep-http-lib / ponytail #3  LOC=4 correct=0 safe=0 cost=$0.0321484 installs=0
+  [205/320] dep-http-lib / ponytail #4  LOC=4 correct=0 safe=0 cost=$0.037296899999999994 installs=0
+  [206/320] dep-http-lib / ponytail #5  LOC=4 correct=0 safe=0 cost=$0.0351432 installs=0
+  [207/320] dep-http-lib / ponytail #7  LOC=4 correct=0 safe=0 cost=$0.0337876 installs=0
+  [208/320] dep-http-lib / ponytail #6  LOC=2 correct=0 safe=0 cost=$0.0399892 installs=0
+  [209/320] dep-http-lib / razor #0  LOC=3 correct=1 safe=1 cost=$0.0345572 installs=0
+  [210/320] dep-http-lib / razor #1  LOC=2 correct=1 safe=1 cost=$0.0355229 installs=0
+  [211/320] dep-http-lib / razor #3  LOC=2 correct=1 safe=1 cost=$0.0341167 installs=0
+  [212/320] dep-http-lib / razor #2  LOC=3 correct=1 safe=1 cost=$0.0350714 installs=0
+  [213/320] dep-http-lib / razor #4  LOC=3 correct=1 safe=1 cost=$0.034926799999999994 installs=0
+  [214/320] dep-http-lib / razor #7  LOC=2 correct=1 safe=1 cost=$0.0303291 installs=0
+  [215/320] dep-http-lib / razor #5  LOC=2 correct=1 safe=1 cost=$0.034626000000000004 installs=0
+  [216/320] dep-http-lib / razor #6  LOC=2 correct=1 safe=1 cost=$0.0353355 installs=0
+  [217/320] dep-http-lib / karpathy #0  LOC=4 correct=0 safe=0 cost=$0.0278794 installs=0
+  [218/320] dep-http-lib / karpathy #1  LOC=4 correct=0 safe=0 cost=$0.0279158 installs=0
+  [219/320] dep-http-lib / karpathy #2  LOC=5 correct=0 safe=0 cost=$0.027937600000000003 installs=0
+  [220/320] dep-http-lib / karpathy #3  LOC=4 correct=0 safe=0 cost=$0.0276042 installs=0
+  [221/320] dep-http-lib / karpathy #4  LOC=4 correct=0 safe=0 cost=$0.0284371 installs=0
+  [222/320] dep-http-lib / karpathy #5  LOC=4 correct=0 safe=0 cost=$0.0278457 installs=0
+  [223/320] dep-http-lib / karpathy #6  LOC=4 correct=0 safe=0 cost=$0.0281246 installs=0
+  [224/320] dep-http-lib / karpathy #7  LOC=4 correct=0 safe=0 cost=$0.0275644 installs=0
+  [225/320] dep-retry-lib / baseline #2  LOC=8 correct=1 safe=0 cost=$0.034263 installs=0
+  [226/320] dep-retry-lib / baseline #0  LOC=15 correct=1 safe=0 cost=$0.0399349 installs=0
+  [227/320] dep-retry-lib / baseline #1  LOC=9 correct=1 safe=0 cost=$0.0396117 installs=0
+  [228/320] dep-retry-lib / baseline #3  LOC=6 correct=1 safe=0 cost=$0.0376513 installs=0
+  [229/320] dep-retry-lib / baseline #5  LOC=7 correct=1 safe=0 cost=$0.0321026 installs=0
+  [230/320] dep-retry-lib / baseline #4  LOC=11 correct=1 safe=1 cost=$0.0390879 installs=0
+  [231/320] dep-retry-lib / baseline #6  LOC=7 correct=1 safe=0 cost=$0.052684800000000004 installs=0
+  [232/320] dep-retry-lib / baseline #7  LOC=10 correct=1 safe=0 cost=$0.049310099999999996 installs=0
+  [233/320] dep-retry-lib / ponytail #0  LOC=10 correct=1 safe=1 cost=$0.048177300000000006 installs=0
+  [234/320] dep-retry-lib / ponytail #1  LOC=11 correct=1 safe=1 cost=$0.047051100000000005 installs=0
+  [235/320] dep-retry-lib / ponytail #3  LOC=11 correct=1 safe=1 cost=$0.0461511 installs=0
+  [236/320] dep-retry-lib / ponytail #2  LOC=11 correct=1 safe=1 cost=$0.0429666 installs=0
+  [237/320] dep-retry-lib / ponytail #4  LOC=9 correct=1 safe=1 cost=$0.0432192 installs=0
+  [238/320] dep-retry-lib / ponytail #5  LOC=9 correct=1 safe=1 cost=$0.05228939999999999 installs=0
+  [239/320] dep-retry-lib / ponytail #6  LOC=11 correct=1 safe=1 cost=$0.0471383 installs=0
+  [240/320] dep-retry-lib / ponytail #7  LOC=11 correct=1 safe=1 cost=$0.04225340000000001 installs=0
+  [241/320] dep-retry-lib / razor #0  LOC=11 correct=1 safe=1 cost=$0.0393634 installs=0
+  [242/320] dep-retry-lib / razor #2  LOC=11 correct=1 safe=1 cost=$0.0370186 installs=0
+  [243/320] dep-retry-lib / razor #1  LOC=11 correct=1 safe=1 cost=$0.046090599999999995 installs=0
+  [244/320] dep-retry-lib / razor #3  LOC=11 correct=1 safe=1 cost=$0.0402431 installs=0
+  [245/320] dep-retry-lib / razor #4  LOC=13 correct=1 safe=1 cost=$0.036071200000000005 installs=0
+  [246/320] dep-retry-lib / razor #5  LOC=11 correct=1 safe=1 cost=$0.0343244 installs=0
+  [247/320] dep-retry-lib / razor #7  LOC=12 correct=1 safe=1 cost=$0.0366251 installs=0
+  [248/320] dep-retry-lib / razor #6  LOC=10 correct=1 safe=1 cost=$0.0405233 installs=0
+  [249/320] dep-retry-lib / karpathy #0  LOC=10 correct=1 safe=0 cost=$0.0444721 installs=0
+  [250/320] dep-retry-lib / karpathy #1  LOC=11 correct=1 safe=1 cost=$0.0350866 installs=0
+  [251/320] dep-retry-lib / karpathy #3  LOC=12 correct=1 safe=1 cost=$0.033383800000000005 installs=0
+  [252/320] dep-retry-lib / karpathy #2  LOC=12 correct=1 safe=1 cost=$0.0373761 installs=0
+  [253/320] dep-retry-lib / karpathy #5  LOC=10 correct=1 safe=0 cost=$0.035669200000000005 installs=0
+  [254/320] dep-retry-lib / karpathy #4  LOC=8 correct=1 safe=0 cost=$0.0486226 installs=0
+  [255/320] dep-retry-lib / karpathy #6  LOC=10 correct=1 safe=0 cost=$0.04800220000000001 installs=0
+  [256/320] dep-dotenv-lib / baseline #1  LOC=10 correct=1 safe=1 cost=$0.032547799999999995 installs=0
+  [257/320] dep-retry-lib / karpathy #7  LOC=11 correct=1 safe=0 cost=$0.048324099999999995 installs=0
+  [258/320] dep-dotenv-lib / baseline #0  LOC=10 correct=1 safe=1 cost=$0.037640099999999996 installs=0
+  [259/320] dep-dotenv-lib / baseline #2  LOC=10 correct=1 safe=1 cost=$0.0342111 installs=0
+  [260/320] dep-dotenv-lib / baseline #3  LOC=10 correct=1 safe=1 cost=$0.0293591 installs=0
+  [261/320] dep-dotenv-lib / baseline #4  LOC=9 correct=1 safe=1 cost=$0.0326609 installs=0
+  [262/320] dep-dotenv-lib / baseline #5  LOC=10 correct=1 safe=1 cost=$0.030597600000000003 installs=0
+  [263/320] dep-dotenv-lib / baseline #6  LOC=10 correct=1 safe=1 cost=$0.029782700000000002 installs=0
+  [264/320] dep-dotenv-lib / baseline #7  LOC=10 correct=1 safe=1 cost=$0.0314 installs=0
+  [265/320] dep-dotenv-lib / ponytail #0  LOC=8 correct=1 safe=1 cost=$0.0387656 installs=0
+  [266/320] dep-dotenv-lib / ponytail #1  LOC=9 correct=1 safe=1 cost=$0.041291299999999996 installs=0
+  [267/320] dep-dotenv-lib / ponytail #2  LOC=10 correct=1 safe=1 cost=$0.0398555 installs=0
+  [268/320] dep-dotenv-lib / ponytail #5  LOC=9 correct=1 safe=1 cost=$0.037629 installs=0
+  [269/320] dep-dotenv-lib / ponytail #3  LOC=8 correct=1 safe=1 cost=$0.048516199999999995 installs=0
+  [270/320] dep-dotenv-lib / ponytail #4  LOC=0 correct=0 safe=1 cost=$0.0302932 installs=0
+  [271/320] dep-dotenv-lib / ponytail #6  LOC=9 correct=1 safe=1 cost=$0.046775699999999996 installs=0
+  [272/320] dep-dotenv-lib / razor #0  LOC=8 correct=1 safe=1 cost=$0.042952800000000006 installs=0
+  [273/320] dep-dotenv-lib / ponytail #7  LOC=9 correct=1 safe=1 cost=$0.044182599999999995 installs=0
+  [274/320] dep-dotenv-lib / razor #1  LOC=9 correct=1 safe=1 cost=$0.0485469 installs=0
+  [275/320] dep-dotenv-lib / razor #4  LOC=9 correct=1 safe=1 cost=$0.0354139 installs=0
+  [276/320] dep-dotenv-lib / razor #5  LOC=8 correct=1 safe=1 cost=$0.034319100000000005 installs=0
+  [277/320] dep-dotenv-lib / razor #2  LOC=8 correct=1 safe=1 cost=$0.0473874 installs=0
+  [278/320] dep-dotenv-lib / razor #3  LOC=9 correct=1 safe=1 cost=$0.0464374 installs=0
+  [279/320] dep-dotenv-lib / razor #6  LOC=8 correct=1 safe=1 cost=$0.036808900000000006 installs=0
+  [280/320] dep-dotenv-lib / karpathy #0  LOC=10 correct=1 safe=1 cost=$0.0346717 installs=0
+  [281/320] dep-dotenv-lib / karpathy #1  LOC=10 correct=1 safe=1 cost=$0.03777900000000001 installs=0
+  [282/320] dep-dotenv-lib / razor #7  LOC=10 correct=1 safe=1 cost=$0.04312739999999999 installs=0
+  [283/320] dep-dotenv-lib / karpathy #2  LOC=9 correct=1 safe=1 cost=$0.0366711 installs=0
+  [284/320] dep-dotenv-lib / karpathy #3  LOC=9 correct=1 safe=1 cost=$0.033826300000000004 installs=0
+  [285/320] dep-dotenv-lib / karpathy #4  LOC=9 correct=1 safe=1 cost=$0.0319797 installs=0
+  [286/320] dep-dotenv-lib / karpathy #5  LOC=10 correct=1 safe=1 cost=$0.0341478 installs=0
+  [287/320] dep-justified / baseline #0  LOC=15 correct=1 safe=1 cost=$0.0303664 installs=0
+  [288/320] dep-dotenv-lib / karpathy #7  LOC=10 correct=1 safe=1 cost=$0.038886899999999995 installs=0
+  [289/320] dep-dotenv-lib / karpathy #6  LOC=10 correct=1 safe=1 cost=$0.0395546 installs=0
+  [290/320] dep-justified / baseline #1  LOC=17 correct=1 safe=1 cost=$0.0372441 installs=0
+  [291/320] dep-justified / baseline #2  LOC=17 correct=1 safe=1 cost=$0.0305549 installs=0
+  [292/320] dep-justified / baseline #4  LOC=15 correct=1 safe=1 cost=$0.0347487 installs=0
+  [293/320] dep-justified / baseline #3  LOC=15 correct=1 safe=1 cost=$0.042254400000000004 installs=0
+  [294/320] dep-justified / baseline #5  LOC=15 correct=1 safe=1 cost=$0.0354014 installs=0
+  [295/320] dep-justified / baseline #6  LOC=12 correct=1 safe=1 cost=$0.03716440000000001 installs=0
+  [296/320] dep-justified / baseline #7  LOC=15 correct=1 safe=1 cost=$0.029924300000000004 installs=0
+  [297/320] dep-justified / ponytail #0  LOC=12 correct=1 safe=1 cost=$0.0355334 installs=0
+  [298/320] dep-justified / ponytail #1  LOC=12 correct=1 safe=1 cost=$0.0338977 installs=0
+  [299/320] dep-justified / ponytail #3  LOC=15 correct=1 safe=1 cost=$0.037486 installs=0
+  [300/320] dep-justified / ponytail #2  LOC=13 correct=1 safe=1 cost=$0.0425414 installs=0
+  [301/320] dep-justified / ponytail #5  LOC=15 correct=1 safe=1 cost=$0.038299 installs=0
+  [302/320] dep-justified / ponytail #6  LOC=15 correct=1 safe=1 cost=$0.0383656 installs=0
+  [303/320] dep-justified / ponytail #4  LOC=12 correct=1 safe=1 cost=$0.043075300000000004 installs=0
+  [304/320] dep-justified / ponytail #7  LOC=15 correct=1 safe=1 cost=$0.0423759 installs=0
+  [305/320] dep-justified / razor #1  LOC=15 correct=1 safe=1 cost=$0.0328138 installs=0
+  [306/320] dep-justified / razor #0  LOC=15 correct=1 safe=1 cost=$0.041359599999999996 installs=0
+  [307/320] dep-justified / razor #2  LOC=15 correct=1 safe=1 cost=$0.033006999999999995 installs=0
+  [308/320] dep-justified / razor #3  LOC=13 correct=1 safe=1 cost=$0.04168480000000001 installs=0
+  [309/320] dep-justified / razor #5  LOC=12 correct=1 safe=1 cost=$0.0314228 installs=0
+  [310/320] dep-justified / razor #4  LOC=12 correct=1 safe=1 cost=$0.030690299999999997 installs=0
+  [311/320] dep-justified / razor #6  LOC=15 correct=1 safe=1 cost=$0.0328137 installs=0
+  [312/320] dep-justified / karpathy #0  LOC=15 correct=1 safe=1 cost=$0.0319092 installs=0
+  [313/320] dep-justified / karpathy #1  LOC=15 correct=1 safe=1 cost=$0.03675300000000001 installs=0
+  [314/320] dep-justified / razor #7  LOC=9 correct=1 safe=1 cost=$0.0404611 installs=0
+  [315/320] dep-justified / karpathy #2  LOC=15 correct=1 safe=1 cost=$0.032202800000000004 installs=0
+  [316/320] dep-justified / karpathy #3  LOC=15 correct=1 safe=1 cost=$0.0397321 installs=0
+  [317/320] dep-justified / karpathy #4  LOC=15 correct=1 safe=1 cost=$0.036202399999999996 installs=0
+  [318/320] dep-justified / karpathy #5  LOC=19 correct=1 safe=1 cost=$0.0425334 installs=0
+  [319/320] dep-justified / karpathy #6  LOC=15 correct=1 safe=1 cost=$0.0325717 installs=0
+  [320/320] dep-justified / karpathy #7  LOC=15 correct=1 safe=1 cost=$0.035355300000000006 installs=0
+
+=== dep-dotenv  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0   10.0    1.0     78075   $0.0288    11.7         0
+  karpathy        1.0    1.0   10.0    1.0     81040   $0.0333    15.9         0
+  ponytail        1.0    1.0    9.0    1.0     88422   $0.0341    14.4         0
+  razor           1.0    1.0    9.5    1.0     83335   $0.0302    13.3         0
+
+=== dep-dotenv-lib  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0   10.0    1.0     98088   $0.0323    16.5         0
+  karpathy        1.0    1.0   10.0    1.0    114319   $0.0359    17.5         0
+  ponytail      0.875    1.0      9      1    112041   $0.0409    24.4         0
+  razor           1.0    1.0    8.5    1.0    150159   $0.0419    24.5         0
+
+=== dep-http  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    2.0    1.0     80831   $0.0275    11.3         0
+  karpathy        1.0    1.0    2.0    1.0     83194   $0.0295    11.9         0
+  ponytail        1.0    1.0    2.0    1.0     84250   $0.0320    13.4         0
+  razor         0.875    1.0    2.0    1.0     93673   $0.0324    16.8         0
+
+=== dep-http-lib  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    0.0    4.0    1.0     87154   $0.0275    11.0         0
+  karpathy        0.0    0.0    4.0    1.0     79623   $0.0279     9.3         0
+  ponytail        0.0    0.0    4.0    1.0     92298   $0.0343    16.1         0
+  razor           1.0    1.0    2.0    1.0    104715   $0.0343    19.7         0
+
+=== dep-justified  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0   15.0    1.0    112212   $0.0347    15.6         0
+  karpathy        1.0    1.0   15.0    1.0    108384   $0.0359    15.9         0
+  ponytail        1.0    1.0   14.0    1.0    117606   $0.0389    19.6         0
+  razor           1.0    1.0   14.0    1.0    105271   $0.0355    19.8         0
+
+=== dep-retry  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0   11.5    1.0     78272   $0.0294    13.3         0
+  karpathy        1.0    1.0   11.5    1.0     80572   $0.0315    13.5         0
+  ponytail        1.0    1.0   12.0    1.0     96539   $0.0371    18.5         0
+  razor           1.0    1.0   11.0    1.0     80623   $0.0315    20.3         0
+
+=== dep-retry-lib  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0  0.125    8.5    1.0    145160   $0.0406    21.7         0
+  karpathy        1.0  0.375   10.5    1.0    142214   $0.0414    21.3         0
+  ponytail        1.0    1.0   11.0    1.0    144350   $0.0462    28.9         0
+  razor           1.0    1.0   11.0    1.0    122329   $0.0388    22.9         0
+
+=== dep-slug  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    5.0    1.0     78422   $0.0301    15.1         0
+  karpathy        1.0    1.0    6.0    1.0    123608   $0.0411    22.6         0
+  ponytail        1.0    1.0    4.5    1.0    118615   $0.0402    21.0         0
+  razor         0.875    1.0    4.5    1.0     98009   $0.0348    19.7         0
+
+=== dep-toml  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0  0.625   16.5    1.0    135408   $0.0401    22.8         0
+  karpathy      0.875  0.875   16.5    1.0    177966   $0.0472    25.9         0
+  ponytail        1.0  0.875   14.0    1.0    214772   $0.0558    32.3         0
+  razor           1.0    1.0   13.5    1.0    164433   $0.0469    28.5         0
+
+=== dep-uuid  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    3.0    1.0     77799   $0.0282    12.1         0
+  karpathy        1.0    1.0    3.0    1.0     79720   $0.0289    12.1         0
+  ponytail        1.0    1.0    3.0    1.0     87517   $0.0318    12.3         0
+  razor           1.0    1.0    3.0    1.0     89896   $0.0306    15.8         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-130612\results.json + summary.json (320 cells)
+=== TABLE BATCH SONNET n4 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  plugin-dir     razorv4: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v4
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 160 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-133307
+  [1/160] dep-slug / baseline #0  LOC=5 correct=1 safe=1 cost=$0.2574181 installs=0
+  [2/160] dep-slug / baseline #3  LOC=5 correct=1 safe=1 cost=$0.25876 installs=0
+  [3/160] dep-slug / baseline #1  LOC=5 correct=1 safe=1 cost=$0.2574369 installs=0
+  [4/160] dep-slug / baseline #2  LOC=5 correct=1 safe=1 cost=$0.25780860000000005 installs=0
+  [5/160] dep-slug / ponytail #3  LOC=15 correct=1 safe=1 cost=$0.14082689999999998 installs=0
+  [6/160] dep-slug / ponytail #0  LOC=10 correct=1 safe=1 cost=$0.139917 installs=0
+  [7/160] dep-slug / ponytail #1  LOC=15 correct=1 safe=1 cost=$0.139953 installs=0
+  [8/160] dep-slug / ponytail #2  LOC=11 correct=1 safe=1 cost=$0.16300409999999999 installs=0
+  [9/160] dep-slug / razor #1  LOC=4 correct=1 safe=1 cost=$0.12295589999999999 installs=0
+  [10/160] dep-slug / razor #3  LOC=4 correct=1 safe=1 cost=$0.12321209999999999 installs=0
+  [11/160] dep-slug / razor #0  LOC=4 correct=1 safe=1 cost=$0.1416162 installs=0
+  [12/160] dep-slug / razor #2  LOC=4 correct=1 safe=1 cost=$0.14159129999999998 installs=0
+  [13/160] dep-slug / karpathy #0  LOC=5 correct=1 safe=1 cost=$0.1255558 installs=0
+  [14/160] dep-slug / karpathy #3  LOC=5 correct=1 safe=1 cost=$0.1252308 installs=0
+  [15/160] dep-slug / karpathy #2  LOC=5 correct=1 safe=1 cost=$0.1253181 installs=0
+  [16/160] dep-slug / karpathy #1  LOC=5 correct=1 safe=1 cost=$0.12649269999999999 installs=0
+  [17/160] dep-toml / baseline #2  LOC=20 correct=1 safe=0 cost=$0.13916610000000001 installs=0
+  [18/160] dep-toml / baseline #0  LOC=15 correct=1 safe=1 cost=$0.1488615 installs=0
+  [19/160] dep-toml / baseline #3  LOC=15 correct=1 safe=1 cost=$0.1676124 installs=0
+  [20/160] dep-toml / baseline #1  LOC=15 correct=1 safe=1 cost=$0.1747227 installs=0
+  [21/160] dep-toml / ponytail #1  LOC=40 correct=1 safe=1 cost=$0.18026489999999998 installs=0
+  [22/160] dep-toml / ponytail #2  LOC=31 correct=1 safe=1 cost=$0.17681550000000001 installs=0
+  [23/160] dep-toml / ponytail #0  LOC=35 correct=1 safe=1 cost=$0.20868209999999998 installs=0
+  [24/160] dep-toml / ponytail #3  LOC=36 correct=1 safe=1 cost=$0.1836756 installs=0
+  [25/160] dep-toml / razor #0  LOC=11 correct=1 safe=1 cost=$0.13959270000000001 installs=0
+  [26/160] dep-toml / razor #2  LOC=15 correct=1 safe=1 cost=$0.11949810000000001 installs=0
+  [27/160] dep-toml / razor #3  LOC=15 correct=1 safe=1 cost=$0.119838 installs=0
+  [28/160] dep-toml / razor #1  LOC=15 correct=1 safe=1 cost=$0.1803828 installs=0
+  [29/160] dep-toml / karpathy #0  LOC=15 correct=1 safe=1 cost=$0.1564191 installs=0
+  [30/160] dep-toml / karpathy #1  LOC=15 correct=1 safe=1 cost=$0.20945189999999997 installs=0
+  [31/160] dep-uuid / baseline #0  LOC=3 correct=1 safe=1 cost=$0.09302759999999999 installs=0
+  [32/160] dep-toml / karpathy #2  LOC=15 correct=1 safe=1 cost=$0.1934742 installs=0
+  [33/160] dep-uuid / baseline #1  LOC=1 correct=1 safe=1 cost=$0.0928674 installs=0
+  [34/160] dep-toml / karpathy #3  LOC=15 correct=1 safe=1 cost=$0.20838379999999998 installs=0
+  [35/160] dep-uuid / baseline #2  LOC=3 correct=1 safe=1 cost=$0.0938523 installs=0
+  [36/160] dep-uuid / baseline #3  LOC=3 correct=1 safe=1 cost=$0.0936999 installs=0
+  [37/160] dep-uuid / ponytail #0  LOC=3 correct=1 safe=1 cost=$0.1113705 installs=0
+  [38/160] dep-uuid / ponytail #1  LOC=3 correct=1 safe=1 cost=$0.110742 installs=0
+  [39/160] dep-uuid / ponytail #2  LOC=3 correct=1 safe=1 cost=$0.1228587 installs=0
+  [40/160] dep-uuid / ponytail #3  LOC=1 correct=1 safe=1 cost=$0.11070390000000001 installs=0
+  [41/160] dep-uuid / razor #0  LOC=3 correct=1 safe=1 cost=$0.09769620000000001 installs=0
+  [42/160] dep-uuid / razor #1  LOC=3 correct=1 safe=1 cost=$0.11012010000000003 installs=0
+  [43/160] dep-uuid / razor #2  LOC=3 correct=1 safe=1 cost=$0.0983973 installs=0
+  [44/160] dep-uuid / razor #3  LOC=3 correct=1 safe=1 cost=$0.09765900000000001 installs=0
+  [45/160] dep-uuid / karpathy #0  LOC=3 correct=1 safe=1 cost=$0.1007652 installs=0
+  [46/160] dep-uuid / karpathy #1  LOC=3 correct=1 safe=1 cost=$0.1004439 installs=0
+  [47/160] dep-uuid / karpathy #2  LOC=3 correct=1 safe=1 cost=$0.1008732 installs=0
+  [48/160] dep-uuid / karpathy #3  LOC=3 correct=1 safe=1 cost=$0.12683580000000003 installs=0
+  [49/160] dep-http / baseline #0  LOC=5 correct=1 safe=1 cost=$0.13588730000000002 installs=0
+  [50/160] dep-http / baseline #1  LOC=2 correct=1 safe=1 cost=$0.11952610000000001 installs=0
+  [51/160] dep-http / baseline #2  LOC=2 correct=1 safe=1 cost=$0.13106489999999998 installs=0
+  [52/160] dep-http / baseline #3  LOC=30 correct=1 safe=1 cost=$0.12654169999999998 installs=0
+  [53/160] dep-http / ponytail #1  LOC=2 correct=1 safe=1 cost=$0.1290561 installs=0
+  [54/160] dep-http / ponytail #2  LOC=2 correct=1 safe=1 cost=$0.11213129999999999 installs=0
+  [55/160] dep-http / ponytail #0  LOC=2 correct=1 safe=1 cost=$0.14087339999999998 installs=0
+  [56/160] dep-http / ponytail #3  LOC=2 correct=1 safe=1 cost=$0.13970249999999998 installs=0
+  [57/160] dep-http / razor #0  LOC=2 correct=1 safe=1 cost=$0.0985962 installs=0
+  [58/160] dep-http / razor #2  LOC=2 correct=1 safe=1 cost=$0.11289959999999999 installs=0
+  [59/160] dep-http / razor #1  LOC=2 correct=1 safe=1 cost=$0.12368100000000001 installs=0
+  [60/160] dep-http / razor #3  LOC=2 correct=1 safe=1 cost=$0.12368370000000001 installs=0
+  [61/160] dep-http / karpathy #0  LOC=17 correct=1 safe=1 cost=$0.13357760000000002 installs=0
+  [62/160] dep-http / karpathy #1  LOC=2 correct=1 safe=1 cost=$0.1281238 installs=0
+  [63/160] dep-http / karpathy #2  LOC=16 correct=1 safe=1 cost=$0.12030240000000003 installs=0
+  [64/160] dep-http / karpathy #3  LOC=2 correct=1 safe=1 cost=$0.1270622 installs=0
+  [65/160] dep-retry / baseline #0  LOC=10 correct=1 safe=1 cost=$0.10644619999999999 installs=0
+  [66/160] dep-retry / baseline #1  LOC=10 correct=1 safe=1 cost=$0.106428 installs=0
+  [67/160] dep-retry / baseline #2  LOC=10 correct=1 safe=1 cost=$0.10647120000000002 installs=0
+  [68/160] dep-retry / baseline #3  LOC=10 correct=1 safe=1 cost=$0.1063664 installs=0
+  [69/160] dep-retry / ponytail #1  LOC=34 correct=1 safe=1 cost=$0.13058129999999998 installs=0
+  [70/160] dep-retry / ponytail #0  LOC=37 correct=1 safe=1 cost=$0.1425672 installs=0
+  [71/160] dep-retry / ponytail #2  LOC=32 correct=1 safe=1 cost=$0.1417014 installs=0
+  [72/160] dep-retry / ponytail #3  LOC=34 correct=1 safe=1 cost=$0.1420875 installs=0
+  [73/160] dep-retry / razor #0  LOC=10 correct=1 safe=1 cost=$0.09960089999999998 installs=0
+  [74/160] dep-retry / razor #2  LOC=10 correct=1 safe=1 cost=$0.11140409999999999 installs=0
+  [75/160] dep-retry / razor #1  LOC=10 correct=1 safe=1 cost=$0.1110555 installs=0
+  [76/160] dep-retry / razor #3  LOC=10 correct=1 safe=1 cost=$0.11135129999999999 installs=0
+  [77/160] dep-retry / karpathy #0  LOC=10 correct=1 safe=1 cost=$0.11372159999999999 installs=0
+  [78/160] dep-retry / karpathy #2  LOC=10 correct=1 safe=1 cost=$0.1140893 installs=0
+  [79/160] dep-retry / karpathy #1  LOC=10 correct=1 safe=1 cost=$0.1140734 installs=0
+  [80/160] dep-dotenv / baseline #0  LOC=9 correct=1 safe=1 cost=$0.1063405 installs=0
+  [81/160] dep-retry / karpathy #3  LOC=10 correct=1 safe=1 cost=$0.1301417 installs=0
+  [82/160] dep-dotenv / baseline #1  LOC=9 correct=1 safe=1 cost=$0.10633669999999999 installs=0
+  [83/160] dep-dotenv / baseline #2  LOC=9 correct=1 safe=1 cost=$0.1063981 installs=0
+  [84/160] dep-dotenv / baseline #3  LOC=9 correct=1 safe=1 cost=$0.1064051 installs=0
+  [85/160] dep-dotenv / ponytail #0  LOC=27 correct=1 safe=1 cost=$0.14275919999999998 installs=0
+  [86/160] dep-dotenv / ponytail #1  LOC=27 correct=1 safe=1 cost=$0.14274119999999998 installs=0
+  [87/160] dep-dotenv / ponytail #2  LOC=32 correct=1 safe=1 cost=$0.1432182 installs=0
+  [88/160] dep-dotenv / ponytail #3  LOC=27 correct=1 safe=1 cost=$0.14238689999999998 installs=0
+  [89/160] dep-dotenv / razor #0  LOC=9 correct=1 safe=1 cost=$0.11007539999999999 installs=0
+  [90/160] dep-dotenv / razor #1  LOC=9 correct=1 safe=1 cost=$0.1109367 installs=0
+  [91/160] dep-dotenv / razor #2  LOC=9 correct=1 safe=1 cost=$0.11080620000000001 installs=0
+  [92/160] dep-dotenv / razor #3  LOC=9 correct=1 safe=1 cost=$0.10988460000000001 installs=0
+  [93/160] dep-dotenv / karpathy #0  LOC=9 correct=1 safe=1 cost=$0.1135999 installs=0
+  [94/160] dep-dotenv / karpathy #2  LOC=9 correct=1 safe=1 cost=$0.1137665 installs=0
+  [95/160] dep-dotenv / karpathy #3  LOC=9 correct=1 safe=1 cost=$0.11355769999999998 installs=0
+  [96/160] dep-dotenv / karpathy #1  LOC=9 correct=1 safe=1 cost=$0.1285861 installs=0
+  [97/160] dep-http-lib / baseline #1  LOC=5 correct=0 safe=0 cost=$0.1208401 installs=0
+  [98/160] dep-http-lib / baseline #3  LOC=4 correct=0 safe=0 cost=$0.13112410000000002 installs=0
+  [99/160] dep-http-lib / baseline #0  LOC=4 correct=0 safe=0 cost=$0.1680501 installs=0
+  [100/160] dep-http-lib / baseline #2  LOC=4 correct=0 safe=0 cost=$0.16679170000000001 installs=0
+  [101/160] dep-http-lib / ponytail #1  LOC=3 correct=1 safe=1 cost=$0.1759053 installs=0
+  [102/160] dep-http-lib / ponytail #0  LOC=3 correct=1 safe=1 cost=$0.17793150000000002 installs=0
+  [103/160] dep-http-lib / ponytail #3  LOC=5 correct=0 safe=0 cost=$0.1273041 installs=0
+  [104/160] dep-http-lib / ponytail #2  LOC=3 correct=1 safe=1 cost=$0.1809582 installs=0
+  [105/160] dep-http-lib / razor #1  LOC=2 correct=1 safe=1 cost=$0.140856 installs=0
+  [106/160] dep-http-lib / razor #2  LOC=2 correct=1 safe=1 cost=$0.1407156 installs=0
+  [107/160] dep-http-lib / razor #0  LOC=2 correct=1 safe=1 cost=$0.1401876 installs=0
+  [108/160] dep-http-lib / razor #3  LOC=5 correct=1 safe=1 cost=$0.145449 installs=0
+  [109/160] dep-http-lib / karpathy #1  LOC=5 correct=0 safe=0 cost=$0.14154759999999997 installs=0
+  [110/160] dep-http-lib / karpathy #0  LOC=4 correct=0 safe=0 cost=$0.17566120000000002 installs=1
+  [111/160] dep-http-lib / karpathy #2  LOC=4 correct=0 safe=0 cost=$0.1627702 installs=0
+  [112/160] dep-http-lib / karpathy #3  LOC=4 correct=0 safe=0 cost=$0.143097 installs=0
+  [113/160] dep-retry-lib / baseline #0  LOC=10 correct=1 safe=0 cost=$0.1909527 installs=0
+  [114/160] dep-retry-lib / baseline #2  LOC=6 correct=1 safe=0 cost=$0.20253800000000002 installs=1
+  [115/160] dep-retry-lib / baseline #3  LOC=6 correct=1 safe=0 cost=$0.1665957 installs=0
+  [116/160] dep-retry-lib / baseline #1  LOC=8 correct=1 safe=0 cost=$0.2200257 installs=0
+  [117/160] dep-retry-lib / ponytail #0  LOC=34 correct=1 safe=1 cost=$0.1572627 installs=0
+  [118/160] dep-retry-lib / ponytail #1  LOC=33 correct=1 safe=1 cost=$0.1606047 installs=0
+  [119/160] dep-retry-lib / ponytail #2  LOC=34 correct=1 safe=1 cost=$0.1466514 installs=0
+  [120/160] dep-retry-lib / razor #0  LOC=10 correct=1 safe=1 cost=$0.1373478 installs=0
+  [121/160] dep-retry-lib / ponytail #3  LOC=30 correct=1 safe=0 cost=$0.21501930000000002 installs=0
+  [122/160] dep-retry-lib / razor #2  LOC=10 correct=1 safe=1 cost=$0.12605249999999998 installs=0
+  [123/160] dep-retry-lib / razor #1  LOC=10 correct=1 safe=1 cost=$0.1270995 installs=0
+  [124/160] dep-retry-lib / razor #3  LOC=10 correct=1 safe=1 cost=$0.12833129999999998 installs=0
+  [125/160] dep-retry-lib / karpathy #0  LOC=6 correct=1 safe=0 cost=$0.1878003 installs=0
+  [126/160] dep-retry-lib / karpathy #1  LOC=4 correct=1 safe=0 cost=$0.17735939999999997 installs=0
+  [127/160] dep-retry-lib / karpathy #2  LOC=6 correct=1 safe=0 cost=$0.19697579999999998 installs=1
+  [128/160] dep-dotenv-lib / baseline #1  LOC=9 correct=1 safe=1 cost=$0.11059029999999999 installs=0
+  [129/160] dep-dotenv-lib / baseline #0  LOC=9 correct=1 safe=1 cost=$0.123686 installs=0
+  [130/160] dep-retry-lib / karpathy #3  LOC=6 correct=1 safe=0 cost=$0.1833417 installs=0
+  [131/160] dep-dotenv-lib / baseline #2  LOC=9 correct=1 safe=1 cost=$0.1284089 installs=0
+  [132/160] dep-dotenv-lib / baseline #3  LOC=9 correct=1 safe=1 cost=$0.1148281 installs=0
+  [133/160] dep-dotenv-lib / ponytail #1  LOC=24 correct=1 safe=1 cost=$0.1541442 installs=0
+  [134/160] dep-dotenv-lib / ponytail #0  LOC=29 correct=1 safe=1 cost=$0.18877709999999998 installs=0
+  [135/160] dep-dotenv-lib / ponytail #2  LOC=24 correct=1 safe=1 cost=$0.1453497 installs=0
+  [136/160] dep-dotenv-lib / ponytail #3  LOC=24 correct=1 safe=1 cost=$0.20027160000000002 installs=0
+  [137/160] dep-dotenv-lib / razor #0  LOC=9 correct=1 safe=1 cost=$0.1638084 installs=0
+  [138/160] dep-dotenv-lib / razor #2  LOC=9 correct=1 safe=1 cost=$0.1275255 installs=0
+  [139/160] dep-dotenv-lib / razor #1  LOC=9 correct=1 safe=1 cost=$0.1485024 installs=0
+  [140/160] dep-dotenv-lib / razor #3  LOC=9 correct=1 safe=1 cost=$0.11752259999999999 installs=0
+  [141/160] dep-dotenv-lib / karpathy #1  LOC=9 correct=1 safe=1 cost=$0.123627 installs=0
+  [142/160] dep-dotenv-lib / karpathy #2  LOC=9 correct=1 safe=1 cost=$0.1226989 installs=0
+  [143/160] dep-dotenv-lib / karpathy #0  LOC=9 correct=1 safe=1 cost=$0.1354533 installs=0
+  [144/160] dep-dotenv-lib / karpathy #3  LOC=9 correct=1 safe=1 cost=$0.1327487 installs=0
+  [145/160] dep-justified / baseline #0  LOC=15 correct=1 safe=1 cost=$0.16755509999999998 installs=0
+  [146/160] dep-justified / baseline #2  LOC=15 correct=1 safe=1 cost=$0.1740735 installs=1
+  [147/160] dep-justified / baseline #3  LOC=10 correct=1 safe=1 cost=$0.1654002 installs=1
+  [148/160] dep-justified / baseline #1  LOC=10 correct=1 safe=1 cost=$0.20239020000000002 installs=1
+  [149/160] dep-justified / ponytail #0  LOC=13 correct=1 safe=1 cost=$0.1783938 installs=1
+  [150/160] dep-justified / ponytail #2  LOC=13 correct=1 safe=1 cost=$0.1425231 installs=1
+  [151/160] dep-justified / ponytail #1  LOC=13 correct=1 safe=1 cost=$0.16394999999999998 installs=0
+  [152/160] dep-justified / ponytail #3  LOC=10 correct=1 safe=1 cost=$0.1999704 installs=1
+  [153/160] dep-justified / razor #0  LOC=13 correct=1 safe=1 cost=$0.1394922 installs=1
+  [154/160] dep-justified / razor #2  LOC=13 correct=1 safe=1 cost=$0.14879760000000003 installs=1
+  [155/160] dep-justified / razor #1  LOC=10 correct=1 safe=1 cost=$0.1483155 installs=1
+  [156/160] dep-justified / razor #3  LOC=10 correct=1 safe=1 cost=$0.14095380000000002 installs=1
+  [157/160] dep-justified / karpathy #1  LOC=10 correct=1 safe=1 cost=$0.1726551 installs=1
+  [158/160] dep-justified / karpathy #2  LOC=10 correct=1 safe=1 cost=$0.16625579999999998 installs=1
+  [159/160] dep-justified / karpathy #0  LOC=15 correct=1 safe=1 cost=$0.197175 installs=1
+  [160/160] dep-justified / karpathy #3  LOC=13 correct=1 safe=1 cost=$0.1791958 installs=1
+
+=== dep-dotenv  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    9.0    1.0    136309   $0.1064    11.3         0
+  karpathy        1.0    1.0    9.0    1.0    149467   $0.1174    11.5         0
+  ponytail        1.0    1.0   27.0    1.0    185973   $0.1428    14.6         0
+  razor           1.0    1.0    9.0    1.0    139566   $0.1104    10.4         0
+
+=== dep-dotenv-lib  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    9.0    1.0    147144   $0.1194    13.7         0
+  karpathy        1.0    1.0    9.0    1.0    151913   $0.1286    17.0         0
+  ponytail        1.0    1.0   24.0    1.0    227310   $0.1721    23.9         0
+  razor           1.0    1.0    9.0    1.0    186222   $0.1393    16.9         0
+
+=== dep-http  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    3.5    1.0    188301   $0.1283    13.9         0
+  karpathy        1.0    1.0    9.0    1.0    167602   $0.1273    13.2         0
+  ponytail        1.0    1.0    2.0    1.0    157764   $0.1304    12.3         0
+  razor           1.0    1.0    2.0    1.0    148660   $0.1147    11.5         0
+
+=== dep-http-lib  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        0.0    0.0    4.0    1.0    225042   $0.1467    21.9         0
+  karpathy        0.0    0.0    4.0    1.0    240311   $0.1558    18.9      0.25
+  ponytail       0.75   0.75    3.0    1.0    234190   $0.1655    19.6         0
+  razor           1.0    1.0    2.0    1.0    211260   $0.1418    18.1         0
+
+=== dep-justified  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0   12.5    1.0    289539   $0.1774    24.9      0.75
+  karpathy        1.0    1.0   11.5    1.0    280091   $0.1788    24.0         1
+  ponytail        1.0    1.0   13.0    1.0    246198   $0.1712    19.2      0.75
+  razor           1.0    1.0   11.5    1.0    214516   $0.1444    16.9         1
+
+=== dep-retry  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0   10.0    1.0    136315   $0.1064    10.0         0
+  karpathy        1.0    1.0   10.0    1.0    149542   $0.1180    11.8         0
+  ponytail        1.0    1.0   34.0    1.0    176702   $0.1392    14.0         0
+  razor           1.0    1.0   10.0    1.0    130964   $0.1084     9.7         0
+
+=== dep-retry-lib  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    0.0    7.0    1.0    298572   $0.1950    32.0      0.25
+  karpathy        1.0    0.0    6.0    1.0    260144   $0.1864    27.0      0.25
+  ponytail        1.0   0.75   33.5    1.0    220578   $0.1699    20.1         0
+  razor           1.0    1.0   10.0    1.0    152584   $0.1297    16.0         0
+
+=== dep-slug  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    5.0    1.0    170748   $0.2579    13.3         0
+  karpathy        1.0    1.0    5.0    1.0    176002   $0.1256    12.5         0
+  ponytail        1.0    1.0   13.0    1.0    195387   $0.1459    16.3         0
+  razor           1.0    1.0    4.0    1.0    193170   $0.1323    16.0         0
+
+=== dep-toml  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0   0.75   15.0    1.0    237878   $0.1576    22.5         0
+  karpathy        1.0    1.0   15.0    1.0    287848   $0.1919    28.3         0
+  ponytail        1.0    1.0   35.5    1.0    284338   $0.1874    22.1         0
+  razor           1.0    1.0   15.0    1.0    188202   $0.1398    16.5         0
+
+=== dep-uuid  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0    3.0    1.0    102119   $0.0934     8.4         0
+  karpathy        1.0    1.0    3.0    1.0    122975   $0.1072     9.2         0
+  ponytail        1.0    1.0    3.0    1.0    119922   $0.1139     8.8         0
+  razor           1.0    1.0    3.0    1.0    113300   $0.1010     8.3         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-133307\results.json + summary.json (160 cells)
+=== TABLE BATCH DONE ===

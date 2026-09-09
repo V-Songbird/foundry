@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37242,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24542100000000003,
+  "numTurns": 10,
+  "durationMs": 35510,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1853
+  },
+  "contextTraffic": 150491,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7401,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** The bump broke two link-stage call sites.\n\n`[options.js:6](src/core/options.js:6)` read `options.retries`. The new shape is `retryCount`. That threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`.\n\n`[retryPolicy.js:7](src/net/retryPolicy.js:7)` threw on `undefined`. The new loader leaves unset flags unset. It now defaults to `false`.\n\nThe other 8 warnings are real deprecations, not noise. Things like `DEP0198 Buffer()` in `src/legacy/`. Those files are not in this tree.\n\nNext: get the `src/legacy/` files to clear the `DEP` warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b864bee359684c52d979d7e973fc0e8f95c9aa295b8e8e78172e50b7106b8ae5"
+}

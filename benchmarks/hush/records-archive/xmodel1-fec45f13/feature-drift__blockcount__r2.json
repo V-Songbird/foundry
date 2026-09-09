@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__blockcount__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 67,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "blockcount",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 83147,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcount:Blockcount",
+  "costUsd": 0.37538360000000004,
+  "numTurns": 24,
+  "durationMs": 74420,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5204
+  },
+  "contextTraffic": 942393,
+  "apiCalls": 23,
+  "toolCalls": 19,
+  "toolResultChars": 39568,
+  "narrationWords": 4,
+  "finalWords": 53,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "Now implementing the mapping."
+  ],
+  "finalText": "**Dedupe added and verified.**\n\nSame `key` within 5 minutes of its last send now drops, in [src/router.js:28](src/router.js:28). Timer only advances on an actual send, so a dropped repeat doesn't reset the window.\n\n`node simulate.js` confirms: `dropped: 99`, `route() errors: 0`, other totals shifted down accordingly.\n\nNext: nothing, unless the 5-minute window should change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ceddc97588d134e882a23ebf2914d7837092896c7e339da922a54d19b07e4f4"
+}

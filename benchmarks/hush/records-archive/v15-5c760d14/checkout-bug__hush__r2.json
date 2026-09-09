@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r2",
+  "batchId": "v15-5c760d14",
+  "seed": "1786434953993",
+  "orderIndex": 11,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28194,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1935589,
+  "numTurns": 10,
+  "durationMs": 26846,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1537
+  },
+  "contextTraffic": 267278,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 5656,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "Found it: `pricing.js` was subtracting the flat coupon after converting to the target currency, treating a USD amount as if it were already in EUR (or whatever currency).\n\nFixed by subtracting the flat amount from the USD subtotal before converting. Percent coupons still apply after conversion, since a percentage is currency-agnostic.\n\nAll 5 tests pass now, 70ms.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "04b25f5ad16001a935aeabd1e1450fe824181371d9d4889675353804a22958a3"
+}

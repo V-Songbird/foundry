@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26457,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31125329999999996,
+  "numTurns": 4,
+  "durationMs": 25159,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1879
+  },
+  "contextTraffic": 184707,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60279,
+  "narrationWords": 0,
+  "finalWords": 285,
+  "finalText": "Found it. Here's the timeline:\n\n**Everything was healthy** until `02:14:07.113Z`, then it cascaded fast:\n\n1. **`02:14:07`** — `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache layer immediately fell back to direct store reads.\n2. **Cascading overload** — with the cache gone, every service (`api`, `worker-1`, `worker-2`, `scheduler`) started hitting the backing store directly, producing a steady drumbeat of `cache miss storm` warnings and `TimeoutError: request timed out after 5000ms (store overloaded)` — one every ~2s per service, non-stop for 17+ minutes.\n3. **Queue backup** — `request queue depth` climbed continuously and *never drained*: 52 at 02:14:12 → crossed the max of 500 at ~02:29:06 → reached 568 by the end. Nothing was catching up.\n4. **Redis never came back** — reconnect attempts fired roughly every 80s (`attempt 0` at 02:15:26 through `attempt 12` at 02:31:26), all failing with the same `ECONNREFUSED` — Redis at `10.0.0.12:6379` was down the entire incident.\n5. **`02:31:44.902`** — `[worker-2] JavaScript heap out of memory (request backlog)` — the unbounded queue finally exhausted memory.\n6. **`02:31:45.001`** — supervisor restarted worker-2, but too late.\n7. **`02:31:52.318`** — `[supervisor] api unresponsive, killing process group — service down`. Full outage.\n\n**Root cause:** Redis (`10.0.0.12:6379`) went unreachable and never recovered. The app's fallback-to-direct-store-reads path had no backpressure/circuit breaker, so the request queue grew unbounded instead of shedding load, which eventually OOM'd a worker and took the whole service down about 17.5 minutes after the initial Redis outage.\n\n**Fixes worth considering:** a circuit breaker/backpressure on the direct-store fallback path (reject or shed load past a queue threshold instead of queuing forever), and alerting on the Redis reconnect failures well before minute 17 — the first `ECONNREFUSED` at 02:14:07 was the actionable signal, not the eventual OOM.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ee295fd10f0ddb0f6b6185e7da59c499121432e9b678260d1edead9838d59fcb"
+}

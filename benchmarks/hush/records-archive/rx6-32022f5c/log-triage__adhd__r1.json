@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rx6-32022f5c",
+  "seed": "1786465409125",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19961,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3080162,
+  "numTurns": 4,
+  "durationMs": 18272,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 960
+  },
+  "contextTraffic": 177100,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60173,
+  "narrationWords": 0,
+  "finalWords": 211,
+  "finalText": "Root cause: Redis died, and nothing backed off — the retry storm compounded until a worker OOM'd.\n\n**Timeline (2026-07-04, all times UTC):**\n\n1. **02:14:07** — `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache falls back to direct store reads.\n2. **02:14:07 – 02:31:26** — 17 minutes of cascading failure: direct-store reads can't keep up → `TimeoutError: request timed out after 5000ms (store overloaded)` repeats every ~2s across api/worker-1/worker-2/scheduler → request queue depth climbs steadily from ~52 to **568** (max is 500, so it was overflowing) → 13 redis reconnect attempts (0 through 12), all failing with the same ECONNREFUSED, roughly every 90s.\n3. **02:31:44** — `worker-2` hits `JavaScript heap out of memory (request backlog)` — the backlog of queued requests finally exhausted memory.\n4. **02:31:45** — supervisor restarts worker-2 (exit code 134).\n5. **02:31:52** — `api unresponsive, killing process group — service down`. That's the outage.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable. The app's fallback to direct store reads couldn't absorb the load, and there's no backpressure/circuit breaker — the queue grew unbounded instead of shedding load, which OOM'd worker-2 and took the whole service down 17 minutes later.\n\nNext: check whether Redis at `10.0.0.12` had its own incident (network/host issue) — that's the actual trigger upstream of these logs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c5caa8547972154b78d842b6cef0c976797821c010ee05b132d2c22635ec4c1c"
+}

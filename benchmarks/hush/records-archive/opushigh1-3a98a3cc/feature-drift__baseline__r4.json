@@ -1,0 +1,46 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 54,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 154023,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8703339999999999,
+  "numTurns": 31,
+  "durationMs": 149544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9847
+  },
+  "contextTraffic": 799311,
+  "apiCalls": 29,
+  "toolCalls": 26,
+  "toolResultChars": 16365,
+  "narrationWords": 74,
+  "finalWords": 237,
+  "assistantMsgs": 10,
+  "narrationTexts": [
+    "I'll start by looking at the project files.",
+    "Straightforward priority→channel mapping. The `key`, `at`, and `state` affordances aren't needed for the rules as stated, so I'll leave them unused.",
+    "The table now maps to a channel list per priority, so `high` can name two.",
+    "Quiet hours override the priority table entirely, so it goes in front of the lookup.",
+    "This one needs the scratch state — it's the first rule that depends on history."
+  ],
+  "finalText": "Dedup is in, using the scratch state. `createState()` now returns `{ lastSentAtByKey: new Map() }`.\n\nReplay: 900 notifications, **0 errors, 99 dropped** — that's exactly the flap population `events.js` builds (every 9th event, repeated 2 minutes later on the same key).\n\n| priority | daytime | quiet hours |\n|---|---|---|\n| low | email 111 | queue 90 |\n| normal | push 112 | queue 88 |\n| high | sms+email 112 | queue 88 |\n| critical | pager 200 | pager (included) |\n\nVerified behavior:\n\n- `evt-0287` quota-warning at t=1 → queue; `evt-0288`, same key at t=3 → dropped.\n- 4 minutes later drops, **exactly 5 minutes later goes through** — \"in the last 5 minutes\" read as a strict `< 5`.\n- Distinct keys never suppress each other.\n\nThree decisions inside this rule that the one-liner didn't pin down:\n\n- **The clock resets only on an actual send.** A dropped repeat does not extend the window, so a key flapping every 2 minutes delivers at t=0, t=6, t=12 rather than going silent forever.\n- **Queueing counts as sending.** A quiet-hour event that goes to `queue` starts the 5-minute window, so its repeat is suppressed too.\n- **Critical is not exempt.** A critical repeat within 5 minutes drops like any other — `pager` fell from 225 to 200. If pages should always get through regardless of repeats, that's a one-line exemption; say the word.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5640d5ca71bf1eab0ef55579c2f94af63c9c6a4075672c6338f8c863135d9440"
+}

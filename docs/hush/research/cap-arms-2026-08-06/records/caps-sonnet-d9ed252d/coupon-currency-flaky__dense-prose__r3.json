@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 116,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 42244,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2536449,
+  "numTurns": 12,
+  "durationMs": 40543,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2204
+  },
+  "contextTraffic": 362670,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 9693,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "**Found it: `computeTotal` in `src/pricing/engine.js` was rounding to 2 decimals after each coupon step, before converting to the order's currency.**\n\nThat mid-calculation rounding only shows up once you convert into a currency with its own rounding behavior, so it hit GBP, CAD, and JPY orders with a percent coupon, but stayed hidden for USD and EUR. All 10 failures matched that shape.\n\nFix: only round once, at the very end, in the target currency. All 40 tests pass now (168ms). Not committed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "af9ecf8fec7f9fbb77d7a17c828a99c72be1acba6049761a58272d612a168102"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__anchored__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 83442,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30541820000000003,
+  "numTurns": 14,
+  "durationMs": 81901,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6568
+  },
+  "contextTraffic": 604945,
+  "apiCalls": 13,
+  "toolCalls": 13,
+  "toolResultChars": 24944,
+  "narrationWords": 29,
+  "finalWords": 115,
+  "finalText": "I dug through both the 380-commit log and the PR sheet. Under all the dependency bumps and renames, 12 changes actually touch behavior, and I've written them into `CHANGELOG.md` as 4.2.0.\n\nOne feature: webhook deliveries now retry with exponential backoff instead of dying after one try. The rest are fixes — worth flagging two in particular: expired tokens now return `401` instead of `403`, and the database layer stopped logging full request bodies. There's also a hang fix in the HTTP client, several crash and correctness fixes in pagination, allowlists, and trailing-slash handling, and some hot-path speedups.\n\nI found no breaking changes in the log. Take a look at the entry before it goes out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2ef2bb4b156779b8e2662fd243e5af6b756e37df13b79d8fe896e32680791978"
+}

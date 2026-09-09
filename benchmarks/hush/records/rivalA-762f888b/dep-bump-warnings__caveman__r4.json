@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 39,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30934,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.261285,
+  "numTurns": 10,
+  "durationMs": 29903,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2008
+  },
+  "contextTraffic": 165012,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6139,
+  "narrationWords": 14,
+  "finalWords": 119,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "Two real bugs, both from bump. Fixing both."
+  ],
+  "finalText": "Build green, exit 0. Two real bugs, both from bump:\n\n1. `src/core/options.js:6` — bump renamed options `retries` to `retryCount`. Call site never updated, so `options.retries.toFixed(0)` threw `TypeError: Cannot read properties of undefined`. Now reads `retryCount`, falls back to `retries`, throws clear `TypeError` if neither is number.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined`, old returned `false`. Strict check threw. Now `undefined` = off default; other non-booleans still error.\n\nRest is noise: 5 `DEP*` deprecations plus W1042/W2213/W3307, all emitted as static strings by `build.js` — nothing behind them to fix. Still 8 warnings, 0 errors.\n\nTwo worth follow-up in real code later: W3307 circular import `src/core/graph.js <-> src/state/tracker.js` (undefined resolution order) and W1042 `crypto.createCipher` (removed in v5).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ad4efdbf04053016496826209d00cebd16fbba8255d02bd14aaae41a4c59177c"
+}

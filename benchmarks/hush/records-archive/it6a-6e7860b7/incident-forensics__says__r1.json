@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__says__r1",
+  "batchId": "it6a-6e7860b7",
+  "seed": "1787885368504",
+  "orderIndex": 0,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "says",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 106733,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush-says:HushSays",
+  "costUsd": 0.4805675,
+  "numTurns": 15,
+  "durationMs": 97455,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5018
+  },
+  "contextTraffic": 400271,
+  "apiCalls": 14,
+  "toolCalls": 11,
+  "toolResultChars": 5721,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff is at [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`, the gateway config `connection-per-request for pool isolation`. It holds all 20 pool slots open. Every 503 carries `ERR_POOL_EXHAUSTED` with `in_use 20`.\n\nWindow runs `02:14:18Z` to log end at `03:59:27Z`, 105 minutes. 530 of 636 requests failed, 83%. Still failing when the log stops.\n\nRoll back `dep-4471`. Also check `node-1` and `node-2`. This log covers only `node-3`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59f468225a2bb178ac577d6d1fc9ee873aef18568c07b47551fe482f6db3ded1"
+}

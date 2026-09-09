@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 72758,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2439826,
+  "numTurns": 14,
+  "durationMs": 71175,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5557
+  },
+  "contextTraffic": 333949,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 31173,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry into [CHANGELOG.md](CHANGELOG.md).**\n\nOf 380 commits, only two are real user-facing changes. The rest is dependency bumps, refactors, and the same handful of fix titles (null cursor, duplicate header, trailing slash, etc) copy-pasted across every module as noise, so I dropped them.\n\n- **Added**: webhook deliveries now retry with exponential backoff instead of dying after one failed attempt\n- **Fixed**: expired auth tokens return `401` instead of `403`\n\nNext: flag the `401`/`403` change to API consumers, since it's a wire-visible behavior change even though it landed as a `fix`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8d4c4d51c7edc14bf37729c0c2b70b8a5b9f583b8037c3aca17a071ab224a6be"
+}

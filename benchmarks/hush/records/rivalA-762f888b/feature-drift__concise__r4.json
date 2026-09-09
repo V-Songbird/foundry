@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__concise__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 139,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 108658,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6424575,
+  "numTurns": 27,
+  "durationMs": 103292,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6289
+  },
+  "contextTraffic": 607029,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 14062,
+  "narrationWords": 10,
+  "finalWords": 115,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "Straightforward mapping, as asked:"
+  ],
+  "finalText": "Dedup is in. `state` now carries `lastSentByKey`; a key seen less than 5 minutes after its last actual delivery returns `[]`.\n\nReplay: 99 dropped, 0 errors — that's the flap events (`+2` minutes, same key) that events.js plants roughly every ninth notification. The `quota-warning` trace above shows it: the +2 repeats drop, the 24-minutes-later ones go through.\n\nTwo judgment calls worth confirming:\n- **Boundary**: strictly less than 5 minutes suppresses, so a repeat at exactly 5 minutes later delivers.\n- **What counts as \"sent\"**: only a non-empty result starts the window, and queueing counts as sending. So a queued quiet-hours event suppresses a repeat 2 minutes later, and a suppressed repeat doesn't extend the window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "918c3f67539844ef4f769a276b826f16234afdd6e85075c7335265f6586fe7c7"
+}

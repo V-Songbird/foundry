@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36015,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5180905,
+  "numTurns": 5,
+  "durationMs": 34691,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2248
+  },
+  "contextTraffic": 199928,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60608,
+  "narrationWords": 8,
+  "finalWords": 559,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nOne root cause, one cascade, ~17.5 minutes from first error to service down. The whole file is a single incident.\n\n**Timeline (all 2026-07-04, UTC):**\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Normal. Steady 200s on `/users`, `/orders`, `/health`; cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — the trigger (app.log:182) |\n| 02:14:07.114 | Cache layer degraded, falls back to **direct store reads** (app.log:183) |\n| 02:14:08 | Cache-miss storm begins on `orders:*` keys |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 → 02:31:26 | Queue depth climbs monotonically **52 → 568**, ~3 per sample, never recovers |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts, **every one ECONNREFUSED**, redis never came back |\n| 02:29:12 | Queue depth **502 exceeds max 500** (app.log:647) — and nothing sheds load; it keeps climbing to 568 |\n| 02:31:44.902 | `worker-2` dies: **JavaScript heap out of memory (request backlog)** |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Counts:** 719 lines — 188 ERROR, 348 WARN, 2 FATAL. 173 timeouts split almost perfectly evenly across api (43), scheduler (43), worker-1 (44), worker-2 (43), i.e. every component was equally affected — this was infrastructure-wide, not one bad node.\n\n## The actual failure chain\n\nRedis at `10.0.0.12:6379` refused connections. Cache fell back to reading the backing store directly. Every `orders:*` request that used to be a cache hit (~93% hit ratio) became a store read, the store couldn't take that load and started timing out at 5s, requests piled up in the queue faster than they drained, and the backlog eventually ate worker-2's heap. The api process went unresponsive and the supervisor killed the process group.\n\nRedis is the cause; everything else is symptom. Note there's no evidence in the log of *why* redis refused connections — ECONNREFUSED means nothing was listening, so redis was down or unreachable, but the cause of that is outside this file.\n\n## Three things that turned an outage into a total one\n\n1. **No backoff on reconnect.** The 13 attempts are at a fixed 80-second interval (02:15:26, 02:16:46, 02:18:06, 02:19:26 …). Neither exponential nor jittered — and 80s is slow enough that recovery would have been delayed even if redis had come back.\n2. **The queue max of 500 isn't enforced.** Depth logs 502, 505 … 568 past the stated max. It's a warning threshold, not a limit. A real bounded queue that rejected at 500 would have shed load instead of accumulating until OOM.\n3. **No circuit breaker on the fallback path.** Direct-store fallback kept retrying against a store that was already timing out on everything, which is what kept the store pinned.\n\n## Two things worth checking\n\n- **The date.** These logs are `2026-07-04`, not last night (2026-08-27). Either this is an old capture, the file didn't rotate, or you're looking at the wrong incident — worth confirming before you build a postmortem on it.\n- **The log ends at the kill, 02:31:52.** There's no recovery record here, so I can't tell you from this file when or how service came back, or whether the worker-2 restart succeeded. You'll need the post-restart logs for that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c24cf34852fef58d2e17b7221e9a351cb6ccecbe11262d2df7f7a14ee11162a9"
+}

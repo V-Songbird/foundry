@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43626,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.317613,
+  "numTurns": 9,
+  "durationMs": 42267,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2434
+  },
+  "contextTraffic": 141600,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 20193,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis went down at 02:14:07 and never came back.**\n\n`2026-07-04T02:14:07.113Z ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\n\nCache fell back to direct store reads. The store could not keep up. 173 timeouts followed, plus a cache miss storm. All 13 reconnect tries were refused. Queue depth passed its 500 max at 02:29:12. `worker-2` died of heap OOM at 02:31:44. Supervisor killed `api` at 02:31:52. Last good request was 02:14:03, at [logs/app.log:181](logs/app.log:181).\n\nNext: find why `10.0.0.12:6379` refused every connection.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9c06d00bbd9cdafddabfef70f0c83d2ee5eec466a234e8763ce9740bd92d6794"
+}

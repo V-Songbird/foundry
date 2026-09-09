@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hushstock__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 32,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 67801,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5523711,
+  "numTurns": 13,
+  "durationMs": 60652,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3643
+  },
+  "contextTraffic": 565649,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 64097,
+  "narrationWords": 0,
+  "finalWords": 141,
+  "finalText": "Now I have everything needed for the handoff.\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** deploy `dep-4471` (gateway, a.novak, 02:12–02:14Z) shipped a config change — \"connection-per-request for pool isolation\" — which flipped `gateway.pool.perRequest` from `false` to `true` (generation 118→119, applied 02:13:41Z). That change exhausts the connection pool: `size 20, in_use 20`, with the `waiting` count climbing continuously (into the hundreds) rather than draining.\n\n**Impact window:** started 02:14:18.972Z (first `503`, `ERR_POOL_EXHAUSTED` on req-07401). Still ongoing as of the last log line, 03:59:27.974Z — no recovery, no second config reload. This has been failing over 90 minutes and needs the rollback now, not a wait-and-see.\n\n**Roll back:** `dep-4471` on gateway — revert `gateway.pool.perRequest` to `false`. Nothing else in the window is implicated: workers (`worker.log`) show no errors, and the only other deploys nearby (accounts-svc 23:31, billing-svc 02:41, catalog-svc 03:20) are on unrelated services.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "85e2c9d3cfa3e9815f0e95ec736e9039954768c83f59bcf220449279a611902e"
+}

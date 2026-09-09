@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r1",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 1,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16356,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0911328,
+  "numTurns": 10,
+  "durationMs": 14615,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1000
+  },
+  "contextTraffic": 159368,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 3257,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "assistantMsgs": 1,
+  "finalText": "**Real cause found:** `refresh.js:15`, not `tokens.js:6`.\n\nThe trace's top frame is a symptom. `auth.internal` returns 400 `invalid_grant` when the refresh token is revoked. In `refreshToken` ([refresh.js:14-16](src/auth/refresh.js:14)), `invalid_grant` isn't in `RECOVERABLE`, so it deliberately returns `undefined` instead of throwing.\n\nThat `undefined` flows back through `resumeSession` ([session.js:7-8](src/session.js:7)) straight into `decode(token)`, which crashes on `token.split('.')` at `tokens.js:6`.\n\nSo the throw site is just where the missing error handling finally surfaces. Look at `refresh.js:9-19`: it treats \"not recoverable\" as \"swallow and return nothing\" rather than surfacing an auth failure the caller can act on.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fbc713203acb5256bfd26d8bed94f71ef3420e267591413451763f29905ced72"
+}

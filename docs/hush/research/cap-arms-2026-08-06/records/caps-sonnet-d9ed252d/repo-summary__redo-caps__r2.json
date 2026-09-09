@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 136,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19512,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1471086,
+  "numTurns": 8,
+  "durationMs": 17929,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1208
+  },
+  "contextTraffic": 148608,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 4286,
+  "narrationWords": 0,
+  "finalWords": 157,
+  "finalText": "It's a small Node HTTP service, five files, no framework.\n\n1. `server.js` opens the door — it checks the `Authorization` header via `auth.js`, then hands good requests to the router.\n2. `auth.js` reads bearer tokens shaped like `userId.signature`, signed with HMAC-SHA256 from `AUTH_SECRET`.\n3. `routes.js` matches `method + path` against a small table: `GET /users`, `GET /orders`, `POST /orders`.\n4. Reads go through `cache.js`, a 256-entry LRU with no expiry of its own.\n5. Everything bottoms out in `store.js`, an in-memory `Map` where each record dies 15 minutes after its last write.\n\n```mermaid\nflowchart LR\n  server[server.js] -->|checks token| auth[auth.js]\n  server -->|routes request| routes[routes.js]\n  routes -->|reads| cache[cache.js]\n  routes -->|writes| store[store.js]\n  cache --> store\n```\n\nWrites skip the cache and go straight to the store, so a `POST /orders` won't show up on the next `GET /orders` until that cache key falls out of the LRU or the 15-minute TTL clears it. Worth knowing if you're debugging stale reads.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f7db3411b9fcffaba57cfcb130e6738ebe21c9ff87d38e6b23cfb125237a0817"
+}

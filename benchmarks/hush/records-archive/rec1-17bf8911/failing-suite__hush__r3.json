@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r3",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25075,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12204579999999998,
+  "numTurns": 10,
+  "durationMs": 23282,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1275
+  },
+  "contextTraffic": 207716,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11569,
+  "narrationWords": 14,
+  "finalWords": 58,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "3 failures confirmed, all in order totals as suspected. Fixing the bug in `orderTotal`."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:39](src/pricing.js:39). It taxed the pre-discount amount instead of the discounted amount, so the three `order totals` cases with both a nonzero discount and nonzero tax failed.\n\nFixed it to tax the discounted total:\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f1437b2a5f321902c7befcc4cce1f542fd9e54fbbe790aa75d5d7fe0947808bc"
+}

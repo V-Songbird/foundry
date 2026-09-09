@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushmax__r6",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 11,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 6,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27677,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.269923,
+  "numTurns": 7,
+  "durationMs": 26120,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1669
+  },
+  "contextTraffic": 298097,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 25030,
+  "narrationWords": 0,
+  "finalWords": 147,
+  "finalText": "Everything was fine until 02:14 AM. Then it went downhill and never recovered.\n\n**What happened:** Redis died at `02:14:07`, `10.0.0.12:6379` refused connections. The app fell back to hitting the database directly for every request. That worked, but it triggered a cache miss storm and requests slowed way down.\n\n**Why it snowballed:** The request queue kept climbing, from 52 up past 500, while Redis reconnect attempts failed every two minutes for 17 minutes straight, 12 failed tries in total. Requests kept timing out and piling up faster than they could drain.\n\n**The crash:** At `02:31:44`, `worker-2` ran out of memory holding the backlog. It restarted, but `18 seconds later` the `api` process stopped responding entirely and the supervisor killed the whole process group. That's the moment the service went down.\n\n**Root cause:** Redis going unreachable, with no circuit breaker to stop hammering the database once the queue overflowed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c3dd760b34bd56e560d6afe9a1edd2d7cbf339a1df13a5d8321fc108ec8cf55"
+}

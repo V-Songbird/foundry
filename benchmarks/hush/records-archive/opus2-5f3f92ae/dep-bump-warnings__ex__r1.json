@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ex__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42841,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.297479,
+  "numTurns": 10,
+  "durationMs": 41395,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2767
+  },
+  "contextTraffic": 201649,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6078,
+  "narrationWords": 7,
+  "finalWords": 92,
+  "finalText": "Build passes now, exit code `0`.\n\nTwo real bugs hid in that warning wall. `src/core/options.js` read `options.retries`, but the bumped bundler now passes `retryCount`. It reads either shape now and defaults to `0`. Behind it, `src/net/retryPolicy.js` threw on an unset `backoffEnabled` flag. The new config loader leaves unset flags as `undefined` instead of `false`. It treats unset as off, matching the old default.\n\nThe remaining warnings are noise. They are hardcoded strings inside `build.js` itself. They name files like `src/legacy/adapter.js` that do not exist here. Nothing in your source can clear them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62e6e8cd0bc82e6c8885774a61e641262bafacab46900f6cda09c631120fa87d"
+}

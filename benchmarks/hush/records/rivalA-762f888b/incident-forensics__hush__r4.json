@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 159,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 123182,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7536554999999999,
+  "numTurns": 22,
+  "durationMs": 119015,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7812
+  },
+  "contextTraffic": 645331,
+  "apiCalls": 22,
+  "toolCalls": 18,
+  "toolResultChars": 14583,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest: false -> true` at `02:13:41`. Pool `size=20` cannot cover per-request connections.\n\nWindow: `02:14:18.972Z` to `03:59:27.974Z`, still firing at end of log. 530 503s, 83% error rate.\n\nRoll back `dep-4471`. Raising pool size will not hold.\n\nOne thing worth your attention. `/health` stayed 200 for all 106 checks while every business endpoint failed.\n\nNext: revert the flag, then fix the health check.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2388ee1a3e4c35dbf6a85da7f0369aa1b0bf07930b3e0ccff3c765c6dc65896d"
+}

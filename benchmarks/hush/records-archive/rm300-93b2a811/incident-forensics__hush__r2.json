@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 147361,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.661206,
+  "numTurns": 18,
+  "durationMs": 141462,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9217
+  },
+  "contextTraffic": 435027,
+  "apiCalls": 17,
+  "toolCalls": 14,
+  "toolResultChars": 8435,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff is in [HANDOFF.md](HANDOFF.md).** Root cause: `dep-4471` flipped `gateway.pool.perRequest` to true. The 20-slot pool pins full and requests queue.\n\nImpact ran `02:14:18.972Z` to `03:59:27.974Z`, still firing at the end of the log. 530 failures, about 83% of requests. Only `/health` survived.\n\nRoll back `dep-4471`. The one key to revert is `gateway.pool.perRequest`.\n\nNext: nothing. Workers are ruled out in the doc.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "047ad038434fc9d17bb828c16856ab94a2ef0ead6125a94542e30762b21ea1b3"
+}

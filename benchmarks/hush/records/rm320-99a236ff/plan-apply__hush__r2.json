@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 66,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19518,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.160454,
+  "numTurns": 7,
+  "durationMs": 17786,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 924
+  },
+  "contextTraffic": 96521,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 2657,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan, nothing changed yet.**\n\nThe split is already right. `buildRows()` in [src/report.js:11](src/report.js:11) makes the data. `toTable()` in [src/format.js:14](src/format.js:14) only prints. So `--json` is a new printer plus a flag.\n\nOne call to make: the table drops `owner` and `slow` on purpose, per the note at [src/format.js:3](src/format.js:3). I would have JSON print all six fields from `buildRows()`. That is \"same data\" in the true sense. Say the word if you want the four table columns instead.\n\n```js\n// format.js\nfunction toJson(rows) { return JSON.stringify(rows, null, 2); }\n\n// cli.js\nconst json = argv.includes('--json');\nconst args = argv.filter((a) => a !== '--json');\nif (args[0] !== 'report') { /* usage, 1 */ }\nprocess.stdout.write((json ? toJson : toTable)(buildRows()) + '\\n');\n```\n\nAlso update `USAGE` to `report [--json]`, and reject unknown flags.\n\nNext: say go, and which field set you want.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aba6e13ae67a160f04637359a7b18fe7ca6f6d075314e08844d8c862d1fcbd3c"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 83,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45508,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.3206,
+  "numTurns": 10,
+  "durationMs": 44560,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2749
+  },
+  "contextTraffic": 162155,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 14886,
+  "narrationWords": 6,
+  "finalWords": 108,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll find the remaining `db.query` calls."
+  ],
+  "finalText": "Migration done. 36 call sites, 12 files:\n\n```\npackages/accounts/src/admin/apiKeyAdmin.js      packages/catalog/src/admin/variantAdmin.js\npackages/accounts/src/repo/session.js           packages/catalog/src/repo/supplier.js\npackages/accounts/src/service/teamService.js    packages/orders/src/repo/shipment.js\npackages/analytics/src/repo/cohort.js           packages/orders/src/service/returnService.js\npackages/billing/src/repo/refund.js             packages/support/src/admin/macroAdmin.js\npackages/billing/src/service/couponService.js   packages/support/src/repo/sla.js\n```\n\nAll `db.query(sql, params)` now `db.execute({ sql, params })`. Every file passes `node --check`. Shape matches already-migrated files (e.g. `macro.js`).\n\nTwo things left alone on purpose:\n\n- **`vendor/legacy-orm/adapter.js`** — 2 remaining `db.query` calls. File header: \"Vendored copy of legacy-orm 2.1.4. Do not edit — it is replaced wholesale on every upgrade, and local changes are silently lost.\" Fix belongs upstream or in a wrapper. Only real blocker left before `db.query` can be deleted from `lib/db.js`.\n- **`cache.query(...)`** — ~25 sites. Different object (`lib/cache.js`), not part of this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c8aaa8c17fb1f25b7b1e530f65d55910ec700b00810452c1546a404d093eb63"
+}

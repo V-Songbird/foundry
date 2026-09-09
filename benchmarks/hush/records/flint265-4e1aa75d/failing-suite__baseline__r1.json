@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 14,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37838,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2868155,
+  "numTurns": 12,
+  "durationMs": 36240,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1993
+  },
+  "contextTraffic": 221137,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12246,
+  "narrationWords": 74,
+  "finalWords": 202,
+  "assistantMsgs": 3,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n**What was broken:** `src/pricing.js:39` `orderTotal` — the discount and tax were computed off the same base and added:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxed the pre-discount amount\nreturn discounted + tax;\n```\n\nThat charges tax on money the customer never pays. The function's own comment says tax goes on the discounted amount, so the code contradicted its stated rule — I fixed the code, not the spec:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\n**Why it looked worse than it was:** 3 failures out of 625, all `orderTotal`, all in the same suite. 66 of the 69 order-total rows have either a 0% discount or a 0% tax rate — with either factor zeroed the two formulas agree, so only the three rows with both non-zero (12000c/15%/8.25%, 8650c/20%/5%, 33400c/10%/20%) could expose the ordering. The rest of the wall of text was passing cases and a synthetic coverage table.\n\nI overwrote nothing else, and `src/tiers.js` and `cases.js` are unchanged — the deltas were consistent with a single arithmetic-ordering bug rather than a drifting spec, so no expectation needed adjusting.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d8fc57f4ab4ba467ff405c0875ef3916ae3dc06b3da3b941c531615188def1c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 120,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 48109,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1125728,
+  "numTurns": 12,
+  "durationMs": 46425,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2635
+  },
+  "contextTraffic": 399289,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 48002,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "Build's clean now. Found two real errors hidden in the warnings:\n\n**Problem 1:** `src/core/options.js` was reading `options.retries`, but the new bundler version passes `options.retryCount`. Fixed by changing the property name.\n\n**Problem 2:** `src/net/retryPolicy.js` didn't handle `undefined` for `flags.backoffEnabled`. The new config loader returns `undefined` instead of the old default `false`. Fixed by adding a check for `undefined` that returns `false`.\n\nThe 8 remaining warnings are just deprecation messages from the bumped dependencies — no errors now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a2ce5f743c1a2fce7b0237e753697032b06a90982275fa4165fd8ec545c4c29c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39000,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21487429999999996,
+  "numTurns": 11,
+  "durationMs": 37602,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2243
+  },
+  "contextTraffic": 327346,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 9068,
+  "narrationWords": 34,
+  "finalWords": 114,
+  "finalText": "Build is now clean — exit 0, \"0 errors\". Two real bugs from the bump, both in `src/`:\n\n- `core/options.js:7` — read `options.retries`, but the bumped bundler now passes `{ retryCount }`, so it crashed on `.toFixed` of `undefined`. Fixed to read `options.retryCount`.\n- `net/retryPolicy.js:8` — the new config loader leaves unset flags as `undefined` instead of `false`, and the strict boolean check threw on that. Now treats `undefined` the same as `false` (backoff disabled).\n\nThe remaining 8 `WARN DEP0...`/`W1042`/etc. lines are genuine deprecation noise from the dependency bump (e.g. `Buffer()` ctor, `fs.exists`, `crypto.createCipher`) — not build failures, just things worth cleaning up eventually if you want me to address any of them too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62def4b984677ec71531facd3c848eb7a1a6bfe2f2604f0efc9002f950fc94ba"
+}

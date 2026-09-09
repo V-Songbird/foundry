@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__bare__r2",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 21,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "bare",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 85179,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30610099999999996,
+  "numTurns": 27,
+  "durationMs": 77230,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4954
+  },
+  "contextTraffic": 810394,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 15264,
+  "narrationWords": 5,
+  "finalWords": 52,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "Simple mapping, no state needed."
+  ],
+  "finalText": "evt-0287 fires, evt-0288 (same key, 2 min later) drops. Works as expected.\n\n**Done.** `route()` now drops a repeat if the same `key` sent within the last 5 minutes, tracked in `state.lastSentAt`. See [src/router.js:28](src/router.js:28).\n\n`simulate.js` confirms: 99 dropped as dupes, flap pairs like `evt-0287`/`evt-0288` show the second one dropped, 0 errors.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "182851e5cb3ee6458b1b7ed67c3e0ebffe16f0c90668082dfcc1ea9cfa628880"
+}

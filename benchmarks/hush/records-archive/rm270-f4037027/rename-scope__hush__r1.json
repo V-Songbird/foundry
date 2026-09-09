@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 60,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27634,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.127981,
+  "numTurns": 10,
+  "durationMs": 26449,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1702
+  },
+  "contextTraffic": 165833,
+  "apiCalls": 4,
+  "toolCalls": 9,
+  "toolResultChars": 14154,
+  "narrationWords": 0,
+  "finalWords": 179,
+  "finalText": "Here's the picture.\n\nRenaming `account_id` to `owner_id` touches 94 files and 1,082 places. Most of it — the service and repo code in `accounts`, `orders`, `billing`, `notify`, and `analytics` — is a plain, mechanical rename. That's the bulk of it, and it's safe.\n\nThree spots must stay `account_id`, though:\n\n1. **`vendor/reporting-sdk/`** (4 files). It's vendored, generated code — the header says edits get overwritten by `npm run vendor:refresh`. Don't touch it.\n2. **The public API.** `docs/openapi.yaml` and `lib/serialize.js` both say the field is a frozen contract — every outside client reads `account_id` by name. Renaming it breaks them; it'd need a new API version instead.\n3. **The 10 SQL files in `migrations/`.** They're already applied in production. Editing an old migration doesn't rename anything in a database that's already run it, and it breaks the rollback step. The column rename has to be a new migration, not an edit to history.\n\nSo: sign off on the rename for the internal service and repo code, but block any change to `vendor/reporting-sdk`, the openapi/serialize wire contract, or the existing migration files.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2d75f298a9a80cc4631e548018c73c4edd9c6fc06879dc59da2239fb6e95443f"
+}

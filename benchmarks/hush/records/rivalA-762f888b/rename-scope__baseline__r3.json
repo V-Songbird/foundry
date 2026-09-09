@@ -1,0 +1,45 @@
+{
+  "key": "rename-scope__baseline__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 113,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 95243,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.464616,
+  "numTurns": 10,
+  "durationMs": 94413,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6582
+  },
+  "contextTraffic": 183291,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 28598,
+  "narrationWords": 57,
+  "finalWords": 611,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll survey the codebase to see what we're dealing with.",
+    "Now let me look at the boundary cases — vendor code, the API contract, migrations, and shared libs.",
+    "Let me check whether any files diverge from the uniform pattern, and who consumes the vendored SDK.",
+    "Let me get precise occurrence counts per bucket rather than per-line counts."
+  ],
+  "finalText": "## How big it is\n\n**1,291 occurrences across 94 files** — but that number is misleading. The codebase is 25 entity stacks (invoice, order, session, pageview, …) × 3 layers (http → service → repo), and I verified they're **structurally identical**: stripping identifiers, all 25 repo files hash the same, all 25 service files hash the same, all 25 http files hash the same.\n\nSo it's one mechanical transform applied 25 times, not 1,291 judgment calls. A day of work, and the review burden is \"read one stack carefully, spot-check the rest.\"\n\nBreakdown:\n\n| Area | Occurrences | Verdict |\n|---|---|---|\n| `services/*/src/{http,service,repo}` JS identifiers | ~1,050 | Safe to rename |\n| SQL string literals inside repo files | 125 | **Must not** (without a DB migration) |\n| `migrations/*.sql` | 61 | **Must not** |\n| `vendor/reporting-sdk/` | 20 | **Must not** |\n| `docs/openapi.yaml` | 5 | **Must not** |\n| `lib/serialize.js` WIRE values | 1 | **Must not** |\n\n## Where it must not be renamed\n\n**1. `lib/serialize.js` — the single most important line in the change.**\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\nThe left key is internal and becomes `owner_id`. **The string on the right must stay `'account_id'`.** This map is precisely the seam that makes the whole rename possible without touching clients. A blind find-and-replace flips both sides and silently renames the public API. This is the one line I'd require an explicit reviewer eyeball on.\n\n**2. SQL string literals in the 25 repo files (125 occurrences).** `'SELECT * FROM invoices WHERE account_id = ?'` — that's the real database column name. If the team isn't also renaming DB columns, these stay `account_id` while the surrounding JS params become `owner_id`. The repo layer becomes the translation boundary. These break loudly at runtime, not at build time — there are no tests here (`lib/db.js` is a recording stub), so nothing catches it automatically.\n\n**3. `migrations/*.sql` (12 files).** Already applied in production. Editing them renames nothing in a live database and breaks the `down` steps. A column rename needs a *new* migration, never an edit to history.\n\n**4. `vendor/reporting-sdk/` (4 files).** Marked \"Do not edit\" and regenerated wholesale by `npm run vendor:refresh`. Also, `account_id` there is the *vendor's* request/response wire format, not ours. Note: nothing in `services/` or `lib/` currently imports this SDK — it's inert. Renaming it is pure downside with zero upside.\n\n**5. `docs/openapi.yaml`.** Explicitly frozen; a rename is a breaking change requiring a new dated API version.\n\n## Two things to raise before you sign\n\n**The JSONB payload write.** Every repo does:\n```js\nparams: [account_id, JSON.stringify({ ...values, account_id })]\n```\nThat key is persisted *inside* the `payload` column. Renaming it means new rows carry `owner_id` and all historical rows carry `account_id` — a silent data-shape split with no migration to fix it. I'd leave this one alone in phase one and handle it deliberately.\n\n**Audit log field.** `lib/audit.js` emits `account_id` on every audit line. If any dashboard, log search, or SIEM rule queries that field by name, renaming it breaks those queries without breaking any code. Worth one question to whoever owns observability.\n\n## Recommendation\n\nSign off on the **internal-only** version: rename JS identifiers across the 75 service files, hard-stop at the repo SQL strings, the `WIRE` values, migrations, vendor, and the OpenAPI spec. That's ~1,050 occurrences, fully mechanical, zero external blast radius.\n\nIf the proposal actually includes renaming the *database columns* too, that's a different change — new migration, dual-read window, coordinated deploy — and I wouldn't approve that same-day. Worth confirming which one they're asking for, because the answer changes the risk profile completely.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "25a1b69858131a7c05f79db71e7bf4bff9ea52a6d982bedd28c84242708abdbd"
+}

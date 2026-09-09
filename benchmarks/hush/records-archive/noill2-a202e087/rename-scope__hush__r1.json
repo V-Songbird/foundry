@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 49,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 86634,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5227325,
+  "numTurns": 26,
+  "durationMs": 84740,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6033
+  },
+  "contextTraffic": 293082,
+  "apiCalls": 11,
+  "toolCalls": 25,
+  "toolResultChars": 23757,
+  "narrationWords": 5,
+  "finalWords": 101,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase first."
+  ],
+  "finalText": "**1082 hits, 94 files. Most are safe.**\n\n| Zone | Hits | Rename? |\n|---|---|---|\n| `services/**` JS names | 900 | yes |\n| `services/**` SQL columns | 125 | needs a migration |\n| `migrations/*.sql` | 37 | no, applied history |\n| `vendor/reporting-sdk` | 12 | no, regenerated |\n| `docs/openapi.yaml` | 5 | no, frozen contract |\n| [lib/serialize.js:8](lib/serialize.js:8) WIRE value | 1 | no, public key |\n\nTwo more traps. [lib/audit.js:8](lib/audit.js:8) writes `account_id` into log rows. Repos also write it into JSONB `payload`. Those are stored data.\n\nNext: sign off only if scoped to JS names.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "07250a22ac335ec989843470509dc0bd6b07ab5fd2898a1fd60297bcb31d0cd3"
+}

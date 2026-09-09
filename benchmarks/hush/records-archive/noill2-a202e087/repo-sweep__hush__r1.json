@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 131923,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8970414999999999,
+  "numTurns": 58,
+  "durationMs": 130243,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12912
+  },
+  "contextTraffic": 398337,
+  "apiCalls": 11,
+  "toolCalls": 57,
+  "toolResultChars": 38034,
+  "narrationWords": 28,
+  "finalWords": 50,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by exploring the repository structure.",
+    "Now I'll apply the edits to each file.",
+    "Now let me verify the migration is complete and the files still parse."
+  ],
+  "finalText": "**Migrated 36 `db.query` calls across 12 files.** All 77 files pass `node --check`. The repo has no tests.\n\nOne caller stays on `db.query`: [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit. Upgrades overwrite it wholesale. `cache.query` calls stay untouched, being a different object.\n\nNext: patch legacy-orm upstream, or wrap it locally.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9a7d1f8de400046d706d1405347d24d0891f57d2c2564b18f881e79914ae930f"
+}

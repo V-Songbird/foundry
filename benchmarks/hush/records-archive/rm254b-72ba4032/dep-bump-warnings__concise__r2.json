@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26773,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.196653,
+  "numTurns": 10,
+  "durationMs": 25433,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1739
+  },
+  "contextTraffic": 206565,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15874,
+  "narrationWords": 36,
+  "finalWords": 87,
+  "finalText": "Build now finishes clean (exit 0). The rest of the wall of text was harmless deprecation noise (`fs.exists`, `Buffer()`, punycode, etc.) from the bumped bundler — real problem was two link-stage bugs from its options-shape change:\n\n- `src/core/options.js`: bundler now passes `{ retryCount }`, not `{ retries }` — was reading the wrong key and crashing on `undefined.toFixed()`.\n- `src/net/retryPolicy.js`: new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled `true`/`false` and threw otherwise. Now treats anything but `true` as disabled.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac5d904462f4ab2680d1e591917d3f905be0ed5c879e3e9e6216444ffbc59bf7"
+}

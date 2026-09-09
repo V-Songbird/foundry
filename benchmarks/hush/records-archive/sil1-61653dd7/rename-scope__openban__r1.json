@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__openban__r1",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 9,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "openban",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37737,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.288422,
+  "numTurns": 14,
+  "durationMs": 36008,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2426
+  },
+  "contextTraffic": 170068,
+  "apiCalls": 6,
+  "toolCalls": 13,
+  "toolResultChars": 12751,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "assistantMsgs": 1,
+  "finalText": "**94 files, 1082 hits. Most of it is safe.**\n\n| Zone | Must stay `account_id` |\n|---|---|\n| `vendor/reporting-sdk`, 4 files | Generated. `npm run vendor:refresh` overwrites edits |\n| [docs/openapi.yaml](docs/openapi.yaml) and the WIRE values in [lib/serialize.js:8](lib/serialize.js:8) | Public API contract, frozen |\n| `migrations`, 12 files | Applied history. Edits break the down steps |\n| Column names inside repo SQL strings | Column rename needs its own migration |\n\nThe 75 service files rename freely. So do the WIRE keys on the left.\n\nNext: make them split the DB column change into a separate ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "66765a833a15067817c29f30534d575418ca7586cab6f9f3b50b19922af5eeb4"
+}

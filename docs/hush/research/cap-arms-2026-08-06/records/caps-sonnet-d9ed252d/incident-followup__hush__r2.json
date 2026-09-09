@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__hush__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 175,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 57432,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3234505999999999,
+  "numTurns": 11,
+  "durationMs": 52222,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2821
+  },
+  "contextTraffic": 453736,
+  "apiCalls": 11,
+  "toolCalls": 8,
+  "toolResultChars": 8634,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "finalText": "**On-call handoff — prod incident, 2026-07-04**\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable (`ECONNREFUSED`). The app fell back to reading straight from the database, which couldn't handle the load. Timeouts and queue backlog followed, `worker-2` ran out of memory, and the supervisor killed the whole service when the api stayed unresponsive.\n\n**Impact window:** 02:14:07 UTC to 02:31:52 UTC — about 18 minutes, ending in full service outage.\n\n**ioredis version:** Can't confirm the exact installed build — there's no `package-lock.json` in the repo. `package.json` pins `^5.4.1`, meaning 5.4.1 or any newer 5.x release. Run `npm ls ioredis` against the actual deployment to get the precise version for the changelog check.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fda38b7fcaa56a2405d6818269021c86b15b4e17370e7855b251d4275e7dc39a"
+}

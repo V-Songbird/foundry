@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__noill__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32370,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.2378815,
+  "numTurns": 10,
+  "durationMs": 30905,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1725
+  },
+  "contextTraffic": 149432,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6120,
+  "narrationWords": 7,
+  "finalWords": 71,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**The build passes now.** Two real bugs hid in the warning noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `options.retries` is now `retryCount` | accept both |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag is `undefined`, not `false` | treat as `false` |\n\nThe 8 warnings left are true deprecation notices. They name real code, like `Buffer()` and `crypto.createCipher`.\n\nNext: clear those deprecations if you want a silent log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2d60aca8d8ab63a0aab92e415b7bbb5b638c0989cb2a3478bd2db8bcffbeaa56"
+}

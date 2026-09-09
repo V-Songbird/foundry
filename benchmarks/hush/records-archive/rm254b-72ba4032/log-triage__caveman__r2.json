@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14558,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2957964,
+  "numTurns": 3,
+  "durationMs": 12971,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 788
+  },
+  "contextTraffic": 146349,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 171,
+  "finalText": "Root cause: Redis died.\n\n**Timeline (2026-07-04):**\n- 02:14:07 — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache layer fall to direct store reads.\n- 02:14:08 onward — cache miss storm, every request hit store direct. Store overload, TimeoutError (5000ms) spam from api/worker-1/worker-2/scheduler on repeat, every ~2sec.\n- Redis reconnect retry every ~140sec (attempts 0 through 12), all fail same ECONNREFUSED. Redis never come back.\n- Request queue depth climb steady whole time: 52 at 02:14 to 568 at 02:31, past max 500 around 02:29.\n- 02:31:44 — worker-2 heap out of memory (backlog pile up), crash.\n- 02:31:45 — supervisor restart worker-2.\n- 02:31:52 — api unresponsive, supervisor kill process group. **Service down.**\n\n**Root cause:** Redis instance at 10.0.0.12:6379 die/unreachable. No circuit breaker on cache-miss fallback — every request hammer store direct instead of fail fast, backlog grow unbounded 17 minutes till OOM crash.\n\n**Fix directions:** add circuit breaker/backpressure when store overload (shed load past queue max, don't just warn), fix Redis reachability (network/instance), cap worker memory or bound request queue harder.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b55fda4c1bf02fb496160464bd4241457e2d5d50009ffe3417ad116c867bc4cd"
+}

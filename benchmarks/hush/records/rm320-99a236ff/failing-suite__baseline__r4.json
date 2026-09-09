@@ -1,0 +1,45 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 23,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36684,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26647200000000004,
+  "numTurns": 11,
+  "durationMs": 35437,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2171
+  },
+  "contextTraffic": 154829,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 13591,
+  "narrationWords": 79,
+  "finalWords": 254,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the project structure and finding the pricing suite.",
+    "`src/pricing.js` requires `./tiers.js` — let me check what's in `src` and run the suite, filtering to just the failure detail.",
+    "All 622 other cases pass; the 3 failures are all `orderTotal`. The bug is real and confined to one line — `src/pricing.js:41` computes tax on the **pre-discount** `cents`, contradicting the function's own doc comment (\"tax what's actually owed\").",
+    "Using the existing `applyTax` helper reads better here:"
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOnly 3 of the 625 cases failed, all in the `order totals` suite, all one root cause in `orderTotal` (`src/pricing.js:39`):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← tax on the PRE-discount amount\nreturn discounted + tax;\n```\n\nTax was computed against the original `cents` instead of the discounted subtotal, so every order was over-taxed by `discountPct × taxRate × cents`. That contradicted the function's own doc comment — \"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied to it.\"\n\nThe fix:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n## Why it hid in the noise\n\nAs `cases.js:75` notes, the discount/tax ordering error is invisible unless a row has **both** a non-zero discount and a non-zero tax. 66 of the 69 order-total rows have one or the other at zero, where both formulas agree. Only the three explicit rows at the end (`[12000, 15, 0.0825]`, `[8650, 20, 0.05]`, `[33400, 10, 0.2]`) exercise it — worst case over-charging by 668¢ on a $334 order.\n\nThe other 8 suites were green the whole time; the wall of text was ~620 passing per-case lines and a coverage table, not additional breakage. Filtering the runner's output to `FAIL`/summary lines is enough to triage this suite in future — the failure detail block at the end is the only part worth reading.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3f13016ce0b5cceb0b51334b8f63a08163e582be5a2d5b665787135dec7da1a1"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 5,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29538,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3500279999999999,
+  "numTurns": 11,
+  "durationMs": 27902,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1753
+  },
+  "contextTraffic": 264068,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12337,
+  "narrationWords": 7,
+  "finalWords": 79,
+  "finalText": "**The suite is green.** 625 tests pass in 0.09 seconds.\n\nOnly 3 of them were ever failing. All three were `orderTotal` in `src/pricing.js`. It took the discount off the price, but then worked out the tax from the full price. So people got taxed on money they never paid.\n\nNow it taxes the discounted amount instead:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nMost rows had no discount or no tax, so they hid the bug.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "673d0eb60a39198c3e1648a4482a831dc3fb7d1c7e7f3d5fb8171725f9fddde1"
+}

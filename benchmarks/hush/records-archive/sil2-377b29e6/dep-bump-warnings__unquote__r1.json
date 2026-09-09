@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__unquote__r1",
+  "batchId": "sil2-377b29e6",
+  "seed": "1787898445241",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "unquote",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34846,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-unquote:HushUnquote",
+  "costUsd": 0.1876945,
+  "numTurns": 10,
+  "durationMs": 32930,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1662
+  },
+  "contextTraffic": 189635,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6554,
+  "narrationWords": 6,
+  "finalWords": 63,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** The bump broke two call sites, not just noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read both, type-check |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat unset as `false` |\n\nThe 8 warnings left are real deprecations. `crypto.createCipher` in `src/legacy/adapter.js` is the one to fix next.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b57caa387fe10197d14cdad7bba67be698852b9e31808dca31dd29e8f91bc38e"
+}

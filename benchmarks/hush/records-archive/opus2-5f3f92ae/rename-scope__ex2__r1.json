@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__ex2__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "ex2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 82816,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.468121,
+  "numTurns": 22,
+  "durationMs": 81256,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5696
+  },
+  "contextTraffic": 237508,
+  "apiCalls": 7,
+  "toolCalls": 21,
+  "toolResultChars": 22283,
+  "narrationWords": 4,
+  "finalWords": 104,
+  "finalText": "**1291 mentions across 94 files. Only 1075 are safe to rename.**\n\nThose are plain variable names in `services/`, 75 files. Mechanical.\n\nMust not be renamed:\n\n- `docs/openapi.yaml`, plus the right side of `WIRE` in `lib/serialize.js`. That is the public field name. Renaming breaks every client.\n- `migrations/`, 61 spots, already applied in production. Editing them renames nothing and breaks the down step.\n- SQL strings in `services/`, 125 spots. They name the real column. Only a new migration changes that.\n- `vendor/reporting-sdk/`, 20 spots. `npm run vendor:refresh` overwrites edits.\n\nAlso: 25 inserts write `account_id` into the JSON payload. Old rows keep the old key.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c7d9ff1235b96f8bc61c0c2d9c9f83084d15011593d781416a994472d2bd53a"
+}

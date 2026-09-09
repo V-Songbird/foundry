@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 57493,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3044307,
+  "numTurns": 12,
+  "durationMs": 50871,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3049
+  },
+  "contextTraffic": 486397,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 13501,
+  "narrationWords": 22,
+  "finalWords": 262,
+  "finalText": "Since this is a handoff doc meant to be shared, writing it in normal prose:\n\n---\n\n## On-Call Handoff: Gateway 503s\n\n**Status:** Ongoing (unresolved as of last log entry, 2026-03-14T03:59:27Z)\n\n### Root Cause\nDeploy **dep-4471** (gateway, author a.novak, \"config: connection-per-request for pool isolation\") shipped a config change flipping `gateway.pool.perRequest: false -> true`. This was applied as config generation 119 at 02:13:41Z. Roughly 37 seconds later, the connection pool (fixed size 20) began saturating — `in_use` pinned at 20/20 with the `waiting` queue growing continuously (13 at first failure, 74 by end of log, never draining). Every 503 is paired with `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`. The per-request pooling behavior appears to hold connections instead of releasing them back to the shared pool, so exhaustion is monotonic — it does not recover on its own.\n\n### Impact Window\n- **Start:** 2026-03-14T02:14:18.972Z (first 503, req-07401, `/v1/cart -> billing-svc`)\n- **End:** still failing at end of available log (03:59:27Z) — **not yet resolved**\n- **Scope:** gateway only. Worker service (logs/worker.log, separate DB pool) shows zero errors and normal `db_wait` throughout the same window — confirms this is isolated to the gateway's connection pool, not a shared DB/infra issue.\n- Two other deploys landed after onset (dep-4472 billing-svc 02:41, dep-4473 catalog-svc 03:20) — timing doesn't line up with the 02:14 onset, ruled out as cause.\n\n### Recommended Action\n**Roll back dep-4471** (revert `gateway.pool.perRequest` to `false`, or roll back the full deploy). This is the only change that lines up with the onset timing and directly explains the pool exhaustion pattern.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1eab758355791a8bc6f82ef64ba4bdcac05ed00b25dd2d0035e7af1de9504c23"
+}

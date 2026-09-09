@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__hush__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 26,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 76531,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2845152,
+  "numTurns": 25,
+  "durationMs": 68242,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4844
+  },
+  "contextTraffic": 708445,
+  "apiCalls": 21,
+  "toolCalls": 20,
+  "toolResultChars": 15907,
+  "narrationWords": 22,
+  "finalWords": 50,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "The task is simple: map priority to a single channel each. No dedup/flap logic requested — just implement exactly what was asked."
+  ],
+  "finalText": "**Done.** Repeats of the same `key` within 5 minutes of the last delivery now drop, tracked via `state.lastSent` in [router.js](src/router.js).\n\n`simulate.js`: `dropped: 99   route() errors: 0`, up from 0 — those 99 are the flap repeats (`events.js` fires ~1 in 9 as a same-key repeat 2 minutes later).\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9fd10b990a24b15ad91f6bf634affd315d7f244e27b9f6931a553a7387f55e97"
+}

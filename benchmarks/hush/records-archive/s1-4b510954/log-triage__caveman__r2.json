@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 16,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17071,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.12841740000000001,
+  "numTurns": 3,
+  "durationMs": 15720,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1019
+  },
+  "contextTraffic": 109610,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 6630,
+  "narrationWords": 0,
+  "finalWords": 203,
+  "finalText": "Root cause chain, timestamps UTC:\n\n**02:14:07** — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). Cache layer degrades to direct store reads.\n\n**02:14:07 → 02:31:26** — Cascade, steady ~2s cycle repeat 17min straight:\n- cache miss storm (no Redis, every read hit store)\n- store timeouts (`TimeoutError... store overloaded`, 5000ms)\n- request queue depth climb linear, 52 → 568 (max 500, breached ~02:20)\n- 12 redis reconnect attempts, all fail, same ECONNREFUSED\n\n**02:31:26** — last reconnect attempt (#12) fail.\n\n**02:31:44** — worker-2 heap OOM (`JavaScript heap out of memory`, request backlog piled up unbounded since queue never drain).\n\n**02:31:45** — supervisor restart worker-2 (exit code 134 = SIGABRT from OOM).\n\n**02:31:52** — api process unresponsive, supervisor kill whole process group. Service down.\n\n**Root cause:** Redis at 10.0.0.12:6379 died. No circuit breaker / backpressure on cache miss path — every request fell through to store, store queue grow unbounded, memory exhaust, cascading crash. Redis loss alone shouldn't kill service; missing bulkhead/timeout-reject did.\n\n**Fix directions:** add circuit breaker on cache layer (fail fast, don't hammer store), cap request queue with reject/shed-load, alert on Redis disconnect immediately (not wait for OOM).\n\nTotal counts: 188 ERROR, 2 FATAL, 348 WARN across log — all concentrated in this one incident window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9bfc4cee5b9aa1ba3dbaee1106165e107db6d41a7dc9efc28c186a511a98c8fa"
+}

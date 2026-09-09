@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__shortstyle__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "shortstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27300,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23906739999999999,
+  "numTurns": 10,
+  "durationMs": 25309,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1850
+  },
+  "contextTraffic": 278595,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8615,
+  "narrationWords": 10,
+  "finalWords": 132,
+  "finalText": "It's building clean now. Exit code 0, \"0 errors.\"\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing shapes:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `retryCount`. That was crashing the build with a `TypeError` (`undefined.toFixed`).\n2. `src/net/retryPolicy.js` treated any flag value that wasn't strictly `true` or `false` as an error. The new config loader leaves unset flags as `undefined` instead of `false`, so it was throwing on that too.\n\nFixed both: `resolveRetries` now reads `retryCount`, and `isBackoffEnabled` treats anything other than `true` as disabled instead of throwing.\n\nThe rest of the warnings, deprecation notices, tree-shaking notes, are just noise from the bump and still show up (8 of them), same as before. Build finishes in 44.9s with 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6b72203df3856cdeac4fba5baae4194f97e1def111147e54b2d1e302d4ec2c51"
+}

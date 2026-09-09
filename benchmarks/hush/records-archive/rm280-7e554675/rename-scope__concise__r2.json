@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__concise__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 67,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52068,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.37048700000000007,
+  "numTurns": 17,
+  "durationMs": 50543,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3673
+  },
+  "contextTraffic": 214792,
+  "apiCalls": 7,
+  "toolCalls": 16,
+  "toolResultChars": 19906,
+  "narrationWords": 5,
+  "finalWords": 465,
+  "finalText": "## Size\n\n~1,080 lines / ~1,290 occurrences across 94 files. But it's mechanical, not deep — the codebase is one repeated CRUD pattern (repo → service → routes) in 5 services × ~19 entities:\n\n| Zone | Files | Occurrences | Rename? |\n|---|---|---|---|\n| `services/*/src/{repo,service,http}` | 75 | ~1,200 | Yes — the actual work |\n| `migrations/*.sql` | 12 | 61 | **No** |\n| `vendor/reporting-sdk` | 4 | 20 | **No** |\n| `docs/openapi.yaml` | 1 | 5 | **No** |\n| `lib/audit.js`, `lib/serialize.js` | 2 | 5 | Partly — see below |\n\nEvery service file is a near-identical template (`repo` 17 hits, `service` 15, `http` 9), so a scripted rename plus review of the exceptions is realistic in a day. No test suite exists in the repo, which is the real risk — nothing will catch a miss.\n\n## Must NOT be renamed\n\n1. **`docs/openapi.yaml` + the public wire format.** `account_id` is a documented, frozen response field and query parameter on `/v2/*`. Renaming it is a breaking change for every client and requires a new dated API version.\n2. **`migrations/*.sql` (all 12).** These are applied history (production dates 2025-01-28 → 2025-06-24). Editing them renames nothing in a database that already ran them and breaks the `down` steps. A column rename needs a *new* forward migration, which is a separate decision from this code change — and note `accounts.account_id` is the referenced PK, so it's a multi-table FK change.\n3. **`vendor/reporting-sdk/src/*` (4 files).** Generated, vendored copy of 3.8.1; `npm run vendor:refresh` overwrites it wholesale. Edits get silently reverted. (Nothing in `services/` currently imports it, so it can just be excluded.)\n\n## The one spot that will silently break\n\n`lib/serialize.js:7` — the `WIRE` map is internal-key → public-key:\n\n```js\nconst WIRE = { account_id: 'account_id', ... };\n```\n\nIf the internal rename lands, this must become `owner_id: 'account_id'` (left side renamed, right side frozen). Get it wrong and the failure is silent, not a crash: the fall-through loop at line 18 copies unmapped keys straight through, so responses would start emitting `owner_id` and drop `account_id` — a breaking API change shipped by accident.\n\n## Sign-off conditions I'd attach\n\n- Rename stops at the serializer boundary; `WIRE` right-hand values and `openapi.yaml` untouched.\n- Migrations and `vendor/` excluded from the sweep (a blanket `sed -i` over the tree will hit both).\n- Decide explicitly whether the DB column stays `account_id`. If it does, the repo layer's SQL string literals (`WHERE account_id = ?`, `INSERT INTO invoices (account_id, ...)`) must keep the old name while the JS identifiers change — that's the highest-density trap, ~17 hits × 75 files, and a naive rename breaks every query at runtime.\n- `lib/audit.js:8` emits `account_id` into audit lines; confirm with whoever consumes that log before changing the key.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ae7d39502953ac7ec29d4ad7b8552442d2057a8d8e3aa9ee14071dba6f0b55e9"
+}

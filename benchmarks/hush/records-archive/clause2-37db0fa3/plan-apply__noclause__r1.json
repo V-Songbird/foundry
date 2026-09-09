@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r1",
+  "batchId": "clause2-37db0fa3",
+  "seed": "1787981563072",
+  "orderIndex": 0,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11662,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0716018,
+  "numTurns": 5,
+  "durationMs": 9984,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 635
+  },
+  "contextTraffic": 102589,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no edits made.**\n\n`buildRows()` already gives full data. `toTable()` in `format.js` deliberately drops `owner` and `slow` for width. So `--json` should use `buildRows()` directly, not go through `toTable`.\n\n1. Parse `--json` in `[cli.js:8-13](src/cli.js:8)`.\n2. If set, `process.stdout.write(JSON.stringify(buildRows(), null, 2) + '\\n')`.\n3. Else, keep current `toTable` path.\n\nNext: implement this in `cli.js`, unless you want a different flag shape.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cb67ac4d9c446e5b8897c516257e1fe6c17255f74b91f0ef6db6f1802927d4d3"
+}

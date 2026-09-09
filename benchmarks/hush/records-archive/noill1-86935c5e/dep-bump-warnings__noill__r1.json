@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__noill__r1",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39901,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.356337,
+  "numTurns": 10,
+  "durationMs": 38235,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2088
+  },
+  "contextTraffic": 149958,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6039,
+  "narrationWords": 7,
+  "finalWords": 92,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now, exit 0.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, keep old as fallback |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is now `undefined`, threw | Treat `undefined` as `false` |\n\nThe 8 warnings are all `DEP` deprecation notices from the bumped deps. They are hardcoded log lines in `build.js` and point at files that do not exist here.\n\nNext: swap `punycode` and `Buffer()` for real if you want zero warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7b73ec3dd0ce9cb336de8e14155ad83596adc2cb750e807082c27a9fbcdcaf05"
+}

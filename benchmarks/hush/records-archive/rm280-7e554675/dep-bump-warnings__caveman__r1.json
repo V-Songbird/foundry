@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34789,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2664705,
+  "numTurns": 10,
+  "durationMs": 33399,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2093
+  },
+  "contextTraffic": 191615,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6111,
+  "narrationWords": 13,
+  "finalWords": 122,
+  "finalText": "Build passes now, exit 0.\n\nTwo real bugs, both from bump. Both were in link stage, sequential:\n\n1. `src/core/options.js:6` — bundler renamed `retries` to `retryCount`; call site read `options.retries`, undefined, `.toFixed` threw. Now reads `retryCount ?? retries`, plus a typed guard.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined`, old one gave `false`. Strict check threw on `{}`. `undefined` now treated as off-default.\n\nSecond bug was masked by first — only surfaced after fix 1.\n\nWarnings not gone: still 8. Those are hardcoded literal strings in `build.js` (`DEPRECATIONS` array plus three `if (compiled === N)` pushes). They name files like `src/legacy/adapter.js`, `src/utils/format.js` that don't exist in repo. No code change silences them — fix is editing `build.js` itself. Want that?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3e242c09fb7630f9dc25a7b0833e74211f4ed0efd35b760ba07e508092d90df"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__adhd__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 62,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32527,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.1100036,
+  "numTurns": 9,
+  "durationMs": 31387,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2119
+  },
+  "contextTraffic": 148907,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 12265,
+  "narrationWords": 0,
+  "finalWords": 313,
+  "finalText": "This is a big rename with real hard boundaries — I'd push back on \"everywhere.\"\n\n**Scope**: 1,082 occurrences across 94 files, spanning 4 services (orders, notify, billing, analytics, accounts), each with repo/service/http layers touching `account_id` consistently as a DB column and pass-through field. Mechanically that's large but repetitive — a scripted rename would handle the bulk once you know the boundaries.\n\n**Where it must NOT be renamed:**\n\n1. **`docs/openapi.yaml`** — `account_id` is documented explicitly as a \"Frozen field name\" in the public API contract (request params and response schemas). Renaming breaks every external client; would need a new API version instead.\n2. **`lib/serialize.js`** — the internal→wire mapping (`WIRE`) explicitly freezes `account_id` as the public JSON key, independent of whatever internal DB column is called. This is the actual seam: internal storage can be renamed, but this map's right-hand side can't.\n3. **`migrations/*.sql`** (9 files) — all applied in production (2025-01-14 through 2025-06-24, per their own header comments). Editing them doesn't rename anything live and breaks their `down` steps. A real rename needs a **new** migration (`ALTER TABLE ... RENAME COLUMN`), not edits to history.\n4. **`vendor/reporting-sdk/*`** (4 files) — this is a vendored third-party package pulled by `scripts/vendor.js reporting-sdk@3.8.1` (see `package.json`). Any edits get silently wiped on the next `vendor:refresh`. If it needs to change, that's a request to the vendor/upstream, not a local edit.\n5. **`lib/audit.js`** — audit log lines are historical records; already-written `account_id` keys in past log lines won't retroactively rename, so anything reading old audit data needs to handle both keys or you accept a schema split at the rename boundary.\n\n**Bottom line for sign-off**: don't approve \"rename everywhere.\" Approve renaming the *internal* DB columns and internal code (repo/service layers) via a proper migration, while explicitly carving out the public API surface (openapi.yaml + serialize.js WIRE map), applied migration files, the vendored SDK, and audit-log history as permanently `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac724e5bbd0b1005c6e3cc968eb30cc67b3f1bc59dbdc29e7ba0ce79a9c206b7"
+}

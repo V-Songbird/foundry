@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 36,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 61795,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3739625,
+  "numTurns": 14,
+  "durationMs": 60258,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3795
+  },
+  "contextTraffic": 240008,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 16170,
+  "narrationWords": 54,
+  "finalWords": 236,
+  "assistantMsgs": 6,
+  "finalText": "Migration is complete. 36 call sites across 12 files converted to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nAll files parse clean under `node --check`. `db.query` now has zero first-party callers.\n\nTwo things I deliberately did **not** change:\n\n- **`vendor/legacy-orm/adapter.js` (2 calls) — still on `db.query`.** Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost. Patching it would be reverted by the next upgrade, and it's the one place `db.query` genuinely still needs to exist. So `lib/db.js` can't drop the deprecated method yet. Resolving that is an upstream-or-replace decision rather than a sweep edit — worth flagging as the remaining blocker if the plan is to delete `query` before the driver's next major.\n\n- **`cache.query(...)` (~20 call sites).** Despite the matching name, that's `lib/cache.js` — it takes a cache key, not SQL, and is unrelated to this migration.\n\nOne note on the new form: `execute` also accepts a `timeoutMs` option, which was the stated reason the positional form couldn't carry per-call options. I did a mechanical translation and set it nowhere, so behaviour is unchanged — if any of these queries wanted a timeout, that's a follow-up.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0a0d5a9acf8ec40244d9005c25cb68456a083b60bddc0b066d14b7ddb2071aaf"
+}

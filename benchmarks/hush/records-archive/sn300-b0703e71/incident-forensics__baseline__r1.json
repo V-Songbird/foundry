@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62890,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2559752,
+  "numTurns": 16,
+  "durationMs": 57859,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4326
+  },
+  "contextTraffic": 530389,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 28293,
+  "narrationWords": 25,
+  "finalWords": 262,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "First 503 hit at 02:14:18.972Z. Let's look right before that point for the root cause, and check for the ERR_POOL_EXHAUSTED context and other error types."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of the last log entry (03:59:44Z) — has not self-recovered.\n\n**Root cause:**\nDeploy **dep-4471** (gateway, author a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` → `true` via config generation 119, applied at 02:13:41.234Z. Connections stopped being released back to the pool — `in_use` immediately pins at 20/20 and the `waiting` queue climbs continuously and unbounded (13 → 71+ by end of log), throwing `ERR_POOL_EXHAUSTED` on every request that needs a pooled connection. All backend routes (billing/orders/catalog/accounts-svc) are affected equally, confirming it's the gateway's own pool, not a downstream service. `/health` checks bypass the pool and keep returning 200, so basic health checks won't catch this.\n\n**Impact window:**\n- **Start:** 2026-03-14T02:14:18.972Z (first 503, `req-07401 /v1/cart`)\n- **Trigger:** dep-4471 applied 02:13:41.234Z, first symptom (slow-acquire WARN) at 02:14:14.920Z, first hard 503 34 seconds later\n- **End:** not resolved — still throwing 503s at 03:59:27.974Z, the last entry in the log. Treat as still live until pool metrics are confirmed healthy.\n- **Scope:** gateway only. `logs/worker.log` covered the same window and stayed clean — no errors, all jobs completed (`db_wait` shows a slow, gradual drift unrelated to this incident, likely separate and worth a follow-up but not part of this outage).\n\n**Action — roll back:**\n**dep-4471** (gateway, a.novak) — revert `gateway.pool.perRequest` to `false`. This was the only gateway deploy in the window and its timing lines up exactly with onset. Two unrelated deploys landed later (dep-4472 billing-svc 02:41Z, dep-4473 catalog-svc 03:20Z) but neither changes the error pattern — no rollback needed for those.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d904cfbb628e96d6da743bbcb0faa8ba2cea32eb1ccfba75c1da31981a34b9cd"
+}

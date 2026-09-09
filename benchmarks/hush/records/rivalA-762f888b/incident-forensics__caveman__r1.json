@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 142,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 126776,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.8046305,
+  "numTurns": 15,
+  "durationMs": 122703,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8280
+  },
+  "contextTraffic": 494024,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 30251,
+  "narrationWords": 5,
+  "finalWords": 105,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll look at the log."
+  ],
+  "finalText": "Wrote `HANDOFF.md`.\n\nCore content:\n- **Root cause:** `gateway.pool.perRequest: false -> true` (config generation 119) kill connection reuse. Pool size 20 saturate, `in_use` pinned 20/20, wait queue 13 -> 271. `timeout.upstreamMs 2000 -> 2500` compound it.\n- **Window:** 02:14:18.972Z start, still erroring at log end 03:59:27Z. 530 503s, ~1h45m, flat 50 per 10 min. Node-3 of 3 only — real impact likely 3x.\n- **Roll back:** `dep-4471`, gateway, a.novak, 02:12-02:14.\n\nDoc also carry: all 5 other deploys ruled out with reason, why not upstream/DB fault (`/health` stayed 200), and worker drift flagged as separate ticket — **do not** roll back `dep-4470` as part of this mitigation.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "658da64a60c74868a5095359f926564851a992529cc1d760f5b23980e8fb9be4"
+}

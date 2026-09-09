@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 27,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 135835,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6838124999999999,
+  "numTurns": 15,
+  "durationMs": 134577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9550
+  },
+  "contextTraffic": 349259,
+  "apiCalls": 12,
+  "toolCalls": 14,
+  "toolResultChars": 31328,
+  "narrationWords": 28,
+  "finalWords": 819,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at what's in the repo.",
+    "The PR sheet stops at #4246 (2026-06-17). Let me check the commit log, which is likely the fuller record."
+  ],
+  "finalText": "Read all 380 commits and the PR sheet. The PR sheet is a strict subset of the commit log (every PR title appears there, and it stops 6 weeks early at #4246 / 2026-06-17), so I worked from `commits.log`.\n\n## The shape of the release\n\n| | commits |\n|---|---|\n| `chore(deps)` | 114 (16 packages) |\n| `refactor` | 73 |\n| `test` | 64 |\n| `chore` (other) | 39 |\n| `ci` | 33 |\n| `fix` | 26 (22 unique) |\n| `docs` | 20 |\n| `perf` | 10 (9 unique) |\n| `feat` | **1** |\n\nSo ~350 of 380 commits are invisible to anyone installing this. What's left is one feature, eleven distinct bugs, and three things that quietly change the public surface.\n\n## What actually changed for users\n\n**One new capability.** `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48) — the only feat in the release. It also touched `src/core/config.js`, so it likely added a config knob; you'll want to name the option and its default in the notes.\n\n**Three surface changes that nobody labeled breaking:**\n\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55). Correct fix, but anyone branching on 403 breaks silently.\n- `refactor(api): drop the unused v1 export route` (56dc828). \"Unused\" is an internal claim — for an installed package a removed route is a removed route.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits across auth, billing, core, db, jobs. Whatever was re-exported was importable; removing it breaks `import { … }` for anyone who used it. This is the one I'd chase hardest before tomorrow, because 8 scattered commits means nobody tracked what the aggregate removal set is.\n\n**Bugs worth listing** (deduped — several were fixed in the same way across scopes):\n\n- Connections/timers leaked: timer not cleared when the socket dropped, pool not closed on shutdown (`http`).\n- Paginator crashed on a null cursor (`api`, `db`, `queue`, `webhooks` — 4 commits).\n- Trace id was lost across a retry (`api`, 3 commits).\n- An empty allowlist was mishandled (`db`, `jobs`, `store`).\n- Duplicate header sent (`http`, `core`, `billing` — 5 commits).\n- Trailing slash trimmed twice (`jobs`, `queue`).\n- Latency histogram used the wrong units (`core`, `store`) — worth calling out separately, since it silently moves everyone's dashboards and alert thresholds.\n- Request bodies were being written to logs (`db`, 1b55313) — a privacy fix; if bodies carry PII this may deserve its own emphasis.\n- Token parser error message tightened (`core`, `billing`, `queue`).\n\n## Draft, in your format\n\n```markdown\n## 4.2.0 — 2026-08-30\n\n### Breaking\n- An expired token now returns 401 instead of 403.\n- The internal error types are no longer re-exported from the package root.\n  Import them from their own modules, or stop depending on them.\n- The v1 export route has been removed.\n- The latency histogram now reports in the documented units. Dashboards and\n  alerts built on the old values will need rescaling.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and closes\n  its pool on shutdown.\n- Paginating with a null cursor no longer throws.\n- The trace id survives a retry.\n- An empty allowlist is handled instead of rejecting everything.\n- Requests no longer carry a duplicate header.\n- A trailing slash is trimmed once, not twice.\n- Request bodies are no longer written to the logs.\n```\n\n## Three things to check before you publish\n\n1. **Are the removed re-exports actually breaking?** If those types were never in the published `.d.ts` / entry point, that bullet comes out. Worth one `git show` on the 8 commits.\n2. **Did the minimum Node version change?** Five `docs: note the minimum node version` commits, three `.nvmrc` pins, and six `ci: run the suite on node 22`. That pattern usually accompanies an `engines` bump, which would be your loudest breaking change — but I found no evidence of a `package.json` engines edit, and the file stats in this log are unreliable (one `ci: run the suite on node 22` commit is recorded as touching `src/store/keys.js`). Only you can confirm this one.\n3. **The `Ctx` → `RequestCtx` rename** (8 commits) I left out as genuinely internal. If that type is exported, it's a fourth breaking entry.\n\nI left the 10 `perf` commits out entirely — they're micro-optimizations (avoid a clone, skip a JSON round-trip, batch metric writes) with no benchmark numbers attached, and your header comment says to write down only what someone would notice. Same for all 114 dependency bumps: every runtime dep (fastify, pg, knex, ioredis, pino, zod, nanoid, dotenv, undici) moved by patch or minor within its major, so nothing propagates to users. The two majors, vitest 1→2 and esbuild 0.21→0.23, are dev-only.\n\nSay the word and I'll write the section into `CHANGELOG.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "41eeddacc6b27291b836462f7c319ccb2d6981eabbf71ca4e1ca5f51ca73ef55"
+}

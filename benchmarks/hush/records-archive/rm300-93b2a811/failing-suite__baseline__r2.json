@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51897,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29984000000000005,
+  "numTurns": 14,
+  "durationMs": 50746,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2888
+  },
+  "contextTraffic": 188045,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 8786,
+  "narrationWords": 19,
+  "finalWords": 205,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout.",
+    "The failure is narrow — 3 of 625 cases, all `orderTotal`."
+  ],
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was broken:** one line in `src/pricing.js:41`. `orderTotal` applied the discount correctly but then computed tax off the *pre-discount* base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← cents, not discounted\n```\n\nSo the customer got taxed on money they never paid. For `orderTotal(12000, 15, 0.0825)` that's 11190 instead of 11042 — 148 cents of over-tax.\n\n**Why the wall of text:** 622 of the 625 cases passed. The order-totals suite has 69 rows, but 66 of them have either a zero discount or a zero tax rate, and with either factor at zero the two orderings give identical results. Only the last three rows have both non-zero, which is why exactly three lines were red.\n\n**Fix:**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThis matches the function's own docstring (\"tax what's actually owed\") and reuses the existing `applyTax` rather than re-deriving the rate math. `applyTax` rounds once over `discounted * (1 + rate)`; since `discounted` is already whole cents, that's identical to adding a separately-rounded tax, and it's what `cases.js` computes as expected.\n\nNothing else in the module needed touching — `tiers.js`, refunds, shipping and loyalty were all clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf22b030c78b857b07609367fe52018e8472073e7bf4d8f8ca8eea70f8affeae"
+}

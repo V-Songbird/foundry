@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23518,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16605,
+  "numTurns": 9,
+  "durationMs": 21477,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1479
+  },
+  "contextTraffic": 167923,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7860,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, 0 errors.**\n\nTwo real bugs, not just noise:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the bumped bundler now hands options as `retryCount`. Threw `TypeError` on `undefined.toFixed`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) treated an unset `backoffEnabled` as invalid. New config loader leaves it `undefined` instead of `false`, so it threw. Now `undefined` maps to `false`.\n\nRest of the warnings are deprecation noise from the dep bump, harmless.\n\nNext: rerun your normal build to confirm on your machine too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f9d4c0edcdd215ecbc5eb915c439fbdab0d6e49e492a1d7f74b5473fab9b55d"
+}

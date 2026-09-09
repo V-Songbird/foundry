@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 13,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 42174,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21458369999999993,
+  "numTurns": 10,
+  "durationMs": 40886,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2140
+  },
+  "contextTraffic": 327115,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 9593,
+  "narrationWords": 117,
+  "finalWords": 102,
+  "finalText": "Fixed. The build was failing in the bundle stage because `resolveRelease()` in `packages/shared/config.js:13-16` used `Object.assign` to layer defaults → package overrides → CLI flags, which does a *shallow* merge. Any package overriding part of a nested object (e.g. `@acme/api`'s `output: { format: 'esm' }`) clobbered the whole `output` object, wiping out `dir` — which the build then detected as missing and aborted with `EBUNDLE07`.\n\nI replaced it with a recursive `deepMerge` that merges nested plain objects key-by-key instead of replacing them wholesale, while still letting later layers win. `node build.js` now exits 0 (\"0 errors\"), and `verify.js` confirms the config merges correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d61384b873594bd4daaee5a951723e9760f163c8e337fde5f54f538da696b722"
+}

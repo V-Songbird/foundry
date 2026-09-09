@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__adhd__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 137145,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7790874999999999,
+  "numTurns": 29,
+  "durationMs": 127403,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7827
+  },
+  "contextTraffic": 806498,
+  "apiCalls": 27,
+  "toolCalls": 24,
+  "toolResultChars": 11084,
+  "narrationWords": 7,
+  "finalWords": 160,
+  "finalText": "Dedup is in. `createState()` now returns `{ lastSentByKey: new Map() }`, and `route()` drops an event whose key was last *delivered* less than 5 minutes earlier, recording `event.at` only when it actually delivers.\n\nReplay: 99 dropped as repeats, 0 errors. Every channel count fell proportionally.\n\nThree judgment calls, all easy to flip:\n\n- **Exactly 5 minutes passes.** `< 5` means a repeat at +5 goes through; the spot-check shows 600 → sent, 602 → dropped, 605 → sent.\n- **Dropped repeats don't reset the clock.** The window runs from the last real delivery, so a burst can't extend its own suppression indefinitely.\n- **Queued counts as sent, and critical is not exempt.** A quiet-hours queue write starts the window, and a repeat critical inside 5 minutes is dropped rather than paging again — you didn't carve out an exception, but this is the one I'd most expect you to want differently, since it means a re-fired page can go silent.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1bb118799281ef3600317a0ec464a0545c8aeaa27caee68cc941b9ed4e27290d"
+}

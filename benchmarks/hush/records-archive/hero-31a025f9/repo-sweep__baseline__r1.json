@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 66572,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6963835,
+  "numTurns": 31,
+  "durationMs": 65332,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6517
+  },
+  "contextTraffic": 797371,
+  "apiCalls": 17,
+  "toolCalls": 30,
+  "toolResultChars": 43100,
+  "narrationWords": 127,
+  "finalWords": 74,
+  "finalText": "All 12 files parse cleanly and now match the `db.execute({ sql, params })` pattern used elsewhere.\n\nOne thing I left alone: `vendor/legacy-orm/adapter.js` still calls `db.query`, but that file is explicitly marked \"vendored... replaced wholesale on every upgrade, local changes are silently lost\" — editing it wouldn't stick, so it needs to be handled upstream (or `db.query` kept until that vendor dependency drops it) rather than patched locally. Worth flagging to whoever owns that dependency.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6eb34e341cfc050eb4a8d54ad97b0a345bd7ce1b56060dacb16163a7acf951fa"
+}

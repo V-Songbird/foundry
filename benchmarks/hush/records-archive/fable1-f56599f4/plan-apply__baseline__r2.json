@@ -1,0 +1,42 @@
+{
+  "key": "plan-apply__baseline__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 34,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 22335,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24799649999999998,
+  "numTurns": 6,
+  "durationMs": 21551,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1357
+  },
+  "contextTraffic": 58735,
+  "apiCalls": 3,
+  "toolCalls": 5,
+  "toolResultChars": 2615,
+  "narrationWords": 20,
+  "finalWords": 299,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at how the report command and its output are built so the plan is concrete, without changing anything."
+  ],
+  "finalText": "The codebase is three small files, so the plan is short.\n\n**Where the change goes.** All of it lives in `src/cli.js`. The row builder in `report.js` already produces a printer-agnostic array, and `format.js` is only the text renderer. Neither needs to change.\n\n**Steps I'd take:**\n\n1. **Parse the flag.** After confirming the first argument is `report`, scan the remaining arguments for `--json`. Any other leftover argument prints usage and returns 1, same as today's bad-command path. Update the usage string to `cli.js report [--json]`.\n2. **Branch on output.** Call `buildRows()` once, then either pass the rows through `toTable` or serialize them with `JSON.stringify(rows, null, 2)`. Print the result to stdout with a trailing newline either way. Exit codes stay the same.\n3. **Verify by hand.** Run the plain command to confirm the table is byte-for-byte unchanged, then run the JSON variant and pipe it through a parser to confirm it round-trips. There are no tests or package file in the project, so manual checks are the verification available.\n\n**One decision to flag.** The text table deliberately drops two fields, `owner` and `slow`, because it is too narrow for them. The comment in `format.js` says anything wanting the full record should go back to the row builder rather than the table. I would follow that and emit the full rows in JSON, including those two fields, still sorted slowest first. That gives consumers a proper record per run rather than a serialized table. If \"same data\" was meant literally as the four table columns, that is a one-line change to filter by the exported column list instead, so tell me if you want that reading.\n\n**Scope I'd leave alone.** No new dependencies, no reorganizing the modules, and no wider argument parser. The change is roughly ten lines in one file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2a4370d04bdf469fcfb649f1160606269181e303f26d95ed2733d790ff8b74b6"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28585,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07887659999999999,
+  "numTurns": 10,
+  "durationMs": 26594,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2106
+  },
+  "contextTraffic": 144015,
+  "apiCalls": 5,
+  "toolCalls": 9,
+  "toolResultChars": 11659,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Confirmed enough to sign off.\n\n**~94 files touch `account_id`**, across accounts/orders/billing/notify/analytics services plus migrations and docs. Real work but mechanical — mostly repo/service/route params.\n\nTwo places must not be renamed:\n\n1. `[lib/serialize.js:8](lib/serialize.js:8)` — the wire key is explicitly frozen, it's the public API contract documented in `docs/openapi.yaml`. Rename the internal column, keep the wire-side mapping as `account_id`.\n2. `vendor/reporting-sdk/**` (4 files) — vendored/generated, header says \"Do not edit... overwritten by `npm run vendor:refresh`\". Any `account_id` there is a separate upstream concern.\n\nAlso flag: `migrations/*.sql` are historical, already-applied migrations — don't edit them, add a new `ALTER TABLE ... RENAME COLUMN` migration instead. `lib/audit.js` writes `account_id` into audit log lines; worth confirming with whoever reads those logs before renaming the key, since old log lines will still say `account_id`.\n\nNet: safe to approve renaming internal DB columns and code, as long as the public JSON field, the vendor SDK, and old migration files stay untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d09bf5f4265792c93b443dd73a352cb91a27e6433bd76be4f86acd3280bf521f"
+}

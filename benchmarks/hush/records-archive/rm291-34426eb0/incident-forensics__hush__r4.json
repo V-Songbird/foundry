@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 105859,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5410090000000001,
+  "numTurns": 17,
+  "durationMs": 97368,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5334
+  },
+  "contextTraffic": 455984,
+  "apiCalls": 15,
+  "toolCalls": 13,
+  "toolResultChars": 10463,
+  "narrationWords": 0,
+  "finalWords": 62,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is gateway pool exhaustion. `in_use` pinned at 20 of 20 for the whole window, queue growing to 271. Impact ran `02:14:18` to `03:59:27` and was still live at log end. 530 `503`s in 636 requests, an 83% error rate.\n\nRoll back `dep-4471`. Note that `/health` never `503`d, so uptime checks read green through all of it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ec9963bcaafeb6ca254a597a007f2cce76962f4bfb89678b889f1e541f53fbfd"
+}

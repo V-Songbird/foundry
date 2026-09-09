@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__waits__r6",
+  "batchId": "sil3-0b196082",
+  "seed": "1787986994570",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "waits",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23052,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1219774,
+  "numTurns": 10,
+  "durationMs": 21420,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1305
+  },
+  "contextTraffic": 203442,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11742,
+  "narrationWords": 13,
+  "finalWords": 45,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount `cents` instead of the discounted amount."
+  ],
+  "finalText": "**Fixed. Suite is green: 625 total, 625 passing.**\n\n`orderTotal` in [src/pricing.js:39](src/pricing.js:39) taxed the pre-discount amount instead of the discounted one. Only 3 of 625 cases caught it, all with nonzero discount and tax.\n\nChanged it to tax the discounted total directly. Nothing else to do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2a0ec90253cea3d45e8e8644b338ad3b3877cc19cd72d6b8bf9659611a9f7dfc"
+}

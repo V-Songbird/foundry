@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 100,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 63778,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.39201400000000003,
+  "numTurns": 7,
+  "durationMs": 62732,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4002
+  },
+  "contextTraffic": 192440,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 22040,
+  "narrationWords": 0,
+  "finalWords": 421,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "## Size\n\n1291 occurrences, 94 files.\n\n| Area | occ | files |\n|---|---|---|\n| services (25 slices × repo/service/http) | 1200 | 75 |\n| migrations `*.sql` | 61 | 12 |\n| vendor/reporting-sdk | 20 | 4 |\n| docs/openapi.yaml | 5 | 1 |\n| lib (audit, serialize) | 5 | 2 |\n\nMechanically small: 25 near-identical vertical slices, same 5 repo queries, same 4 route handlers. One sed would touch everything. That is the trap — ~250 of the 1200 service hits are not local identifiers.\n\n## Must NOT rename\n\n**1. `vendor/reporting-sdk/` (4 files, 20 hits).** Header: `Do not edit`. `npm run vendor:refresh` overwrites wholesale. Also upstream wire field. Rename dies next refresh.\n\n**2. `migrations/*.sql` (12 files, 61 hits).** File header says it: applied in production. Editing applied migration renames nothing in live DB and breaks the `down` step. Want the column renamed? New forward migration, not edits.\n\n**3. Public contract — `docs/openapi.yaml` (5) + right side of `WIRE` in `lib/serialize.js:8`.**\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\nRight-hand value + the `account_id` query param on `GET /v2/invoices` are client-visible. Rename = breaking change needing new dated API version.\n\n**4. SQL column identifiers inside repo query strings (125 lines).** e.g. `'SELECT * FROM invoices WHERE account_id = ? AND id = ?'`. Column name, not variable. Renameable only after migration #2 actually renames the column. Params `[account_id, id]` next to it *are* free.\n\n## Needs a decision, not a sed\n\n**`req.session.account_id` (100 hits).** Session shape produced by auth middleware outside this repo. Can't rename unilaterally.\n\n**JSONB writes:** `JSON.stringify({ ...values, account_id })` in all 25 repos writes the key into stored `payload`. Rename key = new rows use `owner_id`, old rows keep `account_id`. Split data unless backfilled.\n\n**`row.account_id`** comes from `SELECT *` — left-hand `WIRE` key must match whatever the DB column is. Locked to #2 and #4.\n\n**`lib/audit.js`** field name flows to audit log consumers. Log-schema change, downstream owners.\n\n## Sign-off\n\nSafe today: ~950 pure JS identifiers — function params, service argument objects, local vars in services. Cosmetic, low risk.\n\nNot today: DB column, wire field, session field, vendor, applied migrations. Those are 4 separate coordinated changes (migration + backfill + dual-read window + dated API version), each with an owner outside this repo.\n\nApprove as an **internal-identifier-only** rename with those five boundaries pinned in the PR description. Do not approve \"everywhere\" — a repo-wide sed here breaks live queries in all 25 repo files and silently no-ops the migrations.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "32f04e53d67cfb8fe091edecae21fe97afd167c678011b54639af3ddf92265f5"
+}

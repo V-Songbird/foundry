@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 44,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 181948,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7586196000000001,
+  "numTurns": 11,
+  "durationMs": 180663,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 16651
+  },
+  "contextTraffic": 551403,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 72982,
+  "narrationWords": 238,
+  "finalWords": 208,
+  "finalText": "Written to `CHANGELOG.md`. Summary of what I did and why:\n\n- Went through all 380 commits in `commits.log` and the 127 rows in `merged-prs.tsv`.\n- Everything tagged `chore(deps)`, `refactor`, `test`, `ci`, `docs`, and `perf` is invisible to someone installing the package, so none of that made the cut.\n- Of the 26 `fix(...)`/`feat(...)` commits in the raw log, only 11 have a matching entry in the merged-PR sheet — the other 15 reuse identical commit messages on different modules but were never actually merged (e.g. three \"drop the duplicate header\" commits on `core` that don't exist in the PR sheet, only the `http` one does). I treated the PR sheet as the authoritative record and built the notes from those 11.\n- One of the 11 is a status-code change (401 vs 403 on expired tokens) that I flagged as Breaking since it'll trip up clients checking for `403` specifically — worth double-checking with whoever owns auth before you ship it under that heading, in case it was meant to be soft-launched instead.\n\nWorth a quick sanity check on the `401`/`403` and empty-allowlist wording since I only had commit messages and diffstats to go on, not the actual diffs — no test infrastructure here to verify behavior directly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8b5840a80efd004524c739d8fdb1c95ae50683a755ccda403357bec63cade7af"
+}

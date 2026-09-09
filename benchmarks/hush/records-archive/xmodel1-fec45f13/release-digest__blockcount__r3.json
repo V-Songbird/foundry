@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__blockcount__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 34,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "blockcount",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74498,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "blockcount:Blockcount",
+  "costUsd": 0.2569282,
+  "numTurns": 18,
+  "durationMs": 72859,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6071
+  },
+  "contextTraffic": 412391,
+  "apiCalls": 11,
+  "toolCalls": 17,
+  "toolResultChars": 25054,
+  "narrationWords": 40,
+  "finalWords": 110,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "All minor/patch bumps (checked against the version numbers already visible in the earlier reads — pino 9.2→9.3, eslint 9.4→9.5, typescript 5.5.2→5.5.4, etc). No major version jumps, so nothing dependency-driven is breaking. I have what I need to write the notes."
+  ],
+  "finalText": "**4.2.0 notes are written.** 380 commits, mostly dep bumps and refactors, one real feature and ten real fixes.\n\nAdded `feat(webhooks)`: failed deliveries now retry with backoff instead of dying after one try.\n\nFixed: expired tokens return 401 not 403, null cursors no longer crash the paginator, trace ids survive retries, request bodies stop getting logged whole, trailing slashes and empty allowlists are handled, latency units are correct, duplicate headers are gone, the HTTP pool closes on shutdown, the socket-drop timer stops leaking.\n\nNo breaking changes. All dep bumps this cycle were minor or patch, so nothing there.\n\nNext: [CHANGELOG.md](CHANGELOG.md) has the full 4.2.0 section, ready to review before the cut.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e614c0056cb621d0ff9a8df1a13effa85afad192a1f4b98854f3805eee62f6b1"
+}

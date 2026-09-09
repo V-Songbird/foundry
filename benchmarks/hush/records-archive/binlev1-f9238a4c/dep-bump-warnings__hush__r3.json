@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41841,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.25739900000000004,
+  "numTurns": 10,
+  "durationMs": 40251,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2416
+  },
+  "contextTraffic": 149965,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6347,
+  "narrationWords": 8,
+  "finalWords": 64,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project structure."
+  ],
+  "finalText": "**Build is green.** Exit 0, 8 warnings, no errors.\n\n| file | bug | fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | read old `retries` key | read `retryCount`, fall back |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | `undefined` flag threw | treat as `false` |\n\nBackoff now defaults to off, as before. The 8 warnings are hardcoded strings in `build.js`. No source change can silence them.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0c245dbd29a4611afa099f4849e392670be142e009f5cbd905386d225ab4c3b0"
+}

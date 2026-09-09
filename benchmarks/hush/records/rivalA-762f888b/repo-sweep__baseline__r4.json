@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__baseline__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 99,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56482,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3576220000000001,
+  "numTurns": 14,
+  "durationMs": 55501,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3666
+  },
+  "contextTraffic": 205721,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 16649,
+  "narrationWords": 30,
+  "finalWords": 212,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by finding remaining `db.query` usages.",
+    "Pattern is clear. I'll write a transform that does balanced-paren argument splitting rather than a naive regex.",
+    "Now verifying the results and syntax:"
+  ],
+  "finalText": "Migration complete.\n\n**Changed:** 36 `db.query(sql, params)` call sites across 12 files in `packages/`, rewritten to `db.execute({ sql, params })`:\n\n- `accounts`: `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js`\n- `analytics`: `repo/cohort.js`\n- `billing`: `repo/refund.js`, `service/couponService.js`\n- `catalog`: `repo/supplier.js`, `admin/variantAdmin.js`\n- `orders`: `repo/shipment.js`, `service/returnService.js`\n- `support`: `repo/sla.js`, `admin/macroAdmin.js`\n\nI used a balanced-paren/quote-aware transform rather than a regex, since several call sites pass params like `[...keys.map((k) => patch[k]), id]` that a naive comma split would mangle. All files pass `node --check`, and the output matches the already-migrated files (e.g. `repo/user.js`) exactly.\n\n**Two things I deliberately left alone:**\n\n1. **`vendor/legacy-orm/adapter.js`** (2 call sites) — still on `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost. Patching it would be reverted on the next vendor bump, and it would still break when the driver's next major drops `query`. The real fix is upstream or a wrapper at the vendor boundary — your call on which, but it does need handling before `query` is removed.\n\n2. **`cache.query(...)`** — appears in ~20 files and matches a `.query(` grep, but that's `lib/cache.js`, an unrelated object with a single-key-string signature. Not part of this migration.\n\nNeither `execute`'s third option (`timeoutMs`) nor any per-call options were introduced, since no existing call site needed them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36397c6043d1f2b163a97202698ea3dfb17aea0ef97f8ffe2ae50179f2490575"
+}

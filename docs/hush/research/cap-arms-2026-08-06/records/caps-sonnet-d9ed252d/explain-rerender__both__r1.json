@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 60,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 1,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11141,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0851662,
+  "numTurns": 1,
+  "durationMs": 9155,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 643
+  },
+  "contextTraffic": 36010,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 192,
+  "finalText": "This usually comes down to one thing: even when the *values* look the same, you're handing the child a brand new object, array, or function every time the parent renders.\n\nHere's why. When a component re-renders, any function or object written inline — like `onClick={() => doThing()}` or `style={{color: 'red'}}` — gets rebuilt from scratch. React checks \"did the props change?\" by comparing references, not by looking inside them. Two objects that look identical are still different boxes in memory, so React sees it as a change.\n\nThree ways to fix it:\n\n1. **Wrap the child in `React.memo`.** This tells React to skip re-rendering the child if its props are the same by reference. It only helps once the props actually stop changing shape.\n2. **Wrap functions in `useCallback` and objects in `useMemo`** in the parent. This keeps the same reference across renders as long as the inputs haven't changed.\n3. **Move the state that's causing the parent to re-render closer to where it's used**, so the parent itself renders less often.\n\nStart by checking if you're passing an inline function or object as a prop — that's the most common cause.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "879865570cc951de72234a048facfcb51fc1d1cabf880143b6bc504aab8aca82"
+}

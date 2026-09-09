@@ -1,5 +1,11 @@
 # Reproduce hush's benchmarks
 
+Retained execution evidence is available in [datasets](datasets/README.md);
+structured records and their historical sets are directly versioned under
+`records/` and `records-archive/`.
+
+Historical voice-comparison and output-probe studies live in experiments/. The maintained harness below targets Claude; no equivalent Codex package or comparison is available yet. See [all benchmark suites](../README.md).
+
 Curious whether the numbers on hush's front page hold up? This is the actual harness — run it yourself.
 
 It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed tasks, once with no plugin and once with hush. Cost and token counts come straight out of the API's own usage blocks. No tokenizer estimates, no hand-waving, and no single-shot prompts — a canned reply can't tell you what a plugin costs across a real multi-turn session. Correctness is checked mechanically, so compression that mangles the answer scores as a *failure*, not a win.
@@ -125,7 +131,7 @@ a literacy verdict.
 
 ## Records you can audit
 
-Every run leaves two copies. `results/<tag>/` is yours: raw transcripts and reports, full of your paths and your machine's name, and gitignored so it stays put. `records/<batch>/` is the auditable copy — the same numbers with absolute paths, usernames, machine names, env values and anything secret-shaped scrubbed out before the file is written. Records are written once and stamped with a content hash: a second write to the same name is refused, and an edited record is caught on read rather than quietly published. They land read-only, so on Windows a batch you no longer want needs its read-only attribute cleared before it will delete — `attrib -R records\<batch>\*.* /S` and then remove the folder.
+Every run leaves two copies. `results/<tag>/` contains raw transcripts and reports as a local working copy. Retained historical outputs are published in the datasets archives; a new run requires its own publication review. `records/<batch>/` is the auditable copy — the same numbers with absolute paths, usernames, machine names, env values and anything secret-shaped scrubbed out before the file is written. Records are written once and stamped with a content hash: a second write to the same name is refused, and an edited record is caught on read rather than quietly published. They land read-only, so on Windows a batch you no longer want needs its read-only attribute cleared before it will delete — `attrib -R records\<batch>\*.* /S` and then remove the folder.
 
 Turn a batch of records into the tables and charts:
 

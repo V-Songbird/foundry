@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26435,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.11087380000000001,
+  "numTurns": 9,
+  "durationMs": 25283,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1656
+  },
+  "contextTraffic": 217545,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5909,
+  "narrationWords": 47,
+  "finalWords": 99,
+  "finalText": "Build is clean now (0 errors). Two real bugs from the bump, both in `src/core/options.js` and `src/net/retryPolicy.js`:\n\n- `resolveRetries` still read `options.retries`, but the bumped bundler now hands options as `{ retryCount }` — fixed to read `retryCount`.\n- `isBackoffEnabled` treated `undefined` as an error, but the new config loader leaves unset flags as `undefined` instead of `false` — fixed to treat `undefined` as disabled.\n\nThe remaining ~950 lines of DEP/WARN output are just noisy deprecation logging from the fake bundler itself, not related to your code — those aren't something to \"fix,\" just verbose logging from the tool.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "731c03cc27ca44cda91d732a5de16f9791ddd870389e14dbd046df0f7971f51d"
+}

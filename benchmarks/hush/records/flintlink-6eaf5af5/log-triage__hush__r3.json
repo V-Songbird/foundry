@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33144,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27716799999999997,
+  "numTurns": 9,
+  "durationMs": 31665,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1553
+  },
+  "contextTraffic": 142960,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15115,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died at 02:14:07 and the service bled out over 17 minutes.**\n\n`connect ECONNREFUSED 10.0.0.12:6379` killed the cache. Reads fell through to the store. The store timed out at 5000ms. Queue depth climbed from 52 to 568 past a max of 500. All 13 reconnect attempts failed, the last at 02:31:26. Then `worker-2` hit `JavaScript heap out of memory` and exited 134. The supervisor killed `api` at 02:31:52.\n\nNext: check why Redis at `10.0.0.12:6379` refused connections. The app never recovered on its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "546328dc2b844f0404c2e7b703c0a50429163aca15d0e8bb283963dfb7b8c164"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 71,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11416,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0233095,
+  "numTurns": 1,
+  "durationMs": 9686,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 689
+  },
+  "contextTraffic": 27002,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 209,
+  "finalText": "React re-renders child components whenever their parent re-renders, *even if the props haven't changed*. That's the default behavior. React doesn't do deep equality checks on props—it just knows the parent updated and passes everything down again.\n\nThe real culprit is usually that you're creating new object or function references every render. For example:\n\n```js\n// Parent - creates a new function every render\n<Child onClick={() => console.log('click')} />\n\n// Parent - creates a new object every render\n<Child config={{ size: 'large' }} />\n```\n\nTo your child, these look like *different* props every time, even though they're logically the same.\n\n**The fix:**\n\nUse `React.memo` to wrap your child so it only re-renders when props actually change:\n\n```js\nconst Child = React.memo(({ name, onClick }) => {\n  return <button onClick={onClick}>{name}</button>\n})\n```\n\nThen in the parent, stabilize prop references with `useCallback` and `useMemo`:\n\n```js\nconst Parent = () => {\n  const handleClick = useCallback(() => {\n    console.log('click')\n  }, [])\n  \n  const config = useMemo(() => ({ size: 'large' }), [])\n  \n  return <Child onClick={handleClick} config={config} />\n}\n```\n\nIf you're not creating new objects or functions in props, check whether your parent is re-rendering itself a lot. If it is, the child goes along for the ride—wrapping it in `React.memo` stops that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4261f31e4ff98cb4cb57f9701378044c13c5ca3af1b04281c99bc3471ff246d"
+}

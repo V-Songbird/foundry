@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16206,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.18623699999999999,
+  "numTurns": 3,
+  "durationMs": 14295,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 810
+  },
+  "contextTraffic": 112689,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 115,
+  "finalText": "Redis died at 2:14am and never came back. `10.0.0.12:6379` refused every reconnect try, all the way to attempt 12 at 2:31am.\n\nLosing redis pushed every request onto direct store reads. That triggered cache miss storms and 5-second timeouts across `api`, `worker-1`, `worker-2`, and `scheduler`, all at once.\n\nThe request queue should have capped at 500. It didn't. It climbed past 568 while the timeouts kept piling up behind it.\n\nBy 2:31:44am `worker-2` ran out of memory from the backlog and crashed. Eight seconds later the supervisor gave up and killed the whole service.\n\nFix redis first, then put a real cap on that queue so one dead dependency can't take the whole thing down again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4e9a1ef8ea626d6cfb68c1b7b7797cae67dc22d58ca5a439679c10ceaeec33ac"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 80,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 10656,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.022635499999999996,
+  "numTurns": 1,
+  "durationMs": 8756,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 559
+  },
+  "contextTraffic": 26988,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 220,
+  "finalText": "**Merge** takes two branches and ties them together, making a new commit that says \"these two lines of work came together here.\" Your history stays exactly as it was — all the commits from both branches stay in the timeline.\n\n**Rebase** replays your commits on top of another branch, rewriting them as if you had started from a different point. It's like a rewind-and-redo: your commits get new timestamps and new IDs, and the history becomes a straight line.\n\nThe real tradeoffs:\n\n**Use merge** when the history of parallel work matters (feature branches that lived a while, work from other people, anything shared). It's safer because it doesn't rewrite commits that might be on someone else's machine. The downside is a messier history with lots of branch lines.\n\n**Use rebase** when you want a clean, linear timeline and the commits aren't shared yet. It's great for your own local branch before you push, or for cleaning up a series of small fixes into one coherent story. Once you push, rebasing gets risky — if someone else has pulled your commits, rewriting them breaks their branch.\n\nA practical rule: rebase your own local work to clean it up before pushing. Merge when bringing branches together on a shared repo. Never rebase commits that are already published and others might have pulled.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "793613f97fdd9d27cacc17ee167a9b2ec20251376b5bb382dabf5c766eae9c96"
+}

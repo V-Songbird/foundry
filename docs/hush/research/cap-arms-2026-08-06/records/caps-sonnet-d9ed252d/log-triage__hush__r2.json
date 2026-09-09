@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 160,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21969,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16988570000000003,
+  "numTurns": 4,
+  "durationMs": 20349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1015
+  },
+  "contextTraffic": 159579,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 12581,
+  "narrationWords": 0,
+  "finalWords": 208,
+  "finalText": "Everything was normal right up until it wasn't — no earlier warnings, no slow buildup. The whole thing ran for about 18 minutes:\n\n1. **02:14:07** — Redis at `10.0.0.12:6379` dropped with `ECONNREFUSED`. No warning before this, it just went down.\n2. The app fell back to reading the store directly, which it wasn't built to handle at full traffic. That kicked off a steady loop of cache miss storms, 5-second request timeouts, and a growing request queue, all repeating every couple seconds for the next 17 minutes.\n3. Redis reconnect attempts kept failing (0 through 12), so it never recovered on its own.\n4. The queue kept climbing (past 500, then 550, then 568 pending requests) until **02:31:44**, when `worker-2` ran out of memory holding the backlog.\n5. The supervisor restarted `worker-2`, but by **02:31:52** the `api` process itself had stopped responding, and the supervisor killed the whole process group. That's the outage.\n\nSo the root cause is the Redis box at `10.0.0.12` going unreachable, with nothing behind it to break the fallback loop or shed load once the queue started piling up. Worth checking why Redis dropped, and adding a queue depth limit or circuit breaker so a future Redis outage degrades instead of crashing the service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4d3c9d588437302bb33c9e28133ec43af6e1baf684bf9618453e50976d9ee4f8"
+}

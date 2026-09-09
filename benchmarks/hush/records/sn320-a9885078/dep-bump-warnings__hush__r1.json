@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30502,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1261732,
+  "numTurns": 11,
+  "durationMs": 28803,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1800
+  },
+  "contextTraffic": 223603,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8063,
+  "narrationWords": 25,
+  "finalWords": 89,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Two bugs to fix: `options.js` reads `options.retries` but callers now pass `retryCount`, and `retryPolicy.js` throws when `backoffEnabled` is `undefined` instead of treating it as disabled."
+  ],
+  "finalText": "**Build is clean now** — exit 0, 8 warnings, 0 errors.\n\nThe screen of warnings was mostly noise (deprecation notices from the bump), but the link stage had two real bugs from it:\n\n1. [`src/core/options.js`](src/core/options.js) still read `options.retries`, but the bumped bundler now passes `retryCount`. It threw on `undefined.toFixed`.\n2. [`src/net/retryPolicy.js`](src/net/retryPolicy.js) threw if `backoffEnabled` was `undefined`. The new config loader leaves unset flags `undefined` instead of `false`, so this tripped on every normal run. Now it just treats anything not `true` as disabled.\n\nNext: nothing, `node build.js` exits clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4fe2fe5dbce39c83633a84e6d6b1d03885e84211387f38d549eff7d73a743e86"
+}

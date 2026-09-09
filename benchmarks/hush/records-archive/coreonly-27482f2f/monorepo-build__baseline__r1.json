@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 4,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 41863,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24436590000000002,
+  "numTurns": 11,
+  "durationMs": 40669,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3091
+  },
+  "contextTraffic": 330245,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 13647,
+  "narrationWords": 146,
+  "finalWords": 113,
+  "finalText": "Both the build and the ground-truth verifier pass now.\n\n**Root cause:** `packages/shared/config.js` merged config layers with a shallow `Object.assign`, so any package override that named just one key inside a nested object (e.g. `@acme/api`'s `output: { format: 'esm' }`) clobbered the whole `output`/`sourcemap` object, dropping `dir`/`entry`/`include`. `build.js`'s bundle stage then threw on the missing `output.dir`.\n\n**Fix:** replaced the shallow merge with a recursive `deepMerge` in `packages/shared/config.js:13` that merges nested plain objects key-by-key (defaults → package overrides → CLI flags) while leaving arrays/primitives to overwrite normally, and never mutates `RELEASE_DEFAULTS`.\n\n`node build.js` now exits 0 with \"5 warnings, 0 errors\", and `node verify.js` confirms the merge layering itself is correct (not just papered over).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8eb5854c31634343145308a99aedb0d13c2754c36554a00435b8dc0ab4c92796"
+}

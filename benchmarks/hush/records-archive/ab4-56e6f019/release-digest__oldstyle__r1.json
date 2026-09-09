@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__oldstyle__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 6,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 93186,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.39746820000000005,
+  "numTurns": 11,
+  "durationMs": 91156,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8028
+  },
+  "contextTraffic": 533423,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 70299,
+  "narrationWords": 0,
+  "finalWords": 148,
+  "finalText": "Wrote 4.2.0 into `CHANGELOG.md`, dated 2026-08-23. No breaking changes this time.\n\nUnder the noise, 12 things actually matter:\n\n**Added**\n- Failed webhook deliveries now retry on their own, with backoff.\n\n**Fixed**\n- Pagination could error on a null cursor, in the queue, API, webhooks, and DB.\n- Some responses carried a duplicated header.\n- A trailing slash in paths got mangled instead of trimmed once.\n- An empty allowlist made endpoints fail.\n- The HTTP client could hang if the server dropped the connection mid-response.\n- The HTTP client leaked its connection pool on shutdown.\n- A trace id could get lost across a retry.\n- DB logs held the full request body.\n- Expired tokens returned 403 instead of 401.\n- A latency histogram reported the wrong units.\n- Bad-token error messages were vague.\n\nEverything else in the 764 commits was dependency bumps, refactors, tests, and CI.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2f8fff3808bc9485a08c27ce0cef71efdf7819a3dc3bc579d3c429190453eaec"
+}

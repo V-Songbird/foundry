@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 100,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33255,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2580002,
+  "numTurns": 13,
+  "durationMs": 31547,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1720
+  },
+  "contextTraffic": 365891,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 14681,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "**Found it: `processOrder.js` never released its DB connection when an order failed.**\n\nThe logs line up exactly. Every `invalid order payload` error in `worker.log` bumped the pool's in-use count and never gave it back, until the pool hit 5/5 and started throwing `pool exhausted`. That cascaded into the API's `acquire timeout` and 503s, then the 2am restart.\n\nThe fix wraps the acquire in `src/jobs/processOrder.js:6` with `try/finally`, so the connection releases whether the order succeeds or fails — same pattern the API handler already used safely.\n\nAll 4 tests pass now (77ms). Nothing else touches the pool directly, so this should close the leak.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "00b6a0a1d81fe4fa5ad292d1efe54508bb7d999f96ffceaecb2523a3e4d62d2e"
+}

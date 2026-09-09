@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__lookfurther__r2",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 33,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "lookfurther",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 250784,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 1.1854855,
+  "numTurns": 26,
+  "durationMs": 241820,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15988
+  },
+  "contextTraffic": 818058,
+  "apiCalls": 21,
+  "toolCalls": 22,
+  "toolResultChars": 25622,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "finalText": "**Handoff is in `HANDOFF.md`.**\n\nRoll back `dep-4471`. That is the whole fix. It flipped `gateway.pool.perRequest` to `true` and drained the 20-connection pool.\n\nImpact runs from `02:14:18Z` and has not ended. On node-3, everything but `/health` fails.\n\nThe doc also flags two things you did not ask about. Health checks never saw the outage, which is why paging took 67 minutes. And the worker slowdown is a separate, older problem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "45ff719d06d268bcaa3c5571bb00645284c168a63b40e4ab357b938784c60490"
+}

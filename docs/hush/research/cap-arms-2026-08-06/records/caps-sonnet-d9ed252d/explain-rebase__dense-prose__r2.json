@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 78,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 8372,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0790202,
+  "numTurns": 1,
+  "durationMs": 6521,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 260
+  },
+  "contextTraffic": 35945,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "finalText": "Both git rebase and git merge combine work from two branches, but they leave very different history behind.\n\nMerge keeps both branches' commits as they are and adds one new commit that ties them together. Nothing gets rewritten, so it's always safe, even on branches other people are using.\n\nRebase takes your branch's commits and replays them one by one on top of the other branch. The history ends up as one straight line, no merge commit, but the commits get new IDs — that's rewriting history.\n\nReach for merge when the branch is shared, or you want an honest record of when things happened. Reach for rebase when you're cleaning up your own local branch before sharing it, and want a tidy, linear story. One rule that matters: never rebase a branch that other people have already pulled — it rewrites commits they already have, and their next pull turns into a mess.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5392f7355589114ad9a4b1f6a49245d10417c25923e4e37017ea953b8f4fd886"
+}

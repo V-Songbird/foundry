@@ -1,0 +1,38 @@
+{
+  "key": "crash-origin__shapeplus__r1",
+  "batchId": "it1-3137d533",
+  "seed": "1787877630962",
+  "orderIndex": 4,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "shapeplus",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 13462,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-shapeplus:HushShapePlus",
+  "costUsd": 0.150027,
+  "numTurns": 7,
+  "durationMs": 11535,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 693
+  },
+  "contextTraffic": 76697,
+  "apiCalls": 3,
+  "toolCalls": 6,
+  "toolResultChars": 4156,
+  "narrationWords": 0,
+  "finalWords": 53,
+  "assistantMsgs": 1,
+  "finalText": "**Look at [src/auth/refresh.js:15](src/auth/refresh.js:15).**\n\nThe 400 carries `invalid_grant`. That is not in `RECOVERABLE`. So `refreshToken` returns `undefined` instead of throwing. `session.js:8` then hands `undefined` to `decode`, which calls `.split`. The trace blames `tokens.js:6` because that is where it dies.\n\n`tokens.js` and `session.js` are fine. The bad swallow is the `return undefined` on line 15.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "abfdac72b20f4b5ede300e47106801546c6ddaeeb1c4ee6ae31f03c3a5d96368"
+}

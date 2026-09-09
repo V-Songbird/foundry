@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__nolabel__r1",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nolabel",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26459,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1080214,
+  "numTurns": 10,
+  "durationMs": 24665,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1625
+  },
+  "contextTraffic": 166184,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6326,
+  "narrationWords": 11,
+  "finalWords": 96,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Two real bugs, both from the bundler bump changing option shapes."
+  ],
+  "finalText": "**Builds clean now, exit 0.**\n\nTwo real bugs, both from the bundler's options-shape change, not the deprecation noise.\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the bumped bundler now passes `retryCount` — crashed on `undefined.toFixed`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) required a strict boolean, but the new config loader leaves unset flags `undefined` instead of `false` — threw on the \"must be boolean\" check.\n\nFixed both: `options.js` reads `retryCount`, and `isBackoffEnabled` now just returns `flags.backoffEnabled === true`.\n\nRemaining 8 warnings are deprecation noise (`fs.exists`, `Buffer()`, `punycode`, etc), unused export, and a circular import — worth a look sometime but not build-breaking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "99c9090a9c4cc9b48b034580b2da8eb267ed638b3316a1de7ba53cac29e8d421"
+}

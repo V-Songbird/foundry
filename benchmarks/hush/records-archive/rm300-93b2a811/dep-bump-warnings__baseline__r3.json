@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43752,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2851275,
+  "numTurns": 11,
+  "durationMs": 42640,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2927
+  },
+  "contextTraffic": 149509,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 10322,
+  "narrationWords": 26,
+  "finalWords": 279,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by getting oriented in the project.",
+    "Confirmed — the build actually fails, it's not all noise. Two real breakages from the bump. Fixing both."
+  ],
+  "finalText": "Build's green again — exit 0, 0 errors.\n\n## What was actually broken\n\nTwo real bugs, sequential (fixing only the first would have surfaced the second), both from the same options-shape change in the bump:\n\n**`src/core/options.js:7`** — the bundler renamed `retries` → `retryCount`, this call site wasn't updated, so `options.retries.toFixed(0)` threw `TypeError: Cannot read properties of undefined`. That's what was aborting the link stage. Now reads `retryCount` with a fallback to `retries` for pre-bump callers, plus a clear type error instead of a cryptic one if it's neither.\n\n**`src/net/retryPolicy.js:7`** — the new config loader leaves unset flags as `undefined` where the old one returned `false`. The strict boolean check threw on that. Now treats `undefined` as the old `false` default; genuinely non-boolean values still throw.\n\nLink stage now reports `retry budget resolved to 3` and `exponential backoff disabled` — the latter matching the old loader's default.\n\n## The remaining warnings\n\nThe ~8 deprecation warnings (`DEP0142`, `DEP0198`, `W1042` `crypto.createCipher`, `W3307` circular-import, etc.) are still there and I did **not** fix them, because they aren't fixable here: they're hardcoded string literals in `build.js:18-24` and `build.js:46-48`, and every file they name — `src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, `src/core/graph.js` — doesn't exist in this tree. The only source files present are the two I edited. So that portion of the log is canned output from the fake bundler, not a signal from your code.\n\nIf \"building clean\" means zero warnings too, you'd need the real repo those paths live in — happy to take a pass at them there. `W3307` (circular import with undefined resolution order) and `W1042` (`crypto.createCipher`, which is genuinely insecure and removed in newer Node) would be the two worth chasing first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a7c9553fa241a11379976ade5975bfaeb51ea98d8bfaa1bc9bce606d15176d76"
+}

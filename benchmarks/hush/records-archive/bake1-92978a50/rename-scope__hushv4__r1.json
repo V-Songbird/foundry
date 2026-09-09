@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hushv4__r1",
+  "batchId": "bake1-92978a50",
+  "seed": "1787816448085",
+  "orderIndex": 32,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hushv4",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54983,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4143535,
+  "numTurns": 17,
+  "durationMs": 53184,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3293
+  },
+  "contextTraffic": 267300,
+  "apiCalls": 8,
+  "toolCalls": 16,
+  "toolResultChars": 16459,
+  "narrationWords": 8,
+  "finalWords": 87,
+  "finalText": "**It's big: 1082 mentions across 94 files.** Four places must keep `account_id`.\n\n1. `docs/openapi.yaml` and the right-hand side of `WIRE` in `lib/serialize.js`. That name is the public API. Renaming breaks every client.\n2. `vendor/reporting-sdk` (20). Generated. `npm run vendor:refresh` overwrites edits.\n3. All 12 files in `migrations` (61). Every one already ran in production.\n4. The 125 `account_id` inside SQL text in the repo files. The real column keeps that name until a new migration renames it.\n\nThat leaves about 876 safe renames, all plain variable names.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7ed3f1126913951237aa8733e5ab38a864501d57eba03242a9aab209d13a44b"
+}

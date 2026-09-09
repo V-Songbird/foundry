@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44214,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31909,
+  "numTurns": 12,
+  "durationMs": 42126,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2543
+  },
+  "contextTraffic": 226788,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 15386,
+  "narrationWords": 63,
+  "finalWords": 255,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, and `verify.js` passes.\n\n## What was actually broken\n\nOut of 625 cases, only 3 failed — all in the `order totals` suite, all calling `orderTotal`:\n\n| call | expected | actual |\n|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 |\n\nOne bug, in `src/pricing.js:39`. The function applied the discount correctly but then computed tax off the **original** `cents` rather than the discounted amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← pre-discount base\nreturn discounted + tax;\n```\n\nSo customers were taxed on money they never paid. The fix taxes what's owed, which is what the function's own doc comment already specified:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nWorth noting why this hid for so long: 66 of the 69 order-total rows have either a zero discount or a zero tax rate, and with either one zeroed the two orderings give identical results. Only a row with *both* non-zero can expose it — and there are exactly three such rows in the suite. That's also the class of case worth adding to if this area changes again.\n\nOne tip for the wall of text: the runner emits a line per case, but the failures are all in a fixed format at the end. `node run-tests.js 2>&1 | Select-String 'FAIL|expected:|actual:'` cuts 700 lines down to the ~15 that matter.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "05a75cc1f585de357f31bdb4349281675f71adad1f2d326c2253a6ef66fb5a6b"
+}

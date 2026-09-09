@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ex2__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ex2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 47026,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.588595,
+  "numTurns": 6,
+  "durationMs": 45365,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3082
+  },
+  "contextTraffic": 251120,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 60780,
+  "narrationWords": 6,
+  "finalWords": 108,
+  "finalText": "**Redis died at `02:14:07` and never came back.** The cache fell back to direct store reads. That put every request on the store. It collapsed 17 minutes 45 seconds later.\n\n- `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\n- `02:14:10` first `TimeoutError` at 5000ms, cache miss storm on `orders:*`\n- `02:15:26` on, 13 reconnects all refused, fixed 80s gap, no backoff\n- `02:29:12` queue depth 502 passes the 500 cap\n- `02:31:44` worker-2 dies, `JavaScript heap out of memory (request backlog)`\n- `02:31:52` supervisor kills api, service down\n\nCounts: 188 `ERROR`, 348 `WARN`, 2 `FATAL`.\n\nOne flag. The log is dated `2026-07-04`, seven weeks back, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e628d1906b57efba09b99cf1601cfffb5cc57e83d36894b1791a45012941b33"
+}

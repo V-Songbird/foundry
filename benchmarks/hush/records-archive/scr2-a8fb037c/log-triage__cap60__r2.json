@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__cap60__r2",
+  "batchId": "scr2-a8fb037c",
+  "seed": "1787637246895",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "cap60",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 23972,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.383349,
+  "numTurns": 6,
+  "durationMs": 22484,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1313
+  },
+  "contextTraffic": 177055,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 31283,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "finalText": "**Redis died and took everything with it.**\n\n1. 02:14:07 — Redis at `10.0.0.12:6379` refused connections. Cache gone.\n2. Every read hit the store directly. Timeouts started 3 seconds later.\n3. Backlog grew from 52 to 568 requests. The cap is 500.\n4. 02:31:44 — `worker-2` ran out of memory. Down at 02:31:52.\n\n13 reconnect tries all failed. Redis never came back.\n\nThe log is dated July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "982e07e7a9b3bfa0cbb4879e6f09b28e44c8990e3932ba2122d913d7d0ba32ba"
+}

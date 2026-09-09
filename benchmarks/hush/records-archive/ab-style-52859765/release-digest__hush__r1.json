@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "ab-style-52859765",
+  "seed": "1787386633516",
+  "orderIndex": 7,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 108084,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3332172,
+  "numTurns": 13,
+  "durationMs": 106457,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9142
+  },
+  "contextTraffic": 574072,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 22017,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "finalText": "I dug through all 380 commits and pulled out the real changes, not the dependency bumps and refactors. `CHANGELOG.md` now has a 4.2.0 section, dated tomorrow.\n\nOne thing worth a heads-up: expired tokens now return `401` instead of `403`. Anyone whose code checks for `403` specifically will need to update it, so I put it under Breaking.\n\nThe other real change is a feature: failed webhook deliveries now retry on their own instead of giving up after one try. Everything else was bug fixes, nine of them, covering things like crashes on empty pagination cursors, duplicate response headers, request bodies leaking into logs, and lost trace IDs on retry.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a33dc690e2089f8d110c4f59a59ef5282fa5e9ccc042368fd6c68236356ff165"
+}

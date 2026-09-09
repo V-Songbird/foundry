@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 68207,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6011960000000001,
+  "numTurns": 9,
+  "durationMs": 66642,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4418
+  },
+  "contextTraffic": 293605,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 55650,
+  "narrationWords": 6,
+  "finalWords": 695,
+  "finalText": "Read the whole file (719 lines). Here's what happened.\n\n## One-line version\nRedis went away at 02:14:07. The app fell back to reading the primary store directly with no circuit breaker and no request coalescing, the request backlog grew unbounded past its own stated 500 cap, and 17 minutes later worker-2 OOM'd and the supervisor killed the api process group.\n\n**Note on timing:** the log covers `02:00:00Z → 02:31:52Z on 2026-07-04`, not last night (2026-08-26). Either this is an archived copy of an older incident or the file wasn't rotated. Worth confirming you're looking at the right log before you act on this.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00 – 02:14:03 | Fully healthy. All 200s, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — `logs/app.log:182` |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` — `logs/app.log:183` |\n| 02:14:08 → | Cache miss storm begins; 174 miss-storm warnings follow |\n| 02:14:10 → | First `TimeoutError: request timed out after 5000ms (store overloaded)`; 173 total |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts, **all** ECONNREFUSED |\n| 02:29:12 | Queue depth **502** — crosses the stated `max 500` and keeps climbing (`logs/app.log:647`) |\n| 02:31:44.902 | `worker-2` — `JavaScript heap out of memory (request backlog)` (`logs/app.log:717`) |\n| 02:31:45.001 | FATAL: worker-2 exited **code 134** (SIGABRT), supervisor restarting |\n| 02:31:52.318 | FATAL: `api unresponsive, killing process group — service down` |\n\n**Zero successful requests after 02:14:03.** The last 200 is `logs/app.log:181`; everything from there to the end is WARN/ERROR/FATAL. This wasn't a degradation — it was a hard outage from the first error onward, 17m45s to total death.\n\n## What actually broke — four separate defects\n\n**1. Redis was the trigger, not the cause.** `ECONNREFUSED` means something was listening-then-not — the redis process died or restarted, it wasn't a network partition (that gives you timeouts, not refusals). Whatever killed redis at 10.0.0.12:6379 is outside these logs; check redis's own logs / the host at 02:14:07.\n\n**2. The fallback had no brakes.** `logs/app.log:183` cheerfully announces \"falling back to direct store reads\" and then every miss goes straight to the primary store. No circuit breaker, so the store stayed hammered for 17 minutes. The miss-storm keys cycle through `orders:1000`–`orders:1199` and then **wrap and repeat** — that's a bounded hot set of ~200 keys. Single-flight / request coalescing would have collapsed almost all of that load into 200 store reads instead of thousands.\n\n**3. Reconnect logic has no backoff.** The 13 attempts land at 02:15:26, 02:16:46, 02:18:06, 02:19:26… — exactly **80s apart, every time**. Fixed interval, no exponential backoff, no jitter, and it never gave up or escalated. Also: only `[api]` ever attempts a reconnect. `worker-1`, `worker-2`, and `scheduler` never try — they just time out forever against the store.\n\n**4. The `max 500` queue cap is decorative — this is what actually killed you.** Depth grows perfectly linearly (52 → 568, +3 per warning). At 02:29:12 it hits 502 and the log just keeps printing `(max 500)` while accepting more work: 505, 508… 568. Nothing sheds load, nothing returns 503. That unbounded backlog is what exhausted worker-2's heap. Redis being down is survivable; an unbounded inbound queue is not.\n\n## What I'd fix, in priority order\n\n1. **Enforce the 500 cap.** Reject/503 at the limit instead of logging it. This alone converts the outage into degraded-but-alive.\n2. **Circuit breaker on the store fallback** — trip after N consecutive 5s timeouts, serve stale/error fast rather than queueing.\n3. **Single-flight the cache misses.** Bounded hot key set means this is very high leverage.\n4. **Exponential backoff + jitter on redis reconnect**, and make workers reconnect too, not just api.\n5. **Find out why redis died** — that's a separate investigation these logs can't answer.\n\n## Caveats\n\nThe log ends at the kill — there's **no recovery line**, so this file doesn't tell you how or when the service came back. Also worth checking: `worker-1` and `scheduler` never log an OOM or exit, so I can't tell from here whether they died with the process group or were left orphaned.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4dd30d08036ed656f60fce188d7bdd58cfdceb56a81a245094d6cb6800eb6a50"
+}

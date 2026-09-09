@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__lean__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62985,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.43569750000000007,
+  "numTurns": 15,
+  "durationMs": 56533,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3283
+  },
+  "contextTraffic": 608635,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 17404,
+  "narrationWords": 21,
+  "finalWords": 149,
+  "finalText": "**Gateway 503 incident — on-call handoff**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 02:12–02:14) flipped `gateway.pool.perRequest` from `false` to `true` and raised the upstream timeout from 2000ms to 2500ms. That change applied as config generation 119 at 02:13:41. Each request grabbing its own pooled connection drained the pool (20/20 in use) and it never freed back up.\n\n**Impact window:** 2026-03-14T02:14:18Z through at least 03:59:27Z — the log ends there still failing, so the incident was ongoing when the log was captured. The wait queue climbed the whole time, from 13 waiting requests at the first error to 74 by the last line. Every failing request returns a 503 paired with `ERR_POOL_EXHAUSTED`.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window — no errors, no 503s, no pool exhaustion. Jobs kept completing normally.\n\n**Rollback target:** `dep-4471` — revert `gateway.pool.perRequest` to `false` (and consider reverting the timeout bump too, though that's secondary).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53c1de81cdf6c78d248f9eafd61498d7fb1ed8dac57653c661aa27ae40d87f36"
+}

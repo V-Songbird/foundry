@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 7,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22055,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.15938619999999998,
+  "numTurns": 7,
+  "durationMs": 20429,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 829
+  },
+  "contextTraffic": 223956,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 2345,
+  "narrationWords": 15,
+  "finalWords": 30,
+  "finalText": "`isExpired` used `<` instead of `<=`, so a token expiring at exactly `now` was still treated as valid. Changed `token.js` to `token.exp <= nowSeconds`. All 5 tests pass now, 91ms.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ddbeb3e7ee255a7286ff98f9a78433dfc456def0ced4c8cc65f1ac1aeecc2e22"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r6",
+  "batchId": "clause3-5bf5c202",
+  "seed": "1787981655794",
+  "orderIndex": 5,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12221,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0638686,
+  "numTurns": 4,
+  "durationMs": 10269,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 619
+  },
+  "contextTraffic": 76052,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, not yet applied.**\n\n`buildRows()` already returns plain data, so `--json` just needs a branch in `[cli.js](src/cli.js)`:\n\n```js\nfunction main(argv) {\n  const command = argv[0];\n  if (command !== 'report') {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const rows = buildRows();\n  if (argv.includes('--json')) {\n    process.stdout.write(JSON.stringify(rows) + '\\n');\n  } else {\n    process.stdout.write(toTable(rows) + '\\n');\n  }\n  return 0;\n}\n```\n\nNo changes needed in `report.js` or `format.js`.\n\nSay the word and I'll make the edit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cd6c3eb2d072b6e124b9f06cea2741b70434c999915fc10ff0415601831fedf6"
+}

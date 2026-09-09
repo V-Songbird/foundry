@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 65,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65357,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3692317,
+  "numTurns": 13,
+  "durationMs": 58700,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4190
+  },
+  "contextTraffic": 557032,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 21978,
+  "narrationWords": 0,
+  "finalWords": 218,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved (last log line at 03:59:27Z still failing, backlog growing)\n\n**Impact window:** 2026-03-14 02:14:18Z → ongoing as of 03:59:27Z (last timestamp in `logs/gateway.log`). Traffic was clean before 02:14; no self-recovery observed — queued waiters grew from 13 to 74+ over the window.\n\n**Root cause:** `gateway.pool.perRequest` was flipped `false -> true` in config generation 119, applied at 02:13:41Z. This made the gateway acquire a new connection per request instead of reusing pooled ones, exhausting the fixed 20-connection pool almost immediately under normal load. First `ERR_POOL_EXHAUSTED` / 503 fired at 02:14:18.972Z, ~30s after the config took effect. Every upstream (billing-svc, orders-svc, catalog-svc, accounts-svc) is affected identically, confirming it's the gateway's own pool, not a backend outage.\n\n**Deploy to roll back:** `dep-4471` — service `gateway`, author **a.novak**, 2026-03-14T02:12:00Z–02:14:00Z, \"config: connection-per-request for pool isolation.\" This is the only deploy in `deploys.csv` that lines up with the incident onset (nearest others: dep-4470 worker finished 77 min earlier; dep-4472 billing-svc didn't start until 02:41Z).\n\n**Scope:** Gateway only. `worker.log` shows zero errors across the same window — job processing (email/webhook/settle/export/cleanup/reindex) continued normally with unaffected `db_wait` times, confirming workers use a separate pool and were not impacted.\n\n**Recommended action:** Roll back dep-4471 (or set `gateway.pool.perRequest` back to `false`) and redeploy. No workaround needed on the worker fleet.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b5270637a6d6fff3e7fdbcaf13ea602628a34c916450b75661484fa7c3f2a152"
+}

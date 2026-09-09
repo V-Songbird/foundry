@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19071,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1902411,
+  "numTurns": 4,
+  "durationMs": 17642,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 902
+  },
+  "contextTraffic": 170813,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 22346,
+  "narrationWords": 0,
+  "finalWords": 178,
+  "finalText": "Root cause found. Timeline:\n\n**02:14:07** — Redis connection lost: `ECONNREFUSED 10.0.0.12:6379`. Cache layer fell back to direct store reads.\n\n**02:14:07 → 02:31:26** — 17 min death spiral: no cache = every request hits store directly = cache miss storms + 5000ms store timeouts, repeating every ~2s across api/worker-1/worker-2/scheduler. Request queue depth climbing steadily (52 → 568, over max 500). Redis reconnect attempts (1 through 12) all failed same ECONNREFUSED — Redis never came back.\n\n**02:31:44** — worker-2 hits `JavaScript heap out of memory` (backlog piled up, unbounded queue ate RAM).\n\n**02:31:45** — supervisor restarts worker-2 (exit code 134).\n\n**02:31:52** — api itself unresponsive, supervisor kills whole process group. Service down.\n\n**Root cause:** Redis at `10.0.0.12:6379` died/unreachable. App had no circuit breaker or backpressure — kept hammering store directly and queuing requests unbounded instead of shedding load, so a cache outage turned into OOM crash and full outage.\n\n**Fix:** restore Redis at 10.0.0.12, add request queue cap / backpressure (shed load past threshold instead of infinite queueing), and cap in-flight timeout retries so cache-down degrades gracefully instead of memory-bombing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be751c2319879bc85b3e2e69b546fcc49523bfe657387ce82201e5b108fed714"
+}

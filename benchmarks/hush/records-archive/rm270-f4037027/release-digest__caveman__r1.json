@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 36,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 76087,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2479346,
+  "numTurns": 12,
+  "durationMs": 75058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5903
+  },
+  "contextTraffic": 433908,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 21425,
+  "narrationWords": 12,
+  "finalWords": 147,
+  "finalText": "CHANGELOG.md updated, 4.2.0 section added.\n\n764 commits / 128 PRs, most noise (dep bumps, refactors, renames, test churn). Real signal: 1 status-code break (auth 401 vs 403), 1 new capability (webhook retry backoff), 10 distinct fixed-bug classes hitting real endpoints (null-cursor crash, double-slash routing, empty-allowlist crash, duplicate header, trace-id loss on retry, wrong histogram units, vague token-parser error, leaked timer, unclosed pool, request body logged raw — privacy issue worth flagging to security folks too).\n\nNote: many titles repeat across modules (queue/api/webhooks/db etc) — same bug class, separate fix per subsystem, not duplicates. Trace-id fix shows 3 separate commits (05-22, 06-01, 06-13) — likely regressed and refixed; only final state noted.\n\nSkipped: perf commits (JSON round-trip skip, metric batching, clone avoidance, schema reuse) — real but internal/invisible to users, no user-facing latency numbers in the log to cite. Say if you want a Performance line added anyway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f8fcf90edec9f1d55ddb8ea97ee44425ef3dc6647d56f31986e5ecd1c141cca3"
+}

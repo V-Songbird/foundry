@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "leak1-3c2fae62",
+  "seed": "1787986431022",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 48259,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1264608,
+  "numTurns": 11,
+  "durationMs": 45624,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1868
+  },
+  "contextTraffic": 222628,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8016,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is clean.** Exit 0, 8 warnings, 0 errors.\n\nThe bump changed the options shape from `retries` to `retryCount`, which crashed [`src/core/options.js:6`](src/core/options.js:6) with `TypeError: Cannot read properties of undefined`. Fixed by reading `options.retryCount`.\n\nA second bug then surfaced: the new config loader leaves unset flags `undefined` instead of `false`, so [`src/net/retryPolicy.js:7`](src/net/retryPolicy.js:7) threw on missing `backoffEnabled`. Fixed by treating `undefined` as disabled.\n\nRemaining 8 warnings are just deprecation noise from the bumped deps, no action needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2889d410f7268f53e8777f98bc3aa726bfa7fec5c493c02585591f46e8f8f1fd"
+}

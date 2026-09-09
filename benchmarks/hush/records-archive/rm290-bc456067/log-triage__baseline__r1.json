@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 73429,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.281064,
+  "numTurns": 7,
+  "durationMs": 71843,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5016
+  },
+  "contextTraffic": 154331,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 10538,
+  "narrationWords": 28,
+  "finalWords": 636,
+  "assistantMsgs": 3,
+  "finalText": "Done. Here's what the log shows.\n\n## What happened\n\nA Redis outage at 02:14 took out the cache, the fallback path overloaded the backing store, and the request backlog grew unbounded for 17 minutes until the service OOM'd and the supervisor killed it.\n\n## Timeline (2026-07-04, all UTC)\n\n| Time | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Healthy. All requests 200, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` (1 ms later) |\n| 02:14:08.202 | First `cache miss storm` warning |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12.254 | Queue depth tracking begins at 52 |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts, **all failed**, all ECONNREFUSED |\n| 02:29:12 | Queue depth crosses the stated 500 limit (502) — nothing sheds load |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**17m 45s** from Redis loss to total outage.\n\n## Root cause\n\nRedis at `10.0.0.12:6379` stopped accepting connections. `ECONNREFUSED` (not a timeout) means something was actively rejecting on that port — the Redis process was down or the port closed. A network partition or firewall drop would normally surface as a timeout or `EHOSTUNREACH` instead. **The reason Redis went down is not in this log** — you'll need the Redis host's own logs or infra events for that.\n\nEverything after is fallout: the app's degraded mode reads straight from the backing store, which can't absorb ~100% of read volume that Redis had been serving. Requests started timing out at 5 s, and inbound work arrived faster than it drained.\n\n## Three contributing failures worth fixing\n\n1. **No load shedding.** Queue depth grew linearly from 52 to 568 (~0.5/s, dead steady). It blew past the logged `max 500` at 02:29:12 and kept climbing for 2+ minutes with no rejections, no 503s, nothing. The \"max\" is apparently just a warning threshold, not an enforced bound. This is what turned a degradation into an OOM.\n\n2. **Reconnect backoff is a fixed interval, not exponential.** Attempts landed at 02:15:26, 02:16:46, 02:18:06, 02:19:26 … — consistently ~80 s apart across all 13. It also never gave up and never went to a circuit-breaker state. (You're on `ioredis ^5.4.1`; worth checking `retryStrategy` config.)\n\n3. **The degraded path has no protection of its own.** Falling back to direct store reads with no rate limit, cache-miss coalescing, or circuit breaker means losing Redis is guaranteed to take the store down with it. The 174 distinct `cache miss storm: key orders:N` warnings — sequential order IDs — suggest uncoalesced per-key stampedes.\n\n## Two things I'd caution against reading into this\n\n- **The rising latencies before 02:14 are not an early warning.** The INFO lines climb 12ms → 145ms and then reset, over and over, on a ~5-minute cycle throughout the healthy period. It's a repeating sawtooth, present from 02:00 onward, not a degradation trend. Don't anchor on it.\n- **The 173 timeouts / 174 miss storms are not request counts.** Those lines are emitted on a fixed ~6-second cadence rotating through `api`/`worker-1`/`worker-2`/`scheduler`, so they're a periodic sampler, not one-line-per-failure. The true volume of failed requests can't be recovered from this log — you'd need request metrics.\n\nOne more signal: there are **zero** successful request lines after 02:14:03.137. The failure was immediate and total at the moment Redis dropped, not a gradual slide. The `cron tick` (last at 02:09:28) and cache-ratio DEBUG lines (last at 02:13:23) also stop, so the scheduler stopped doing its routine work too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c8217938172c40e2b73edeb6c4004a4271e594f47385e0177e6f2c558bd3442d"
+}

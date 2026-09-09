@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__nova__r2",
+  "batchId": "o5a-848249e8",
+  "seed": "1787818512985",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "nova",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31336,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "nova:Nova",
+  "costUsd": 0.284902,
+  "numTurns": 6,
+  "durationMs": 29213,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1059
+  },
+  "contextTraffic": 180648,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 17739,
+  "narrationWords": 5,
+  "finalWords": 85,
+  "finalText": "**Redis went down and took the service with it.**\n\n```\n02:14:07 ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n02:31:44 ERROR [worker-2] JavaScript heap out of memory (request backlog)\n02:31:52 FATAL [supervisor] api unresponsive, killing process group - service down\n```\n\nCache died, reads hit the store direct, and every request timed out. Queue climbed from 52 to 568 over 17 minutes, past the 500 cap. All 13 reconnect tries were refused. The log ends at the outage, no recovery. Dated 2026-07-04, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9b4f83040ff6a1fec582f81959fc67e4d51af270fee46d9c5b447b56722da5b0"
+}

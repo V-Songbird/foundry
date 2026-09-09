@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__labelonly__r3",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31620,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13184379999999998,
+  "numTurns": 12,
+  "durationMs": 29925,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1903
+  },
+  "contextTraffic": 227692,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 10019,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean now — exit 0, 0 errors.**\n\nTwo real bugs from the bump, both fixed:\n\n1. [`src/core/options.js`](src/core/options.js) — new bundler passes `{ retryCount }`, code still read `options.retries` (undefined), crashed on `.toFixed()`. Now reads `retryCount`.\n2. [`src/net/retryPolicy.js`](src/net/retryPolicy.js) — new config loader leaves unset flags `undefined` instead of `false`, but the check only accepted `true`/`false` and threw otherwise. Now treats anything not `true` as disabled.\n\nThe rest of the \"screen full of warnings\" is just deprecation noise (`fs.exists`, `Buffer()`, punycode, etc.) baked into the bump — not blocking the build.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d211f3aa8e470e9c5fbfbfaee432862a20f5eb5ed2b04a5b6ee488a57f3fa021"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hushstock__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 48,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushstock",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 77077,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3854898,
+  "numTurns": 14,
+  "durationMs": 68921,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4178
+  },
+  "contextTraffic": 571781,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 19437,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "finalText": "Handoff doc is saved to `INCIDENT_HANDOFF.md`.\n\nRoot cause is `dep-4471` — it flipped `gateway.pool.perRequest` to `true`, which stopped connection reuse and exhausted the pool of 20. First 503 hit at `02:14:18.972Z`, and it's still ongoing as of the last log line — never self-recovered. Only the gateway was hit; workers ran clean on their own separate pool the whole time.\n\nRoll back `dep-4471` to fix it — no other deploy in the window is implicated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "331a1a9533897132ace9aeb9e1dd5790de77a9f410255f09c970a06948bf917e"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r1",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 42,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 153572,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6295523999999999,
+  "numTurns": 33,
+  "durationMs": 147280,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9982
+  },
+  "contextTraffic": 1046473,
+  "apiCalls": 24,
+  "toolCalls": 29,
+  "toolResultChars": 24008,
+  "narrationWords": 54,
+  "finalWords": 115,
+  "finalText": "`AUDIT.md` is written with all four findings, ranked by severity:\n\n1. **`src/routes/internal.js`** — unauthenticated `/internal/metrics` and `/internal/flush-cache` (VPN removed in the 4.0 migration, auth was never added back)\n2. **`src/repo/report.js`** — SQL built by string concatenation in `runSavedReport`, unparameterized filter injection point (not currently wired to a route, but built against user-controlled input)\n3. **`config/staging.js`** — real plaintext DB password committed to source\n4. **`package.json`** — `fast-parse` pinned at `1.4.2`, the version NOTES.md says was yanked for a prototype-pollution report; `1.4.3` is the fix\n\nI ran the repo's own `verify.js` check afterward as a sanity check — it passed, confirming all four are named with the right files and the service code itself wasn't touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0ddcb66bca4d6c4cc18dcfad812ef321de0c8085433ffa7ec6d29485f475992a"
+}

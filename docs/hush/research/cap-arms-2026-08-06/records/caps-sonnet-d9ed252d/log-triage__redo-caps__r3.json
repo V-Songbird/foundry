@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 165,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28087,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.251106,
+  "numTurns": 5,
+  "durationMs": 26285,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1196
+  },
+  "contextTraffic": 214409,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 32734,
+  "narrationWords": 0,
+  "finalWords": 202,
+  "finalText": "Redis died just after 2 AM and it took the whole service down with it.\n\nAt **02:14:07** the api lost its connection to redis at `10.0.0.12:6379` (connection refused). It kept retrying every ~80 seconds — 12 attempts, all refused — and never got back in.\n\nWith no cache, every request fell through to the store directly, which couldn't keep up. From there it was a slow spiral:\n- Repeated cache-miss storms and 5-second timeouts on `worker-1`, `worker-2`, and `scheduler`.\n- The request queue climbed the whole time — from 52 up past its own 500 limit, reaching 568 by the end, so it was never draining.\n- At **02:31:44**, `worker-2` ran out of memory holding that backlog and crashed.\n- The supervisor restarted it, but at **02:31:52** the api itself stopped responding, and the supervisor killed the whole process group. Service down.\n\nSo the trigger was redis going unreachable, but what actually killed prod was 17 minutes of unbounded queue growth with no circuit breaker — it ran out of memory before redis ever came back. Worth checking why 10.0.0.12 dropped, and adding a queue cap or shed-load path so a cache outage can't take the whole api with it next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31dabedc278e5b2d77b8899f136ee0fe282d46115c9b83ebce60b935d7ab2a70"
+}

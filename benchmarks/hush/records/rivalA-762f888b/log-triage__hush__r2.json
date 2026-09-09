@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30378,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2592065,
+  "numTurns": 6,
+  "durationMs": 29309,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1775
+  },
+  "contextTraffic": 118252,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 14171,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died and took prod down with it.**\n\nAt 02:14:07 `redis` refused connects at `10.0.0.12:6379` ([logs/app.log:182](logs/app.log:182)). Cache fell back to direct store reads. That triggered 173 `TimeoutError` lines. All 13 reconnect tries failed. Queue passed its 500 cap at 02:29:12.\n\n`worker-2` died of `JavaScript heap out of memory` at 02:31:44. Supervisor killed `api` at 02:31:52 ([logs/app.log:719](logs/app.log:719)). No recovery line follows.\n\nLog timestamps read 2026-07-04, not last night.\n\nNext: find why Redis at `10.0.0.12` went down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "372353efa56df6b361741b2e5f8e519e28ad9fa024a1b7657f7d961fdd95edf0"
+}

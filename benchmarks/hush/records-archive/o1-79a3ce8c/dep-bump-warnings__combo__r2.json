@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__combo__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.35171500000000006,
+  "numTurns": 11,
+  "durationMs": 49265,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3061
+  },
+  "contextTraffic": 246848,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7600,
+  "narrationWords": 10,
+  "finalWords": 79,
+  "finalText": "**Build is green again.** Two real bugs, both from the bump.\n\n1. `src/core/options.js` read `options.retries`. The bundler now sends `retryCount`. It reads both names now.\n2. `src/net/retryPolicy.js` threw when the flag was unset. Unset now arrives as `undefined`. That means off, like before.\n\n`node build.js` exits 0. Backoff resolves to disabled, retry budget to 3.\n\nThe 8 warnings are still there. `build.js` prints them from a hardcoded list. They name files like `src/legacy/adapter.js` that this repo does not have.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "feeeada57f726f9a49e02b08296efd7e73578fa245c482f32715c1c5eee78d6f"
+}

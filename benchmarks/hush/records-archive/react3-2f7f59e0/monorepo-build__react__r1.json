@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__react__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31915,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2517447,
+  "numTurns": 12,
+  "durationMs": 30387,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1913
+  },
+  "contextTraffic": 370223,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 12645,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "finalText": "Build's fixed. The break was in `packages/shared/config.js`: `resolveRelease` merged layers with a shallow `Object.assign`, so any override touching `output` or `sourcemap` wiped out the sibling keys instead of layering over them — that's what made the release-config step throw and abort the build after the lint pass.\n\nI changed it to merge `output` and `sourcemap` per-key across defaults, package overrides, and CLI flags, so a partial override no longer erases the rest. `build.js` now exits 0, and `verify.js` confirms the merge behaves correctly, including for overrides the fixture never shipped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "46a1eab2ebdf1680bd18d78794ec0b1c78f0fce5e9a5aa0430a3363c8ba3a833"
+}

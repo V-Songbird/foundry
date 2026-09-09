@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 34,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54403,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38505799999999996,
+  "numTurns": 13,
+  "durationMs": 52384,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2754
+  },
+  "contextTraffic": 258978,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 19492,
+  "narrationWords": 6,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "finalText": "**Migration done in 12 files.** All 36 `db.query` calls now use `db.execute({ sql, params })`. Syntax checks pass.\n\nTwo calls stay on the old form in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit, since upgrades overwrite it. I left `cache.query` alone. It is a different object.\n\nNext: patch `legacy-orm` upstream, or wrap it locally before the driver drops `query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a82435d1e94249c28ae969a3dc3796329c85b236fe1c31a0956c505686b41d7"
+}

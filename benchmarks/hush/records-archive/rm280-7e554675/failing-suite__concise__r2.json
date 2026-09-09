@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__concise__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 32,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 22225,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.23691,
+  "numTurns": 10,
+  "durationMs": 20555,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1197
+  },
+  "contextTraffic": 164525,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11482,
+  "narrationWords": 8,
+  "finalWords": 86,
+  "finalText": "Green — 625/625 passing.\n\n**One real bug**, 3 failing cases in the `order totals` suite. `orderTotal` applied tax to the *pre-discount* base:\n\n```js\nconst tax = roundCents(cents * taxRate);   // cents, not discounted\nreturn discounted + tax;\n```\n\nThe other 622 cases passed because every other order-total row has either a zero discount or a zero tax, which masks the ordering error. Fixed in `src/pricing.js:39` to tax the discounted amount, matching the function's own doc comment:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "652fee1b3a21263b336cb15109743317aa6902a9a8e3dc109d86d76bd67155cd"
+}

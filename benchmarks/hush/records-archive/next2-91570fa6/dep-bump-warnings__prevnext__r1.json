@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__prevnext__r1",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25226,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1173932,
+  "numTurns": 11,
+  "durationMs": 23558,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1662
+  },
+  "contextTraffic": 194391,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 7793,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean now, exit 0.**\n\nTwo real bugs, not just deprecation noise:\n\n- `resolveRetries` in [options.js:6](src/core/options.js:6) still read `options.retries`, but the bumped bundler now hands `retryCount`. Fixed to read `retryCount`.\n- `isBackoffEnabled` in [retryPolicy.js:7](src/net/retryPolicy.js:7) threw on `undefined` flags. New config loader leaves unset flags `undefined` instead of `false`. Now just treats anything but `true` as disabled.\n\nRemaining 8 warnings are the fake bundler's deprecation noise, not errors. Nothing left to do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a39f3918ad8ff6e01625d270e1013dd5bfd9361318e81e15c5341bed82879e3a"
+}

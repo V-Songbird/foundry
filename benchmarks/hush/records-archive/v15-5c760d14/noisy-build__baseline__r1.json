@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__baseline__r1",
+  "batchId": "v15-5c760d14",
+  "seed": "1786434953993",
+  "orderIndex": 16,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34476,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3116472,
+  "numTurns": 10,
+  "durationMs": 33168,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2141
+  },
+  "contextTraffic": 393693,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 35012,
+  "narrationWords": 130,
+  "finalWords": 106,
+  "finalText": "Build now exits 0 and finishes with \"0 errors\".\n\n**Root cause:** `src/core/settings.js` referenced the bare, undefined identifier `retries` instead of `env.retries` in `resolveConfig`, throwing a `ReferenceError` during the link stage — buried under ~900 lines of harmless compile/dedupe noise.\n\n**Fix:** in `src/core/settings.js:17`, changed `maxRetries: retries` to `maxRetries: env.retries ?? DEFAULTS.maxRetries`, and added a `maxRetries: 3` default to the `DEFAULTS` object so the fallback is meaningful.\n\nThe 3 `WARN` lines (deprecated `crypto.createCipher` in `src/legacy/adapter.js`, unused export `formatLegacyDate`, circular import between `core/graph.js` and `state/tracker.js`) are separate, non-fatal lint-style warnings unrelated to the crash — build now completes clean with those 3 warnings and 0 errors, exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0688fc7d5068a9ebd0381924022e6dcebbaff757ddb6c85023a79cc985a52149"
+}

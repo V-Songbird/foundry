@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__inline__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "inline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 75237,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.685083,
+  "numTurns": 14,
+  "durationMs": 67706,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3988
+  },
+  "contextTraffic": 754850,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 52618,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "**Root cause.** Deploy `dep-4471` to the gateway (a.novak, \"config: connection-per-request for pool isolation\", finished 02:14:00Z) broke connection pool reuse. The pool filled to 20/20 in_use within minutes and never drained — the waiting queue climbed from 12 to 80+ requests and was still growing at the end of the log.\n\n**Impact window.** First `503`/`ERR_POOL_EXHAUSTED` at 02:14:18.972Z, 19 seconds after the deploy finished. Still ongoing as of the last log line, 03:59:27.974Z — over 1 hour 45 minutes with no self-recovery. Gateway only — `worker.log` shows its separate pool (size 8) healthy the whole time, no errors.\n\n**Rollback.** Revert `dep-4471` on the gateway. No other service's deploy that night lines up with the failure — everything else shipped hours before or well after.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc45569add9b48e9d2ff45fc521d65e165191391e01338247b32df2e787d9cff"
+}

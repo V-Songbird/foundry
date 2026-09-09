@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__focus5__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 28,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "focus5",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 65063,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.47350899999999996,
+  "numTurns": 15,
+  "durationMs": 63288,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3987
+  },
+  "contextTraffic": 250732,
+  "apiCalls": 8,
+  "toolCalls": 14,
+  "toolResultChars": 29877,
+  "narrationWords": 6,
+  "finalWords": 61,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migrated 12 files off `db.query`.** All 40 calls now use `db.execute({ sql, params })`.\n\n`node --check` passes on every file. No tests or docs reference the old form. `cache.query` is a different API and was left alone.\n\nI skipped `[vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9)`. Its header says do not edit. Upgrades overwrite it.\n\nNext: drop `query` from `lib/db.js` once the vendor package ships a fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c4ae95bd8cc76c5b3b5c1f339f915d6f10f89044d5536b82e13bcaf059f4a49"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 121,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30701,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2151152,
+  "numTurns": 10,
+  "durationMs": 28822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1844
+  },
+  "contextTraffic": 277227,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8685,
+  "narrationWords": 0,
+  "finalWords": 100,
+  "finalText": "Build passes now, 0 errors.\n\nTwo real bugs were hiding under all those deprecation warnings, both from the bundler bump changing shapes it hands to your code:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler sends `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated a missing backoff flag as an error, but the new config loader leaves it `undefined` instead of `false`. Fixed it to treat unset the same as off.\n\nThe leftover deprecation warnings (`Buffer()`, `fs.exists`, `punycode`, etc.) are just noise from the bump, not breakage, so I left them alone. Build finishes clean with exit 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59b76dcc8a6392f98b934170c2c901adb65b0a7b7a3b4664be0b255f00da9034"
+}

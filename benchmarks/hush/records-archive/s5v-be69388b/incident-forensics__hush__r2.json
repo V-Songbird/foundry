@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "s5v-be69388b",
+  "seed": "1787820296138",
+  "orderIndex": 14,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51131,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21563300000000002,
+  "numTurns": 14,
+  "durationMs": 42682,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2544
+  },
+  "contextTraffic": 506139,
+  "apiCalls": 13,
+  "toolCalls": 10,
+  "toolResultChars": 13396,
+  "narrationWords": 0,
+  "finalWords": 208,
+  "finalText": "**On-call handoff — gateway 503s, 2026-03-14**\n\n**Root cause:** A gateway deploy, `dep-4471` by `a.novak` (\"config: connection-per-request for pool isolation\"), ran from 2:12 AM to 2:14 AM UTC. Right after it finished, the gateway's connection pool ran out. The pool holds 20 connections shared across requests, and all 20 got tied up while more requests kept queuing behind them. The exact error was `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 18)`, and the waiting count climbed as high as 25 as the incident went on. This points to the new pool-isolation config as the trigger.\n\n**Impact window:** Trouble started at 2:14:14 AM UTC, when a request first waited 100ms for a connection. The first 503 error hit 4 seconds later, at 2:14:18 AM UTC. Every route was affected: `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, and `/v1/catalog/search`, across `billing-svc`, `orders-svc`, `catalog-svc`, and `accounts-svc`. It was gateway-only. The background job workers ran clean the whole time, no slowdowns, no errors.\n\n**Roll back:** `dep-4471` (gateway, `a.novak`). It's the only deploy that touches the gateway or its connection pool in this window. Two other deploys landed nearby, `dep-4472` to `billing-svc` at 2:41 AM and `dep-4473` to `catalog-svc` at 3:20 AM, but both came after the 503s started, so neither one caused this.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4472a9f90c993bbf4be894e7e41a786b3f45f1990a1e7b64cb0a5dba16e455df"
+}

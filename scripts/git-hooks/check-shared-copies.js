@@ -19,6 +19,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { git, branchRef } = require("./check-platform-marketplaces.js");
 
 /** Every helper duplicated across plugins, and the function that must match. */
 const SHARED = [
@@ -45,14 +46,20 @@ function functionBody(source, name) {
 /** One problem string per shared helper whose copies disagree. */
 function checkShared(root = repoRoot(), shared = SHARED) {
   const problems = [];
+  // Compare Claude helpers with Claude helpers even when a developer has the
+  // Codex checkout open. Missing platform refs fail closed for this layout.
+  const platformLayout = fs.existsSync(path.join(root, ".agents/plugins/marketplace.json"));
   for (const { file, fn, plugins } of shared) {
     const bodies = new Map();
     for (const plugin of plugins) {
       const full = path.join(root, plugin, file);
       let source;
       try {
-        source = fs.readFileSync(full, "utf8");
+        source = platformLayout
+          ? git(path.join(root, plugin), ["show", `${branchRef(path.join(root, plugin), "Claude")}:${file}`])
+          : fs.readFileSync(full, "utf8");
       } catch {
+        if (platformLayout) problems.push(`${plugin}/${file}: cannot read the Claude branch copy`);
         continue; // submodule not checked out
       }
       const body = functionBody(source, fn);

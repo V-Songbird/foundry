@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__noill__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 53,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26404,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.1161444,
+  "numTurns": 12,
+  "durationMs": 24485,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1786
+  },
+  "contextTraffic": 120386,
+  "apiCalls": 4,
+  "toolCalls": 11,
+  "toolResultChars": 17022,
+  "narrationWords": 0,
+  "finalWords": 132,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "All 12 migrations are frozen history. Every occurrence in code is the internal name matching the DB column.\n\n**About 1082 occurrences across 94 files** — mostly repo/service/route layers in five services, all safe to rename together.\n\nFour spots must stay `account_id`:\n\n| Location | Reason |\n|---|---|\n| All 12 files in `migrations/` | Already applied in prod, editing breaks the down step |\n| `docs/openapi.yaml` | Public API contract, frozen field name |\n| `lib/serialize.js` `WIRE` map | Internal-to-public mapping, right side is the wire contract |\n| `vendor/reporting-sdk/**` | Vendored third-party code, overwritten on refresh |\n\n`lib/audit.js` uses `account_id` as a JS property tied to the DB row, safe to rename with the rest.\n\nNext: rename in the five `services/*` trees and `lib/audit.js` only, leave the four frozen spots untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bfb6608197c9c9ec565e963e747c739fa0a35817fa8656afe56d570378aa049e"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__concise__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 24075,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.263274,
+  "numTurns": 9,
+  "durationMs": 22735,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1360
+  },
+  "contextTraffic": 140152,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 18992,
+  "narrationWords": 18,
+  "finalWords": 130,
+  "assistantMsgs": 3,
+  "finalText": "Green: 625 passing, 0 failing.\n\n**What was broken:** only 3 of the 625 cases failed, all in `order totals`. `orderTotal` in `src/pricing.js:39` took the discount off the base, but then computed tax on the *original* undiscounted amount — so the tax was always too high. It only showed up on the three rows with both a non-zero discount and a non-zero tax rate; every other row zeroed one of the two and masked it.\n\n**Fix** (`src/pricing.js:41`): tax the discounted amount, which is what the function's own doc comment already described.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\nWorth knowing: this was a real overcharge, not a test artifact — e.g. a 12000c order at 15% off with 8.25% tax billed 11190c instead of 11042c.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "da24855d9f8d7d34408d2f23c9a20845376cd6137e84d8cdbcef0b4ca3e3806e"
+}

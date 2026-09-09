@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__concise__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28152,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.24262,
+  "numTurns": 10,
+  "durationMs": 26797,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1488
+  },
+  "contextTraffic": 153548,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11394,
+  "narrationWords": 6,
+  "finalWords": 71,
+  "assistantMsgs": 2,
+  "finalText": "Green: 625 passing, 0 failing.\n\nOne real bug, in `orderTotal` (`src/pricing.js:39`). It applied tax to the **pre-discount** base and added that to the discounted subtotal, contradicting its own doc comment. Only 3 of 625 cases had both a non-zero discount and non-zero tax, so it was invisible everywhere else.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nE.g. 12000c at 15% off with 8.25% tax: was 11190, now 11042.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "04acc810d9696dd42f43996132e600365e22aa7fde2e91bcfa9a2e6703d2ef3a"
+}

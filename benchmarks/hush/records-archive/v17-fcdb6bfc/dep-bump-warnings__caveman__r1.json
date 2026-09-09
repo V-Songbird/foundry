@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30676,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2069901,
+  "numTurns": 10,
+  "durationMs": 29307,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1767
+  },
+  "contextTraffic": 302090,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 8130,
+  "narrationWords": 10,
+  "finalWords": 74,
+  "finalText": "Build clean now, exit 0, 0 errors.\n\nTwo real bugs, both from bundler shape change, rest just deprecation noise:\n\n- `src/core/options.js`: read `options.retries` but new bundler sends `retryCount`. Fixed field name.\n- `src/net/retryPolicy.js`: strict boolean check threw on `undefined` (new loader leaves unset flags undefined instead of `false`). Added `undefined` case, treat as disabled.\n\n8 deprecation warnings remain (Buffer(), fs.exists, punycode, etc) — real noise, not errors, harmless unless you want them silenced too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0b7ee3a25438dd997b7fe65c03e06ca166b3cdff3ca7a5b92ee014293b26f320"
+}

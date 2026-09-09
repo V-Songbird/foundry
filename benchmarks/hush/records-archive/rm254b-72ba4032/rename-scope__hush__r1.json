@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 60,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32509,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19271980000000002,
+  "numTurns": 12,
+  "durationMs": 30788,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2375
+  },
+  "contextTraffic": 178575,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 8905,
+  "narrationWords": 0,
+  "finalWords": 170,
+  "finalText": "It's bigger than a find-and-replace, and there are real landmines.\n\n`account_id` shows up in 94 files: DB migrations, the accounts/orders/billing/analytics/notify services, and the vendored reporting SDK.\n\nThree places must keep the name `account_id`, no matter what:\n\n1. `docs/openapi.yaml` — it's the public API contract. The doc says renaming it breaks every client.\n2. `lib/serialize.js` — the `WIRE` map turns internal rows into that same public JSON. Its comment says the public side must stay frozen even if the internal name changes.\n3. `vendor/reporting-sdk/` — vendored, generated code. Its own header says local edits get overwritten.\n\nAlso leave old migration files alone. Past migrations are history, not live code. A rename belongs in a new migration, not an edit to `20250114_create_accounts.sql` and friends.\n\nSo the safe scope is: internal DB column plus code in the five services, done as a new migration, with `lib/serialize.js` translating `owner_id` back to `account_id` on the way out. `lib/audit.js` is worth a second look too, since audit logs may need the old name kept for history.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23be2aa3256c40188d0115ea4426ad146f15b6e912df7cc9be77dddd73e10fe5"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__nudgeban__r4",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "nudgeban",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33467,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.26584,
+  "numTurns": 13,
+  "durationMs": 31642,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1775
+  },
+  "contextTraffic": 171685,
+  "apiCalls": 6,
+  "toolCalls": 12,
+  "toolResultChars": 11004,
+  "narrationWords": 0,
+  "finalWords": 108,
+  "assistantMsgs": 1,
+  "finalText": "**Renaming everywhere would break the public API.** Real scope is 75 files under `services/` plus 3 in `lib/`, about 1205 hits.\n\nFour zones must not be renamed:\n\n| Zone | Why |\n|---|---|\n| `docs/openapi.yaml` | Public contract, frozen field |\n| `lib/serialize.js` | `WIRE` maps to those public keys |\n| `migrations/` | Applied history, 12 files |\n| `vendor/reporting-sdk/` | Generated, overwritten on refresh |\n\nOne more catch. SQL strings in every `repo/*.js` name the real DB column. Those stay `account_id` until a new migration renames the column.\n\nSafe today: JS variables and function params only. Ask them to confirm that narrowed scope before you sign.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c29f0e5d7113fb8dedab4f07a6fac121a2e0f34de842bb9e91f57c178aa8a00"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 13,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27672,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3134515,
+  "numTurns": 5,
+  "durationMs": 26543,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1387
+  },
+  "contextTraffic": 130413,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 26386,
+  "narrationWords": 0,
+  "finalWords": 100,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died at 02:14:07 and took prod down 17 minutes later.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14–02:31 | 13 reconnect tries, all refused |\n| 02:31:44 | `worker-2` heap out of memory |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nCache loss forced direct store reads. Store overloaded, queue depth climbed 52 to 568, past the 500 max.\n\nLog has 188 errors and 2 FATAL in [logs/app.log](logs/app.log:719). Every timeout is a symptom, not a cause.\n\nNext: check why Redis at `10.0.0.12:6379` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59e526f1e496777e3a71504c483307f95ea7f9060e36231b61b1c3a6f26578ea"
+}

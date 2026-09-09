@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r1",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23098,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1085812,
+  "numTurns": 9,
+  "durationMs": 21357,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1490
+  },
+  "contextTraffic": 167487,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7858,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit 0, 0 errors.\n\nTwo real bugs, both from the `fakepack` bump:\n\n1. [options.js:6](src/core/options.js:6) still read `options.retries`, but the new bundler hands `retryCount`. Threw on `undefined.toFixed`.\n2. [retryPolicy.js:7](src/net/retryPolicy.js:7) treated unset flags as invalid. The new config loader leaves them `undefined` instead of `false`, so it threw. Now `undefined` maps to disabled.\n\nThe rest was just deprecation noise, unchanged. Next build should stay clean unless another package shifts a call shape.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "065cbb1bf77e0e4008d0aa394d40e697e92a06d2a29f938aa61314fab7fd4fc3"
+}

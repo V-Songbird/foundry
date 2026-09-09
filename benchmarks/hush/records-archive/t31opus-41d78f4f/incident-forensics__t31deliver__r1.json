@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__t31deliver__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 21,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "t31deliver",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 264231,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.156964,
+  "numTurns": 23,
+  "durationMs": 256452,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15479
+  },
+  "contextTraffic": 876082,
+  "apiCalls": 23,
+  "toolCalls": 19,
+  "toolResultChars": 25329,
+  "narrationWords": 6,
+  "finalWords": 728,
+  "finalText": "# On-call handoff — gateway 503s\n\n**Status:** unresolved at end of log. Rollback not yet performed.\n\n⚠️ Log timestamps are **2026-03-14**. Today is 2026-08-19. Confirm you're looking at a live incident and not an archived file before you act on any of this.\n\n---\n\n## Root cause\n\nConfig generation 119, shipped by **dep-4471**, flipped one key:\n\n```\ngateway.pool.perRequest: false -> true\n```\n\nEach request now takes its own connection from the pool instead of sharing. The pool is 20. Connection opens jumped to ~100x baseline:\n\n```\n03:02:30 WARN pool  connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\nThe pool saturates and never drains. Every request that can't get a connection inside the timeout returns 503.\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n                        (size 20, in_use 20, waiting 13)\n```\n\nTwo supporting facts, both pointing at the gateway rather than any backend:\n\n- 503s are split evenly across all four upstreams — accounts 133, billing 132, catalog 133, orders 132. A sick backend would show one number, not four equal ones.\n- Pool goes `in_use=20 idle=0` at 02:15 and stays there for the rest of the log. Before 02:14 it never exceeded 11.\n\nThe second key in that same change, `gateway.timeout.upstreamMs: 2000 -> 2500`, is not the cause but makes each failure slower to give up. Roll it back with the rest.\n\n---\n\n## Impact window\n\n| | |\n|---|---|\n| **Start** | 2026-03-14 **02:14:18** UTC (first 503) |\n| **End** | ongoing — log ends 03:59:27, still failing |\n| **Duration** | **1h 45m** and counting |\n| **Detected** | 03:21:05 — **1h 06m** after onset |\n\n**Blast radius.** All five customer endpoints, equally:\n\n```\n/v1/cart             106\n/v1/catalog/search   106\n/v1/checkout         106\n/v1/orders           106\n/v1/session          106\n```\n\n530 total 503s, latency 600–999ms. Peak wait queue 271 requests deep. On-call page recorded `error_rate 5m avg is 71%`.\n\n**Two things that will bite you:**\n\n1. **`/health` never failed.** After 02:14 the only 200s in the log are health checks — 106 of them, zero real traffic. Health checks use a separate path that doesn't hit the saturated pool. That's why nothing auto-rolled back and why detection took 66 minutes. Fix the health check to exercise the pool.\n2. **This log is `node-3 of 3`.** You are looking at one machine. Assume all three, and multiply the numbers by three, until you've checked the other two.\n\n---\n\n## Roll back\n\n### → `dep-4471` (gateway, a.novak, 02:12–02:14)\n\n> *config: connection-per-request for pool isolation*\n\nRevert config **generation 119 → 118**. Minimum viable fix is the single key `gateway.pool.perRequest` back to `false`; a full generation revert also restores `upstreamMs` to 2000.\n\nTimeline that pins it — 4 seconds from deploy finishing to first symptom:\n\n```\n02:12:00  dep-4471 starts\n02:12:12  reload requested, generation 118 -> 119\n02:13:41  generation 119 applied\n02:14:00  dep-4471 finishes\n02:14:14  first slow-acquire warning\n02:14:18  first 503\n```\n\nIt's also the only config change in the entire log.\n\n**After rollback,** confirm `pool stats` shows `idle > 0` and `waiting=0`, and that non-`/health` requests return 200. The wait queue reset once on its own around 03:13 (271 → 12) with no restart logged — don't read a similar drop as recovery. Only real traffic succeeding counts.\n\n### Do not roll back\n\n- **dep-4472** (billing-svc, 02:41) — shipped 27 min *after* onset\n- **dep-4473** (catalog-svc, 03:20) — shipped 66 min after onset\n\nBoth land mid-incident and look suspicious. Neither changes anything in the log: same error rate, same slow-acquire progression straight through both windows. The even 4-way upstream split rules out both.\n\n---\n\n## Separate issue — not this incident, don't chase it tonight\n\n`worker.log` shows **zero** errors and zero failed jobs across the same window. Worker DB pool sat at `in_use=1 idle=7 waiting=0` all night. Workers talk to the database directly and never touch the gateway, so they were untouched.\n\nBut worker job durations climb linearly the whole time — 327ms at 01:00 to 2,197ms at 03:50, exactly +110ms per 10 minutes, no inflection at 02:14. It's already running when the log opens. `db_wait` stays flat at 5ms, and all six job types degrade by the identical 3.19x, which rules out dep-4470's webhook change. A straight line with no queue behind it suggests something accumulating in memory rather than contention.\n\n**File it, don't fix it now.** Unrelated to the 503s.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4b8c063c44bb6052aebb4c195ffda276e7ab064bc86230aef3e2c3757078a37"
+}

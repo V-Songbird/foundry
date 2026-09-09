@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__wren__r1",
+  "batchId": "o5a-848249e8",
+  "seed": "1787818512985",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "wren",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52899,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "wren:Wren",
+  "costUsd": 0.3043125,
+  "numTurns": 10,
+  "durationMs": 50513,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2286
+  },
+  "contextTraffic": 241532,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 7421,
+  "narrationWords": 6,
+  "finalWords": 89,
+  "finalText": "Redis went down and took the service with it. Timeline below.\n\n- `02:00–02:14` healthy. 170 requests, all 200, 12–145ms.\n- `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache fell back to direct store reads.\n- Then cache miss storm, store overload, 173 `TimeoutError` after 5000ms. No successful request logged after `02:14:03`.\n- 13 reconnect attempts, all ECONNREFUSED, every 80 seconds. Redis never came back.\n- Queue depth climbed 52 to 568 against max 500. `02:31:44` worker-2 died on `JavaScript heap out of memory`, then supervisor killed the api group.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "290f13a02077505c1f8c06c61fef322ca40a704027531cd33ad7582c133d4f14"
+}

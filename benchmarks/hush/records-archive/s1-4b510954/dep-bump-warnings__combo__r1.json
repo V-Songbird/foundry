@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__combo__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 23,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27799,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.2155581,
+  "numTurns": 10,
+  "durationMs": 25993,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1741
+  },
+  "contextTraffic": 280085,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8357,
+  "narrationWords": 25,
+  "finalWords": 87,
+  "finalText": "It builds clean now, 0 errors.\n\nTwo real bugs were hiding in that wall of noise. `resolveRetries` was still reading `options.retries`, but the bumped bundler renames that field to `retryCount`, so it crashed on `undefined`. Right after that, `isBackoffEnabled` treated any non-boolean flag as an error, but the new config loader leaves unset flags as `undefined` instead of `false`, so it also crashed. Fixed both to match the new shapes.\n\nThe rest really was noise: deprecation notices and dedupe logs from the bump itself, nothing broken there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3ca14987caf0fa94e771181cc1be03f4f08384ef83f1e5a7d71fb2cba9c735ec"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 26,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27347,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19824880000000003,
+  "numTurns": 10,
+  "durationMs": 25688,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1563
+  },
+  "contextTraffic": 269266,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 5870,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "Found it in `src/services/pricing.js`. The flat coupon was subtracted from the total after currency conversion, as if $10 off equaled 10 of the target currency. Coupons are stored in USD, so it needs to come off the USD subtotal first, then convert.\n\nFixed by subtracting before converting, so a $10 coupon on a $100 EUR order now gives `(100 - 10) * 0.9 = 81` instead of the wrong `90 - 10 = 80`.\n\nAll 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60242d76b65b51803ded4dc0f0cdd9c9dad2b02f33cf144ee6f06a30afec7e81"
+}

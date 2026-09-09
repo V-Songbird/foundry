@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 72,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 97853,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7690734999999999,
+  "numTurns": 24,
+  "durationMs": 88627,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5298
+  },
+  "contextTraffic": 624570,
+  "apiCalls": 21,
+  "toolCalls": 19,
+  "toolResultChars": 12581,
+  "narrationWords": 7,
+  "finalWords": 96,
+  "finalText": "Dedupe is in. `createState()` now returns `{ lastSentByKey: new Map() }`, and `route()` drops an event whose key was delivered less than 5 minutes earlier.\n\nReplay: 0 errors, 99 dropped — that's the flap events (`events.js` injects a repeat of the previous key 2 minutes later roughly every 9th event).\n\nTwo judgment calls worth knowing:\n- A queued notification counts as \"sent\", so it starts the 5-minute window like any other delivery.\n- The window is measured from the last *delivered* event, not the last seen one, so a burst of flaps can't keep extending it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "06f048f160c0902b06dffc11f4c2339970bbd85e1212cd2bddb6febd1697c614"
+}

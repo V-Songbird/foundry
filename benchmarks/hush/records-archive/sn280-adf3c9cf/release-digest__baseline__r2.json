@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 134745,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4194052,
+  "numTurns": 12,
+  "durationMs": 133430,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10465
+  },
+  "contextTraffic": 545768,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 72388,
+  "narrationWords": 88,
+  "finalWords": 200,
+  "finalText": "Done. `CHANGELOG.md` now has the 4.2.0 entry.\n\nOut of 380 commits and 128 \"merged PRs,\" almost all of it really is noise — the same handful of refactor/dep-bump patterns (`collapse the two retry helpers`, `drop the unused v2 debug helper`, `rename Ctx to RequestCtx`, dependency bumps) applied identically across every module (http, db, api, jobs, queue, billing, webhooks, auth, core, store). I filtered those out along with tests, CI, and internal docs, and kept only what changes observable behavior:\n\n- **Breaking**: expired tokens now return 401, not 403 — worth flagging since anyone branching on status code will need to update.\n- **Added**: webhook delivery retries with exponential backoff (the one genuine `feat`).\n- **Fixed**: 10 items, mostly the same bug class (null-cursor pagination, duplicate retry headers, double-trimmed trailing slash, empty-allowlist handling, token-parser messages) recurring across multiple modules — I collapsed each into one bullet naming the affected areas rather than listing every module's commit separately. Also flagged the request-body-logging fix since it's privacy-relevant.\n\nOne judgment call worth double-checking with you: I put the 401/403 change under **Breaking** rather than **Fixed** since it changes an existing wire contract — let me know if you'd rather it sit under Fixed instead.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cc8b921d92733084ea7ac6e362e8e4394043bd0a6bdf425b71bf4eb674c34d43"
+}

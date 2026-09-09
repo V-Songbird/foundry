@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__noclause__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22007,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10483300000000001,
+  "numTurns": 9,
+  "durationMs": 20458,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1618
+  },
+  "contextTraffic": 114067,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 13138,
+  "narrationWords": 0,
+  "finalWords": 167,
+  "assistantMsgs": 1,
+  "finalText": "**Big: 1082 occurrences across 94 files**, but most is mechanical (repo/service/route layers use `account_id` as a plain parameter name in ~80 app files, all safely renameable).\n\nFour places must stay `account_id`:\n\n| Location | Reason |\n|---|---|\n| `docs/openapi.yaml` | public API contract, field explicitly marked \"Frozen field name\" |\n| `lib/serialize.js` | wire-format map, comment says internal rename \"must not reach this side of the map\" |\n| `vendor/reporting-sdk/**` | generated/vendored, \"Do not edit\" |\n| `migrations/*.sql` | already applied in prod; editing history breaks the down-step, not the column |\n\n`lib/audit.js` also carries `account_id` in log lines — worth confirming with platform team whether audit logs are consumed externally before touching it.\n\nNot safe to sign off as a pure find-and-replace: the DB column and public API field are load-bearing and out of scope. A real rename needs a new migration adding `owner_id`, app code updated to read/write both, then backfill and drop `account_id` later — plus a versioned API change for the OpenAPI contract.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d14549c97a918e1df98fc7be96a3e30489fdf330fc73e22069f4c50e275bf07c"
+}

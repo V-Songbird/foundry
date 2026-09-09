@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lark__r1",
+  "batchId": "o5c-4b800a2c",
+  "seed": "1787818935129",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lark",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37995,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lark:Lark",
+  "costUsd": 0.295648,
+  "numTurns": 7,
+  "durationMs": 35718,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1497
+  },
+  "contextTraffic": 200591,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 16261,
+  "narrationWords": 0,
+  "finalWords": 112,
+  "finalText": "Redis went down and took prod with it.\n\nTimeline, all `2026-07-04` UTC:\n\n- `02:14:07` Redis at `10.0.0.12:6379` refused connections. Cache dropped to direct store reads.\n- Cache miss storm on `orders:*` keys hit the store. Timeouts at 5000ms began 3 seconds later.\n- 13 reconnect tries, `attempt 0` to `attempt 12`, all `ECONNREFUSED`. Never came back.\n- Queue depth climbed steadily and passed max 500 at `02:29:12`.\n- `02:31:44` `worker-2` died: `JavaScript heap out of memory (request backlog)`. Exit code 134.\n- `02:31:52` `FATAL [supervisor] api unresponsive, killing process group — service down`.\n\nRoot cause is Redis, not the app. Everything after `02:14:07` is fallout. Next step is why Redis refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fb265aa1b88c176ad48abe424637fa12189fae28a8c9fbe158e9c6304e8190a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "zerocontext-smoke-334d3823",
+  "seed": "1787382000518",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25757,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2439316,
+  "numTurns": 5,
+  "durationMs": 22889,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1138
+  },
+  "contextTraffic": 202875,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23503,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "finalText": "Redis, the fast lookup cache the app leans on, dropped its connection at 2:14am. From then on every request had to go straight to the main data store instead.\n\nThat store couldn't keep up. Requests started timing out, and the backlog of waiting requests kept growing for the next 17 minutes, since redis never came back online. There were 12 failed reconnect attempts, spaced out over that whole stretch.\n\nBy 2:31am the pile of waiting requests filled up memory completely on one server. That server crashed and restarted, but seconds later the main app itself stopped responding. The system running everything gave up and shut the whole service down at 2:31:52am.\n\n**Root cause:** redis going down, with no fallback that could handle the load, turned a cache outage into a full crash.\n\n**Next step:** find why redis dropped at 10.0.0.12, and add a way to shed load when it's unreachable instead of letting requests pile up.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7cb22979bfddf6a7acdd1612d98ba2db8e88c76315706707d8c41a0fece0c11a"
+}

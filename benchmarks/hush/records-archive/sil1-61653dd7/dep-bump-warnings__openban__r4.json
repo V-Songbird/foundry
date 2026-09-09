@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__openban__r4",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "openban",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33658,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.26299999999999996,
+  "numTurns": 10,
+  "durationMs": 32014,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1571
+  },
+  "contextTraffic": 217079,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6347,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "assistantMsgs": 1,
+  "finalText": "**The build passes now.** Two real bugs, both from the bump.\n\n`resolveRetries` read `options.retries`, but the new shape is `retryCount`. It now takes either. See [options.js:6](src/core/options.js:6). `isBackoffEnabled` threw on unset flags. Unset now means `false`. See [retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe 8 warnings are still there. They are real deprecations in `src/legacy/`, plus a circular import between `src/core/graph.js` and `src/state/tracker.js`. Want me to clear those next?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f84524cf7bc2a13b43965ce3d2dcb6385589c6f03e5878e13342c5a34fcdeee5"
+}

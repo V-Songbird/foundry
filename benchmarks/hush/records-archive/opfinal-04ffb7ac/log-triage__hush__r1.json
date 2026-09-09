@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50494,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.382622,
+  "numTurns": 8,
+  "durationMs": 48886,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2806
+  },
+  "contextTraffic": 168319,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 6871,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**`Redis` died and took prod with it.**\n\nConnection to `10.0.0.12:6379` dropped at `02:14:07` [logs/app.log:182](logs/app.log:182). Cache fell back to direct store reads. Then 173 timeouts and a cache miss storm. Queue depth climbed from 52 to 568. Max is 500. All 13 reconnect tries hit `ECONNREFUSED`. `worker-2` died of `JavaScript heap out of memory`. Supervisor killed `api` at `02:31:52`. The log ends there.\n\nNext: find why `10.0.0.12:6379` refused every reconnect.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ec542b924b07cff0cee4204e16768ec7c895c78053c344cef15986165ebb5f3f"
+}

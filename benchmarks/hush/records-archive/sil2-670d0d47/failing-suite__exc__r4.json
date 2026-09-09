@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__exc__r4",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "exc",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28839,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1282232,
+  "numTurns": 11,
+  "durationMs": 27007,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1324
+  },
+  "contextTraffic": 234672,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 11601,
+  "narrationWords": 0,
+  "finalWords": 46,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. 625 total, 625 passing, 0 failing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one.\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nOnly rows with both a discount and a tax rate caught it, which is why most cases passed anyway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eb3ec3cff8cb48bb3053370baeb7e7b21c1af98333fc6a337c5237b269aefe94"
+}

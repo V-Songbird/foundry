@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__turncmp2__r2",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 35,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "turncmp2",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 135658,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7836077,
+  "numTurns": 50,
+  "durationMs": 128737,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10047
+  },
+  "contextTraffic": 770748,
+  "apiCalls": 16,
+  "toolCalls": 46,
+  "toolResultChars": 42633,
+  "narrationWords": 0,
+  "finalWords": 120,
+  "finalText": "`fast-parse` is still pinned at `1.4.2` in `package.json` — that's the version `NOTES.md` says was yanked for a prototype-pollution bug, with `1.4.3` as the fix. No code directly requires it, but the vulnerable version is sitting there regardless.\n\n`AUDIT.md` is written, four findings ranked worst first:\n\n1. **SQL injection** — `src/repo/report.js`, saved-report filter/sort built by string concatenation.\n2. **No auth on internal routes** — `src/routes/internal.js`, exposed since the VPN in front of it was retired.\n3. **Committed staging password** — `config/staging.js`, a real DB credential in plaintext.\n4. **Yanked dependency** — `fast-parse@1.4.2` in `package.json`, needs the `1.4.3` bump.\n\nEach entry names the file, quotes the offending line, and says what to do about it. Nothing in the service was touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5ae0c9eba927792693023c6108cb3bac4a166430dcf2b3098d322e1226f11339"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80997,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.347885,
+  "numTurns": 9,
+  "durationMs": 79804,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5858
+  },
+  "contextTraffic": 122657,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 12014,
+  "narrationWords": 6,
+  "finalWords": 680,
+  "assistantMsgs": 2,
+  "finalText": "I read all 719 lines. Here's what happened.\n\n## Short version\n\nRedis died at 02:14:07 and never came back. The service's fallback path — read straight from the primary store — overloaded that store, requests piled up in an unbounded queue for 17 minutes, and the box ran out of memory. The supervisor killed everything at 02:31:52.\n\nRedis was the trigger, but the fallback path is what turned a cache outage into a total outage.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. 170 requests, **all 200**. Cache hit ratio 0.90–0.98, last sample 0.98 at 02:13:23. |\n| **02:14:07.113** | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` (1 ms later) |\n| 02:14:08.202 | Cache miss storm begins at `orders:1000` |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12.254 | Queue depth 52, climbing |\n| 02:15:26–02:31:26 | 13 reconnect attempts, every one `ECONNREFUSED`. Redis never returns. |\n| **02:29:12.359** | Queue crosses its own limit: `depth 502 (max 500)` — nothing happens |\n| 02:31:24.529 | Queue at 568, still growing |\n| 02:31:44.902 | `worker-2 JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL worker-2 exited with code 134, restarting` (134 = SIGABRT, V8's OOM abort) |\n| **02:31:52.318** | `FATAL api unresponsive, killing process group — service down` |\n\n17 minutes 45 seconds from Redis loss to hard down.\n\n## What the numbers say\n\n**Nothing degraded beforehand.** Cache hit ratio was 0.98 on the last sample, 44 seconds before the failure. Latency was flat. This was not a slow leak — Redis dropped off a cliff. `ECONNREFUSED` (not a timeout) sustained across 13 attempts over 17 minutes means the Redis process was gone or the port was blocked, not a network blip.\n\n**The queue grew perfectly linearly** — +3 every 6 seconds, ~30/min, from 52 to 568 without a single dip. Dead-steady growth means arrival rate exceeded drain rate by a constant, and nothing was shedding load. It never plateaued because nothing ever pushed back.\n\n**`max 500` is decorative.** The queue sailed past it to 568 and the only consequence was a differently-worded WARN. This is the single biggest contributor — a real bound here would have turned an outage into elevated 503s.\n\n**No request coalescing.** 174 cache-miss warnings, 174 *distinct* sequential keys (`orders:1000`–`orders:1119`). Every miss became its own store read. Single-flight/dedup would have cut store load substantially.\n\n**Detection was 17 minutes late.** The last successful request was 02:14:03. `GET /health` stopped logging at 02:13:52 and never logged again; scheduler cron ticks stopped at 02:09:28. The service served **zero** successful traffic for the final 17.5 minutes, but the supervisor didn't act until the process was already unresponsive.\n\n**Reconnect backoff is flat, not exponential** — a steady ~80s between all 13 attempts, with no cap and no give-up. Not a cause here, but it means the service would have retried forever.\n\n## Where I'd look\n\n1. **Why did Redis at `10.0.0.12:6379` go down and stay down?** That's outside this log — check the Redis host. This is the root trigger.\n2. **Bound the request queue and shed load at 500.** Reject with 503 instead of buffering. This alone likely prevents the OOM.\n3. **Circuit-break the direct-store fallback.** Right now cache loss means 100% of reads hit the primary store with no concurrency cap. The fallback should be rate-limited, or fail fast, rather than stampeding.\n4. **Add single-flight around cache misses**, so 174 misses on distinct keys don't become 174 uncoordinated store reads.\n5. **Alert on \"zero successful requests\"**, not just on process liveness. You were down at 02:14 and only noticed at 02:31.\n\nOne lead I couldn't verify: `package.json` pins `ioredis ^5.4.1`, whose `enableOfflineQueue` defaults to `true` — that buffers commands in memory while Redis is unreachable and could have fed the heap growth independently of the request queue. There's no `src/` in this directory, so I couldn't confirm how the client is configured. Worth checking against the real repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "105c9d4a4a1e09c0f29b5e210a6b25e766fa33ec1ae97412b16e2e94878323f2"
+}

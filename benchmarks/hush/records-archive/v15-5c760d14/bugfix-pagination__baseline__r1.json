@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-pagination__baseline__r1",
+  "batchId": "v15-5c760d14",
+  "seed": "1786434953993",
+  "orderIndex": 4,
+  "task": "bugfix-pagination",
+  "segment": "debugging",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19140,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.12960349999999998,
+  "numTurns": 7,
+  "durationMs": 17383,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 852
+  },
+  "contextTraffic": 200906,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 2383,
+  "narrationWords": 23,
+  "finalWords": 38,
+  "finalText": "All 5 tests pass. The bug was in `paginate.js:7` — `start` was computed as `page * perPage`, treating pages as 0-indexed, but the function's contract (and tests) use 1-indexed pages. Changed it to `(page - 1) * perPage`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "539018143c42174e15ff43d84d5000e808605974b259ce6aa949614e4e1dd702"
+}

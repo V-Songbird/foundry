@@ -1,0 +1,45 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 133385,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.48056840000000006,
+  "numTurns": 13,
+  "durationMs": 132223,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12312
+  },
+  "contextTraffic": 643735,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 79858,
+  "narrationWords": 77,
+  "finalWords": 242,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the history directory and existing changelog format.",
+    "Let me check for anything else worth flagging (e.g. docs changes that matter, like the changelog link) before finalizing.",
+    "All docs commits are already accounted for (min node version, port fix, setup steps, retry envelope docs, typo fix, changelog link) — none introduce new user-facing behavior beyond what's already captured. Now writing the changelog entry.",
+    "Now removing the placeholder comment since 4.2.0 is filled in."
+  ],
+  "finalText": "Done. I went through all 380 commits since 4.1.0 in `history/commits.log` (the `merged-prs.tsv` sheet turned out to only cover a subset, so I treated the commit log as the source of truth) and filtered out the dependency bumps, refactors, test/CI churn, and docs tweaks — none of which is behavior anyone installing the package would see.\n\nWhat's actually in 4.2.0:\n\n- **Breaking**: expired-token responses changed from 403 → 401 — a real contract change, not just a fix.\n- **Added**: webhook delivery retries with exponential backoff (previously failed once and dropped).\n- **Fixed**: the standout ones are the DB layer no longer logging full request bodies (was leaking sensitive data into logs), and null-cursor crashes across four different paginated resources (queue/API/webhook/DB). The rest are smaller but real: duplicate headers, an HTTP hang/pool-leak pair, dropped trace IDs on retry, trailing-slash handling, empty-allowlist handling, mislabeled latency units, and clearer token error messages.\n\nOne thing worth flagging: several of these fixes (duplicate header, null cursor, trace-id, token error message) show up with identical commit messages against the *same* module weeks apart — e.g. `fix(core): drop the duplicate header` landed twice, and `fix(api): keep the trace id across the retry` landed three times. That reads like the bug regressed and got re-fixed rather than three separate bugs, so I collapsed each into one changelog line rather than listing every occurrence. Worth a sanity check with whoever owns core/api if you want to confirm nothing's still flapping.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be5abf26d7274abef8006cb7b5d5c675eb5ddae09907a9bd1963d9c529cd3fd9"
+}

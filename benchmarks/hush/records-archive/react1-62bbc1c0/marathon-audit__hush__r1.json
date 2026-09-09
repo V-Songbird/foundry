@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 31,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 133521,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7840362,
+  "numTurns": 30,
+  "durationMs": 127104,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8279
+  },
+  "contextTraffic": 1365337,
+  "apiCalls": 30,
+  "toolCalls": 26,
+  "toolResultChars": 25932,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "finalText": "`package.json` still pins `fast-parse` at `1.4.2` — NOTES.md flags that exact version as yanked over a prototype-pollution report, with `1.4.3` as the fix. Nobody bumped it.\n\n`AUDIT.md` is written, four findings ranked by severity, service code untouched:\n\n1. **SQL injection** in `src/repo/report.js` — string-built query, worst on the list.\n2. **Unauthenticated internal routes** in `src/routes/internal.js` — VPN boundary gone, auth never added back.\n3. **Hardcoded staging DB password** in `config/staging.js`.\n4. **Yanked dependency** — `fast-parse` stuck on the vulnerable `1.4.2`.\n\nVerifier confirms: `OK AUDIT.md names all four findings and the service was left alone`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b906a4f996949f426f4fa48e1e32576abefd62adfe04a6ee2be31cae73b22fa9"
+}

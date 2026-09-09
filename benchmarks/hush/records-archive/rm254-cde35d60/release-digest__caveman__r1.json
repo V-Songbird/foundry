@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 40,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 89330,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5220411,
+  "numTurns": 9,
+  "durationMs": 87904,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8047
+  },
+  "contextTraffic": 334631,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 70715,
+  "narrationWords": 0,
+  "finalWords": 128,
+  "finalText": "380 commits, mostly dep bumps/refactors/tests, chaff. Real user-facing signal: 27 fix/feat commits, deduped by behavior (repeat titles across modules — queue/api/webhooks/db etc — kept as scope list, not repeated lines).\n\nWrote 4.2.0 into CHANGELOG.md:\n\n- **Breaking**: expired token now `401` not `403`.\n- **Added**: webhook deliveries retry w/ exponential backoff.\n- **Fixed**: HTTP client hang-on-socket-drop + pool leak on shutdown, DB logging full request body (sensitive data — flagged first in Fixed), null-cursor crash in 4 paginators, trace id lost on API retry, duplicate header (core/billing), trailing-slash double-trim (queue/jobs), empty-allowlist errors (store/db/jobs), wrong histogram units (store/core), vague token-parser errors (core/billing/queue).\n\nEverything else (deps, refactors, CI, test-only, docs) skipped — noise not signal. Check the Breaking entry and DB-logging fix wording match how you want it framed before shipping.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f2790e5d9beabdd3a7e9c30a7a83e9a881d40a1fa85f59ac74b14d2fd045abf2"
+}

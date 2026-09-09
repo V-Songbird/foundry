@@ -1,0 +1,39 @@
+{
+  "key": "failing-suite__noclause__r1",
+  "batchId": "optight-dcb8a227",
+  "seed": "1787984813545",
+  "orderIndex": 0,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36572,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.26747150000000003,
+  "numTurns": 12,
+  "durationMs": 34094,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1575
+  },
+  "contextTraffic": 164588,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 11978,
+  "narrationWords": 8,
+  "finalWords": 71,
+  "assistantMsgs": 2,
+  "finalText": "**Green. 625 passing, 0 failing.**\n\nOnly 3 cases were really broken, all in `order totals`. `orderTotal` took the discount off the base, then taxed the *undiscounted* base. So tax was overcharged.\n\nFixed in [src/pricing.js:41](src/pricing.js:41). Tax now applies to the discounted amount, which matches the doc comment above it.\n\nMost rows had a zero discount or zero tax, so they hid the bug. Only the 3 rows with both non-zero caught it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3af661ca5efb11d3dc02dc87fb02abd8a2bd21d0c862677f168e57c7b0957466"
+}

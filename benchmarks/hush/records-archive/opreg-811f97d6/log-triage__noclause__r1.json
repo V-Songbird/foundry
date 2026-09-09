@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__noclause__r1",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 71353,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.35728750000000004,
+  "numTurns": 9,
+  "durationMs": 69790,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4501
+  },
+  "contextTraffic": 161340,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 13385,
+  "narrationWords": 8,
+  "finalWords": 75,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died at 02:14:07 and took prod down 18 minutes later.**\n\n1. `Redis` at `10.0.0.12:6379` refused connections in [logs/app.log](logs/app.log).\n2. Cache fell back to direct store reads.\n3. Store overloaded. 173 `TimeoutError` at 5000ms.\n4. Queue depth climbed from 52 to 568.\n5. `worker-2` hit heap out of memory. Supervisor killed `api` at 02:31:52.\n\nAll 13 `Redis` reconnects failed, 80s apart. No backoff growth. No request succeeded after 02:14:03.\n\nNext: find why `Redis` is down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "13b191429dfa7a4ad11554cc3c27e99210796445e16803782cd3da9f5c13018b"
+}

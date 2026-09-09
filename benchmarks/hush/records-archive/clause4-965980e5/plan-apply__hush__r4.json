@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r4",
+  "batchId": "clause4-965980e5",
+  "seed": "1787982716052",
+  "orderIndex": 3,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15106,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.072296,
+  "numTurns": 5,
+  "durationMs": 13441,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 676
+  },
+  "contextTraffic": 102813,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no changes made.**\n\n`buildRows()` in [report.js](src/report.js) already carries the full data, `owner` and `slow` included. Table format just drops columns it can't fit.\n\n1. Add `--json` parsing in [cli.js:9](src/cli.js:9).\n2. If set, print `JSON.stringify(buildRows(), null, 2)` instead of calling `toTable`.\n3. No changes needed to `report.js` or `format.js`.\n\nSame \"same data\" question you raised: JSON output would include `owner` and `slow`, text table won't. Worth confirming that's intended before I build it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c9db295da3689e35b0bafd6f10f3c8f4ec43786364451b6d1eb857916ca6f36"
+}

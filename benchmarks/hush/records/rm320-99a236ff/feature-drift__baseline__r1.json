@@ -1,0 +1,44 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 48,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 147812,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.78335,
+  "numTurns": 30,
+  "durationMs": 141217,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9247
+  },
+  "contextTraffic": 688230,
+  "apiCalls": 27,
+  "toolCalls": 25,
+  "toolResultChars": 13661,
+  "narrationWords": 39,
+  "finalWords": 220,
+  "assistantMsgs": 8,
+  "narrationTexts": [
+    "I'll look at the project files first.",
+    "The ask is a straight priority→channel map. I'll implement exactly that.",
+    "The doc comment drifted above the map in my first edit; I'll put it back on `route()` while adding quiet hours."
+  ],
+  "finalText": "Dedup is in. `route()` checks the key first and returns `[]` for a repeat; state is now `{ lastSentAt: Map }`.\n\nReplay: 900 events, 0 errors, **99 dropped** — and those are exactly the 99 flaps `events.js` plants, no false positives and none missed.\n\n| priority | daytime | quiet hours |\n|---|---|---|\n| low | email=111 | queue=90 |\n| normal | push=112 | queue=88 |\n| high | sms=112, email=112 | queue=88 |\n| critical | pager=200 | pager (same) |\n\nThree judgment calls, since \"already sent\" and \"in the last 5 minutes\" each had a fork:\n\n- **Queued counts as sent.** A quiet-hours notification that went to `queue` starts the 5-minute window, so its flap two minutes later is dropped rather than queued twice. If queueing should instead be exempt from dedup, that's a one-line change.\n- **Window is strictly under 5 minutes.** A repeat at exactly +5 goes through; +4 is dropped.\n- **Only deliveries refresh the window; a dropped repeat does not.** So a key flapping continuously still gets through once every 5 minutes instead of being silenced forever. Verified above.\n\nDedup is keyed on `key` alone, so a `low` and a `critical` sharing a key inside the window will suppress the critical — priority doesn't override. Say the word if critical should bypass dedup.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b4bac2c9ef18a30c9e50876a3baf7b70b5587cca94202a466c9c0f77cc53128a"
+}

@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 133665,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6178845,
+  "numTurns": 11,
+  "durationMs": 132429,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6526
+  },
+  "contextTraffic": 380727,
+  "apiCalls": 13,
+  "toolCalls": 10,
+  "toolResultChars": 32244,
+  "narrationWords": 36,
+  "finalWords": 601,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet stops at 2026-06-17 — let me check the commit log, which likely covers more.",
+    "I have what I need. Writing the 4.2.0 section now."
+  ],
+  "finalText": "Done — 4.2.0 section added to `CHANGELOG.md:3`.\n\n## What I went through\n\n380 commits and 127 merged PRs, both covering 2026-05-02 → 2026-06-17. The breakdown:\n\n| Type | Count |\n|---|---|\n| chore (153, of which 105 are dep bumps) | 153 |\n| refactor | 73 |\n| test | 64 |\n| ci | 33 |\n| fix | 26 |\n| docs | 20 |\n| perf | 10 |\n| feat | 1 |\n\nSo ~320 of 380 commits are invisible to anyone installing the package. The 12 changelog lines above are the real content.\n\n## The judgment calls worth your attention\n\n**Three things I put under Breaking that weren't labeled as breaking by anyone:**\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) was filed as a fix. It is a fix, but it's a status-code change on an auth path — that breaks client error handling. This is the item most likely to generate support tickets.\n- `refactor(api): drop the unused v1 export route` (#4152) — the author called it \"unused.\" That's a claim about your telemetry, not something I can verify from the log. If \"unused\" meant \"no internal callers,\" external callers may disagree. Worth a 60-second check before you ship.\n- \"stop re-exporting the internal error types\" landed **eight separate times** across core, db, auth, billing, and jobs (2026-05-05 through 06-16). Individually each looks like tidying; collectively it's a removal of import surface. If those types were ever documented as importable, this breaks people.\n\n**One thing I deliberately left out — please confirm:** the Node version. There are five `docs: note the minimum node version` commits, six `ci: run the suite on node 22`, and three `chore: pin the node version in .nvmrc`. That *looks* like a minimum-Node bump, which would be the loudest breaking change in the release. But \"noting\" a minimum isn't raising it, CI adding node 22 isn't dropping older versions, and none of the .nvmrc commits touch `package.json` at all (they modify `tsconfig.json`, `CODEOWNERS`, and `.editorconfig` — which is odd on its own). I couldn't confirm an actual `engines` change, so I didn't invent one. **Check whether `engines.node` moved; if it did, that's a Breaking entry and probably the headline.**\n\n**The perf work has no home.** Ten perf commits — reusing parsed schemas between requests, skipping a JSON round-trip on hot paths, batching metric writes, dropping clones in mappers. Users would notice that, but your template says three headings, same order, so I didn't add a fourth. Say the word and I'll add a `### Performance` section, or fold the two or three most substantial ones into a line elsewhere.\n\n**Two smaller omissions, on purpose:**\n- Error-message wording was tightened in core, billing, and queue. I left it out because three of your test commits explicitly moved to \"assert the error code, not the message\" — that reads like a deliberate stance that messages aren't contract. Easy to add back if you disagree.\n- All 16 dependency bumps are patch or minor at runtime (`fastify` 4.28.0→4.28.1, `pg` 8.12→8.13, `zod` 3.23.6→3.23.8, etc.). The only majors — `vitest` 1→2, `esbuild` 0.21→0.23 — are devDependencies, so they don't reach anyone installing you.\n\n**One data-quality note:** the history has heavy duplication — `pino` is bumped 12 times to the identical version, and the PR sheet shows the same title merged by different authors on different dates (#4120 and #4121 are both \"bump pino 9.2.0 → 9.3.1,\" merged the same day). The raw commit count overstates the work substantially. Doesn't change the notes, but don't read 380 commits as 380 changes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e2288680b2bb618106a702497173df3249de459b6cdf06b02d812cc0c721dacf"
+}

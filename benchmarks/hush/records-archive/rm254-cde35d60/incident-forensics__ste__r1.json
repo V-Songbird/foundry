@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 84,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61374,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5440103,
+  "numTurns": 13,
+  "durationMs": 55470,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4247
+  },
+  "contextTraffic": 671217,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 52567,
+  "narrationWords": 20,
+  "finalWords": 290,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident\n\n**Status:** Active. Not yet resolved.\n\n### Root cause\n\nDeploy `dep-4471` changed the gateway pool from shared mode to connection-per-request mode. The gateway pool size stayed fixed at 20 connections. Connection-per-request mode used up all 20 connections faster than shared mode. As a result, the pool ran out of connections and the gateway returned 503 errors.\n\n### Impact window\n\nThe deploy pipeline requested config generation 119 at 02:12:12.820Z. The gateway applied generation 119 at 02:13:41.234Z. The first slow-acquire warning appeared at 02:14:14.920Z. The first 503 error appeared at 02:14:18.972Z.\n\n503 errors continued at a steady rate through the end of the current log, at 03:59:27.974Z. The wait queue grew from 13 requests at 02:14Z to 74 requests at 03:59Z. The gateway did not recover on its own.\n\nWorker jobs (`worker.log`) ran without error through the same window. The worker pool is separate from the gateway pool. The incident is limited to the gateway.\n\n### Deploy to roll back\n\nRoll back `dep-4471`.\n\n| Field | Value |\n|---|---|\n| Deploy ID | dep-4471 |\n| Service | gateway |\n| Author | a.novak |\n| Started | 2026-03-14T02:12:00Z |\n| Finished | 2026-03-14T02:14:00Z |\n| Summary | config: connection-per-request for pool isolation |\n\nThe deploy changed three config keys. Revert `gateway.pool.perRequest` from `true` to `false`. The other two changed keys are not related to the fault:\n- `gateway.timeout.upstreamMs`: 2000 -> 2500 (not a likely contributor)\n- `gateway.log.sampleRate`: 1.0 -> 1.0 (no change)\n\n### Verification after rollback\n\nAfter the rollback, confirm the following:\n1. `ERR_POOL_EXHAUSTED` entries stop in `gateway.log`.\n2. The `pool` stats line shows `in_use` below `size` (20) during normal traffic.\n3. The 503 rate on `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, and `/v1/catalog/search` returns to zero.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8f94ce6c7b41168d23beee9fdc0c42bde8ee8dee65a06cd3b74597d35dac49c"
+}

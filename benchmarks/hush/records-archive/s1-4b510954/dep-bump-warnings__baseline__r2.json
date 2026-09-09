@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 35,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35447,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.23147250000000003,
+  "numTurns": 12,
+  "durationMs": 34063,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2338
+  },
+  "contextTraffic": 368114,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 8644,
+  "narrationWords": 61,
+  "finalWords": 124,
+  "finalText": "Build's clean now (exit 0, 0 errors). The wall of noise was mostly harmless deprecation warnings from the bump (`fs.exists`, `Buffer()`, `punycode`, etc.), but two real regressions were hiding in there and actually broke the link stage:\n\n1. **`src/core/options.js`** — `resolveRetries` still read `options.retries`, but the bumped bundler now passes options as `{ retryCount }`. Updated it to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — `isBackoffEnabled` only accepted explicit `true`/`false` and threw on anything else. The new config loader leaves unset flags as `undefined` instead of `false`, so it was throwing on every unset flag. Now `undefined` is treated as disabled.\n\nThe remaining 8 warnings are just deprecation noise from the dependency bump (`fs.exists`, `Buffer()`, punycode, etc.) — not actionable, and the build now exits 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3bbac0e0139f5527a79acaa45372a3668bb43030129cc95061f35fce50152896"
+}

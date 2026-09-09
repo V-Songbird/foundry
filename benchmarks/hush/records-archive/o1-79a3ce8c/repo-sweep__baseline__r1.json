@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 69773,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4852725,
+  "numTurns": 19,
+  "durationMs": 68440,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4914
+  },
+  "contextTraffic": 355107,
+  "apiCalls": 11,
+  "toolCalls": 18,
+  "toolResultChars": 18709,
+  "narrationWords": 98,
+  "finalWords": 247,
+  "finalText": "Migration finished. `verify.js` passes: `OK every db.query call site moved to db.execute, and nothing else moved`.\n\n**What changed** — 36 call sites across 12 files, all rewritten from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| analytics | `repo/cohort.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\n**What I deliberately left alone:**\n\n- **`vendor/legacy-orm/adapter.js`** — two `db.query` calls remain. The file's header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, so local edits would be silently lost. Worth flagging: those two sites will break when the driver's next major drops `query`, so the real fix is upstreaming the change or pinning/wrapping the adapter — but that's a separate decision, not part of this sweep.\n- **`cache.query(...)`** — 25 call sites across the repo. Different object, unrelated API; the name collision is coincidental.\n\nA note on method: the args weren't uniformly simple — the `update*` functions pass `[...keys.map((k) => patch[k]), id]`, which contains a comma inside a nested call. I used a balanced-paren/string-aware walker to split arguments rather than a comma regex, which would have split that array in the wrong place and produced a malformed `params:`. The codemod was run from a scratch file outside the repo and deleted afterward, so no stray module landed in `packages/` (the verifier asserts a 75-module count).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a9c8aef8b9b83494f188eabf959f746789b52bc9f61345911d26089bf087463"
+}

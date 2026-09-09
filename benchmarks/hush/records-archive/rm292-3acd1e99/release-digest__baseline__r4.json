@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 30,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 96320,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.550985,
+  "numTurns": 12,
+  "durationMs": 94948,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6104
+  },
+  "contextTraffic": 336804,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 26715,
+  "narrationWords": 44,
+  "finalWords": 458,
+  "assistantMsgs": 3,
+  "finalText": "## What I found\n\n380 commits, 343 of which are invisible to users: 153 `chore` (mostly the same eight dependency bumps landing repeatedly — pino, pg, knex, ioredis, esbuild, vitest, eslint, prettier), 73 `refactor`, 64 `test`, 33 `ci`, 20 `docs`. Every dependency bump is a minor or patch within the same major, and no runtime behavior rides along with any of them.\n\nThat leaves **1 feat, 26 fixes, 10 perf**. The fixes cluster into about nine distinct problems — the same bug was fixed in four or five modules separately (null cursor in api/queue/webhooks/db, duplicate header in core/billing/http, empty allowlist in store/db/jobs), so I collapsed each cluster into one line rather than listing it per-scope.\n\n## Two judgment calls you should look at\n\n**The 401/403 change (#4223) is landed as a `fix`, but I put it under Breaking.** It changes an HTTP contract. A client with `if (status === 403) giveUp()` will now take the refresh path instead. If your consumers are all internal and already handle both, demote it to Fixed — but it's the one item in this release most likely to generate a support ticket.\n\n**The latency histogram unit fix is a fix in the code and a break in your dashboards.** Nobody's application breaks, but anyone with an alert threshold tuned on 4.1 numbers gets a surprise. I left it in Fixed with the consequence spelled out.\n\n## What I deliberately left out\n\nThe 10 `perf` commits (skip JSON round-trip, avoid extra clone in the mapper, batch metric writes, reuse parsed schema between requests). Your template comment says three headings, and none of these change behavior — only speed, unquantified in the log. If you want them acknowledged, the honest version is one line under Added:\n\n```\n- Lower per-request overhead in the API, store, and DB layers.\n```\n\nI'd only add it if you have benchmark numbers to back it; otherwise it reads as filler.\n\nAlso skipped: `docs: note the minimum node version` appears five times, but it only ever touches `docs/` and `README.md` — never `package.json`. **Worth a quick check before you ship**: if the minimum actually rose (CI moved to node 22 during this window, #4184), that's a Breaking entry and the docs commits are the only trace of it. If the docs were just catching up to an already-true requirement, ignore this.\n\nOne data note: `merged-prs.tsv` stops at #4246 / 2026-06-17 and is a strict subset of the commit log — every user-facing PR in it also appears in `commits.log`. I worked from the commit log as the source of truth. I dated the entry 2026-08-29 for tomorrow's cut, though the last commit is 2026-06-17 — if there's a gap of unlogged work since June, this digest doesn't cover it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5249f3d24fe7b37bc81c50af110a85efa83efb65f4c9f2ae620a35ad49be08f0"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27600,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1394232,
+  "numTurns": 11,
+  "durationMs": 26550,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1992
+  },
+  "contextTraffic": 327639,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 7466,
+  "narrationWords": 90,
+  "finalWords": 102,
+  "finalText": "Build's clean — exit 0, 0 errors. The remaining 8 warnings are just Node deprecation noise from the bump (`fs.exists`, `Buffer()`, punycode, etc.), not blocking anything.\n\nTwo real bugs from the dependency bump, both call sites that missed the new bundler API shape:\n\n1. **`src/core/options.js`** — the bumped bundler now hands options as `{ retryCount }` instead of `{ retries }`; `resolveRetries` was still reading `options.retries`, which was `undefined`, so `.toFixed(0)` threw.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`; `isBackoffEnabled` only accepted explicit `true`/`false` and threw on `undefined`. Now `undefined` is treated as disabled.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a232e68908617079103034bd79ba841bd98ed34442ddb73f4aabbaafdbc9e6be"
+}

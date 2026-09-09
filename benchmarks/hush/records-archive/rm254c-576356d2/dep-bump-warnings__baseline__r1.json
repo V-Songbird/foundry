@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26517,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20541389999999998,
+  "numTurns": 10,
+  "durationMs": 25292,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1939
+  },
+  "contextTraffic": 235231,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 15986,
+  "narrationWords": 56,
+  "finalWords": 100,
+  "finalText": "Build passes clean now (exit 0, 0 errors). The wall of `WARN DEP0*`/dedupe lines was harmless noise from the bump, but two real regressions were hiding in the link stage:\n\n- `src/core/options.js` — still read `options.retries`, but the bumped bundler now hands modules `{ retryCount }`, so it threw on `undefined.toFixed`.\n- `src/net/retryPolicy.js` — the new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled `true`/`false` and threw otherwise.\n\nFixed both (read `retryCount`, and treat `undefined` as backoff-disabled). Remaining ~8 warnings in the log are just deprecation noise from the bump, not build blockers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "de69289018fda9a949e5bfd380d79debbb4ad8b119c054dd25e7d7e94c54d649"
+}

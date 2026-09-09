@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 9,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39727,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.514944,
+  "numTurns": 5,
+  "durationMs": 38884,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2448
+  },
+  "contextTraffic": 177725,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60692,
+  "narrationWords": 6,
+  "finalWords": 558,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "I read all 719 lines. Here's the sequence.\n\n## One caveat first\nThe log covers **2026-07-04 02:00–02:31 UTC**, not last night (today is 2026-09-01). Either this is an old capture or the file is stale — worth confirming you're looking at the right file before acting on it.\n\n## What happened\n\n**02:00–02:14 — normal.** All 200s, latency sawtoothing 12→145ms in a repeating pattern (looks synthetic/rounded, but nothing wrong). Cache hit ratio logged at 0.90–0.98. Cron ticks clean.\n\n**02:14:07.113 — the trigger.** Redis died:\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\nWARN  [api] cache layer degraded — falling back to direct store reads\n```\n`ECONNREFUSED` (not a timeout) means Redis at 10.0.0.12:6379 was actively refusing — the process was down or the port closed, not a network partition or a slow box.\n\n**02:14:08 onward — cascade.** The fallback did exactly the wrong thing: with a ~0.95 hit ratio, dropping the cache pushed roughly 20x the read volume straight at the primary store. First timeout hit 2 seconds later (02:14:10) and never stopped. **From 02:14:07 to the end of the log there is not a single successful request** — 188 ERRORs, 348 WARNs, zero 200s in 17 minutes.\n\n**Queue depth grew perfectly linearly** — +3 every ~2s, 52 at 02:14:12 up to 568 at 02:31:24. That straight line is the signature of arrival rate exceeding drain rate with **no backpressure at all**.\n\n**Redis never came back.** 13 reconnect attempts (0–12), every one `ECONNREFUSED`, spaced at a **fixed 80 seconds** — no exponential backoff, no jitter, and no circuit breaker. It was still failing at 02:31:26, the last attempt before death.\n\n**02:31:44–02:31:52 — the actual fall over.**\n```\nERROR [worker-2] JavaScript heap out of memory (request backlog)\nFATAL [supervisor] worker-2 exited with code 134, restarting\nFATAL [supervisor] api unresponsive, killing process group — service down\n```\nCode 134 = SIGABRT, V8's OOM abort. The queued backlog ate the heap. Log ends there.\n\n## The three real bugs\n\n1. **`max 500` is decoration.** Depth crossed the stated cap at 02:29:12 (`request queue depth 502 (max 500)`) and kept climbing to 568 with no shedding, no 503s. The limit is logged but not enforced. Had it been, worker-2 would not have OOM'd — you'd have had partial availability instead of a hard down.\n\n2. **The cache-miss fallback has no single-flight or negative caching.** The `cache miss storm` keys cycle through `orders:1000`–`orders:1199` and then wrap and repeat — the same 200 hot keys, refetched from the store over and over for 17 straight minutes. Every one of those was already timing out; nothing remembered that.\n\n3. **Reconnect is a fixed 80s retry with no circuit breaker.** Traffic kept being admitted and kept hammering the degraded store the whole time. Nothing ever said \"cache is gone, shed load.\"\n\nRedis dying was the trigger, but it was survivable. **What took prod down was that the degraded path had no limits** — the queue cap wasn't enforced and the fallback amplified rather than damped load.\n\n## Where I'd look next\nThe log only shows the client side of Redis. It tells you nothing about *why* 10.0.0.12:6379 refused connections — you need the Redis host's own logs (OOM-killer? maxmemory eviction? restart? config change deployed ~02:14?) for actual root cause. `ioredis ^5.4.1` in package.json is the client; its `retryStrategy` is where that flat 80s backoff is configured.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e9d5c04c63713b06bccfa6b9a9ecdc45a68e7b12675873105eeb17bf36a16a23"
+}

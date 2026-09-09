@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26560,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2105904,
+  "numTurns": 4,
+  "durationMs": 25647,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1825
+  },
+  "contextTraffic": 188410,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60363,
+  "narrationWords": 10,
+  "finalWords": 385,
+  "finalText": "Here's the timeline reconstructed from `logs/app.log` (all times UTC, 2026-07-04):\n\n**Before 02:14** — normal steady-state traffic (health checks, `/orders`, `/users`), cache hit ratio 90-98%.\n\n**02:14:07.113** — Redis at `10.0.0.12:6379` drops: `ECONNREFUSED`. The app immediately falls back to direct store reads (`cache layer degraded`).\n\n**02:14:08 onward** — Cascading overload begins and repeats every ~2s for the next ~17 minutes:\n- Cache miss storms on `orders:*` keys (direct store reads for everything, cache no longer absorbing load)\n- `TimeoutError` on `api`, `worker-1`, `worker-2`, and `scheduler` — the store can't keep up (5000ms timeout, \"store overloaded\")\n- Request queue depth climbs steadily and *never stops*: 52 → 100 → 250 → 500 (its stated max) → and keeps growing past the cap to 568. The max isn't actually enforced anywhere — it's just a number in the log line.\n\n**Every ~2m20s** — a Redis reconnect attempt fires (attempts 0 through 12, last one at 02:31:26) and every single one fails with the same `ECONNREFUSED`. Redis never comes back in this log.\n\n**02:31:44.902** — `worker-2` hits `JavaScript heap out of memory` from the unbounded request backlog.\n\n**02:31:45.001** — supervisor restarts worker-2 (exit code 134), but it's too late.\n\n**02:31:52.318** — `api` goes unresponsive; the supervisor kills the whole process group. **Service down.** Log ends here — no recovery is recorded in this file.\n\n## Root cause\nRedis became unreachable (`10.0.0.12:6379`, connection refused — looks like the Redis host itself went down or was unreachable, not just a blip). The app's fallback-to-direct-store-reads path has no backpressure or circuit breaker: it kept accepting/queuing requests it couldn't serve in time. The queue grew unbounded (blowing well past its own configured max of 500) until a worker exhausted heap memory and crashed, which took the whole service down with it.\n\n## What's worth fixing\n1. **Enforce the queue depth cap** — it's logged but not acted on; requests should be shed/rejected once past 500.\n2. **Circuit breaker on the store/db** when Redis is down, instead of let-everything-timeout-eventually.\n3. **Investigate why Redis at 10.0.0.12 was unreachable** for 17+ minutes straight — that's infra/networking, not app logic — and consider Redis HA/failover so a single node loss doesn't cascade.\n4. No auto-recovery is visible — worth checking if the supervisor actually brought `api` back after killing the process group, since this log doesn't show it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0487248fb18447fdc064bea7a84f29fa200bde2d2bd5dd6ae577b3c58856722f"
+}

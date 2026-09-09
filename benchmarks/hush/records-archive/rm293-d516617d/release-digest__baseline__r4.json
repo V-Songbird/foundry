@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 79532,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7267844999999999,
+  "numTurns": 8,
+  "durationMs": 77952,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5455
+  },
+  "contextTraffic": 325841,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 77682,
+  "narrationWords": 18,
+  "finalWords": 652,
+  "assistantMsgs": 3,
+  "finalText": "I read all 380 commits and the 127-PR sheet. 114 of the commits are dependency bumps and ~230 more are refactor/test/ci/chore churn. Only **36 commits** (1 feat, 26 fix, 9 perf) touch behavior, and they collapse into far fewer user-facing lines because the same fix landed across several modules.\n\n## What actually changed for users\n\n**The one feature:** webhook deliveries now retry with exponential backoff (`395fb48`, #4191). It touched `src/webhooks/dispatch.js` *and* `src/core/config.js`, so it almost certainly added a config knob you should name in the notes.\n\n**Three things that are breaking but aren't labeled that way** — this is the part I'd push back on before you publish:\n\n1. `fix(auth): return 401 for an expired token instead of 403` (`1d2bd55`, #4223). Anyone branching on 403 breaks. It's tagged `fix`, but it's a contract change.\n2. `refactor(api): drop the unused v1 export route` (`56dc828`, #4152). \"Unused\" is an internal judgment; it removed a route from `router.js` + `handlers.js`. If it was reachable, it's a removal.\n3. `fix(store|core): use the right units in the latency histogram` (`59402bc`, `1f2bc4e`). Correct, but every dashboard and alert threshold on that metric now reads differently.\n\nPlus a fourth I can't resolve from the log: **`stop re-exporting the internal error types`** landed 8 times across db, core, billing, auth, and jobs. If any of those types were reachable from the package entrypoint, that's a breaking import change. Worth 60 seconds with `git show` on `src/core/errors.js` before you cut.\n\n## Draft entry\n\n```markdown\n## 4.2.0 — 2026-08-29\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on\n  403 to distinguish \"expired\" from \"forbidden\" need updating.\n- The latency histogram now reports the correct units. Existing dashboards\n  and alert thresholds against it will need rescaling.\n- The v1 export route has been removed.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The trace id is now preserved across a retry.\n- Paginating past the last page no longer fails on a null cursor.\n- An empty allowlist is now treated as empty rather than as no filter.\n- Request bodies are no longer written to the logs.\n- The HTTP client clears its timer when the socket drops, and closes the\n  pool on shutdown.\n- A duplicate header is no longer sent on retried requests.\n- URLs with a trailing slash are no longer double-trimmed.\n- Token parser errors now say what was actually wrong.\n```\n\nTwo judgment calls in that draft: I merged per-module duplicates (the null-cursor fix landed in api, db, queue and webhooks separately) into one line each, since users see one symptom. And I dropped all 9 `perf` commits — they're micro-optimizations (skip a JSON round-trip, avoid a clone, batch metric writes) with no measured numbers in the log. If someone has benchmarks, one line is worth adding; without numbers it's noise.\n\n## Before you publish\n\n- **Node minimum.** Five separate `docs: note the minimum node version` commits, CI moved to node 22, `.nvmrc` pinned three times. If `engines` changed in `package.json`, that's a Breaking line and it's currently missing. The log doesn't show me the field contents.\n- **`pull the request id out of the logger context`** (http, db, store, queue — 4 commits). \"Pull out of\" reads both ways. If the request id left your log lines, log consumers care.\n- **Runtime dep bumps.** fastify, pg, knex, ioredis, pino, zod, nanoid, dotenv and undici all moved — all patch/minor. The other 7 (eslint, vitest, esbuild, typescript, tsx, prettier, husky) are dev-only and don't belong in the notes. Your call whether the runtime set gets a one-liner; your 4.1 entry didn't do this, so I left it out.\n- **The PR sheet has duplicates.** #4120/#4121 are the same pino bump by different authors, same for #4124/#4125 and #4126/#4131. Doesn't affect the notes, but the sheet will overcount if you're quoting a PR number anywhere.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "49da0f2d055249a71dd4d428b6c62339c0da3c7af65dfcfcec10a9a218eb0f42"
+}

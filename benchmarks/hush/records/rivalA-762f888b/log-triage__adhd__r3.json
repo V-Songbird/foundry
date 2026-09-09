@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 10,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42771,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5234255,
+  "numTurns": 6,
+  "durationMs": 41851,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2815
+  },
+  "contextTraffic": 178254,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60591,
+  "narrationWords": 6,
+  "finalWords": 602,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "## What happened\n\n**One-line version:** Redis died, the app fell back to reading the datastore directly, that overloaded the store, request queues grew unbounded for 17 minutes until worker-2 OOM'd and the supervisor killed the API.\n\n### Timeline (all `2026-07-04`)\n\n| Time | Event |\n|---|---|\n| 02:00 – 02:14:03 | Healthy. `/users`, `/orders`, `/health` all 200. Cache hit ratio 0.90–0.98 the whole time. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **root cause** (`app.log:182`) |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` (`:183`) |\n| 02:14:08 | Cache miss storm begins, keys `orders:1000`–`orders:1199` |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52 — starts climbing ~30/min, linearly, never recovers |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts, **all** ECONNREFUSED |\n| 02:29:12 | Queue depth **502**, crosses the stated `max 500` — and keeps going (`:647`) |\n| 02:31:24 | Queue depth 568 |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` (`:717`) |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nVolume: 188 ERROR / 348 WARN, of which 173 are the timeout and 13 the Redis reconnect. Everything after 02:14:07 is downstream noise from that one event.\n\n### The four things that actually made this bad\n\n1. **No circuit breaker on the cache fallback.** Losing Redis shouldn't be fatal, but \"fall back to direct store reads\" sent the full uncached read volume at the datastore. Every 5s timeout after 02:14:10 is the store buckling. The cache outage became a store outage became an app outage.\n\n2. **The queue limit isn't enforced.** Depth is logged as `(max 500)` but sails straight through 500 to 568 with no shedding, no 503s, no backpressure. That backlog is literally what the OOM message blames — `JavaScript heap out of memory (request backlog)`. If 500 had been a real ceiling, worker-2 survives.\n\n3. **Reconnect has no backoff and no ceiling.** The 13 attempts are exactly 80s apart — flat interval, not exponential. 17 minutes of identical ECONNREFUSED with nothing escalating. Nothing in the log suggests anyone or anything gave up, alerted, or tried a replica.\n\n4. **The hot keyset is tiny.** The miss storm cycles through only `orders:1000`–`orders:1199` — about 200 keys, repeating. A small in-process LRU would have absorbed nearly all of this and made the Redis loss a non-event.\n\n### Two caveats\n\n- **These logs are from July 4th, not last night.** The file starts `2026-07-04T02:00` and ends `2026-07-04T02:31:52`. If prod fell over on Aug 31 / Sep 1, this is a stale or unrotated file and you're looking at the wrong incident — worth checking your rotation before you act on any of the above. (If the July 4th incident is what you meant, disregard.)\n- **The log ends at the kill, so there's no recovery data.** No restart-success line, no Redis coming back. Whatever brought it back isn't in this file, and neither is confirmation that `worker-1` or `scheduler` ever died — only worker-2 and api have fatals.\n\nI'd start by checking why `10.0.0.12:6379` refused connections at 02:14:07 — ECONNREFUSED means nothing was listening, so that's a Redis crash/restart/eviction, not a network partition. There's no `src/` in this directory, only `package.json` (`ioredis ^5.4.1`), so I couldn't check the actual fallback and queue code — point me at the repo and I can look at where the limit is supposed to be enforced.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "25a1bdcba00f3e788c20f7e945f69ba35bdd51eda5f2e68b156b708f681d8c51"
+}

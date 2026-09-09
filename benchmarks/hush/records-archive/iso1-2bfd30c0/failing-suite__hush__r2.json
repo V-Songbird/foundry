@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23845,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1214704,
+  "numTurns": 10,
+  "durationMs": 22163,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1167
+  },
+  "contextTraffic": 204469,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12357,
+  "narrationWords": 12,
+  "finalWords": 28,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Bug confirmed: `orderTotal` taxes the full price instead of the discounted price."
+  ],
+  "finalText": "**Fixed.** All 625 tests pass now.\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Changed `cents * taxRate` to `discounted * taxRate`.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b118af41afeb94c9b0c3f491004a6e24e46bcfcaa321ffc85069f8901ddce88c"
+}

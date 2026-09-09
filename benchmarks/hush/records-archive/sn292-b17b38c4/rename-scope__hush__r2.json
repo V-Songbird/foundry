@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 54138,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1467422,
+  "numTurns": 16,
+  "durationMs": 52332,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4577
+  },
+  "contextTraffic": 171465,
+  "apiCalls": 5,
+  "toolCalls": 15,
+  "toolResultChars": 8911,
+  "narrationWords": 0,
+  "finalWords": 133,
+  "assistantMsgs": 1,
+  "finalText": "**94 files touch `account_id`. Three spots must stay frozen.**\n\nThe other ~90 are internal repo, service, and route files across `orders`, `billing`, `notify`, `analytics`, `accounts` — safe to rename.\n\n| Location | Why frozen |\n|---|---|\n| `vendor/reporting-sdk` | vendored, generated, marked do-not-edit |\n| `lib/serialize.js` | `WIRE` map locks `account_id` as the public API field name |\n| `docs/openapi.yaml` | public request and response field, explicitly frozen |\n\nThe 12 files in `migrations/` are applied production history. Editing them renames nothing live and breaks the down step. A real rename needs a new migration plus every raw SQL query updated in step.\n\n`lib/audit.js` also keys log lines by `account_id` — confirm with whoever owns the audit trail before touching it.\n\nDon't sign off today. The public API contract blocks a full rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "226eccb3547ad7244856df442f3ce2b449eb817b61a24c732c0c8ff55b75096b"
+}

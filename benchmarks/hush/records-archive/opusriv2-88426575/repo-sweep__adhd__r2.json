@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 126440,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8515119999999999,
+  "numTurns": 57,
+  "durationMs": 124115,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12715
+  },
+  "contextTraffic": 419594,
+  "apiCalls": 11,
+  "toolCalls": 56,
+  "toolResultChars": 31381,
+  "narrationWords": 22,
+  "finalWords": 189,
+  "finalText": "Migration finished. All 36 remaining `db.query(sql, params)` call sites across 12 files are now `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nAll files pass `node --check`. There's no package.json or test suite in the repo, so that's the only verification available.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** — the last two `db.query` calls in the tree. The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local changes silently lost. Patching it would be undone by the next upgrade, so this needs either an upstream fix or a wrapper on your side. Flagging it rather than editing.\n- **`cache.query(...)`** (~20 sites) — different object, unrelated API, not part of this migration.\n\n`db.query` itself is still defined in `lib/db.js:13` with a `@deprecated` tag. Once vendor is resolved you can delete it; I left it in place since the vendored adapter still calls it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16be01c72ed7aa25cfaa5c2b8c8675fc288df5e6d032415026c6fc22693757a6"
+}

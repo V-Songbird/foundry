@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62013,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2936565,
+  "numTurns": 8,
+  "durationMs": 60811,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3765
+  },
+  "contextTraffic": 144625,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 9477,
+  "narrationWords": 6,
+  "finalWords": 530,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nRedis died, the cache fell away, and the service ate itself alive over the next 17 minutes.\n\n**Timeline** (all times UTC, log covers 02:00:00 → 02:31:52):\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. 170 requests, all `200`, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` — **the trigger** |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache-miss storm begins (`orders:1000`…), 174 in total |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth warnings start at 52, climbing ~3/sample, monotonically |\n| 02:15:26–02:31:26 | 13 reconnect attempts (0–12), every one `ECONNREFUSED`. Redis never came back |\n| 02:29:12 | Queue depth breaches the 500 max (502) |\n| 02:31:24 | Depth 568 — peak |\n| 02:31:44.902 | `worker-2: JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | FATAL — worker-2 exits 134 (SIGABRT), supervisor restarts it |\n| 02:31:52.318 | FATAL — `api unresponsive, killing process group — service down` |\n\n**Root cause:** the Redis node at `10.0.0.12:6379` went away at 02:14:07. `ECONNREFUSED` (not a timeout) on both the initial loss and all 13 retries means nothing was listening on that port at all — the Redis process or its host was down, not a network partition or an overloaded Redis.\n\n**Why that became an outage rather than a blip:** the cache-degraded fallback sends every miss straight to the backing store with no circuit breaker and no load shedding. The store couldn't take full traffic, so requests hit the 5s timeout, but new requests kept being accepted into the queue. The queue grew unbounded (past its own declared 500 max, which was logged but never enforced) until the retained request backlog exhausted the heap.\n\n**Two other things worth noting:**\n\n- Not a single completed request is logged after 02:14:03 — 170 `200`s before, zero anything after. The service was effectively 100% down from the moment Redis dropped, ~18 minutes before the supervisor actually killed it. Alerting on the FATAL lines would have been ~18 minutes late.\n- The reconnect attempts are evenly spaced ~80s apart, not backing off. That's a fixed interval, so the reconnect logic isn't doing exponential backoff — minor here since the peer was hard-down, but it won't do the right thing against a recovering-but-loaded Redis.\n\n**Date discrepancy:** these entries are all timestamped `2026-07-04`, which is ~8 weeks before last night. Either this is an archived copy of an older incident, or the file wasn't rotated/is stale. Worth confirming you're looking at the right log before you act on this — if prod fell over on the 27th, that event isn't in this file.\n\n**Suggested fixes,** roughly in order of impact: enforce the 500 queue cap by shedding (503) instead of just warning; add a circuit breaker on the direct-store fallback path so a dead cache doesn't translate into full traffic on the store; alert on `cache layer degraded` and on the first sustained timeout rather than on FATAL; and give Redis a replica/failover so a single node loss isn't a full outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "02279b6a1efb780600475e6ffe2d551359cd4668e19e9606c6e551bfde92e686"
+}

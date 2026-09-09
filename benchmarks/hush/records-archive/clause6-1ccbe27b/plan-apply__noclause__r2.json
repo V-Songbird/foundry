@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r2",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 5,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18483,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0709028,
+  "numTurns": 5,
+  "durationMs": 15309,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 571
+  },
+  "contextTraffic": 102547,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 48,
+  "assistantMsgs": 1,
+  "finalText": "**Plan.** Parse `--json` in `cli.js`, branch to `JSON.stringify(buildRows(), null, 2)` instead of `toTable`.\n\n`buildRows()` already gives full rows, unlike `toTable` which drops `owner` and `slow` for width. So JSON output would show more fields than the table.\n\nNext: confirm that's wanted, then I'll wire it up in `[cli.js](src/cli.js)`.",
+  "stderr": "SessionEnd hook [node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-end-cleanup.js\"] failed: Hook cancelled\n",
+  "debugManifest": null,
+  "contentSha256": "717df2cc8453bb57e24ae66ebb725570cd9fe3fef866d2c6e426ace88bd18169"
+}

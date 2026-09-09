@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "leak1-3c2fae62",
+  "seed": "1787986431022",
+  "orderIndex": 10,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20598,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0916912,
+  "numTurns": 7,
+  "durationMs": 18968,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1560
+  },
+  "contextTraffic": 82132,
+  "apiCalls": 3,
+  "toolCalls": 6,
+  "toolResultChars": 9743,
+  "narrationWords": 0,
+  "finalWords": 93,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Bigger than a simple rename, and part of it can't move.**\n\n`account_id` shows up in 94 files across five services plus migrations and docs.\n\nThree places must stay `account_id`:\n\n- [`lib/serialize.js:8`](lib/serialize.js:8) — public wire field, frozen by the API contract\n- [`docs/openapi.yaml:16`](docs/openapi.yaml:16) — same public contract, documented for clients\n- [`vendor/reporting-sdk/src/schema.js:1`](vendor/reporting-sdk/src/schema.js:1) — vendored, generated, overwritten on refresh\n\nAlso don't hand-edit the 12 old migration files under `migrations/`. Add a new migration to rename the column instead.\n\nInternal service code and `lib/audit.js` are safe to rename. Flag those three exceptions before you sign off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01cefb031ea55f596f6c00c968661a570220d902def7452b6f161d705d30ea12"
+}

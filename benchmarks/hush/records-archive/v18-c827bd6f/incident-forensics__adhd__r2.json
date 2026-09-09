@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64789,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3870611,
+  "numTurns": 18,
+  "durationMs": 58230,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3673
+  },
+  "contextTraffic": 678534,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 16473,
+  "narrationWords": 18,
+  "finalWords": 203,
+  "finalText": "Log ends mid-incident at 03:59:27.974Z — still failing, queue still growing (`waiting=74` and climbing). Not resolved as of last log line.\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** ONGOING (unresolved as of last log entry, 03:59:27Z)\n\n**Root cause:** Connection pool exhaustion. Deploy `dep-4471` (gateway, a.novak) changed `gateway.pool.perRequest: false -> true` without raising pool size from 20. Every request now grabs its own connection instead of sharing, and the fixed 20-connection pool saturates within seconds under normal load.\n\n**Impact window:** 2026-03-14 02:14:18Z → ongoing (still active at 03:59:27Z, 1h45m+ and counting). Wait queue has grown from 13 to 74+ requests, trend still climbing.\n\n**Blast radius:** Gateway only — all four backends behind it (billing, orders, catalog, accounts-svc) return 503s. Worker service confirmed unaffected (separate 8-connection pool, flat `waiting=0` throughout).\n\n**Rollback target:** `dep-4471` — revert `gateway.pool.perRequest` back to `false` (or bump `gateway.pool.size` well above 20 if perRequest mode is wanted long-term).\n\n**Evidence:**\n- Config applied 02:13:41Z (gen 119) → first `WARN acquire slow` at 02:14:14Z → first 503 at 02:14:18.972Z\n- Every 503 pairs with `ERROR pool ... ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting N)`\n- deploys.csv: `dep-4471,gateway,2026-03-14T02:12:00Z,2026-03-14T02:14:00Z,a.novak,config: connection-per-request for pool isolation`\n\nNext: page a.novak or roll back dep-4471 now — it's still actively failing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1af408784dd615baebec163be10c84741a64457c23172d2262ebb1a71d719391"
+}

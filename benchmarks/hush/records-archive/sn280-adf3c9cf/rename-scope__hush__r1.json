@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32424,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12046760000000001,
+  "numTurns": 12,
+  "durationMs": 30821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2577
+  },
+  "contextTraffic": 169770,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 9288,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "finalText": "94 files reference `account_id`. Three places must not change.\n\n**Vendored SDK** (`vendor/reporting-sdk/*`) — marked \"vendored, generated, do not edit,\" overwritten by `npm run vendor:refresh`. A rename there gets silently reverted.\n\n**Migrations** (12 files) — each says \"Applied in production,\" editing history breaks the down step and doesn't touch the live DB anyway. A rename needs a new migration, not edits to old ones.\n\n**Public API contract** — `docs/openapi.yaml` and `lib/serialize.js`. `serialize.js` explicitly freezes `account_id` as the wire field name every client reads by name; the comment says an internal rename must not reach that side of the map.\n\nEverything else, roughly 70 files across the `accounts`, `orders`, `billing`, `notify`, and `analytics` services, is internal repo/service/http code and is safe to rename mechanically. Worth a second look: `lib/audit.js` writes `account_id` into audit lines — not marked frozen, but confirm nothing downstream reads audit logs by that key before renaming it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d78af6177b71ced74e2f8753a3ac5198b9b4b4e2a0a62882f4925445488a45b5"
+}

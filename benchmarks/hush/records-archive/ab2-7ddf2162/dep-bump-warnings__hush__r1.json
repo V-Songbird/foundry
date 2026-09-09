@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "ab2-7ddf2162",
+  "seed": "1787387594651",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34268,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1766196,
+  "numTurns": 12,
+  "durationMs": 32299,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2086
+  },
+  "contextTraffic": 377707,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 11177,
+  "narrationWords": 13,
+  "finalWords": 116,
+  "finalText": "Build's green now. It was two real bugs from the bump, not just noisy warnings.\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `retryCount`. That crashed the build with `Cannot read properties of undefined (reading 'toFixed')`.\n2. `src/net/retryPolicy.js` only understood `true` or `false` for the backoff flag, but the new config loader leaves unset flags as `undefined`. That would've thrown next.\n\nI fixed both: `options.js` now reads `retryCount`, and `retryPolicy.js` treats an unset flag as backoff disabled, same as before the bump. The rest of the warning wall (deprecation notices, tree-shaking, dedupe logs) is just noise from the bumped packages, nothing broken there.\n\n`node build.js` now finishes clean: 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b822343c04f6d83790e1d64e5c5c5346afadca970c904c5f05fd1c91710cfff3"
+}

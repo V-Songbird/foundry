@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r2",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 3,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15086,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0788954,
+  "numTurns": 7,
+  "durationMs": 13189,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 946
+  },
+  "contextTraffic": 105344,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3303,
+  "narrationWords": 0,
+  "finalWords": 108,
+  "assistantMsgs": 1,
+  "finalText": "**Found it: `refreshToken` returns `undefined` on `invalid_grant`, and that's what crashes `decode`.**\n\nLook at [refresh.js:14-16](src/auth/refresh.js:14), inside `refreshToken`. When `auth.internal` replies `400 invalid_grant`, the error code isn't in `RECOVERABLE`, so the function silently returns `undefined` instead of throwing.\n\nThat `undefined` flows into [session.js:8](src/session.js:8): `decode(token)` gets called with `token = undefined`. The trace blames `tokens.js:6` (`token.split('.')`), but that line is just the last one to touch a bad value it never should've received.\n\nReal bug: a revoked refresh token should end the session or return 401, not be swallowed and passed on as if valid. Next step, if you want, is deciding what `refreshToken` should do instead for unrecoverable errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "55ac7bd87b2e1499c754e58559b11dec31667f9ade0a51dba29f8c9afe23784b"
+}

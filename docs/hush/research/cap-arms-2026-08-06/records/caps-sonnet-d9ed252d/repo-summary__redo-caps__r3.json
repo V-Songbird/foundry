@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 142,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30419,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1782186,
+  "numTurns": 13,
+  "durationMs": 28867,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2162
+  },
+  "contextTraffic": 186977,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 4942,
+  "narrationWords": 0,
+  "finalWords": 151,
+  "finalText": "It's a small five-file Node service, no framework. Here's how the pieces connect.\n\n```mermaid\nflowchart LR\n  A[server.js] -->|checks token| B[auth.js]\n  A --> C[routes.js]\n  C -->|GET requests| D[cache.js]\n  D --> E[store.js]\n  C -->|POST requests| E\n```\n\n**server.js** opens the HTTP port and checks every request's token before anything else runs.\n\n**auth.js** reads a bearer token shaped `userId.signature` and checks it against an HMAC secret from `AUTH_SECRET`.\n\n**routes.js** matches method and path to a handler. Gets go through the cache, posts go straight to the store.\n\n**cache.js** is a small 256-entry LRU with no expiry of its own. It just saves repeat reads.\n\n**store.js** is an in-memory stand-in for a database. Each record expires 15 minutes after its last write.\n\nOne snag: `routes.js` says writes should invalidate cached keys, but nothing actually does that. A `POST /orders` won't be reflected in a cached `GET /orders` until the entry ages out of the LRU.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2379b7bf051645d88efd63779dab5e092a9d6be08fb205f1ceaeaeab126143ce"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 34,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 47753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.40443749999999995,
+  "numTurns": 15,
+  "durationMs": 46039,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2404
+  },
+  "contextTraffic": 247254,
+  "apiCalls": 7,
+  "toolCalls": 14,
+  "toolResultChars": 26908,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "finalText": "**Migrated 36 `db.query` calls across 12 files to `db.execute({ sql, params })`.** All files pass `node --check`.\n\nTwo callers left on the old form, on purpose:\n\n| File | Why |\n|---|---|\n| [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) | Vendored copy, header says do not edit |\n| `cache.query` in 20 repo files | Different API, not `db` |\n\n`db.query` is still defined in [lib/db.js:13](lib/db.js:13). Drop it once the vendor bump lands.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "553376141368e80af431591aa59a533e8ccd56827e95f306ad65080108cac55e"
+}

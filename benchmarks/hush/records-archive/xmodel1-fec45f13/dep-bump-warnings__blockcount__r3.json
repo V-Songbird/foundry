@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__blockcount__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "blockcount",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27167,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcount:Blockcount",
+  "costUsd": 0.10923460000000002,
+  "numTurns": 10,
+  "durationMs": 25438,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1565
+  },
+  "contextTraffic": 167815,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6991,
+  "narrationWords": 10,
+  "finalWords": 62,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Fix both call sites to match the new options shape."
+  ],
+  "finalText": "**Build's clean.** Two real bugs, not noise.\n\n`options.retries` in [options.js:7](src/core/options.js:7) didn't match the bundler's new `retryCount` shape, so it threw on `undefined.toFixed`. Fixed to read `retryCount`.\n\n`isBackoffEnabled` in [retryPolicy.js:8](src/net/retryPolicy.js:8) threw on `undefined` flags instead of treating them as `false`, the new loader's default. Added that case.\n\nBuild now exits 0 with 8 warnings, all deprecation noise, 0 errors.\n\nNext: nothing. Build's green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5eb7c5963eed588dc655dd163d9963a3823fcfc2de52888c97f0393483d0ea3d"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 160,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 16136,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0314972,
+  "numTurns": 2,
+  "durationMs": 14491,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 828
+  },
+  "contextTraffic": 56387,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 155,
+  "finalText": "Redis went down at 2:14 AM, and the cascade killed the service by 2:31.\n\nHere's what happened: Redis stopped answering (connection refused on 10.0.0.12:6379), so the cache layer fell back to hitting the store directly for every request. That store couldn't handle the load — it started timing out at 5 seconds. Requests backed up in the queue (started at 52, climbed to 568 by 2:31), and workers couldn't drain them fast enough. Memory kept growing from the backlog. Worker-2 ran out of heap at 2:31:44, crashed, and when the supervisor tried to restart it, the API was already too far behind and got killed.\n\nRoot cause is Redis. The system didn't have graceful degradation — when the cache failed, it just hammered the store until it fell over. You'll want to check why Redis died and whether the fallback logic can shed load faster (circuit breaker, reject requests, or at least a smaller timeout).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "972faa548a44a41aef614aeac622e8166560f6bd24252cea16ee0a925906346b"
+}

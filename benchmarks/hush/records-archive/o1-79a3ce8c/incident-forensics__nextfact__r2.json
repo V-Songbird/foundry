@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__nextfact__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 66,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "nextfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 212673,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 1.0332785000000002,
+  "numTurns": 20,
+  "durationMs": 206988,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13964
+  },
+  "contextTraffic": 746106,
+  "apiCalls": 20,
+  "toolCalls": 16,
+  "toolResultChars": 15933,
+  "narrationWords": 5,
+  "finalWords": 94,
+  "finalText": "Written to `HANDOFF.md`.\n\n**Root cause.** `dep-4471` flipped `gateway.pool.perRequest` to `true`. The pool holds 20. It saturated 18 seconds later and stayed there.\n\n**Window.** 02:14:18Z to at least 03:59:27Z. It never recovers in the log.\n\n**Roll back `dep-4471`.** Flip that key back. Also put `upstreamMs` back to 2000.\n\nTwo things I found while writing it up. Every non-health request has failed since 02:14. Another 212 requests just hung with no status logged at all, so dashboards undercount this.\n\nThe log is `node-3 of 3`. Real impact may be triple. Worth checking the other two nodes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b5a6063158c61cb8f70a1de8e8055b000bb96a28caa64db65e756104ef3af81e"
+}

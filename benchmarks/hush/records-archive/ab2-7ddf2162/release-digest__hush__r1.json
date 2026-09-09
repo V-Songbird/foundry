@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "ab2-7ddf2162",
+  "seed": "1787387594651",
+  "orderIndex": 7,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 121681,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3522824,
+  "numTurns": 13,
+  "durationMs": 120078,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10014
+  },
+  "contextTraffic": 581167,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 24909,
+  "narrationWords": 0,
+  "finalWords": 207,
+  "finalText": "I went through all 380 commits since 4.1, not just the PR sheet, since it only covered part of the range. Under all the dependency bumps and refactors, ten things actually change what users see. I've added them to `CHANGELOG.md` as 4.2.0.\n\nOne is breaking: an expired token now gets `401` back instead of `403`. One is new: failed webhook deliveries now retry on their own, with a growing delay. The rest are fixes, most of them patterns that showed up in several parts of the code, not just once. Null page cursors used to crash paginated list requests in the queue, API, webhooks, and database. An empty allowlist used to get rejected instead of handled. Some responses carried a duplicate header. The database was logging entire request bodies. A trace id could get lost across a retry. A URL ending in a slash got trimmed twice. The HTTP client could hang on a dropped connection or on shutdown. Token parse errors now say more. And several hot spots across the codebase do less repeated work, so things run faster under load.\n\nWorth a second look before you publish: the `401` vs `403` change on auth. Anyone checking for `403` on their end will need to update.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2438ce83f12d6ec38eb878137f65365e361d10ba4422110998ac82678d31d2af"
+}

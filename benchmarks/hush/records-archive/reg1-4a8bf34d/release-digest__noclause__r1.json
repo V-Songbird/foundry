@@ -1,0 +1,39 @@
+{
+  "key": "release-digest__noclause__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 69193,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23091140000000002,
+  "numTurns": 11,
+  "durationMs": 67767,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6646
+  },
+  "contextTraffic": 250190,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 25684,
+  "narrationWords": 0,
+  "finalWords": 135,
+  "assistantMsgs": 1,
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nBehind ~380 commits of dep bumps and refactors, nine things actually touch users:\n\n| Type | Change |\n|---|---|\n| Breaking | expired tokens now return `401`, not `403` |\n| Added | webhook deliveries retry with exponential backoff |\n| Fixed | trailing-slash paths, null-cursor paginator crashes (api/queue/db/webhooks), duplicate response header, empty-allowlist handling, trace id dropped on retry, wrong latency histogram units, full request body in logs, HTTP client timer/pool leaks |\n\nEach of these showed up as the same fix landing separately in several modules, so I merged them into one line per bug rather than listing every module's commit.\n\nWorth a second look before you ship: the `401`/`403` change reads as breaking to me, but confirm with whoever owns auth before it goes out as one.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "27191e5d2ea3fab87b765a3b77325f88df09a30df713965b8e6eb3f9fddf4192"
+}

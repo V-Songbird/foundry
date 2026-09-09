@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__oldstyle__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 6,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 100896,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.29851700000000003,
+  "numTurns": 12,
+  "durationMs": 99081,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8584
+  },
+  "contextTraffic": 431394,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 23615,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "finalText": "**Done. `CHANGELOG.md` now has the 4.2.0 section.**\n\nUnder all the dep bumps and refactors, 11 things actually touch users:\n\n1. **Breaking:** expired tokens now return `401`, not `403`.\n2. **Added:** failed webhook deliveries retry with exponential backoff.\n3. **Fixed:** duplicate HTTP headers, lost trace ids on retry, full request bodies in logs, null-cursor webhook pagination, a broken empty allowlist on jobs, double-trimmed trailing slashes, wrong latency-histogram units, and a vague token-parser error message.\n\nOne thing worth flagging: `history/commits.log` has 380 raw commits with the same fix titles repeated across several modules under different authors, but `merged-prs.tsv` shows each fix landing exactly once. I trusted the PR sheet as the real record and treated the extra commit-log copies as noise, not separate shipped fixes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6bb0a2613b524d07ed06dd020e695ca425dbeba95f0454089d253f788602e048"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__react__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 7,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30295,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2360463,
+  "numTurns": 10,
+  "durationMs": 28611,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1834
+  },
+  "contextTraffic": 357261,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 9186,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "finalText": "Found it. `resolveRelease` in `packages/shared/config.js` merged layers with a plain `Object.assign`, so any package overriding part of `output` or `sourcemap` (like `@acme/api` setting `output.format`) wiped out the rest of that nested object — losing `dir` and `mode`.\n\nI changed it to merge one level deep, so overrides only touch the keys they name. Build now finishes clean: `74.3s with 5 warnings, 0 errors`, and `verify.js` confirms it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "19c6bd99409e0b21712e43c94006e53a45cd07b592ff7535368585e3dc104b71"
+}

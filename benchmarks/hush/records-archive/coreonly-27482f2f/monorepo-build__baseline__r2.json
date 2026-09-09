@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 7,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 45068,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24793109999999996,
+  "numTurns": 12,
+  "durationMs": 43515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3589
+  },
+  "contextTraffic": 306999,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 13502,
+  "narrationWords": 93,
+  "finalWords": 105,
+  "finalText": "Fixed and verified. The build failure was in `packages/shared/config.js:15` — `resolveRelease` merged config layers with a shallow `Object.assign`, so any package overriding just one key of a nested object (e.g. `@acme/api` overriding `output.format`) silently dropped the rest of that object (`output.dir`), which then failed the bundle stage's completeness check.\n\nI replaced the shallow merge with a `deepMerge` that recurses into nested plain objects (merging sibling keys instead of replacing the whole object) while leaving `RELEASE_DEFAULTS` unmutated. `node build.js` now exits 0 with \"5 warnings, 0 errors,\" and `verify.js` (the ground-truth check, which specifically tests that overrides stay partial rather than being papered over) also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2f58e84773486216be6e7de13a12fd7a13eeaf4ed45a8eecb2e34a2b803b2cb6"
+}

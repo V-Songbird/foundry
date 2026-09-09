@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 162359,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.711013,
+  "numTurns": 15,
+  "durationMs": 155547,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10384
+  },
+  "contextTraffic": 461490,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 16947,
+  "narrationWords": 8,
+  "finalWords": 781,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident, 2026-03-14\n\n**Status at log end: ONGOING, not mitigated.** Logs cut off at 03:59:27Z with the gateway still failing. Verify current state before acting on anything below.\n\n---\n\n### Root cause\n\nConfig generation 119, shipped by **dep-4471**, flipped `gateway.pool.perRequest` from `false` to `true`. Each request now holds a dedicated connection for its full lifetime instead of sharing, so a pool of `size=20` caps the gateway at 20 concurrent requests. Request 21 onward queues, waits out the acquire timeout, and returns 503.\n\nA second key in the same change makes it worse: `gateway.timeout.upstreamMs: 2000 -> 2500` holds each connection 25% longer, so the queue drains slower than it fills. Queue depth grew monotonically from 13 at onset to a peak of **271** — no self-recovery, and it won't recover on its own.\n\nEvidence chain:\n\n```\n02:12:12.820Z  INFO  config  reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z  INFO  config  generation 119 applied: 3 keys changed\n02:13:41.234Z  INFO  config    gateway.pool.perRequest: false -> true\n02:14:14.920Z  WARN  pool    req-07400 /v1/checkout acquire slow: waited 100ms\n02:14:18.972Z  ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z  ERROR pool    req-07401 ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting 13)\n```\n\n**37 seconds** from config apply to first 503. Every one of the 530 pool errors reads `size 20, in_use 20` — pinned at max, never releasing.\n\nRuled out: not an upstream problem (all four backends fail identically — accounts 133, catalog 133, billing 132, orders 132, and zero upstream timeouts or refusals). Not shared DB contention (worker pool sat at `in_use=1, idle=7, waiting=0` the entire window — see Not Related below).\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **First error** | `2026-03-14T02:14:18.972Z` |\n| **Last log line** | `2026-03-14T03:59:27.974Z` (still erroring) |\n| **Confirmed duration** | **≥ 1h 45m** |\n| **Error rate post-onset** | **83%** (530 × 503 vs 106 × 200) |\n| **Clean before** | 698 requests, 100% 200, `pool_wait` 0–3ms |\n\n**All `/v1/*` routes fully down** — checkout, cart, session, catalog/search, orders, profile. Not degraded, not partial: after 02:14:18 the *only* thing returning 200 is `/health` (106 requests, `pool_wait` 0–3ms).\n\n⚠️ **`/health` bypasses the pool.** Liveness probes stayed green through a total customer-facing outage. On-call wasn't paged until **03:21:05Z** (`error_rate 5m avg is 71%`) — **67 minutes** after onset. That detection gap is a follow-up item in its own right; checkout was 100% down and the health check never noticed.\n\n---\n\n### Roll back\n\n**`dep-4471`** — gateway, 02:12:00→02:14:00Z, author **a.novak**, *\"config: connection-per-request for pool isolation.\"*\n\nThis is a **config revert, not a redeploy**: set `gateway.pool.perRequest` back to `false` (generation 119 → 118). Fastest path out.\n\nOn `gateway.timeout.upstreamMs`: reverting 2500 → 2000 is optional for mitigation. It amplified the problem but didn't cause it. Cleanest is to roll back generation 119 wholesale and reintroduce the timeout change separately if it was wanted independently.\n\nTwo things to check before declaring it resolved:\n\n1. **Blast radius across nodes.** The log header says `node-3 of 3`. I only have node-3. Confirm whether nodes 1 and 2 also picked up generation 119 — the deploy pipeline pushed it, so assume yes until verified.\n2. **No rollback is recorded.** `deploys.csv` has no revert row for dep-4471, consistent with the log never recovering. If someone reverted after 03:59, it isn't captured in these files.\n\n**Do not roll back** dep-4472 (billing-svc, 02:41) or dep-4473 (catalog-svc, 03:20) — both shipped *into* the already-broken gateway and neither changes the error signature.\n\n**Before re-landing this change:** connection-per-request needs the pool sized to peak concurrency, not left at 20. That's the actual prerequisite.\n\n---\n\n### Not related — separate ticket\n\nWorker fleet is **clean on this incident**: 1,080 jobs, all `finished ok`, zero errors, DB pool flat at `in_use=1, idle=7, waiting=0` throughout.\n\nBut workers are degrading independently — job durations climb **+110ms per 10 minutes, perfectly linear**, from 327ms avg at 01:00 to 2,197ms at 03:50. No inflection at 02:14; the slope is identical before, during, and after the gateway deploy, and it was already underway when the log opens. Throughput holds at 60 jobs/10min, so nothing is backing up yet. `db_wait` stays ≤12ms, so the time is in job bodies, not connection waits.\n\nAt that slope it crosses 3s/job within an hour of log end. Possibly related: one `WARN db slow query 1.9s: SELECT * FROM orders WHERE status = ? — unindexed scan, known issue OPS-2210` at 02:36:22Z — but that's a single sample and can't carry the conclusion. Worth its own ticket, not part of this incident.\n\nCaveat: worker log doesn't tag replica identity, so I can't tell if the drift is uniform across all four replicas or one bad one. Per-replica metrics would settle it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e57b1edc5c7a10dda945652260b1f5f23f22507552bcf67a6a96f0220ab2b6ad"
+}

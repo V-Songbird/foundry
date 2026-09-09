@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 81,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 10762,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0226015,
+  "numTurns": 1,
+  "durationMs": 9010,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 549
+  },
+  "contextTraffic": 27001,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 227,
+  "finalText": "**Merge** combines two branches without changing either one's history. It creates a new commit that points to both parents. Both branches stay intact, so you see the full story of how the work came together.\n\n**Rebase** replays one branch's commits on top of another. It rewrites history so everything looks like a clean line. The commits themselves change (they get new parent commits), so the history you see is neater but less \"true\" to what actually happened.\n\n**When to merge:** You want to keep the story of two parallel lines of work. Good for feature branches joining main, or when you're collaborating and people have copies of the branch. Merge is safer — it never rewrites commits anyone else might have.\n\n**When to rebase:** You're cleaning up your own work before you push, or your commits don't really need to exist as a fork. Rebase makes the history linear and easier to read. Only rebase on commits that are yours alone — if others have pulled your branch, rebasing breaks their copy.\n\n**The practical rule:** Rebase for local polish, merge when you're joining shared branches. Rebase before you push; merge after you push. If you're unsure, merge — it never breaks anything.\n\nThe risk with rebase is that it rewrites commits, which confuses anyone else who has those commits. Merge is always safe to redo or undo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa78e77048131c6b8feaa4962f4e44f70d1b52128bdea7331a5842e24cec0ad8"
+}

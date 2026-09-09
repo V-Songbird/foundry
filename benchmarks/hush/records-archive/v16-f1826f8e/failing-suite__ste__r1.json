@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 4,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32754,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.21335269999999998,
+  "numTurns": 10,
+  "durationMs": 31361,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1804
+  },
+  "contextTraffic": 360700,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 6262,
+  "narrationWords": 37,
+  "finalWords": 48,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` in `src/pricing.js:41`: it calculated tax on the original price instead of the discounted price, even though the function's own comment said tax must apply after the discount. Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`. Suite is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2cd524702bb86f1b991cadca375ef2177d8b6c81f724bd9671521ab51a06fefe"
+}

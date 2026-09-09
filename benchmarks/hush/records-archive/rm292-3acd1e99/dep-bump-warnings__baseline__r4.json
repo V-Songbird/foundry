@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51733,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3159375,
+  "numTurns": 12,
+  "durationMs": 50365,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3010
+  },
+  "contextTraffic": 259670,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 7327,
+  "narrationWords": 56,
+  "finalWords": 321,
+  "assistantMsgs": 5,
+  "finalText": "The build is green — exit 0, 0 errors. You were right that some of it wasn't noise: there were **two** real bugs, and they were sequential, so the first one masked the second.\n\n**1. Options shape mismatch** — `src/core/options.js:7`\nThe bump renamed the option `retries` → `retryCount`. This call site wasn't updated, so `options.retries` was `undefined` and `.toFixed(0)` threw `TypeError`, aborting the link stage. Fixed by reading `retryCount` with a fallback to the old `retries` name, so pre-bump callers still work.\n\n**2. Strict flag check on an unset default** — `src/net/retryPolicy.js:7`\nThe old config loader returned `false` for unset flags; the new one leaves them `undefined`. The strict boolean check threw on `undefined`. Fixed by treating an absent flag as \"off\", matching the pre-bump default. Non-boolean values other than `undefined` still throw — that's a genuine config error, and I didn't want to widen it into a truthiness check that would silently accept `\"false\"` or `0`.\n\nWorth a look: backoff now resolves to **disabled** when the flag is unset. That's what the old behavior was, so it's a faithful restoration — but if the intent post-bump was for backoff to default *on*, that's a one-line change and a product call, not a build fix.\n\n**On the remaining 8 warnings:** these I left alone, and I'd push back on treating them as in scope. They're all emitted as hardcoded literals in `build.js` (lines 18–24, 46–48) on fixed loop counters, and every file they name — `src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, `src/core/graph.js`, `src/state/tracker.js` — doesn't exist in this tree. The only files here are `build.js`, `options.js`, and `retryPolicy.js`. So there's no source to fix; the only way to make them disappear is to delete the log lines from the bundler itself, which would be suppressing the report rather than fixing anything. If those warnings are meant to track real code, that code lives outside this directory and I'd need it to do anything useful.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "617867daffde6f7be116816744228112e25346d2f860ef37dc47eb4bae6cee47"
+}

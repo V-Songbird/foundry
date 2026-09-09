@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25862,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1673706,
+  "numTurns": 10,
+  "durationMs": 24601,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1695
+  },
+  "contextTraffic": 219686,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6688,
+  "narrationWords": 59,
+  "finalWords": 98,
+  "finalText": "Build's clean (exit 0) now. The remaining ~950 lines of DEP0xxx/W1xxx-style output are genuine noise (bundler's own deprecation chatter), but two real bugs from the bump were hiding in there:\n\n- `src/core/options.js` — still read `options.retries`, but the new bundler passes `{ retryCount }`. This threw `TypeError: Cannot read properties of undefined (reading 'toFixed')` and aborted the build.\n- `src/net/retryPolicy.js` — the new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled explicit `true`/`false` and threw on anything else.\n\nFixed both to match the new shapes; build now finishes with 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "802e9b5a07d3a2d860fcb1f5e2c5019a0ba6dd973adf2588c3df68b2e35b88aa"
+}

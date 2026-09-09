@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16373,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11310239999999999,
+  "numTurns": 3,
+  "durationMs": 14388,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 860
+  },
+  "contextTraffic": 90167,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage triggered a cascading OOM crash that took prod down.**\n\n`10.0.0.12:6379` dropped at `02:14:07Z` (`ECONNREFUSED`). Cache fell back to direct store reads, causing timeouts and a request backlog.\n\nQueue depth climbed from 52 to 568 over 17 minutes while 12 reconnect attempts to redis all failed.\n\nAt [logs/app.log:717](logs/app.log:717) `worker-2` hit `JavaScript heap out of memory`, then the supervisor killed the whole process group at [logs/app.log:719](logs/app.log:719).\n\nNext: restore the redis host at `10.0.0.12` and add backpressure so queue depth can't run unbounded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7cffd309187158242be9ceb917fbdb6813ba914fcc6e3a9ff4045999e745d316"
+}

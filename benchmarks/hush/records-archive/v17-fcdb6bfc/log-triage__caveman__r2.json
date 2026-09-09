@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22978,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3154584,
+  "numTurns": 4,
+  "durationMs": 21557,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1184
+  },
+  "contextTraffic": 193496,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60359,
+  "narrationWords": 0,
+  "finalWords": 187,
+  "finalText": "Prod died from Redis outage, not app bug.\n\n**Timeline:**\n- 02:00–02:14: all normal, healthy cache hit ratios 0.90-0.98.\n- 02:14:07: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache layer fall back to direct store reads.\n- Immediately: cache miss storms + `TimeoutError: request timed out after 5000ms (store overloaded)` on every service (api/worker-1/worker-2/scheduler), repeating every ~2sec.\n- Redis reconnect attempts fire every ~2min (attempt 0 through 12, 02:15:26 to 02:31:26) — all fail same ECONNREFUSED. Redis never came back.\n- Request queue depth climb steady whole time: 52 to 568, blew past max 500 around 02:29.\n- 02:31:44: `worker-2` JavaScript heap out of memory (request backlog).\n- 02:31:45: supervisor restart worker-2 (exit code 134).\n- 02:31:52: `api unresponsive, killing process group — service down`.\n\n**Root cause:** Redis at 10.0.0.12:6379 went down at 02:14:07, never recovered. No cache = direct store reads = store overload = timeout cascade = unbounded queue growth = worker OOM = full outage 17min later.\n\n**Fix targets:** Redis HA/failover (single point of failure here), backpressure/circuit breaker on store when cache down instead of unbounded queue growth, alert on first ECONNREFUSED not wait for OOM.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63df05d96e2366a1f26e6bb5e2abbc8592d33322b9dd2b60cc89ff94964947da"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 12,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51854,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.340087,
+  "numTurns": 11,
+  "durationMs": 50253,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3426
+  },
+  "contextTraffic": 207342,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15187,
+  "narrationWords": 29,
+  "finalWords": 182,
+  "finalText": "Migration finished. 12 first-party files converted (36 call sites), all syntax-checked clean:\n\n| Package | Files |\n|---|---|\n| accounts | `service/teamService.js`, `repo/session.js`, `admin/apiKeyAdmin.js` |\n| orders | `service/returnService.js`, `repo/shipment.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| billing | `service/couponService.js`, `repo/refund.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the shape used by the already-migrated files.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** — still on `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost. Editing it would be undone by the next upgrade. Since `lib/db.js` notes the driver's next major drops `query` entirely, this needs a real fix — upstream patch, or a wrapper that adapts the vendored calls — rather than an in-place edit. Flagging it as the one remaining blocker.\n- **`cache.query(...)`** across ~20 repo files — that's `lib/cache.js`, an unrelated API, not part of this migration.\n\n`db.query` is still defined in `lib/db.js`; you can't delete it until the vendor case is resolved.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a08e15b47f44c4f13e4ff9243c10b67dcd39eadfbb2ddc1e2dec2aeea9f6c9b5"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__noclause__r1",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 0,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16173,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09023320000000001,
+  "numTurns": 10,
+  "durationMs": 14445,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 932
+  },
+  "contextTraffic": 159207,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 3257,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refresh.js`, not `tokens.js`.**\n\nauth.internal returns `400 invalid_grant` (refresh token revoked). That error code isn't in `RECOVERABLE`, so [refresh.js:15](src/auth/refresh.js:15) returns `undefined` instead of throwing.\n\nThat `undefined` flows into `decode(token)` at [session.js:8](src/session.js:8), where `token.split('.')` blows up. The trace blames [tokens.js:6](src/auth/tokens.js:6), but that's just where the `undefined` finally gets used, not where it originated.\n\nLook at `refreshToken` in `refresh.js`. The `invalid_grant` path should throw or return a signal that forces re-login, not `undefined`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "564805893a0df14d8382f31ad5193b43279ff8fca12f5e08bd2424334b9f8233"
+}

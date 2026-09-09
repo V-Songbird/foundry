@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 29,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 38977,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0661119,
+  "numTurns": 12,
+  "durationMs": 37303,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2609
+  },
+  "contextTraffic": 240544,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 6749,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "finalText": "**Fixed the coupon bug.**\n\nThe code was subtracting the flat-coupon amount (stored in USD) directly from the already-converted total, mixing currencies. A $10 coupon on a €90 converted subtotal would become €80 instead of €81.\n\nThe fix converts the coupon amount to the target currency first, just like the subtotal. All five tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4df3b3c10fff4b7cee70e05bd89b8b93e53a4d67aedbe42d59934a754a69a54"
+}

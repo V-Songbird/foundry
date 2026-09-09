@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "scr1-ce4805bd",
+  "seed": "1787637098368",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 65806,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.510346,
+  "numTurns": 10,
+  "durationMs": 64247,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4354
+  },
+  "contextTraffic": 356467,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 18710,
+  "narrationWords": 6,
+  "finalWords": 85,
+  "finalText": "**Your Redis cache server went down. Everything else followed.**\n\nWhat happened, all on July 4th:\n1. At `02:14:07` Redis at `10.0.0.12:6379` refused connections.\n2. Reads fell back to the store. It overloaded.\n3. 173 requests timed out at 5 seconds each.\n4. The backlog grew from 52 to 568. The cap is 500.\n5. At `02:31:44` worker-2 ran out of memory.\n6. At `02:31:52` the supervisor killed everything. Service down.\n\nThe app retried Redis 13 times. All refused.\nNothing succeeded after `02:14:07`. Down 17 minutes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "21600b514e6accb913804ebaba7ce026fd06353ac2392af48f25f0bebc5702e6"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 1,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22796,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3196203999999999,
+  "numTurns": 8,
+  "durationMs": 21058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 965
+  },
+  "contextTraffic": 263940,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 3547,
+  "narrationWords": 12,
+  "finalWords": 33,
+  "finalText": "Found it: `isExpired` used `<` instead of `<=`, so a token expiring at exactly the current second still counted as valid. Changed `token.js` to `exp <= nowSeconds`. All 5 tests pass now, 75ms.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8869568220f859bbc6c421a5052f11545459340f6049491d2037c30e130ad27d"
+}

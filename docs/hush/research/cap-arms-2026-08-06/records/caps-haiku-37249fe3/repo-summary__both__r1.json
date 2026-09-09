@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 135,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 24351,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0437058,
+  "numTurns": 10,
+  "durationMs": 22617,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1653
+  },
+  "contextTraffic": 113725,
+  "apiCalls": 4,
+  "toolCalls": 9,
+  "toolResultChars": 4411,
+  "narrationWords": 0,
+  "finalWords": 206,
+  "finalText": "**This is a lightweight Node.js backend for managing users and orders.**\n\nThe five files form a clean stack from top to bottom:\n\n**Server layer** (`server.js`): Starts an HTTP listener on port 8080. Every request gets checked for a bearer token — if the token is invalid, it rejects with 401. Valid requests pass to the route handler along with the user ID.\n\n**Authentication** (`auth.js`): Verifies bearer tokens using HMAC-SHA256. Tokens are signed user IDs pulled from the auth header. Uses a shared secret from the env var `AUTH_SECRET`.\n\n**Routes** (`routes.js`): A simple dispatcher that matches `GET /users`, `GET /orders`, and `POST /orders` to handler functions. Reads go through the cache to avoid hammering the store. Writes skip the cache and hit the store directly.\n\n**Cache** (`cache.js`): An LRU cache holding up to 256 entries. No expiration — it just evicts the oldest items when full. Absorbs repeated reads.\n\n**Store** (`store.js`): In-memory data with 15-minute TTL per record. Stands in for a real database. Tracks user and order data.\n\nThe data flow: request comes in → server authenticates → router looks up the handler → read handlers check cache first, then the store; write handlers go straight to store and return → response. It's small and straightforward.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c455ebafa8f3b3f49607af7edf31917729df7f3a94c6f2ac8a6df12135818ff"
+}

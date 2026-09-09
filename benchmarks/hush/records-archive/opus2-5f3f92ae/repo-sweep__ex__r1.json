@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ex__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 68959,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.489227,
+  "numTurns": 17,
+  "durationMs": 67372,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4507
+  },
+  "contextTraffic": 340093,
+  "apiCalls": 10,
+  "toolCalls": 16,
+  "toolResultChars": 18951,
+  "narrationWords": 6,
+  "finalWords": 89,
+  "finalText": "Migrated 36 calls across 12 files to `db.execute({ sql, params })`. Every file parses, and a smoke run shows only `execute` reaching the driver.\n\nI left two spots alone on purpose:\n\n| Spot | Why |\n|---|---|\n| `vendor/legacy-orm/adapter.js` (2 calls) | Header says vendored copy, do not edit, changes lost on upgrade |\n| 25 `cache.query(...)` calls | Different object, takes a cache key not SQL |\n\nThe vendor file still calls the deprecated form. That needs an upstream fix or a wrapper. Want me to add one?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf9da9358025b2e3780871523dae5fec2abbba299547e1b5926ab58456b80ceb"
+}

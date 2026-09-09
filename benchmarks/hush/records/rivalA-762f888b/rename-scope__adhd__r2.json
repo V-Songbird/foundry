@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 106,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 60606,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3380035,
+  "numTurns": 8,
+  "durationMs": 59702,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3805
+  },
+  "contextTraffic": 186306,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 18860,
+  "narrationWords": 22,
+  "finalWords": 653,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this actually is.",
+    "Now the interesting part — where it must *not* be renamed."
+  ],
+  "finalText": "## How big it is\n\n**1,291 occurrences across 94 files.** The distribution matters more than the total:\n\n| Area | Files | Occurrences | Verdict |\n|---|---|---|---|\n| `services/*` (5 services × repo/service/http) | 75 | 1,200 | Rename — but see the DB caveat |\n| `migrations/*.sql` | 12 | 61 | **Do not touch** |\n| `vendor/reporting-sdk` | 4 | 20 | **Do not touch** |\n| `docs/openapi.yaml` | 1 | 5 | **Do not touch** |\n| `lib/serialize.js`, `lib/audit.js` | 2 | 5 | Partial — see below |\n\nThe service code is highly uniform (every repo/service/http triple is the same 5-function shape), so the 1,200 in-service occurrences are mostly mechanical. The real work is the four exclusion zones and the DB column, not the volume.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` + the right-hand side of `lib/serialize.js`.** `account_id` is a public API field name and a public query parameter on `/v2/invoices`. `serialize.js` is the exact boundary — `WIRE = { account_id: 'account_id' }`. The correct end state is `WIRE = { owner_id: 'account_id' }`: internal key renamed, wire key frozen. A blind find/replace flips both sides and silently breaks every client, with no test failure to catch it. This is the single highest-risk line in the repo.\n\n**2. `migrations/` — all 12 files.** They're applied in production (dated Jan–Jun 2025). Editing them renames nothing in a database that already ran them, and it desyncs the `down` steps. A rename needs a *new* forward migration, not edits to history.\n\n**3. `vendor/reporting-sdk/`.** Vendored copy of 3.8.1, marked \"do not edit\", overwritten wholesale by `npm run vendor:refresh`. Any change here is reverted on next refresh. Worth noting: nothing in `services/` or `lib/` imports it, so it can just be left alone.\n\n**4. `lib/audit.js`.** The audit line key `account_id` goes into an emitted event stream. Renaming it splits historical audit records from new ones for anything downstream that queries by field name. Treat it as an external contract unless the platform team confirms no consumers.\n\n## The thing that isn't a rename at all\n\nThe DB column is `account_id`, and 125 SQL strings in the repo layer reference it by name. Renaming the JS identifiers is safe; renaming it inside the SQL strings is only safe *after* a column-rename migration ships. These must be sequenced, and the intermediate state needs both names to work.\n\nTwo complications on that:\n\n- `insertInvoice` (and its 24 siblings) writes `account_id` **into the `payload` JSONB** as well as the column. Renaming that key gives you rows with `payload.owner_id` and older rows with `payload.account_id` — a data-level split a migration won't fix unless it explicitly rewrites the JSONB.\n- The services query **25 tables**, but only 11 have DDL in this repo (accounts, invoices, orders, payments, line_items, shipments, pageviews, funnels, emails, digests). The other 14 — baskets, coupons, ledgers, refunds, subscriptions, returns, cohorts, retentions, webhooks, pushs, api_keys, contacts, invites, preferences, profiles — are defined somewhere you can't see from here. Nobody can author a complete rename migration from this repo alone.\n\n## For your sign-off today\n\nI'd not sign off on it as a single change. What I'd sign off on:\n\n- **Yes** to renaming the JS identifiers and function params in `services/*` — mechanical, reversible, ~1,200 occurrences of genuinely local naming.\n- **Hold** on the SQL strings until a column-rename migration exists for all 25 tables, plus a decision on the JSONB payload key.\n- **Hard exclude** `migrations/`, `vendor/`, `docs/openapi.yaml`, and the wire side of `serialize.js` and `audit.js` — and ask that the PR show `serialize.js` explicitly, since that one line is where a correct rename and a breaking one look identical in a diff stat.\n\nThe question to put back to the platform team: is this an internal-naming cleanup, or do they intend to rename the public API field too? If it's the latter, that's a new dated API version, not a rename PR.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5af22d249956730924408654d3faaba7460d0d3d1cf165ab2f365e59c47dae66"
+}

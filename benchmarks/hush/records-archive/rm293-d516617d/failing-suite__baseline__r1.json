@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30756,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2728165,
+  "numTurns": 9,
+  "durationMs": 29001,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1772
+  },
+  "contextTraffic": 169075,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 16826,
+  "narrationWords": 71,
+  "finalWords": 235,
+  "assistantMsgs": 4,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was broken:** the wall of text hid just 3 real failures, all in the `order totals` suite:\n\n- `orderTotal(12000, 15, 0.0825)` → 11190, expected 11042\n- `orderTotal(8650, 20, 0.05)` → 7353, expected 7266\n- `orderTotal(33400, 10, 0.2)` → 36740, expected 36072\n\n**Root cause:** `orderTotal` in `src/pricing.js:39` applied the discount correctly but computed tax off the *undiscounted* base (`roundCents(cents * taxRate)`), then added it to the discounted subtotal. So customers were taxed on money they never paid. The function's own docstring says tax goes on the discounted amount, so the code contradicted its stated contract.\n\nIt stayed hidden because every other row in the suite has either a zero discount or a zero tax — those cases give identical results either way. Only the three rows with both non-zero could expose it.\n\n**Fix** (`src/pricing.js:39`):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThis also reuses the existing `applyTax` rather than re-deriving the tax math inline, so the rounding matches the rest of the engine.\n\nOne thing worth flagging: the discount is rounded to whole cents *before* tax is applied (`applyDiscount` rounds, then `applyTax` rounds again). That's double rounding, and it's what `cases.js` encodes as the spec, so I matched it. If the ledger actually wants a single rounding at the end, that's a spec change in both files — say the word and I'll make it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f402a84fcc7f13aaa4d7cd8a422bcb2a6422971391072fa5b6297a78ba3b4c70"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 186264,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.32186699999999996,
+  "numTurns": 13,
+  "durationMs": 175989,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3585
+  },
+  "contextTraffic": 520340,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 13529,
+  "narrationWords": 20,
+  "finalWords": 265,
+  "finalText": "# On-Call Handoff — Gateway 503 Incident\n\n## Root cause\n\nDeploy `dep-4471` changed the gateway config from `gateway.pool.perRequest: false` to `true`. The gateway applied this change at 2026-03-14T02:13:41Z, generation 118 to 119. After the change, the gateway opened one connection for each request instead of reuse. The connection pool, fixed at size 20, could not meet the new demand. The pool ran out of connections. The gateway returned `503` errors with the reason `ERR_POOL_EXHAUSTED`.\n\n## Impact window\n\n- **Start:** 2026-03-14T02:14:18.972Z, first `503` error, 19 seconds after the deploy finished.\n- **End:** Not resolved. The log ends at 2026-03-14T03:59:27.974Z with the error still active.\n- **Duration so far:** At least 1 hour 45 minutes.\n- **Trend:** The queue of waiting requests grew without stop, from 13 requests at the start to 74 requests at the last log entry. The problem was getting worse, not better.\n- **Scope:** Gateway only. Affected routes: `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, and `/v1/checkout`. The `/health` route and some other requests still returned `200`.\n- **Worker service:** Not affected. The worker pool stayed steady at `size=8 in_use=1 idle=7 waiting=0` through the full window. Zero `ERROR` lines in `worker.log`.\n\n## Deploy to roll back\n\nRoll back `dep-4471`, gateway, author a.novak, \"config: connection-per-request for pool isolation\", deployed 2026-03-14T02:12:00Z to 02:14:00Z.\n\nTo roll back:\n\n1. Revert `gateway.pool.perRequest` to `false`.\n2. Confirm that the gateway applies the new config generation.\n3. Check `gateway.log` for `ERR_POOL_EXHAUSTED` after the rollback. The count must return to zero.\n\nDo not roll back `dep-4472` (billing-svc) or `dep-4473` (catalog-svc). Both deploys landed after the errors started and do not match the error pattern.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d747b8738092e999bc0e3208fbd2bd14833135c7e1ad64d8db76f716ec3a0b4d"
+}

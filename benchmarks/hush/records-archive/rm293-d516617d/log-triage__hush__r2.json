@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42936,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.357293,
+  "numTurns": 10,
+  "durationMs": 41017,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2084
+  },
+  "contextTraffic": 209211,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 22198,
+  "narrationWords": 6,
+  "finalWords": 128,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died, and the cache loss took prod down.** 17 minutes, start to finish.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | Cache falls back to direct store reads |\n| 02:15:26–02:31:26 | 13 reconnect tries, all refused |\n| 02:29:12 | Queue passes its cap at `depth 502 (max 500)` |\n| 02:31:44 | `JavaScript heap out of memory (request backlog)` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nRedis never came back. Every read hit the store, 173 timeouts piled up, and the queue grew until `worker-2` ran out of heap.\n\nNext: find why `10.0.0.12:6379` refused. Then cap the queue so a cache loss sheds load instead of eating memory.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7b22f7a50bc5fd8fdd02710562a284f6ad6bcd0ee34850f368cce3be8171186d"
+}

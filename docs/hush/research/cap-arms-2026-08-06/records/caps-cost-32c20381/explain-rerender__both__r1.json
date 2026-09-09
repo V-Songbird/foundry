@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__both__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 7,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 9427,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0225855,
+  "numTurns": 1,
+  "durationMs": 7673,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 523
+  },
+  "contextTraffic": 27055,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 135,
+  "finalText": "The parent is probably re-rendering, which causes children to re-render too. Three things to check:\n\n**Is the parent re-rendering?** Open your DevTools Profiler and record what's happening. You'll see which components actually re-render, not just which ones are called.\n\n**Are you passing new objects or functions each render?** This is sneaky. Code like `onClick={() => doThing()}` or `style={{color: 'red'}}` creates a brand new object every render, so your child sees different props even if the values look the same. Move those outside the render, or use `useCallback` and `useMemo`.\n\n**Is the child checking props correctly?** By default React doesn't skip re-renders even with the same props. Wrap it in `React.memo()` if you want React to skip the child render when props haven't changed.\n\nIf you share your code I can spot which one it is.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5599ccc97c7e7e0ca0114b293fc1e29b5d2c70a2bbef87f9902a4ed8f6a3f1b5"
+}

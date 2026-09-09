@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 38,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 119358,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6827909,
+  "numTurns": 13,
+  "durationMs": 118123,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10598
+  },
+  "contextTraffic": 568991,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 73324,
+  "narrationWords": 36,
+  "finalWords": 241,
+  "finalText": "I went through all 380 commits and cross-checked against the PR sheet. Out of that, one `feat` and 27 `fix` commits actually change behavior a user would see — everything else was dependency bumps, refactors, tests, and CI/docs churn, which I left out per the placeholder's instruction.\n\nAdded `CHANGELOG.md` under **4.2.0 — 2026-08-21**:\n\n- **Added:** webhook deliveries now retry with exponential backoff instead of failing after one attempt.\n- **Fixed:** grouped the 27 fix commits into 11 user-visible items — no more full request-body logging in the DB pool, expired tokens now return 401 instead of 403, trace IDs survive retries, null-cursor pagination crashes are gone (API/queue/webhooks/DB), duplicate trailing slashes, empty allow-list handling, duplicate response headers, clearer token-parser errors, correct latency-histogram units, and two HTTP client leaks (timer on socket drop, pool on shutdown).\n\nTwo things worth a gut-check before you publish:\n\n1. **The 401-vs-403 change** — I filed it under Fixed since the old behavior was wrong, but it does change a status code a client might be checking for. You may want it under Breaking instead, depending on how strict your compat policy is.\n2. **\"stop logging the whole request body\"** in the DB pool — I called it out first since it reads like a real privacy fix (bodies can carry PII/secrets), but I only have the commit message, not the diff, so you'll want to confirm what was actually in those logs before you publish that framing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c11f029f784308b6b8f29279e260ab8bcfb06c032c05a479b383a7285d5d3400"
+}

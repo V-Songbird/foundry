@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__hush__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 27,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 96767,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.45992220000000006,
+  "numTurns": 25,
+  "durationMs": 88448,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4909
+  },
+  "contextTraffic": 1126856,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 72583,
+  "narrationWords": 18,
+  "finalWords": 49,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "Routing looks correct — low→email, normal→push, high→sms, critical→pager. Let me confirm the summary tail has zero real errors."
+  ],
+  "finalText": "**Done.** Repeats within 5 minutes of the same `key` are now dropped, tracked via `state.lastSentAt` in [src/router.js:28](src/router.js:28).\n\nSimulate confirms `dropped: 99`, matching the ~100 flap events events.js generates every 9th notification. Critical dropped from 225 to 200 pages, others thinned similarly.\n\nNext: nothing, unless the 5-minute window needs tuning.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac7fc1ece7e1db8f8f62915c6a7373fc14dc7b0036567b7034431c02ca6f963d"
+}

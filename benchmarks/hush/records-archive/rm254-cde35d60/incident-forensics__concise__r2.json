@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 92,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 57183,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5433548,
+  "numTurns": 16,
+  "durationMs": 51476,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3622
+  },
+  "contextTraffic": 801307,
+  "apiCalls": 14,
+  "toolCalls": 12,
+  "toolResultChars": 54111,
+  "narrationWords": 39,
+  "finalWords": 181,
+  "finalText": "Confirmed: still failing at the end of the log (03:59:27Z), no recovery — this is ongoing/unresolved.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing, unresolved as of last log entry (03:59:27Z)\n\n**Root cause**\nGateway config generation 119 (applied 2026-03-14T02:13:41.234Z) flipped `gateway.pool.perRequest: false -> true`, changing connection pool checkout behavior. The pool (fixed size 20) saturates under normal traffic and never drains — `in_use` pegged at 20 with the `waiting` queue climbing continuously (13 → 74+ and still rising at last log line). Every failure is `ERR_POOL_EXHAUSTED`.\n\n**Impact window**\n- **Start:** 2026-03-14T02:14:18.972Z (first 503, ~37s after config applied)\n- **End:** none — still active at 03:59:27Z (end of available log), queue depth still growing\n- **Scope:** gateway only. worker.log shows no related errors in this window (one unrelated pre-existing `slow query` WARN tagged OPS-2210) — backend workers/DB are healthy.\n\n**Deploy to roll back**\n`dep-4471` — gateway, a.novak, 2026-03-14T02:12:00–02:14:00Z, \"config: connection-per-request for pool isolation\". Revert config generation 119 → 118 (or explicitly set `gateway.pool.perRequest` back to `false`).\n\n**Next step**\nRoll back dep-4471 immediately; pool exhaustion is not self-healing and is still worsening.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e9f541986c3d2fba786989637f7613e2245c9cfb2abac9633105992aad894cc5"
+}

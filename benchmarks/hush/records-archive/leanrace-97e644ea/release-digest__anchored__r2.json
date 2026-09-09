@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__anchored__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 15,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 124201,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3212214,
+  "numTurns": 11,
+  "durationMs": 122298,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10901
+  },
+  "contextTraffic": 412150,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 23399,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "finalText": "Written into `CHANGELOG.md` under `## 4.2.0 — 2026-08-23`.\n\nOut of 380 commits and 128 merged PRs since 4.1, eight things actually matter to someone installing this:\n\n1. **Breaking:** expired tokens now return `401`, not `403`.\n2. **Added:** failed webhook deliveries retry with exponential backoff.\n3. **Fixed:** pagination no longer crashes on a null cursor, across queue, API, webhooks, and DB-backed endpoints.\n4. Duplicate response header gone.\n5. Trailing slashes in queue/job URLs trimmed once instead of repeatedly.\n6. Empty allowlists now handled correctly in store, database, and jobs.\n7. The database layer stopped logging full request bodies.\n8. The HTTP client no longer leaks its timer on a dropped socket, and closes its pool on shutdown. Token-parser errors are clearer too.\n\nEverything else was dependency bumps, internal refactors, and test/CI churn, left out per the file's own instruction.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ad9a31dd3d392fa62f1606010cd8c94d1e9e0003c7c0ad30fa14823c73781eb1"
+}

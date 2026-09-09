@@ -1,0 +1,29 @@
+name: Plugin main front pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  selectors:
+    name: Main selectors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test scripts/git-hooks/check-main-frontpage.test.js
+      - name: Check each published main selector and its destinations
+        run: |
+          for plugin in foreman hush razor; do
+            git -C "$plugin" fetch origin "+refs/heads/main:refs/remotes/origin/main" "+refs/heads/Claude:refs/remotes/origin/Claude" "+refs/heads/Codex:refs/remotes/origin/Codex"
+            node scripts/git-hooks/check-main-frontpage.js --repo "$plugin" --plugin "$plugin" --ref refs/remotes/origin/main
+          done

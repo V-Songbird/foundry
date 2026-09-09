@@ -1,0 +1,45 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 68826,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2533498,
+  "numTurns": 33,
+  "durationMs": 67650,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9166
+  },
+  "contextTraffic": 246349,
+  "apiCalls": 8,
+  "toolCalls": 32,
+  "toolResultChars": 23626,
+  "narrationWords": 87,
+  "finalWords": 74,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "Good — that confirms vendor/legacy-orm is explicitly marked \"do not edit\" (overwritten on upgrade), so it's excluded from the migration. Let me check `lib/db.js` to confirm both `query` and `execute` are supported there, then fix the 12 real files.",
+    "Now let's look at each remaining call site.",
+    "All 12 files follow the identical pattern (mirrors the already-migrated `user.js`). I'll apply the same transformation to each.",
+    "Now let's verify no remaining `db.query` calls outside vendor, and confirm the file's other function (`cachedUser`-like ones with caching) doesn't need touching."
+  ],
+  "finalText": "All application call sites are migrated — only `vendor/legacy-orm/adapter.js` still uses `db.query`, and that file is explicitly marked \"do not edit\" (vendored, overwritten on every upgrade), so it's correctly left alone as the deprecated `query` method still exists in `lib/db.js` for it to call.\n\nMigrated 12 files (couponService, macroAdmin, refund, sla, returnService, shipment, session, supplier, variantAdmin, teamService, apiKeyAdmin, cohort) from `db.query(sql, params)` to `db.execute({ sql, params })`, matching the pattern already used in `user.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "87d962d0d763108a56a6d038ad0055eedfff791747eddf6b0b75a7e373668654"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 99,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69189,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3025425,
+  "numTurns": 12,
+  "durationMs": 62366,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4485
+  },
+  "contextTraffic": 398497,
+  "apiCalls": 10,
+  "toolCalls": 8,
+  "toolResultChars": 14279,
+  "narrationWords": 0,
+  "finalWords": 219,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing as of last log entry (03:59:27Z) — not yet resolved.\n\n**Root cause**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") applied config generation 119 at 02:13:41Z, flipping `gateway.pool.perRequest: false -> true`. This made every request grab its own dedicated connection instead of sharing the pool. The fixed 20-connection pool saturated almost immediately (`in_use=20` pinned for the rest of the log), and the backlog of queued requests has been growing continuously (`waiting` climbed from 13 at onset to 74+ by end of log), each timing out into a 503.\n\n**Impact window**\n- **Start:** 2026-03-14T02:14:14.920Z (first `WARN acquire slow`), first 503 at 02:14:18.972Z — ~33s after the config change landed.\n- **End:** not yet — still failing at 03:59:27Z, the last line of the log. Duration so far: **~1h45m and counting**.\n- **Scope:** gateway only, all four backends affected roughly evenly (billing-svc, orders-svc, catalog-svc, accounts-svc). 548 log lines contain \"503\", 530 `ERR_POOL_EXHAUSTED` errors.\n- **Workers unaffected** — separate connection pool, stayed healthy (`in_use=1/8`) throughout; no errors, no correlated slowdown.\n\n**Action: roll back `dep-4471`**\nRevert `gateway.pool.perRequest` to `false` (config generation 119 → 118). Two other deploys landed inside the window (`dep-4472` billing-svc 02:41Z, `dep-4473` catalog-svc 03:20Z) but both post-date the onset and don't touch pooling — not implicated, no action needed on those.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "69051c4387d1e5b3adaa39b8b183ffd860ab930f6ab7d0d7b88eb4eafc5d63ac"
+}

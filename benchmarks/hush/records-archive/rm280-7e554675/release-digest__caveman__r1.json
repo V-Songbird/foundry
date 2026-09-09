@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 37,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 61488,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7079605,
+  "numTurns": 9,
+  "durationMs": 60107,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3661
+  },
+  "contextTraffic": 377176,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 72282,
+  "narrationWords": 5,
+  "finalWords": 522,
+  "finalText": "380 commits since 4.1. Real user-visible: **1 feature, ~8 distinct fixes, perf, 3 breaking-ish**. Rest = 100+ dependency bumps, refactors labeled by module but same 10 patterns repeated, CI/test churn.\n\nSame change landed many times across modules (7 `drop the duplicate header`-class fixes are really 3 distinct bugs, repeated per module) and the PR sheet duplicates commits (#4120/#4121 both \"bump pino 9.2.0 to 9.3.1\"). Collapsed by symptom below, not by commit.\n\n**Breaking, nobody marked as breaking:**\n- `refactor(api): drop the unused v1 export route` (56dc828, PR #4152) — public route deleted. \"unused\" = internal telemetry claim, not proof no caller uses it.\n- `stop re-exporting the internal error types` — 7 commits across core/db/jobs/auth/billing (2e61589, 5d4de73, d988aed, 4d83260, d7cf97b, 9b717dc, b5cfbc3, 8639397). Anyone importing those error classes from the package root breaks.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55, PR #4223) — filed as fix, but any client branching on 403 changes behavior.\n\n**Uncertain — verify before cutting:** four `docs: note the minimum node version` commits plus CI moving to node 22 and `.nvmrc` pins. Can't tell from history if `engines.node` actually rose. Check `package.json`. If it did, that's breaking too.\n\nDraft, your shape:\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- The v1 export route has been removed. Use the current export endpoint.\n- Internal error types are no longer re-exported from the package root.\n  Import them from their own module, or match on the error `code` field.\n- An expired token now returns 401 instead of 403. Clients that branch on\n  403 for expiry need updating.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The paginator no longer throws on a null cursor or an empty page.\n- Request bodies are no longer written to the logs.\n- A dropped socket no longer leaves the request timer running, and the\n  connection pool is closed on shutdown.\n- The trace id is kept across a retry.\n- Duplicate headers are no longer sent on a retried request.\n- Latency histograms report the correct units. Recorded values change\n  scale; dashboards and alert thresholds need rechecking.\n- An empty allowlist is treated as empty, not as allow-all.\n- URLs with a trailing slash are normalized once, not twice.\n```\n\nNotes on choices:\n- Latency histogram units (59402bc, 1f2bc4e) filed as `fix`, but it silently changes emitted metric values. Callers notice. Kept it, with warning.\n- `tighten the token parser error message` (core/billing/queue) — dropped. Message text only, no code change. Include only if you document error strings.\n- All perf commits dropped: `avoid the extra clone`, `skip the JSON round-trip`, `batch the metric writes`, `reuse the parsed schema`. No numbers anywhere in history. Add a \"Performance\" line only if you have benchmark figures — otherwise unverifiable claim.\n- Dependency bumps all dropped: pino, pg, knex, ioredis, zod, fastify, undici, nanoid, dotenv + dev tooling. All patch/minor, none in your public surface. `undici 6.19.2→6.19.5` is the only runtime HTTP one worth a mention if you list deps.\n\nDate is placeholder — set to actual cut date. Want me to write this into CHANGELOG.md?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f4893b62a1afd3d2774216e1b5447debce67de47f9476ebbae02dee8c70827aa"
+}

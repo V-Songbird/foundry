@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__ex__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 13,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 79619,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5837715,
+  "numTurns": 17,
+  "durationMs": 78155,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5914
+  },
+  "contextTraffic": 336273,
+  "apiCalls": 9,
+  "toolCalls": 16,
+  "toolResultChars": 31892,
+  "narrationWords": 9,
+  "finalWords": 103,
+  "finalText": "`account_id` appears 1291 times across 94 files. Four zones must keep the old name.\n\n| Zone | Hits | Why frozen |\n|---|---|---|\n| SQL strings in `services/*/src/repo/` | 125 | Real column name, never renamed |\n| `migrations/` | 61 | Already applied in production |\n| `vendor/reporting-sdk/` | 20 | `vendor:refresh` overwrites edits |\n| `docs/openapi.yaml` | 5 | Public contract, needs new dated version |\n| `lib/serialize.js` wire value | 1 | Public JSON key |\n\nThat leaves roughly 1079 safe renames, all internal variables. One caution: `req.session.account_id` appears 100 times. Whoever sets that session field lives outside this repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f157f270112206c395521865b88ab79034b262aedcbf776f5b71c5d751fa30d8"
+}

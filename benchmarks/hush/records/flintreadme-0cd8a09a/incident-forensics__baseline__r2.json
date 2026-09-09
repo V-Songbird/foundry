@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 22,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 253687,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.009952,
+  "numTurns": 21,
+  "durationMs": 248688,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 17187
+  },
+  "contextTraffic": 579562,
+  "apiCalls": 21,
+  "toolCalls": 17,
+  "toolResultChars": 17550,
+  "narrationWords": 8,
+  "finalWords": 735,
+  "assistantMsgs": 5,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident\n\n⚠️ **Read this first:** the analysis below is from `logs/gateway.log`, which covers **2026-03-14 01:00–03:59 UTC** — roughly five months old, not last night. If you were paged for a 503 event in the last 24 hours, this file does not contain it and the handoff below may describe a *recurrence* rather than your incident. Confirm the timestamps in the live logs before acting on the rollback.\n\n---\n\n### Root cause\n\nGateway config change `gateway.pool.perRequest: false -> true`, shipped by **dep-4471**. This disabled connection reuse in the gateway's outbound pool, so every request acquired a fresh connection against a pool fixed at **size 20**. The pool saturated within seconds and never recovered.\n\nConfirmed by three independent signals in the log:\n\n```\n02:13:41.234Z INFO config  generation 119 applied: 3 keys changed\n02:13:41.234Z INFO config    gateway.pool.perRequest: false -> true\n03:02:30.904Z WARN pool    connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\nThat's a **105× increase in connection opens** vs. baseline. Pool stats flip from `in_use=10 idle=10 waiting=0` at 02:10 to `in_use=20 idle=0 waiting=12` at 02:15, and `idle` stays at 0 for the rest of the window while the wait queue climbs past 170.\n\nNot upstream failure — all four backends (`billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc`) fail at equal rates, which rules out any single dependency. Requests fail at pool acquisition, before any upstream call.\n\n### Impact window\n\n| | |\n|---|---|\n| **Onset** | 2026-03-14 **02:14:18.972Z** (first 503) |\n| **Last event in log** | 03:59:27.974Z — **still failing, no recovery recorded** |\n| **Duration** | ≥ 1h 45m (open-ended; log ends mid-incident) |\n| **Peak error rate** | **83%**, sustained from 02:20 onward |\n| **Failed requests** | 530 × `503`, each paired 1:1 with `ERR_POOL_EXHAUSTED` |\n| **Paged** | 03:21:05Z — **67 minutes after onset** |\n\nRamp was immediate, not gradual: 0% error rate through 02:09, 44% in the 02:10 bucket, 83% from 02:20 and flat thereafter.\n\n**Affected endpoints** (~59% failure each): `/v1/cart`, `/v1/catalog/search`, `/v1/orders`, `/v1/session`, `/v1/checkout`.\n\n**Unaffected:** `/health` — **180/180 at 200 throughout**. This is why the page was delayed over an hour; health-check-based alarms could not see this outage. Worth a follow-up on alerting. `/v1/profile` also stayed clean (74/74).\n\n### Roll back this\n\n```\ndep-4471 | gateway | 2026-03-14T02:12:00Z → 02:14:00Z | a.novak\n         | \"config: connection-per-request for pool isolation\"\n```\n\nDeploy finished **02:14:00Z**; first 503 at **02:14:18.972Z** — a **19-second** gap. It is the only gateway deploy in `deploys.csv` and the only one touching connection pooling.\n\n**Action:** revert `gateway.pool.perRequest` to `false` (config generation 119 → 118). Do not re-enable it without first raising `gateway.pool.size` well above 20 — at observed request rates the per-request model needs an order of magnitude more connections.\n\nThe other two keys in generation 119 (`timeout.upstreamMs 2000→2500`, `log.sampleRate 1.0→1.0`) are not implicated — 503s returned in 600–999ms, far under either timeout — but they revert together unless you cherry-pick.\n\n**Ruled out, don't chase:**\n- `dep-4470` (worker, fin. 00:55) — gateway ran 79 minutes at 0% errors afterward.\n- `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) — both shipped **after** onset, into an already-failing gateway. Error rate held at exactly 83% across both with no inflection. `dep-4473` (cache TTL 60s→300s) looks pool-adjacent but landed 71 minutes late.\n\n### Separate issue — needs its own ticket\n\n`logs/worker.log` shows **zero errors** (1080/1080 jobs OK, pool flat at `size=8 in_use=1 idle=7 waiting=0` all window). Workers were not involved in the outage.\n\nBut job latency is drifting linearly: **+11ms per minute**, identical slope before and after 02:14 (11.00 vs 11.00 ms/min), affecting all six job types uniformly (+2000ms each). `db_wait` stays flat at 5ms, so it's in-process — leak or GC pressure, not the database. Already at full slope in the first log line, so onset predates the window.\n\nUnhandled at 03:59 and showing no ceiling. Extrapolated, jobs would hit ~4s by 08:00.\n\n### Open items for the next shift\n\n1. **Confirm the date question above** before rolling anything back.\n2. Verify `dep-4471` was actually reverted in March — if this is a recurrence, the rollback didn't stick.\n3. Fix health-check alerting: `/health` stayed green through an 83% outage.\n4. File the worker latency drift; to date its onset you need worker logs from before 00:48.\n5. `OPS-2210` (unindexed `SELECT * FROM orders WHERE status = ?`, one 1.9s hit at 02:36) — already ticketed, unrelated.\n\n---\n\nWant this written to a file, or posted somewhere?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0c4911309403f03a0c7f1c2074a535ab13c638fc0cfdc03899a88b75e2603f50"
+}

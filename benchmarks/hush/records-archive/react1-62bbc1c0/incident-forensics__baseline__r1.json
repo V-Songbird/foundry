@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 26,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 74537,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3616985999999999,
+  "numTurns": 15,
+  "durationMs": 68716,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4186
+  },
+  "contextTraffic": 599447,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 17131,
+  "narrationWords": 34,
+  "finalWords": 209,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z)\n\n**Root cause:**\n`dep-4471` (gateway, deployed by a.novak, 02:12:00–02:14:00Z, *\"config: connection-per-request for pool isolation\"*) flipped `gateway.pool.perRequest: false → true` (config generation 118→119, applied 02:13:41Z). This saturated the gateway's fixed 20-connection pool almost immediately — `in_use` has been pinned at 20/20 since onset, with the backlog (`waiting`) climbing steadily from 13 to 70+ and never draining.\n\n**Impact window:**\n**02:14:18.972Z → ongoing (log ends 03:59:27.974Z, still failing)** — 2026-03-14.\n- First failure: `req-07401`, `/v1/cart → billing-svc`, `503`, `ERR_POOL_EXHAUSTED`\n- 530 requests failed with `503`/`ERR_POOL_EXHAUSTED` over the log window, and the failure rate is worsening, not recovering, at time of last log entry\n- Blast radius: **gateway only**. Checked `worker.log` for the same window — 0 errors, worker pool (separate, size 8) stayed healthy at `in_use=1, waiting=0` throughout. No evidence of downstream/upstream service failures, only pool exhaustion at the gateway.\n\n**Action: roll back `dep-4471` on gateway** (revert `gateway.pool.perRequest` to `false`). No other deploy in `deploys.csv` is implicated — `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) postdate onset and touch unrelated services.\n\n**Next owner should:** roll back dep-4471, confirm pool `in_use` drops below 20 and `waiting` returns to 0, then watch for 503s to clear before closing out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca043d6bf14b1d6ebcca95a37992bc6400e1967e6a698c4c9a378b9d06fa5a7b"
+}

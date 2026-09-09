@@ -1,0 +1,40 @@
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+
+selftest: all instruments valid

@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 71,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 23881,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.18377649999999998,
+  "numTurns": 7,
+  "durationMs": 22923,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1511
+  },
+  "contextTraffic": 104392,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 3039,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan: `--json` prints the rows `buildRows` already makes.**\n\nOnly `cli.js` changes. `report.js` and `format.js` stay put.\n\n```js\nconst USAGE = 'usage: cli.js report [--json]';\n\nfunction main(argv) {\n  const json = argv.includes('--json');\n  const args = argv.filter((a) => a !== '--json');\n  if (args[0] !== 'report') {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const rows = buildRows();\n  process.stdout.write((json ? JSON.stringify(rows, null, 2) : toTable(rows)) + '\\n');\n  return 0;\n}\n```\n\nOne judgment call. JSON keeps `owner` and `slow`. The table drops both by design. Want the 4 table columns only? Say so.\n\nNext: I apply this on your go-ahead.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6a382a623a5b285a8dad6bad7b8143944e3e6f9baa65c5391cebd3b4b7b602c"
+}

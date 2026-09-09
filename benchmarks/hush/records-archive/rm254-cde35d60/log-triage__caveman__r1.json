@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12845,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29391120000000004,
+  "numTurns": 3,
+  "durationMs": 11364,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 681
+  },
+  "contextTraffic": 146289,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "finalText": "Root cause chain, timestamps 2026-07-04:\n\n**02:14:07** — Redis at 10.0.0.12:6379 drops: `ECONNREFUSED`. Cache layer degrades, falls back to direct store reads.\n\n**02:14:08 onward** — Cache miss storm hits store directly. Store overloaded, timeouts start (`TimeoutError: request timed out after 5000ms`), request queue climbs steady (52 at 02:14:12 → 500+ by 02:29).\n\n**02:14:26 → 02:31:26** — 13 redis reconnect attempts (0 through 12), all fail same ECONNREFUSED. Redis never comes back.\n\n**02:31:44** — worker-2 heap OOM from backlog (`JavaScript heap out of memory`), exits code 134.\n\n**02:31:52** — supervisor kills API process group. **Service down.**\n\nCause: Redis died at 10.0.0.12:6379 and never recovered. Fallback path (direct store reads) couldn't absorb full traffic, queue grew unbounded ~17 min straight, backlog eventually OOM-killed a worker, supervisor pulled the plug on rest.\n\nFix priorities: redis HA/failover (single point of failure killed whole service), queue depth cap or shed load instead of unbounded growth, backlog memory limit on workers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9ca549f98e84132fe213abc8df355b82f1aa8f2c628f5481715ddf929ed2d3b6"
+}

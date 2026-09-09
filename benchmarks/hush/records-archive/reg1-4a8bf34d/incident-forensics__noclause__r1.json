@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__noclause__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 58661,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.29176559999999996,
+  "numTurns": 15,
+  "durationMs": 52412,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3277
+  },
+  "contextTraffic": 521802,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 47482,
+  "narrationWords": 0,
+  "finalWords": 134,
+  "assistantMsgs": 4,
+  "finalText": "Log ends at `03:59:27.974Z` still mid-incident, still throwing 503s. Handoff is ready.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Root cause:** `dep-4471` (gateway, `a.novak`, `02:12:00Z`–`02:14:00Z`) — \"config: connection-per-request for pool isolation.\" Applied as config generation 119, flipping `gateway.pool.perRequest: false -> true`. This exhausts the fixed 20-connection pool (`ERR_POOL_EXHAUSTED`, `size 20, in_use 20`) instead of reusing pooled connections.\n\n**Impact window:** started `2026-03-14T02:14:18.972Z` (first 503, ~18s after deploy finished), **still ongoing** as of the last log line `03:59:27.974Z`. Queue depth (`waiting`) climbs unbounded — not self-healing.\n\n**Scope:** gateway only. `worker.log` shows zero errors in this window — `worker` never touched the gateway pool.\n\n**Action: roll back `dep-4471`** — revert `gateway.pool.perRequest` to `false` (config gen 119 → 118).\n\n**Not the cause:** `dep-4472` (billing-svc, `02:41Z`) and `dep-4473` (catalog-svc, `03:20Z`) both post-date the first 503 and are unrelated services.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01a914a91d574ede1bcc0dbdc8ec3f0adb800abe275fc9848708dfeedda1536a"
+}

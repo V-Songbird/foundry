@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fern__r2",
+  "batchId": "s5v-be69388b",
+  "seed": "1787820296138",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fern",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13512,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.11799680000000001,
+  "numTurns": 4,
+  "durationMs": 11474,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 529
+  },
+  "contextTraffic": 137378,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "Redis died at 02:14:07. Connection refused to 10.0.0.12:6379.\n\nCache fell back to direct store reads. Store couldn't handle it.\n\nTimeouts and queue depth climbed for 17 minutes straight. Queue hit 568, way past the 500 max.\n\n12 redis reconnect attempts all failed, same host.\n\nAt 02:31:44 worker-2 ran out of heap memory from the backlog. Crashed, restarted, then the api process itself went unresponsive. Supervisor killed the whole group at 02:31:52.\n\nRoot cause: Redis at 10.0.0.12 went down and never came back. Fix redis first, the rest was cascade.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0731a77f9e4573326a1a6dc30c31c473b2b2dc387728f29e19dc0e475505d2af"
+}

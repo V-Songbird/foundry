@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 90,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 144892,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5395329999999999,
+  "numTurns": 15,
+  "durationMs": 137401,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7473
+  },
+  "contextTraffic": 442716,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 12543,
+  "narrationWords": 0,
+  "finalWords": 658,
+  "finalText": "# On-Call Handoff — Gateway 503s (2026-03-14)\n\n**Status at handoff: NOT RESOLVED.** The log ends at 03:59:27Z with the gateway still failing and the wait queue still growing. Assume the incident is live until you verify otherwise.\n\n## Root cause\n\nConfig generation 119, shipped by **dep-4471**, flipped `gateway.pool.perRequest` from `false` to `true` (\"connection-per-request for pool isolation\"). The gateway's connection pool stayed at `size=20`. With a connection now held per request instead of shared, 20 concurrent requests saturate the pool; everything after that queues and then fails.\n\nEvery 503 is paired 1:1 with a pool error on the same request ID:\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nNo upstream returned an error, and no upstream timed out — the gateway never obtained a connection to send the request. Failures are spread evenly across all 4 upstreams (accounts/billing/catalog/orders) and all 5 routes, confirming the shared pool, not any single service.\n\nPool state was healthy all night (`in_use=3–11, waiting=0`) until 02:13, then pinned at `in_use=20 idle=0` and never recovered. The wait queue grows monotonically to the last line — 13 → 74 per-request, and the 5-min samples climb 72 → 172. **It is not self-healing; the backlog is still accelerating.**\n\n## Impact window\n\n| | |\n|---|---|\n| First failure | **2026-03-14T02:14:18.972Z** (req-07401) |\n| Trigger | dep-4471 finished 02:14:00Z — 18s earlier |\n| On-call paged | 03:21:05Z (`error_rate 5m avg is 71%`) — **67 min after onset** |\n| Last log line | 03:59:27.974Z, still failing |\n| Duration | ≥ 1h 45m, ongoing |\n\nPost-onset, **530 of 636** logged requests returned 503 — an **83% error rate**, sustained, on customer paths including `/v1/checkout` and `/v1/cart`.\n\nTwo caveats on the absolute numbers. This log is `node-3 of 3`, so fleet-wide impact is likely ~3x. And request IDs jump from req-07401 to req-17907 across a window with only ~1060 logged lines, so the log is not capturing every request despite `sampleRate: 1.0` — 530 is a floor, not the true failure count.\n\n## Action: roll back dep-4471\n\n```\ndep-4471,gateway,2026-03-14T02:12:00Z,2026-03-14T02:14:00Z,a.novak,\nconfig: connection-per-request for pool isolation\n```\n\nRevert gateway config generation **119 → 118**, specifically `gateway.pool.perRequest: true -> false`. Author to loop in: **a.novak**.\n\nGen 119 changed two other keys — `timeout.upstreamMs: 2000 -> 2500` (harmless here; requests die at pool acquisition, never reaching an upstream) and `log.sampleRate: 1.0 -> 1.0` (no-op). A full gen-118 rollback is fine.\n\nIf the rollback is blocked and you must ride it out, raising pool `size` well above peak concurrency is the mitigation — but rollback is faster and lower-risk. After rolling back, watch that `waiting` returns to 0; a queue of 170+ will take time to drain.\n\nRuled out: dep-4472 (billing-svc, 02:41) and dep-4473 (catalog-svc, 03:20) both shipped *after* onset and cannot be the cause — they deployed into an already-degraded gateway. dep-4473 finishing at 03:25 sits near the 03:21 page; that's the page reacting to the outage, not the deploy.\n\n## Separate issue — do not conflate\n\nWorkers were healthy: 1080/1080 jobs `finished ok`, zero errors, worker pool flat at `size=8 in_use=1 waiting=0` across all 19 samples, max `db_wait` 12ms. No shared-dependency contention.\n\nBut worker job durations ramp steadily 200ms → 2324ms across the window. This is **not** part of this incident — it starts at 01:00, over an hour before dep-4471, and passes through 02:14 with no inflection. `db_wait` stays flat, so it's execution time, not connection acquisition. Suspect dep-4470 (worker, \"retry backoff for webhook jobs\", finished 00:55Z, just before the ramp) or a leak. There's also one `WARN db` at 02:36 — `slow query 1.9s: SELECT * FROM orders WHERE status = ?`, already tracked as **OPS-2210**. File this as its own ticket.\n\nNote the log timestamps are 2026-03-14, not last night — confirm you're looking at the current file and not an archive before acting.\n\nWant me to save this to a file?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "50daae3359148705ae35532d6c8bb2ec061be271a4d9718888daa8db258c9f14"
+}

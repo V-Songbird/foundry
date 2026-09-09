@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 7,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 45164,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2563857,
+  "numTurns": 11,
+  "durationMs": 43821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2214
+  },
+  "contextTraffic": 348870,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 21224,
+  "narrationWords": 150,
+  "finalWords": 124,
+  "finalText": "Build is green and passes verification.\n\n**Root cause:** `resolveRelease` in `packages/shared/config.js:15` merged the default config, per-package overrides, and CLI flags with a shallow `Object.assign`. Any package whose override only touched part of a nested object (e.g. `@acme/api` setting just `output.format`) had the *entire* `output`/`sourcemap` object replaced, dropping `output.dir` and `sourcemap.mode` — which the bundle stage requires, so it threw `EBUNDLE07`.\n\n**Fix:** changed the merge to deep-merge the `output` and `sourcemap` sub-objects layer by layer (defaults → package overrides → CLI flags), while still letting later layers win on individual keys and leaving `RELEASE_DEFAULTS` unmutated.\n\n`node build.js` now exits 0 with 5 warnings/0 errors, and the repo's own `verify.js` (which specifically checks the merge isn't papered over by spelling out keys in `defaults.js`) passes too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4cf60a48c5cd856112116e3ad0fb59e1cfcb9903585cf09066ad6a50344a475a"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 35,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 16056,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.25625299999999995,
+  "numTurns": 6,
+  "durationMs": 15122,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 819
+  },
+  "contextTraffic": 63876,
+  "apiCalls": 3,
+  "toolCalls": 5,
+  "toolResultChars": 2615,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan: branch in `cli.js`, feed JSON from `buildRows()`.**\n\nThe table drops `owner` and `slow`. See [format.js:3](src/format.js:3). JSON would keep them. Flag that if you want table columns only.\n\n```js\n// src/cli.js\nconst USAGE = 'usage: cli.js report [--json]';\nconst json = argv.includes('--json');\nconst rows = buildRows();\nprocess.stdout.write((json ? JSON.stringify(rows, null, 2) : toTable(rows)) + '\\n');\n```\n\nThen run both forms by hand. Check `--json` parses. Check the table is unchanged.\n\nNext: say go, and I write it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8ab33c7c0b351a0ee1182be010bd23995cce9bba14157044d208acc6ed7bb7e4"
+}

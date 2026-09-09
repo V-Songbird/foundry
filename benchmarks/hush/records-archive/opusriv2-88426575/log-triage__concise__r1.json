@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42336,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2592835,
+  "numTurns": 7,
+  "durationMs": 39706,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2189
+  },
+  "contextTraffic": 180528,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 8406,
+  "narrationWords": 5,
+  "finalWords": 418,
+  "finalText": "**A Redis outage caused a cache-loss cascade that OOM'd the service.** Total time from trigger to hard down: ~25 minutes.\n\n**One caveat first:** these logs are stamped `2026-07-04`, not last night (today is 2026-08-26). Either this file is from a July incident, or the writer's clock is wrong. Worth confirming you're looking at the right file before acting.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Healthy. All 200s, cache hit ratio 0.90–0.98. |\n| **02:14:07** | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` — cache layer degrades to direct store reads. |\n| 02:14:08 → | Cache miss storm (174 warns), store overload, `TimeoutError` after 5000ms (173 errors). Queue depth starts climbing from 52. |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts, **all** ECONNREFUSED. Redis never came back. |\n| 02:29:12 | Queue depth crosses the 500 limit (502) and keeps rising — peaks at 568. |\n| 02:31:44 | `worker-2` — JavaScript heap out of memory (request backlog). |\n| 02:31:45 | Supervisor: worker-2 exited code 134 (SIGABRT), restarting. |\n| **02:31:52** | Supervisor: `api unresponsive, killing process group — service down`. Log ends here. |\n\n### What actually happened\nRedis at `10.0.0.12:6379` went away hard — connection *refused*, not timed out, so the Redis process was down or the port closed, not a network partition. The app failed open to the backing store instead of shedding load, so every request became a store read. The store couldn't take it, requests began timing out at 5s, and because they timed out rather than failing fast, they accumulated in memory. Queue depth grew monotonically for ~17 minutes and blew through the 500 cap with no backpressure. The backlog exhausted the heap, worker-2 aborted, and the supervisor killed the whole process group.\n\n### Things worth noting\n- **The 500 max queue depth wasn't enforced.** It logged a warning and kept accepting to 568. That's the difference between degraded and dead.\n- **Reconnect backoff is flat, not exponential** — attempts land ~80s apart every time. It also never gave up or triggered anything louder.\n- **No recovery in the log.** Nothing after 02:31:52, so I can't tell you how it came back or whether Redis was fixed. Check the supervisor/systemd journal and Redis's own logs for that window.\n\nThe real fix is bounded queues + load shedding when the cache is down; Redis's availability is the trigger, but the unbounded backlog is what turned an outage in a cache into an outage in the product.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "587c1b31f9e2f7de716af8a785b4cda9ffe0d34b06c184ce4eb92d7b942b8d5d"
+}

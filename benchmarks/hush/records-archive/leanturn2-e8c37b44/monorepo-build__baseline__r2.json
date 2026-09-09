@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35598,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.23801340000000004,
+  "numTurns": 10,
+  "durationMs": 34307,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2821
+  },
+  "contextTraffic": 246902,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 20761,
+  "narrationWords": 112,
+  "finalWords": 111,
+  "finalText": "Build is green and `verify.js` confirms the merge layers correctly (not just papered over — a partial CLI override like `{ output: { dir: 'build' } }` still preserves the package's `entry`/`format`, and `RELEASE_DEFAULTS` stays unmutated).\n\n**Root cause:** `packages/shared/config.js` merged config layers with `Object.assign`, which is shallow. Any package overriding a nested key (e.g. `@acme/api` setting `output.format`) silently dropped the sibling keys (`output.dir`), which the build's own bundle-stage sanity check caught and aborted on.\n\n**Fix:** replaced the shallow merge with a `deepMerge` that recurses into nested plain objects across all three layers (defaults → package overrides → CLI flags), so partial overrides at any layer only touch the keys they name.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2f0b6b57b4c15335f1160b95ab1cdf9ae83c7213a65f9c4156e7d4b58779b779"
+}

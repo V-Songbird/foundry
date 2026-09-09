@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hushstock__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 46,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 60452,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3822561,
+  "numTurns": 14,
+  "durationMs": 53859,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2987
+  },
+  "contextTraffic": 586333,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 25184,
+  "narrationWords": 0,
+  "finalWords": 178,
+  "finalText": "Ongoing — no recovery yet. Log ends mid-incident, so the outage is still live as of the last entry.\n\n## On-call handoff — gateway 503s\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 02:12–02:14 UTC) shipped a config change — \"connection-per-request for pool isolation\" — flipping `gateway.pool.perRequest` from `false` to `true`. That change burns through the connection pool per request instead of sharing connections, and the pool (fixed at 20) collapsed within seconds of the deploy finishing.\n\n**Impact window:** Started **2026-03-14 02:14:18 UTC**, still ongoing as of the last log line (**03:59:27 UTC**) — 1h45m and counting. Every request is failing with `503 ERR_POOL_EXHAUSTED`, pool stuck at 20/20 in_use with the wait queue climbing (13 waiting at the start, 74 by the end). Hits all routes and all backing services (`billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc`) — this is the shared gateway pool, not one backend.\n\n**Scope:** Gateway only. `worker.log` shows every job finishing clean through the same window (`db_wait` under 15ms) — workers use a separate pool and were never affected.\n\n**Roll back:** `dep-4471` on gateway — revert `gateway.pool.perRequest` to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "76355f9f3fdf580e39ccf94069aa362ab72abd429196c8080b449b9485c41e09"
+}

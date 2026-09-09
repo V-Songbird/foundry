@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74531,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.284917,
+  "numTurns": 37,
+  "durationMs": 72871,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10221
+  },
+  "contextTraffic": 277663,
+  "apiCalls": 8,
+  "toolCalls": 36,
+  "toolResultChars": 24470,
+  "narrationWords": 21,
+  "finalWords": 70,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirms the plan. Now migrating each application file (skipping the vendored adapter, which is explicitly marked do-not-edit).",
+    "Confirming nothing was missed."
+  ],
+  "finalText": "**Migration done.** 12 files moved from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n`couponService.js`, `returnService.js`, `apiKeyAdmin.js`, `sla.js`, `teamService.js`, `cohort.js`, `shipment.js`, `supplier.js`, `variantAdmin.js`, `macroAdmin.js`, `refund.js`, `session.js`\n\nOne holdout left, `[vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js:9)`. Its header says it's replaced wholesale on every vendor upgrade and local edits get lost, so I left it alone.\n\nNext: decide how to handle that vendored file, since it'll keep calling the deprecated `query` until the vendor package itself updates.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fe4584df7a8bfb7756a5fe485662fd3697f95645621e6f77fdf1537ef2b2b074"
+}

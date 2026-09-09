@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 30,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83864,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4570525,
+  "numTurns": 20,
+  "durationMs": 82381,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5908
+  },
+  "contextTraffic": 266580,
+  "apiCalls": 9,
+  "toolCalls": 19,
+  "toolResultChars": 17303,
+  "narrationWords": 37,
+  "finalWords": 495,
+  "assistantMsgs": 4,
+  "finalText": "## Size\n\n**~1,291 occurrences on 1,082 lines across 94 files.** Mechanically it's large, but it's uniform — the codebase is 25 nearly identical repo/service/route triples. Breakdown:\n\n| Zone | Files | Occurrences | Verdict |\n|---|---|---|---|\n| `services/*` (accounts, billing, orders, analytics, notify) | 75 | 1,200 | Rename — this is the real work |\n| `migrations/` | 12 | 61 | **Must not rename** |\n| `vendor/reporting-sdk/` | 4 | 20 | **Must not rename** |\n| `docs/openapi.yaml` | 1 | 5 | **Must not rename** |\n| `lib/serialize.js` | 1 | 1 | Rename *one side only* |\n| `lib/audit.js` | 1 | 2 | Judgment call — see below |\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` + the right-hand side of `lib/serialize.js`.** `account_id` is a public API field name and a public query parameter, declared frozen. `serialize.js:7-11` is the seam that makes the whole rename safe:\n\n```js\nconst WIRE = {\n  account_id: 'account_id',   // left = internal, right = public/frozen\n```\n\nOnly the **left** key becomes `owner_id`. The string on the right stays. Get this one line wrong and it's a silent breaking change for every client. I verified the seam actually holds: all 25 route files import `serialize`, and there's no handler returning a raw row that would leak the internal name past it.\n\n**2. `migrations/` — all 12 files.** These already ran in production. Editing them renames nothing in a live database and breaks the `down` steps. If you want the DB column renamed, that's a **new** dated migration, not an edit.\n\n**3. `vendor/reporting-sdk/` — all 4 files.** Generated, vendored, overwritten wholesale by `npm run vendor:refresh`. Any edit is lost on the next refresh. (Note: nothing in the repo currently imports this SDK, so it's inert either way — but leave it alone.)\n\n## The trap I'd flag before you sign\n\n**125 of the occurrences, across all 25 repo files, are SQL column names, not variables** — `WHERE account_id = ?`, `INSERT INTO invoices (account_id, payload)`. A find-and-replace rewrites those too, and every query breaks against the live schema.\n\nSo this is really two decisions, and they should not ride in one PR:\n\n- **Code-only rename** (variables, params, object keys) — safe, reviewable, ~1,075 changes. SQL strings and the `WIRE` right-hand side stay untouched.\n- **DB column rename** — needs its own forward migration plus a deploy plan, since old and new code will run concurrently.\n\n## My recommendation\n\nSign off on the code-only rename, with three conditions: SQL string literals untouched, `serialize.js` changed asymmetrically, and `migrations/`/`vendor/`/`openapi.yaml` excluded from the replace. Ask whether the DB column rename is in scope — if the author intends both in one pass, that's a separate review.\n\nOne open question for the author: `lib/audit.js:8` stamps `account_id` onto every audit line. Nothing marks it frozen, but if anything downstream parses those logs, renaming it is an external break in disguise. Worth confirming who consumes the audit stream before it goes in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "db652b5c0df9b3be39b854d42745746966cc28fdb203bf06240b011e28abb201"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fern__r2",
+  "batchId": "o5f-9e5a2324",
+  "seed": "1787842333516",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fern",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 68349,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.2683175,
+  "numTurns": 8,
+  "durationMs": 66232,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1447
+  },
+  "contextTraffic": 215169,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 8690,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "finalText": "Redis died and took prod with it.\n\n- 02:14:07 `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache gone, all reads hit the store.\n- Store overloaded. 121 `TimeoutError` lines, queue climbing.\n- 13 reconnect tries, all refused. Last at 02:31:26.\n- 02:29:12 queue passed its 500 cap. Peak 568.\n- 02:31:44 worker-2 `JavaScript heap out of memory`, exit 134. Then `api unresponsive, killing process group — service down`.\n\nRedis at 10.0.0.12 never came back. Start there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "486f7a301112c781000d8bb119a499fedb70670d2607640ef79a967116f3b847"
+}

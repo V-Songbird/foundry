@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 62,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 56506,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2707512,
+  "numTurns": 20,
+  "durationMs": 55288,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4970
+  },
+  "contextTraffic": 216555,
+  "apiCalls": 6,
+  "toolCalls": 19,
+  "toolResultChars": 23581,
+  "narrationWords": 17,
+  "finalWords": 434,
+  "finalText": "Now I have the full picture: 5 services × 3 layers (http/repo/service) each following an identical pattern, 1025 occurrences in 75 app files, plus migrations, vendor SDK, docs, and lib. Here's the sign-off summary:\n\n## Size\n\n- **~1,025 occurrences across 75 application files**, but it's extremely mechanical: every one of the 5 services (accounts, billing, orders, analytics, notify) repeats the same three-layer pattern (`repo/*.js` → `service/*Service.js` → `http/*Routes.js`), just threading `account_id` as a parameter through DB calls, service functions, and route handlers. This is a search-and-replace job, not a design problem — a codemod/script handles the bulk of it in one pass.\n- Plus `lib/audit.js` (internal audit log field).\n\nThat's the \"big but boring\" part. The real risk is the handful of places where `account_id` is a **name, not just an identifier** — those aren't safe to touch.\n\n## Where it must NOT be renamed\n\n1. **`lib/serialize.js`** — the `WIRE` map's public-facing key is explicitly frozen: *\"the keys on the RIGHT are the public API... an internal rename must not reach this side of the map.\"* You can rename the internal row field feeding it, but the emitted JSON key must stay `account_id`.\n2. **`docs/openapi.yaml`** — `account_id` is a documented, required field on `Invoice`/`Order` schemas and a public query parameter, explicitly marked *\"Frozen field name... Renaming is a breaking change for every client and needs a new dated version.\"*\n3. **`vendor/reporting-sdk/**`** — vendored, generated copy of a third-party package (`reporting-sdk@3.8.1`). It's overwritten wholesale by `npm run vendor:refresh`, and its `account_id` fields are the request/response contract with that external service. Any local edit here is pointless (gets clobbered) and wrong (it's not our field to rename).\n4. **`migrations/*.sql`** — these are already-applied production migrations (each has a header noting the apply date). Editing them doesn't rename anything in the live DB; a real column rename needs a *new* migration. And it's not trivial: `account_id` is a FK on every table referencing `accounts(account_id)`, with indexes named after it (`orders_account_id_idx`, etc.) — that's an expand/contract migration (add column, backfill, dual-write, swap, drop) across ~10 tables, not a one-line `ALTER TABLE`.\n\n## Recommendation\n\nSign off on renaming the internal application-layer variable/parameter (`services/**`, and the internal side of `lib/serialize.js`), but scope it explicitly as **application code only** — no DB schema change, no vendor SDK edits, no public API/OpenAPI change. If the platform team means \"rename the DB column and public field too,\" that's a separate, much bigger project (schema migration + API versioning) and shouldn't be bundled into today's sign-off. Worth also asking whoever consumes `lib/audit.js` log output whether anything parses that field by name before touching it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "893743de4592b921fab62974d243b1f15e7735a2f4974ab05dc962d91fd268d2"
+}

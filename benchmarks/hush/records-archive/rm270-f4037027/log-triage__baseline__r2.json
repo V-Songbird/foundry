@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 9,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20663,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20445580000000002,
+  "numTurns": 4,
+  "durationMs": 19792,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1311
+  },
+  "contextTraffic": 187572,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60359,
+  "narrationWords": 0,
+  "finalWords": 363,
+  "finalText": "## Root cause: Redis outage → cascading overload → OOM crash\n\n**Timeline (2026-07-04, all UTC):**\n\n1. **02:14:07.113** — First failure: `[api]` loses its Redis connection — `ECONNREFUSED 10.0.0.12:6379`. Redis at that host/port simply became unreachable.\n2. **02:14:07–02:14:08** — App falls back to direct store reads (`cache layer degraded`), immediately followed by a cache miss storm (every `orders:*` lookup now misses).\n3. **02:14:10 onward** — With no cache buffering traffic, the backing store gets hammered directly and starts timing out (`TimeoutError ... store overloaded`) on `worker-1`, `worker-2`, and `scheduler` in a steady round-robin, roughly every 2 seconds.\n4. **Reconnect attempts fail repeatedly** — `[api] redis reconnect attempt N failed` appears at attempts 0 through 12 (02:15:26 → 02:31:26), each ~2 minutes apart, all still `ECONNREFUSED` — Redis never came back for the rest of the log.\n5. **Request queue depth climbs monotonically** the entire time: 52 → 500 (hits the configured max around **02:15:48**) and then keeps climbing past it — 526, 550, 568 — meaning the queue cap wasn't actually enforced/backpressuring, requests kept piling up unbounded.\n6. **02:31:44.902** — `[worker-2]` dies: `JavaScript heap out of memory (request backlog)` — the unbounded queued requests exhausted heap.\n7. **02:31:45.001** — Supervisor restarts worker-2 (exit code 134 = SIGABRT from OOM).\n8. **02:31:52.318** — `[supervisor]` declares `api unresponsive, killing process group — service down`. Total outage.\n\n**Bottom line:** Redis at `10.0.0.12:6379` went down at 02:14:07 and never recovered (12 failed reconnect attempts over 17 minutes). Losing the cache pushed all traffic straight to the backing store, which couldn't keep up and started timing out. Requests backed up in an unbounded queue (the \"max 500\" limit was logged but not actually enforced) for ~17 minutes until worker-2 OOM'd and the supervisor killed the whole process group.\n\n**Fixes to consider:**\n- Alert on Redis `ECONNREFUSED`/reconnect failures immediately, not just log them.\n- Enforce the request-queue cap for real (shed load / return 503 past 500) instead of letting it grow past the stated max.\n- Add a circuit breaker so store timeouts don't keep piling up new work indefinitely.\n- Investigate why Redis at `10.0.0.12:6379` was down for 17+ minutes with no recovery — that's the actual trigger.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01cd51852ad4f7df804e71798f4672ee8a479134ef353df3f63985c91e8be5eb"
+}

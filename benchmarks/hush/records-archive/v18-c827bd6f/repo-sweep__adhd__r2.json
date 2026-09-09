@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 36,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 109564,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.7205010999999999,
+  "numTurns": 31,
+  "durationMs": 108308,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10242
+  },
+  "contextTraffic": 1329741,
+  "apiCalls": 31,
+  "toolCalls": 30,
+  "toolResultChars": 19406,
+  "narrationWords": 76,
+  "finalWords": 70,
+  "finalText": "Verifier passes. Migration done:\n\n1. **12 files** across orders/billing/support/analytics/accounts/catalog converted from `db.query(sql, params)` to `db.execute({ sql, params })` (35 call sites total).\n2. `vendor/legacy-orm/adapter.js` left untouched — it's vendored code, gets overwritten on upgrade anyway.\n3. `cache.query` calls left alone — different thing, not the database.\n\n`node verify.js` confirms: no stragglers, no vendor edits, every `execute()` call carries both `sql` and `params`, and every repo module still works at runtime.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "84e0101a73b589290db81fafdf4cada1f3b74602f9a47908b5a6e9b2d0efbf59"
+}

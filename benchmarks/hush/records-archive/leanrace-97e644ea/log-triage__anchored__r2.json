@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__anchored__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24081,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1287802,
+  "numTurns": 6,
+  "durationMs": 22304,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1216
+  },
+  "contextTraffic": 234202,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 10549,
+  "narrationWords": 10,
+  "finalWords": 171,
+  "finalText": "It went down hard, and never recovered on its own. Here's the timeline, all on 2026-07-04:\n\n1. **02:14:07** — Redis at `10.0.0.12:6379` refused the connection (`ECONNREFUSED`). The API immediately fell back to hitting the store directly, no cache.\n2. **02:14:07 onward** — Without the cache, requests started timing out at 5000ms and the request queue backed up. Queue depth climbed steadily from 52 all the way to 568 by the end, well past the max of 500.\n3. **02:31:26** — Redis reconnect attempt #12 failed, so it never came back up in that 17-minute window.\n4. **02:31:44** — `worker-2` ran out of heap memory, crashed from the growing request backlog.\n5. **02:31:45** — Supervisor restarted `worker-2` (exit code 134).\n6. **02:31:52** — The API itself stopped responding, and the supervisor killed the whole process group. Service down.\n\nRoot cause: lost connection to Redis at `10.0.0.12:6379`, with no successful reconnect, which cascaded into request pileup and an OOM crash. The full log has 719 lines, with 328 error/warning lines during the incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b81f59fbf743ca9278374d283e82cddd6c155c1e4762517d187c96967220e165"
+}

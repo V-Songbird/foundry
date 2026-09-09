@@ -10,9 +10,9 @@
 
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
+const { execFileSync } = require("child_process");
 
-const WATCHED_TOOLS = new Set(["Edit", "Write"]);
+const { editPaths } = require("./edit-paths");
 const WATCHED_SUBDIRS = new Set(["scripts", "hooks"]);
 
 function readInput() {
@@ -30,27 +30,31 @@ function readInput() {
 }
 
 function repoRoot() {
-  return path.resolve(process.env.CLAUDE_PROJECT_DIR || process.cwd());
+  return path.resolve(process.env.CLAUDE_PROJECT_DIR || path.join(__dirname, "..", ".."));
 }
 
-// The edited file's first path segment (relative to repo root) is the
-// plugin folder, but only if the edit landed under THAT folder's own
-// scripts/ or hooks/ dir and the folder is confirmed to actually be a
-// plugin (.claude-plugin/plugin.json present) -- not just any top-level
-// repo directory that happens to contain a dir named scripts/hooks.
+// Resolve the nearest owning edition, including deep worktrees. Archived
+// benchmark arms and dependency trees must never trigger a product test run.
 function findPluginRoot(root, filePath) {
-  if (!filePath) return null;
-  const resolved = path.resolve(String(filePath));
+  if (typeof filePath !== "string" || !filePath) return null;
+  root = path.resolve(root);
+  const resolved = path.resolve(root, filePath);
   if (!resolved.toLowerCase().endsWith(".js")) return null;
   const rel = path.relative(root, resolved);
-  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return null;
+  if (!rel || rel === ".." || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) return null;
   const parts = rel.split(path.sep);
-  if (parts.length < 3) return null; // need <plugin>/<scripts|hooks>/<file...>
-  const [pluginDir, subDir] = parts;
-  if (!WATCHED_SUBDIRS.has(subDir.toLowerCase())) return null;
-  const pluginRoot = path.join(root, pluginDir);
-  if (!fs.existsSync(path.join(pluginRoot, ".claude-plugin", "plugin.json"))) return null;
-  return pluginRoot;
+  const excluded = new Set([".git", ".scratch", "node_modules", "benchmarks", "fixtures", "arms"]);
+  if (parts.some(part => excluded.has(part.toLowerCase()))) return null;
+  for (let candidate = path.dirname(resolved); ; candidate = path.dirname(candidate)) {
+    const marker = [".claude-plugin", ".codex-plugin"].some(dir =>
+      fs.existsSync(path.join(candidate, dir, "plugin.json")));
+    if (marker) {
+      const subDir = path.relative(candidate, resolved).split(path.sep)[0];
+      return WATCHED_SUBDIRS.has(subDir.toLowerCase()) ? candidate : null;
+    }
+    if (candidate === root) break;
+  }
+  return null;
 }
 
 // A bare directory path makes node's test runner try to require() it
@@ -68,41 +72,54 @@ function cleanEnv() {
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
   delete env.NODE_CHANNEL_FD;
+  // A hook may inherit Git's parent-repository routing. Tests own their cwd.
+  for (const key of Object.keys(env)) if (key.startsWith("GIT_")) delete env[key];
   return env;
 }
 
-function runTests(pluginRoot) {
+function runTests(pluginRoot, timeout = 90000) {
   try {
-    execSync(`node --test "${testGlob(pluginRoot)}"`, { stdio: "pipe", timeout: 25000, env: cleanEnv() });
+    execFileSync(process.execPath, ["--test", testGlob(pluginRoot)], {
+      cwd: pluginRoot, stdio: "pipe", timeout, env: cleanEnv(),
+      windowsHide: true, maxBuffer: 16 * 1024 * 1024,
+    });
     return { passed: true };
   } catch (err) {
     const output = `${err.stdout || ""}${err.stderr || ""}` || err.message || "";
-    return { passed: false, output: String(output) };
+    return { passed: false, timedOut: err.code === "ETIMEDOUT", output: String(output) };
   }
 }
 
 function main() {
   const data = readInput();
-  if (!WATCHED_TOOLS.has(data.tool_name)) return;
-
   const root = repoRoot();
-  const pluginRoot = findPluginRoot(root, data.tool_input?.file_path);
-  if (!pluginRoot) return;
-  if (!fs.existsSync(path.join(pluginRoot, "tests"))) return;
-
-  const result = runTests(pluginRoot);
-  if (result.passed) return; // silent on green, same as every Foreman hook
-
-  const stats = (result.output.match(/^# (?:tests|pass|fail) .+$/gm) || []).join("; ");
-  const pluginName = path.basename(pluginRoot);
-  const edited = path.basename(String(data.tool_input.file_path));
-
+  const cwd = typeof data.cwd === "string" ? path.resolve(data.cwd) : root;
+  const owners = new Map();
+  for (const file of editPaths(data)) {
+    const owner = findPluginRoot(root, path.resolve(cwd, file));
+    if (owner && fs.existsSync(path.join(owner, "tests"))) owners.set(owner, file);
+  }
+  const deadline = Date.now() + 90000;
+  const messages = [];
+  for (const [pluginRoot, file] of owners) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) {
+      messages.push(`[foundry] Tests for ${path.relative(root, pluginRoot)} were not run: the hook time budget was exhausted. Run node --test "${testGlob(pluginRoot)}".`);
+      continue;
+    }
+    const result = runTests(pluginRoot, remaining);
+    if (result.passed) continue;
+    const stats = (result.output.match(/^# (?:tests|pass|fail) .+$/gm) || []).join("; ");
+    const pluginName = path.basename(pluginRoot);
+    const edited = path.basename(file);
+    messages.push(`[foundry] node --test ${pluginName}/tests/ ${result.timedOut ? "did not finish within the hook time limit" : "failed"} after this edit to ${edited}. ` +
+      `${stats} Run \`node --test "${testGlob(pluginRoot)}"\` for the full trace before moving on.`);
+  }
+  if (!messages.length) return;
   const payload = {
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
-      additionalContext:
-        `[foundry] node --test ${pluginName}/tests/ failed after this edit to ${edited}. ` +
-        `${stats} Run \`node --test "${testGlob(pluginRoot)}"\` for the full trace before moving on.`,
+      additionalContext: messages.join("\n"),
     },
   };
   try {

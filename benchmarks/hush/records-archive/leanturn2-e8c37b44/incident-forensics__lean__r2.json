@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__lean__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65073,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.49217450000000007,
+  "numTurns": 13,
+  "durationMs": 58198,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3139
+  },
+  "contextTraffic": 541391,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 47792,
+  "narrationWords": 0,
+  "finalWords": 206,
+  "finalText": "Ongoing — the log ends at `03:59:27.974Z` still throwing `ERR_POOL_EXHAUSTED`, so there's no recovery entry in the file. This never self-healed.\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, deployed by a.novak, 02:12:00–02:14:00Z, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. That config landed at 02:13:41Z as generation 119. Under the new per-request mode, connections stopped being returned to the pool fast enough — the pool pins at 20/20 in use with a wait queue that only grows (13 waiting at the first error, 74 waiting by the last log line at 03:59Z).\n\n**Impact window:** 02:14:18Z (first 503, `req-07401`) through at least 03:59:27Z, the last line in `logs/gateway.log`. That's 1h45m+ of ongoing, unresolved 503s — the log ends mid-incident with no recovery marker. Errors hit `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, and `/v1/checkout` across all four backend services (billing, orders, catalog, accounts); `/health` kept returning 200 throughout.\n\n**Blast radius:** gateway only. `logs/worker.log` shows every job finishing `ok` through the same window, no errors.\n\n**Rollback:** revert `dep-4471` (gateway config, generation 119 → 118), specifically `gateway.pool.perRequest` back to `false`. The other config change bundled in that deploy, `gateway.timeout.upstreamMs: 2000 → 2500`, is likely fine and not implicated — the errors are all pool exhaustion, not timeouts.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "998cc13eb14cca8a174fed2e50bc422f51182c5ac36594c8adf9417a568228c9"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lark__r2",
+  "batchId": "o5c-4b800a2c",
+  "seed": "1787818935129",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lark",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41892,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lark:Lark",
+  "costUsd": 0.29912000000000005,
+  "numTurns": 8,
+  "durationMs": 40025,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1633
+  },
+  "contextTraffic": 226034,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 12534,
+  "narrationWords": 6,
+  "finalWords": 92,
+  "finalText": "Redis died, and the app fell over behind it.\n\n- 02:14:07 `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Last good log was 4s before.\n- Cache went to direct store reads. Miss storms and 5000ms `TimeoutError`s started at once.\n- All 13 reconnect tries failed. Redis never came back.\n- Queue depth climbed 52 to 568. It passed the 500 max at 02:29:12.\n- 02:31:44 `worker-2` hit heap out of memory. Supervisor killed `api` at 02:31:52.\n\nFix Redis at 10.0.0.12:6379 first. Then add a cache-miss circuit breaker so backlog cannot grow past max.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "90b914586a5ade68dc2c0b7b3da7cb6508f03aca3cd88258d7c1a14cdbea88c1"
+}

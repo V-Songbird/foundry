@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 113323,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.551955,
+  "numTurns": 23,
+  "durationMs": 111825,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7922
+  },
+  "contextTraffic": 266481,
+  "apiCalls": 10,
+  "toolCalls": 22,
+  "toolResultChars": 20468,
+  "narrationWords": 6,
+  "finalWords": 117,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**1291 hits, 94 files.** Only the `services` ones are safe.\n\n| zone | hits | rename | why |\n|---|---|---|---|\n| `services/**` identifiers | ~1075 | yes | internal |\n| repo SQL strings | 125 | no | live DB column |\n| [`migrations/*.sql`](migrations/20250128_create_invoices.sql) | 61 | no | all applied |\n| `vendor/reporting-sdk` | 20 | no | regenerated |\n| [`docs/openapi.yaml`](docs/openapi.yaml) | 5 | no | public contract |\n| [`lib/serialize.js:8`](lib/serialize.js#L8) | 2 | no | wire name |\n\nTwo traps inside the safe zone. 25 repo files embed `account_id` in JSONB payloads. A blind rename changes stored data. 75 `audit()` calls would rename log fields.\n\nNext: approve JS identifiers only, freeze the rest.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "41b1183c3c1c4f89153c8413155626543585e2e0b2761d9a62654208e391ac25"
+}

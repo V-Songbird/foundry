@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27340,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2001015,
+  "numTurns": 7,
+  "durationMs": 25459,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1286
+  },
+  "contextTraffic": 101964,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 7213,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died and took the service with it.** One cause, 18 minutes.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | Cache bypassed, reads hit the store direct |\n| 02:14:10 | First `TimeoutError` after 5000ms |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive` service down |\n\nQueue depth climbed from 52 to 568 against a max of 500. All 13 reconnects failed, spaced 80s apart, never recovering.\n\nCheck why `10.0.0.12:6379` refused connections. Then cap the queue so the store cannot drown.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0b531c18a282e398b0044273b83ab77076d4915af22d56e86b49b98032b1e8d2"
+}

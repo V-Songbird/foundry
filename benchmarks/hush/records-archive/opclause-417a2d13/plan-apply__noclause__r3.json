@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r3",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 4,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 18785,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14323249999999998,
+  "numTurns": 5,
+  "durationMs": 17130,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1176
+  },
+  "contextTraffic": 57266,
+  "apiCalls": 3,
+  "toolCalls": 4,
+  "toolResultChars": 2363,
+  "narrationWords": 0,
+  "finalWords": 62,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: build the JSON from `buildRows`, not from the table.**\n\nOne catch. `toTable` drops `owner` and `slow` deliberately. So \"same data\" means two different things here. I would emit the full row.\n\n1. Parse `--json` in `main`, [src/cli.js:8](src/cli.js:8).\n2. Print `JSON.stringify(rows, null, 2)` when set.\n3. Update `USAGE`, [src/cli.js:6](src/cli.js:6).\n\n`format.js` and `report.js` stay untouched. Full row or just the four table columns?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cab06503f2c789fc6bdc73258eb57bd024349ec343c75aa6eb5bab98841b3d7a"
+}

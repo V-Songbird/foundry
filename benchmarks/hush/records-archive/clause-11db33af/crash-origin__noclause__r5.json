@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__noclause__r5",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 8,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09103180000000001,
+  "numTurns": 10,
+  "durationMs": 14366,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 996
+  },
+  "contextTraffic": 159272,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 3257,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refresh.js`, not `tokens.js`.**\n\nLog points at [tokens.js:6](src/auth/tokens.js:6), `token.split('.')`. That's just the symptom.\n\nTrace back: `resumeSession` at [session.js:7-8](src/session.js:7) calls `refreshToken(req.cookies.rt)`, then passes its result straight to `decode`.\n\nRoot cause is [refresh.js:14-16](src/auth/refresh.js:14): when `auth.internal` returns `invalid_grant` (a 400, not in `RECOVERABLE`), it swallows the error and returns `undefined` instead of throwing. That `undefined` flows into `decode`, which crashes on `.split`.\n\nOpen `refresh.js` first. `invalid_grant` should propagate as a real error, not a silent `undefined`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1964f849fc9842cba5480db72ab20f1409915c1b5c249f6e42f72bf334d19a04"
+}

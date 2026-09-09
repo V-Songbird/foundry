@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 12,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 144291,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.499129,
+  "numTurns": 57,
+  "durationMs": 142627,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14131
+  },
+  "contextTraffic": 427674,
+  "apiCalls": 10,
+  "toolCalls": 56,
+  "toolResultChars": 40512,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "finalText": "Migration is done. Twelve files still used the old call, 36 sites in all.\n\nThey now read `db.execute({ sql, params })`, matching the files migrated earlier.\n\nTwo things I left alone on purpose:\n- `cache.query` is a different thing. The cache is not the database.\n- `vendor/legacy-orm/adapter.js` is vendored code. It gets replaced on upgrade.\n\n`node verify.js` passes.\n\n```\nOK every db.query call site moved to db.execute, and nothing else moved\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a25224aa379997fe8e73979d2456a1398d0d038f0bedca1e695ab647dc608a78"
+}

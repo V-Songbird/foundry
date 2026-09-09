@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21505,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2083786,
+  "numTurns": 5,
+  "durationMs": 19308,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 729
+  },
+  "contextTraffic": 169972,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23555,
+  "narrationWords": 0,
+  "finalWords": 124,
+  "assistantMsgs": 1,
+  "finalText": "**Redis outage cascaded into a full crash.**\n\nAt `02:14:07` Redis died: `ECONNREFUSED 10.0.0.12:6379`. Cache fell back to direct store reads, which triggered a cache miss storm and rising queue depth.\n\nReconnect attempts (7 through 12) all failed over the next 17 minutes, so the fallback path never got relief. Request queue depth climbed from 52 to 568, past its max of 500, timing out every request at 5000ms.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory`, restarted, then at `02:31:52` the API went unresponsive and `supervisor` killed the process group. Service down.\n\nRoot cause: Redis at `10.0.0.12:6379` went unreachable and never came back. Fix is to restore Redis and add backpressure so a cache outage can't unbounded-queue the app into an OOM crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "126aabfd7465571cf0cbbf94d5d7a36907efb2a707c497d9d10a42ba267d93a3"
+}

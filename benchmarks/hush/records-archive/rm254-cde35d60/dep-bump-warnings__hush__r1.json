@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24246,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1878552,
+  "numTurns": 9,
+  "durationMs": 22308,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1585
+  },
+  "contextTraffic": 212223,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7857,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "Builds clean now, exit 0.\n\nThe bundler bump changed how options get passed in, and two spots hadn't caught up:\n\n1. `src/core/options.js` read `options.retries`, but the new bundler sends `retryCount`. That's `undefined.toFixed()`, which throws.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as an error instead of \"off.\" The new config loader leaves it `undefined` instead of `false`, so it was throwing too.\n\nFixed both: `resolveRetries` now reads `retryCount`, and `isBackoffEnabled` just checks for `true` and treats anything else as disabled.\n\nEverything else in the log was deprecation noise from Node itself, not from your code. Build finishes in 8 warnings, 0 errors now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2076d0f1273789570f8d92bba04a91824a771089a1061c9d25dbb3eaad7b3ab8"
+}

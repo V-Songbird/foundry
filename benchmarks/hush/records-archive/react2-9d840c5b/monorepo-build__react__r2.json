@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__react__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 12,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32442,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24047999999999997,
+  "numTurns": 11,
+  "durationMs": 31044,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1895
+  },
+  "contextTraffic": 357799,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 9700,
+  "narrationWords": 15,
+  "finalWords": 86,
+  "finalText": "Found it: `resolveRelease` in `packages/shared/config.js` used `Object.assign` for layering, which does a shallow merge. Packages that override just one nested key — like `@acme/api`'s `sourcemap: { mode: 'inline' }` — wiped out the rest of that object, so `output.dir` came back `undefined` and the bundle stage threw.\n\nI replaced it with a proper deep merge that only recurses into plain objects, leaving arrays and other values as full replacements. `node build.js` now exits 0 with \"5 warnings, 0 errors,\" and `verify.js` confirms the merge layers correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fac196aa4427fb78eaefc3ac2710182104f962eea41cf3c08b303e23fd37a96f"
+}

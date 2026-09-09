@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 66988,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.315186,
+  "numTurns": 9,
+  "durationMs": 65678,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4017
+  },
+  "contextTraffic": 181270,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 8772,
+  "narrationWords": 6,
+  "finalWords": 622,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "## What happened\n\nA Redis outage took out the cache layer, and the app had no protection against the resulting load — it slowly buried itself in queued work over ~18 minutes until the supervisor killed it.\n\n**One note first:** the log covers `2026-07-04T02:00:00Z` → `02:31:52Z`, not last night (today is 2026-08-29). Either this is an older log file, or the rotated file for last night's incident is elsewhere. Everything below is that July 4 window.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Healthy. All 200s, latency 12–145ms, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins (`orders:1000`, then every key) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52/500, and climbing steadily |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts (0–12), **all** ECONNREFUSED, exactly 80s apart |\n| 02:29:12 | Queue depth crosses the 500 max (502) — nothing sheds load |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### Root cause chain\n\n1. **Redis at 10.0.0.12:6379 became unreachable** (ECONNREFUSED, not a timeout — the port was actively refusing, so the Redis process was down or the listener was gone, rather than a network black hole).\n2. Cache fell back to direct store reads. Hit ratio had been ~95%, so **the backing store instantly took ~20× its normal read volume** and couldn't keep up.\n3. Every request then burned the full 5000ms timeout before failing. With requests arriving faster than they could drain, the queue grew ~30/min, monotonically, from 52 to 568.\n4. The queue was never bounded in practice — it sailed past its own `max 500` at 02:29 with no rejection or shedding.\n5. Retained request objects in that backlog exhausted the heap; worker-2 OOM'd (exit 134 = SIGABRT, the V8 OOM abort), api stopped responding to health checks, supervisor killed the group.\n\n### Signal counts\n348 WARN, 188 ERROR, 173 INFO, 8 DEBUG, 2 FATAL. Of the errors: 173 store timeouts (all exactly 5000ms), 14 Redis connection errors. **Zero successful requests logged after 02:14:03** — the last INFO line in the file is 4 seconds before the Redis failure. This was a hard, total outage from the first second, not a gradual degradation.\n\n### What's actually broken (beyond Redis being down)\n\n- **No circuit breaker on the store.** The cache fallback path sent full uncached traffic straight at the database. A breaker tripping at 02:14:10 would have failed fast instead of accumulating an 18-minute backlog.\n- **Reconnect has no backoff or jitter** — 13 attempts at a flat 80s interval. It also never gave up or escalated; nothing in the log shows the process trying to enter a degraded-but-stable mode.\n- **The queue's `max 500` isn't enforced.** It's logged as a threshold but requests kept being accepted to 568. That's the difference between shedding load and OOMing.\n- **The 5000ms timeout is too long** for a dependency under overload — it maximizes memory held per in-flight request.\n- **No alert fired on the 15-minute ramp.** The queue crossed 400 at 02:25 and 500 at 02:29; the incident was visible and paged-on-able for a quarter hour before the crash.\n\nThe single highest-value fix is the circuit breaker plus real queue admission control — with those, the Redis outage would have been a partial degradation, not a full service-down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a55c3b4f7e2d4a56376db28082c1baeb9e8ba6308da8190decd272313e281ad"
+}

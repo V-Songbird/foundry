@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__ste__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 15,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38834,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.2349867,
+  "numTurns": 10,
+  "durationMs": 37572,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3389
+  },
+  "contextTraffic": 268339,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12726,
+  "narrationWords": 57,
+  "finalWords": 112,
+  "finalText": "Fixed. The build now finishes with exit code 0, and `verify.js` confirms the fix is correct, not just a workaround.\n\n**Root cause:** `resolveRelease` in `packages/shared/config.js` used `Object.assign` to layer defaults → package overrides → CLI flags. `Object.assign` only merges top-level keys, so any layer that touched one key inside a nested object (`output` or `sourcemap`) replaced the whole nested object, dropping the rest of its keys (for example, `@acme/api`'s `sourcemap: { mode: 'inline' }` wiped out `sourcemap.include`). `build.js` then aborted with `EBUNDLE07 config-incomplete`.\n\n**Fix:** replaced the shallow `Object.assign` with a `mergeLayer` helper that merges nested plain objects one level deep, while still letting each layer override the other and never mutating `RELEASE_DEFAULTS`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf6458e0f5733b92257fb87deed811dfbb67599403db5e9a663226811e1d8647"
+}

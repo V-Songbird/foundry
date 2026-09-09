@@ -1,0 +1,43 @@
+{
+  "key": "incident-forensics__baseline__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 62,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 325964,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.2415370000000001,
+  "numTurns": 22,
+  "durationMs": 320290,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 22453
+  },
+  "contextTraffic": 660056,
+  "apiCalls": 22,
+  "toolCalls": 18,
+  "toolResultChars": 22174,
+  "narrationWords": 23,
+  "finalWords": 1107,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by looking at the log file.",
+    "I did a quick scan earlier for cross-reference; let me go through it properly now."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Incident date:** 2026-03-14 · **Status at handoff: ACTIVE, not mitigated** · **Prepared by:** <email>\n\n---\n\n### TL;DR\n\nA gateway config change (`dep-4471`) flipped connection pooling to connection-per-request against a fixed 20-connection pool. The pool saturated 37 seconds later and has been exhausted ever since. **Roll back `dep-4471`.** All five user-facing endpoints are returning 503 at ~83% and were still failing at the end of available logs.\n\n---\n\n### Root cause\n\n`dep-4471` (gateway, 02:12:00–02:14:00Z, **a.novak**, *\"config: connection-per-request for pool isolation\"*) applied config generation 118 → 119 at **02:13:41.234Z**:\n\n```\ngateway.pool.perRequest:    false -> true     <-- this one\ngateway.timeout.upstreamMs: 2000  -> 2500\ngateway.log.sampleRate:     1.0   -> 1.0      (no-op)\n```\n\nWith `perRequest: true`, every inbound request opens its own upstream connection instead of borrowing from the pool. The pool is still capped at 20. Connection open rate went to **4180 per 5 min against a baseline of 40** (~100×), the pool pinned at `in_use=20 idle=0`, and the acquire queue grew unbounded to **271 waiters**.\n\nSingle error signature, 530 occurrences, no other `ERR_*` code in the file:\n\n```\nERROR pool req-NNNNN ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\nEvery 503 has a matching `ERR_POOL_EXHAUSTED` on the same request ID — 530 and 530, exactly 1:1. Requests burn 600–999ms on the acquire path, then fail. No upstream is unhealthy; the fault is entirely in the gateway's own pool.\n\n**Confidence: high.** Two independent sources name the same change (the deploy summary and the gateway's own config lines), the error message names the exhausted resource directly, and the pool went from `in_use=10 waiting=0` at 02:10:58 to `in_use=20 waiting=12` at 02:15:58 with nothing else changing.\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **Config applied** | 02:13:41.234Z |\n| **First warning** | 02:14:14.920Z — `acquire slow: waited 100ms` |\n| **First 503** | **02:14:18.972Z** — `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| **Fully saturated** | 02:15:58Z |\n| **On-call paged** | 03:21:05.282Z — `error_rate 5m avg is 71%` |\n| **Last log entry** | 03:59:27.974Z — still 503ing |\n| **Duration** | **≥ 1h 45m and counting** — no recovery in the log |\n\nError rate: 0% → 44% (partial 02:10 bucket) → **83% steady state from 02:20 onward**, flat for the remaining 100 minutes.\n\n**All five user-facing endpoints are 100% failing** — `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`. Checkout and cart are down, so this is revenue-affecting.\n\n**`/health` is the only thing returning 200** (106/106, `pool_wait` 1–3ms). The health check doesn't take a pool connection, so it passes while the node serves nothing — which is why the load balancer never pulled the node and why it took **67 minutes** to page. Fix this separately; it's the reason the detection gap exists.\n\n---\n\n### Roll back\n\n**`dep-4471` — gateway — a.novak.**\n\nPreferred: set `gateway.pool.perRequest` back to `false` as a single-key change. That's the minimal revert and the only key implicated.\n\nIf tooling only supports whole-generation rollback, reverting 119 → 118 is fine — the other two keys are a no-op (`sampleRate` 1.0 → 1.0) and a benign timeout bump (`upstreamMs` 2000 → 2500) that you can re-land separately.\n\n**Do not \"fix\" this by raising pool size.** With `perRequest: true` the churn is unbounded — 4180 opens per 5 minutes against a baseline of 40. A bigger pool just moves the wall further out and hits it again under load. The pool-isolation goal a.novak was after needs a different approach; that's a follow-up conversation, not a 3am change.\n\n**Verify after rollback:**\n1. `pool stats` should return to `in_use` 3–11 / `idle` 9–17 / `waiting=0` (pre-incident range).\n2. `ERR_POOL_EXHAUSTED` count → 0.\n3. `connection churn` back to ~40 opens/5m.\n4. 5m error rate → 0%.\n\n**Check blast radius first.** The log header says `node-3 of 3`, so I only have one node's view. Generation 119 came from the deploy pipeline, so node-1 and node-2 almost certainly have the same config — confirm and roll back all three, but verify rather than assume.\n\n---\n\n### Ruled out\n\n- **billing-svc `dep-4472` (02:41) and catalog-svc `dep-4473` (03:20)** — both landed *after* onset and produced no change in the error pattern, which was already flat at 83%.\n- **Database / shared backend** — `worker.log` sits on the same DB and is completely clean: 1080 jobs, all `finished ok`, `db_wait` flat at 5ms avg / 12ms max across the entire window, its own pool idle at `in_use=1 idle=7 waiting=0` the whole time.\n- **Upstream services** — all four upstreams fail at equal rates, consistent with a gateway-local fault, not a backend one.\n\n---\n\n### Separate issue — do not conflate\n\n`worker.log` shows an **unrelated** linear latency creep: job durations rise from ~327ms to ~2197ms over the window at a steady **+11.0 ms/min**, uniform across all six job types.\n\nIt is **not** connected to this incident. Fitting the two halves separately gives 10.983 ms/min before the config apply and 10.989 ms/min after — no step, no bend, and the ramp was already underway when the log opens at 01:00. `db_wait` stays flat while total duration grows 7×, and the worker pool never queues, so the time is going somewhere in-process. Signature looks like unbounded growth tied to uptime.\n\nNot page-worthy tonight — jobs still succeed — but on the current slope they cross 5s in roughly four hours. **Lead:** `dep-4470` (worker, 00:48–00:55, j.tanaka, *\"retry backoff for webhook jobs\"*), the only worker deploy present. Weak evidence: the log starts after that deploy so there's no visible baseline, and the change is described as webhook-specific while all six job types degrade identically. Cheapest test is to restart one replica — if durations reset to ~300ms and start climbing again, it's confirmed. Worth a ticket, not a rollback.\n\n---\n\n### Open items for the next shift\n\n1. Roll back `dep-4471` across all gateway nodes; verify with the four checks above.\n2. Confirm node-1 and node-2 are affected (only node-3 logs were available).\n3. Make `/health` exercise a pool connection so a saturated node fails its health check and leaves rotation.\n4. Alert on `pool waiting > 0` sustained — it would have fired ~65 minutes before the error-rate page did.\n5. File the worker latency ramp separately; restart-one-replica test.\n6. One unexplained data point, non-blocking: `waiting` drops 232 → 12 at 03:15:58 with no logged restart or recovery event, then resumes the same slope. Possible unlogged process restart. Error rate unaffected either way.\n\n---\n\nEverything above comes from `logs/gateway.log`, `logs/worker.log`, and `deploys.csv`. I have no gateway config file, no metrics, and no node-1/node-2 logs — the blast-radius and remediation-design items are flagged accordingly. Want this dropped into a file, or reformatted for your incident tracker?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1c8554417ca7eb71e1428585175a165b6f7106576e62fcf65d5349848a6f250b"
+}

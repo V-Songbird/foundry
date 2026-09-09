@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45077,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.294439,
+  "numTurns": 11,
+  "durationMs": 42864,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2376
+  },
+  "contextTraffic": 199701,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 5983,
+  "narrationWords": 0,
+  "finalWords": 56,
+  "finalText": "**Build is green again.** Exit code 0.\n\nTwo real bugs were hiding in the warning noise.\n\n1. `src/core/options.js` read `options.retries`. The bump renamed that to `retryCount`.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader leaves it `undefined`, meaning off.\n\nThe remaining 8 warnings are just noise. They name files this repo does not have.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "55122af9a423c23c7b2bab12695f53b74dfc105abae5aba554e71e682cb0110a"
+}

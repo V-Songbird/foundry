@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "o5b-c46f1643",
+  "seed": "1787818757484",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33403,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2701989999999999,
+  "numTurns": 6,
+  "durationMs": 31639,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1132
+  },
+  "contextTraffic": 179047,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 9149,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "**Redis went away, and everything fell over behind it.**\n\n1. `02:14:07` — the cache store at `10.0.0.12:6379` refused connections.\n2. Reads went straight to the main store. 173 requests timed out.\n3. The waiting line grew from 52 to 568 jobs. The cap is 500.\n4. 13 retries failed over 17 minutes. None ever reconnected.\n5. `02:31:44` — `worker-2` ran out of memory, then `api` died.\n\nService was down at `02:31:52`, 17 minutes after Redis dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16dc5148be76c1b408f454ee6c422f71e538139801ee9ba5eaa6439d2c6f84a9"
+}

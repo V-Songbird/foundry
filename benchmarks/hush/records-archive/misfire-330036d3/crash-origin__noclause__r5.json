@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__noclause__r5",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 8,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15826,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09066239999999999,
+  "numTurns": 10,
+  "durationMs": 14195,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 967
+  },
+  "contextTraffic": 159236,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 3257,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refresh.js`, not `tokens.js`.**\n\nThe trace blames `tokens.js:6` (`token.split('.')`), but `token` is `undefined` because [refresh.js:15](src/auth/refresh.js:15) silently returns `undefined` for non-recoverable errors like `invalid_grant`.\n\n1. auth.internal returns 400 `invalid_grant` (revoked refresh token).\n2. `RECOVERABLE` doesn't include `invalid_grant`, so `refreshToken` swallows the error and returns `undefined` instead of throwing.\n3. `session.js:8` passes that `undefined` straight into `decode`, which crashes on `.split`.\n\nOpen [refresh.js](src/auth/refresh.js) — that's where the unhandled case originates, not `tokens.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09ab68042ddb8c9fefb68527f089f7c242dd10d4229277f41c6754920916000c"
+}

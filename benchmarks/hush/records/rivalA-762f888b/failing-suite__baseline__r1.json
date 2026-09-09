@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 41,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33611,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2795495,
+  "numTurns": 11,
+  "durationMs": 32800,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2164
+  },
+  "contextTraffic": 182085,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12662,
+  "narrationWords": 107,
+  "finalWords": 165,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project.",
+    "Let me run it and filter to just the failures.",
+    "Only 3 of 625 cases actually fail, all in `orderTotal` — the rest of the wall is noise.\n\n**The bug:** `src/pricing.js:41` computes tax on the *pre-discount* amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax what's actually owed\") and the spec in `cases.js:89`. It's invisible on any row where the discount or the tax is zero, which is why only the three rows with both non-zero caught it."
+  ],
+  "finalText": "Green: 625/625 passing, exit 0.\n\n**Summary**\n\n- Ran the suite: 3 real failures out of 625 cases, all in the `order totals` suite calling `orderTotal`.\n- Root cause: tax was applied to the original amount instead of the discounted amount, so every order with both a discount and a tax was overcharged (e.g. `orderTotal(12000, 15, 0.0825)` returned 11190 instead of 11042 — $1.48 too much).\n- Fix (one line, `src/pricing.js:39-42`): round the discounted subtotal, then apply the tax rate to that, matching both the function's doc comment and the spec.\n\nWorth noting this was a live overcharging bug, not a bad test — any customer order combining a promo code with sales tax was billed the tax on the undiscounted price. The other 66 order-total rows passed only because they had a zero discount or zero tax, so the suite's coverage table read healthy while the defect shipped. If you have historical order data, it may be worth checking how far back the discrepancy goes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ef54a5a0348a97251f998b4096a685b535e296b53aa9b96836a587f1dd67e572"
+}

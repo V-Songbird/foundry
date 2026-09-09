@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 282698,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.271565,
+  "numTurns": 34,
+  "durationMs": 276895,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 19593
+  },
+  "contextTraffic": 906396,
+  "apiCalls": 24,
+  "toolCalls": 30,
+  "toolResultChars": 18950,
+  "narrationWords": 32,
+  "finalWords": 896,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident, 2026-03-14\n\n**Status at end of available data: ONGOING, not mitigated.** Last log line is 03:59:27Z and it is still a 503. If this is still open, do the rollback below first and read the rest after.\n\n---\n\n### Action: roll back dep-4471\n\n| | |\n|---|---|\n| **Deploy** | `dep-4471` — gateway — a.novak |\n| **Shipped** | 2026-03-14 02:12–02:14Z |\n| **Summary** | \"config: connection-per-request for pool isolation\" |\n| **Key to revert** | `gateway.pool.perRequest: true → false` |\n\nThis landed as config generation 119. Revert **that one key**, not the whole generation — gen 119 also carried `timeout.upstreamMs: 2000 → 2500` (harmless, unrelated) and `log.sampleRate: 1.0 → 1.0` (no-op). If your tooling can't do a single-key revert, rolling back all of gen 119 is acceptable; the timeout change is not load-bearing.\n\n**Verify recovery by:** `pool` component lines dropping below `in_use 20`, and the `connection churn` counter returning toward its stated baseline of 40 opens/5m. Don't use `/health` as your signal — it kept returning 200 through the entire incident and will tell you nothing.\n\n---\n\n### Root cause\n\n`perRequest: true` makes every request open its own connection instead of borrowing from the shared pool. The pool is size 20. It saturated within seconds and never recovered.\n\n```\n02:13:41.234Z INFO  config  gateway.pool.perRequest: false -> true\n02:14:14.920Z WARN  pool    req-07400 /v1/checkout acquire slow: waited 100ms for a connection\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\n**37 seconds** from config applied to first 503. Every one of the 530 failures carries a paired `ERR_POOL_EXHAUSTED` line with the same request ID and identical millisecond timestamp — the 503s *are* the pool exhaustion, 1:1, no other failure mode present in the file.\n\nCorroborating signal: `03:02:30.904Z WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — roughly 100× normal, exactly what per-request connections would produce.\n\nConfidence is high. The gateway's own config log names the key, deploys.csv names the same change in English, and the reload was stamped \"requested by deploy pipeline\" 12s after dep-4471's start time.\n\n---\n\n### Impact window\n\n**Onset 02:14:18.972Z. Still failing at 03:59:27Z. ≥1h 45m, true end unknown — the log ends mid-incident.**\n\nBlast radius after onset:\n\n| Route | Result |\n|---|---|\n| `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` | 106 requests each — **all 503** |\n| `/health` | 106 requests — all 200 |\n\n**100% of customer-facing traffic failed.** Not degraded, not partial — of 636 post-onset access lines, the only successes are health checks. Failures are spread evenly across all four upstreams (132–133 each), confirming this is gateway-side and not a sick backend.\n\nBaseline before onset was spotless: 592 requests, all 200, zero WARN or ERROR lines of any level.\n\nFailure latency degraded from 659ms to 999ms as the wait queue grew (13 → ~270 deep).\n\n**Detection took 67 minutes.** `03:21:05.282Z WARN ops paged on-call: error_rate 5m avg is 71%`. Total customer-traffic failure ran for over an hour before anyone was woken. That alert threshold needs review — file it separately.\n\n---\n\n### Do NOT roll back dep-4470\n\nThe workers have a **separate, unrelated problem** and it will show up in any dashboard you open. Do not conflate them.\n\nJob durations climb linearly from 200ms to 2324ms across the window — +330ms per 30min, ~11ms/min, perfectly straight. But:\n\n- Zero job failures. All 1080 jobs logged `finished ok`. Throughput flat at 180 jobs/30min throughout.\n- The worker's own pool was never stressed: `size=8 in_use=1 idle=7 waiting=0`, identical across all 18 samples spanning the full three hours.\n- **No inflection at 02:14** — the ramp passes through the gateway onset without a bend, and is already underway at 01:00:00, the first line of the file. It predates this incident.\n\nj.tanaka's dep-4470 (\"retry backoff for webhook jobs\", 00:48–00:55) is the tempting suspect, but all six job types degrade *identically* (+2000ms each). A webhook-specific change should hit webhook jobs preferentially; it doesn't. Uniform degradation with the DB flat (`db_wait` 0–12ms, no trend) and the pool idle points at host-level resource creep, not job code.\n\nWorth its own ticket — at 11ms/min it reaches timeout territory within hours — but it is not this incident and rolling back dep-4470 will not help the gateway.\n\n---\n\n### Open items for the next shift\n\n1. **106 `/v1/profile` requests are unaccounted for.** Pre-onset the route logged 74 access lines; post-onset it logs **zero** — yet it appears in 106 `acquire slow` warnings. Those requests entered the gateway and never produced a terminal status line. They likely hung rather than 503'd, meaning **real user impact is somewhat worse than the 530 figure**.\n2. **This is one node.** The file header reads `node-3 of 3`. I have no visibility into nodes 1 and 2 — confirm whether gen 119 reached them and whether they're also saturated.\n3. **Confirm the actual resolution time.** My data stops at 04:00Z with the incident live; the recovery timestamp for the postmortem has to come from elsewhere.\n4. **Alert tuning** — 67-minute MTTD on a 100%-failure event.\n\n---\n\n*Sources: `logs/gateway.log` (2015 lines, 01:00:00–03:59:59Z), `logs/worker.log` (1100 lines, same window), `deploys.csv` (6 deploys). Minor caveat: gateway.log lines are not strictly time-ordered within each minute, and the `waiting` counter emits occasional bogus low readings — trust the trend, not individual values.*",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5cedb5582b44bbb5f9b0236a3d1bc352a7c21cd8d3f91004b40f6d8d2f18c158"
+}

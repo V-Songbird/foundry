@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 27,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 44911,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07177950000000001,
+  "numTurns": 13,
+  "durationMs": 42859,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2881
+  },
+  "contextTraffic": 273700,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 7300,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "finalText": "**Fixed the coupon bug.**\n\nThe issue was in `pricing.js:22`. When a flat coupon was applied to a non-USD order, the code subtracted the coupon's USD amount directly from the already-converted total, as if they were in the same currency.\n\nFor example, a $10 coupon on a $100 order in EUR:\n- Wrong: (100 USD → 90 EUR) − 10 USD = 80 EUR\n- Right: (100 USD − 10 USD) → 90 EUR = 81 EUR\n\nThe fix converts the coupon amount to the target currency first before subtracting. All 5 tests now pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "435a43b3dfd20545d31e2ac6158cf210c8e280c400976c02523560aa99235d61"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__turn2__r2",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 22,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "turn2",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 114557,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4859702,
+  "numTurns": 29,
+  "durationMs": 107719,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6605
+  },
+  "contextTraffic": 710889,
+  "apiCalls": 17,
+  "toolCalls": 25,
+  "toolResultChars": 24409,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "`fast-parse` confirms the fourth finding: it's pinned to `1.4.2` in `package.json`, and `NOTES.md` says that exact version was yanked over a prototype-pollution report, with `1.4.3` as the fix.\n\n`AUDIT.md` is written with all four findings, worst first:\n1. SQL injection in `src/repo/report.js`\n2. Unauthenticated internal routes in `src/routes/internal.js`\n3. Hardcoded staging DB password in `config/staging.js`\n4. `fast-parse` stuck on the yanked `1.4.2`\n\nThe checker script confirms it: `OK AUDIT.md names all four findings and the service was left alone`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f536d8cb1e580cf7b6f519fcc8c3cbf0c166901f59ff77812db8937db9b15c30"
+}

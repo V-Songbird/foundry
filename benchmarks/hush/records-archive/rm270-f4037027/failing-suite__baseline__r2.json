@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 32,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1279348,
+  "numTurns": 9,
+  "durationMs": 20075,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1463
+  },
+  "contextTraffic": 260694,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 13079,
+  "narrationWords": 40,
+  "finalWords": 77,
+  "finalText": "Suite is green now: 625/625 passing.\n\nRoot cause: `orderTotal` in `src/pricing.js` computed tax on the pre-discount amount (`cents * taxRate`) instead of the discounted amount, even though its own doc comment says tax should apply to what the customer actually pays. Fixed to `roundCents(discounted * taxRate)`, which resolved all 3 failures (all in the \"order totals\" suite — the only rows with both a non-zero discount and non-zero tax, which is exactly what exposed the ordering bug).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "73a1542ee4c80548190ad3ecfa44d2ec374fab54c82b1b572422c017d7a2e0c6"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__both__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 103,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40810,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2630268,
+  "numTurns": 13,
+  "durationMs": 39060,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1929
+  },
+  "contextTraffic": 367147,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 14663,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "finalText": "All 4 tests pass now, 84ms.\n\nFound it: `processOrder` acquired a connection directly and only released it after `run()` succeeded — any rejected order (bad payload) skipped the release entirely. The logs match exactly: each `invalid order payload` error bumps `pool in-use` by one and never drops, until the pool hits 5/5 and starts throwing `pool exhausted`, then the API times out and the supervisor restarts everything.\n\nFixed by routing `processOrder` through the same `withConnection` wrapper `api.js` already uses, which releases in a `finally` block regardless of success or failure.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c3f6768a270b0201f78a852b1a279ddd771b79e6e339ec76b9bdd119e7dccc9"
+}

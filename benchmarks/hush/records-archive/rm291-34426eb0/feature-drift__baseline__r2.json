@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 122744,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7614634999999998,
+  "numTurns": 30,
+  "durationMs": 114466,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6891
+  },
+  "contextTraffic": 820378,
+  "apiCalls": 27,
+  "toolCalls": 25,
+  "toolResultChars": 12858,
+  "narrationWords": 19,
+  "finalWords": 156,
+  "assistantMsgs": 7,
+  "finalText": "Dedup is in at `src/router.js:31`, backed by `state.lastSentByKey` (a Map of key → `at` of the last delivery) created in `createState()`.\n\nReplay: 0 errors, 99 dropped — that lines up with the ~1-in-9 flap events `events.js` plants two minutes after their predecessor. Every channel drops proportionally (pager 225→200, queue 300→266, email 251→223).\n\nTwo decisions I made, both easy to flip:\n\n- The window is inclusive: a repeat exactly 5 minutes later is dropped; at 6 minutes it goes through.\n- The timestamp records the last *delivered* event, not the last seen one, so a dropped repeat doesn't extend the window. Three flaps at t=0, t=2, t=4 → deliver, drop, drop; but t=0, t=4, t=8 → deliver, drop, deliver, since t=8 is measured from t=0. The alternative (any sighting resets the clock) would suppress a sustained flap indefinitely.\n\nA queued event counts as delivered for this purpose, so a quiet-hours repeat is dropped rather than queued twice.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23e82df93812e435dfd5e97a92c5226b10f2cf13cee6629c69d9c8509035b918"
+}

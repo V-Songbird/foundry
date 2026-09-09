@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__combo__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18836,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.20700169999999998,
+  "numTurns": 4,
+  "durationMs": 17013,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 940
+  },
+  "contextTraffic": 163583,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23988,
+  "narrationWords": 0,
+  "finalWords": 178,
+  "finalText": "Redis went down at 02:14:07 and never came back. That's the root cause.\n\nHere's the chain:\n\n1. `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` at 02:14:07.\n2. The app fell back to hitting the store directly, and every request started timing out at 5000ms.\n3. Reconnect attempts kept failing, once every couple minutes, all the way to attempt 12 at 02:31:26. Redis never came back up.\n4. With no cache and every request stalling, the request queue climbed steadily, from 52 up to 568, way past the max of 500.\n5. That backlog finally exhausted memory. `worker-2` hit a heap-out-of-memory crash at 02:31:44 and died.\n6. The supervisor restarted it, but by 02:31:52 the whole API was unresponsive, so it killed the process group. Service went down.\n\nSo the trigger was Redis at `10.0.0.12:6379` becoming unreachable, and the outage was the app never recovering from that for 17 straight minutes until it ran out of memory. Fixing the Redis reachability, and adding a circuit breaker so timeouts don't pile up unbounded, are the two things worth looking at first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a67e2ccaa19f0a4271ec5724b2cc6e3d60d9e22137467b9a810351e8e1a58fb"
+}

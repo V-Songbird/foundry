@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 23,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39682,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3191625,
+  "numTurns": 10,
+  "durationMs": 38032,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2448
+  },
+  "contextTraffic": 213467,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7637,
+  "narrationWords": 9,
+  "finalWords": 89,
+  "finalText": "**The build passes now.** You were right, two of them were real.\n\nBoth came from the bundler bump changing shapes:\n1. `src/core/options.js` read `options.retries`. The new bundler sends `retryCount`.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader gives `undefined`, not `false`.\n\nEach now accepts both shapes, so old callers still work.\n\nThe rest is noise. The `DEP0142`-style lines are hardcoded strings in `build.js`, pointing at files like `src/legacy/adapter.js` that don't exist here. Nothing to fix in your code.\n\n`node build.js` exits 0. Still 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "93d4fbac4cbf9ad530da5b0ba474ade5290b30ec51637c87ae8bced8c621c0d0"
+}

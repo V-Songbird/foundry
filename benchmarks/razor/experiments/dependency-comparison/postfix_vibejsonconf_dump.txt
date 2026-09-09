@@ -1,0 +1,13 @@
+=== vibe-jsonconf__razor__haiku__0 ===
+TEXT: I'll write a minimal JSON config loader with validation that uses the stdlib and optional `jsonschema` for schema validation.
+TOOL Write: {"file_path": "config_loader.py", "content": "import json\nfrom pathlib import Path\nfrom typing import Any, Dict, Optional\n\ntry:\n    import jsonsc
+TEXT: Done. A minimal config loader that:
+
+- **Loads JSON** from file with clear error messages (file not found, parse errors)
+- **Validates** against a JSON Schema (optional, requires `pip install jsonsche
+
+=== vibe-jsonconf__razor__haiku__1 ===
+TEXT: I'll write a minimal JSON config loader with schema validation using only stdlib.
+TOOL Write: {"file_path": "/tmp/config_loader.py", "content": "import json\nfrom pathlib import Path\nfrom typing import Any, Type, TypeVar\n\nT = TypeVar(\"T\")\
+TEXT: Done. The loader uses only stdlib and validates two things: required fields and field types. Pass `schema` as a dict mapping field names to expected types, and `required` as a set of fields that must 
+

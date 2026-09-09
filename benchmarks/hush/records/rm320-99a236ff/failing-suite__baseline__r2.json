@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 18,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45999,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2780095,
+  "numTurns": 13,
+  "durationMs": 44707,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2539
+  },
+  "contextTraffic": 205259,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 7762,
+  "narrationWords": 18,
+  "finalWords": 229,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout.",
+    "Only 3 of the 625 cases fail, all in `orderTotal`."
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n**What was actually broken** — one line. Out of 625 cases only 3 failed, all in the `order totals` suite, all calling `orderTotal`:\n\n| call | expected | was |\n|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 |\n\n`src/pricing.js:39` applied the discount to the base, then computed tax on the **undiscounted** base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← cents, not discounted\n```\n\nThat contradicts the function's own doc comment (\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied to it\"), and the deltas are exactly `discountPct × cents × taxRate` — 148, 87, 668 — which confirms it's the tax base, not a rounding issue. Fixed by taxing `discounted`.\n\nNothing else was wrong: the other suites (rounding, discounts, tiers, proration, shipping, loyalty) were passing all along, and I left `tiers.js` and the runner untouched. The wall of text is just the runner's verbose reporter — it prints an `ok` line per case plus a coverage table on every run, pass or fail; the real failure detail is only in the last ~25 lines after the `N failing` marker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1415abbb1a63c8720d05560bee57b555cd4bd9979c321b95c18e643af8ee3071"
+}

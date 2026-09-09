@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 108607,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.515165,
+  "numTurns": 15,
+  "durationMs": 101331,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5974
+  },
+  "contextTraffic": 405041,
+  "apiCalls": 14,
+  "toolCalls": 11,
+  "toolResultChars": 5983,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff is at [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest` to `true` at 02:13:41. The 20 connection pool ran dry 37 seconds later.\n\nImpact: 02:14:18.972Z to 03:59:27.974Z, still open. 530 of 636 requests failed. That is 83%.\n\nRoll back `dep-4471`. Revert the flag to `false`.\n\nTwo gaps flagged in the doc. This log is `node-3 of 3` only. The page took 67 minutes to fire.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36421bb4a72582da654bb97cc1be1e1c8841b4aba9b95395a727a87f8646ca8a"
+}

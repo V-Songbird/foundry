@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__t31deliver__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 17,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "t31deliver",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 190173,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.743009,
+  "numTurns": 25,
+  "durationMs": 179149,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7646
+  },
+  "contextTraffic": 683516,
+  "apiCalls": 21,
+  "toolCalls": 20,
+  "toolResultChars": 16183,
+  "narrationWords": 7,
+  "finalWords": 142,
+  "finalText": "Repeats are dropped now.\n\nIf a key already went out and the next one with that key lands under 5 minutes later, it's dropped. Two things I decided, since you didn't say:\n\n- A dropped repeat doesn't restart the clock — only a real send does. So a long run of flaps can't hold a key silent forever.\n- Exactly 5 minutes later counts as clear, not a repeat. 4 minutes drops, 5 delivers.\n\nThe replay shows 99 dropped out of 900 — that's the flaps in the data. Queue and pager counts fell a little because some quiet-hour repeats now drop instead.\n\n`node verify.js` passes: *OK the router matches the rules as they finally stood*. All four rules are in — the priority map, high on both sms and email, quiet hours to queue with critical still paging, and repeat suppression.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67cc540d925f8d5a6002c354e8495c56772b6ca4a66e8e963901c26e73886cf5"
+}

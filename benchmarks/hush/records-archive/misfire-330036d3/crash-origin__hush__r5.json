@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r5",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 9,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14537,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08411279999999999,
+  "numTurns": 8,
+  "durationMs": 12923,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 896
+  },
+  "contextTraffic": 132469,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 3322,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refresh.js`, not `tokens.js`.**\n\n`auth.internal` returns 400 `invalid_grant` (revoked refresh token). In [refresh.js:14-15](src/auth/refresh.js:14), that error code isn't in `RECOVERABLE`, so `refreshToken` returns `undefined` instead of throwing.\n\nThat `undefined` flows into `decode(token)` at [session.js:8](src/session.js:8), where `token.split('.')` throws — the line the stack trace blames.\n\n`tokens.js:6` is just where the `undefined` finally explodes. Fix belongs in `refresh.js`: an unrecoverable refresh failure should reject, not resolve to `undefined`.\n\nNext: decide how `resumeSession` should handle that rejection (likely a 401, not crash).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "57f3c876a87e3a8a78caff70045141a6fa66128b4556e00a32baa916028f5e49"
+}

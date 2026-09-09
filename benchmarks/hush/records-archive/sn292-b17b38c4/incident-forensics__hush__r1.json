@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69802,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3199378,
+  "numTurns": 16,
+  "durationMs": 61588,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3579
+  },
+  "contextTraffic": 653910,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 46857,
+  "narrationWords": 0,
+  "finalWords": 143,
+  "assistantMsgs": 4,
+  "finalText": "Log ends at `03:59:27.974Z` still failing — this was ongoing, not resolved, as of the last line captured.\n\n---\n\n## On-call handoff — gateway 503s\n\n**Root cause**\n`dep-4471` (gateway, `a.novak`, deployed `02:12:00Z`–`02:14:00Z`): *\"config: connection-per-request for pool isolation.\"* Connection pool has been stuck at `size 20, in_use 20` ever since — never releases. First slow-acquire warning `02:14:14.920Z`, first `503` `02:14:18.972Z`, 18 seconds after the deploy finished.\n\n**Impact window**\n`02:14:18.972Z` → still failing at `03:59:27.974Z` (end of captured log, unresolved). `waiting` queue climbed from 13 to 74+ over that span — steadily worsening, not stable.\n\n**Roll back**\n`dep-4471` on gateway. It's the only change in the deploy window that touches gateway/pool code; `worker` and other services are unaffected (confirmed clean in `worker.log`).\n\nNext: after rollback, confirm `in_use` drops below 20 and `waiting` clears — pool state, not just error rate, is the real signal here.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "85e1682df7181ac4bc514b10c2d5cce15968f2fe231bb2ab57c941369bd34501"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32277,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19884050000000003,
+  "numTurns": 10,
+  "durationMs": 30723,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1588
+  },
+  "contextTraffic": 246281,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8267,
+  "narrationWords": 12,
+  "finalWords": 85,
+  "finalText": "Build's clean now, exit 0.\n\nTwo real bugs, both from the bump. The bundler's new options shape renames `retries` to `retryCount`, but `options.js` still read the old name and crashed on `undefined`. Separately, the new config loader leaves unset flags as `undefined` instead of `false`, and `retryPolicy.js`'s strict check only knew `true`/`false`, so it threw on `undefined`.\n\nFixed both: `resolveRetries` reads `retryCount`, and `isBackoffEnabled` now treats anything but `true` as off. The rest of the warning wall is just deprecation noise from the bump, harmless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c011b70efbe087944f548de4c8037338a0c0e5c21e37a16d22b57ff3cbf27cb"
+}

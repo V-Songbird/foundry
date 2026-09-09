@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__curex__r2",
+  "batchId": "scr1-ce4805bd",
+  "seed": "1787637098368",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "curex",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49230,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4357645,
+  "numTurns": 8,
+  "durationMs": 47689,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3262
+  },
+  "contextTraffic": 176665,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 31457,
+  "narrationWords": 6,
+  "finalWords": 118,
+  "finalText": "**Redis died and never came back.** It refused every connection at `10.0.0.12:6379`.\n\nThe cache was gone. Every read hit the store directly. Reads timed out after 5000ms. The backlog grew and never drained.\n\n```\n02:14:07  redis connection lost\n02:14:07  cache degraded, reads go straight to the store\n02:29:12  queue depth 502, past its own 500 max\n02:31:44  worker-2 out of memory\n02:31:52  api killed, service down\n```\n\nAll times are UTC on July 4. The fall took 17 minutes and 45 seconds. Redis was retried 13 times. Every try was refused.\n\nThe queue blew past its 500 max and reached 568. Nothing capped it. Memory ran out.\n\nThe rest of the log is those same three lines repeating.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a96c71defd5e516db4f7c2d7957ec4fe0d81ff4339be2d137a30a1650cf277a7"
+}

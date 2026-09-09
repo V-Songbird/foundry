@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25023,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3122957,
+  "numTurns": 4,
+  "durationMs": 23515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 879
+  },
+  "contextTraffic": 194066,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60283,
+  "narrationWords": 6,
+  "finalWords": 201,
+  "finalText": "Root cause found: Redis died, and the app never recovered from it — request queue grew unbounded until the process OOM'd.\n\n**Timeline:**\n1. **02:14:07** — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). Cache layer falls back to direct store reads.\n2. **02:14:08 onward** — Cache miss storm + store timeouts (5000ms) on every request. Queue depth climbs steadily: 52 → 500+ over the next ~17 minutes.\n3. **02:15–02:30** — 13 redis reconnect attempts (every ~2 min), all fail with the same ECONNREFUSED. Redis never came back.\n4. **02:29:06** — Queue depth crosses 500 (the configured max) and keeps growing anyway — no backpressure/shedding kicked in.\n5. **02:31:44** — `worker-2`: JavaScript heap out of memory from the backlog.\n6. **02:31:45** — supervisor restarts worker-2 (exit code 134).\n7. **02:31:52** — `api` unresponsive, supervisor kills the whole process group. **Service down.**\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable and never recovered. The fallback-to-store path had no queue cap enforcement and no circuit breaker, so requests piled up for 17+ minutes until a worker OOM'd and took the process group down with it.\n\nNext: check whether `10.0.0.12` (redis host) had its own outage/restart around 02:14 — that's the actual trigger, this app just cascaded from it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4255961e1224389094435aac941f50799a24d5f422dd909e6419497ea07043e0"
+}

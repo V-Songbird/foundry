@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 55651,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.359455,
+  "numTurns": 14,
+  "durationMs": 54255,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3389
+  },
+  "contextTraffic": 240168,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 15923,
+  "narrationWords": 7,
+  "finalWords": 163,
+  "assistantMsgs": 2,
+  "finalText": "Migration finished. 12 files still on the old positional form, 36 call sites total, all now `db.execute({ sql, params })`:\n\n- `packages/accounts/src/admin/apiKeyAdmin.js`, `repo/session.js`, `service/teamService.js`\n- `packages/analytics/src/repo/cohort.js`\n- `packages/billing/src/repo/refund.js`, `service/couponService.js`\n- `packages/catalog/src/admin/variantAdmin.js`, `repo/supplier.js`\n- `packages/orders/src/repo/shipment.js`, `service/returnService.js`\n- `packages/support/src/admin/macroAdmin.js`, `repo/sla.js`\n\nVerified: `db.query` returns no hits under `packages/`, and `node --check` passes on every package file.\n\nTwo things to flag:\n\n- **`vendor/legacy-orm/adapter.js` left untouched** (2 call sites, lines 9 and 13). Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so patching it in place would be undone. When the driver actually drops `query`, the fix has to be an upstream/vendor bump or a shim on the `db` handle, not an edit here.\n- **`cache.query(...)` calls were not changed** — that's a different handle (`lib/cache.js`) and unrelated to this deprecation.\n\n`db.query` is still defined in `lib/db.js`; I left it in place since the vendor file still calls it. It can be deleted once that's resolved.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "52affdcd898b05f4d31277a123f1761d55e494de90a7ffa7eeeb8d6209f86bcf"
+}

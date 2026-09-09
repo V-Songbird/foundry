@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 160,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19536,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1710015,
+  "numTurns": 7,
+  "durationMs": 18501,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1007
+  },
+  "contextTraffic": 104346,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 3031,
+  "narrationWords": 0,
+  "finalWords": 145,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan ready. Nothing changed.**\n\nOne catch first. The table drops `owner` and `slow` on purpose, per the note in [format.js:3](src/format.js:3). So \"same data\" splits two ways. I would print the full `buildRows()` row, all six fields. Say the word if you want the four table columns instead.\n\nThree small edits:\n\n1. `src/format.js` — add `toJson(rows)` next to `toTable`, export it.\n2. `src/cli.js` — parse `--json` from `argv`, pick the printer.\n3. `src/cli.js` — update `USAGE` to `usage: cli.js report [--json]`.\n\n```js\n// format.js\nfunction toJson(rows) { return JSON.stringify(rows, null, 2); }\n\n// cli.js\nconst args = argv.slice(1);\nif (args.some((a) => a !== '--json')) { /* usage, return 1 */ }\nconst print = args.includes('--json') ? toJson : toTable;\nprocess.stdout.write(print(buildRows()) + '\\n');\n```\n\n`buildRows` stays untouched. Output is an array of objects, one per run, still slowest first.\n\nNext: say go, or pick the four-column shape.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9ff09e81cfe4be2337285cb5e9d42c80d87818ef9c88f65b774ee95ebb29640a"
+}

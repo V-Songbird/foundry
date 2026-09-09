@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r6",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 46,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 125024,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8626989999999999,
+  "numTurns": 58,
+  "durationMs": 123400,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12333
+  },
+  "contextTraffic": 300647,
+  "apiCalls": 8,
+  "toolCalls": 57,
+  "toolResultChars": 44886,
+  "narrationWords": 9,
+  "finalWords": 67,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding the remaining `db.query` call sites."
+  ],
+  "finalText": "**Migration done in 12 files, 36 call sites.** All now use `db.execute({ sql, params })`. `node --check` passes on every JS file.\n\nTwo calls remain in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). I left them alone. The file header says do not edit, since upgrades overwrite it.\n\nI did not touch `cache.query`. That is a separate cache API, not the db handle.\n\nNext: fix the vendor calls upstream, or wrap `legacy-orm` locally.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67e345ab21cd3ff159e8b14157b5ce91a63295351f6404ef54a3e2df2453beae"
+}

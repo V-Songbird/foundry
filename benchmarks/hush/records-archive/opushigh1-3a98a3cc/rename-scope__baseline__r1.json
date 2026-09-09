@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 40,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 113249,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5855625,
+  "numTurns": 14,
+  "durationMs": 112535,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8298
+  },
+  "contextTraffic": 264659,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 30287,
+  "narrationWords": 11,
+  "finalWords": 733,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this actually is."
+  ],
+  "finalText": "I've read the whole tree (97 files, ~3.1k lines of JS). Here's what you'd be signing off on.\n\n## Size\n\n**1,291 occurrences of `account_id` across 94 of 97 files.** Zero `accountId` — the codebase is uniformly snake_case, so there's exactly one token to chase.\n\n| Area | Occurrences | Files |\n|---|---|---|\n| `services/*/src/repo` | 475 | 25 |\n| `services/*/src/service` | 400 | 25 |\n| `services/*/src/http` | 325 | 25 |\n| `migrations/*.sql` | 61 | 12 |\n| `vendor/reporting-sdk` | 20 | 4 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/` | 5 | 2 |\n\nThe service code is highly templated — 5 services × 5 entities × 3 layers, each entity a near-identical copy (`services/billing/src/repo/invoice.js` is the pattern for all 25 repos). So the raw count overstates the thinking: it's really *one* change reviewed 25 times. That part is a day of work.\n\n## Where it must not be renamed\n\n**1. The public API contract — `docs/openapi.yaml` and the right-hand side of `WIRE` in `lib/serialize.js:8`.** Both are explicitly marked frozen. `account_id` is a documented response field on `Invoice` and `Order` and a public query parameter on `GET /v2/invoices`. Renaming it is a breaking change for every client and requires a new dated API version. `lib/serialize.js` is the seam that makes this containable — internal name on the left, wire name on the right.\n\n**2. `vendor/reporting-sdk/` (20 sites).** The README and every file header say do not edit; `npm run vendor:refresh` overwrites the directory wholesale. It's also a third party's wire format. Nothing in the repo currently imports it, so it should simply be excluded from the change.\n\n**3. `migrations/*.sql` (61 sites).** All twelve are marked applied in production. Editing them renames nothing in a database that already ran them, and it breaks the `-- down` steps. The column rename has to be a *new* forward migration, not an edit to history.\n\n## The parts that aren't a rename at all\n\n**The 125 `account_id` tokens inside SQL strings are the database column**, not code. Renaming them requires `ALTER TABLE ... RENAME COLUMN` across 25 tables plus their indexes and self-referencing FKs (`REFERENCES accounts (account_id)`), coordinated with deploy so old and new code don't both run against one schema. This is the real cost of the ticket and it is not a find-and-replace.\n\n**`req.session.account_id` — 100 reads.** The session object is built outside this repo (auth middleware). The platform team can't rename this unilaterally; whoever issues sessions has to ship first.\n\n**The JSONB payload.** Every repo does `JSON.stringify({ ...values, account_id })`, so `account_id` is a key *inside stored `payload` data* in 25 tables. Renaming the shorthand silently changes what new rows persist while old rows keep the old key. Either pin it explicitly (`account_id: owner_id`) or budget a backfill.\n\n**`lib/audit.js` — 75 call sites.** The audit line schema carries `account_id`. Whatever queries those logs downstream needs to change with it.\n\n## Two failure modes to raise before you sign\n\n`audit()` reads `account_id: fields.account_id` and then spreads `...fields`. If a caller is renamed and `lib/audit.js` isn't, the field goes `undefined` — no error, just audit lines that lose the account scoping they exist to record.\n\nThe tenant guards are asymmetric. `fetchInvoice` and `insertInvoice` throw on a missing account (50 guard sites total), but the **list, count, and delete paths have none**. A half-applied rename there yields `WHERE account_id = undefined` — an empty page or a no-op delete rather than a crash. `serialize.js` has the mirror of this: its fallthrough loop copies any non-`WIRE` key straight into the response, so if the row key becomes `owner_id` and the `WIRE` map's left side isn't updated in the same commit, `owner_id` leaks into public JSON and `account_id` vanishes from it.\n\n**There is no test suite** — no test files, and `package.json` has only a `vendor:refresh` script. Nothing will catch any of the above.\n\n## Recommendation\n\nSign off on the internal rename — the ~875 in-process identifiers in `services/`, stopping at `lib/serialize.js`'s `WIRE` map, which becomes `owner_id: 'account_id'`. That's genuinely mechanical and contained.\n\nDon't sign off on \"everywhere\" today. The column rename, the session shape, the payload keys, and the audit schema are four separate coordinated changes with production data and other teams behind them, and the OpenAPI/vendor/migration sites must be excluded outright. Ask for the ticket to be split before it becomes a single 1,291-site commit with no tests behind it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "419a1617639d2a0357a5bce3c39cb7e798134cc6b650a7c82e1c591a273e8295"
+}

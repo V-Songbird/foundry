@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21974,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1765737,
+  "numTurns": 9,
+  "durationMs": 20378,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1525
+  },
+  "contextTraffic": 225169,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 6559,
+  "narrationWords": 12,
+  "finalWords": 59,
+  "finalText": "Build clean, exit 0.\n\nTwo real bugs, both from bundler options-shape change:\n- `src/core/options.js` — read `options.retries` (undefined after bump), now reads `options.retryCount`. Threw on `.toFixed`.\n- `src/net/retryPolicy.js` — strict boolean check threw on `undefined` flag. Now treats anything not `true` as disabled (matches old `false`-default behavior).\n\nRest of warnings: deprecation noise from the dep bump (DEP0142/0198/0233/0250/0267 etc), harmless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be437ec07d0a043b9daebe62da9170fb4a0bb683ffa12c715f63759b6efa6130"
+}

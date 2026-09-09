@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 106590,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5607175,
+  "numTurns": 16,
+  "durationMs": 98588,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5820
+  },
+  "contextTraffic": 456404,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 10886,
+  "narrationWords": 6,
+  "finalWords": 75,
+  "assistantMsgs": 5,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).** Incident is still open.\n\nRoot cause is `dep-4471`, which set `gateway.pool.perRequest: false -> true` at `02:13:41`. The pool is `size=20`. Per-request checkout drains it at once.\n\nImpact ran `02:14:18.972Z` to `03:59:27.974Z`, still going. 530 requests failed, all `503`. Churn hit `4180 opens in the last 5m, baseline is 40`.\n\nThe log is `node-3 of 3`. Fleet impact is likely near 3x.\n\nNext: roll back `dep-4471`, then check nodes 1 and 2.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e31317e0d676b4f1bc2ae5798661e5d9136848de33d5304fce01ead1ed7c1e8"
+}

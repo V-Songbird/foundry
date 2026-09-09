@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43472,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.27375649999999996,
+  "numTurns": 11,
+  "durationMs": 41720,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2620
+  },
+  "contextTraffic": 204933,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 6978,
+  "narrationWords": 34,
+  "finalWords": 317,
+  "finalText": "The build passes now — exit 0, `dist/bundle.js` emitted.\n\n**You were right, some of it wasn't noise.** Two real bugs were hiding in the wall of warnings, and they were sequential — fixing the first only got you to the second.\n\n1. `src/core/options.js:6` — the bumped bundler renamed the option `retries` → `retryCount`. This call site was missed, so `options.retries.toFixed(0)` threw `TypeError: Cannot read properties of undefined`. That's what was actually aborting the link stage. It now reads `retryCount` with a fallback to `retries` so any not-yet-migrated caller still works, and throws a clear typed error instead of a null-deref if neither is a number.\n\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` where the old one returned `false`. The strict boolean check threw on that. Unset now means off, matching the previous behavior; non-boolean values still throw, since those are genuine misconfiguration.\n\n**On \"clean\" — the 8 warnings are still there, and I left them alone deliberately.** They aren't produced by your source. `build.js` hardcodes them as literal strings (`DEPRECATIONS` at line 18, plus three at lines 46–48), and the files they blame — `src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js` — don't exist in this tree. The only two source files here are the two I fixed. So the only way to make that output warning-free would be to delete the strings from the bundler's own log, which would be faking a clean build rather than achieving one.\n\nAssuming this repo is a trimmed-down slice and the real `src/` lives elsewhere, those warnings are worth a look on their own — `crypto.createCipher` (W1042) is the one I'd prioritize, since it's insecure, not just deprecated, and is flagged for removal before v5. The circular import (W3307) is next: undefined resolution order is exactly the kind of thing another bump can turn into a runtime failure. Point me at the full tree and I'll work through them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be9b59ebdbd1ef675cc84069c9be2c39ce2748a1b4f53a1365e467916696580d"
+}

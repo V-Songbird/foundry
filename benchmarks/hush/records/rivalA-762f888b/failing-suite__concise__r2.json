@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__concise__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 48,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27747,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2058965,
+  "numTurns": 8,
+  "durationMs": 26768,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1729
+  },
+  "contextTraffic": 139302,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 4907,
+  "narrationWords": 42,
+  "finalWords": 140,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project layout.",
+    "Three failures, all in `orderTotal`. Let me look at the code.",
+    "The bug is on line 41: tax is computed on `cents` (the pre-discount base) instead of `discounted`, contradicting the function's own doc comment."
+  ],
+  "finalText": "Green: 625 passing, 0 failing.\n\n**What was broken:** only 3 of the 625 tests were actually failing, all `orderTotal` — the rest of the wall of text was passing output and a coverage table.\n\nIn `src/pricing.js:41`, tax was calculated on the pre-discount base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← wrong base\n```\n\nSo the customer got the discount on the subtotal but paid tax as if they hadn't. That contradicts the function's own docstring (\"Tax is charged on the amount the customer pays\"), and it explains why every failure overshot by exactly `discount × taxRate` — e.g. 12000 × 15% × 0.0825 ≈ 148, the reported delta.\n\nFix was one word — tax `discounted` instead of `cents`. The other pricing functions were fine; the failures just all funneled through this one line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a1ac5e3a4f5614a74dc5bcfb12076df7528c49d949e1111b5a86761ecdca533b"
+}

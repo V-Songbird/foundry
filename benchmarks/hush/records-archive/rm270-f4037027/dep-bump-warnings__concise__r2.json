@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35085,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1574034,
+  "numTurns": 12,
+  "durationMs": 34112,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2214
+  },
+  "contextTraffic": 373324,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 10399,
+  "narrationWords": 101,
+  "finalWords": 112,
+  "finalText": "Build's green now, 0 errors. Two real bugs from the bundler bump, both fixed:\n\n- `src/core/options.js` — `resolveRetries` still read `options.retries`, but the new bundler passes `{ retryCount }`, so it crashed dereferencing `undefined`. Now reads `retryCount`.\n- `src/net/retryPolicy.js` — `isBackoffEnabled` only accepted explicit `true`/`false` and threw on anything else. The new config loader leaves unset flags as `undefined` instead of `false`, so it was throwing on every unset flag. Now treats `undefined` as disabled.\n\nThe rest (DEP0142/0198/0233/0250/0267 and a few `WARN W...` lines) are just deprecation noise from the version bump, not blocking anything — left those alone since they're cosmetic. Let me know if you want those chased down too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fa9fa963873a0f042699d8cf5fe35c95318c020a750f3893731455817a039bff"
+}

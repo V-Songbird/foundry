@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__oldstyle__r1",
+  "batchId": "ab-style-52859765",
+  "seed": "1787386633516",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27079,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13306660000000003,
+  "numTurns": 10,
+  "durationMs": 25174,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1621
+  },
+  "contextTraffic": 241260,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 7106,
+  "narrationWords": 4,
+  "finalWords": 89,
+  "finalText": "It's building clean now, 0 errors.\n\nTwo real bugs were hiding under the warning noise, both from the bundler bump.\n\n1. `src/core/options.js` still read `options.retries`. The new bundler renamed that field to `retryCount`, so it crashed.\n2. `src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag. The new config loader leaves it `undefined` when unset, and that threw an error.\n\nFixed both. Retry budget resolves to 3 and backoff falls back to disabled, like before the bump. The rest really was just noise, deprecation warnings and dedupe logs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36127370879317d5c1924300323ec9bd07863c81fb4f955ca169cfe913358ce6"
+}

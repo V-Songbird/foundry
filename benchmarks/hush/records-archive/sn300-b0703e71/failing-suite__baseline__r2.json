@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20542,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.11354240000000002,
+  "numTurns": 11,
+  "durationMs": 19321,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1419
+  },
+  "contextTraffic": 190939,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 12343,
+  "narrationWords": 19,
+  "finalWords": 55,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed: 3 failures, all in `orderTotal` — it taxes the pre-discount amount instead of the discounted amount. Fixing `src/pricing.js`."
+  ],
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` in `src/pricing.js:39-43`: it computed tax on the original pre-discount amount instead of the discounted amount, and added the two independently-rounded pieces together instead of rounding once at the end. Fixed to discount first, then tax the discounted total (`applyTax(discounted, taxRate)`), matching the spec in `cases.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e27360a87735e524ad5eaebc1c8cf569ad6bc30e73ce1ba8c4c92dfb5d9fb60a"
+}

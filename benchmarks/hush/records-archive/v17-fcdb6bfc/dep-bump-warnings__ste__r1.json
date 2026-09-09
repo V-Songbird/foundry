@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 36344,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.24108080000000004,
+  "numTurns": 12,
+  "durationMs": 35080,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2418
+  },
+  "contextTraffic": 377129,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 9619,
+  "narrationWords": 104,
+  "finalWords": 108,
+  "finalText": "The build finishes with 0 errors now.\n\nTwo real bugs caused the failure, both from the same bundler bump:\n\n- `src/core/options.js:6` — `resolveRetries` still read `options.retries`, a field the new bundler no longer sends. The new shape uses `retryCount`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:7` — `isBackoffEnabled` treated any non-boolean flag as an error. The new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` the same as `false` (disabled).\n\nThe rest of the noisy output was deprecation warnings (`DEP0142`, `DEP0198`, etc.) and informational notes — not build failures, so I left those alone. Build now exits 0 with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "05feb0cec2908c6bfe83167b2770141f344ebaae725ba02c58ef062128efb337"
+}

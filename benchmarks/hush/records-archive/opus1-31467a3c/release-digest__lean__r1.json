@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__lean__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 8,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 130997,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.9194384999999998,
+  "numTurns": 18,
+  "durationMs": 129468,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8251
+  },
+  "contextTraffic": 720328,
+  "apiCalls": 18,
+  "toolCalls": 17,
+  "toolResultChars": 45422,
+  "narrationWords": 8,
+  "finalWords": 154,
+  "finalText": "Drafted 4.2.0 into `CHANGELOG.md`, at the top, same three headings.\n\nOf 380 commits, 355 are invisible to users. 114 are dependency bumps. The rest is tests, CI, docs, and refactors. Real news: 1 feature, 12 distinct fixes, 4 breaking changes.\n\nThe breaking ones weren't labelled as such, so please sanity-check them:\n\n| Change | Why it bites |\n|---|---|\n| Expired token 403 → 401 | Callers branching on 403 break |\n| Internal error types un-exported | Imports stop resolving |\n| v1 export route deleted | Commit says \"unused\" — worth confirming |\n| Token parser wording changed | Breaks string matching |\n\nTwo things I left out. The 10 perf commits have no home in your three headings. Several `docs: note the minimum node version` commits touched only docs, and `package.json` engines was never changed, so I did not claim a new Node floor. Tell me if either should go in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "03b205c1229c52f6a5d08898eace13787240266ac18c1346bc4686dfba0eaa1d"
+}

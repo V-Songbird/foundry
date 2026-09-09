@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__combo__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48142,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.4362175,
+  "numTurns": 8,
+  "durationMs": 46604,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3046
+  },
+  "contextTraffic": 213366,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 29787,
+  "narrationWords": 0,
+  "finalWords": 98,
+  "finalText": "**Redis died at 02:14. The app followed 17 minutes later.**\n\n1. `02:14:07` Redis at `10.0.0.12:6379` refused connections.\n2. The cache fell back to reading the store directly.\n3. Every read missed. The store bogged down.\n4. Requests started timing out after 5000ms.\n5. `02:29:12` the request queue passed its max of 500.\n6. `02:31:44` worker-2 ran out of memory, exit 134.\n7. `02:31:52` api went unresponsive. Supervisor killed it.\n\nRedis never came back. All 13 reconnect tries were refused.\nThe 188 errors and 348 warnings all trace back to that.\n\nOne heads up: these logs are dated `2026-07-04`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a35a1fea29d214a09164d2cae495454e399ab24aade75a3233a252fe974b0939"
+}

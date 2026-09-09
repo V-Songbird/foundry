@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 35,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29309,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.33637449999999997,
+  "numTurns": 11,
+  "durationMs": 27634,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1551
+  },
+  "contextTraffic": 228601,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 16579,
+  "narrationWords": 8,
+  "finalWords": 65,
+  "finalText": "**Green now. All 625 tests pass.**\n\nOnly 3 cases were really broken. All in `order totals`.\n\n`orderTotal` took the discount off, then taxed the **full** price. Tax should ride on what the customer actually pays. Rows with a zero discount or zero tax hid it.\n\nThe fix in `src/pricing.js` is one line:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n`verify.js` also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9fb7ba4164938ac37e043f5109bef96c4d77faea235e7326a6721793005770ef"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__precap__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16787,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2280258,
+  "numTurns": 3,
+  "durationMs": 14501,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1002
+  },
+  "contextTraffic": 128377,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "finalText": "Here's what happened, in order.\n\nAt 2:14 AM, the app lost its connection to Redis, the fast cache it stores data in, at address 10.0.0.12. It tried to reconnect 12 times over the next 17 minutes. Every attempt failed with the same \"connection refused\" error.\n\nWith no cache, every request fell back to hitting the slow store directly. That caused a growing pile of stuck requests, called a queue. It started around 52 and climbed past its limit of 500, reaching 568 by 2:31 AM.\n\nAt 2:31:44, one worker ran out of memory from the backlog and crashed. The system tried to restart it, but 7 seconds later the whole app stopped responding and was shut down.\n\nBottom line: Redis at `10.0.0.12:6379` going down is what started it. The app never recovered on its own and needs Redis restored, plus a cap on that request queue so one outage can't take the whole thing down again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9bcba58a42ceb6658805ce6985eb2652617d562a040246fcfe16b0f7a2e5a4c7"
+}

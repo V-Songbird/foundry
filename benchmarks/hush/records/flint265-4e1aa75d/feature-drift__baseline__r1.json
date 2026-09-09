@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 36,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 107204,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.638528,
+  "numTurns": 24,
+  "durationMs": 98528,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6118
+  },
+  "contextTraffic": 626499,
+  "apiCalls": 21,
+  "toolCalls": 19,
+  "toolResultChars": 12965,
+  "narrationWords": 15,
+  "finalWords": 110,
+  "assistantMsgs": 7,
+  "finalText": "Dedupe is in at `src/router.js:29`. `createState()` now returns `{ lastSentAt: Map }`, keyed by `event.key`; a repeat inside the window returns `[]`, and the timestamp only advances on an actual send (so a drop doesn't extend the window indefinitely).\n\nSpot-check: at 600 `high` sends, 602 and 604 drop, 605 sends again (window elapsed), 611 sends.\n\nReplay: `dropped: 99` — the flap events from `events.js`, which fire 2 minutes after their predecessor. 900 events, 0 errors.\n\nOne judgment call: I read \"in the last 5 minutes\" as a strict window, so a repeat exactly 5 minutes later goes through. Change `DEDUPE_MINUTES` comparison to `<=` if you want 5 minutes itself suppressed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fa4f8ef0d454ffe8e9ae78fba0185a8a1f171c0d36f31973f5f5b0056a0ddecf"
+}

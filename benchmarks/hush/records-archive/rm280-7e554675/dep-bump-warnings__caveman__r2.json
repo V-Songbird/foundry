@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 23,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33350,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.25084850000000003,
+  "numTurns": 9,
+  "durationMs": 31841,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2122
+  },
+  "contextTraffic": 163043,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 6014,
+  "narrationWords": 6,
+  "finalWords": 166,
+  "finalText": "Build passes. `0 errors`, exit 0.\n\nTwo real bugs, both from bump, sequential:\n\n1. `src/core/options.js:6` — bundler renamed option `retries` to `retryCount`. Call site read `options.retries`, undefined, `.toFixed()` threw. Now reads `retryCount` with fallback to `retries`, plus type check.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined`; strict boolean check threw. Now `undefined` = documented default `false`; other non-boolean still errors.\n\nNot fixed — 8 warnings still print:\n```\nbuild finished in 44.9s with 8 warnings, 0 errors\n```\nThose are hardcoded literal strings in `build.js` (`DEPRECATIONS` array plus three `if (compiled === N)` lines, `build.js:18-24,46-48`). Fake bundler emits them unconditionally — no source scan behind them. Nothing in `src/` makes them go away; only editing `build.js` would, which is faking the output, not fixing anything. Warnings themselves name real work though (`fs.exists`, `Buffer()` constructor, `crypto.createCipher`, circular import `core/graph.js <-> state/tracker.js`) — those files don't exist in this tree.\n\nTell me if you want \"clean\" to mean zero warnings too, and I edit `build.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ccef4f0da81ed5733765aec9c9447b24421c736e9df5dcb1d3925954653d86b7"
+}

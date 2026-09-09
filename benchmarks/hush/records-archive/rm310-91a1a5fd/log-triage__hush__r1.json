@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 85167,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.46823000000000004,
+  "numTurns": 11,
+  "durationMs": 82424,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4153
+  },
+  "contextTraffic": 207832,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 10164,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis went down. The rest is fallout.**\n\nTimeline from [logs/app.log](logs/app.log):\n\n| time | event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | cache bypassed, direct store reads, miss storm |\n| 02:14:10 | `TimeoutError` after 5000ms, store overloaded |\n| 02:29:12 | `request queue depth 502 (max 500)` |\n| 02:31:26 | reconnect attempt 12 fails, still refused |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nAll 13 reconnects got `ECONNREFUSED`. Nothing was listening there. So Redis was dead, not slow. Cache hit ratio was 0.98 at 02:13.\n\nNext: find why `10.0.0.12:6379` stopped listening.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ffed72db633e837c5b8152f6c60499be0e4359946c01a26c741c839613e34eec"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__labelonly__r3",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 26,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35991,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1539478,
+  "numTurns": 13,
+  "durationMs": 34425,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1779
+  },
+  "contextTraffic": 306771,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 13992,
+  "narrationWords": 11,
+  "finalWords": 52,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Only order totals fail. Let me pull the exact 3 cases."
+  ],
+  "finalText": "**All 625 tests pass now.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Only rows with both a discount and a tax rate exposed it, so 3 of 66 `order totals` cases failed.\n\nFixed to tax the discounted amount. Suite is green, 625 passing, 0 failing.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e1e3a81696ba66688f753b2ef8eb973e90fb3f5fb6d2513747a248f2b73529cc"
+}

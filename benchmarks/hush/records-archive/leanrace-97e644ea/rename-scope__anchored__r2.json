@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__anchored__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "anchored",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32897,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14892919999999998,
+  "numTurns": 14,
+  "durationMs": 30823,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2457
+  },
+  "contextTraffic": 240255,
+  "apiCalls": 6,
+  "toolCalls": 13,
+  "toolResultChars": 13220,
+  "narrationWords": 0,
+  "finalWords": 216,
+  "finalText": "Confirmed: three hard no-go zones, each with its own reason.\n\nScope: 1,082 occurrences across 94 files. Of those, roughly 916 sit in the five `services/*` app codebases (JS, safely renameable) and about 45 in `lib/` and `docs/`.\n\n**Must not be renamed:**\n1. `migrations/*.sql` (12 files, ~34 occurrences) — these already ran in production (earliest 2025-01-14). Editing history doesn't rename a live column and breaks the down-step. A rename needs a *new* migration, not edits to old ones.\n2. `vendor/reporting-sdk/src/*.js` (4 files, ~12 occurrences) — vendored and generated. It's marked \"Do not edit\" and gets overwritten every time someone runs `npm run vendor:refresh`.\n3. `docs/openapi.yaml` and the `WIRE` map in `lib/serialize.js` — `account_id` is the frozen public API field name. Renaming it breaks every external client; the yaml itself says a change here needs a new dated API version. `lib/audit.js` also keys audit log lines by `account_id`, worth checking if that's log-format-frozen too.\n\nSo: safe to rename internally across the five services (variables, internal repo/service code), but the DB column, the vendored SDK, and the public API field name all have to stay `account_id`. That last one is really the crux — if \"everywhere\" includes the wire format, this isn't a rename, it's a breaking API version bump, and that's the thing to flag before signing off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "04645f2e2b3e09b167aa448eb5b0b669dd62a021984ab8d1faecb34459a7b7b4"
+}

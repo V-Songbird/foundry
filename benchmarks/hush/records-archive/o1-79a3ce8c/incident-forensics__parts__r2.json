@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__parts__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 67,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "parts",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 172656,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.945692,
+  "numTurns": 22,
+  "durationMs": 166770,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11360
+  },
+  "contextTraffic": 777819,
+  "apiCalls": 22,
+  "toolCalls": 18,
+  "toolResultChars": 12834,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "finalText": "Written to `HANDOFF.md`. Root cause, impact window, and the rollback are each their own section.\n\nRoll back `dep-4471`. Setting `gateway.pool.perRequest` back to `false` is the smallest fix.\n\nTwo things in there you have not seen yet. All 180 `/health` checks stayed 200 through the outage, so nothing auto-remediated. And `gateway.log` is only node-3 of 3, so real fleet impact is likely near triple the 530.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf9a71afcbff8f00e59a25739ecc20de547f5cd47269e39da688acd3a4017abf"
+}

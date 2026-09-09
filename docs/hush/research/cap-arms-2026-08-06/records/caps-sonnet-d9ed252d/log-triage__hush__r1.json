@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 158,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27748,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20823030000000003,
+  "numTurns": 4,
+  "durationMs": 25821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1392
+  },
+  "contextTraffic": 160527,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23656,
+  "narrationWords": 0,
+  "finalWords": 148,
+  "finalText": "**Redis is what took prod down.**\n\nAt 02:14:07 the app lost its connection to redis at `10.0.0.12:6379` and never got it back.\n\n1. Every reconnect attempt failed — 12 tries over 17 minutes, all `ECONNREFUSED`.\n2. With no cache, every request fell through to the store, so it started missing constantly and timing out.\n3. Requests piled up faster than they could drain. The queue passed its cap of 500 around 02:29 and kept climbing past 560.\n4. At 02:31:44 `worker-2` ran out of memory under the backlog and crashed.\n5. The supervisor restarted it, but the api was already stuck. It killed the whole process group at 02:31:52.\n\nSo the trigger was redis going unreachable, and the real damage was that nothing shed load while it stayed down. Worth adding a queue cap or circuit breaker so one dead dependency can't take the whole service with it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "564641d4ad5072d74c5ae08ae02828d2025a14b8d4cbba40388e96a67a7a9649"
+}

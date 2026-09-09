@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 144,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 167943,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7656620000000001,
+  "numTurns": 18,
+  "durationMs": 164322,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10930
+  },
+  "contextTraffic": 488493,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 19214,
+  "narrationWords": 6,
+  "finalWords": 762,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll look at the log file."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status: ONGOING.** Not resolved at log cutoff. Assume still failing unless you've confirmed otherwise.\n\n---\n\n### TL;DR\n\n`dep-4471` (gateway config, a.novak, 02:12–02:14 UTC) flipped `gateway.pool.perRequest` to `true`, giving every request its own connection from a 20-slot pool. The pool exhausted 33 seconds after the config applied and never recovered. **Roll back dep-4471.**\n\n---\n\n### Root cause\n\nConfig generation 118 → 119, applied 02:13:41.234Z, changed three keys:\n\n```\ngateway.pool.perRequest:    false -> true     <- this one\ngateway.timeout.upstreamMs: 2000 -> 2500      <- aggravator\ngateway.log.sampleRate:     1.0 -> 1.0        <- no-op\n```\n\nConnection-per-request against `size 20` means the pool caps at 20 concurrent requests. Every one of the 530 failures is the same error, with no other error code anywhere in the file:\n\n```\nERROR pool req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n      (size 20, in_use 20, waiting 13)\n```\n\n`in_use 20` on all 530. The pool heartbeat shows `idle` going 10 → 0 at 02:15 and staying there, with the wait queue growing ~20 every 5 minutes to a peak of 271. The gateway never reached a backend — no upstream errors, no timeouts, no resets. The `upstreamMs` bump to 2500 makes it worse by holding each connection 25% longer, but is not the primary cause.\n\n**Confidence: high, but it is still correlation.** To close it, confirm in the gateway source that `perRequest: true` holds a dedicated connection for the request lifetime without raising pool size. No gateway source is in this directory — I only had the two logs and `deploys.csv`.\n\n### Impact window\n\n| | |\n|---|---|\n| First symptom | 02:14:14.920Z — `pool acquire slow: waited 100ms` |\n| **First 503** | **02:14:18.972Z** — `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| Steady state | 02:20 onward, **83.3%** error rate, flat |\n| On-call paged | 03:21:05Z — **67 minutes late** |\n| Last 503 seen | 03:59:27.974Z (log ends here, still failing) |\n| **Duration** | **≥105 min, open-ended** |\n| Total 503s | 530 on this node |\n\nAffected: `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 failures each, evenly spread across all four upstreams. Checkout and cart were down. **`/health` returned 200 throughout** (105 of them, the only successes after 02:15), so load balancer health checks stayed green through an 83%-error outage.\n\nCaveat: this log is **node-3 of 3**. If the config reload went out fleet-wide, nodes 1 and 2 are almost certainly identical — verify before sizing customer impact.\n\n### Roll back\n\n**`dep-4471` — gateway — a.novak — \"config: connection-per-request for pool isolation\"**\n\nConfig-only, so a revert to generation 118 should be immediate; no rebuild needed. Expect `idle` to climb off 0 and the wait queue to drain within a heartbeat or two. If a full revert is unacceptable because the pool-isolation goal matters, the stopgap is raising pool size well above peak concurrency — but revert first, tune after.\n\nRuled out — do not roll these back:\n- **dep-4472** (billing-svc, 02:41) and **dep-4473** (catalog-svc, 03:20) both started *after* the outage hit steady state. Error rate is flat at 50/60 per bucket straight through both. Note dep-4473 starts ~1 min before the on-call page — coincidence; the page fired on a 5-min average breached for over an hour.\n- **dep-4470** (worker, finished 00:55) — 79 min prior, log completely clean in between, and worker throughput is constant, so it sent no extra load.\n\n### Two follow-ups (not blockers, file separately)\n\n1. **Health checks are lying.** `/health` requires no upstream connection, so it passed while everything real failed. Alerting keyed on it will miss this class of outage entirely. This is also why the page took 67 minutes.\n\n2. **Unrelated leak in the workers.** `worker.log` has zero errors and a healthy pool (`in_use=1 idle=7 waiting=0`, flat all night) — workers were *not* affected. But job durations ramp 200ms → 2200ms across the window, starting at 01:00, over an hour *before* the config change, with no inflection at 02:14. The ramp is mechanically linear: exactly +31ms per job. `db_wait` never exceeds 12ms and the pool never queues, so it's not the DB — something in the job runner is accumulating unboundedly. It was already in progress at the first log line, so the trigger is outside this window; needs earlier logs. At the observed trend, jobs cross typical timeout thresholds within a few hours. Separate ticket.\n\nAlso present, low priority: one `WARN db slow query 1.9s ... unindexed scan, known issue OPS-2210` at 02:36 — already ticketed, single occurrence, not a factor here.\n\n---\n\nWant me to save this to a file in the working directory?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4dba1e7bc912a07981bc1d7bf2a7b380d6d7635eea333c6db8ccdd97c46eb7bd"
+}

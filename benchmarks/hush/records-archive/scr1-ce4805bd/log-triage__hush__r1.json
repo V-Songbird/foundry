@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "scr1-ce4805bd",
+  "seed": "1787637098368",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36051,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4432405,
+  "numTurns": 7,
+  "durationMs": 34328,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2037
+  },
+  "contextTraffic": 263302,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 29298,
+  "narrationWords": 6,
+  "finalWords": 99,
+  "finalText": "**Redis went down, and the app never recovered.**\n\nTimeline, all on 4 July 2026:\n\n1. `02:14:07` — Redis at `10.0.0.12:6379` refused the connection. The cache dropped out.\n2. Every read went straight to the store. It could not keep up. Timeouts started 3 seconds later.\n3. Work piled up. The queue grew from 52 to 568.\n4. `02:29:12` — the queue passed its 500 limit and kept climbing.\n5. `02:31:44` — `worker-2` ran out of memory and died. `02:31:52` — the api was killed. Service down.\n\nRedis never came back. 13 reconnect tries all failed, the last at `02:31:26`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d2eae61d1e09595e3790ebb9e27573d6e39005a03a45f9283bf017a1495bf7c"
+}

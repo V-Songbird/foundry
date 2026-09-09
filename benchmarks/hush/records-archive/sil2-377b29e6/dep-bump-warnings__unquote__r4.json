@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__unquote__r4",
+  "batchId": "sil2-377b29e6",
+  "seed": "1787898445241",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "unquote",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38363,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-unquote:HushUnquote",
+  "costUsd": 0.22085149999999998,
+  "numTurns": 11,
+  "durationMs": 36306,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1849
+  },
+  "contextTraffic": 221044,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8813,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now, exit 0.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Bundler renamed `retries` to `retryCount` | Read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | New loader leaves unset flags `undefined`, check threw | Treat unset as off |\n\nThe 8 remaining warnings are real deprecations, not noise. `crypto.createCipher` in `src/legacy/adapter.js` is flagged for removal before v5. That is the next thing to fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f50783dc7db8d8c41db6fd529bf8a84cb33cae5e0deb617e12b08bcffb9f4fa4"
+}

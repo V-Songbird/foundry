@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35618,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21919259999999996,
+  "numTurns": 9,
+  "durationMs": 33764,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2696
+  },
+  "contextTraffic": 218668,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10495,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "Build's clean now. The break was in `packages/shared/config.js:15` — it merged package configs with `Object.assign`, which replaces a whole nested object (like `output` or `sourcemap`) instead of merging its keys, so any package overriding one key inside `output` lost its other keys and the build's own completeness check aborted it.\n\nSwapped that for a small deep-merge that walks nested objects key by key, so a package can still override just `output.format` without wiping out `output.dir`. Both `build.js` and `verify.js` exit clean now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10ad2b6ceee5336758282acc12da4ee71e7ba30ae81e1e0d15765d554e7a1c74"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27864,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.15048280000000003,
+  "numTurns": 11,
+  "durationMs": 26080,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1815
+  },
+  "contextTraffic": 304318,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 16507,
+  "narrationWords": 58,
+  "finalWords": 99,
+  "finalText": "Builds clean now (exit 0, 0 errors). Two real bugs from the bump, both in the link stage:\n\n- `src/core/options.js:7` — `resolveRetries` still read `options.retries`, but the bumped bundler now hands options as `{ retryCount }`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:7-11` — `isBackoffEnabled` threw on `undefined`, but the bumped config loader now leaves unset flags `undefined` instead of `false`. Added an `undefined` → `false` case.\n\nThe rest of the noisy output (deprecation warnings, dedupe/tree-shaking notes) is just log noise from the bump and not something to \"fix\" — it's expected chatter from the new bundler version, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7a24499221471e53ac9c8ba39b9297fe318714070cdc91585c8af4ce9818f697"
+}

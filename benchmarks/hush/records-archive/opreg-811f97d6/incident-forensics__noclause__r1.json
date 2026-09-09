@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__noclause__r1",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 120541,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5601700000000001,
+  "numTurns": 16,
+  "durationMs": 114092,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7170
+  },
+  "contextTraffic": 369075,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 9535,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `gateway.pool.perRequest` flipped to `true` in config `generation 119`. Each request grabs its own connection from a pool of 20, so the pool stays full. Impact runs `02:14:18Z` to log end `03:59`, 530 of 1228 requests failed. Roll back `dep-4471`.\n\nTwo caveats are in the doc. The log is `node-3 of 3`, so other nodes are unchecked. The worker slowdown is separate and still unexplained.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "29d9c4bb33c15db96c661d15b6781987261bcc92fb71f952d7a7435b8a44aa3f"
+}

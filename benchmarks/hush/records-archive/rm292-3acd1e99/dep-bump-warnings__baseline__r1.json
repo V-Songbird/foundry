@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37545,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24825999999999998,
+  "numTurns": 10,
+  "durationMs": 36212,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2375
+  },
+  "contextTraffic": 176810,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6275,
+  "narrationWords": 45,
+  "finalWords": 305,
+  "assistantMsgs": 4,
+  "finalText": "The build passes now (exit 0). Your instinct was right — the noise was hiding two real breakages, and they were sequential, so fixing the first only revealed the second.\n\n**What was actually broken** — both in the link stage, both caused by the bump:\n\n1. `src/core/options.js:7` — the bundler renamed its options field `retries` → `retryCount`. This call site still read `options.retries`, which came back `undefined`, so `.toFixed(0)` threw and aborted the link. Now reads `retryCount` with a `?? options.retries` fallback so any call site still on the old name keeps working.\n\n2. `src/net/retryPolicy.js:10` — the old config loader returned `false` for an unset flag; the new one leaves it `undefined`. The strict boolean check treated `undefined` as invalid and threw. Now `undefined` maps to `false`, matching the previous default, so an unset flag stays off. The check still throws on genuinely bad types (a string, a number), which is worth keeping.\n\n**One thing to confirm:** on that second fix I preserved the old behavior — backoff *off* when the flag is unset — and the build reports \"exponential backoff disabled\". If the new loader is supposed to default that flag *on*, this silently keeps it off and that's a behavior change you'd want to catch. Worth a glance at whatever sets `backoffEnabled` in your config.\n\n**Still outstanding (not touched):** the 8 warnings are real deprecations, just not build-breaking — `fs.exists`, the `Buffer()` constructor, the sync loader hook, `punycode`, `module.parent`, plus `crypto.createCipher` in `src/legacy/adapter.js` (flagged \"remove before v5\") and a circular import between `src/core/graph.js` and `src/state/tracker.js` with undefined resolution order. The build is clean of *errors*, not of warnings — you asked for it building clean, so flagging that I read that as the failure. The `createCipher` and circular-import ones are the two I'd queue up next; say the word and I'll take them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "329597f55571149a218e906593cdcd028123e43d62d8439a3bcfb2cd5824294e"
+}

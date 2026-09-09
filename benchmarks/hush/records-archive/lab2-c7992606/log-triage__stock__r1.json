@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16719,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09072540000000001,
+  "numTurns": 5,
+  "durationMs": 15050,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 923
+  },
+  "contextTraffic": 153609,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23574,
+  "narrationWords": 0,
+  "finalWords": 132,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Root cause: Redis went down and never came back, and the queue backlog eventually OOM-killed the service.**\n\nTimeline:\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07–02:31:26 | 12 failed reconnect attempts, roughly every 2 min |\n| ongoing | cache miss storms, timeouts, queue depth climbing past `500` max |\n| 02:31:44 | `worker-2` heap out of memory from request backlog |\n| 02:31:52 | supervisor kills process group, service down |\n\nRedis at `10.0.0.12:6379` never came back online. That forced every request onto direct store reads, which couldn't keep up, so the queue grew unbounded instead of shedding load, until memory ran out.\n\nNext: bring Redis back up and check why nothing capped the queue at 500 instead of just warning.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75eccde42c2bcf56442bc98befdb855000379c0922674f6d94ab2958b3709180"
+}

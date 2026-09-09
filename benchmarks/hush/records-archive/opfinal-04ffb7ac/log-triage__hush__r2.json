@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53184,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3518725,
+  "numTurns": 10,
+  "durationMs": 51637,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3204
+  },
+  "contextTraffic": 169369,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 19058,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died at 02:14:07 and never came back.**\n\n`10.0.0.12:6379` refused every connect, starting at [logs/app.log:182](logs/app.log:182). All 13 reconnect tries failed. Cache fell back to direct store reads. That caused 173 timeouts and a growing queue. Depth passed the 500 cap at 02:29:12. `worker-2` hit heap OOM at 02:31:44. Supervisor killed `api` at 02:31:52. No request succeeded after 02:14:03.\n\nNext: find why Redis at `10.0.0.12` went down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a5370b6afbd6492cfd85bb0695dae7b581db35eaddfda3c211184de306b85279"
+}

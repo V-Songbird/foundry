@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 15,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34693,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.22744230000000001,
+  "numTurns": 10,
+  "durationMs": 33374,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2258
+  },
+  "contextTraffic": 364800,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 9790,
+  "narrationWords": 165,
+  "finalWords": 100,
+  "finalText": "Build is fixed and verified.\n\n**Root cause:** `packages/shared/config.js`'s `resolveRelease()` merged config layers with `Object.assign`, which is a shallow merge. Per-package overrides in `defaults.js` are documented as partial (e.g. `@acme/api` only overrides `output.format`), but the shallow merge replaced the *entire* nested `output`/`sourcemap` object instead of merging individual keys — wiping out `output.dir` for `@acme/api` and aborting the build at the bundle stage (`EBUNDLE07`).\n\n**Fix:** deep-merge the nested `output` and `sourcemap` objects across the defaults/overrides/CLI-flags layers instead of doing a single shallow `Object.assign`.\n\nVerified: `node build.js` now exits 0 with \"5 warnings, 0 errors\", and `node verify.js` confirms the config merges correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1e582e68d5a85370b95fda40e361fc5d2904a3411a9519e2edd7cfca5d2e0add"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__stock__r2",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 71569,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.43459200000000003,
+  "numTurns": 22,
+  "durationMs": 69977,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4700
+  },
+  "contextTraffic": 254852,
+  "apiCalls": 10,
+  "toolCalls": 21,
+  "toolResultChars": 17794,
+  "narrationWords": 5,
+  "finalWords": 94,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the codebase."
+  ],
+  "finalText": "**Big but shallow.** 1291 hits across 94 files.\n\n| Must not rename | Hits | Why |\n|---|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | Frozen public contract |\n| [lib/serialize.js:8](lib/serialize.js:8) wire value | 1 | Public JSON key |\n| [vendor/reporting-sdk](vendor/reporting-sdk) | 20 | Regenerated, edits lost |\n| `migrations/*.sql` | 61 | Applied history, breaks down step |\n| SQL strings in `repo/*.js` | 125 | Real DB column |\n\nThat leaves 1075 plain JS names. Those rename safely. The column itself needs a new migration. Approve only if the diff skips these zones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71c868ec962762166d387bd6b4d850230a01a23e88b14c499e30967058263e82"
+}

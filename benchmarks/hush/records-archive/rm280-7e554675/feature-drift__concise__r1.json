@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 73,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 92193,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.6080764999999999,
+  "numTurns": 25,
+  "durationMs": 83945,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4825
+  },
+  "contextTraffic": 650776,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 10240,
+  "narrationWords": 6,
+  "finalWords": 79,
+  "finalText": "Dedupe added: `state.lastSentByKey` (a Map, set up in `createState()`) records the time of each key's last actual delivery; a repeat within 5 minutes returns `[]`.\n\nReplay: 0 errors, 99 dropped — low email=111/queue=90, normal push=112/queue=88, high sms=112+email=112/queue=88, critical pager=200.\n\nTwo judgment calls: dropped repeats don't refresh the timestamp (so a flap storm can't extend the window indefinitely), and the window is inclusive — exactly 5 minutes later is still a drop. Queued notifications count as sent for dedupe purposes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9ad7e178d7a58666345cb65a28df24ed66be2221aa35a4defd4d197b2071a834"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__blockcap__r3",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "blockcap",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37148,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.25134,
+  "numTurns": 10,
+  "durationMs": 35566,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2099
+  },
+  "contextTraffic": 150779,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6626,
+  "narrationWords": 7,
+  "finalWords": 76,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Exit 0.\n\nTwo real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | read either key |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag is now `undefined`, not `false` | treat unset as off |\n\nThe 8 warnings left are hardcoded strings in [build.js:18](build.js:18). They name files like `src/legacy/adapter.js` that do not exist here.\n\nNext: nothing. Warning text lives in the fake bundler.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10a7f7d90fe7c1090614feb50600818e218b95db2ac3d183d84b66ad077885df"
+}

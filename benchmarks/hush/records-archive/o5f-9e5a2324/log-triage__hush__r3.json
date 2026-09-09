@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "o5f-9e5a2324",
+  "seed": "1787842333516",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50330,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.358236,
+  "numTurns": 6,
+  "durationMs": 48448,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3043
+  },
+  "contextTraffic": 188444,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 16501,
+  "narrationWords": 5,
+  "finalWords": 56,
+  "finalText": "**Redis went down at 02:14 UTC.**\n\n1. Cache gone. Every read hit the store. Timeouts began.\n2. Queue climbed past its 500 cap to 568.\n3. All 13 reconnect tries failed. Redis never came back.\n4. `worker-2` ran out of memory. Supervisor killed `api` at 02:31 UTC.\n\nThe log is dated July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c8f2465122e30789f572373ae3f5b5ecd95d0ecb35a3c086e5f802e1dcae780"
+}

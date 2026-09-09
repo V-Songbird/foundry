@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushstock__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31762,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21084370000000002,
+  "numTurns": 9,
+  "durationMs": 29871,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1673
+  },
+  "contextTraffic": 311519,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 6376,
+  "narrationWords": 8,
+  "finalWords": 88,
+  "finalText": "Fixed it. Two spots hadn't caught up to the bundler's new options shape.\n\n`options.js` still read `options.retries`, but the bumped bundler now sends `retryCount` — so it crashed reading `.toFixed` off `undefined`. Pointed it at `retryCount`.\n\n`retryPolicy.js` only accepted `true` or `false` for the backoff flag, but the new config loader leaves unset flags as `undefined` and that threw. Now `undefined` is treated the same as `false`.\n\nBuild finishes clean: 0 errors, 8 warnings — those remaining ones are just deprecation noise from the bump, not real bugs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f0df0883224b9033fb516faed5cb6a1ede3bfe018d2dea508a881868f36ea2f4"
+}

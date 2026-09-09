@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 24,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62088,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6048987,
+  "numTurns": 12,
+  "durationMs": 54676,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3192
+  },
+  "contextTraffic": 617902,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 42877,
+  "narrationWords": 0,
+  "finalWords": 159,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** deploy `dep-4471` (gateway, a.novak, 02:12–02:14 UTC) shipped the config change \"connection-per-request for pool isolation,\" flipping `gateway.pool.perRequest` from `false` to `true`. That makes the gateway grab a new connection per request instead of reusing them, and the pool (fixed at 20 connections) can't keep up.\n\n**Impact window:** started 2026-03-14 02:14:18 UTC, first 503 twelve seconds after a slow-acquire warning. Still ongoing as of the last log entry, 03:59:27 UTC — it never self-recovered. Every failure is `ERR_POOL_EXHAUSTED`, pool stuck at 20/20 in use, with the waiting queue climbing steadily (13 at the start, 74+ by the last entry).\n\n**Scope:** gateway only. Checked `worker.log` for the same window — clean, no errors, no pool exhaustion. Workers don't sit behind this pool.\n\n**Action:** roll back `dep-4471` — revert `gateway.pool.perRequest` to `false`. No other deploy in that window touches the gateway (`dep-4472` billing-svc landed at 02:41, after the outage already started, so it's not a factor).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23755fe2fb90f12f878d44685d78f66fda57bfb1e7ac44f2508797035ead6189"
+}

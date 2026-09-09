@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__openban__r3",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 12,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "openban",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39083,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.2976955,
+  "numTurns": 14,
+  "durationMs": 37344,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2783
+  },
+  "contextTraffic": 119311,
+  "apiCalls": 4,
+  "toolCalls": 13,
+  "toolResultChars": 18984,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "assistantMsgs": 1,
+  "finalText": "**1082 hits across 94 files. 55 must not change.**\n\n| Zone | Hits | Why |\n|---|---|---|\n| [`migrations/`](migrations) 12 files | 37 | applied history, breaks the down step |\n| [`vendor/reporting-sdk/`](vendor/reporting-sdk) 4 files | 12 | `npm run vendor:refresh` overwrites edits |\n| [`docs/openapi.yaml`](docs/openapi.yaml) | 5 | public contract, frozen field |\n| [`lib/serialize.js:8`](lib/serialize.js:8) `WIRE` value | 1 | public wire name |\n\nThe other ~1027 hits are internal and safe. But repo SQL names a real DB column. So the column stays `account_id` too. Rename code now. Add a forward migration later. Sign off on the internal half only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "30a354cc3636cdcd7b331bc3b5cf3437ec825ea66a6e8b2ef931b440d925ba76"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 54949,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19775040000000002,
+  "numTurns": 15,
+  "durationMs": 48255,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3281
+  },
+  "contextTraffic": 422974,
+  "apiCalls": 13,
+  "toolCalls": 11,
+  "toolResultChars": 12649,
+  "narrationWords": 0,
+  "finalWords": 128,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**On-call handoff drafted below.**\n\n**Root cause:** deploy `dep-4471` to `gateway` by `a.novak` changed config `gateway.pool.perRequest` from `false` to `true` (\"connection-per-request for pool isolation\"). This made every request hold its own DB connection instead of sharing the pool, and the pool (`size=20`) saturated within seconds.\n\n**Impact window:** `2026-03-14T02:14:18Z` to at least `03:59:27Z` (log ends there, still failing). First error at [logs/gateway.log:616](logs/gateway.log:616). `pool stats` never returned to `idle>0` after saturation.\n\n**Errors:** `503` on `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`, all upstreams (`billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc`). Log line: `ERR_POOL_EXHAUSTED acquiring connection from pool`.\n\n**Scope:** gateway only. `worker.log` clean for the same window, no 503s, no pool errors.\n\n**Rollback:** `dep-4471` (`gateway`, `2026-03-14T02:12:00Z`). Revert `gateway.pool.perRequest` to `false`, or raise pool `size` if per-request isolation must stay.\n\nNext: page `a.novak` or roll back `dep-4471` directly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fb9fc0564f626e5797ae842151513a75e2393e9f0f2a8a830f3d53b3bc75e44f"
+}

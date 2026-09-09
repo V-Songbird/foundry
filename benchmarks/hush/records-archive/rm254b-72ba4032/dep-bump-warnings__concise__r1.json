@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23954,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.17366489999999998,
+  "numTurns": 10,
+  "durationMs": 22301,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1538
+  },
+  "contextTraffic": 222905,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7996,
+  "narrationWords": 51,
+  "finalWords": 64,
+  "finalText": "Build now exits 0. The remaining 8 warnings are just deprecation noise from Node/deps (`DEP0142`, `DEP0198`, etc.) plus unrelated lint-style notes — nothing actionable, unlike the two real breakages:\n\n- `src/core/options.js` — still read `options.retries`, but the bumped bundler now passes `retryCount`, so it threw on `undefined.toFixed`.\n- `src/net/retryPolicy.js` — treated an unset flag (`undefined`) as invalid and threw, instead of just meaning \"disabled.\"",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cd83d2d64bf9e74a8b5df0213568f860280bfe80676affa555a6be0c4aa5af39"
+}

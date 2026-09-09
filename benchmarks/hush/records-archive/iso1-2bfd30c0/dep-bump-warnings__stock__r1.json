@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__stock__r1",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25675,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11605320000000001,
+  "numTurns": 10,
+  "durationMs": 24092,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1527
+  },
+  "contextTraffic": 195961,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7912,
+  "narrationWords": 12,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Two real bugs, confirmed by comments in the code itself. Fixing both."
+  ],
+  "finalText": "**Build's green now: 0 errors.**\n\nTwo real bugs from the bump, not noise:\n\n1. `[options.js:7](src/core/options.js:7)` read `options.retries`, but the new bundler passes `retryCount`. Fixed to read `retryCount`.\n2. `[retryPolicy.js:8](src/net/retryPolicy.js:8)` threw on `undefined` flags, but the new config loader leaves unset flags `undefined` instead of `false`. Added an `undefined` case that treats it as disabled.\n\nRest of the screen was just deprecation and dedupe noise. `node build.js` now exits 0 with 8 warnings, all cosmetic.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ae736be8bb282682a53ca493fc2309b189946aa60d00653f015adf1b14ed40dc"
+}

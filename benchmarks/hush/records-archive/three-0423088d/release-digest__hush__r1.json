@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "three-0423088d",
+  "seed": "1787418273908",
+  "orderIndex": 9,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 117755,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3598686,
+  "numTurns": 13,
+  "durationMs": 115985,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10001
+  },
+  "contextTraffic": 603921,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 26106,
+  "narrationWords": 18,
+  "finalWords": 116,
+  "finalText": "I wrote the 4.2.0 section into `CHANGELOG.md`, dated tomorrow, 2026-08-23.\n\nOut of 380 commits and 127 merged PRs, only 11 actually touch what users see. One is a breaking change: an expired token now gets a 401 response instead of 403, so anyone checking for 403 will need to update. One is a new feature: failed webhook deliveries now retry on their own, with a growing wait between tries. The rest are eight real fixes, including one worth flagging on its own: request bodies are no longer written to logs in full, which matters if any of that data was sensitive.\n\nEverything else in the history, dependency bumps, renames, retry-helper collapses, was internal and left out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fe25e9093edb2666de0f25ac5dc4f7614a7f1918476a5cb9457d26f14a2eb625"
+}

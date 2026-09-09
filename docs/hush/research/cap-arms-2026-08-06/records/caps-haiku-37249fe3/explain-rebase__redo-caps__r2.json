@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 79,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11312,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0232895,
+  "numTurns": 1,
+  "durationMs": 9755,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 664
+  },
+  "contextTraffic": 27055,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 240,
+  "finalText": "**Merge** creates a commit that joins two branches together, keeping all the history of both sides. You end up with a commit graph that shows \"here's where we split, here's where we came back.\" It's the safe choice for shared branches because it doesn't rewrite history.\n\n**Rebase** replays your commits on top of the branch you're rebasing onto, as if you'd written them there from the start. You get a straight line of commits instead of a fork and rejoin. It rewrites history, so it's not safe to do on branches other people are using.\n\nThe practical rule: **rebase for your own work before you push it; merge for work that's already shared.**\n\nUse rebase when you've been working on a feature branch and want to tidy up before opening a pull request — it keeps your PR's history clean and easy to review. Use merge when you're integrating branches (like merging a feature into main, or main back into a long-running branch) — people may have built work on top of those branches, so rewriting their history breaks things.\n\nA smaller rebase use case: if you're syncing with main while still on your branch, rebase keeps your commits stacked on top of the latest main instead of creating a merge commit every time. But if the branch is shared, merge instead.\n\nThe one gotcha: never force-push a rebase unless you're absolutely sure you're the only one using that branch.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f8cffd9fc3223450aaf190cfb2f2a9de8a120059e56b9b3acb211f4c5f2c8795"
+}

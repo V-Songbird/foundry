@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23178,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1966936,
+  "numTurns": 3,
+  "durationMs": 21469,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1772
+  },
+  "contextTraffic": 111207,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 110,
+  "finalText": "**Redis going down triggered a slow-motion crash of prod.**\n\nTimeline:\n1. 02:14:07 — Redis connection lost. `ECONNREFUSED 10.0.0.12:6379`.\n2. Cache fell back to direct store reads. Timeouts and queue depth climbed for 17 minutes straight.\n3. 12 reconnect attempts to Redis, spaced ~2 minutes apart, all failed.\n4. Queue depth grew from 52 to over 560 requests, way past the max of 500.\n5. 02:31:44 — worker-2 ran out of memory from the backlog and restarted.\n6. 02:31:52 — supervisor killed the whole api process group. Full outage.\n\nNext: bring Redis back up at `10.0.0.12:6379`. Also add a queue depth cap so a dead Redis can't OOM a worker again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ce4e1c00841fafa76585f9e6e8cf9a8ed0e757ef10194439897cc38c14bc40c8"
+}

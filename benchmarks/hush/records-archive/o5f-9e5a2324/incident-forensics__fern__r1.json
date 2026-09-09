@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__fern__r1",
+  "batchId": "o5f-9e5a2324",
+  "seed": "1787842333516",
+  "orderIndex": 19,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "fern",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 80648,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.390181,
+  "numTurns": 13,
+  "durationMs": 72411,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3408
+  },
+  "contextTraffic": 334833,
+  "apiCalls": 12,
+  "toolCalls": 9,
+  "toolResultChars": 8395,
+  "narrationWords": 0,
+  "finalWords": 157,
+  "finalText": "```\nON-CALL HANDOFF — gateway 503s, 2026-03-14\n\nROOT CAUSE\ndep-4471 (gateway, a.novak, 02:12-02:14Z)\n\"config: connection-per-request for pool isolation\"\nEach request now opens its own connection. The pool\n(size 20) exhausts and requests queue instead of serving.\n\n  ERROR pool req-07401 ERR_POOL_EXHAUSTED acquiring\n  connection from pool (size 20, in_use 20, waiting 13)\n\nCorroborating: WARN pool connection churn: 4180 opens\nin the last 5m, baseline is 40.\n\nIMPACT WINDOW\nStart  02:14:18.972Z (18s after dep-4471 finished)\nEnd    ongoing at log end 03:59:27.974Z\nVolume 530 x 503, every one paired with ERR_POOL_EXHAUSTED\nQueue  waiting=13 at onset, waiting=74 at log end\nPaged  03:21:05Z, error_rate 5m avg is 71%\nScope  gateway only. Workers ran 1080 jobs, all ok,\n       pool flat at size=8 in_use=1 idle=7 waiting=0.\nZero gateway errors before 02:14.\n\nACTION\nRoll back dep-4471. Confirm churn returns to ~40 opens/5m.\n\nRULED OUT\ndep-4472 billing-svc 02:41Z — after onset\ndep-4473 catalog-svc 03:20Z — after onset\nOPS-2210 slow query 02:36Z — known, worker-side, no errors\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ccf3f8a54cfba69d794edfbd059f8ece9bd00596f9bed3fc4f5d1e117ec52d84"
+}

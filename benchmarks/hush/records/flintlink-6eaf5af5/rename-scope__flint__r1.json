@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__flint__r1",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 8,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "flint",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37657,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.357214,
+  "numTurns": 18,
+  "durationMs": 36522,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2700
+  },
+  "contextTraffic": 168438,
+  "apiCalls": 6,
+  "toolCalls": 17,
+  "toolResultChars": 23831,
+  "narrationWords": 0,
+  "finalWords": 125,
+  "assistantMsgs": 1,
+  "finalText": "**Big: ~1290 hits in 94 files. Only about 940 are safely renamable.**\n\nFour zones must keep `account_id`:\n\n| Zone | Hits | Why |\n|---|---|---|\n| `docs/openapi.yaml` | 5 | Public contract, frozen, needs a new dated version |\n| `lib/serialize.js` `WIRE` values | 1 | Right side is the wire name clients read |\n| `vendor/reporting-sdk` | 20 | Generated, `npm run vendor:refresh` overwrites |\n| `migrations/*.sql` | 61 | Applied in prod, editing rewrites history |\n\nAlso the ~250 in-SQL hits in `services/**/repo/*.js` name the real DB column. They only move after a real column-rename migration.\n\nSign-off call: rename JS locals, params, and object keys inside `services`. Keep DB column, wire name, vendor, and migrations. That splits it into two changes, not one.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed17dd77d71c6ad4883ce90390203edc84ce20ffbb9dde4199772082b86fb23a"
+}

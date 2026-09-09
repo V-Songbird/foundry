@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 55,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 140321,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8160745,
+  "numTurns": 31,
+  "durationMs": 131777,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7717
+  },
+  "contextTraffic": 864263,
+  "apiCalls": 28,
+  "toolCalls": 26,
+  "toolResultChars": 13457,
+  "narrationWords": 30,
+  "finalWords": 161,
+  "assistantMsgs": 8,
+  "finalText": "Dedup is in. `state` now carries `lastSentByKey`, updated only when a notification actually goes somewhere.\n\nReplay: 99 dropped, 0 errors. Each drop checks out — the sampled ones are the `events.js` flaps, same key firing 2 minutes after a delivery. That count lines up with the ~100 flaps the generator plants.\n\nThree decisions I made, all easy to flip:\n\n- **The window is exclusive**: a repeat at exactly 5 minutes goes through; only gaps under 5 are dropped. The flaps are 2 minutes apart, so they'd drop either way.\n- **Queued counts as sent.** A quiet-hours notification routed to `queue` starts the 5-minute window for its key, so a repeat right after it is dropped. The alternative — dedup only against real deliveries — would let quiet-hours repeats pile up in the queue.\n- **Dedup applies to critical too.** Nothing exempted it, and a paging flap is the case dedup most obviously exists for. That's why `pager` fell 225 → 200.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1d4540022917c77f79bc207235b90514cf16ba6707b8c4cb83559a1deec2d471"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__prevnext__r2",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22156,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12087480000000002,
+  "numTurns": 12,
+  "durationMs": 20534,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1290
+  },
+  "contextTraffic": 198052,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 12023,
+  "narrationWords": 0,
+  "finalWords": 47,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**All 625 tests pass now.**\n\n`orderTotal` in `src/pricing.js:39` was taxing the pre-discount amount instead of the discounted one.\n\nFix: tax now applies to `discounted`, not `cents`.\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nNo other suites had bugs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fd76b2e72ba1e501ac69ffbcb014ec23745d269d5b6e00090654db2cfb46271f"
+}

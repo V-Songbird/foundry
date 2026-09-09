@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 132,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 130329,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7097515000000001,
+  "numTurns": 27,
+  "durationMs": 125088,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7945
+  },
+  "contextTraffic": 630222,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 14224,
+  "narrationWords": 17,
+  "finalWords": 190,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "The spec is a direct priority→channel mapping. I'll implement exactly that."
+  ],
+  "finalText": "Dedup added. `createState()` now returns `{ lastSentAt: new Map() }`, and `route()` suppresses a key seen within 5 minutes of its last delivery.\n\nReplay: 99 dropped, no errors. That matches the 99 flaps `events.js` synthesizes (`i % 9 === 0`, same key +2 minutes), and I checked independently that every dropped event does share a key with an earlier one inside the window — no unrelated events caught.\n\nDeliveries after suppression: `critical pager=200`, `low email=111 queue=90`, `normal push=112 queue=88`, `high sms=112 email=112 queue=88`, `queue 266` total.\n\nTwo judgment calls, both easy to flip:\n\n- **The dedup is applied after quiet-hours routing**, so a queued non-critical repeat is dropped rather than parked twice — and a queue delivery counts as \"sent\" for the purpose of the window. If you'd rather the queue collect every repeat and only live channels be deduped, that's a reordering.\n- **A dropped repeat doesn't extend the window.** The 5 minutes runs from the last notification that actually went out, so a steady 2-minute flap emits every 6 minutes rather than being silenced forever. The alternative — each repeat resetting the clock — is a one-line change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1cc4752d1cf7b24e28236d0907a0e692b26f4932de9cd073420fa746053d1663"
+}

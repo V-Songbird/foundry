@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24680,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.16932720000000004,
+  "numTurns": 9,
+  "durationMs": 23237,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1688
+  },
+  "contextTraffic": 197804,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 6005,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "finalText": "Build clean now, 0 errors.\n\nTwo real bugs, both bump-shape mismatches:\n- `src/core/options.js` — code still read `options.retries`, bundler now sends `retryCount`. Fixed field name.\n- `src/net/retryPolicy.js` — strict check threw on `undefined`, new config loader leaves unset flags `undefined` instead of `false`. Now treats `undefined` as disabled, same as old default.\n\nRest of warnings (DEP0142 etc, unused-export, circular-import) just noise from the bump log, not errors — left alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83302de7c4e069167a9ea6b6177d83fa6a80c7671e7b62844d2c0b1ee6722815"
+}

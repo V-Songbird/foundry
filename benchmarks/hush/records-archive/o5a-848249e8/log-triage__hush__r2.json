@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "o5a-848249e8",
+  "seed": "1787818512985",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29438,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3643635,
+  "numTurns": 6,
+  "durationMs": 26847,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1150
+  },
+  "contextTraffic": 202449,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 26252,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "**Redis died, and the app fell over behind it.**\n\n1. `02:14:07` — Redis refused connections at `10.0.0.12:6379`.\n2. Reads went straight to the store. 173 requests timed out.\n3. The waiting line passed its limit of 500 at `02:29:12`.\n4. `02:31:44` — worker-2 ran out of memory, then died.\n5. `02:31:52` — the supervisor killed `api`. Service down.\n\nAll 13 reconnect tries failed. Redis never came back. These logs are dated July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3f31886df29177574f2f122c7e58dfea9f1630d6edf82fd4df3a90649d30b13f"
+}

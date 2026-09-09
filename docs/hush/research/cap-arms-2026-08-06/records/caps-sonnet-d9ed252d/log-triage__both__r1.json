@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 159,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24329,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.17630239999999997,
+  "numTurns": 5,
+  "durationMs": 22566,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1135
+  },
+  "contextTraffic": 197408,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 9225,
+  "narrationWords": 0,
+  "finalWords": 177,
+  "finalText": "Traffic was clean until 02:14, then it all cascaded from one lost connection.\n\nThe chain of events:\n\n1. **02:14:07** — Redis died: `connect ECONNREFUSED 10.0.0.12:6379`. The app fell back to hitting the database directly instead of the cache.\n2. That fallback couldn't keep up. Requests started timing out (`store overloaded`) and the request queue kept growing, every minute or so, for the next 17 minutes.\n3. The app tried to reconnect to Redis every ~80 seconds — all 13 attempts failed the same way, right up to **02:31:26**.\n4. **02:31:44** — `worker-2` ran out of memory from the growing backlog and crashed.\n5. **02:31:52** — the API stopped responding and the supervisor killed everything. Service down.\n\nSo the root cause is Redis at `10.0.0.12:6379` going unreachable — everything after that was the app slowly drowning without its cache until it ran out of memory. Getting Redis back up and restarting the service should recover it; worth also capping the request queue or backlog size so a future cache outage degrades instead of taking the whole thing down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8d403bb8c230036328d0a3c48219314a1170480377b35faecfde7fa567375150"
+}

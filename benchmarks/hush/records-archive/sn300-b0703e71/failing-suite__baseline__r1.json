@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25576,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1295364,
+  "numTurns": 13,
+  "durationMs": 24211,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1654
+  },
+  "contextTraffic": 252365,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 12214,
+  "narrationWords": 53,
+  "finalWords": 66,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll run the suite and filter to just the failure summary instead of the full wall of text.",
+    "Found it: `orderTotal` computes tax on the pre-discount amount instead of the discounted amount, contradicting its own doc comment (\"tax what's actually owed... discount has to come off the base before the rate is applied\")."
+  ],
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` (src/pricing.js): it computed tax on the original `cents` instead of on the discounted amount, contradicting its own doc comment that tax should apply to what the customer actually pays. Fixed by taxing `discounted` instead of `cents`. Only order-total cases with both a nonzero discount and nonzero tax exposed it, which is why 622/625 cases were passing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6b546267be1b1ec223590afb05c993309a96442c253fe0a7ea50059ea475081"
+}

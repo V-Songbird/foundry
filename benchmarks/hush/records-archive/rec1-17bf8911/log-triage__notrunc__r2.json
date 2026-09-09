@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__notrunc__r2",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14695,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11237760000000001,
+  "numTurns": 3,
+  "durationMs": 13077,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 761
+  },
+  "contextTraffic": 90354,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\n`redis` connection dropped at `02:14:07.113Z` (`ECONNREFUSED 10.0.0.12:6379`). Cache fell back to direct store reads.\n\nReconnects failed every ~2 minutes, 12 attempts total, last at `02:31:26`, never recovered.\n\nStore got overloaded. `TimeoutError`s and cache miss storms ran nonstop for 17 minutes. Request queue depth climbed from 52 to 568, over the max of 500.\n\nBacklog exhausted memory. `worker-2` hit `JavaScript heap out of memory` at `02:31:44`, exited code 134, supervisor restarted it.\n\nSeconds later, `02:31:52`, `api` went unresponsive and supervisor killed the process group. Service down.\n\nNext: fix `redis` at `10.0.0.12:6379` and add a queue depth cap or circuit breaker so a dead cache can't take down `api`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3acfae6f0acffece73b025e8e9442a5c83a4c1aeb29a405213320438074d7e2a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 59,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 54258,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3368856,
+  "numTurns": 13,
+  "durationMs": 47909,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2284
+  },
+  "contextTraffic": 534087,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 11620,
+  "narrationWords": 0,
+  "finalWords": 168,
+  "finalText": "Still failing at the end of the log, `03:59:27.974Z`, with the waiting queue up to 74 — so this is ongoing, not resolved yet.\n\n---\n\n**On-call handoff**\n\n**Root cause:** `dep-4471` (gateway, a.novak, `02:12`–`02:14Z`) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. That change opens a connection per request instead of sharing a pool, and the pool (size 20) saturates. Every failing request logs `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, and the waiting count climbs over time.\n\n**Impact window:** Started `02:14:18Z` (first 503, four minutes after the config applied), still ongoing as of the last log line at `03:59:27Z`. Waiting queue has grown from 13 to 74 over that stretch, so it's getting worse, not settling.\n\n**Scope:** Gateway only. `worker.log` shows clean job runs through the whole window, no pool errors there.\n\n**Rollback:** Revert `dep-4471` on the gateway — that's the one and only change that lines up with the failures. The `billing-svc` (`dep-4472`) and `catalog-svc` (`dep-4473`) deploys after it are unrelated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9d8677afd5b726de0c8675afefbc0ac2363928d488129247c42f29df8f42aed8"
+}

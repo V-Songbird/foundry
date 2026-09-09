@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__carry__r1",
+  "batchId": "it4-03b4bae4",
+  "seed": "1787878658583",
+  "orderIndex": 3,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "carry",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44654,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-carry:HushCarry",
+  "costUsd": 0.305229,
+  "numTurns": 15,
+  "durationMs": 42815,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2761
+  },
+  "contextTraffic": 174126,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 13643,
+  "narrationWords": 5,
+  "finalWords": 106,
+  "assistantMsgs": 2,
+  "finalText": "**Big. 94 files, ~1,290 hits. Most must not change.**\n\n| Zone | Hits | Rename? |\n|---|---|---|\n| `services` JS vars and params | ~950 | Yes |\n| `services` SQL strings | 250 | No. Real DB columns |\n| `migrations` | 61 | No. Applied history |\n| `vendor/reporting-sdk` | 20 | No. Generated |\n| [`docs/openapi.yaml`](docs/openapi.yaml:16) | 5 | No. Public contract |\n| [`lib/serialize.js`](lib/serialize.js:8) `WIRE` values | 2 | No. Frozen wire name |\n\nThe public field `account_id` stays either way. A true rename needs a DB column migration first.\n\nNext: scope the sign-off to JS locals only, or send it back.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "05f9b383d802735491d6f98ba215783f5b9b374357164186cd6ae2ccab335245"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 8,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74030,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3112826,
+  "numTurns": 16,
+  "durationMs": 72349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5991
+  },
+  "contextTraffic": 571418,
+  "apiCalls": 11,
+  "toolCalls": 15,
+  "toolResultChars": 31971,
+  "narrationWords": 37,
+  "finalWords": 79,
+  "finalText": "Found and finished the leftover spots. 12 files across 6 packages were still calling the old `db.query`, each in three places: a get-by-id lookup, a list query, and an update. All 36 calls now use `db.execute({ sql, params })` instead, and all 12 files check out with a syntax check.\n\nOne file I left alone on purpose: `vendor/legacy-orm/adapter.js`. It's marked as a vendored copy that gets overwritten wholesale on every upgrade, so any edit there would just get lost.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "27860746e9607e69570028b44886d9bb56a3d93f7f34e24cd02b4eccc2e048a7"
+}

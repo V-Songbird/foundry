@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12314,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11036080000000001,
+  "numTurns": 3,
+  "durationMs": 10676,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 583
+  },
+  "contextTraffic": 90253,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 130,
+  "assistantMsgs": 1,
+  "finalText": "**Redis lost, queue backed up, service died at 02:31.**\n\nAt `02:14:07.113Z` Redis connection was refused (`10.0.0.12:6379`). Cache fell back to direct store reads, causing miss storms and 5000ms timeouts across `api`, `worker-1`, `worker-2`, `scheduler`.\n\nReconnect attempts failed 12 times over 17 minutes, retrying every ~100 seconds. Queue depth climbed the whole time, from 52 to 568, past the 500 max.\n\nAt `02:31:44.902Z` `worker-2` hit an out of memory crash from the backlog. Supervisor restarted it, but at `02:31:52.318Z` `api` went unresponsive and the whole process group was killed. Service down.\n\nRoot cause is the Redis host at `10.0.0.12` going unreachable, with no circuit breaker to shed load once it did. Next step is checking why Redis dropped and adding backpressure so a cache outage can't cascade into an OOM crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5abdbe5c82e5f9f50524acd081b59be9b210f8e65776886c98ede4d77cb534b2"
+}

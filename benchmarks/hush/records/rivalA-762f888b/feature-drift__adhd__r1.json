@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 121,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 121540,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.668091,
+  "numTurns": 27,
+  "durationMs": 116139,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7165
+  },
+  "contextTraffic": 615398,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 12340,
+  "narrationWords": 18,
+  "finalWords": 137,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "The spec is a straight priority→channel mapping, so that's what I'll write."
+  ],
+  "finalText": "Added. `route()` now checks `state.lastSentAt` (a `Map` keyed by `event.key`) before anything else and returns `[]` if the last send for that key was ≤ 5 minutes ago; `createState()` seeds the map.\n\nTwo details I decided, both visible in the code:\n- A dropped repeat does **not** refresh the timestamp, so the window measures from the last real send — a 2-minute flap chain sends again once 5 minutes have passed since that send, rather than being suppressed indefinitely.\n- Going to `queue` counts as \"sent\" for dedup purposes. The verification pair above is exactly that case: `evt-0287` queued at minute 1, `evt-0288` on the same key at minute 3 dropped.\n\nReplay: 0 errors, 99 dropped — matching the 99 flaps `events.js` plants. Per priority: `low email=111 queue=90`, `normal push=112 queue=88`, `high sms=112 email=112 queue=88`, `critical pager=200`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a021727698e1b65bd5af1b1f5d03b9adb6c9863d3b3e303c5a6c8f4863bfe436"
+}

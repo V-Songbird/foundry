@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40375,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.704684,
+  "numTurns": 8,
+  "durationMs": 38867,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2723
+  },
+  "contextTraffic": 202348,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 61407,
+  "narrationWords": 6,
+  "finalWords": 543,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nA Redis outage caused a cascading failure that ended with the service being killed. Full timeline from `logs/app.log` (719 lines, 02:00:00 → 02:31:52 UTC):\n\n**Note first:** the log is timestamped **2026-07-04**, not last night (today is 2026-08-27). Either this file is stale/rotated-out, or the timestamps are wrong. Worth checking you're looking at the right log before acting on this.\n\n### Timeline\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Normal. All 200s, latency 12–145ms, cache hit ratio 0.90–0.98, cron ticks OK. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **root cause** |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First cache-miss storm (`orders:1000`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 → 02:31:26 | Queue depth climbs monotonically 52 → 568, +3 every ~6s, dead linear |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts (#0–#12), every ~80s, **all** ECONNREFUSED to the same IP. Never recovered. |\n| **02:29:12** | Queue depth **502 — crosses the stated max of 500**. No backpressure kicks in; it keeps growing for another 2 minutes. |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### Causal chain\nRedis refused connections → cache layer fell back to reading the store directly → every request became a store read (cache-miss storm) → store saturated, 5s timeouts → timed-out requests piled into the in-memory queue instead of being shed → 17 minutes of unbounded growth → worker-2 OOM'd on the backlog (exit 134 = SIGABRT) → supervisor killed the whole process group.\n\n### Volume\n- 173 `TimeoutError`, 174 cache-miss storms, 173 queue-depth warnings — all noise from the one Redis failure; the errors are evenly round-robined across `api`/`worker-1`/`worker-2`/`scheduler`, so no single node was at fault.\n- 188 ERROR + 348 WARN + 2 FATAL. Only 3 distinct failure signatures in the whole flood.\n- Last successful request: `02:14:03.137 GET /orders 200 75ms`. **17m49s** from Redis loss to service down.\n\n### The real questions for the postmortem\n1. **Why did Redis at `10.0.0.12:6379` refuse connections?** Nothing in this log says — ECONNREFUSED means nothing was listening, so it's a Redis-side crash/restart/eviction, or the IP moved. You need the Redis host's logs; app.log can't tell you.\n2. **Why did 13 reconnects all fail identically?** Fixed ~80s interval, no backoff variation, same IP every time. If Redis came back on a different address, the client never re-resolved it.\n3. **The `max 500` limit is advisory only.** Depth sailed past 502 → 568 with no shedding, no 503s, no circuit breaker. That's what turned a cache outage into a total outage — cache loss should have degraded latency, not killed the process.\n4. **Cache fallback has no circuit breaker.** Every miss went straight to the store, guaranteeing the stampede.\n\nFixes to consider: enforce the queue cap (shed with 503 above it), add a circuit breaker + request coalescing on the cache-miss path, cap heap/backlog per worker, and make reconnect re-resolve DNS with jittered backoff.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e16d814a46c4d57f2cb2807039611c313b246434817eab4ce20e15cae57bda4"
+}

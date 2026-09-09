@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__dense-prose__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 6,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 12695,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0237305,
+  "numTurns": 1,
+  "durationMs": 11155,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 774
+  },
+  "contextTraffic": 27000,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 129,
+  "finalText": "The most common culprit is the **parent component re-rendering** — whenever the parent renders for any reason, React re-renders all its children unless you prevent it. If the parent creates new function references or object props on each render (like `<Child onClick={() => ...} />` or `<Child style={{...}} />`), the child sees new props and re-renders even if the values are the same.\n\nThe fix depends on what's causing it:\n\n- **Wrap the child in `React.memo()`** — stops re-renders when props haven't actually changed.\n- **Use `useCallback()` for functions** — keeps the same function reference across renders.\n- **Move object/array props outside the component** or `useMemo()` them — so they don't get recreated each render.\n\nIf you share your code, I can point out exactly which one is happening.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16aa5383adf67ca91a67223011af4d02cdd4613ed54966ab0a929a7908ec3984"
+}

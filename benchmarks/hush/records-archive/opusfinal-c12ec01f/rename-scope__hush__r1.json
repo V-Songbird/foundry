@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "opusfinal-c12ec01f",
+  "seed": "1787637691823",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 138191,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8019040000000002,
+  "numTurns": 19,
+  "durationMs": 136674,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8175
+  },
+  "contextTraffic": 687903,
+  "apiCalls": 19,
+  "toolCalls": 18,
+  "toolResultChars": 22791,
+  "narrationWords": 13,
+  "finalWords": 102,
+  "finalText": "**Big but shallow.** 1,291 uses across 94 files. Roughly 1,030 are plain variable names. Those rename safely.\n\nSix spots must keep the old name:\n\n| Must stay `account_id` | Why |\n| --- | --- |\n| `migrations/*.sql` | Already ran in production |\n| SQL text inside `services/` | Real database column name |\n| `docs/openapi.yaml` | Public API, breaks clients |\n| `lib/serialize.js` | Public field name |\n| `vendor/reporting-sdk` | A refresh wipes edits |\n| payload JSON in repo files | Old rows keep old key |\n\nAlso check `req.session.account_id`. That session object is built outside this repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ea57c30b4663a0a38f740f3ac6e64a8f3d17c9b6e0ec72073399ef3f02c1dfde"
+}

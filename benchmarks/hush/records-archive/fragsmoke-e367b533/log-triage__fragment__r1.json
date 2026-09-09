@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fragment__r1",
+  "batchId": "fragsmoke-e367b533",
+  "seed": "1787778742048",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fragment",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29549,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.5008185,
+  "numTurns": 9,
+  "durationMs": 27435,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1591
+  },
+  "contextTraffic": 197190,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 16069,
+  "narrationWords": 6,
+  "finalWords": 72,
+  "finalText": "**Redis died, and everything fell over behind it.**\n\n1. `2:14:07` — `Redis` at `10.0.0.12:6379` refused connections. That cache was gone.\n2. Every read went straight to the store. It timed out at 5000ms.\n3. Waiting requests piled up. The queue hit 568, past its 500 cap.\n4. `2:31:44` — `worker-2` ran out of memory and died. Seven seconds later the supervisor killed everything.\n\nAll 13 reconnect tries failed. Redis never came back.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "409bf118fc45bedb5368054d957e4247acb624e4cf45bb6a2abdd7308548cbed"
+}

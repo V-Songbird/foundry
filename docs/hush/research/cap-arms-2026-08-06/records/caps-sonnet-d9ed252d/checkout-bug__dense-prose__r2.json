@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 28,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30544,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22075359999999997,
+  "numTurns": 11,
+  "durationMs": 28907,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1908
+  },
+  "contextTraffic": 311201,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 6248,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "finalText": "**Found and fixed it.** `computeTotal` in `src/services/pricing.js` was converting the subtotal to the target currency first, then subtracting the flat coupon — but flat coupons are stored in USD, so a $10 coupon was landing as 10 EUR off instead of 10 USD off.\n\nNow flat coupons subtract in USD before conversion; percent coupons still apply after, since they're currency-agnostic. All 5 tests in `tests/pricing.test.js` pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "531193132e1371a488a79e38c57ff2d941d346558726a1a2bf240b94cc33aedc"
+}

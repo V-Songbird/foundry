@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80122,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3560425,
+  "numTurns": 8,
+  "durationMs": 78685,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5267
+  },
+  "contextTraffic": 181253,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 9929,
+  "narrationWords": 6,
+  "finalWords": 801,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nA Redis outage at **02:14:07** cascaded into a full service-down at **02:31:52** — about 18 minutes. The app never recovered on its own; the supervisor killed it.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Fully healthy. 173 requests logged, all 200s. Cache hit ratio 0.90–0.98. Latency cycling 12–145ms with no upward drift. |\n| **02:14:07.113** | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — **3 seconds after Redis dropped** |\n| 02:14:12 | Queue depth alarms start at 52 |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, all ECONNREFUSED, all to the same host |\n| 02:29:12 | Queue depth crosses the 500 max |\n| 02:31:44.902 | `worker-2` — JavaScript heap out of memory (request backlog) |\n| 02:31:45.001 | FATAL: worker-2 exited code 134 (SIGABRT), restarting |\n| **02:31:52.318** | FATAL: `api unresponsive, killing process group — service down` |\n\n### The causal chain\n\n1. **Redis went hard down.** `ECONNREFUSED`, not a timeout or reset — nothing was listening on 10.0.0.12:6379. That's a dead/restarted Redis process or a pulled service endpoint, not a network partition or a slow node. **This is the root cause, and it originated outside the app.**\n\n2. **The fallback path was the actual killer.** Losing the cache was survivable; falling back to direct store reads was not. At a 0.9–0.98 hit ratio, dropping the cache multiplied backing-store load by roughly 10–50×. The store folded in 3 seconds. Every one of the 173 timeouts is `(store overloaded)` — the store, not Redis.\n\n3. **No shedding, so the queue grew unbounded.** Depth climbed linearly 52 → 568 (~0.5/s) with each request holding a 5s timeout. It blew past the 500 max at 02:29 and kept going — the \"max 500\" was a warning threshold, not an enforced limit. That backlog is what OOM-killed worker-2 (`request backlog` is right there in the message).\n\n4. **Retries never had a chance.** The 13 reconnects fired at a fixed ~80s interval — no exponential backoff, no jitter, no circuit breaker. Over 17 minutes that's only 13 attempts, so even if Redis had come back at, say, 02:20, the app would have kept serving from the dying store for up to another 80 seconds. Meanwhile nothing stopped traffic from hitting the store.\n\n**Two independent things had to go wrong.** Redis dying was the trigger, but the outage was caused by the app having no protection between the cache miss and the backing store.\n\n### Notable details\n\n- **Zero successful requests after 02:14:07.** All 173 INFO/200 lines are pre-incident. The service didn't degrade gradually — it stopped serving the instant the cache went, ~17 minutes before the supervisor noticed and killed it.\n- **All 174 cache-miss keys are distinct** (`orders:1000` → `orders:1119`). No key was requested twice, so there was no thundering-herd on a single hot key — this was uniform read traffic with the cache simply gone. Request coalescing wouldn't have helped much here; load shedding would have.\n- **The `api` component logged the most errors (145)** and is the only one that logs Redis lines — the reconnect loop appears to be singleton, in `api`, while all four components independently hit the overloaded store.\n- **No warning signs beforehand.** I checked latency and hit-ratio trends across the full pre-incident window; both were flat and healthy. Nothing in this log would have predicted it.\n\n### Fixes, in priority order\n\n1. **Circuit breaker on the store fallback.** When cache is down and store error rate spikes, fail fast instead of queueing. This alone converts an 18-minute hard outage into degraded service.\n2. **Enforce the queue cap.** 500 is currently logged, not applied. Reject with 503 above it — that's what prevents the OOM.\n3. **Exponential backoff with jitter on Redis reconnect**, capped at a few seconds, not a flat 80s.\n4. **Alert on `redis connection lost`**, not on process death. There were 17 minutes of loud FATAL-free warning before anything actually died.\n\n### Caveats\n\n- The log ends at the kill, so I can't tell you how recovery went or whether Redis came back — you'll need the next file or the supervisor/Redis logs.\n- **Nothing here explains why Redis died.** That's the root cause and it's not in this log; check the Redis host's own logs and any deploy/infra activity around 02:14.\n- The repo has only `package.json` and `logs/` — no `src/`. I couldn't verify the retry/queue config against actual code, so points 2–4 above are inferred from log behavior. `ioredis` defaults to exponential backoff, so the flat 80s interval suggests an explicit `retryStrategy` override worth looking at.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e9bf3cc61add708255bd155a3343e0b38e9f13806a975c9dae9ee9ea9070fbc7"
+}

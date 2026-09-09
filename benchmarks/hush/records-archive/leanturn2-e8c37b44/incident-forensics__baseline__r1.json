@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 24,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 67061,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5416205000000001,
+  "numTurns": 14,
+  "durationMs": 61236,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4307
+  },
+  "contextTraffic": 776107,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 55649,
+  "narrationWords": 39,
+  "finalWords": 283,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z). Needs active mitigation.\n\n### Root Cause\n`dep-4471` (gateway, deployed by a.novak, 02:12:00Z–02:14:00Z) — *\"config: connection-per-request for pool isolation\"* — flipped `gateway.pool.perRequest: false -> true` via config generation 119 (applied 02:13:41Z). With a fixed pool size of 20, this change exhausts the connection pool under normal load: every request now claims its own dedicated connection instead of sharing pooled ones, so concurrent traffic quickly saturates `in_use=20` with a growing `waiting` backlog.\n\nError signature: `ERROR pool ... ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, paired with `503` on the access log at ~650–850ms latency (near the upstream timeout, also bumped 2000ms→2500ms in the same deploy — that change masks/extends symptom duration but isn't the trigger).\n\nConfirmed isolated to the **gateway** — `worker.log` shows no errors, no pool exhaustion, and steady job throughput through the same window (workers use a separate, unaffected pool, size 8).\n\n### Impact Window\n- **Start:** 2026-03-14T02:14:18.972Z (first 503, ~18s after config gen 119 applied, ~4min after dep-4471 started)\n- **End:** not yet recovered — log ends 03:59:27Z still throwing 503s, with `waiting` climbing steadily (13 → 74) over the window, i.e. monotonic backlog growth, not transient blips.\n- **Duration so far:** ~1h 45m and counting.\n\n### Action\n**Roll back `dep-4471`** (gateway config gen 119) — specifically revert `gateway.pool.perRequest` to `false`. That's the deploy that lines up with onset; no other deploy in `deploys.csv` is close enough in time or on the right service to explain it.\n\nIf a full rollback isn't fast, an interim mitigation is bumping the gateway pool size above 20, but the config revert is the actual fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e6e6e9b9edfc878c54c08eb0d4b4bf6292a0c39b452ac82fb7448effd391eb72"
+}

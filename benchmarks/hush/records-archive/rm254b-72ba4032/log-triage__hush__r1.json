@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20409,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30394970000000004,
+  "numTurns": 6,
+  "durationMs": 18515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1133
+  },
+  "contextTraffic": 181195,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 13190,
+  "narrationWords": 0,
+  "finalWords": 151,
+  "finalText": "Redis died at 02:14:07 and never came back, that's the real cause.\n\nHere's the chain: Redis dropped with `ECONNREFUSED`, so the app fell back to hitting the store directly. That triggered a cache miss storm, and the store couldn't keep up, so requests started timing out. The request queue kept growing for 17 straight minutes, climbing from 52 up to 568. The app tried to reconnect to Redis 12 times and every attempt failed. At 02:31:44 `worker-2` ran out of memory from the backlog, then the supervisor killed the whole process group at 02:31:52 and the service went down.\n\nSo it wasn't one crash, it was a slow bleed: lost Redis → no cache → overloaded store → growing backlog → out of memory → forced shutdown. Fixing it means getting Redis back up and maybe capping the queue so a dead cache can't take the whole service down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "37afa0954e56435c6db404567262cd10134cd32d40fe5d6b76e0e89fc421189a"
+}

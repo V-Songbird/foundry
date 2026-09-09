@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__caveman__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 69,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33514,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.18396420000000002,
+  "numTurns": 12,
+  "durationMs": 32222,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2585
+  },
+  "contextTraffic": 169956,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 9773,
+  "narrationWords": 0,
+  "finalWords": 218,
+  "finalText": "Scope: 94 files hit `account_id`. Spans 5 services (accounts, billing, orders, analytics, notify), `lib/`, `vendor/`, 15 migration files, `docs/openapi.yaml`. Big, touch DB column, internal params, service call chains — full day, not small refactor.\n\n**Must NOT rename:**\n\n1. `docs/openapi.yaml` + `lib/serialize.js` — public API field, frozen by contract (comment says so explicit: \"keys on RIGHT are public API... an internal rename must not reach this side of the map\"). Wire field `account_id` stay `account_id` even if DB column change.\n2. `vendor/reporting-sdk/*` — third-party vendored code. Not ours. Rename here just diverge from upstream, break future vendor sync.\n3. All `migrations/*.sql` — already applied in production (see `20250624_backfill_account_ids.sql` comment: \"Applied migrations are history: editing one does not rename anything in a database that already ran it, and breaks down step\"). New rename needs fresh migration, old ones stay untouched.\n\n**Lower-confidence risk:** `lib/audit.js` — log lines keyed `account_id`. If downstream log/alerting pipeline parses by that key name (outside this repo), renaming break it silently. Worth asking platform team before touch.\n\nSafe to rename: internal service/repo/route param names (`account_id` variable through orders/billing/analytics/notify services) — pure internal plumbing, DB column itself (with migration + backfill), as long as wire/API layer stay frozen.\n\nSign-off line: approve rename of internal column/params, block rename of public API field name, vendor code, and old migration files.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b0177047382f7793d1402e77b50425eafff0cc94905966c09bb2822bcc3fcfda"
+}

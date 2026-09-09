@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__precap__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 8,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 97975,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4824134,
+  "numTurns": 47,
+  "durationMs": 96528,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11872
+  },
+  "contextTraffic": 556814,
+  "apiCalls": 11,
+  "toolCalls": 46,
+  "toolResultChars": 37717,
+  "narrationWords": 57,
+  "finalWords": 112,
+  "finalText": "All 12 files parsed clean, no failures.\n\nFound the migration done in this session: memory not needed here, nothing surprising to record.\n\nFound 12 files still calling the old `db.query`, and moved every one to `db.execute({ sql, params })`. They were `returnService.js`, `couponService.js`, `teamService.js`, `shipment.js`, `sla.js`, `apiKeyAdmin.js`, `macroAdmin.js`, `session.js`, `cohort.js`, `refund.js`, `supplier.js`, and `variantAdmin.js`, three calls each: a get-by-id, a list, and an update.\n\nOne more spot still calls `db.query`: `vendor/legacy-orm/adapter.js`. I left it alone since its own comment says it's a vendored copy, replaced wholesale on every upgrade, so any edit there would be lost anyway.\n\nAll twelve files pass a syntax check. Nothing else in the codebase calls `db.query` now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "400d858d658693780deeb308d2ca353e2223bb963ddc77f9fd54858cb38d9783"
+}

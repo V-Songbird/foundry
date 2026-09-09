@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__carry__r1",
+  "batchId": "it4-03b4bae4",
+  "seed": "1787878658583",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "carry",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34179,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-carry:HushCarry",
+  "costUsd": 0.2562725,
+  "numTurns": 10,
+  "durationMs": 32278,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1781
+  },
+  "contextTraffic": 188780,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6144,
+  "narrationWords": 6,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs from the bump, both in the link stage.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Read `options.retries`, bundler now sends `retryCount` | Accept both, throw a clear `TypeError` |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag | Unset means off, as before |\n\nThe 8 warnings are real but separate. They flag deprecated APIs like `Buffer()` and `crypto.createCipher`. Clearing those is its own job.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8546de1b1ca43d528bd48446bd6b49b21dc5ec90c26f55b6a2da5a1a053fafcb"
+}

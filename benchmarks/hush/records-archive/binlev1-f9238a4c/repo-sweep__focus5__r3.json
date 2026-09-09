@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__focus5__r3",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 35,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "focus5",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 119781,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.901137,
+  "numTurns": 59,
+  "durationMs": 118228,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12134
+  },
+  "contextTraffic": 399141,
+  "apiCalls": 10,
+  "toolCalls": 58,
+  "toolResultChars": 43107,
+  "narrationWords": 3,
+  "finalWords": 66,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Now the edits."
+  ],
+  "finalText": "**Migrated 12 files to `db.execute({ sql, params })`.** All 36 call sites converted.\n\nFiles spanned `accounts`, `billing`, `catalog`, `orders`, `support`, `analytics`. `node --check` passes on every file. `cache.query` calls were left alone. They are a different API.\n\nI skipped `vendor/legacy-orm/adapter.js`. It has 2 `db.query` calls but its header says do not edit. Upgrades overwrite it.\n\nNext: decide on `legacy-orm`. Patch upstream or drop the vendored copy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "11228504782ffa811a151d9c44e6c3da96acd0b0064cd1570c520fe1a03a468c"
+}

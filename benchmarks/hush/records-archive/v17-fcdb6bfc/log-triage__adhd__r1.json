@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16063,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3107084,
+  "numTurns": 4,
+  "durationMs": 14270,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 784
+  },
+  "contextTraffic": 194000,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60279,
+  "narrationWords": 7,
+  "finalWords": 170,
+  "finalText": "Found it — full outage, 02:14 to 02:31 UTC on 2026-07-04.\n\n**Root cause:** Redis died at 02:14:07 (`ECONNREFUSED 10.0.0.12:6379`). App fell back to hitting the DB directly, DB couldn't keep up → cascading timeouts.\n\n**Timeline:**\n1. **02:14:07** — Redis connection lost, cache layer degraded\n2. **02:14:07–02:31:26** — 17 min death spiral: cache miss storms → 5s timeouts on every request → queue depth climbing (52 → 568, way past max 500) — repeating every ~2s across api/worker-1/worker-2/scheduler\n3. **02:14–02:31** — 12 redis reconnect attempts, all failed, same refused connection\n4. **02:31:44** — worker-2 OOM'd from the backlog, crashed (exit 134)\n5. **02:31:52** — api became unresponsive, supervisor killed the whole process group — **full outage**\n\n**Root cause, one line:** Redis at 10.0.0.12:6379 went down and never came back; nothing capped the request queue, so the backlog OOM'd a worker and took the whole service down with it.\n\nNext: check why Redis at 10.0.0.12 dropped (host metrics/redis logs) — that's the actual trigger, this app log only shows the blast radius.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4eec19888df7c5a96377b085485724acfad03464f100f3a3295f3799c3c60c17"
+}

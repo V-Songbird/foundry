@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush-core-only__r1",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 5,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush-core-only",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38234,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2265195,
+  "numTurns": 9,
+  "durationMs": 36509,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3247
+  },
+  "contextTraffic": 217498,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10669,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "finalText": "Found it: the config merge was doing a shallow `Object.assign`, so any package overriding one key inside `output` or `sourcemap` (like `@acme/api` setting `output.format`) wiped out its sibling keys, leaving `output.dir` missing and failing the bundle step.\n\nFixed `packages/shared/config.js` to merge `output` and `sourcemap` key-by-key instead of replacing the whole object. Build now exits 0 with 5 warnings, 0 errors, and `verify.js` confirms the merge layers correctly, including the CLI-override case the fixture never shipped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8a4cdd9cea8d790647539bd6114ad38e251dbc79ce6502a20c0e13afac8575c7"
+}

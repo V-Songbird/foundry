@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 31,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35266,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.119755,
+  "numTurns": 13,
+  "durationMs": 33812,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2240
+  },
+  "contextTraffic": 172418,
+  "apiCalls": 6,
+  "toolCalls": 12,
+  "toolResultChars": 9144,
+  "narrationWords": 0,
+  "finalWords": 168,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big, but mostly mechanical: 94 files, and three spots must not be touched.**\n\nScope: `account_id` shows up across all five services (accounts, orders, billing, notify, analytics) in repo/service/http layers, plus `lib/audit.js`, `lib/serialize.js`, `docs/openapi.yaml`, and 12 migration files.\n\nDo not rename in:\n\n| Location | Why |\n|---|---|\n| `vendor/reporting-sdk/**` | Vendored third-party copy, overwritten by `npm run vendor:refresh` — edits are lost, patch upstream instead |\n| `lib/serialize.js` `WIRE` map, `docs/openapi.yaml` | Public API field, explicitly frozen by contract — comments say renaming breaks every client |\n| `migrations/*.sql` (already applied, e.g. `20250114_create_accounts.sql`) | History — editing doesn't rename anything in prod, breaks the `down` step |\n\nSafe to rename: internal DB column via a **new** migration, plus all internal repo/service/route code that maps to it — just keep serializing it back out as `account_id` at the API boundary.\n\nNext: confirm with platform team whether this is internal-only or also meant to change the public field, since the openapi contract says that needs a new dated API version.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "426030a6d612da8eafa091b56d098ffa3070593586023f34cf314ad61efdaf89"
+}

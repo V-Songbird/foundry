@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 71,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28627,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1069698,
+  "numTurns": 9,
+  "durationMs": 27593,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2184
+  },
+  "contextTraffic": 145490,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 11546,
+  "narrationWords": 13,
+  "finalWords": 405,
+  "finalText": "This is clearer than a typical rename — the code itself flags the danger zones explicitly. Here's the real picture:\n\n**Size:** ~1,082 occurrences across 94 files. But it's mechanical and repetitive — 5 services (orders, notify, billing, analytics, accounts), each with parallel repo/service/routes layers using the same pattern. Once you've renamed one service's layer, the rest are copy-paste variations. So it's a big diff but low-complexity — a scripted rename would handle the bulk of it.\n\n**Where it must NOT be renamed:**\n\n1. **`vendor/reporting-sdk/`** (12 occurrences across client.js/query.js/schema.js/export.js) — explicitly marked \"vendored, generated. Do not edit... local edits are overwritten.\" This is a third-party SDK snapshot; editing it is pointless and will be clobbered on the next `npm run vendor:refresh`.\n\n2. **`docs/openapi.yaml`** (5 occurrences) — the `account_id` field and query param are annotated \"Frozen field name\" / \"Public query parameter, frozen.\" This is the public API contract; external clients depend on this name.\n\n3. **`lib/serialize.js`** — the internal→wire mapping is explicitly frozen: \"the keys on the RIGHT are the public API... every client reads them by name... an internal rename must not reach this side of the map.\" You can rename the internal DB/JS field going *into* this map, but the `'account_id'` on the right-hand side (wire output) must stay.\n\n4. **Applied SQL migrations** (`migrations/20250114_create_accounts.sql`, `20250624_backfill_account_ids.sql`, and the others) — these are marked as already applied in production history. You don't edit history migrations to rename a column; you'd write a *new* migration (`ALTER TABLE ... RENAME COLUMN`) and update the down step accordingly. Note `accounts.account_id` is also a foreign key target from other tables (`REFERENCES accounts (account_id)`), so a DB-level rename needs coordinated FK updates, not just a text find-replace.\n\n5. **`lib/audit.js`** — worth a second look before touching: audit log lines are typically treated as an immutable historical record too, so renaming the field going forward could break log parsers/consumers even though it's less explicitly flagged than serialize.js.\n\n**Bottom line for sign-off:** this is safe to approve as an *internal* rename (JS variable/property names, internal repo/service code) but it must explicitly exclude the vendored SDK, the OpenAPI-documented wire field, the serialize.js wire-side mapping, and historical migrations. If \"everywhere\" in the platform team's request includes the public API field or the DB column name as seen by external clients, that's a breaking API change, not a refactor, and needs its own versioned rollout — not something to wave through today as a mechanical rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3956bedf87741ca47c9c621c2be645d2c12cf498c3540fe6e028d5a4677158f1"
+}

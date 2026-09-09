@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 100516,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7004197,
+  "numTurns": 38,
+  "durationMs": 99022,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10813
+  },
+  "contextTraffic": 695720,
+  "apiCalls": 15,
+  "toolCalls": 37,
+  "toolResultChars": 30211,
+  "narrationWords": 40,
+  "finalWords": 64,
+  "finalText": "Migration's done. Twelve files were still calling `db.query` across accounts, analytics, billing, catalog, orders, and support — I moved each to `db.execute({ sql, params })`, matching the pattern the rest of the codebase already used.\n\nLeft untouched, on purpose: `vendor/legacy-orm/adapter.js` (vendored code) and every `cache.query` call (a different API, not the database). `node verify.js` confirms it — all call sites moved, nothing else did.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a091cd2e086bd85bbd2a5aa248e3e1a199e86b53f3f4183c532cd340a02359d"
+}

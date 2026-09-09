@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 87,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48472,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.39996599999999993,
+  "numTurns": 11,
+  "durationMs": 47366,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2740
+  },
+  "contextTraffic": 235857,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 24978,
+  "narrationWords": 4,
+  "finalWords": 65,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching."
+  ],
+  "finalText": "**Migration done.** I moved 36 `db.query` calls to `db.execute({ sql, params })` across 12 files.\n\nAll 12 pass `node --check`. Sample: [refund.js:9](packages/billing/src/repo/refund.js:9).\n\nTwo calls stay in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit, since upgrades overwrite it.\n\nI left `cache.query` alone. Different object, not part of this.\n\nNext: `db.query` cannot be deleted from `lib/db.js` while vendor uses it. Your call on how to unblock that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a56d4573c29354a1fb635e537f15d485c5da351daa864afff95556a0a5274926"
+}

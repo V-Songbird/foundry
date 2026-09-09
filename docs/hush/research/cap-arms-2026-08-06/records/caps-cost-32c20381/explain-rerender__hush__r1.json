@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__hush__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 5,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11373,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.022749500000000002,
+  "numTurns": 1,
+  "durationMs": 9611,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 583
+  },
+  "contextTraffic": 26987,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 159,
+  "finalText": "Most often it's one of these:\n\n**The parent is re-rendering.** If the parent component re-renders for any reason, React re-renders all children by default — even if props didn't change. The fix is `React.memo()` to wrap your child and skip re-render when props are the same.\n\n**Props are new objects or functions each render.** If you're passing an object or function created inline — like `onClick={() => ...}` or `data={{x: 1}}` — it's a new reference every time, so React thinks the prop changed. Use `useCallback()` for functions and `useMemo()` for objects.\n\n**You're using Context.** If the child reads from Context, it re-renders whenever that Context value changes, regardless of props.\n\nThe quickest fix: wrap the child in `React.memo()`. If that doesn't help, trace what's passing into it — are any props objects or functions created fresh each render? If so, memoize those with `useCallback` or `useMemo`.\n\nDo you have code to look at? That'd show exactly what's happening.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c4ee6accafd33346d8f225618b8d3e3bfa2d9a74dc08209113b310f183371c6"
+}

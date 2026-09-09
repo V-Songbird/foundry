@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 46980,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.191284,
+  "numTurns": 13,
+  "durationMs": 40144,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2596
+  },
+  "contextTraffic": 394067,
+  "apiCalls": 12,
+  "toolCalls": 9,
+  "toolResultChars": 16584,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "```\nON-CALL HANDOFF — gateway 503s\n\nROOT CAUSE\ndep-4471 (gateway, a.novak, 02:12-02:14Z): \"connection-per-request\nfor pool isolation\". Flipped gateway.pool.perRequest false -> true\n(config generation 119, applied 02:13:41Z). Requests stopped sharing\npooled connections, exhausting the fixed pool of 20.\n\nIMPACT WINDOW\nStarted 2026-03-14T02:14:18.972Z, still active as of last log line\n2026-03-14T03:59:27.974Z (~1h45m and counting). Every failure is a\n503 paired with ERR_POOL_EXHAUSTED, pool pinned at in_use 20/20,\nwaiting queue climbing from 13 to 74+. Scope: gateway only.\nworker.log shows jobs completing normally throughout, no pool\nerrors there.\n\nROLLBACK\nRoll back dep-4471 on gateway. Revert gateway.pool.perRequest to\nfalse (or redeploy prior config generation 118).\n```\n\nReady to hand off. Next move is getting `a.novak` or on-call to execute the rollback.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dfe07ee8524f11aefd3f530ca8089368370700a6d7212384b2b6acf593c281fa"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31017,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.22258799999999998,
+  "numTurns": 11,
+  "durationMs": 29536,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1979
+  },
+  "contextTraffic": 274703,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 18033,
+  "narrationWords": 49,
+  "finalWords": 133,
+  "finalText": "Build is clean — exit 0, \"0 errors\" instead of aborting.\n\nThe two real bugs buried in the noise, both from the bundler bump (`fakepack` 3.11.2 → 4.2.0):\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but `resolveRetries` still read `options.retries` (now `undefined`), so `.toFixed(0)` threw at link time. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the old config loader used to send `false` for an unset flag; the new one sends `undefined`. `isBackoffEnabled` had a strict boolean check that threw on anything but `true`/`false`. Fixed it to treat `undefined` as \"disabled\" instead of erroring.\n\nThe remaining 8 warnings are just deprecation noise from the dep bump (`fs.exists`, `Buffer()`, sync loader hooks, `punycode`, `module.parent`, plus the unused-export/circular-import/legacy-crypto notices) — nothing actionable, and the build now finishes with 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3860099cfb91c399b1c4641d0aa99f0c1cd33faee3885aeea042985b1afc3fce"
+}

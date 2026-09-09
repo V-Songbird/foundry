@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__stock__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80376,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.43033750000000004,
+  "numTurns": 21,
+  "durationMs": 78908,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5688
+  },
+  "contextTraffic": 199411,
+  "apiCalls": 8,
+  "toolCalls": 20,
+  "toolResultChars": 17452,
+  "narrationWords": 8,
+  "finalWords": 94,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the codebase to scope this."
+  ],
+  "finalText": "**1291 hits across 94 files. About 240 must not change.**\n\n| Zone | Hits | Why frozen |\n|---|---|---|\n| `migrations/` | 61 | Applied history |\n| SQL strings in `services/*/repo/` | ~150 | Live DB column |\n| `vendor/reporting-sdk/` | 20 | `vendor:refresh` overwrites it |\n| `docs/openapi.yaml` | 5 | Public contract |\n| `WIRE` in [lib/serialize.js:8](lib/serialize.js:8) | 2 | Public JSON key |\n\nThe other ~1050 are JS names. Those rename safely.\n\nRenaming the real column needs a new migration. `audit()` in [lib/audit.js:8](lib/audit.js:8) also emits `account_id` as a log field.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "177797015907e525c4434c88787375d9bc327ef614e8778d680714acb81847aa"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__openban__r4",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 15,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "openban",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53085,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.426278,
+  "numTurns": 19,
+  "durationMs": 51432,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3179
+  },
+  "contextTraffic": 323147,
+  "apiCalls": 10,
+  "toolCalls": 18,
+  "toolResultChars": 18260,
+  "narrationWords": 8,
+  "finalWords": 139,
+  "assistantMsgs": 2,
+  "finalText": "**Real scope is ~1200 hits in 94 files, but only the JS variable names can move.**\n\n| Zone | Hits | Verdict |\n|---|---|---|\n| `services` (75 files) | 1200 | Rename JS vars only |\n| `migrations` (12) | 61 | Do not touch. Applied history |\n| `vendor/reporting-sdk` (4) | 20 | Do not touch. `npm run vendor:refresh` overwrites |\n| `docs/openapi.yaml` | 5 | Do not touch. Frozen public contract |\n| `lib/serialize.js`, `lib/audit.js` | 5 | Do not touch. Wire keys |\n\nThree traps inside `services`. 125 SQL strings in 25 repo files name the real column `account_id`. 25 `JSON.stringify` calls write an `account_id` key into `payload` JSONB. `req.session.account_id` is a shared session shape.\n\nA blind find-replace breaks the API and every query. Ask for the column rename plan and a dated API version first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9688c8d49ec725b464fa08d199958171585f4f821f5f174a0a2c056e4ae7d11d"
+}

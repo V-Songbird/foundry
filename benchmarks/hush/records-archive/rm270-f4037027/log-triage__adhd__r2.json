@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20823,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.1302918,
+  "numTurns": 5,
+  "durationMs": 19691,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1369
+  },
+  "contextTraffic": 186655,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 21305,
+  "narrationWords": 15,
+  "finalWords": 272,
+  "finalText": "**Root cause: Redis died, and nothing shed load while it was down, so the request queue grew unbounded for 17 minutes until a worker OOM'd and took the whole service with it.**\n\nTimeline (2026-07-04, all times UTC):\n- **02:14:07** — `redis connection lost: ECONNREFUSED 10.0.0.12:6379`. API falls back to direct store reads, immediately hits a cache-miss storm.\n- **02:14:10 onward** — `api`, `worker-1`, `worker-2`, `scheduler` all start throwing `TimeoutError` (store overloaded), request queue depth climbing steadily (~3/6s).\n- **02:14:26 → 02:31:26** — 12 automatic redis reconnect attempts, every ~2 min, all fail with the same ECONNREFUSED. Redis never came back.\n- Queue depth climbs the entire time, linearly, from 52 up to 568 (well past the stated max of 500 — the cap was logged but never enforced).\n- **02:31:44** — `worker-2` throws `JavaScript heap out of memory (request backlog)` — the unbounded queue finally exhausted heap.\n- **02:31:45** — supervisor restarts worker-2 (exit code 134 = SIGABRT).\n- **02:31:52** — supervisor gives up and kills the whole process group: `api unresponsive, killing process group — service down`.\n\n**Bottom line:** Redis at `10.0.0.12:6379` went unreachable and never recovered on its own; the app's fallback path (direct store reads without backpressure) let the request queue grow past its documented max without actually rejecting/shedding load, and that unbounded growth caused an OOM crash 17 minutes later that took the API down.\n\n**Fix candidates:** enforce the queue-depth cap (reject/503 instead of just warning), add circuit-breaker/backpressure when Redis is down instead of falling through to direct reads, and check why Redis itself was unreachable at `10.0.0.12:6379` (that's outside this log — likely a separate Redis-host issue).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "635c40f4d44de0b8793f023b8c92fa52f9fe9e467056fdfa1bad8b85b5adeb85"
+}

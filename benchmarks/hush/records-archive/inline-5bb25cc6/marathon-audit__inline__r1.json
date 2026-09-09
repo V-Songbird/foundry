@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__inline__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 31,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "inline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 120694,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7812017,
+  "numTurns": 52,
+  "durationMs": 113642,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9287
+  },
+  "contextTraffic": 864654,
+  "apiCalls": 19,
+  "toolCalls": 48,
+  "toolResultChars": 31809,
+  "narrationWords": 0,
+  "finalWords": 110,
+  "finalText": "`fast-parse` is pinned at `1.4.2` — that's the version `NOTES.md` says was yanked for a prototype-pollution bug. `1.4.3` is the fix. The rest of the dependency list is fine: `pg-lite` and `redis-min` are current, `date-fmt` is just old and harmless.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. **Critical** — `src/routes/internal.js` has no auth check, left open when the VPN was retired.\n2. **Critical** — `src/repo/report.js` builds SQL by pasting in unvalidated filter and sort values.\n3. **High** — `config/staging.js` has a live database password committed in plaintext.\n4. **Medium** — `package.json` still pins the yanked `fast-parse` `1.4.2`.\n\nNothing in the service was touched, only `AUDIT.md` was added.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c69eaf15e0f57b4d667ad29ce70671702ac436aaa6c9f275ebb95bae23289081"
+}

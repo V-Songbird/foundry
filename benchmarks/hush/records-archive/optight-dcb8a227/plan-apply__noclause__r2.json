@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r2",
+  "batchId": "optight-dcb8a227",
+  "seed": "1787984813545",
+  "orderIndex": 10,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19685,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.152267,
+  "numTurns": 7,
+  "durationMs": 17925,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 956
+  },
+  "contextTraffic": 76561,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3062,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, three edits, no code yet.**\n\n1. `[cli.js:9](src/cli.js:9)` parse args. `report --json` sets a flag. Unknown flags print `USAGE`, exit 1.\n2. Add `toJson(rows)` beside `toTable` in `[format.js:20](src/format.js:20)`. Just `JSON.stringify(rows, null, 2)`.\n3. `[cli.js:14](src/cli.js:14)` picks one printer. `buildRows()` stays untouched.\n\nOne call to make. The table drops `owner` and `slow` on purpose. I would emit the full row in JSON. Say the word if you want the four table columns only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71f1bcc5bfc104ea224962f49526c0a87898e35014a7283f66e152dbacc68d8f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 162,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 25972,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.045534500000000006,
+  "numTurns": 4,
+  "durationMs": 24067,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1481
+  },
+  "contextTraffic": 119425,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 8057,
+  "narrationWords": 0,
+  "finalWords": 178,
+  "finalText": "**Redis connection failure cascaded into memory exhaustion and a full service crash.**\n\nAt 02:14:07, Redis (10.0.0.12:6379) went down. The app switched to direct database reads, and every cached order key (`orders:1000`, `orders:1003`, etc.) that would have been served from cache hit the database instead. The database got hammered and started timing out after 5 seconds. Requests piled up in the queue instead of completing — it went from 52 queued (02:14:12) to 568+ (02:31:24) over 17 minutes. Each request sitting in memory waiting for a database slot that wasn't coming. Redis reconnection attempts kept failing. At 02:31:44, worker-2 ran out of heap memory trying to hold that backlog, crashed with exit code 134. The supervisor killed the whole service because api became unresponsive shortly after.\n\n**What to check:** Why did Redis drop? Connection logs on 10.0.0.12 at that time. And the database — was it actually down or just slow? If it was just slow, you need a circuit breaker or rate limit to reject new requests once the queue hits 300–400, not let it grow to 568.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "774b8801d7f84705c736ef5f6234667aaea2fc930d922badc8db44f1081330f9"
+}

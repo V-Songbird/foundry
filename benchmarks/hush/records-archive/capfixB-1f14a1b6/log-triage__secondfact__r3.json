@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__secondfact__r3",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12895,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.1817067,
+  "numTurns": 3,
+  "durationMs": 10794,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 506
+  },
+  "contextTraffic": 112731,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 118,
+  "finalText": "Redis died at 02:14:07 and never came back — 12 reconnect attempts all failed, still refused at 02:31:26.\n\nThat knocked the cache out, so every request fell through to the store directly. Reads piled up as timeouts, the queue climbed from 52 to over 560 (way past its 500 cap), and cache misses kept stacking on top.\n\nBy 02:31:44 worker-2 ran out of memory from the backlog and crashed. The supervisor restarted it, but the whole `api` process was already jammed and got killed 7 seconds later. Service went down at 02:31:52.\n\nRoot cause: Redis at `10.0.0.12:6379` refused connections the whole time. Getting that box back up is the fix — everything after it was just the pileup.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a08b5cdec32cc5a984b86d1a922a6b493a4c2abf2c6ffdcfebde13e14939bc00"
+}

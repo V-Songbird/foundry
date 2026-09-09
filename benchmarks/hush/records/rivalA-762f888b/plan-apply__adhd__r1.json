@@ -1,0 +1,42 @@
+{
+  "key": "plan-apply__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 164,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 26693,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.16274450000000001,
+  "numTurns": 7,
+  "durationMs": 25685,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1654
+  },
+  "contextTraffic": 94917,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 2890,
+  "narrationWords": 15,
+  "finalWords": 354,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the code first so the plan is grounded in what's actually there."
+  ],
+  "finalText": "Read all three files (63 lines total). Here's how I'd do it.\n\n## What's there\n\n- `src/report.js` — `buildRows()` reads `data/runs.json`, returns rows with **six** fields (`id, suite, status, ms, owner, slow`), sorted slowest-first.\n- `src/format.js` — `toTable()` renders **four** of them (`COLUMNS`); its comment says it deliberately drops `owner`/`slow` for width, and that \"anything that needs the whole row has to go back to `buildRows()`.\"\n- `src/cli.js` — 18 lines, `argv[0] !== 'report'` → usage, else print table.\n\nNo package.json, no tests, no arg-parsing library.\n\n## Plan\n\n1. **`src/format.js`** — add `toJson(rows)` alongside `toTable`, export it. `JSON.stringify(rows, null, 2)`. Keeps the \"how to print it\" decision in the formatting module, matching the existing split.\n2. **`src/cli.js`** — scan the args after the command for `--json` (positional-independent, so `report --json` works), then pick the formatter. Unknown flags → usage + exit 1, so a typo like `--jsno` doesn't silently print a table. Update `USAGE` to `usage: cli.js report [--json]`.\n3. **`src/report.js`** — untouched. Both paths call the same `buildRows()`, so \"same data\" holds by construction.\n4. **Verify** — `node src/cli.js report`, `node src/cli.js report --json`, `node src/cli.js report --json | node -e 'JSON.parse(...)'`, plus the bad-flag and wrong-command cases.\n\n## One decision I need to flag\n\n\"Same data\" is ambiguous here, because the table and `buildRows()` don't agree on what the data is.\n\nI'd emit the **full six-field row** from `buildRows()` — including `owner` and `slow`. The rationale: `format.js` says those fields are dropped only because the terminal table is too narrow, which is a constraint JSON doesn't have, and it explicitly points consumers who want the whole row back at `buildRows()`. A machine-readable format is exactly that consumer, and `slow` is derived data a script would otherwise have to recompute.\n\nThe alternative reading — JSON mirrors the table's four columns exactly — is defensible if you think of `--json` as strictly a re-encoding of the visible output. Say the word and I'll project down to `COLUMNS` instead; it's a one-line difference.\n\nI'll go with the six-field version unless you tell me otherwise. Nothing has been changed yet — want me to apply it?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1c25a88e669947838c6b182081a2ecfe9987529b5455391f3ea755164d9d25c1"
+}

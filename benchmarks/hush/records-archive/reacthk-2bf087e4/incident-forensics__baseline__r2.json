@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 27,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 58691,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.143697,
+  "numTurns": 12,
+  "durationMs": 53121,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3373
+  },
+  "contextTraffic": 554577,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 60870,
+  "narrationWords": 14,
+  "finalWords": 211,
+  "finalText": "**ON-CALL HANDOFF**\n\n---\n\n**INCIDENT: Gateway 503 Service Unavailable**  \n**Status:** Ongoing | Started: 2026-03-14T02:14:18.972Z\n\n---\n\n**ROOT CAUSE**\n\nGateway deployment `dep-4471` (started 02:12Z, finished 02:14Z) introduced a breaking change to connection pool configuration. The commit `\"config: connection-per-request for pool isolation\"` by a.novak corrupted pool lifecycle management—connections are no longer being released properly. The pool exhausted to 20/20 in-use connections with 18 requests queued within 18 seconds of rollout.\n\n**Evidence:**\n```\nERROR pool    req-07503 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 18)\n```\n\nResponse times jumped from 12–190ms to 659–693ms (timeout). Workers and backend services are unaffected (all jobs completing normally, worker pool healthy at 1/8 in use).\n\n---\n\n**IMPACT WINDOW**\n\n- **Started:** 2026-03-14T02:14:18.972Z\n- **Scope:** All gateway endpoints—checkout, cart, session, orders, catalog/search, profile, health\n- **Affected:** 100% of requests (after pool exhaustion); status 503\n- **Backend:** Unaffected—orders-svc, billing-svc, catalog-svc, accounts-svc responded normally\n\n---\n\n**REMEDIATION**\n\n**Rollback immediately:**\n```\ndep-4471 (gateway)\n```\n\nThis will restore the previous connection pool configuration. Monitor `/health` and error rates post-rollback.\n\n---\n\n**HANDOFF NOTES**\n\n- Do NOT merge any dependent gateway changes pending investigation\n- Post-incident: review why \"connection-per-request\" broke pooling (likely config syntax or lifecycle bug)\n- Accounts-svc also deployed recently (dep-4469, rate limit on /v1/session) at 23:31Z—unrelated to this incident but worth noting for context",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "383df8285a599daf4493ff9494853d47632cd075b05a6484ae722861b342d0a6"
+}

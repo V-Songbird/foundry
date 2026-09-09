@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 46066,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2962225,
+  "numTurns": 10,
+  "durationMs": 42050,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2278
+  },
+  "contextTraffic": 201033,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6533,
+  "narrationWords": 7,
+  "finalWords": 84,
+  "finalText": "**Build's green again.** `exit=0`, 8 warnings, 0 errors.\n\nTwo real bugs hid in the warning noise, one after the other:\n\n1. `src/core/options.js` still read `options.retries`. The new bundler passes `retryCount`. It now takes either.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader leaves it `undefined` instead of `false`. Unset now means off, like before.\n\nThe 8 leftover warnings are printed as fixed strings inside `build.js`. The files they name, like `src/legacy/adapter.js`, aren't in this tree. So there's nothing to edit for those.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95b124ea6af4312af065e95a710d7bf0ed21a22e41c8530db6fb6adfa73c7d67"
+}

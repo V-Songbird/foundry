@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__blockcap__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "blockcap",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 124179,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.6601094999999999,
+  "numTurns": 24,
+  "durationMs": 114857,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7053
+  },
+  "contextTraffic": 558356,
+  "apiCalls": 21,
+  "toolCalls": 19,
+  "toolResultChars": 12048,
+  "narrationWords": 6,
+  "finalWords": 96,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by reading the files."
+  ],
+  "finalText": "**Dedup is in.** 99 repeats now drop, all of them the 2-minute flaps. 0 errors.\n\n`state` holds `lastSentAt`, a `Map` from `key` to minute. Only real deliveries update it, so a dropped repeat never extends the window. The window is inclusive, so a repeat at exactly 5 minutes drops.\n\n| channel | before | after |\n|---|---|---|\n| `queue` | 300 | 266 |\n| `email` | 251 | 223 |\n| `pager` | 225 | 200 |\n| `sms` | 124 | 112 |\n| `push` | 124 | 112 |\n\nSee [src/router.js:36](src/router.js:36).\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "539c28eddfee5f85851e30b1a7b0b984b3814e878b7fc1cd8a6ed0a1ae3b084e"
+}

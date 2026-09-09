@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 70,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 230750,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.011555,
+  "numTurns": 20,
+  "durationMs": 222791,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15324
+  },
+  "contextTraffic": 701064,
+  "apiCalls": 20,
+  "toolCalls": 16,
+  "toolResultChars": 19655,
+  "narrationWords": 18,
+  "finalWords": 873,
+  "finalText": "## On-Call Handoff — Gateway 503s (2026-03-14)\n\n**Status at handoff: ACTIVE / not mitigated.** The log ends at 03:59:27Z with errors still flowing at full rate. Nothing in it indicates recovery. Treat as ongoing until you confirm otherwise on live metrics.\n\n---\n\n### Root cause\n\nGateway config generation 119 flipped **`gateway.pool.perRequest: false -> true`**, applied at `02:13:41.234Z`.\n\nEvery request now opens its own upstream connection instead of borrowing from the shared pool. The pool is size 20, so it exhausts immediately and permanently. Requests that can't acquire a connection are failed with 503.\n\nThe gateway's own instrumentation confirms it:\n\n```\n02:10:58  stats size=20 in_use=10 idle=10 waiting=0     <- healthy, oscillating\n02:13:41  config generation 119 applied\n02:15:58  stats size=20 in_use=20 idle=0  waiting=12    <- pinned, never recovers\n03:00:58  stats size=20 in_use=20 idle=0  waiting=192\n\n03:02:30  WARN pool  connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\n**~100x the baseline connection open rate.** That is the signature of per-request connections.\n\nEvery 503 is paired 1:1 with a pool error at the identical timestamp — 530 access 503s, 530 `ERR_POOL_EXHAUSTED`:\n\n```\n2026-03-14T02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nThere is no second error class in the file. No upstream timeouts, no resets, no backend 5xx. **This is not an upstream outage.**\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **Started** | `2026-03-14T02:14:18.972Z` (first 503) |\n| **Still failing at** | `2026-03-14T03:59:27.974Z` (end of log) |\n| **Confirmed duration** | **≥ 1h 45m**, no end observed |\n| **Rate** | 5 failures/min, dead steady for all 106 minutes |\n| **Volume** | 530 × 503 on this node |\n| **Error rate** | 71% (5m avg, per the ops page) |\n\n**Blast radius:** all five `/v1/*` routes, and evenly spread across all four upstreams — accounts 133, catalog 133, billing 132, orders 132. Uniform spread is further proof the fault is in the gateway, not any one backend.\n\n⚠️ **This is one node's log** — the header reads `node-3 of 3`. If gen 119 rolled to all three nodes, real customer impact is roughly **3x** these numbers (~1,590 failures). **Verify nodes 1 and 2 first thing** — I could not from this file.\n\n---\n\n### Roll back\n\n**`dep-4471`** — gateway, `2026-03-14T02:12:00Z–02:14:00Z`, author **`a.novak`**, summary *\"config: connection-per-request for pool isolation.\"*\n\nTiming is conclusive on both ends: the deploy started 02:12:00Z and the gateway logged `reload requested by deploy pipeline, generation 118 -> 119` 12.8s later; it finished 02:14:00Z and the first 503 landed **19 seconds after**.\n\n**Minimal fix — set `gateway.pool.perRequest` back to `false` on all three nodes.** That single key is the fault. The other two in gen 119 are not implicated and can stay:\n\n- `gateway.timeout.upstreamMs: 2000 -> 2500` — real change, unrelated to pool acquisition\n- `gateway.log.sampleRate: 1.0 -> 1.0` — no-op\n\nA wholesale revert of dep-4471 is also safe if that's the faster path in your tooling. Expect `in_use`/`waiting` to drop and the churn warning to clear within a pool cycle; watch the pool stats line to confirm rather than trusting the error rate alone (see detection gap below).\n\n**Not implicated:** dep-4472 (billing, 02:41) and dep-4473 (catalog, 03:20) both shipped *during* the incident, and the 503 rate holds at exactly 5/min straight through both windows — neither helped nor hurt. Everything else in `deploys.csv` predates onset by 1h19m or more.\n\n---\n\n### Two things to raise in the postmortem\n\n**1. `/health` stayed green the whole time.** All 106 health checks during the incident returned 200, because the health endpoint doesn't acquire from the pool. The load balancer never drained this node while it was failing 71% of real traffic, and on-call wasn't paged until `03:21:05` — a **67-minute detection gap** after onset. Health checks that don't exercise the pool are the real reason this ran as long as it did.\n\n**2. Unexplained gauge reset.** The `waiting` counter drops from 232 to 12 at `03:15:58` with no restart, shutdown, or SIGTERM line anywhere in the file. The 503 rate doesn't change across it, so it looks like a gauge artifact rather than a recovery — but worth a glance in case something is restarting silently.\n\n---\n\n### Separate issue — do not let it confuse triage\n\n`worker.log` shows **zero** job failures (1080/1080 ok), a completely flat pool (`size=8 in_use=1 idle=7 waiting=0` in all 18 samples), and flat `db_wait` at 5.0ms. **Workers are unaffected by this incident.**\n\nHowever, worker job duration is ramping linearly and hasn't leveled off: **327ms at 01:00 → 2197ms at 03:50, +110ms every 10 minutes, constant slope.** This is *not* related to the gateway:\n\n- The ramp is already running from 01:00, **74 minutes before** the first 503, and passes through onset with no inflection.\n- All six job types ramp identically (602 → 1262 → 1922ms hourly averages, same for every type), so dep-4470's webhook-retry change doesn't explain it.\n- `db_wait` is flat, so it's execution time, not database waiting.\n\nReads more like runtime resource exhaustion (leaking handles/timers, heap/GC pressure). **Cause unconfirmed** — worker.log starts at 01:00, after dep-4470 finished at 00:55, so there's no pre-deploy baseline here. Needs its own ticket and worker logs from before 00:48 to test that theory.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d52c0f389d27529b2b56524d32c554f7b28eed205d225ec442438744ff910bca"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 27,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 157459,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.0434365,
+  "numTurns": 26,
+  "durationMs": 150060,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9418
+  },
+  "contextTraffic": 780006,
+  "apiCalls": 23,
+  "toolCalls": 21,
+  "toolResultChars": 22937,
+  "narrationWords": 74,
+  "finalWords": 180,
+  "finalText": "Done. The dropped set is exactly the 99 flaps the generator plants — no false positives, no misses.\n\n```\nlow       email=111  queue=90\nnormal    push=112   queue=88\nhigh      sms=112  email=112  queue=88\ncritical  pager=200\n```\n\n99 dropped, 0 errors. `createState()` now returns `{ lastSentAtByKey: new Map() }`; the dedup check runs before the priority/quiet-hours logic, so a suppressed repeat is dropped regardless of when it arrives.\n\nThree calls I made inside the \"last 5 minutes\" wording:\n\n- **Queueing counts as sent.** A quiet-hour event that goes to `queue` opens the dedup window, so its flap two minutes later is dropped instead of queued twice. If `queue` should be exempt — repeats still worth batching — that's a small change.\n- **Dropped repeats don't extend the window.** Only a non-empty result records a timestamp. Otherwise a key that flaps every 2 minutes would stay suppressed forever rather than getting through again after 5 minutes.\n- **Boundary is exclusive.** A repeat at exactly +5 minutes sends; only strictly-under-5 drops. The flaps here are +2 so nothing in this replay sits on the boundary either way.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f0a79f61e198ceba217ec69aacf621b610ed78d2502ba941ec5987a1311fb48b"
+}

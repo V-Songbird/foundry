@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 103941,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8044564999999999,
+  "numTurns": 10,
+  "durationMs": 102798,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6777
+  },
+  "contextTraffic": 357944,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 78102,
+  "narrationWords": 10,
+  "finalWords": 902,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory."
+  ],
+  "finalText": "I read all 380 commits and the 128-row PR sheet. Here's the split.\n\n## The noise\n\n343 of 380 commits (90%) are invisible to users: 153 `chore` (mostly dep bumps of dev tooling — eslint, prettier, vitest, tsx, husky, typescript, esbuild), 73 `refactor`, 64 `test`, 33 `ci`, 20 `docs`. All dep bumps are patch/minor within the same major, so nothing there forces a user change.\n\nThe 37 that remain are 26 `fix`, 10 `perf`, 1 `feat` — and those collapse further, because the same fix was applied across modules under separate commits. \"drop the duplicate header\" is 5 commits but one bug; \"guard the null cursor\" is 4 commits, one bug. Real distinct user-visible changes: **11 fixes, 4 perf themes, 1 feature.**\n\n(Side note: the PR sheet has 22 duplicated title rows — #4120/#4121 are the same pino bump by different authors, etc. Don't count off it.)\n\n## What actually changed\n\n**Behavior changes a user could trip on**\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223, 1d2bd55) — status code change on a documented path. Anyone branching on 403 to mean \"expired\" breaks. This is the one I'd lead with.\n- `refactor(api): drop the unused v1 export route` (#4152, 56dc828) — a route was deleted. \"Unused\" is the author's claim; it's still a removal from the HTTP surface. Touched `src/api/router.js`, `handlers.js`, and the api tests.\n- `stop re-exporting the internal error types` — 9 commits across core, db, auth, billing, jobs (2e61589, 5d4de73, d988aed, 4d83260, d7cf97b, 9b717dc, b5cfbc3, 8639397). If those types were reachable from the package entry point, imports break. **I can't confirm this from the log** — there's no `src/index.js` in any diffstat, so I can't see whether the public entry point re-exported them. Worth a two-minute check before you decide whether this is Breaking or invisible.\n- `fix(store|core): use the right units in the latency histogram` (#4185, 59402bc + 1f2bc4e) — emitted metric values change scale. Nothing crashes, but existing dashboards and alert thresholds silently become wrong. That's the kind of thing that belongs in Breaking even though it's labelled a fix.\n- `tighten the token parser error message` (#4243, 97502a8/764ea75/ff7a337) — error *text* changed in core, billing, queue. Only matters for people string-matching on messages, but it costs one line to say so.\n\n**New**\n\n- `feat(webhooks): retry failed deliveries with exponential backoff` (#4191, 395fb48) — the only feature in the release. It also touched `src/core/config.js`, which strongly suggests a new config knob for retry count/backoff. The log doesn't give me the option name — you'll want to pull that from the diff or `docs/retries.md`.\n\n**Fixed**\n\n- HTTP client leaked a timer when the socket dropped (f66d359) and didn't close the pool on shutdown (eb874a5) — both cause hangs/leaks on shutdown.\n- Duplicate header sent on requests (5 commits, core/billing/http).\n- Pagination crashed on a null cursor (4 commits, queue/api/webhooks/db).\n- Empty allowlist was mishandled (3 commits, store/db/jobs).\n- Trailing slash trimmed twice, mangling paths (queue, jobs).\n- Trace id was lost across a retry (api, 3 commits).\n- `fix(db): stop logging the whole request body` (#4157, 1b55313) — request bodies were being written to logs. Depending on what flows through this, that's a data-exposure fix people should know about so they can decide whether to scrub old logs.\n\n**Performance** — real but unquantified: JSON round-trip skipped on hot paths (core/store/db), extra clone removed from mappers (billing/api/store), metric writes batched (queue/db), parsed schema reused between requests (api). Your changelog has no Performance heading, so I left these out of the draft below rather than invent one.\n\n## Draft entry\n\n```markdown\n## 4.2.0 — 2026-08-30\n\n### Breaking\n- An expired token now returns 401 instead of 403.\n- The v1 export route is gone. Use the current export endpoint.\n- The latency histogram now reports in the documented units. Existing\n  dashboards and alert thresholds against it need rechecking.\n- Token parser error messages changed. Match on the error code, not the text.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Request bodies are no longer written to the logs.\n- The HTTP client no longer leaks a timer when the socket drops, and closes\n  its pool on shutdown.\n- Pagination no longer fails on a null cursor.\n- An empty allowlist is handled instead of throwing.\n- A trailing slash is trimmed once, not twice.\n- The trace id survives a retry.\n- Requests no longer carry a duplicate header.\n```\n\nThree things to settle before this ships:\n\n1. **The re-exported error types.** If they were public, that's another Breaking line and I'd want to name the types. I couldn't determine it from commit subjects alone.\n2. **The webhook backoff config option.** The entry is weak without the knob's name and default.\n3. **Minimum Node version.** Five `docs: note the minimum node version` commits, five `ci: run the suite on node 22`, and three `.nvmrc` pins — but no commit touches an `engines` field. That reads like documenting an existing floor rather than raising it. If the floor did move, it's a Breaking line and the log doesn't show it.\n\nI worked from commit subjects and diffstats only — no diffs in `history/`, so the severity calls above are inference from message + touched files, not from reading the code. The three items above are where that inference is thinnest. Want me to write this into `CHANGELOG.md` at the placeholder?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b819ccb5382deff6f6dccf62f0dd4a8d6090604cf6ca2df2e08709446f26a882"
+}

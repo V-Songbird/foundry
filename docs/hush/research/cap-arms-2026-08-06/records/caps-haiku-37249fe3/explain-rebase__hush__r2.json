@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__hush__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 76,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 2,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11261,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0229555,
+  "numTurns": 1,
+  "durationMs": 9632,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 624
+  },
+  "contextTraffic": 26988,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 205,
+  "finalText": "**Merge** combines two branches by creating a new commit that ties them together. Both branches stay in the history, so you can see when branches diverged and came back together. It's safe—the original commits don't change.\n\n**Rebase** replays your commits on top of another branch, as if you'd started from a newer point. The history becomes one straight line instead of branching lines. But it rewrites your commits' identities, which is destructive—if other people have those commits, you'll create conflicts.\n\n**When to merge:** You want a record that the branches existed (feature branches are often meaningful to see). You're on a branch other people depend on. You're not sure if someone else has the commits.\n\n**When to rebase:** You're tidying up your local feature branch before you push it. You want main's history to stay clean and linear. You haven't shared the commits yet, or you're rebasing only commits you made. The branch you're rebasing onto (like main) has moved forward and you want your work on top of the latest.\n\nA rule that works: rebase your feature branch locally to keep it tidy, then merge it into main to preserve that it existed. Never rebase a branch that's shared or public—people's work can break.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "02834de943390db9c2ea2ec94062653ef46c496d6ffaf0854f535c0c66189222"
+}

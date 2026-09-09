@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 138,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 23502,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.038495800000000004,
+  "numTurns": 8,
+  "durationMs": 21382,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1388
+  },
+  "contextTraffic": 84845,
+  "apiCalls": 3,
+  "toolCalls": 7,
+  "toolResultChars": 4271,
+  "narrationWords": 0,
+  "finalWords": 220,
+  "finalText": "This is a lightweight Node.js REST API with three layers: authentication at the edge, a routing layer in the middle, and storage with caching at the back.\n\n**The flow:**\n\nStart at `server.js`. It runs an HTTP server that checks every request's bearer token using `auth.js`. The tokens are just HMAC signatures — `<userId>.<signature>` — verified against a shared secret from the environment. If the token is bad, the request gets rejected immediately. If it's good, the user object gets passed to the router.\n\n`routes.js` handles three endpoints: fetch a user, list orders for the logged-in user, and create a new order. This is where you'd add more routes. Reads go through the LRU cache in `cache.js` first; writes skip it and go straight to the store so they're always fresh.\n\n**The cache and store:**\n\n`cache.js` is tiny — just 256 entries that it evicts LRU-style. It absorbs repeated reads without touching the store. The store itself (`store.js`) is in-memory with a 15-minute TTL on each record. It's a stand-in for a real database; nothing persists when the process stops.\n\nThe pieces talk to each other in a clean chain: request → auth check → route lookup → (cache or store) → response. The separation means you can swap the store for Postgres later without touching the auth or cache layers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "86c565a9d94acde9f2dd2e83d5aefb6b1d42b8e00ad76cd41c00d7be3cc81795"
+}

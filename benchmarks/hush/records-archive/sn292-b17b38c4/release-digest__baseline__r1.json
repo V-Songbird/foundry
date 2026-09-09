@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 130279,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4281794,
+  "numTurns": 13,
+  "durationMs": 128849,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9602
+  },
+  "contextTraffic": 608464,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 76549,
+  "narrationWords": 88,
+  "finalWords": 229,
+  "assistantMsgs": 2,
+  "finalText": "I went through all 380 commits and the PR sheet. Out of that, one thing is a real behavior break, one is a new feature, and nine are bug fixes worth telling users about — everything else was dependency bumps, internal refactors (many of the \"fix\"-sounding commits were actually the same bug landing 2-3 times across the branch, which I collapsed to one line each), and CI/docs churn.\n\nI added a `## 4.2.0 — 2026-08-29` section to CHANGELOG.md, above 4.1.0, and removed the placeholder comment. Notable calls I made:\n\n- **Breaking**: expired tokens now return 401 instead of 403 — flagged as breaking since it changes the wire contract, same treatment as the 4.1.0 timeout-units change.\n- **Added**: webhook retry with exponential backoff — the only genuine `feat` commit in the whole range.\n- **Fixed**: the DB request-body logging fix is listed first since it's the one with privacy implications; the rest are grouped by behavior (null-cursor crashes, trace-id drops, empty-allowlist handling, etc.) rather than listed per-module, since several of these landed in api/queue/webhooks/db independently with identical descriptions.\n\nWorth double-checking before you publish: \"guard the null cursor\" and \"handle an empty allowlist\" landed near-identically in multiple unrelated modules, which reads like templated commit messages rather than hand-written ones — if your commit log is auto-generated or scrubbed for this exercise, sanity-check those against the real PRs before quoting specifics.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a33bb8a71463d25d08dd33a377fd00c6f0677553ab20a3fa4957ad881dca0251"
+}

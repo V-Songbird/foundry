@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 70,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53681,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.36691450000000003,
+  "numTurns": 9,
+  "durationMs": 52654,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3597
+  },
+  "contextTraffic": 163060,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 21255,
+  "narrationWords": 9,
+  "finalWords": 466,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the history and CHANGELOG shape first."
+  ],
+  "finalText": "380 commits. ~12 things user notices. Rest is dependency bumps, refactors, CI, tests — noise.\n\nDraft for `CHANGELOG.md`, slot above `4.1.0`:\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- Internal error types are no longer re-exported from the package root. If you\n  imported error classes from `core`, `db`, `jobs`, or `auth`, import them from\n  their own module instead.\n- An expired token now returns `401` instead of `403`. Clients that branch on\n  the status code to decide whether to refresh need updating.\n- The v1 export route has been removed from the API.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff, configurable\n  through the core config.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it now\n  closes the pool on shutdown.\n- Request bodies are no longer written to the database logs.\n- Latency histograms record the correct units.\n- Paginators handle a null cursor instead of throwing on the last page.\n- An empty allowlist is treated as empty rather than as \"allow everything\".\n- Trailing slashes are trimmed once, not repeatedly.\n- Duplicate headers are no longer sent.\n- The trace id survives a retry.\n- The token parser reports which part of the token failed.\n```\n\nThree calls need your confirm before ship:\n\n1. **Error re-exports** — 6 commits across `core/errors.js`, `db/query.js`, `jobs/runner.js`, `auth/session.js`. Authors labeled `refactor`, but if those types were reachable from the public entry point it is breaking. Check the entry barrel.\n2. **v1 export route** (#4152, `56dc828`) — commit says \"unused\". Touched `src/api/handlers.js` +50 lines and `test/api.test.js`. If it was truly dead, drop that bullet; if it ever shipped, it stays under Breaking.\n3. **Empty allowlist** — three commits (`fix(store|jobs|db): handle an empty allowlist`) but no message says which way it now falls. I guessed deny. Verify before publishing — wrong direction here reads as a security claim.\n\nLeft out on purpose:\n- **Node minimum.** 5 `docs: note the minimum node version` commits plus `ci: run the suite on node 22`, but nothing touched `engines` in `package.json`. Docs-only. No user-visible change to claim.\n- **Perf.** 9 commits (batch metric writes, skip JSON round-trip on hot path, avoid clone in mapper, reuse parsed schema). No benchmark numbers anywhere, and your CHANGELOG has no Perf heading. Add one line under Added if you have numbers.\n- All 60+ dependency bumps. Runtime deps moved (`pg` 8.12.0→8.13.0, `knex` 3.1.0→3.1.2, `ioredis` 5.4.1→5.4.2, `pino` 9.2.0→9.3.1, `fastify` 4.28.0→4.28.1, `zod` 3.23.6→3.23.8, `nanoid` 5.0.7→5.0.8, `dotenv` 16.4.5→16.4.7) — all patch/minor, no behavior change surfaced through your API.\n\nNote on the data: heavy duplication. Same title merged repeatedly under different PR numbers — `pino` bump appears 5 times, `sort the package.json fields` 5 times, `stop uploading the coverage artifact twice` 5 times. I collapsed dupes to one entry each.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "28bc9d938520b195f414fe3b1a9923f433257170c31e540fe35d061e6c259e47"
+}

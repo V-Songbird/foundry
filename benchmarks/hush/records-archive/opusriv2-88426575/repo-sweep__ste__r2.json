@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50663,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.37178549999999994,
+  "numTurns": 12,
+  "durationMs": 49115,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3423
+  },
+  "contextTraffic": 246827,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 15381,
+  "narrationWords": 7,
+  "finalWords": 217,
+  "finalText": "Migration finished. 12 files still used the old call. All of them now use `db.execute({ sql, params })`.\n\n**Files changed (36 call sites):**\n- `packages\\accounts\\src\\repo\\session.js`, `packages\\accounts\\src\\admin\\apiKeyAdmin.js`, `packages\\accounts\\src\\service\\teamService.js`\n- `packages\\billing\\src\\repo\\refund.js`, `packages\\billing\\src\\service\\couponService.js`\n- `packages\\catalog\\src\\repo\\supplier.js`, `packages\\catalog\\src\\admin\\variantAdmin.js`\n- `packages\\orders\\src\\repo\\shipment.js`, `packages\\orders\\src\\service\\returnService.js`\n- `packages\\support\\src\\repo\\sla.js`, `packages\\support\\src\\admin\\macroAdmin.js`\n- `packages\\analytics\\src\\repo\\cohort.js`\n\nEach file has the same three shapes: a get-by-id, a paged list, and an update with a built `SET` clause. The SQL strings and the parameter arrays are unchanged. Only the call form moved from positional to the object form.\n\n**Not changed, and why:**\n- `vendor\\legacy-orm\\adapter.js` has two `db.query` calls. The file header says that the vendored copy is replaced on every upgrade, and that local edits are lost. I left it alone. To retire `db.query` fully, you must either upgrade `legacy-orm` to a version that uses the new form, or drop the vendored dependency.\n- `cache.query(...)` calls in many repo files. That is the cache API, not the database handle. It is a different method and is not part of this migration.\n\n**Verification:** `node --check` passes on all 12 files. A repository grep for `db.query` now returns only the two vendor lines. The repository has no `package.json` and no test suite, so I could not run tests.\n\n`lib/db.js` still exports `query` for the vendor adapter. You can delete it after the vendor problem is solved.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3ff84d67963d614977ddc4f1f278c76cb363ca6144d6212c3d32a91b35ee869e"
+}

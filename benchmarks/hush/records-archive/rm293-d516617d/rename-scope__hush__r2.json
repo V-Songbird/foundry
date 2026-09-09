@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43592,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.318256,
+  "numTurns": 16,
+  "durationMs": 41851,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2852
+  },
+  "contextTraffic": 175414,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 15445,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "finalText": "**Bigger than it looks: 94 files, ~1082 lines.**\n\nFour places it must not change:\n\n| Where | Why |\n|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | Public contract, breaking |\n| [vendor/reporting-sdk](vendor/reporting-sdk/src/query.js) | Generated, `vendor:refresh` overwrites |\n| `migrations/*.sql` (12) | Applied history, breaks down steps |\n| [lib/serialize.js:8](lib/serialize.js:8) | Right side is the wire name |\n\nAlso the SQL column stays `account_id`. Repo files hold it in query strings, as in [order.js:10](services/orders/src/repo/order.js:10). Changing it needs a new migration plus a backfill.\n\nSafe scope is JS names in 75 service files. I can do that pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "113c9082e855632a65df96ea156b7f79298072ae4b7fe93cdd76b1ff52ab7c2c"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36175,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3255905,
+  "numTurns": 9,
+  "durationMs": 34340,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1822
+  },
+  "contextTraffic": 184678,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 19498,
+  "narrationWords": 0,
+  "finalWords": 119,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died, and the cache loss took the service with it.**\n\nAt `02:14:07` `[api]` logged `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache went to direct store reads. No successful request logged after `02:14:03`.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | Redis refused, cache degraded |\n| 02:14:10+ | 173 `TimeoutError` after 5000ms |\n| 02:15:26–02:31:26 | 13 reconnect attempts, all `ECONNREFUSED` |\n| 02:31:44 | `worker-2` heap out of memory, code 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive` |\n\nQueue depth climbed 52 to 568 against a max of 500. Redis never came back.\n\nNext: check why `10.0.0.12:6379` refused connections, and cap the queue so a cache outage sheds load instead of filling the heap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5b6cc6c09f1ce5aed8b285952fe9fc18816c673fd30e042ba13dd230d383d8e5"
+}

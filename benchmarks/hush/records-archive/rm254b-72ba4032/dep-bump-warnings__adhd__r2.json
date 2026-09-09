@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31667,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2117421,
+  "numTurns": 12,
+  "durationMs": 30226,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2333
+  },
+  "contextTraffic": 233484,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 15819,
+  "narrationWords": 82,
+  "finalWords": 116,
+  "finalText": "Build is clean: exit 0, 0 errors.\n\nThe build was actually **failing**, not just noisy — it was crashing at the link stage, but the real error scrolled off past hundreds of harmless deprecation warnings (`DEP0142`, `DEP0198`, etc., from Node/deps themselves — safe to ignore). Two real bugs from the bump, both in your code:\n\n- `src/core/options.js` — read `options.retries`, but the new bundler passes `{ retryCount }`. Fixed to read `retryCount`.\n- `src/net/retryPolicy.js` — strictly required `true`/`false` for a flag, but the new config loader now leaves unset flags `undefined`. Fixed to treat `undefined` as `false` (disabled), matching old behavior.\n\nBuild now finishes with 0 errors (8 pre-existing deprecation warnings remain, which are informational only).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "35f71e7010ddc756d2ec6acf6994c92d6a96f8e84197299ac99e83d0c2076118"
+}

@@ -1,0 +1,48 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 4,
+  "wallMs": 139830,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.34270475,
+  "numTurns": 20,
+  "durationMs": 136578,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10033
+  },
+  "contextTraffic": 493027,
+  "apiCalls": 13,
+  "toolCalls": 16,
+  "toolResultChars": 35653,
+  "narrationWords": 163,
+  "finalWords": 537,
+  "assistantMsgs": 11,
+  "narrationTexts": [
+    "I'll look at the gateway log and find where the 503s begin.",
+    "The 503s begin at 02:14 UTC with `ERR_POOL_EXHAUSTED`. Now I'll gather the lead-up: pool stats trend, any deploy/config events, what happened right before the first error, and whether it recovered.",
+    "The picture is nearly complete. Two last checks: whether any other config or rollback event happened later in the log, and whether the worker's own pool was affected.",
+    "I'll find deploys.csv and check what shipped around 02:12 UTC on 2026-03-14.",
+    "I already saw the worker's pool looked healthy. Let me check it properly across the full window: job failures, latency and DB wait trends, and any warnings.",
+    "The worker pool was untouched, but job durations show a slow climb across the whole night. Let me check whether that climb is tied to one job type or is uniform, so I can characterize it correctly.",
+    "I'll write the handoff as a file in the project root and include the full text below."
+  ],
+  "finalText": "Saved to `HANDOFF.md` in the project root. Full text below.\n\n---\n\n# On-call handoff: gateway 503s, 2026-03-14\n\n**Status:** ONGOING at end of available logs (03:59 UTC). No rollback recorded.\n**Severity:** High. Error rate 71% on the 5-minute average when on-call was paged at 03:21.\n\n## Root cause\n\nGateway deploy **dep-4471** flipped `gateway.pool.perRequest` from false to true. In per-request mode every inbound request checks out a dedicated upstream connection instead of multiplexing. The pool is sized at 20, which previously ran at 3 to 11 in use. Under per-request mode it saturates immediately and requests queue until they time out and return 503.\n\nEvery 503 is paired with the same error:\n\n```\nERROR pool  ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\nThere are no upstream failures, no connection refusals, and no database pressure. The gateway is starving itself.\n\n## Roll back\n\n**dep-4471** (gateway, author a.novak, 02:12 to 02:14 UTC, \"config: connection-per-request for pool isolation\").\n\nFastest path is reverting that config generation (119 back to 118) or setting `gateway.pool.perRequest=false` directly. This log is from node-3 of 3, so apply to all three gateway nodes.\n\nDo not roll back dep-4472 (billing-svc) or dep-4473 (catalog-svc). Both shipped after the failure began and neither changed the error rate.\n\nIf per-request mode is actually required, it needs a much larger pool before it is re-enabled. Do not re-enable at size 20.\n\n## Impact window\n\n| Event | Time (UTC) |\n|---|---|\n| dep-4471 started, config reload requested | 02:12 |\n| Generation 119 applied (perRequest false to true) | 02:13:41 |\n| First 503 | 02:14:18 |\n| Pool fully saturated, queue growing | 02:15:58 onward |\n| On-call paged, 5m error rate 71% | 03:21:05 |\n| End of available log, still failing | 03:59:27 |\n\nDuration so far: 1h 45m and counting.\n\nAffected: every route and every upstream (billing, orders, catalog, accounts) equally. Only the health endpoint still returns 200, so load balancer health checks will not have pulled the nodes. 530 5xx responses on node-3 alone. Pool wait grew from under 4ms to about 850ms by 03:59, with roughly 70 requests queued.\n\n## Verification after rollback\n\n- `gateway.pool.perRequest` reads false on all three nodes.\n- Pool stats line shows in_use well under 20 and waiting=0.\n- No new ERR_POOL_EXHAUSTED lines.\n- Access log 503 count drops to zero within one minute.\n\n## Not part of this incident\n\n- **Workers were unaffected.** All 1080 jobs succeeded, worker pool held at 1 of 8 in use with zero waiting, DB wait flat at about 5ms throughout.\n- **Separate worker issue, low priority for tonight.** Worker job durations climbed linearly from about 330ms at 01:00 to about 2200ms at 03:50 across all job types with flat DB wait. This began before dep-4471 and is unrelated to the 503s. Possible link to dep-4470 (worker, \"retry backoff for webhook jobs\", finished 00:55) but not confirmed. Open a ticket.\n- The 02:36 slow query warning in the worker log is known issue OPS-2210.\n\n## Evidence\n\n- `logs/gateway.log` lines 602 to 617: config reload, key changes, first 503.\n- `logs/gateway.log` pool stats every 5 minutes: healthy through 02:10:58, saturated from 02:15:58.\n- `deploys.csv` row dep-4471.\n- `logs/worker.log`: no errors, pool stats flat.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dbc0d1813368aa777e25994f7cbbdb091fcc93de325b8d82799cf6e8e9ca7190"
+}

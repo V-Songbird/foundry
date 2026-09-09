@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 53,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 129242,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7292255,
+  "numTurns": 27,
+  "durationMs": 122453,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7864
+  },
+  "contextTraffic": 595263,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 13514,
+  "narrationWords": 6,
+  "finalWords": 136,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Repeat suppression is in, keyed off `event.key` in `state.lastSentAt`.\n\nReplay: 0 errors, 99 dropped — exactly the 99 flap events `events.js` generates (each fires 2 minutes after its predecessor with the same key). Spot-check confirms the pattern: `evt-0017` pages at 271, `evt-0018` drops at 273.\n\nTwo decisions I made:\n- Only an actual delivery starts the window. A dropped repeat doesn't refresh the timestamp, so a key firing every 2 minutes gets through once every 5+ minutes rather than being suppressed forever.\n- A repeat is dropped when strictly less than 5 minutes has elapsed; one arriving at exactly 5 minutes sends. Flip `<` to `<=` in `REPEAT_WINDOW`'s comparison if you want the other boundary.\n\n`createState()` now returns `{ lastSentAt: new Map() }` — anything constructing state by hand rather than calling `createState()` will need updating.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2444f59b302524680754a879aaf3991bf362ac5f3865032c0fdb42938048a436"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22006,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2534448,
+  "numTurns": 4,
+  "durationMs": 20503,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1309
+  },
+  "contextTraffic": 147194,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60189,
+  "narrationWords": 0,
+  "finalWords": 363,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Here's the timeline — this was a Redis outage that cascaded into a full crash, not a random blip.\n\n**Before 02:14** — everything nominal: steady health checks, 200s on `/users` and `/orders`, cache hit ratios 90-98%.\n\n**02:14:07** — Redis goes down: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` from `[api]`. App correctly falls back to direct store reads, but that's where it goes wrong.\n\n**02:14:08 onward** — cascading failure:\n- Direct DB reads can't keep up → repeating \"cache miss storm\" warnings across all services\n- Request timeouts start immediately (`TimeoutError ... 5000ms (store overloaded)`) from api/worker-1/worker-2/scheduler, cycling every ~2s for the next **17 minutes straight**\n- Request queue depth climbs steadily and linearly: 52 → 500 (its configured max) by ~02:15:48, then **blows past the max**, reaching 568 by 02:31 — nothing was shedding load once the queue hit its cap\n- Redis reconnect attempts fire roughly every 2 minutes (attempts 0 through 12) and **every single one fails** — Redis never comes back\n\n**02:31:44** — `worker-2` dies: `JavaScript heap out of memory (request backlog)` — the unbounded queue growth finally exhausted memory.\n\n**02:31:45** — supervisor restarts worker-2 (exit code 134 = SIGABRT from the OOM).\n\n**02:31:52** — `[supervisor] api unresponsive, killing process group — service down`. That's the outage.\n\n**Root cause:** Redis at `10.0.0.12:6379` dropped and never reconnected (12 failed attempts over ~17 min). The cache-miss fallback to the direct store had no backpressure/circuit breaker, so the request queue grew unbounded instead of shedding load, eventually causing an OOM crash in worker-2 and taking the whole api process group down with it.\n\n**Worth checking:**\n1. Why Redis at `10.0.0.12:6379` was unreachable for 17+ min (host/network issue, not just a blip)\n2. Add a circuit breaker / load-shedding once queue depth exceeds max, instead of letting it grow past the cap\n3. Reconnect backoff looks fixed at ~2min intervals with no success — worth confirming the retry logic and Redis health independently\n\nOne odd note: the log timestamps are all `2026-07-04`, not last night (2026-08-28/29) — if this is the file you meant, the \"last night\" framing may not match; let me know if there's a more recent log I should pull instead.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f95569fa98a97673fa901aac3c8d16da13aab9d75496f1aa09a6dbe8bb6b06fc"
+}

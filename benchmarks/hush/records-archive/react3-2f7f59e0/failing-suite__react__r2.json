@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__react__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 4,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28575,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.208374,
+  "numTurns": 10,
+  "durationMs": 27091,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1403
+  },
+  "contextTraffic": 242308,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 14864,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "finalText": "The bug was in `orderTotal` in `src/pricing.js`: it charged tax on the pre-discount amount instead of the discounted one, even though the comment right above it said tax should apply after the discount.\n\nChanged line 41 from `cents * taxRate` to `discounted * taxRate`. All 625 tests pass now, and `verify.js` confirms it's fixed for real, not just papered over.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ecc8f783ff247fe82576079baf4ccde55c51ad2125dcc88364a5452d33afa4ae"
+}

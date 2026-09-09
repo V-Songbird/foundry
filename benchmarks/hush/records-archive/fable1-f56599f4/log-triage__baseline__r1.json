@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 35751,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7597152500000001,
+  "numTurns": 5,
+  "durationMs": 34936,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2002
+  },
+  "contextTraffic": 165141,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 44335,
+  "narrationWords": 11,
+  "finalWords": 503,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll read through logs/app.log and reconstruct the timeline of the outage."
+  ],
+  "finalText": "Root cause: Redis at 10.0.0.12:6379 went away at 02:14:07 UTC on 2026-07-04 and never came back. Everything after that is the app collapsing under the load the cache had been absorbing. The log shows no cause for the Redis outage itself, so that has to come from the Redis host or its logs.\n\n**Timeline**\n\n- **02:00 to 02:14** Normal traffic. All requests returning 200, cache hit ratio between 0.90 and 0.98, cleanup cron ticking fine.\n- **02:14:07** The api process loses its Redis connection with ECONNREFUSED. It logs that the cache layer is degraded and falls back to direct store reads. See `app.log:182`.\n- **02:14:08 onward** Cache miss storm on the orders keys. Every request now hits the backing store directly. Within three seconds the store is overloaded and requests start timing out at 5000ms across all four processes: api, scheduler, worker-1, and worker-2.\n- **02:15:26 to 02:31:26** Thirteen Redis reconnect attempts, every 80 seconds, every one refused. No backoff growth, no circuit breaker, no alert that reconnects were failing.\n- **02:14 to 02:31** Request queue depth climbs steadily at about 3 per 6 seconds. It crosses the configured max of 500 around 02:30 and reaches 568 with nothing shedding load. See `app.log:714`.\n- **02:31:44** worker-2 runs out of heap from the request backlog and exits with code 134. The supervisor restarts it. See `app.log:717`.\n- **02:31:52** The supervisor declares api unresponsive, kills the process group, and marks the service down. See `app.log:719`.\n\n**Severity counts over the 32-minute window**\n\n| Level | Count |\n|---|---|\n| ERROR | 188 |\n| WARN | 348 |\n| FATAL | 2 |\n\nOf the errors, 173 are store timeouts, split evenly across the four processes, and 14 are the Redis connection failures.\n\n**What this tells you**\n\n- **Redis is the trigger, not the app.** ECONNREFUSED means nothing was listening on the port. Either the Redis process died, the host rebooted, or a firewall or security group change cut it off. Check the Redis host for the same 02:14 UTC window.\n- **The fallback made it worse.** Falling back to direct store reads with no rate limit turned a cache outage into a database outage. The store could not handle uncached load.\n- **The queue max is not enforced.** Depth passed 500 and kept growing until a worker ran out of memory. The cap is logged but nothing rejects requests when it is exceeded.\n- **The api never gave up on Redis.** Thirteen identical failed reconnects with no escalation. A circuit breaker that returned 503 fast, or a reconnect failure alert, would have bought you 17 minutes of warning before the crash.\n\n**Suggested follow-ups**\n\n1. Pull Redis host and system logs for 02:10 to 02:15 UTC on July 4 to find why it stopped listening.\n2. Make the queue depth cap real by rejecting or shedding requests above the limit.\n3. Add a circuit breaker on store reads during cache degradation so timeouts fail fast instead of piling up.\n4. Alert on consecutive Redis reconnect failures.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62ff6c97998cbeabee6f21fa4001f2d1b004515bbc7a07305ec840cb484c5936"
+}

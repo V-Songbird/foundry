@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 53,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 135695,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.690285,
+  "numTurns": 26,
+  "durationMs": 128613,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8121
+  },
+  "contextTraffic": 573463,
+  "apiCalls": 23,
+  "toolCalls": 21,
+  "toolResultChars": 14968,
+  "narrationWords": 19,
+  "finalWords": 206,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project files first.",
+    "The ask is a straight four-way mapping, so that's what I'll write."
+  ],
+  "finalText": "Dedup is in. `route()` now checks the key's last-send time first and returns `[]` on a repeat; the routing rules moved to a `channelsFor()` helper so the two concerns stay separate, and `createState()` returns `{ lastSentByKey: new Map() }`.\n\nThe replay drops exactly 99 events, and all 99 are the synthetic flaps `events.js` injects — no legitimate notification is caught. Deliveries fall accordingly (`pager` 225→200, `sms` 124→112).\n\nThree judgment calls I made, since \"in the last 5 minutes\" left them open:\n\n- **Window is inclusive** — a repeat at exactly +5 minutes is dropped, +6 gets through. Easy to flip to strict `<` if you meant otherwise.\n- **The clock restarts only on an actual send, not on a suppressed repeat.** So a thing flapping every 2 minutes forever still gets through roughly every 6 minutes, rather than going silent indefinitely. That matches \"if we already *sent* something,\" but the sliding-window alternative is a one-word change.\n- **Critical is deduped too**, and a queued notification counts as \"sent\" for the purpose of holding the key down. Both follow the rule as written — but suppressing a repeat page is the one that could actually cost you an incident, so tell me if critical should bypass dedup.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3631d0ac834199dbb054e05978a1f782b2dd43a981c1313e0ec5a2ccdcbc6563"
+}

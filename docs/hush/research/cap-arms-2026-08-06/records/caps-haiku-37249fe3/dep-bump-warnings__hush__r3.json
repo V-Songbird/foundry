@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 128,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 34211,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06665290000000001,
+  "numTurns": 13,
+  "durationMs": 32429,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2178
+  },
+  "contextTraffic": 246448,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 10865,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "finalText": "Build is clean now. The two real bugs were:\n\n1. **`src/core/options.js`** — The new bundler passes `retryCount`, but the code was looking for the old `retries` property, causing it to fail.\n2. **`src/net/retryPolicy.js`** — The new config loader leaves unset flags as `undefined` instead of `false`, but the code didn't handle that case and threw an error.\n\nBoth are fixed. The remaining 8 warnings are just deprecation noise from Node.js built-ins — not worth fixing. Exit code 0, everything ships clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d968b1b79d3592f7f3ac554ed99a0ddf773b824844431b03e0db840ba7340aa6"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__noill__r2",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 26,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 64959,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.373732,
+  "numTurns": 18,
+  "durationMs": 63342,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4031
+  },
+  "contextTraffic": 196372,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 14568,
+  "narrationWords": 0,
+  "finalWords": 121,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big, and four zones must not be renamed.** `1082` lines in `94` files.\n\n| Zone | Lines | Call |\n|---|---|---|\n| `services` JS names | 900 | Safe to rename |\n| `services` SQL strings | 125 | Freeze. Column stays until a migration renames it |\n| `migrations` | 61 | Freeze. Applied history, breaks the down step |\n| `vendor/reporting-sdk` | 20 | Freeze. `npm run vendor:refresh` overwrites it |\n| `docs/openapi.yaml` | 5 | Freeze. Public contract, breaking change |\n| `lib` | 5 | Half. See below |\n\nIn [lib/serialize.js:8](lib/serialize.js#L8) rename only the left key. The right value `'account_id'` is the public wire name.\n\nNext: ask them to confirm a blind find-and-replace is off the table.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f09476cd7da4d419ed4d2c07df126e35d1794fcc008bd31d5716088e97eeafd"
+}

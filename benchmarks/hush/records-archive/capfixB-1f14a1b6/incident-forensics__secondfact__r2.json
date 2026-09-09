@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__secondfact__r2",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 32,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "secondfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 56812,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.2775358,
+  "numTurns": 13,
+  "durationMs": 48854,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2806
+  },
+  "contextTraffic": 383580,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 10926,
+  "narrationWords": 0,
+  "finalWords": 139,
+  "finalText": "**Gateway 503 incident — on-call handoff**\n\n**Root cause:** `dep-4471`, a gateway config change by a.novak (\"connection-per-request for pool isolation\"), deployed 02:12–02:14. It's followed 14 seconds later by the first pool error, `ERR_POOL_EXHAUSTED` (pool size 20, fully in use). The queue of waiting requests never drains, it climbs from 13 to 70+ over the night.\n\n**Impact window:** Started 02:14:14 UTC, first `503`s at 02:14:18. Still ongoing as of the last log line, 03:59:27. Not yet resolved.\n\n**Scope:** Gateway only. Routes `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search` are all returning 503s across every downstream service. Checked `worker.log` for the same window, workers stayed healthy the whole time, jobs finishing in a few hundred ms with no errors.\n\n**Rollback:** `dep-4471` (gateway). It's the only deploy that lines up with the start time, and a pool-isolation config change matches the pool exhaustion symptom exactly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c0b5b1eb05acc9eb7f741e59610ebbec122fbfe6f7d242621ef47b5fbae5db94"
+}

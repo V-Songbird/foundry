@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 20,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 321928,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.4324495000000002,
+  "numTurns": 31,
+  "durationMs": 314793,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14666
+  },
+  "contextTraffic": 1154040,
+  "apiCalls": 31,
+  "toolCalls": 27,
+  "toolResultChars": 17891,
+  "narrationWords": 6,
+  "finalWords": 100,
+  "finalText": "Written to `HANDOFF.md`. The short version:\n\n**Root cause.** `dep-4471` turned on `gateway.pool.perRequest`. One connection per request, against a pool still sized 20. It saturated in 38 seconds and never recovered.\n\n**Impact.** `02:14:18Z` to now, 1h45m and counting. Real traffic success went from 518 requests to zero. Only `/health` still passes, so dashboards likely look green.\n\n**Roll back `dep-4471`.** Or just flip `gateway.pool.perRequest` back to `false`. Do all three nodes, not only node-3.\n\nTwo things in the doc worth your attention. The page fired 67 minutes late. And the worker slowdown is real but unrelated, so it needs its own ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e98823288a95ff8023c578e6f04a9fc024c6005323e67e1d75accd7a2a4e997e"
+}

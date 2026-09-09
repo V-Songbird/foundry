@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__blockcap__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 37,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "blockcap",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 64442,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.36842650000000005,
+  "numTurns": 18,
+  "durationMs": 62888,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4228
+  },
+  "contextTraffic": 192992,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 14880,
+  "narrationWords": 6,
+  "finalWords": 94,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**1082 hits, 94 files. Four zones must keep `account_id`.**\n\n| Zone | Hits | Why |\n|---|---|---|\n| `migrations/` | 61 | Applied history. Needs a new migration. |\n| SQL strings in `repo/` | ~200 | Real DB column name. |\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | Public contract. Breaking change. |\n| `vendor/reporting-sdk/` | 20 | Generated. Refresh overwrites it. |\n\n[lib/serialize.js:8](lib/serialize.js:8) maps internal to wire. Keep the right side. The other ~795 hits are plain JS names. Those are safe.\n\nNext: get a column rename migration, or ship the JS half only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dd1a088f99377740662ca28e327a1b175b8cf19c4da4d219384154a4eb916bfe"
+}

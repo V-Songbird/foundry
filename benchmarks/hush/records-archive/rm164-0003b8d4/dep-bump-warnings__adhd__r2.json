@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31479,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.23467409999999994,
+  "numTurns": 11,
+  "durationMs": 30123,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2013
+  },
+  "contextTraffic": 312645,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 17931,
+  "narrationWords": 100,
+  "finalWords": 124,
+  "finalText": "Build passes now (exit 0). What was going on:\n\n- The screen full of warnings (`DEP0142`, `DEP0198`, etc.) is just noise from the bundler bump itself — not the problem.\n- The actual failure was in the link stage: `ERROR EBUILD02 link-failed`, caused by two real bugs the bump exposed, both from an options-shape change:\n  - `src/core/options.js` — `resolveRetries` still read `options.retries`, but the new bundler passes `retryCount`. Fixed to read `options.retryCount`.\n  - `src/net/retryPolicy.js` — `isBackoffEnabled` treated an unset flag (`undefined`) as an error, but the new config loader leaves unset flags `undefined` instead of `false`. Added an `undefined` → `false` case.\n\nBuild now finishes with `0 errors` (the 8 deprecation warnings remain, but those are expected noise from the dependency bump, not bugs).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62d641687fd9124475059f95d75370aa9d50dca2c45dec8b051b1fdf3e596363"
+}

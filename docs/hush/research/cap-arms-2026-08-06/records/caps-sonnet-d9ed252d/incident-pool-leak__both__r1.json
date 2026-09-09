@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 96,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 44402,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2573624,
+  "numTurns": 13,
+  "durationMs": 42660,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2296
+  },
+  "contextTraffic": 319384,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 15708,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "Found it: `src/jobs/processOrder.js` acquired a connection but only released it on success — a rejected order left the connection held forever.\n\n`processOrder` bypassed the shared `withConnection` wrapper and called `pool.release` after `await run(...)`, so any thrown error skipped that line. The worker logs show exactly this: failed orders piling up pool usage until it hit 5/5 and the worker gave up.\n\nFixed by wrapping the acquire in `try/finally`, same pattern the API handler already used safely. All 4 tests pass now, 84ms.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d6058ba8ec0d769d663d1058c220c48504b3c20cdbc73312b6741a74a400e2ea"
+}

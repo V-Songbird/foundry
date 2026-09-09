@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 49,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 59230,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30070529999999995,
+  "numTurns": 11,
+  "durationMs": 53037,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2229
+  },
+  "contextTraffic": 447565,
+  "apiCalls": 11,
+  "toolCalls": 7,
+  "toolResultChars": 9027,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, 02:12–02:14) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. That change starves the shared connection pool (`size 20`) — every request now needs its own connection, so the pool maxes out under normal load.\n\n**Impact window:** 02:14:18 to 03:59:27 (last log line), still ongoing as of end of log. 530 `503`s, each paired with `ERR_POOL_EXHAUSTED`, and the wait queue keeps growing — from 13 waiting requests at the start to 74 by the end.\n\n**Scope:** gateway only. `worker.log` shows zero errors in the same window — the job runners use a separate pool and were untouched.\n\n**Roll back:** `dep-4471`. Revert `gateway.pool.perRequest` to `false` (or redeploy the prior config generation 118).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "69cdd43144829c59fd8da8e3a19f34e76719563ed908ad90e00517da14bb9bb4"
+}

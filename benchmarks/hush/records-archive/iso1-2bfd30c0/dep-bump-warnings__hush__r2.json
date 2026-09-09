@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24871,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1121662,
+  "numTurns": 11,
+  "durationMs": 23295,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1495
+  },
+  "contextTraffic": 192091,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6324,
+  "narrationWords": 5,
+  "finalWords": 65,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Fix the two bundler-bump bugs."
+  ],
+  "finalText": "**Build is green now.** Two real bugs, not noise.\n\n`resolveRetries` in [options.js:7](src/core/options.js:7) read `options.retries`, but the bumped bundler now passes `retryCount`. That threw and aborted the build.\n\n`isBackoffEnabled` in [retryPolicy.js:8](src/net/retryPolicy.js:8) treated an unset flag as invalid instead of `false`, since the new config loader leaves it `undefined` rather than `false`.\n\nFixed both. Rest of the warnings are just deprecation noise from the bump.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4191ca2bced9d1b9a239396670d4a3142f547b1174c4e712218c44bb4686fbf3"
+}

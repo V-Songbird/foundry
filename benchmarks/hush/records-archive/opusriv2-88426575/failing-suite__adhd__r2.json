@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 23,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31445,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24486,
+  "numTurns": 10,
+  "durationMs": 29969,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1702
+  },
+  "contextTraffic": 161141,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11739,
+  "narrationWords": 95,
+  "finalWords": 164,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit code 0.\n\n**What was broken:** a single bug in `orderTotal` (`src/pricing.js:39`). It applied the tax rate to the original `cents` instead of the discounted amount:\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on pre-discount base\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax what's actually owed\") and the spec in `cases.js:89`. Fixed to `return applyTax(discounted, taxRate)`, which also matches the spec's rounding — one rounding of `discounted * (1 + rate)`, rather than rounding the tax separately and adding.\n\nOnly 3 of the 625 cases could ever catch it: the `order totals` suite generates 66 rows with either a zero discount or a zero tax, so the ordering mistake is invisible in all of them. Just the three hand-written rows at `cases.js:80-82` have both non-zero. Worth noting for the future — the generated rows in that suite give coverage but no signal on the interaction they exist to test.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bcaf69b0fdfddf9da44762132f1942f52fcda5f638143154c217c589c4913959"
+}

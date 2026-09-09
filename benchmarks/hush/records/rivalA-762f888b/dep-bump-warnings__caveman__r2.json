@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 26,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30738,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2512015,
+  "numTurns": 10,
+  "durationMs": 29699,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2081
+  },
+  "contextTraffic": 140852,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6213,
+  "narrationWords": 6,
+  "finalWords": 140,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Build passes now, exit 0. Two real bugs from bump, both fixed:\n\n1. `src/core/options.js:6` — bundler renamed options key `retries` to `retryCount`. Call site still read `options.retries`, so `.toFixed(0)` threw on `undefined`. Now reads `retryCount`, falls back to `retries`, defaults 0.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined` instead of `false`. Strict check threw. Now `undefined` means off, matching old default; non-boolean values still throw.\n\nRemaining 8 warnings are noise, not code you own — 5 Node deprecations (`fs.exists`, `Buffer()`, sync loader hook, `punycode`, `module.parent`) plus 3 bundler lints (`crypto.createCipher` in `src/legacy/adapter.js`, unused export `formatLegacyDate`, circular import `core/graph.js <-> state/tracker.js`). Those files don't exist in this tree — build.js prints them as static strings, so zero-warning is not reachable without touching the log itself. `crypto.createCipher` and the circular import are worth real fixes when those sources land.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7327b88e6a273c0d8e9cd1867d6fbd8d20aae6bbc13cade8a5cacf4941a9d72"
+}

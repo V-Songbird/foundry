@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 100,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 54899,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0821525,
+  "numTurns": 15,
+  "durationMs": 53113,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2927
+  },
+  "contextTraffic": 320152,
+  "apiCalls": 10,
+  "toolCalls": 14,
+  "toolResultChars": 13649,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "Found it. `processOrder.js` was acquiring connections but not releasing them on error—when the `run()` callback threw (like for bad orders), the promise rejected before hitting the `pool.release()` line.\n\nThe logs show the pattern clearly: successful jobs log \"connection released\", failed ones don't. That's why the pool filled up and crashed.\n\nFixed by wrapping with try/finally, the same pattern already in `pool.js`'s `withConnection()` helper. All 4 tests pass now, including the one that specifically checks for no leaks on failure.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67352891ae503134df5680a3e274d223798c5428dc11ed97410f34c2c4e199e2"
+}

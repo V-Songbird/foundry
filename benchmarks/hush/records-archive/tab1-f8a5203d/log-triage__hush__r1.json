@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22104,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13713179999999997,
+  "numTurns": 5,
+  "durationMs": 20343,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1438
+  },
+  "contextTraffic": 146963,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 25697,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into an OOM crash and took prod down.**\n\nRedis died at 02:14:07, `[app.log:182](logs/app.log:182)`.\nCache fell back to direct store reads.\nTimeouts and queue depth climbed for 17 minutes.\nRedis reconnect attempts 0 through 12 all failed.\nQueue depth passed the max of 500.\n`worker-2` hit heap out of memory, `[app.log:717](logs/app.log:717)`.\nSupervisor then killed the api process group, `[app.log:719](logs/app.log:719)`.\n\nNext: restart Redis at `10.0.0.12:6379`, then the service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4473514ed1e16de3c7a0fd0a4ed73007d17ba21f2315b9526db8b9bdebf095a4"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 21,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28867,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.250441,
+  "numTurns": 10,
+  "durationMs": 27042,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1641
+  },
+  "contextTraffic": 162604,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12993,
+  "narrationWords": 112,
+  "finalWords": 105,
+  "assistantMsgs": 4,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n**What was broken:** `orderTotal` applied the tax rate to the original subtotal instead of the discounted amount, so every order with both a discount *and* a tax over-charged (e.g. `orderTotal(33400, 10, 0.2)` returned 36740 instead of 36072 — 668c too much).\n\n**Fix** (`src/pricing.js:39`): tax the discounted amount, reusing the existing `applyTax` helper so the rounding matches the rest of the engine:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nNothing else in the wall of text was a real failure — the other 622 cases were already passing, and no other module was touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83d760cdc103799ad5ac18f70602c39fc56313a18e2ad0873798c7f452bc6462"
+}

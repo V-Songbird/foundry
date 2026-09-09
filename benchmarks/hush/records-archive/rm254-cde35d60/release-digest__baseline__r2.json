@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 43,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 148948,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6990561,
+  "numTurns": 12,
+  "durationMs": 147589,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13303
+  },
+  "contextTraffic": 551929,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 76255,
+  "narrationWords": 77,
+  "finalWords": 314,
+  "finalText": "I went through all 380 commits and the PR sheet. Out of that, only ~12 things are actually visible to someone installing 4.2 — everything else was dependency bumps, refactors (same \"collapse the two retry helpers,\" \"move the config loader,\" \"rename Ctx to RequestCtx\" pattern repeated per-module), CI/test churn, or docs. I've written those into `CHANGELOG.md`. Notes on the judgment calls:\n\n- **Breaking**: `fix(auth): return 401 for an expired token instead of 403` (#4223) changes a status code your users' integrations may branch on — same category as the timeout-units break in 4.1.0, so I filed it there rather than under Fixed.\n- **Added**: only one real feature — webhook delivery retries with backoff (#4191).\n- **Fixed**: several bug messages recur verbatim across modules (e.g. \"guard the null cursor in the paginator\" landed separately in queue, API, webhooks, and DB; \"drop the duplicate header\" landed in core, HTTP, and billing). I collapsed each into one bullet naming all the affected areas rather than listing near-duplicate lines — a reader doesn't care that it was four separate PRs.\n- I put the DB request-body logging fix (#4157) near the top since it's a privacy-relevant fix, even though it wasn't the most recent.\n- I left out the perf commits (batched metric writes, avoided a clone, skipped a JSON round-trip, reused a parsed schema) — none looked large enough to be user-noticeable, consistent with 4.1.0/4.0.3 not having a Performance section.\n\nOne thing worth flagging: the commit log and the PR sheet don't line up 1:1 (127 PR rows vs 380 commits, and a couple of entries have mismatched authors/dates for what looks like the same change, e.g. `#4176`/`be03287`). I used the PR sheet's \"code\" labels as a sanity check on which fixes were real, but treated `commits.log` as the source of truth. Worth a quick sanity check on your end if that discrepancy matters to you.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "30876c99f84b028e1add990ec3a04b49b233d6cbf45f4cf7c4f16f73e1872253"
+}

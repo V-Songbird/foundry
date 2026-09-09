@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 23,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28913,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1338938,
+  "numTurns": 11,
+  "durationMs": 28001,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2032
+  },
+  "contextTraffic": 292462,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8140,
+  "narrationWords": 75,
+  "finalWords": 131,
+  "finalText": "Builds clean now (exit 0, 0 errors). Two real bugs from the dependency bump, both in the link stage — the rest of the \"screen full of warnings\" was just deprecation noise:\n\n1. **`src/core/options.js`** — the bumped bundler now passes options as `{ retryCount }` instead of `{ retries }`; `resolveRetries` was still reading `options.retries`, which was `undefined`, so `.toFixed(0)` threw. Fixed to read `options.retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`; `isBackoffEnabled` only handled explicit `true`/`false` and threw on anything else. Now treats `undefined` the same as `false` (disabled).\n\nThe remaining 8 warnings are deprecation notices from the bumped packages (`fs.exists`, `Buffer()` constructor, sync loader hook, `punycode`, `module.parent`, plus three lint-style ones) — not build-breaking, worth a look eventually but not urgent.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "981586a2f07062f40cef12d407e63792f2b586b53c7e4436511a543b34731650"
+}

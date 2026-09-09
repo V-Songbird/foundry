@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 68722,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3351705,
+  "numTurns": 9,
+  "durationMs": 64716,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4318
+  },
+  "contextTraffic": 184990,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 11050,
+  "narrationWords": 6,
+  "finalWords": 573,
+  "finalText": "## What happened\n\n**One-line version:** Redis died at 02:14:07, the app had no circuit breaker on its cache-miss fallback, and 17 minutes of unbounded queue growth OOM-killed the workers.\n\n### Timeline (all times UTC, 2026-07-04)\n\n| Time | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Healthy. Cache hit ratio 0.90–0.98, cron ticks OK, all requests 200. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **root cause** |\n| 02:14:07.114 | `WARN cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First \"cache miss storm\" (`orders:1000`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| **02:14:03** | **Last successful request in the entire log.** Nothing served after this. |\n| 02:15:26 – 02:31:26 | 13 reconnect attempts (0–12), every ~80s, **all ECONNREFUSED**. Redis never came back. |\n| 02:29:12 | Queue depth crosses the 500 limit (502) — climbing steadily 52 → 568 |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nLog ends there. **No recovery is recorded in this file** — total hard-down time from Redis loss to process kill: **17m 45s**.\n\n### Error breakdown (719 lines)\n- 173 × `TimeoutError` (store overloaded) — pure downstream noise\n- 13 × redis reconnect failures\n- 1 × redis connection lost — **the only real cause**\n- 1 × heap OOM, 2 × FATAL\n\n### The actual failure chain\n1. Redis at `10.0.0.12:6379` refused connections (process down or firewalled — `ECONNREFUSED`, not a timeout, so the host was up but nothing was listening on 6379).\n2. The app \"gracefully\" degraded to direct store reads. That's the bug: it removed the cache and sent **100% of traffic** straight at the backing store instead of shedding load.\n3. Store couldn't take it → 5s timeouts on every request. With a 5s timeout and no concurrency cap, in-flight requests accumulate ~faster than they drain.\n4. Queue grew linearly (52 → 568 over 17 min) and blew straight past its own `max 500` limit — **the limit was logged but not enforced**.\n5. Backlog consumed heap → worker-2 OOM (exit 134 = SIGABRT, V8 OOM abort) → supervisor killed the whole group.\n\n### Two things I'd flag\n- **The \"max 500\" queue limit is advisory only.** It warns at 502, 559, 568… and never rejects. That's what turned a cache outage into a crash. Enforcing it (503 + shed) would have kept the process alive and degraded instead of down.\n- **The fallback has no circuit breaker.** `cache layer degraded → falling back to direct store reads` with no rate limit is a stampede generator. `ioredis` (v5, per package.json) reconnected on its own backoff, but nothing protected the store in the meantime.\n\n### Red herring\nThe pre-incident latency looks like it was climbing (12ms → 145ms), but it's a **sawtooth that resets every ~2 minutes** across the four components — 12, 19, 26 … 145, then back to 12. It repeats identically from 02:00 to 02:14. That's a logging/metric artifact, not degradation. Cache hit ratio was 0.98 forty seconds before the failure. **There was no warning — Redis dropped cold.**\n\nWant me to look at `src/server.js` for the queue and fallback code, or check whether Redis has its own logs?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a501f6b6b79bc2eec9002481accff7e2b71a3a9770f572ab3b9ba23b3369905"
+}

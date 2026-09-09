@@ -1,0 +1,44 @@
+{
+  "key": "feature-drift__hush__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 62,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 111480,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3820972,
+  "numTurns": 30,
+  "durationMs": 103350,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5956
+  },
+  "contextTraffic": 972703,
+  "apiCalls": 26,
+  "toolCalls": 25,
+  "toolResultChars": 32719,
+  "narrationWords": 29,
+  "finalWords": 51,
+  "assistantMsgs": 8,
+  "narrationTexts": [
+    "Simple mapping, task is clear.",
+    "All rows map correctly: low→email, normal→push, high→sms, critical→pager, no drops or errors visible.",
+    "Flap repeats (same key, 2 minutes apart) now show as `(dropped)`."
+  ],
+  "finalText": "**Dedup added: same key within 5 minutes of last send is dropped.**\n\n[src/router.js](src/router.js) tracks last-sent time per `key` in `state.lastSent` and drops repeats inside that window. Confirmed: `dropped: 99`, matching the flap events in the replay, 0 route errors.\n\nNext: nothing, unless the 5-minute window should be exclusive or reset differently.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7fb0f630b82e29817e78b7614b1330950348844262eecb2f027e14a33af7e575"
+}

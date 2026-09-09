@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 61,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11114,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0227045,
+  "numTurns": 1,
+  "durationMs": 9405,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 567
+  },
+  "contextTraffic": 27002,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 101,
+  "finalText": "The child likely re-renders because the parent itself re-renders. Even if the props *look* the same, JavaScript creates new objects and functions on each render—so an array, object, or callback passed as a prop has a different memory address than before, and React sees it as a different prop.\n\nFix it with `React.memo` to skip re-renders when props are actually the same. Or keep props stable: move objects and callbacks outside the component, or wrap them with `useMemo` and `useCallback`.\n\nIf the parent is re-rendering for an unrelated reason (state change, context shift, whatever), `React.memo` stops the child from re-rendering unnecessarily.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3844e864de888f3663aae4da78be5a7d0836fc73891dfe4ae2f046d9d16fa1ca"
+}

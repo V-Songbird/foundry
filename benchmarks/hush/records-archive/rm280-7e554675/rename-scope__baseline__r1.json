@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 60,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 75542,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.38024600000000003,
+  "numTurns": 14,
+  "durationMs": 74130,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5340
+  },
+  "contextTraffic": 195496,
+  "apiCalls": 7,
+  "toolCalls": 13,
+  "toolResultChars": 16490,
+  "narrationWords": 21,
+  "finalWords": 624,
+  "finalText": "## Size\n\n94 files, ~1,080 lines, ~1,290 raw occurrences:\n\n| Area | Files | Occurrences | Renameable? |\n|---|---|---|---|\n| `services/**` (25 http + 25 service + 25 repo) | 75 | 1,200 | Mostly yes |\n| `migrations/*.sql` | 12 | 61 | **No** |\n| `vendor/reporting-sdk/` | 4 | 20 | **No** |\n| `lib/serialize.js`, `lib/audit.js` | 2 | 5 | Partly |\n| `docs/openapi.yaml` | 1 | 5 | **No** |\n\nThe `services/` tree is genuinely mechanical — it's 25 identical repo/service/http triples, all passing `account_id` down as a parameter (`services/billing/src/repo/invoice.js` is the template every other one follows).\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` — the public contract.** `account_id` is a required response field on `Invoice` and `Order` and a public query parameter. The file says so itself: renaming is a breaking change requiring a new dated API version. Out of scope for a rename PR.\n\n**2. `lib/serialize.js:8` — right-hand side only.** This is the seam that makes the whole thing safe:\n```js\nconst WIRE = { account_id: 'account_id', ... }\n//             ^internal    ^public — frozen\n```\nPost-rename this must read `owner_id: 'account_id'`. A find/replace turns it into `owner_id: 'owner_id'` and silently breaks every client. **This one line is the highest-risk edit in the PR.**\n\n**3. `migrations/*.sql` (all 12).** Every file carries the same header: applied migrations are history, editing one renames nothing in a DB that already ran it and breaks the `down` step. A column rename needs a *new* forward migration, not edits here.\n\n**4. `vendor/reporting-sdk/` (4 files, 20 occurrences).** Generated, marked \"Do not edit\", wholesale-overwritten by `npm run vendor:refresh`. Also: nothing in `services/` or `lib/` imports it, so edits there are pure loss.\n\n**5. SQL column identifiers inside the repo layer — ~125 statements.** This is the trap. In `repo/*.js`, `account_id` appears both as a JS variable *and* as a database column name in string literals:\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\nparams: [account_id, id],\n```\nThe parameter can be renamed today; the column name inside the string cannot change until an `ALTER TABLE` actually runs across 11 tables (plus `invoices_account_id_idx`-style index names). A regex rename hits both.\n\n## Two things worth a second look\n\n- `repo/invoice.js:35` writes `account_id` *into* the JSONB `payload` column. Renaming that key makes new rows structurally different from every existing row — a data migration, not a rename.\n- `lib/audit.js:8` stamps `account_id` on every audit line, and routes read `req.session.account_id` (the session is populated outside this repo). Both are consumer-facing shapes even though nothing here marks them frozen. Confirm with whoever owns log ingestion and session issuance before flipping them.\n\n## My read for sign-off\n\nThis is being pitched as one rename; it's really two projects. **Project A** — rename the JS identifiers in `services/**` and the left-hand side of `WIRE` — is ~75 files, mechanical, and safe *if* the SQL strings, the wire values, migrations, and vendor are excluded. **Project B** — actually renaming the database column — is a multi-week dual-write/backfill effort that isn't started.\n\nI'd sign off on A with three conditions: the diff must not touch `docs/`, `migrations/`, or `vendor/`; `lib/serialize.js` must end up asymmetric (`owner_id: 'account_id'`); and the ~125 SQL literals stay untouched. If the PR is a global find/replace, it will violate all three, and the failure mode is a silent public-API break rather than a test failure.\n\nQuick check on the diff before you sign: `git diff --stat -- docs migrations vendor` should be empty, and `git diff -- lib/serialize.js` should show only the left-hand key changing.\n\nOne unrelated thing I noticed: the documented `account_id` query filter on `GET /v2/invoices` isn't implemented — `handleList` only reads `req.query.page`. Not your problem today, but worth a ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a60344a6937e7f26f1bf85692da5683709cb253facbe91049f9dd38e8b3f74d3"
+}

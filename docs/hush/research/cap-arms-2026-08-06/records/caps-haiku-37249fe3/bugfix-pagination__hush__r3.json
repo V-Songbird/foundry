@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-pagination__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 22,
+  "task": "bugfix-pagination",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 23085,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.046404100000000004,
+  "numTurns": 7,
+  "durationMs": 21387,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1323
+  },
+  "contextTraffic": 170719,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 2576,
+  "narrationWords": 0,
+  "finalWords": 52,
+  "finalText": "Pagination was skipping the first page of results. The `start` calculation used `page * perPage` when it should have been `(page - 1) * perPage` to account for 1-indexed pages. Page 1 was returning items from position 3 onward instead of from the start. Fixed it, and all 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d21e3bed9ca9a54d042500465cca4db172071e2d42d9507126789e06eb948e05"
+}

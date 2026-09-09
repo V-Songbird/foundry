@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 35,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 127392,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7725725999999999,
+  "numTurns": 33,
+  "durationMs": 120867,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8782
+  },
+  "contextTraffic": 970782,
+  "apiCalls": 21,
+  "toolCalls": 29,
+  "toolResultChars": 35844,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "finalText": "One more thing checked out: `package.json` still pins `fast-parse` at `1.4.2` — the exact version `NOTES.md` says was yanked for a prototype-pollution bug, with `1.4.3` as the fix. Everything else (`date-fmt`, `pg-lite`, `redis-min`) matches what the notes say is fine.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. SQL injection in `src/repo/report.js`\n2. Unauthenticated internal routes in `src/routes/internal.js`\n3. Committed staging password in `config/staging.js`\n4. Yanked `fast-parse` dependency in `package.json`\n\nNothing in the service was touched. Ran the checker script and it confirms: `OK AUDIT.md names all four findings and the service was left alone`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6486e32509c74905a4fff34ad1e8f8a7ccec525e72c9cce0a21f24d26fafa4c1"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 44,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 136038,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8398858,
+  "numTurns": 30,
+  "durationMs": 129873,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9232
+  },
+  "contextTraffic": 1153571,
+  "apiCalls": 23,
+  "toolCalls": 26,
+  "toolResultChars": 37736,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json` — `NOTES.md` says that exact version was yanked by the publisher over a prototype-pollution report, with `1.4.3` as the fix. Nobody bumped it.\n\n`AUDIT.md` is written, four findings ordered by severity:\n\n1. **Critical** — `src/routes/internal.js`, no auth on the internal routes, tied to the dropped VPN.\n2. **High** — `src/repo/report.js`, SQL built by concatenation in `runSavedReport` (not yet wired to a route, but live and exported).\n3. **High** — `config/staging.js`, the staging DB password committed in plaintext.\n4. **Medium** — `package.json`, `fast-parse` stuck on the yanked `1.4.2`.\n\nNo service files were touched — verified clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "914748ee57be29a120b62979142c6975047d5fb4a4fe71bd0e4a75e8625b352f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__reed__r2",
+  "batchId": "o5d-0433eb08",
+  "seed": "1787819135921",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "reed",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39966,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "reed:Reed",
+  "costUsd": 0.265113,
+  "numTurns": 6,
+  "durationMs": 38105,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1639
+  },
+  "contextTraffic": 164596,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 12633,
+  "narrationWords": 5,
+  "finalWords": 124,
+  "finalText": "**Redis died and took prod with it.**\n\nTimeline, all 2026-07-04 UTC:\n\n- `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache falls back to direct store reads.\n- Store overloads. 173 `TimeoutError` after 5000ms. Last good response was `02:14:03`.\n- Queue depth climbs 52 to 568, past the max of 500.\n- 13 reconnects, all refused. Redis never came back.\n- `02:31:44` `JavaScript heap out of memory`. worker-2 dies code 134.\n- `02:31:52` `api unresponsive, killing process group — service down`.\n\nRedis at `10.0.0.12:6379` is the thing to check. Refused, not timed out, so it was down or moved, not slow. Two fixes worth making: reconnect retried every 80s flat with no backoff, and nothing shed load as the queue passed its own 500 cap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0da39cf92ec8751764eed295be54c3fd3645f4346d491ff4a238fecb8ff63b5a"
+}

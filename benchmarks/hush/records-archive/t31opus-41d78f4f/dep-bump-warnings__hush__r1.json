@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 58035,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.320899,
+  "numTurns": 10,
+  "durationMs": 55881,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3312
+  },
+  "contextTraffic": 200729,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6547,
+  "narrationWords": 6,
+  "finalWords": 76,
+  "finalText": "**Build passes now.** It was failing, not just warning.\n\nTwo bugs, both from the bump:\n1. `src/core/options.js` read `options.retries`. The bump renamed it to `retryCount`. It now reads either name.\n2. `src/net/retryPolicy.js` threw when the flag was unset. The new loader leaves it `undefined`. Unset now means off, like before.\n\nThe 8 warnings are still printed. They name files this repo does not have. `build.js` writes them as fixed text. There is nothing to fix there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7429bf3730206caebb6e9e2c262ae3f7278a1c29b8975f25b24ce7287c1cebcc"
+}

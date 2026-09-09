@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23002,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1348886,
+  "numTurns": 9,
+  "durationMs": 21985,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1757
+  },
+  "contextTraffic": 242765,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 6448,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "Builds clean now, 0 errors.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler's new options shape:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler sends `options.retryCount`. That threw because `retries` was `undefined`.\n2. `src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag. The new config loader leaves unset flags as `undefined`, which isn't either, so it threw too.\n\nFixed both. `node build.js` now finishes in 44.9s with 8 warnings, 0 errors, exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "429bd81e307d9f987afdeac6f8fb3ef1d23102e501fedb12951bb257119e1c18"
+}

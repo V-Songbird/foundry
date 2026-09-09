@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 66342,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5023335,
+  "numTurns": 10,
+  "durationMs": 64711,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4328
+  },
+  "contextTraffic": 185198,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 10641,
+  "narrationWords": 6,
+  "finalWords": 520,
+  "finalText": "## What happened\n\nSingle root cause: **Redis went away and never came back, and the service had no backpressure to survive it.** Full cascade in ~17m45s.\n\n**Timeline** (all `logs/app.log`, times UTC):\n\n| Time | Line | Event |\n|---|---|---|\n| 02:00:00 – 02:14:03 | 1–181 | Healthy. 170 requests, all 200, avg 76ms, cache hit ratio 0.90–0.95. Zero WARN/ERROR. |\n| **02:14:07.113** | `app.log:182` | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — the trigger |\n| 02:14:07.114 | `app.log:183` | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08 → | `app.log:184`+ | Cache miss storm (174 events) — every read now hits the backing store |\n| 02:14:10 → | `app.log:185`+ | `TimeoutError: request timed out after 5000ms (store overloaded)` — 173 occurrences |\n| 02:14:12 → | `app.log:186`+ | Queue depth climbing, starts at 52 |\n| 02:15:26 – 02:31:26 | 13 lines | `redis reconnect attempt 0…12 failed` — all ECONNREFUSED, ~80s apart, never succeeds |\n| **02:29:12** | `app.log:647` | Queue depth **502 > max 500** — limit breached, but nothing sheds load; it keeps growing to 568 |\n| 02:31:44.902 | `app.log:717` | `JavaScript heap out of memory (request backlog)` on worker-2 |\n| 02:31:45.001 | `app.log:718` | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52.318** | `app.log:719` | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## The causal chain\n\nRedis at `10.0.0.12:6379` refused connections → cache fell back to direct store reads → 100% miss rate overloaded the backing store → 5s timeouts on every request → requests piled into the queue at a steady ~3/sec with no ceiling enforcement → queue blew past its 500 cap at 02:29:12 → the backlog exhausted the heap 2.5 min later → worker OOM'd (exit 134 = SIGABRT), supervisor killed the whole process group.\n\n## Two things that turned an outage into a total failure\n\n1. **The `max 500` queue limit is logged but not enforced.** Depth 502→568 with no rejection, no 503s, no shedding. That cap is decorative. Enforcing it would have kept the process alive and degraded to partial failure instead of full death.\n2. **Reconnect never gave up or opened a circuit.** 13 attempts at a flat ~80s interval, all ECONNREFUSED. Meanwhile every request kept optimistically going the slow path. A circuit breaker after 2–3 failures would have let you fail fast instead of accumulating a 5-second-timeout backlog.\n\nRedis being down is the incident; both of the above are why it took the service with it. Root cause for *why* Redis refused connections isn't in this log — ECONNREFUSED means the port was closed, so check Redis-side logs / whether that host was restarted or evicted at 02:14.\n\n## Two caveats\n\n- **The log is dated 2026-07-04, not last night (2026-08-26).** This is ~7 weeks old. Either it's a stale/archived file or rotation isn't working and you're looking at the wrong incident. Worth confirming before you act on it.\n- The log ends at the `service down` line — there's no recovery evidence here, so I can't tell you how it came back.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e8eba11fe5ba67c4ef8a1cd6f677b8c53b7383719dbcad26045ec21b6eaba8fe"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 33,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62259,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3638012,
+  "numTurns": 16,
+  "durationMs": 54662,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2641
+  },
+  "contextTraffic": 625520,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 15803,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "finalText": "Errors were still ongoing at the end of the log (03:59), never recovered. No later deploy fixed it, so the impact window is 02:14:18 through at least the end of the log at 03:59:27, still active.\n\n**On-call handoff**\n\n**Root cause.** Gateway deploy `dep-4471` (a.novak, \"connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. The pool now hands out a fresh connection per request instead of reusing one, and it exhausts fast: fixed size 20, `in_use` pinned at 20, and `waiting` climbs into the hundreds. Every failing request logs `ERR_POOL_EXHAUSTED`, then a `503`.\n\n**Impact window.** Started 2026-03-14 02:14:18 UTC, first error on `req-07401`. Still ongoing as of the last log line, 03:59:27 UTC. Gateway only. Worker pool stayed healthy the whole time.\n\n**Rollback.** `dep-4471` on the gateway. It applied at 02:12–02:14 UTC, right before the errors began.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a3010c865acd9e96756920d543cde2483ac97bf14e6a93d068beaa2c00c421cf"
+}

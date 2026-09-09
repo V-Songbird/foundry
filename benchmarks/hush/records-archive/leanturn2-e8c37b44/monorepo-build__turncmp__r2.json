@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__turncmp__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "turncmp",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37659,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2205482,
+  "numTurns": 9,
+  "durationMs": 36023,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3012
+  },
+  "contextTraffic": 217079,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10175,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "finalText": "Found it: `resolveRelease` in `packages/shared/config.js` merged layers with a shallow `Object.assign`, so any override touching `output` or `sourcemap` wiped out the sibling keys instead of layering on top of them. That's why `packages/shared/config.js` threw and the build stopped right after the lint/dedup output.\n\nFixed it with a one-level merge that combines nested objects (`output`, `sourcemap`) key-by-key instead of replacing them wholesale, so defaults → package overrides → CLI flags all layer correctly without needing every override to spell out every key.\n\n`verify.js` now passes clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca844dad95fb018dce6637f596528638ce5154bb33e3d34359d2d29057e1ce88"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 54,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 149530,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8544165,
+  "numTurns": 29,
+  "durationMs": 141393,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7804
+  },
+  "contextTraffic": 823189,
+  "apiCalls": 26,
+  "toolCalls": 24,
+  "toolResultChars": 18258,
+  "narrationWords": 19,
+  "finalWords": 190,
+  "assistantMsgs": 7,
+  "finalText": "Dedup is in. `createState()` now returns `{ lastSentAt: new Map() }`, and `route()` drops an event whose `key` was delivered within the last 5 minutes.\n\nThe replay drops 99 events — exactly the flap count the generator produces (every 9th of 900, minus the first, which has no predecessor). Spot-check: `evt-0287` at t=1 delivers, its +2min repeat `evt-0288` is suppressed; same for `evt-0710`/`evt-0711`.\n\nFinal per-priority totals, 0 errors:\n\n| priority | channels |\n|---|---|\n| low | email=111, queue=90 |\n| normal | push=112, queue=88 |\n| high | sms=112, email=112, queue=88 |\n| critical | pager=200 |\n\nThree judgment calls I made, all easy to flip:\n- **A queue delivery counts as \"sent\"** and starts the window, so a quiet-hours repeat is suppressed too. If the queue should be exempt, move the `set` to skip the quiet branch.\n- **The window runs from the last actual delivery**, not the last event seen — a suppressed repeat doesn't extend it, so a steady 2-minute flap sends once every ~6 minutes rather than never again.\n- **The boundary is inclusive** (`<= 5`), so a repeat at exactly +5 minutes is dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "741cb9075789c9ca08fcae6a443fe626b3f746cfc4146efcb18edc86be425fb9"
+}

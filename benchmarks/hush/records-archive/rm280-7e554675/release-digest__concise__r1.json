@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 41,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 67977,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.687135,
+  "numTurns": 9,
+  "durationMs": 66611,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4343
+  },
+  "contextTraffic": 329416,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 72044,
+  "narrationWords": 13,
+  "finalWords": 537,
+  "finalText": "Went through all 380 commits and the PR sheet. Signal is thin: **1 feature, ~26 fix commits (many are the same fix applied across modules), 10 perf, 73 refactors, ~114 dependency bumps** (the bump commits are heavily duplicated — 12 separate \"pino 9.2.0 → 9.3.1\" commits, etc.; net effect is each dep moved once).\n\n## Draft for CHANGELOG.md\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- The internal error types are no longer re-exported from `core`, `db`, `auth`,\n  `jobs`, and `billing`. If you were importing them, they are gone.\n- The v1 export route has been removed from the API.\n- An expired token now returns 401 instead of 403. Code that branches on 403 to\n  detect expiry needs to change.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it closes\n  the pool on shutdown.\n- Paginating past the end no longer throws on a null cursor.\n- The trace id survives a retry instead of being regenerated.\n- An empty allowlist is treated as empty rather than as \"allow everything\".\n- Request bodies are no longer written to the logs.\n- The latency histogram reports the right units.\n- A duplicate header is no longer sent on some responses.\n- A trailing slash in a configured URL is trimmed once, not repeatedly.\n- Token parser errors say what actually failed.\n```\n\n## Three calls you need to make\n\n1. **Is the 401 change breaking or a fix?** `1d2bd55` is committed as `fix(auth)` but it changes a status code callers branch on. I put it under Breaking — move it if your team disagrees.\n2. **Did the minimum Node version change?** Four `docs: note the minimum node version` commits and three `ci: run the suite on node 22`, but no commit touches an `engines` field that I can see from the stat lines. If you bumped the floor, that's a Breaking line and it's the one most likely to bite people. Worth checking `package.json` directly.\n3. **The v1 export route** is labelled \"unused\" in `56dc828`. If it was genuinely dead, drop that Breaking line. If it was public and just low-traffic, keep it.\n\n## What I left out and why\n\n- **All 114 dependency bumps.** Every runtime dep (pino, fastify, pg, knex, ioredis, zod, nanoid, dotenv, undici) moved by a patch or minor with no API change. The two large jumps — esbuild 0.21→0.23 and vitest 1.6→2.0 — are devDependencies, so they don't reach installers.\n- **All 73 refactors** except the two that removed something reachable from outside.\n- **The 10 perf commits** (skip a JSON round-trip, avoid a clone in the mapper, batch metric writes, reuse the parsed schema). Real work, but no commit carries a number, and your template's three headings have no home for them. If you want them, the honest version is one line under Added like \"Assorted throughput improvements on the request hot path\" — I didn't put it in because an unquantified perf claim invites the question \"how much?\" and you don't have an answer in the history.\n\nWant me to write this into CHANGELOG.md once you've settled the Node version question?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "efd5b1e10667479f2c26593179346927a3b45ce8a83066b988881da4e5342790"
+}

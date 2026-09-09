@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__bare__r1",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "bare",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24185,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11933320000000001,
+  "numTurns": 10,
+  "durationMs": 22358,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1125
+  },
+  "contextTraffic": 203053,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11668,
+  "narrationWords": 13,
+  "finalWords": 36,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Fixed: `orderTotal` was taxing the pre-discount amount.**\n\n`src/pricing.js` charged tax on the full price, then subtracted the discount separately. It should tax the discounted price.\n\nFixed in [pricing.js:39-42](src/pricing.js:39).\n\n`625 total, 625 passing, 0 failing`\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7135788308269258c8e6825c835e2fa2a4a5a5902d7e68315fed4805dc6ea017"
+}

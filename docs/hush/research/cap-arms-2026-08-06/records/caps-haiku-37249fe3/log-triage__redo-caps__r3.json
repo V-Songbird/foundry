@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 165,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 15770,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0322829,
+  "numTurns": 2,
+  "durationMs": 14237,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 918
+  },
+  "contextTraffic": 56621,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "finalText": "**Redis went down at 02:14:07, and it cascaded.**\n\nRedis lost connection (`ECONNREFUSED 10.0.0.12:6379`). Without the cache, every request hit your database directly. The store got overloaded, requests started timing out, and the queue backed up to 562–568 (over the 500 limit). The app tried to handle the backlog but ran out of heap memory at 02:31:44. Worker-2 crashed, and when the supervisor tried to recover, the whole API became unresponsive and went down at 02:31:52.\n\nRedis reconnect attempts kept failing through the whole incident — it never came back on its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a1fe7a3071b54332b277fc426462bf77cb0485419592cd6403e2b8e7d988c7e"
+}

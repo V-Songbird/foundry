@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 22,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22126,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.16487880000000002,
+  "numTurns": 9,
+  "durationMs": 20719,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1476
+  },
+  "contextTraffic": 198573,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5596,
+  "narrationWords": 19,
+  "finalWords": 54,
+  "finalText": "Build clean, exit 0.\n\nTwo real bugs, both from bundler bump's shape changes, rest just deprecation noise:\n\n- `src/core/options.js`: `resolveRetries` read `options.retries`, but new bundler hands `{ retryCount }`. Fixed field name.\n- `src/net/retryPolicy.js`: `isBackoffEnabled` threw on `undefined` (new config loader leaves unset flags undefined instead of `false`). Now treats `undefined` same as `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "12f24c45167366e57ec35fbc164100deb6a9e443b7c0a6c90a8f53c46f6fa1ba"
+}

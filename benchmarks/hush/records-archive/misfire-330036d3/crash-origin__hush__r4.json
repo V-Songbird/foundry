@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r4",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 6,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20267,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09364879999999999,
+  "numTurns": 9,
+  "durationMs": 18488,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1068
+  },
+  "contextTraffic": 161043,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 3939,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is not at `tokens.js:6`.** Look at `[refresh.js:15](src/auth/refresh.js:15)`.\n\nThe log shows `auth.internal` returned 400 `invalid_grant`. `post()` throws with `err.code = 'invalid_grant'`. Since that's not in `RECOVERABLE`, `refreshToken` swallows it and returns `undefined` instead of throwing.\n\n`session.js:8` then calls `decode(undefined)`, which crashes on `token.split('.')`. The trace names `tokens.js` only because that's where the `undefined` finally gets used, not where it originated.\n\nNext: decide whether `refreshToken` should throw on unrecoverable errors instead of returning `undefined`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ef3ffd47d928208687ceb902772474c7245a9ec72e42923db7ffa232a08b8e9b"
+}

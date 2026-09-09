@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 71,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 9433,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08110520000000002,
+  "numTurns": 1,
+  "durationMs": 7623,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 399
+  },
+  "contextTraffic": 35944,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "finalText": "By default, React re-renders every child whenever the parent re-renders, no matter if the props changed. \"Same props\" doesn't skip a re-render on its own.\n\nTo skip it, you need two things together:\n\n1. Wrap the child in `React.memo`.\n2. Make sure the props are actually the same *by reference* — not just \"look the same\".\n\nThat second part trips people up most. If you pass an inline function or object, like `onClick={() => doThing()}` or `style={{color: 'red'}}`, React builds a brand new one every render. It looks identical, but it's a new object each time, so `memo` sees it as changed.\n\nFix: wrap the child in `memo`, and keep any function or object props stable with `useCallback` or `useMemo` in the parent.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fcdb30c474d0cd2546fa18f64a6f9d72f86facbbfb87107c2d2cca18c87ef01c"
+}

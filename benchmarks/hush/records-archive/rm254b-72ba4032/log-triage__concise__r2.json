@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 11,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16604,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2885627,
+  "numTurns": 3,
+  "durationMs": 15004,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 970
+  },
+  "contextTraffic": 141359,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 297,
+  "finalText": "## Root cause: Redis outage → request queue backup → OOM crash\n\n**02:14:07.113Z** — Redis at `10.0.0.12:6379` drops (`ECONNREFUSED`). API immediately falls back to direct store reads (no cache).\n\n**02:14:07 – 02:31:26** — 17 minutes of cascading degradation:\n- Direct store reads can't handle the load → constant `TimeoutError`s (5000ms) from api/worker-1/worker-2/scheduler, every ~2s, on every service.\n- Request queue depth climbs steadily and linearly: 52 → 550+ (max configured is 500 — **it blew through its own limit** and kept growing).\n- Redis reconnect attempts fire every ~100s and **all 13 attempts fail** (attempt 0 through 12), so the cache never recovers.\n- Cache miss storms hit sequential `orders:*` keys the whole time, consistent with the fallback path unable to repopulate cache.\n\n**02:31:44.902Z** — `worker-2` hits **JavaScript heap out of memory** — the unbounded backlog of queued requests finally exhausted memory.\n\n**02:31:45.001Z** — supervisor restarts worker-2 (exit code 134 = SIGABRT from OOM), but it's too late.\n\n**02:31:52.318Z** — supervisor kills the whole process group: **\"api unresponsive, killing process group — service down.\"**\n\n### Summary\nRedis went down and never came back (13 failed reconnects over 17 min). The app's fallback-to-direct-store-reads path had no backpressure/circuit breaker, so the request queue grew unbounded past its own 500-item cap, eventually exhausting heap memory on worker-2 and taking the whole service down.\n\n### Follow-ups worth considering\n- Why did Redis at `10.0.0.12:6379` go down, and why didn't 13 reconnect attempts over 17 min succeed? (worth checking Redis host logs separately)\n- The queue-depth \"max 500\" cap appears to be advisory only — it wasn't enforced, since depth reached 568+. Add real backpressure or shed load once the cap is hit.\n- Add a circuit breaker so timeouts fail fast instead of piling into the queue during a store outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b43d598266d33b48119522f25feadab91d763f79c475574d1a328471feef2053"
+}

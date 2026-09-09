@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18692,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.31759309999999996,
+  "numTurns": 5,
+  "durationMs": 17320,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 959
+  },
+  "contextTraffic": 207858,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60187,
+  "narrationWords": 0,
+  "finalWords": 207,
+  "finalText": "**Root cause: Redis died, retry logic never gave up, queue backed up until a worker OOM'd and took the whole process group down.**\n\nTimeline:\n\n1. **02:14:07** — `redis connection lost: ECONNREFUSED 10.0.0.12:6379`. API falls back to direct store reads.\n2. **02:14:07 → 02:31:26** — Redis never comes back. 13 reconnect attempts (every ~2 min), all fail. With no cache, every request hits the store directly → constant `cache miss storm` warnings and `TimeoutError` (5000ms) on every worker.\n3. Request queue depth climbs the whole time: 52 → 568 (cap was 500, breached ~02:25:48 and kept climbing — no backpressure/shedding).\n4. **02:31:44** — `worker-2` hits **JavaScript heap out of memory** from the backlog.\n5. **02:31:45** — supervisor restarts worker-2 (exit code 134).\n6. **02:31:52** — `api unresponsive, killing process group — service down`. That's the outage.\n\n**Bottom line:** Redis at `10.0.0.12:6379` went down and stayed down for 17+ minutes. The app had no circuit breaker or queue cap enforcement, so it kept hammering the store on every request until memory exhausted and the whole thing crashed. Redis dying was survivable (there's a fallback) — the missing backpressure is what turned it fatal.\n\nNext: check why Redis at `10.0.0.12:6379` went down around 02:14:07 (host/infra logs, not this app log).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "57722c83066d75e51d55a3a0b279a2a7296b0299dfefde44592e464f487f49ff"
+}

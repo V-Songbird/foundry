@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76926,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5859119999999999,
+  "numTurns": 27,
+  "durationMs": 75304,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5037
+  },
+  "contextTraffic": 311032,
+  "apiCalls": 9,
+  "toolCalls": 26,
+  "toolResultChars": 38529,
+  "narrationWords": 6,
+  "finalWords": 61,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll search for remaining `db.query` usages."
+  ],
+  "finalText": "**Migrated 36 `db.query` calls across 12 files.** All now use `db.execute({ sql, params })`.\n\n`node --check` passes on every `.js` file. No `db.query` left outside vendor.\n\nTwo things I left alone. `cache.query` is a cache key API, not SQL. `[vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9)` still calls `db.query` twice, but its header says do not edit.\n\nNext: decide the vendor file. Upgrade `legacy-orm` or wrap it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "88f62cbce7c53104c06def28fc36397cbe7620164d5cccbd17c2e645a2e44ac2"
+}

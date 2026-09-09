@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush-core-only__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 30,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush-core-only",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 99251,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5629231,
+  "numTurns": 28,
+  "durationMs": 92635,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6272
+  },
+  "contextTraffic": 754633,
+  "apiCalls": 18,
+  "toolCalls": 24,
+  "toolResultChars": 22512,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "finalText": "`AUDIT.md` is written and the check script confirms all four findings landed with the service untouched.\n\nRanked by severity: the unauthenticated `/internal/metrics` and `/internal/flush-cache` routes in `src/routes/internal.js` top the list — no credential needed to read or wipe data. Next is the SQL-injection-by-concatenation in `src/repo/report.js`'s `runSavedReport`. Then the hardcoded staging database password in `config/staging.js`. Last is `fast-parse` still pinned at the yanked `1.4.2` in `package.json`, fixed by bumping to `1.4.3`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95c37314af174479249b02df36c8e0382911bba7ab57628bb595cadece7d8795"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 136197,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8366574999999999,
+  "numTurns": 32,
+  "durationMs": 127767,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7443
+  },
+  "contextTraffic": 904937,
+  "apiCalls": 29,
+  "toolCalls": 27,
+  "toolResultChars": 15772,
+  "narrationWords": 13,
+  "finalWords": 153,
+  "assistantMsgs": 7,
+  "finalText": "Dedupe is in (`src/router.js:37`), keyed off `event.key` in `state`, which `createState` now seeds with a `Map` (`src/router.js:56`).\n\n- 99 dropped, exactly the flap repeats the generator plants — each one verified as a same-key event 2 minutes after its predecessor (e.g. `evt-0287` at 1 → `evt-0288` at 3, same `quota-warning:4`).\n- 0 errors; non-repeat routing unchanged (daytime low→email, normal→push, high→sms+email, critical→pager; quiet-hour non-critical→queue).\n\nTwo decisions I made where the spec left room:\n\n- **Queued counts as \"sent.\"** A quiet-hour notification that goes to `queue` starts the 5-minute window, so a repeat 2 minutes later is dropped rather than queued alongside it. If the queue is a holding area rather than a delivery, you'd want repeats to still land there.\n- **Window is inclusive** (`at - lastSentAt <= 5`), so a repeat at exactly 5 minutes is dropped. No event in this window sits on that boundary, so the totals are identical either way.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "43a833508124f02ecec3cfaab3ef79a99d714c745a45c306531fb39c1e6f7dc2"
+}

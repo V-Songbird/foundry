@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38582,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5264070000000001,
+  "numTurns": 6,
+  "durationMs": 37160,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2480
+  },
+  "contextTraffic": 200751,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60855,
+  "narrationWords": 6,
+  "finalWords": 593,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nThe log covers **2026-07-04 02:00:00 → 02:31:52 UTC** — a ~32 minute window ending in the service dying. Heads up: that's July 4th, not last night (today is Aug 28), so either this file is stale/rotated or the incident isn't the one you think it is. Worth confirming before you chase it.\n\n**Root cause: Redis went away and never came back. Everything else is downstream of that.**\n\n### Timeline\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. All 200s, latency 12–145ms, cache hit ratio 0.90–0.98 (`app.log:1-181`) |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **patient zero** (`app.log:182`) |\n| 02:14:07.114 | Cache layer degrades, falls back to direct store reads (`app.log:183`) |\n| 02:14:08 | First cache miss storm; 02:14:10 first `TimeoutError` after 5000ms, store overloaded |\n| 02:14:12 | Queue depth 52 — and it climbs monotonically, +3 per sample, forever |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts, **all ECONNREFUSED**, none succeed |\n| 02:29:12 | Queue depth **502 — crosses the stated max of 500** (`app.log:647`) and just keeps going to 568 |\n| 02:31:44.902 | `worker-2` dies: **JavaScript heap out of memory (request backlog)** (`app.log:717`) |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### The mechanism\n\nRedis refused connections at 02:14:07 (ECONNREFUSED = nothing listening — process dead or firewalled, not a network partition or a slow node). The app dutifully fell back to direct store reads. But with ~93% of reads previously served from cache, 100% of traffic hit the backing store at once. The store couldn't take it, so requests started timing out at 5s. Timed-out requests didn't drain the queue, so the backlog grew unbounded — 52 → 568 over 17 minutes — until worker-2 exhausted the V8 heap holding queued requests, and the supervisor killed the whole process group. **Total time from first error to service down: 17m45s.**\n\n### Three things made this worse than it had to be\n\n1. **Backpressure never engaged.** Every queue line says `(max 500)`, but depth sailed past 500 to 568 with no shedding, no 503s, no rejection. That \"max\" is apparently a label on a metric, not an enforced limit — which is exactly what turned a degraded service into an OOM crash.\n\n2. **Reconnect uses a fixed interval, not backoff.** The 13 attempts land at 02:15:26, 02:16:46, 02:18:06 … exactly 80s apart. There's no exponential backoff and, more importantly, no circuit breaker — the app kept serving traffic at full rate against an overloaded store for 17 minutes instead of failing fast.\n\n3. **The fallback path is unbounded.** \"Cache down → read straight through to the store\" with no concurrency cap or request limit is the classic thundering-herd amplifier. The miss-storm keys cycle through `orders:1000`–`orders:1199` repeatedly, so a request coalescer or single-flight lock on those 200 hot keys would have collapsed most of the load.\n\n### What I'd check next\n\nThe log can't tell you *why* Redis at 10.0.0.12:6379 stopped accepting connections — that's the actual question. Pull that host's logs for 02:14 (OOM-killer, a restart, a maxmemory eviction crash, or a security-group change). The app-side fixes above are real and worth doing, but they're resilience gaps, not the cause.\n\nI only read the log — I didn't look at `src/` (the repo here is just `package.json` + `logs/`, using `ioredis ^5.4.1`). Happy to dig into the retry/queue config if you point me at the source.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b158439e3ed1daa13aafdab881d95abcab6e00ec8ff7ce8a86ff01fd37833749"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 113,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 53981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2462067,
+  "numTurns": 11,
+  "durationMs": 52114,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2470
+  },
+  "contextTraffic": 321421,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 9307,
+  "narrationWords": 0,
+  "finalWords": 152,
+  "finalText": "**Found it and fixed it.**\n\n`engine.js` rounded the running total to 2 decimal places after the percent coupon, and again after the flat coupon, before converting to the order's currency. That's an extra rounding step the math doesn't need.\n\nA flat coupon never showed the bug, since subtracting a whole dollar amount from a 2-decimal total stays clean. But a percent coupon (like 10% off) creates more decimal places, so rounding early threw away real cents before the currency conversion multiplied everything back up. That's why it only broke when a percent coupon stacked with non-USD currencies (GBP, CAD, JPY) — GBP and CAD failed on every percent case, JPY only on the basket that happened to land on an ugly fraction.\n\nThe fix: carry full precision through both coupon steps and round only once, at the very end, after conversion.\n\nAll 40 tests pass now, up from 30/40, in about 0.1s.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16b5015a210ba4947b8229b6562724dd6e61a784b96d2b0f67dcfc8c971968c1"
+}

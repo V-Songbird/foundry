@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 19,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38617,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.515903,
+  "numTurns": 6,
+  "durationMs": 37820,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2423
+  },
+  "contextTraffic": 178385,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60754,
+  "narrationWords": 6,
+  "finalWords": 721,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "## What happened\n\nOne root cause, a 17-minute cascade, then a hard crash. Here's the chain.\n\n**Timeline (all UTC, log covers 02:00–02:31:52)**\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. All 200s, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **the trigger** |\n| 02:14:07.114 | App falls back to direct store reads (\"cache layer degraded\") |\n| 02:14:08 | First `cache miss storm: key orders:1000` |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52/500, and climbing ~3 every 6s, monotonically, never recovering |\n| 02:15:26 → 02:31:26 | 13 `redis reconnect attempt 0..12` — **every single one ECONNREFUSED**. Redis never came back |\n| 02:29:12 | Queue depth **502 — breaches the 500 max**. Nothing sheds load; it keeps growing |\n| 02:31:12 | Depth 562, still climbing |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Volume:** 188 ERROR, 348 WARN, 2 FATAL. The last successful request is line 181 at 02:14:03 — after Redis dropped, there is not a single 200 in the log. This was a total outage from 02:14, not a degradation.\n\n## The actual causal story\n\nRedis at `10.0.0.12:6379` refused connections (ECONNREFUSED, not a timeout — the port was closed, so Redis was down or the host was gone, rather than a network partition or an overloaded Redis).\n\nThe app did the wrong thing on failure: instead of shedding load or serving stale, it **fell back to reading the backing store directly on every miss**. With ~90–98% of traffic previously served from cache, that's roughly a 10–20× instant amplification onto the store. The store couldn't take it, requests started timing out at 5s, and each timed-out request held its slot for the full 5 seconds while new ones kept arriving. Classic queue-buildup death spiral — depth grew linearly and never once dipped for 17 straight minutes.\n\nTwo things turned a bad incident into a crash:\n\n1. **The 500 max queue depth was not enforced.** Depth sailed past it at 02:29:12 and reached 568 by the end. It was a logged number, not a backpressure limit. Every one of those queued requests holds memory.\n2. **Redis reconnect never succeeded, and there's no evidence of backoff working in your favor** — 13 attempts, evenly spaced ~80s apart, all refused. Nothing in the app gave up on the cache path or entered a protective mode.\n\nworker-2 OOM'd on the request backlog (exit 134 = SIGABRT, the V8 heap-limit abort), the supervisor restarted it into the same storm, and 7 seconds later killed the whole process group when api stopped responding.\n\n## What to fix\n\n- **Enforce the queue cap.** 500 is currently decorative. Reject with 503 above the limit — fast failure keeps memory bounded and lets you survive a cache outage in degraded form rather than dying.\n- **Circuit-break the store fallback.** After N consecutive timeouts, stop sending traffic to the store on cache miss and fail fast or serve stale. Right now a cache outage is automatically a store outage.\n- **Find out why Redis at 10.0.0.12 went down and stayed down for 17+ minutes** with no recovery. That's the root cause and the logs say nothing about it beyond \"refused\" — you'll need the Redis host's own logs. If it's a single non-replicated node, that's a standing SPOF that takes the whole service with it.\n- **Alert on cache hit ratio / queue depth trend**, not just on errors. The queue climbed steadily for 15 minutes before anything fatal — plenty of warning, apparently unacted on.\n\n## One thing to check\n\nThe log timestamps are **2026-07-04**, but today is 2026-09-01 — so this file is from about two months ago, not last night. Either `logs/app.log` isn't being rotated/written to anymore and you're looking at a stale file, or last night's incident is in a different file. Worth confirming before you act on this as the current outage; if prod fell over again last night with the same signature, that's a recurrence and the case for the fixes above is much stronger.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f1955574c97e3dbbaa448d180585937c909c55bfd9a1198dfa89fe51e7ddc61d"
+}

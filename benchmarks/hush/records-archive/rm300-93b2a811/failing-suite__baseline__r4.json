@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 22,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35345,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2623705,
+  "numTurns": 12,
+  "durationMs": 33992,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2199
+  },
+  "contextTraffic": 152864,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 12070,
+  "narrationWords": 117,
+  "finalWords": 175,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the pricing suite.",
+    "`src/pricing.js` requires `./tiers.js` — let me check that exists, and run the suite pulling out only the failure block.",
+    "Exactly one real bug, in `orderTotal`. It computes tax on the **undiscounted** base and adds it as a separate term:\n\n```js\nconst tax = roundCents(cents * taxRate);   // cents, not discounted\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax what's actually owed\") and the spec in `cases.js`. It's invisible on 620 of 625 cases because every other order-total row has either a 0% discount or a 0 tax rate — only the three rows with both non-zero can expose it."
+  ],
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was broken:** one line in `src/pricing.js:39` — `orderTotal` taxed the pre-discount base and added the tax as a flat term, instead of taxing the discounted amount.\n\n```js\n// before\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← full base\nreturn discounted + tax;\n\n// after\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why the wall of text:** only 3 of 625 cases failed, all in `order totals`. Every other row in that suite has either a 0% discount or a 0 tax rate, and with either factor zero the buggy and correct formulas give the same answer. The three rows with both non-zero (`12000c/15%/8.25%`, `8650c/20%/5%`, `33400c/10%/20%`) were the only ones that could expose it — customers were being overcharged tax on the discount they'd been given (e.g. $367.40 instead of $360.72 on the last one).\n\nNothing else needed touching — the other eight suites and `src/tiers.js` were already correct. To skip the noise next time: `node run-tests.js | Select-String '^\\s*FAIL'`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e260f5cb87d46ae924fc09ae3cb4dd4b8e7e2947cfa5e21c59ce4933357e187c"
+}

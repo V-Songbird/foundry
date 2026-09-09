@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 87,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61018,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6547716,
+  "numTurns": 15,
+  "durationMs": 53724,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3494
+  },
+  "contextTraffic": 900850,
+  "apiCalls": 13,
+  "toolCalls": 11,
+  "toolResultChars": 80336,
+  "narrationWords": 22,
+  "finalWords": 201,
+  "finalText": "**Gateway 503 Incident — On-Call Handoff**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` via config generation 119, applied 2026-03-14T02:13:41Z. This caused the connection pool to exhaust (`size 20, in_use 20`) almost immediately, since every request now claimed its own connection instead of sharing from the pool.\n\n**Impact window:** Started 2026-03-14T02:14:14.920Z (first slow-acquire warning), first hard 503 at 02:14:18.972Z. Still ongoing and unresolved as of the last log entry at 03:59:27.974Z — no recovery or config rollback was logged. Errors are `ERR_POOL_EXHAUSTED`, recurring roughly every 4 minutes in each request batch, with the `waiting` queue climbing steadily throughout (13 at 02:14 → 74+ by 03:59), never draining. Roughly 4 of every 8 requests per cycle return 503, split across `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`; `/health` mostly kept returning 200.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window — jobs completed normally throughout, `db_wait` stayed low single digits, no pool errors. Worker has its own separate DB pool, unaffected by the gateway config change.\n\n**Action:** Roll back `dep-4471`. That's the only gateway deploy in the incident window (`dep-4472` billing-svc at 02:41 and `dep-4473` catalog-svc at 03:20 are unrelated services, deployed after onset).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7a007a85701c1e303bea8adc8a3a17626839a3358f244b5cec1d7dc7292687c4"
+}

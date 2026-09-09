@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41638,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.540848,
+  "numTurns": 6,
+  "durationMs": 40172,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2585
+  },
+  "contextTraffic": 205897,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60272,
+  "narrationWords": 9,
+  "finalWords": 692,
+  "finalText": "I read all 720 lines. Here is what happened.\n\n## One thing to check first\n\nThe log covers **2026-07-04, 02:00 to 02:31 UTC**. Today is 2026-08-26. This file is not from last night. Either the file is old, or the timestamps are wrong. Confirm which one before you act on this report.\n\n## Summary\n\nRedis went down. The application had no protection against the loss of its cache. The load moved to the backing store, the store overloaded, request queues grew without limit, and a worker ran out of memory. The supervisor killed the api process about 18 minutes later.\n\n## Timeline\n\n| Time (UTC) | Event | Line |\n|---|---|---|\n| 02:00–02:14:03 | Normal traffic. All responses are 200. Cache hit ratio is 0.90 to 0.98. | 1–181 |\n| 02:14:07.113 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` | 182 |\n| 02:14:07.114 | Cache layer degrades. The application falls back to direct store reads. | 183 |\n| 02:14:08 | First cache miss storm. | 184 |\n| 02:14:10 | First `TimeoutError` after 5000ms, store overloaded. | 185 |\n| 02:14:12 | Queue depth 52. | 186 |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts. All 13 fail with ECONNREFUSED. | 224–716 |\n| 02:29:12 | Queue depth 502. This value passes the stated maximum of 500. | 647 |\n| 02:31:26 | Queue depth reaches 568. The last reconnect attempt fails. | 714–716 |\n| 02:31:44.902 | `worker-2`: JavaScript heap out of memory (request backlog). | 717 |\n| 02:31:45.001 | Supervisor restarts worker-2 (exit code 134). | 718 |\n| 02:31:52.318 | Supervisor kills the api process group. Service down. | 719 |\n\nTotal time from first error to service down: 17 minutes and 45 seconds.\n\n## Counts\n\n- 188 ERROR lines, 348 WARN lines, 2 FATAL lines.\n- 173 timeout errors, all identical: 5000ms, store overloaded.\n- 174 cache miss storm warnings.\n- 13 failed redis reconnect attempts, 0 successful.\n\n## Root cause\n\nRedis at `10.0.0.12:6379` refused connections at 02:14:07 and never accepted them again inside this log. Every other error is a downstream effect.\n\nThe log does not say why redis refused connections. ECONNREFUSED means that nothing listened on the port. The redis process was down, or a firewall or network policy blocked the port. You must check the redis host logs for that answer.\n\n## Three problems that turned an outage into a crash\n\n**1. No circuit breaker on the fallback path.** The application answered every cache miss with a direct store read. The store could not carry full traffic. Each read then timed out after 5000ms and held a request in memory for 5 seconds.\n\n**2. The queue limit was not enforced.** The logs print `(max 500)`, but the depth passed 500 at 02:29:12 and grew to 568. The maximum is a label, not a limit. Nothing shed load or rejected requests.\n\n**3. The reconnect interval is fixed, not exponential.** The 13 attempts came at 02:15:26, 02:16:46, 02:18:06, and so on — 80 seconds apart every time. Two effects follow. The gap is too long for a fast recovery. The gap also never backs off, so a redis that comes back under stress gets hit again immediately.\n\n## What to do\n\n1. Find out why redis stopped. Check the redis host logs and the network policy for `10.0.0.12:6379`.\n2. Enforce the queue depth of 500. Reject or shed requests above the limit.\n3. Add a circuit breaker between the cache fallback and the store. Open the breaker when timeouts pass a threshold.\n4. Lower the store read timeout. 5000ms holds memory too long under a backlog.\n5. Change the redis reconnect to exponential backoff with jitter, and start it below 80 seconds.\n6. Add an alert on cache hit ratio and on queue depth. The first ERROR came at 02:14:07 and the service died at 02:31:52. That window of 18 minutes was enough time for a person to act.\n\nNote on the cache miss keys: they cycle through `orders:1000` to `orders:1199` and then repeat. The working set is small. A warm local cache in each process would have absorbed most of this.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f2813f64ce7c6c763de1d74000f7bfb37ba578cdcc4d43399d42c119f16843b7"
+}

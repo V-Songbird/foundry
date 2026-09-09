@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 15,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 58807,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1794608,
+  "numTurns": 10,
+  "durationMs": 51897,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2802
+  },
+  "contextTraffic": 408825,
+  "apiCalls": 10,
+  "toolCalls": 6,
+  "toolResultChars": 4648,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "Here's the handoff, ready to hand off.\n\n```\nON-CALL HANDOFF — Gateway 503s\n\nROOT CAUSE\nDeploy dep-4471 (gateway, author a.novak, \"config: connection-per-request\nfor pool isolation\") changed gateway.pool.perRequest from false to true.\nThis made every request grab its own database connection instead of\nsharing from the pool. The pool holds 20 connections. It ran out fast.\n\nIMPACT WINDOW\nStarted: 2026-03-14 02:14:18 UTC (first 503, ERR_POOL_EXHAUSTED,\npool size 20, in_use 20, waiting 13)\nStill failing at end of log: 2026-03-14 03:59:27 UTC\n530 failed requests logged in that span, all the same cause.\nOnly the gateway was hit. logs/worker.log covers the same window\nwith zero errors — job processing was unaffected.\n\nFIX\nRoll back dep-4471 (gateway config generation 119), specifically\ngateway.pool.perRequest back to false. No other change in that\ndeploy is implicated.\n\nNOT THE CAUSE\n- dep-4472 (billing-svc, invoice pdf fix, 02:41) — after the errors began\n- dep-4473 (catalog-svc, cache ttl, 03:20) — after the errors began\n- worker.log WARN at 02:36 (slow query, known issue OPS-2210) — unrelated\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "227d8d908c2878ddab52dcebb35befbd3d2bd8e3fbc15f25bb2f4b8ac0f378b0"
+}

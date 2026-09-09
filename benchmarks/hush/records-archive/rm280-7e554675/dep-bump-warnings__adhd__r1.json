@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35302,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24262349999999996,
+  "numTurns": 10,
+  "durationMs": 33786,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2225
+  },
+  "contextTraffic": 176670,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6308,
+  "narrationWords": 21,
+  "finalWords": 253,
+  "finalText": "Build passes now (exit 0). Two of the warnings weren't noise — they were hard link-stage failures, sequential, so the first masked the second:\n\n**1. `src/core/options.js:7` — options shape mismatch.** The bump renamed `retries` → `retryCount`. This call site still read `options.retries`, so it was `undefined` and `.toFixed(0)` threw. Now reads `retryCount` with a `retries` fallback for older callers, defaulting to `0`.\n\n**2. `src/net/retryPolicy.js:8` — stricter flag check.** The old config loader returned `false` for unset flags; the new one leaves them `undefined`. The strict boolean check threw on `undefined`. Now treats unset as off (the previous default) while still rejecting non-boolean types.\n\nOn the remaining 8 warnings — those are genuine deprecation notices from the bump, not build breakers, but a couple are worth queuing up:\n\n- `W1042` — `crypto.createCipher` in `src/legacy/adapter.js`, flagged \"remove before v5\". That's real technical debt; it's insecure (derives keys with no salt/IV) and removed in modern Node.\n- `W3307` — circular import between `src/core/graph.js` and `src/state/tracker.js` with undefined resolution order. That can bite unpredictably later.\n- The rest (`DEP0142` `fs.exists`, `DEP0198` `Buffer()`, `DEP0250` `punycode`, etc.) plus `W2213` unused export are ordinary cleanup.\n\nI left those alone since you asked for a clean build, not a refactor — and none of those files exist in this tree anyway; only `src/core/options.js` and `src/net/retryPolicy.js` are present, so those warnings are emitted by the bundler's canned log rather than anything I could act on here. Say the word if you want me to chase the `createCipher` one in the real source.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d06b4960f998da5b8bf8ee1c78f921c5d78536900334dec71d0368cff72bdf4"
+}

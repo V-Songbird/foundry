@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 109614,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6283479999999999,
+  "numTurns": 18,
+  "durationMs": 108088,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8198
+  },
+  "contextTraffic": 364997,
+  "apiCalls": 10,
+  "toolCalls": 17,
+  "toolResultChars": 18810,
+  "narrationWords": 13,
+  "finalWords": 123,
+  "finalText": "**Big, but mostly safe.** `account_id` appears 1,291 times across 94 files.\n\nSix places must keep the old name:\n\n| Place | Hits | Why |\n| --- | --- | --- |\n| `migrations/*.sql` | 61 | Already ran live. Editing breaks the undo step. |\n| SQL text in `repo/` files | 125 | No migration renames the column. |\n| `JSON.stringify` payload keys | 25 | Old stored rows would stop matching. |\n| `req.session.account_id` | 100 | Set outside this repo. |\n| `vendor/reporting-sdk/` | 20 | `npm run vendor:refresh` wipes edits. |\n| `docs/openapi.yaml`, `lib/serialize.js` | 7 | Public field. Breaks every client. |\n\nThat leaves about 950 safe renames. Those are local names in service and route files.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e3c4ec1020812fe7826afa84cad2bd239a2b48a2c1d17173693f103cf790525d"
+}

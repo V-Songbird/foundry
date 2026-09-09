@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33384,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2415985,
+  "numTurns": 10,
+  "durationMs": 31983,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2125
+  },
+  "contextTraffic": 177051,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6582,
+  "narrationWords": 30,
+  "finalWords": 252,
+  "assistantMsgs": 3,
+  "finalText": "Build passes now (exit 0). Two of the messages were real failures from the bump, not noise:\n\n**1. `src/core/options.js:6` — options shape changed.** The new bundler passes `{ retryCount }`, this call site still read `options.retries`, so it threw `TypeError: Cannot read properties of undefined (reading 'toFixed')` and aborted the link stage. Now reads `retryCount` with a fallback to `retries` for any pre-bump callers.\n\n**2. `src/net/retryPolicy.js:7` — flag default changed.** The old config loader returned `false` for unset flags; the new one leaves them `undefined`, and the strict boolean check threw on that. Now `undefined` maps to `false`, preserving the previous default (backoff off unless explicitly enabled). This one was hidden behind the first — it only surfaced once the options bug was fixed.\n\nTwo things to flag:\n\n- **The 8 remaining warnings are genuinely warnings, not errors** — the deprecations (`fs.exists`, `Buffer()`, `punycode`, sync loader hook, `module.parent`) plus `crypto.createCipher`, an unused export, and a circular import between `src/core/graph.js` and `src/state/tracker.js`. \"Building clean\" in the sense of exit 0 is done; if you want a literally zero-warning log, that's follow-up work in `src/legacy/` and friends — say the word and I'll take it. The circular import is the one I'd prioritize, since it makes resolution order undefined.\n- **The `backoffEnabled` default is a judgment call.** I matched the pre-bump behavior (off), which keeps the build's runtime semantics unchanged. If backoff was actually meant to be on by default, flip that line — but then it's a behavior change, not a build fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0a9626f3cc85955c1d7ed6d44d68a94d31f019b91cddba2f7203c47ace7db858"
+}

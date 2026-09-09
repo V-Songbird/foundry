@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__turncmp__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "turncmp",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26615,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1915161,
+  "numTurns": 9,
+  "durationMs": 24979,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1588
+  },
+  "contextTraffic": 214626,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10641,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "Found it: `resolveRelease` used `Object.assign`, which does a shallow merge. Any package overriding just one key inside `output` or `sourcemap` — like `@acme/api`'s `output.format` — was wiping out the sibling keys (`dir`, `entry`) instead of layering over them, so the bundle stage's completeness check failed.\n\nFixed it with a proper recursive merge that only replaces nested keys that are actually named, leaving the rest of `output`/`sourcemap` from the layer below intact. Build now finishes with 5 warnings, 0 errors, and `verify.js` passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d2a0e4dd0548cdbe36f3cef78ea1d5c20f9da7514e68b58f628f5e68147ffec"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 51800,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1535632,
+  "numTurns": 15,
+  "durationMs": 50089,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3110
+  },
+  "contextTraffic": 274990,
+  "apiCalls": 8,
+  "toolCalls": 14,
+  "toolResultChars": 10464,
+  "narrationWords": 0,
+  "finalWords": 136,
+  "finalText": "All the same tenant-scoping pattern, no semantic collisions. So this is genuinely uniform and mechanical, just large.\n\nScope: ~90 files, all the same repetitive pattern (services/*, migrations, lib). Consistent single meaning throughout, no landmines from ambiguity.\n\nMust not rename, two hard freezes:\n- `vendor/reporting-sdk/**` — vendored, overwritten by `npm run vendor:refresh`, upstream-only\n- `docs/openapi.yaml` and `lib/serialize.js`'s wire side — public API contract (`account_id` on Invoice/Order, query param), explicitly marked frozen, breaking change if touched\n\nAlso watch: `lib/audit.js` and old files under `migrations/` — audit log key and past migration files should get a new migration, not edits to history, plus audit.js needs its field synced not left stale.\n\nVerdict: safe to sign off on the internal rename (services, repos, routes, new migration), as long as the wire-facing `account_id` in `serialize.js`/`openapi.yaml` and the vendored SDK stay untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d8e39ba0b86218f338307c912770ed240e5fec10b1047f29d304f003e73b5a54"
+}

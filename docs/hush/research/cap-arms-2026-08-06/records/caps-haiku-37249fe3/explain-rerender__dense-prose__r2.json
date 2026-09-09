@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 66,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11286,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.023224500000000002,
+  "numTurns": 1,
+  "durationMs": 9437,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 672
+  },
+  "contextTraffic": 27002,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 196,
+  "finalText": "The child is probably re-rendering because you're creating new objects or functions in the parent's render method—even though they have the same value, they have different memory addresses.\n\nFor example:\n\n```jsx\n// ❌ creates a new object every render\n<Child data={{ name: \"Alice\" }} />\n\n// ❌ creates a new function every render\n<Child onClick={() => console.log(\"click\")} />\n```\n\nReact compares props by reference (`===`), not by value. So even though `{ name: \"Alice\" }` looks the same, it's a fresh object each time.\n\n**To fix it:**\n\nMove object and function creation outside the render:\n\n```jsx\nconst data = { name: \"Alice\" };\nconst handleClick = () => console.log(\"click\");\n\nexport function Parent() {\n  return <Child data={data} onClick={handleClick} />;\n}\n```\n\nOr use `useMemo` and `useCallback` to keep the same reference:\n\n```jsx\nexport function Parent() {\n  const data = useMemo(() => ({ name: \"Alice\" }), []);\n  const handleClick = useCallback(() => console.log(\"click\"), []);\n  return <Child data={data} onClick={handleClick} />;\n}\n```\n\nThen wrap your child in `React.memo` to skip rendering when props haven't changed:\n\n```jsx\nexport const Child = React.memo(({ data, onClick }) => {\n  return <div>{data.name}</div>;\n});\n```\n\nThe memo + stable props combo stops the re-render.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ea16ff620e1bdd77aceb1a164cb1a42e18d5dfb6ddf5e87cce93c90dbd0e847"
+}

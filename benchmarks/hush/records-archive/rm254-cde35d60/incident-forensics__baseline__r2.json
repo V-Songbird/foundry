@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 94,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 74591,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6262531999999998,
+  "numTurns": 16,
+  "durationMs": 68937,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4848
+  },
+  "contextTraffic": 938095,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 62149,
+  "narrationWords": 20,
+  "finalWords": 242,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing (unresolved as of last log entry, 03:59:27Z)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` via config reload (generation 118→119, applied 02:13:41.234Z). Within ~33s, the gateway's outbound connection pool pinned at 20/20 `in_use` and never released connections back — consistent with a leak introduced by the new per-request pool behavior. The `waiting` queue has grown monotonically since (13 → 74+ and climbing).\n\n**Impact window:**\n- First symptom: `WARN pool` slow-acquire at **02:14:14.920Z**\n- First 503: **02:14:18.972Z**\n- Continuous 503s from all upstreams (orders, catalog, accounts, billing) from that point through end of available logs (03:59:27Z) — **no self-recovery observed**\n- Errors: client-facing `503` with climbing latency (659ms → 850ms+), paired with `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`\n\n**Scope:** Gateway only. Cross-checked `worker.log` for the same window — job processing continued normally throughout (`db_wait` stayed 0-12ms, no anomalies). Workers use a separate DB connection path unaffected by this gateway config key.\n\n**Action: roll back `dep-4471`**\nRevert `gateway.pool.perRequest` to `false` (or roll config back to generation 118) and confirm pool `in_use` drains back to its pre-incident baseline (was cycling 3-11/20 with `waiting=0`) and 503s stop.\n\n**Note:** two later deploys landed after the incident started and are not implicated — `dep-4472` (billing-svc, 02:41Z, invoice PDF fix) and `dep-4473` (catalog-svc, 03:20Z, cache TTL change). Neither explains errors across all four upstreams starting at 02:14Z.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0c2c7e326a5b47af25e3867bd19d3c64c0d92f343da4b4180260bc4d1db35b72"
+}

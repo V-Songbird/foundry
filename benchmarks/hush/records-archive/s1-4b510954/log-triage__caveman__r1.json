@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19436,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.324897,
+  "numTurns": 4,
+  "durationMs": 18043,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1057
+  },
+  "contextTraffic": 225988,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60096,
+  "narrationWords": 0,
+  "finalWords": 215,
+  "finalText": "Root cause chain, clean run to crash:\n\n**02:14:07.113** — Redis connection dropped: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache layer fell back to direct store reads.\n\n**02:14:08 onward** — Fallback overload cascade begins: cache miss storms, store timeouts (5000ms), request queue growing across api/worker-1/worker-2/scheduler. Queue depth climb steady, ~3/sec, no drain.\n\n**Every ~80s** — Redis reconnect attempts fail (attempts 0 through 12, all ECONNREFUSED 10.0.0.12:6379). Redis never came back.\n\n**02:29:06** — queue depth crosses stated max (499, then 502...) — no backpressure/reject kicked in, just kept growing past limit.\n\n**02:30:xx-02:31:26** — queue depth hit 568, still climbing.\n\n**02:31:44.902** — worker-2: `JavaScript heap out of memory (request backlog)` — unbounded queue finally OOM'd the process.\n\n**02:31:45.001** — supervisor restarts worker-2 (exit code 134 = SIGABRT from OOM).\n\n**02:31:52.318** — supervisor: `api unresponsive, killing process group — service down`. Full outage.\n\n**Bottom line:** Redis at 10.0.0.12:6379 went down at 02:14:07 and never recovered (12 failed reconnects over 17 min). App's fallback-to-direct-store path had no backpressure — queue grew unbounded instead of shedding load, eventually OOM-crashing worker-2 and taking the whole service down at 02:31:52.\n\n**Fix targets:** queue depth cap/backpressure (reject or 503 past threshold, not silent grow), Redis HA/failover so single node loss doesn't kill cache layer, alert on sustained reconnect failures instead of quiet retry loop.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5fd274833d57b5ea235be29ad5bd32036bdcfb13ec861232b0abe448bc38d493"
+}

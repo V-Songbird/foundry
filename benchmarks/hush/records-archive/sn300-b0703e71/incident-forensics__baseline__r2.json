@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64978,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24628460000000002,
+  "numTurns": 18,
+  "durationMs": 59503,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4262
+  },
+  "contextTraffic": 584756,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 18276,
+  "narrationWords": 0,
+  "finalWords": 243,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing at time of writing (log data ends 2026-03-14T03:59:27Z, still failing)\n\n**Impact window:** 2026-03-14 **02:14:18Z** → ongoing (as of 03:59:27Z, 1h45m+ elapsed)\n- First WARN sign: 02:14:14.972Z (`acquire slow: waited 100ms`)\n- First 503: 02:14:18.972Z (`req-07401 /v1/cart -> billing-svc 503`)\n- Failure rate has been climbing, not stabilizing — pool `waiting` queue grew from 13 → 172+ over the window (see `pool stats` line at 03:55:58Z: `size=20 in_use=20 idle=0 waiting=172`)\n\n**Root cause:** `dep-4471` (gateway, a.novak, 02:12:00–02:14:00Z) — *\"config: connection-per-request for pool isolation\"*. It shipped a config reload (generation 118→119, applied 02:13:41.234Z) that flipped `gateway.pool.perRequest: false -> true`. With per-request acquisition against a fixed pool size of 20, the pool saturates under normal load and every request in excess of 20 concurrent blocks/fails with `ERR_POOL_EXHAUSTED`. First 503 landed ~18s after the deploy finished.\n\n**Scope:** Gateway only. `logs/worker.log` covers the identical window and is clean — no errors, no pool exhaustion, `db_wait` stayed low single-digit ms throughout. Workers use a separate pool/path unaffected by this config key.\n\n**Rollback target:** **dep-4471** — revert `gateway.pool.perRequest` to `false` (or roll back the full config generation 119 → 118, which also reverts `gateway.timeout.upstreamMs` 2000→2500, unrelated but bundled in the same reload).\n\n**Not the cause (ruled out):** dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) both shipped *after* the incident started and are unrelated — errors are evenly distributed across all 4 downstream services (billing/orders/catalog/accounts), confirming it's the shared gateway pool, not one backend.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95fe15532644facba1dfc1a4c4c1e53ce9e15b5b47588ccfd72fb9be14af9615"
+}

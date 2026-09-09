@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 68,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 21739,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.15161349999999998,
+  "numTurns": 6,
+  "durationMs": 20155,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1379
+  },
+  "contextTraffic": 57950,
+  "apiCalls": 3,
+  "toolCalls": 5,
+  "toolResultChars": 2355,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan: parse the flag in [`src/cli.js`](src/cli.js), print `buildRows()` as JSON.**\n\nOne catch. `toTable` drops `owner` and `slow`. So \"same data\" reads two ways. I would print the full row.\n\n```js\nconst json = argv.includes('--json');\nconst rows = buildRows();\nprocess.stdout.write((json ? JSON.stringify(rows, null, 2) : toTable(rows)) + '\\n');\n```\n\n`report.js` and `format.js` stay untouched. Usage string gains `[--json]`.\n\nNext: confirm full rows over the four table columns, then I build it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "896c15e3de4fe333e4454e24700dc7f523ddbaf4128401dcf1e86b4d2274469c"
+}

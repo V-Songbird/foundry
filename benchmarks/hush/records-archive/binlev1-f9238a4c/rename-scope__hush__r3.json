@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 78165,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.432562,
+  "numTurns": 22,
+  "durationMs": 76623,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5035
+  },
+  "contextTraffic": 250496,
+  "apiCalls": 10,
+  "toolCalls": 21,
+  "toolResultChars": 15915,
+  "narrationWords": 7,
+  "finalWords": 112,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase structure."
+  ],
+  "finalText": "About 1286 hits in 94 files. Most are **safe internal renames**.\n\n| zone | hits | verdict |\n|---|---|---|\n| `services/**` JS names | ~950 | rename |\n| SQL strings in `services/**` | 250 | keep, column is frozen |\n| `migrations/*.sql` | 61 | applied history, never edit |\n| `vendor/reporting-sdk` | 20 | generated, refresh overwrites |\n| `docs/openapi.yaml` | 5 | public contract, breaking |\n| `lib/serialize.js` WIRE | 2 | left key renames, value frozen |\n| `lib/audit.js` | 3 | rename |\n\nSign off only with those four no-go zones carved out. The DB column stays `account_id`.\n\nNext: ask the team for a per-zone diff plan.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23198edaef48451c793d9471139e2bff697732d6567e42ddd76173367453607b"
+}

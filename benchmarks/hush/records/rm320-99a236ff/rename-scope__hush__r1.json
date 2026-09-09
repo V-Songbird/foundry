@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 41,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 63967,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38141800000000003,
+  "numTurns": 18,
+  "durationMs": 62362,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4122
+  },
+  "contextTraffic": 197447,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 17932,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**1291 hits across 94 files.** Most are safe.\n\n| Area | Hits | Rename? |\n|---|---|---|\n| `services/**` JS names | 1025 | yes |\n| repo SQL columns | 175 | only with a new migration |\n| `migrations/*.sql` | 61 | no, applied history |\n| `vendor/reporting-sdk` | 20 | no, regenerated |\n| `docs/openapi.yaml` | 5 | no, public contract |\n\nThe seam is [lib/serialize.js:8](lib/serialize.js:8). Rename the left key only. The wire value `account_id` stays.\n\nNext: sign off if the map's right side and the four frozen areas hold.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f01132aef060aabb8c9458a6fe711cee752e4964b476aa2f558c920c7f915f7"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 45,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29840,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2188205,
+  "numTurns": 7,
+  "durationMs": 28872,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1875
+  },
+  "contextTraffic": 144398,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 6814,
+  "narrationWords": 35,
+  "finalWords": 210,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the suite.",
+    "The bug is in `orderTotal` — it applies the discount but then computes tax off the **pre-discount** base, contradicting its own doc comment."
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n**What was actually broken:** only 3 of the 625 cases failed, all in the `order totals` suite, all calling `orderTotal`. The wall of text was 622 passing lines plus a coverage table.\n\n`src/pricing.js:39` computed tax on the **pre-discount** amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← cents, not discounted\nreturn discounted + tax;\n```\n\nThat directly contradicts the function's own doc comment (\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied\"). The deltas confirmed it — each failure was over by exactly `discount × taxRate` (e.g. 1800 × 0.0825 = 148.5 ≈ the 148 delta).\n\n**Fix:** tax the discounted subtotal, reusing the existing `applyTax` helper:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nOne note for you to decide on: this rounds once at the end (`round(discounted × (1 + rate))`) rather than rounding the tax separately and adding. Both match all three expected values here, but they can differ by a cent on other inputs. If your ledger requires tax to be a separately-rounded line item, `discounted + roundCents(discounted * taxRate)` is the variant to use instead.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "467824054013dd3f4c92bed597d0e0bc562936e074bf56802d6215601b42f533"
+}

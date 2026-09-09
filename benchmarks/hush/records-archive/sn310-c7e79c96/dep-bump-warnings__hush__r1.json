@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26503,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10916260000000001,
+  "numTurns": 10,
+  "durationMs": 24810,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1320
+  },
+  "contextTraffic": 191542,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6271,
+  "narrationWords": 6,
+  "finalWords": 76,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed. Fixing both call sites now."
+  ],
+  "finalText": "**Build is clean.** Two real bugs, not just log noise.\n\n`options.retries` was still read after the bundler renamed that field to `retryCount`, so [options.js:7](src/core/options.js:7) crashed on `undefined.toFixed()`. Fixed to read `retryCount`.\n\nSecond bug: the new config loader leaves unset flags `undefined` instead of `false`, and [retryPolicy.js:8](src/net/retryPolicy.js:8) only handled `true`/`false`, throwing on `undefined`. Added an `undefined` case, treated as disabled.\n\n`node build.js` now exits 0 with 8 warnings, all deprecation noise, no errors.\n\nNext: nothing, build passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4368c67dd8da567dbd7769c885f09cafd2054a6986840af8d63da7ce5567325"
+}

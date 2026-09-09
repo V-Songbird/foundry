@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76957,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.7211785,
+  "numTurns": 9,
+  "durationMs": 75419,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5279
+  },
+  "contextTraffic": 312997,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 72644,
+  "narrationWords": 36,
+  "finalWords": 774,
+  "finalText": "I read all 380 commits and the 127-row PR sheet. Here is what I found.\n\n## The signal-to-noise picture\n\n| Type | Commits | User-visible? |\n|---|---|---|\n| chore (mostly deps) | 153 | No |\n| refactor | 73 | Mostly no — 3 exceptions below |\n| test | 64 | No |\n| ci | 33 | No |\n| fix | 26 | Yes |\n| docs | 20 | No |\n| perf | 10 | Maybe |\n| feat | 1 | Yes |\n\nEvery dependency bump is a devDependency or an internal runtime bump with no API change. The bumps also repeat: `pino 9.2.0 → 9.3.1` lands 11 separate times, `pg 8.12.0 → 8.13.0` 8 times. The PR sheet has the same duplication, with two authors merging identical titles on the same day. Treat the counts as noise, not as scope.\n\nThe 26 fixes are not 26 distinct problems. They are about 11 problems, each fixed once per module. For example, \"guard the null cursor in the paginator\" lands in `queue`, `api`, `webhooks`, and `db`. Group them, or the notes will read as a list of 26 unrelated bugs.\n\n## Three items are mislabeled\n\nThese carry a `refactor` or `fix` prefix, but they change the public surface. Do not leave them out of the Breaking section.\n\n1. **`refactor(*): stop re-exporting the internal error types`** — 9 commits across `jobs`, `db`, `core`, `auth`, `billing`. Any user who imports an error type from those modules gets a broken import.\n2. **`refactor(api): drop the unused v1 export route`** (#4152, `56dc828`) — this removes an HTTP route. \"Unused\" is a claim about your telemetry, not about every caller.\n3. **`fix(auth): return 401 for an expired token instead of 403`** (#4223, `1d2bd55`) — a status code change. Any client that branches on 403 changes behavior.\n\n## Draft for CHANGELOG.md\n\n```markdown\n## 4.2.0 — 2026-08-27\n\n### Breaking\n- The internal error types are no longer re-exported from `auth`, `billing`,\n  `core`, `db`, and `jobs`. Import them from the package root instead.\n- The v1 export route is removed. Use the v2 route.\n- An expired token now returns 401 instead of 403. A client that branches on\n  403 must handle 401.\n\n### Added\n- Webhook deliveries that fail are now retried with exponential backoff.\n\n### Fixed\n- A paginator no longer fails on a null cursor.\n- A duplicate header is no longer sent on a response.\n- An empty allowlist no longer throws. It now denies every entry.\n- A trailing slash in a URL is trimmed once, not twice.\n- The trace id is kept across a retry.\n- The latency histogram now reports the correct units.\n- The token parser error message now names the field that failed.\n- The HTTP client clears its timer when the socket drops.\n- The HTTP client closes its pool on shutdown.\n- The database layer no longer writes the whole request body to the log.\n```\n\n## Points to settle before you cut\n\n**The log records subjects, not diffs.** I inferred the effect of each fix from its subject line and the files it touched. There is no source tree here to verify against. Check these three before you ship, because a wrong description is worse than no description:\n\n- \"handle an empty allowlist\" — I wrote \"denies every entry\". It can also mean \"allows every entry\". These are opposite security postures.\n- \"tighten the token parser error message\" — I wrote \"names the field that failed\". Confirm the new text.\n- `fix(db): stop logging the whole request body` (`1b55313`) — if request bodies with credentials or personal data reached your logs in 4.1, this is a disclosure fix, not a tidy-up. It can need a security advisory and a note on log retention. That is a call for you, not for the changelog.\n\n**The 10 perf commits have no home.** Your three headings do not include a performance section. The measurable one is `perf(api): reuse the parsed schema between requests` (`9f02d92`). The rest are micro-optimizations with no stated numbers. My recommendation: leave all 10 out. Add a \"Performance\" heading only if you have a benchmark to quote.\n\n**A possible fourth breaking item.** Three docs commits \"note the minimum node version\", CI moved to node 22, and `.nvmrc` got pinned twice. That pattern often means a dropped runtime. The log does not state the old or new minimum, so I did not write it up. If 4.2 raises the floor, that belongs at the top of Breaking.\n\n**The date.** I used 2026-08-27 for tomorrow. Correct it if the tag lands on a different day.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "25eb794e67d9d4d137c5c8c676d8116d3e8c43153ca863a3da3cd3b3738cc893"
+}

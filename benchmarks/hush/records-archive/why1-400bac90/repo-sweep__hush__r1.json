@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 13,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 76319,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.29269599999999996,
+  "numTurns": 43,
+  "durationMs": 74307,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10410
+  },
+  "contextTraffic": 281605,
+  "apiCalls": 8,
+  "toolCalls": 42,
+  "toolResultChars": 26429,
+  "narrationWords": 18,
+  "finalWords": 75,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Now applying the migration edits to all 12 files.",
+    "Verifying no `db.query` calls remain outside the vendored file."
+  ],
+  "finalText": "**Migration done.** Moved all remaining `db.query` calls to `db.execute({ sql, params })` in 12 files across `support`, `billing`, `catalog`, `analytics`, `orders`, and `accounts` packages.\n\nOne holdout left on purpose: [vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js:9) still uses `db.query`. It's vendored code marked \"do not edit — replaced wholesale on every upgrade,\" so a local fix would just get lost.\n\nNext: decide how to retire `db.query` for the vendor adapter, likely a shim in `lib/db.js` or an upstream fix in `legacy-orm`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bba87482b128e461a84f4857998657e9ba27219cf0b0dc160b9dc65e32d570e6"
+}

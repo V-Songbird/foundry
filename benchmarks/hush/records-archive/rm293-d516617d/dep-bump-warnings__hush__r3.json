@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32338,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24814,
+  "numTurns": 10,
+  "durationMs": 30599,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1534
+  },
+  "contextTraffic": 188884,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6543,
+  "narrationWords": 0,
+  "finalWords": 58,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n`[options.js:6](src/core/options.js:6)` read `options.retries`. The new shape is `retryCount`. It now takes either.\n\n`[retryPolicy.js:7](src/net/retryPolicy.js:7)` threw on `undefined`. The new loader leaves unset flags unset. It now reads as `false`.\n\nThe 8 remaining warnings are deprecations. `crypto.createCipher` in `src/legacy/adapter.js` is flagged for removal before v5. Worth a look next.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "40bf1e0abede89f268dda469ef7845e8570ff7550c6b7b8d8eadadcc290c0463"
+}

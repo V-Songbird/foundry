@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__notable__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 23,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "notable",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 143964,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3491594,
+  "numTurns": 14,
+  "durationMs": 142424,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11859
+  },
+  "contextTraffic": 367355,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 37556,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry** to `CHANGELOG.md`.\n\nOut of 380 commits, 9 things users would notice:\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook deliveries retry with exponential backoff\n- Fixed: HTTP client hangs on dropped sockets, pool not closing on shutdown, null-cursor crashes in pagination, double-trimmed trailing slashes, empty-allowlist crashes, full request body logged, wrong histogram units, trace id lost on retry, duplicate response header\n\nEverything else was dependency bumps, test/CI churn, and internal refactors like the repeated \"stop re-exporting internal error types\" commits, which touch internal modules only and don't change the public surface.\n\nNext: read the entry over and confirm the 401/403 breaking change is intentional before you cut the release.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "13aadeee9117e6e435adc466b76d9862856faaa8271916851272f11af6364548"
+}

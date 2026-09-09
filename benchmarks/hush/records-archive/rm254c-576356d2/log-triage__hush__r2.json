@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21815,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2961696,
+  "numTurns": 5,
+  "durationMs": 20244,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1259
+  },
+  "contextTraffic": 161156,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 52989,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "finalText": "Found it. Redis died at 02:14:07 and the app never got it back.\n\nHere's the chain:\n1. Redis connection dropped with `ECONNREFUSED`. The app fell back to hitting the database directly.\n2. That fallback caused constant cache misses and timeouts on every worker.\n3. Requests piled up faster than they could finish. The queue grew from 52 to over 560, non-stop, for 17 minutes.\n4. Redis tried to reconnect every 2 minutes. All 12 attempts failed. It never came back.\n5. At 02:31:44 `worker-2` ran out of memory from the backlog and crashed. The supervisor restarted it.\n6. Eight seconds later the api stopped responding entirely, and the supervisor killed it. Service went down at 02:31:52.\n\nSo the real culprit is the Redis box at `10.0.0.12:6379`. Once that came back, the pileup and the crash would stop. Worth checking why Redis went down and adding a queue limit so one dead dependency can't take the whole app with it next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92a84ef14c3f3943449a58cf77e03c6d577dbb327a3baba00053ff4f6bb1a442"
+}

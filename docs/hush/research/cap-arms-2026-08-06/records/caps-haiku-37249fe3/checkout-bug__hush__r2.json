@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 31,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 41363,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0681982,
+  "numTurns": 10,
+  "durationMs": 39667,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2443
+  },
+  "contextTraffic": 293992,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 5008,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "finalText": "Fixed the flat-coupon bug in `src/services/pricing.js`. The issue was applying the coupon after currency conversion instead of before.\n\nWhen a flat coupon (stored in USD) gets subtracted from an already-converted total, it's treated as if it were in the target currency. For a $10 coupon on a $100 order in EUR, this gave $80 instead of $81.\n\nThe fix: subtract the USD coupon from the USD subtotal first, then convert the discounted amount. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0f020faf7de804c4223d8dc90ca9e0398ee1cf1788cea1f0954c702a68d61b12"
+}

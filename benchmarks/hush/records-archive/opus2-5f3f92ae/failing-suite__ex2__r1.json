@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ex2__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ex2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 23887,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27389050000000004,
+  "numTurns": 10,
+  "durationMs": 22315,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1402
+  },
+  "contextTraffic": 180033,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 13566,
+  "narrationWords": 10,
+  "finalWords": 61,
+  "finalText": "**Found it.** `orderTotal` taxed the full price instead of the discounted one.\n\nOnly 3 of 625 cases failed, all in `order totals`. They were the only rows with a discount and a tax both non-zero. Everything else hid the bug.\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\n`src/pricing.js:39`. All 625 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "18ade34cc0594788f77fd0e1c19a47f0b89b229e59506cad00befc4a961df93a"
+}

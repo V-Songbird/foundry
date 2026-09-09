@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__inline__r1",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 0,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "inline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18631,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1097734,
+  "numTurns": 10,
+  "durationMs": 16822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1031
+  },
+  "contextTraffic": 170181,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11365,
+  "narrationWords": 0,
+  "finalWords": 45,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. All 625 tests pass.**\n\n`orderTotal` in [pricing.js:41](src/pricing.js:41) taxed the original amount instead of the discounted one, even though its own comment said tax should apply after the discount. Changed `tax = roundCents(cents * taxRate)` to use `discounted` instead of `cents`.\n\nNo further action needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "21fde2a53828dcfe47e956248c654be483ca1f2217da689375466b80f9194903"
+}

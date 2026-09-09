@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__reorder__r2",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "reorder",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37116,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.122961,
+  "numTurns": 13,
+  "durationMs": 35540,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3447
+  },
+  "contextTraffic": 139763,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 7004,
+  "narrationWords": 0,
+  "finalWords": 93,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Renaming touches 94 files.**\n\nThat spans 5 services (orders, notify, billing, analytics, accounts), plus `lib/`, `migrations/`, `docs/`, and a vendored SDK.\n\nThree spots must stay `account_id`, not rename:\n\n| Where | Why frozen |\n|---|---|\n| `vendor/reporting-sdk/*` | generated third-party wire format, `Do not edit` |\n| `migrations/*.sql` | applied history, editing breaks the down step |\n| `docs/openapi.yaml`, `lib/serialize.js` | public API field, marked \"Frozen field name\" |\n\nNext: rename in app code and DB columns via a fresh migration. Keep `serialize.js` mapping internal `owner_id` back to the frozen wire name `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8a6b2ac6c84f929255a408f89821161d8f3dd7ec3b6cf25a88324a2f45a52cc1"
+}

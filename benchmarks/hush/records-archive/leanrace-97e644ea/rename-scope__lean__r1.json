@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__lean__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38919,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1400984,
+  "numTurns": 12,
+  "durationMs": 37251,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2843
+  },
+  "contextTraffic": 228956,
+  "apiCalls": 6,
+  "toolCalls": 11,
+  "toolResultChars": 9880,
+  "narrationWords": 0,
+  "finalWords": 240,
+  "finalText": "All 5 services touch it, so this isn't a small tweak, but it is mechanical everywhere except three spots.\n\n**Size**: `account_id` shows up in 94 files, about 1,082 lines, across all five services (accounts, orders, billing, notify, analytics) plus 12 migration files and the vendored SDK. Internal code (repos, services, routes) is the bulk and is safe to rename.\n\n**Must not rename:**\n1. `vendor/reporting-sdk/**` — vendored, generated third-party code. Its README says local edits get wiped by `npm run vendor:refresh`. Renaming there is pointless and will silently revert.\n2. `lib/serialize.js`'s `WIRE` map — the comment says the right-hand side is the frozen public API, documented in `docs/openapi.yaml` and read by every client by name. Internal key can become `owner_id`, but the wire output must stay `account_id`.\n3. `docs/openapi.yaml` — public contract, same `account_id` field name, required in schemas.\n4. The Postgres column itself (`migrations/20250114_create_accounts.sql` and everywhere it's a foreign key, e.g. `REFERENCES accounts (account_id)`) — this is a real `ALTER TABLE` across many tables and indexes, not a text rename. Needs its own migration plan, not part of a code-level rename.\n\n`lib/audit.js` also writes `account_id` into every audit line and is used by all 5 services' logic — worth confirming with whoever owns audit/compliance before touching it, since audit trails often have their own consumers.\n\nMy recommendation: sign off on renaming the internal variable/field name everywhere except vendor, serialize.js's wire output, openapi.yaml, and the DB column, which need separate handling.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9437d72a1e4ebc0e11ad036bb55eb54a9179273d9ba500015575394588696966"
+}

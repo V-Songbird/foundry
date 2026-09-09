@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41557,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.258226,
+  "numTurns": 10,
+  "durationMs": 40093,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2533
+  },
+  "contextTraffic": 178229,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7216,
+  "narrationWords": 31,
+  "finalWords": 234,
+  "finalText": "The build succeeds now (exit 0). Two of the messages were real breakage from the bump, and they were sequential — fixing the first only surfaced the second.\n\n**1. `src/core/options.js:7` — hard failure.** The bumped bundler renamed the option `retries` → `retryCount`, and this call site still read `options.retries`, so `.toFixed()` threw on `undefined` (`ERROR EBUILD02 link-failed`). Now reads `retryCount` and falls back to `retries` for any callers still on the old shape.\n\n**2. `src/net/retryPolicy.js:7` — latent behavior bug.** The old config loader returned `false` for unset flags; the new one leaves them `undefined`, and the strict boolean check threw on that. Since `undefined` means \"unset\", it now returns `false` — matching the old default — while still rejecting genuinely bad values like strings or numbers.\n\nOne thing to flag: the **8 deprecation warnings remain**, and I couldn't fix them from here. They're `DEP0142` (`fs.exists`), `DEP0198` (`Buffer()`), `DEP0233`, `DEP0250` (`punycode`), `DEP0267`, plus `W1042` (`crypto.createCipher`), `W2213` (unused export), and `W3307` (circular import). They point at files like `src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, and `src/core/graph.js` ↔ `src/state/tracker.js` — none of which exist in this checkout, which only contains `build.js`, `src/core/options.js`, and `src/net/retryPolicy.js`. If those live in another package or a sibling repo, point me at it and I'll clear them too. Worth noting `W1042` (`crypto.createCipher`) is the one with real teeth — it's insecure and slated for removal in v5, so it's a genuine follow-up rather than noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d2d8c07281066354564762e349f89c672ab3b24e76d25b48ca94c91c54f56cc7"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 164,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 24058,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0778822,
+  "numTurns": 3,
+  "durationMs": 22184,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1170
+  },
+  "contextTraffic": 106745,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 53050,
+  "narrationWords": 0,
+  "finalWords": 157,
+  "finalText": "Redis went down at 02:14:07 (connection refused to 10.0.0.12:6379) and never came back.\n\nWhen Redis disappeared, your app fell back to reading directly from the store instead of serving from cache. This triggered a cascade: the store got hammered with requests, requests timed out after 5s, clients retried, the request queue exploded from 52 to 568 (your max is 500), and after 17 minutes of this, worker-2 ran out of memory trying to hold all those queued requests. It crashed at 02:31:44, supervisor marked the API dead, and killed the whole process group.\n\nThe problem wasn't your app—it was that Redis stayed down. Twelve reconnection attempts all failed with the same connection refused error. Your graceful degradation worked (it tried to keep going without cache), but the store couldn't handle the load, and memory pressure finished the job.\n\nTo recover: get Redis back online. That single fix would have let the system shed the queue and stabilize.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "321e9d85e57441e0929f49c383d1e86b690610a4b44c4ac6b3d6d6b8fd6739e3"
+}

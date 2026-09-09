@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16874,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29298840000000004,
+  "numTurns": 3,
+  "durationMs": 15422,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 759
+  },
+  "contextTraffic": 145469,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 181,
+  "finalText": "**Root cause chain (02:14:07 – 02:31:52 UTC, 2026-07-04):**\n\n1. **02:14:07** — Redis dies: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache layer falls back to direct store reads.\n2. Fallback overwhelms the store — cache miss storms + `TimeoutError: request timed out after 5000ms (store overloaded)` repeating every few seconds across api/worker-1/worker-2/scheduler, nonstop for 17+ min.\n3. Redis reconnect attempts fail 12 times straight (02:15:26 through 02:31:26), never recovers.\n4. Request queue depth climbs steady whole time: 52 → 568, blew past max 500 around 02:25:48.\n5. **02:31:44** — worker-2 heap out of memory (request backlog piled up, unbounded).\n6. **02:31:45** — worker-2 crash-restarts (exit code 134).\n7. **02:31:52** — supervisor gives up, kills whole process group. `api unresponsive, killing process group — service down`. That's your outage.\n\n**Bottom line:** Redis at 10.0.0.12:6379 went down, fallback-to-store path had no circuit breaker/backpressure, queue grew unbounded for 17 minutes until worker-2 OOM'd and supervisor killed everything.\n\n**Fix directions:** restore/fix Redis at 10.0.0.12, add circuit breaker so store fallback doesn't accept unbounded queue, cap queue depth with shed/reject instead of letting it grow past 500.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68793a3b7f96efaccc7b97d4238871206a3765b94d4b5f066cb4f88158bbbdf8"
+}

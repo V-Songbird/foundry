@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 18,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30503,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.280253,
+  "numTurns": 9,
+  "durationMs": 28832,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1875
+  },
+  "contextTraffic": 170277,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 17783,
+  "narrationWords": 68,
+  "finalWords": 257,
+  "assistantMsgs": 3,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n## What was actually broken\n\nOut of the ~700 lines of output, there were only **3 real failures**, all in the `order totals` suite and all the same root cause:\n\n| case | expected | actual |\n|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 |\n\n`orderTotal` in `src/pricing.js:39` computed the tax off the **pre-discount** base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- cents, not discounted\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"Tax is charged on the amount the customer pays\"), and it overcharges tax on the discounted portion — the delta is exactly `discount × taxRate`.\n\nThe fix routes the discounted subtotal through the existing `applyTax`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nWorth noting why this hid for so long: of the 69 rows in that suite, 66 have either a zero discount or a zero tax, and the bug is invisible unless **both** are non-zero. Only the three hand-written rows at `cases.js:80-82` have that combination. If you add more order-total coverage, make sure it's in that both-non-zero region — the generated rows can't catch ordering mistakes.\n\nThe other eight suites (line totals, discounts, taxes, volume tiers, refunds, shipping, loyalty, rounding) were passing the whole time; the wall of text was just the verbose reporter printing an `ok` line per case.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf2eabe24b3ee58fc057fbefe11cdab434d79f23de1d7c0fc91c9e79517eb7a7"
+}

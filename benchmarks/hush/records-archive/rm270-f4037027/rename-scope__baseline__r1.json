@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 61,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34505,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.13103520000000002,
+  "numTurns": 12,
+  "durationMs": 33488,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2709
+  },
+  "contextTraffic": 190757,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 15322,
+  "narrationWords": 14,
+  "finalWords": 408,
+  "finalText": "Here's the real picture.\n\n**Scope: ~90 files, but almost entirely one repeated pattern.**\n\n`account_id` shows up in 5 services (accounts, analytics, billing, notify, orders) × 3 layers each (`repo/*.js`, `service/*.js`, `http/*Routes.js`) — that's the bulk of the ~1,300 hits, and it's the same mechanical shape everywhere: a column name threaded as a function param through repo → service → HTTP route (e.g. `services/billing/src/repo/invoice.js:8-44`). Genuinely big in file count, but low in judgment calls — a scripted rename handles almost all of it.\n\n**Where it must NOT be renamed:**\n\n1. **`docs/openapi.yaml`** — explicitly documented as a frozen public contract: `account_id` is a required field on `Invoice`/`Order` schemas and a public query param. Renaming breaks every external client; the file says a rename needs a new dated API version, not an in-place edit.\n2. **`lib/serialize.js`** — the internal→wire mapping that feeds that public API. Comment is explicit: \"an internal rename must not reach this side of the map.\" The wire key `account_id` must stay `account_id` even if the internal DB column changes.\n3. **`vendor/reporting-sdk/**`** — marked \"vendored, generated. Do not edit,\" regenerated via `npm run vendor:refresh` (reporting-sdk@3.8.1 per `package.json`). It's a third-party dependency snapshot; local edits get overwritten. This is out of scope entirely.\n4. **`migrations/*.sql`** — all already applied in production (dated comments confirm this, e.g. applied 2025-01-14, 2025-06-24). Editing an applied migration doesn't rename anything live and breaks the down-step. An actual DB rename needs a *new* migration (`ALTER TABLE ... RENAME COLUMN`), not edits to history. Also note the self-referencing FK (`accounts.account_id REFERENCES accounts(account_id)`) — any real rename has to keep FK consistency across all the tables that reference it.\n5. **`lib/audit.js`** — audit log entries carry `account_id` as a stored field; if this feeds any persisted/replayed audit trail, changing the key retroactively changes the meaning of historical records. Worth confirming with whoever owns audit/compliance before touching it, even if not stated as frozen like the others.\n\n**Bottom line for sign-off:** the internal rename (repo/service/route params, DB column, in-house code) is mechanical and safe across ~80 files. The 4-5 files above are explicit no-go zones — renaming there is either a breaking public API change, an edit to a vendored dependency, a rewrite of applied migration history, or a change to audit semantics. I'd approve the internal rename but block on those, and ask the requester whether \"everywhere\" was meant to include the public API — if so, that's a versioned API change, not a same-day rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be18b0c1765c2543d90d9af0d096f37b9205e8057ccc86a8c65fa7f47e4ba2f1"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52147,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.34288399999999997,
+  "numTurns": 13,
+  "durationMs": 50717,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3401
+  },
+  "contextTraffic": 205606,
+  "apiCalls": 7,
+  "toolCalls": 12,
+  "toolResultChars": 15906,
+  "narrationWords": 51,
+  "finalWords": 185,
+  "assistantMsgs": 5,
+  "finalText": "Migration finished. 36 call sites across 12 files converted to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| analytics | `repo/cohort.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\nAll rewritten files pass `node --check`, and `db.query` no longer appears anywhere under `packages/`.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** — still on `db.query`. The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local changes silently lost, so patching it in place would be undone by the next vendor bump. Since `lib/db.js` notes the driver's next major drops `query()` entirely, this needs a real fix rather than an edit: upgrade legacy-orm to a version using the new form, or wrap the adapter with a local shim that maps its calls onto `db.execute`. Tell me which you'd prefer and I'll do it.\n- **`cache.query(...)`** — appears in ~20 repo files but is `lib/cache.js`'s own API, unrelated to the db handle. Untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ebea159c69ef95ae9f74644ca2eae80ab5585cf353590c78336e7267147a2840"
+}

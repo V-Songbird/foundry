@@ -1,0 +1,47 @@
+{
+  "key": "repo-sweep__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 80,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62213,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.347481,
+  "numTurns": 12,
+  "durationMs": 61323,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3735
+  },
+  "contextTraffic": 220789,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 12726,
+  "narrationWords": 89,
+  "finalWords": 236,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll start by finding what's still using the old call.",
+    "Let me look at the shape of an already-migrated file versus a stale one.",
+    "`cache.query` is a separate API, so only `db.query` is in scope. Let me check `lib/db.js` and the vendor file.",
+    "Vendor is marked do-not-edit, so that's out of scope (I'll flag it). Let me check for any other shapes before doing the rewrite.",
+    "Now verifying nothing was missed and nothing else got touched:",
+    "Now let me syntax-check every changed file and eyeball the two trickiest rewrites:"
+  ],
+  "finalText": "Migration finished. **36 call sites across 12 files** moved from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| analytics | `repo/cohort.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\nVerification: zero `db.query` references remain outside `lib/db.js` and `vendor/`, and `node --check` passes on all 78 files.\n\nTwo things I deliberately left alone:\n\n- **`cache.query(...)` — 25 sites.** That's `lib/cache.js`, an unrelated key-value API with a different signature. Only the `db` handle was in scope.\n- **`vendor/legacy-orm/adapter.js` — 2 sites** (`findAll`, `findOne`). The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local changes silently lost. Editing it would migrate these calls until the next dependency bump, then silently regress.\n\nThat vendor file is the one loose end worth a decision from you. `lib/db.js` documents that the driver's next major drops `query`, so those two calls become a real breakage rather than a deprecation warning at that point. The options are to pin/patch it (e.g. a `patch-package` entry so the change survives upgrades), wrap it behind a local adapter that translates to `execute`, or check whether a newer legacy-orm already uses the new form. I didn't want to pick for you, since it's a dependency-management call rather than a code change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9d17a0c571086eaad8f7973a6dc3942a3df849d7a3e5b5f177d0ededbdfcb7ea"
+}

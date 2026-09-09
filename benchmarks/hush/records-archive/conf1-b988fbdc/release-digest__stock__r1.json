@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__stock__r1",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 18,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 67726,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2275686,
+  "numTurns": 14,
+  "durationMs": 66172,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5755
+  },
+  "contextTraffic": 319125,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 22459,
+  "narrationWords": 33,
+  "finalWords": 108,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "No package.json to check for version, just the two history files. That confirms the auth status-code change is a single, real behavior change worth flagging as breaking. Now I'll write the changelog entry."
+  ],
+  "finalText": "**Wrote the 4.2.0 entry to [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, one real feature and about ten user-visible fixes, the rest was deps and refactors.\n\nOne breaking change: expired tokens now return `401`, not `403`.\n\nNew: webhook retries with exponential backoff on failed deliveries.\n\nFixes worth flagging: request bodies stopped being logged, null-cursor pagination crashes across four modules, empty-allowlist crashes, duplicate headers, double-trimmed trailing slashes, dropped trace ids on retry, wrong latency histogram units, and an HTTP client hang on socket drop.\n\nLeft out the token-parser error message tightening since the test suite explicitly asserts error codes, not messages, so it's not a contract anyone should be depending on.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ec4a0dbb9faf0b2852f5f1e9d194f456879a5315d42a08df80553981902e680a"
+}

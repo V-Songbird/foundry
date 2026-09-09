@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 23,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30356,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.23244249999999994,
+  "numTurns": 8,
+  "durationMs": 28438,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1398
+  },
+  "contextTraffic": 200641,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 6945,
+  "narrationWords": 36,
+  "finalWords": 140,
+  "assistantMsgs": 4,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was actually broken:** 3 of 625 cases, all in the `order totals` suite, all one bug in `src/pricing.js:41`.\n\n`orderTotal` applied the discount correctly but then computed tax on the *original* amount instead of the discounted one:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← pre-discount base\n```\n\nThat contradicted the function's own doc comment (\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied\"). The deltas were exactly `discount × taxRate` each time — e.g. 12000c at 15% off, 8.25% tax overcharged by 148c.\n\n**Fix:** one line — tax the discounted subtotal.\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nThe other 622 cases were passing before and after; nothing else needed changing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5634cd15601d53b045b023ceb8209b5eca1c8c107c1ae327eb87d09050764649"
+}

@@ -1,0 +1,44 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 147735,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7766625,
+  "numTurns": 27,
+  "durationMs": 143130,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10048
+  },
+  "contextTraffic": 628341,
+  "apiCalls": 23,
+  "toolCalls": 22,
+  "toolResultChars": 13042,
+  "narrationWords": 35,
+  "finalWords": 247,
+  "assistantMsgs": 8,
+  "narrationTexts": [
+    "I'll start by looking at the project files.",
+    "Everything's clear. The router is a straight priority→channel mapping.",
+    "The doc comment drifted away from `route()` when I added the table — fixing that while I'm here."
+  ],
+  "finalText": "Dedup is in, keyed off the `state` object the scaffolding provided.\n\n```js\nconst lastSentAt = state.lastSentAt.get(event.key);\nif (lastSentAt !== undefined && event.at - lastSentAt <= DEDUPE_WINDOW) {\n  return [];\n}\n```\n\n`createState()` now returns `{ lastSentAt: new Map() }`, and the timestamp is recorded only when the notification actually goes somewhere.\n\nReplay: 0 errors, 99 dropped. I checked those 99 against `events.js` directly — they're exactly the synthetic flaps (every 9th event, same key, +2 minutes), with no non-flap collateral and no flap surviving. Delivery counts fall roughly 11% across the board as a result; critical goes 225→200.\n\nThree judgment calls, since your wording left them open:\n\n- **A repeat suppressed by dedup does not extend the window.** The clock runs from the last actual send, so a key flapping every 2 minutes gets through every 6 minutes rather than never again.\n- **Queuing counts as sending.** A quiet-hour notification routed to `queue` starts the 5-minute window, so its flap is dropped rather than queued twice. The alternative — dedup only against real deliveries — would let flaps pile up in the queue.\n- **The window is inclusive**, so a repeat at exactly +5 minutes is dropped and +6 gets through.\n\nThe dedup check sits before the quiet-hours branch, which means these interact: a key sent at 21:58 suppresses its 22:01 repeat instead of queuing it. That follows from \"drop the repeat,\" but if you'd rather quiet-hour repeats still land in the queue, that's a one-line reorder.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0b5853d83f210d354d035c80eacce3a31808ecbe4996f548dade73a91abc1be1"
+}

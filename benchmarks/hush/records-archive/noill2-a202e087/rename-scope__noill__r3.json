@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__noill__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 53,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 96530,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.51409,
+  "numTurns": 25,
+  "durationMs": 95082,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6776
+  },
+  "contextTraffic": 242920,
+  "apiCalls": 9,
+  "toolCalls": 24,
+  "toolResultChars": 24146,
+  "narrationWords": 0,
+  "finalWords": 110,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Not a one-day sign-off.** 1082 hits, 94 files. About 875 are plain JS names. Safe.\n\n| Do not rename | Hits | Why |\n|---|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | frozen public contract |\n| [lib/serialize.js:8](lib/serialize.js) WIRE values | 1 | public wire name |\n| [vendor/reporting-sdk](vendor/reporting-sdk) | 12 | `vendor:refresh` overwrites it |\n| `migrations/*.sql` | 37 | applied history |\n| SQL text in `repo/*.js` | 125 | real column name |\n| payload key in `insert*` | 25 | stored JSON shape |\n| [lib/audit.js:8](lib/audit.js) field | 2 | log consumers read it |\n\nNext: rename JS names only. Wire and column changes need their own project.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "90c7aa35ec8924925d7fa02792e74aa551f22142aeca621e0338b5093cebf988"
+}

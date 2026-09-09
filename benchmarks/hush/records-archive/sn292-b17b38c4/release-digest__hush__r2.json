@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84633,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3433126,
+  "numTurns": 9,
+  "durationMs": 82879,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7653
+  },
+  "contextTraffic": 308290,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 73646,
+  "narrationWords": 0,
+  "finalWords": 127,
+  "assistantMsgs": 1,
+  "finalText": "**Added the 4.2.0 entry to `CHANGELOG.md`.**\n\nOf 380 commits, most were dep bumps, refactors, and test churn. Real user-facing changes:\n\n- Breaking: expired tokens now return `401` not `403`, and the unused `v1` export route is gone\n- Added: webhook deliveries retry with exponential backoff\n- Fixed: null-cursor crashes on pagination, trailing-slash bugs, empty-allowlist bugs, a duplicate response header, dropped trace ids on retry, wrong latency-histogram units, an HTTP client hang on socket drop, and the db layer logging full request bodies\n\nWorth a second look before you ship: several fixes (duplicate header, trace-id-on-retry, null-cursor) landed two or three separate times across different modules on different dates, which usually means the first fix was incomplete. Might be worth checking those didn't regress again after the last commit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7695a3481656118d69917034a6368126f99daf4ad85770f70d74901e27a5007e"
+}

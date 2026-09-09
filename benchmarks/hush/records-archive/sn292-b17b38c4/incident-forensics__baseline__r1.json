@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 79704,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5204136,
+  "numTurns": 19,
+  "durationMs": 72849,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5172
+  },
+  "contextTraffic": 1258601,
+  "apiCalls": 19,
+  "toolCalls": 15,
+  "toolResultChars": 78489,
+  "narrationWords": 0,
+  "finalWords": 267,
+  "assistantMsgs": 4,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z) — pool exhaustion is still climbing, not self-healing.\n\n**Root cause:**\nGateway connection pool (size 20) hit `ERR_POOL_EXHAUSTED` and never recovered. `in_use` pegs at 20/20 immediately and the `waiting` queue grows continuously (13 → 70+) with no drain, indicating connections are being acquired but not released back to the pool — consistent with a leak introduced by the pool-isolation config change (see rollback below), not a traffic spike (request volume stayed flat throughout).\n\n**Impact window:**\n- **Start:** 2026-03-14T02:14:18.972Z (first 503; a WARN \"acquire slow\" precursor logged 4s earlier at 02:14:14.920Z)\n- **End:** not yet recovered — still failing at 03:59:27.974Z, the last entry in logs/gateway.log\n- Affects all backend routes indiscriminately (billing-svc, orders-svc, catalog-svc, accounts-svc) — confirms it's the gateway's own pool, not a downstream dependency\n- Scoped to the gateway only: logs/worker.log shows the worker fleet's separate DB pool healthy throughout (`in_use=1/8, waiting=0` at every check), no errors — no cross-service blast radius\n\n**Deploy to roll back:**\n**dep-4471** — `gateway`, deployed by a.novak, 2026-03-14T02:12:00Z–02:14:00Z, *\"config: connection-per-request for pool isolation\"*. First 503 landed ~19s after this deploy finished. No other deploy in the window fits the timing (dep-4470/dep-4469 are over an hour earlier with clean gateway behavior in between; dep-4472/dep-4473 landed *after* the 503s already started, so they aren't the trigger and haven't fixed it either).\n\n**Recommended next step:** revert dep-4471 and confirm `pool in_use` drops back below 20 with `waiting` returning to 0; if it doesn't, the leak may be in code the config change exposed rather than the config itself.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2ec27be4b57589b2f54dc44de5827396d6db7ef62dc5d87ad504ad56bfaafb45"
+}

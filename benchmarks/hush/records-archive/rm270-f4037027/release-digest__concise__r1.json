@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 39,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 121053,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.41338159999999996,
+  "numTurns": 14,
+  "durationMs": 120081,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10357
+  },
+  "contextTraffic": 495627,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 74278,
+  "narrationWords": 166,
+  "finalWords": 114,
+  "finalText": "CHANGELOG.md is updated. A couple of calls worth flagging before you ship this:\n\n1. **The 401/403 auth change** — I put it under Breaking since a client checking for `403` on expired tokens will now miss it, even though the commit is tagged `fix`. Worth a sanity check that this was intentional and not something you want to soften/announce separately.\n2. **The db request-body logging fix** — I listed it plainly, but if that body could have contained credentials/PII, you may want to loop in security/compliance before publishing, since it's effectively disclosing there was a logging exposure.\n\nEverything else (deps bumps, refactors, CI, test flakiness fixes) I left out entirely as it's not installer-visible.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f4acda1190192b04bc0b95b378a0431885ba4bc3758aa9c8a0eb82dd3214ac01"
+}

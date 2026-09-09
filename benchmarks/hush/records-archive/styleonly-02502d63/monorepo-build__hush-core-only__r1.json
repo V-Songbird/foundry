@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush-core-only__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush-core-only",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30212,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20697060000000003,
+  "numTurns": 9,
+  "durationMs": 28594,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1615
+  },
+  "contextTraffic": 280012,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 8740,
+  "narrationWords": 15,
+  "finalWords": 87,
+  "finalText": "Found it and fixed it: the build passed lint fine, then died in the bundle stage on a real bug in `packages/shared/config.js`.\n\n`resolveRelease` merged config layers with a shallow `Object.assign`, so any package overriding part of `output` or `sourcemap` — like `@acme/api` setting just `output.format`— wiped out the rest of that object (`dir`, `entry`), tripping the build's own completeness check.\n\nFixed it to merge `output` and `sourcemap` one level deeper, so partial overrides only change the key they name. Build now finishes clean: 5 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c59c835f24f3eb6c033f74a1c73c310787467183074f9d1e5003baed672557f1"
+}

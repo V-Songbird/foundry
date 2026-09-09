@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 69,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22062,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12056520000000001,
+  "numTurns": 9,
+  "durationMs": 20917,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1632
+  },
+  "contextTraffic": 163281,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 10348,
+  "narrationWords": 0,
+  "finalWords": 194,
+  "finalText": "This is a real rename, not a small one: **1,082 places** in **94 files**.\n\nThree spots must keep the old name `account_id`, no matter what:\n\n1. **`vendor/reporting-sdk/`** (4 files) — a vendored copy of an outside package. Its own README says not to edit it. Any change gets wiped the next time someone runs `npm run vendor:refresh`.\n2. **`docs/openapi.yaml` and `lib/serialize.js`** — `account_id` is the public API field name that every outside client already reads. `lib/serialize.js` even has a comment saying this exact thing: the public side of that mapping is frozen by the API contract, so an internal rename must stop before it reaches there.\n3. **The already-applied migration files** (17 files in `migrations/`, including `20250114_create_accounts.sql`) — these already ran in production. Editing old migration files doesn't rename anything in a live database, and it breaks their rollback step. A rename there means writing a *new* migration, not touching the old ones.\n\nEverything else, the service code in `orders`, `notify`, `billing`, `analytics`, and `accounts`, is safe to rename internally.\n\nSo: sign off on the internal rename, but flag that vendor code, the public API field, and old migrations stay as `account_id` on purpose.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eafbc13d40c0aef8c1c32fe3f86cc48b09f5ee245656284ccb76840eb0d8c0ba"
+}

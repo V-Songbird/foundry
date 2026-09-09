@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__bare__r3",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "bare",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84253,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3083792,
+  "numTurns": 55,
+  "durationMs": 82316,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10793
+  },
+  "contextTraffic": 289343,
+  "apiCalls": 8,
+  "toolCalls": 54,
+  "toolResultChars": 30399,
+  "narrationWords": 24,
+  "finalWords": 47,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Good, confirms the migration pattern. Now editing the 11 in-repo files (excluding the vendored adapter).",
+    "Verifying no `db.query` calls remain outside the vendored file."
+  ],
+  "finalText": "**Migration done.** Moved 10 files, 30 call sites, from `db.query` to `db.execute({ sql, params })`.\n\nOne file still uses `db.query`: [vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js:9). Its header says it's a vendored copy, replaced wholesale on upgrade, do not edit locally.\n\nNext: update legacy-orm upstream, or confirm you want it patched anyway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a62384e984cd3f7e09dcc26c9ab96c560506d9398dee15c023bb40ce5f7f4eb"
+}

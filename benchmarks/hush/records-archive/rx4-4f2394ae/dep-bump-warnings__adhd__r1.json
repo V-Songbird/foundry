@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rx4-4f2394ae",
+  "seed": "1786463924622",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32174,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.22594460000000002,
+  "numTurns": 10,
+  "durationMs": 30754,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1863
+  },
+  "contextTraffic": 341543,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 10150,
+  "narrationWords": 48,
+  "finalWords": 91,
+  "finalText": "Build's clean. 0 errors, exit code 0.\n\nTwo real bugs, both from the bundler bump changing option shapes:\n\n1. `src/core/options.js:6` — read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the right key.\n2. `src/net/retryPolicy.js:7` — threw on unset flags because the new config loader leaves them `undefined` instead of `false`. Fixed to treat `undefined` as disabled.\n\nThe rest of the wall of text (DEP01xx warnings, W1042/W2213/W3307, dedupe noise) is just the deprecation noise mentioned in the file's own comments — not causing the failure. Next: nothing, build's good.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "86c7a4920fb910812e7a4993d5f14ee1152d3c9498e9f6aee700962bdb3b455b"
+}

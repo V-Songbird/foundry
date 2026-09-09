@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__stock__r2",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 23,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 75477,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28780320000000004,
+  "numTurns": 38,
+  "durationMs": 72968,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9990
+  },
+  "contextTraffic": 307041,
+  "apiCalls": 9,
+  "toolCalls": 37,
+  "toolResultChars": 24219,
+  "narrationWords": 29,
+  "finalWords": 62,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Good, this confirms the plan. Now migrate all non-vendor files (10 files, 3 calls each = 30 call sites).",
+    "Now verify no remaining `db.query` calls outside the vendored file."
+  ],
+  "finalText": "**Migration done.** Moved all 30 remaining `db.query` call sites to `db.execute({ sql, params })` across 12 files in `accounts`, `orders`, `catalog`, `billing`, `analytics`, and `support`.\n\nLeft `vendor/legacy-orm/adapter.js` alone — it's marked \"Do not edit, replaced wholesale on every upgrade.\"\n\nOnly `db.query` remains there now. Worth flagging that vendored adapter to whoever owns the legacy-orm upgrade, since it'll break once `query` is dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4149c0bfec6f0d501023231b1c6f1fa4e5d7f835392b84612c1847cf40725576"
+}

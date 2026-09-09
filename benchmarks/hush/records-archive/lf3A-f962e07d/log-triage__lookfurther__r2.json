@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lookfurther__r2",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lookfurther",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 77782,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 0.4242904999999999,
+  "numTurns": 11,
+  "durationMs": 75793,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4348
+  },
+  "contextTraffic": 318409,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 7929,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "finalText": "**Redis went down and took the service with it.**\n\n1. `02:14:07` Redis refused connections at `10.0.0.12:6379`.\n2. `02:14:07` The app fell back to reading the store directly.\n3. `02:14:10` Those reads started timing out after 5 seconds.\n4. `02:29:12` The queue passed its own 500 limit. Nothing shed load.\n5. `02:31:44` `worker-2` ran out of memory from the backlog.\n6. `02:31:52` `supervisor` killed the process group. Service down.\n\nRedis never came back. All 13 retries were refused.\nNo request succeeded after `02:14:03`.\nThe real damage is the fallback. It has no brake.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "15161ff0c2a625a8cda22a4c4480edcca39888c62231d95b8e6ff1e9074d243d"
+}

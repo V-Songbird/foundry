@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 51,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 48451,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2655174,
+  "numTurns": 12,
+  "durationMs": 41422,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2865
+  },
+  "contextTraffic": 371698,
+  "apiCalls": 10,
+  "toolCalls": 8,
+  "toolResultChars": 12180,
+  "narrationWords": 0,
+  "finalWords": 200,
+  "finalText": "**Gateway 503 Incident — On-Call Handoff**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` (config generation 118→119, also bumped `gateway.timeout.upstreamMs` 2000→2500). This caused the connection pool to acquire a new connection per request instead of reusing pooled connections, exhausting the pool (`size 20, in_use 20`) and building an ever-growing wait queue that never drained.\n\n**Impact window:** 2026-03-14 02:14:18 UTC (first `503`) through at least 03:59:27 UTC (last log line captured, still failing — `waiting` queue at 74 and climbing). Ongoing at time of log capture; not yet resolved.\n\n**Trigger sequence:**\n- 02:12:00Z — dep-4471 deploy starts\n- 02:12:12.820Z — config reload requested\n- 02:13:41.234Z — config generation 119 applied (`pool.perRequest: false -> true`)\n- 02:14:00Z — dep-4471 deploy finishes\n- 02:14:14.920Z — first `WARN pool acquire slow`\n- 02:14:18.972Z — first `503` + `ERR_POOL_EXHAUSTED`\n\n**Scope:** Gateway only. Checked `worker.log` for same window — no errors, no 503s, no pool exhaustion. One unrelated pre-existing slow-query warning (`OPS-2210`) at 02:36:22, tagged known issue, not connected.\n\n**Rollback target:** `dep-4471` (gateway, a.novak) — revert `gateway.pool.perRequest` to `false` (and optionally restore `upstreamMs` to 2000). This is the only deploy in `deploys.csv` matching the config change window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31e8198a2ddf5597a8977b35165b39a6cc6adcfed464a775b74b989f6424d0f3"
+}

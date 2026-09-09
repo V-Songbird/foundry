@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rx3-a77633ec",
+  "seed": "1786463572387",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15185,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.25945999999999997,
+  "numTurns": 3,
+  "durationMs": 13285,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 776
+  },
+  "contextTraffic": 140003,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 48435,
+  "narrationWords": 12,
+  "finalWords": 185,
+  "finalText": "**What happened (2026-07-04, 02:14–02:31 UTC):**\n\n1. **02:14:07** — Redis at `10.0.0.12:6379` dropped: `ECONNREFUSED`. App fell back to direct DB reads.\n2. **02:14–02:31** — Without cache, every request hit the store directly → constant `TimeoutError` (5000ms) across api/worker-1/worker-2/scheduler, repeating every few seconds for 17 straight minutes.\n3. Request queue depth climbed the whole time: 52 → 568 (max was supposed to be 500) — never drained, just kept growing.\n4. Redis reconnect attempts (0 through 12, roughly every 2 minutes) all failed — Redis never came back.\n5. **02:31:44** — `worker-2` ran out of memory (`JavaScript heap out of memory`) from the unbounded backlog, crashed.\n6. **02:31:45** — Supervisor restarted worker-2 (exit code 134).\n7. **02:31:52** — `api` became unresponsive; supervisor killed the whole process group. **Service down.**\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable and never recovered. The app's fallback-to-store path had no backpressure/circuit breaker, so the request queue grew unbounded until a worker OOM'd and took the process group down with it.\n\nNext: check why Redis at `10.0.0.12:6379` went down (host/network issue, OOM on the Redis box, etc.) — that's outside this app log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f00f353dcbb0a32bc9577c9969e3479383b2d38c72e3420545cf548c37e4ec30"
+}

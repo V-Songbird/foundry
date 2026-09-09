@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 53,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 57828,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.35167289999999995,
+  "numTurns": 15,
+  "durationMs": 52272,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3280
+  },
+  "contextTraffic": 555392,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 19563,
+  "narrationWords": 0,
+  "finalWords": 203,
+  "finalText": "Log ends mid-incident — still degrading (wait queue grew from 13 → 71) as of the last line, `2026-03-14T03:59:27.974Z`. No recovery captured, so treat this as **ongoing**.\n\n---\n\n## On-call handoff — gateway 503s\n\n**Status:** ONGOING as of 03:59:27Z (last log line), not yet resolved\n\n**Root cause:**\n`dep-4471` (gateway, a.novak) shipped a config change — `gateway.pool.perRequest: false → true` — intended for \"pool isolation.\" Applied as config generation 119 at 02:13:41Z. It exhausted the fixed 20-connection pool: every request now grabs its own connection instead of sharing, so under normal load `in_use` pins at 20/20 and the wait queue climbs unbounded (13 → 71+ and rising). Requests that can't acquire a connection in time return 503 (`ERR_POOL_EXHAUSTED`).\n\n**Impact window:**\nStart: `2026-03-14T02:14:18.972Z` (19s after dep-4471 finished deploying)\nEnd: not yet — still active at end of log (`03:59:27Z`), 1h45m+ and counting\nScope: gateway only, all upstreams affected (billing/orders/catalog/accounts-svc) since it's the shared pool, not one backend. Workers unaffected — separate DB connection path, confirmed clean throughout.\n\n**Rollback:**\n`dep-4471` — revert `gateway.pool.perRequest` back to `false` (or roll back to config generation 118).\n\nNext: roll back dep-4471 now, then watch `pool` log lines for `in_use` dropping below 20 and `waiting` returning to 0 to confirm recovery.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "56765402be62972d3ef0f2db40dea3109b0def25d0a6a8261ae2abd982e9693c"
+}

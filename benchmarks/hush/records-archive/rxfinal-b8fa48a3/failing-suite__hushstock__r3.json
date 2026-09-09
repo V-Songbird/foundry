@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hushstock__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 24,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26994,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22730120000000004,
+  "numTurns": 10,
+  "durationMs": 25407,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1374
+  },
+  "contextTraffic": 302286,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 15210,
+  "narrationWords": 10,
+  "finalWords": 62,
+  "finalText": "Found it: `orderTotal` in `src/pricing.js` was taxing the original price instead of the discounted price. Charged tax on cents before the discount, so any order with both a discount and a tax came out too high.\n\nChanged it to tax the discounted amount instead. All 625 cases pass now, and the ground-truth check confirms the fix is real, not a rigged test.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "acdbe7b97f6a9b6c206a00369b3a1aa5eb5c8bed4dd9a657eadce79cc644b664"
+}

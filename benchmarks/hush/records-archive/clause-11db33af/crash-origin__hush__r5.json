@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r5",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 9,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16119,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08956639999999999,
+  "numTurns": 8,
+  "durationMs": 14533,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 927
+  },
+  "contextTraffic": 158676,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 3244,
+  "narrationWords": 0,
+  "finalWords": 93,
+  "assistantMsgs": 1,
+  "finalText": "**Real crash site is `refreshToken`**, not `tokens.js:6`.\n\n[refresh.js:15](src/auth/refresh.js:15) returns `undefined` on purpose when `auth.internal` sends `invalid_grant` — that error is deliberately excluded from `RECOVERABLE`.\n\n[session.js:7-8](src/session.js:7) never checks that return value, so `undefined` flows straight into `decode(token)`, which then calls `.split` on it at `tokens.js:6`.\n\nThe stack trace's real crash line is accurate, but the bug isn't there — `decode` is just the first place that dereferences a value someone upstream chose not to guard.\n\n**Next:** decide what `resumeSession` should do when `refreshToken` returns `undefined` — likely a 401 forcing re-login, not a 500.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c96d14f2d4bd141fbe41a4710c4fe2c2fc6c7e34e7545c339173971577e4a95"
+}

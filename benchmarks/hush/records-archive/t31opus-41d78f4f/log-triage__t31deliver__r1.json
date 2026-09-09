@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__t31deliver__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "t31deliver",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 61676,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31994999999999996,
+  "numTurns": 8,
+  "durationMs": 59791,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3358
+  },
+  "contextTraffic": 166006,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 12515,
+  "narrationWords": 6,
+  "finalWords": 391,
+  "finalText": "Here's what the log says.\n\n**Short version:** Redis died, so every read went straight to the database. The database couldn't keep up, work piled up for 17 minutes, and the service ran out of memory and was killed.\n\n**The timeline** (all times UTC, log is dated 2026-07-04):\n\n- **02:00–02:14** — Everything normal. Fast responses, cache hit ratio between 0.90 and 0.98, no errors at all.\n- **02:14:07** — Redis connection lost: `ECONNREFUSED 10.0.0.12:6379`. One second later the app logs \"cache layer degraded — falling back to direct store reads.\"\n- **02:14:08 onward** — The fallback kicks in and the flood starts: \"cache miss storm\", 5-second timeouts against the store, growing queue depth. That pattern repeats about 520 times over the next 17 minutes.\n- **02:15:26–02:31:26** — 13 Redis reconnect attempts, roughly every 80 seconds. Every single one refused. Redis never came back.\n- **02:29:12** — Request queue crosses its limit (502 of max 500) and keeps climbing to 568.\n- **02:31:44** — worker-2 dies: \"JavaScript heap out of memory (request backlog).\"\n- **02:31:45** — Supervisor restarts worker-2.\n- **02:31:52** — Supervisor kills the whole process group: \"api unresponsive — service down.\" Log ends there.\n\n**What actually broke:** Redis, at `10.0.0.12:6379`. `ECONNREFUSED` means nothing was listening on that port — Redis was down or gone, not slow or unreachable by network. Everything after that is your app reacting to it.\n\n**Two things made it much worse than it needed to be:**\n\n1. The fallback has no brake. When the cache went away, every request went to the database at full speed. There's no circuit breaker and no rate limit, so the app hammered a store that was already overloaded.\n2. The queue has no ceiling in practice. It logged \"max 500\" but kept accepting past 500, up to 568. That backlog is what ate the memory and killed the worker.\n\n**Worth flagging:** you said this was last night, but the log timestamps are 2026-07-04 and today is 2026-08-18. This file is about six weeks old. Either the log is stale, the clock on that box is wrong, or last night's log is somewhere else. Worth checking before you act on it.\n\n**Where I'd look next:** why Redis at `10.0.0.12` stopped accepting connections — that's the root cause, and this log can't tell you. Check that host's own logs for the 02:14 window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a5e7948dc4cfe8cf008c95159a96e5384ad843f08adfd22d1442f044806d5203"
+}

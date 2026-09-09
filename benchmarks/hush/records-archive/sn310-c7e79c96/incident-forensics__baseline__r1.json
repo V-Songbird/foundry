@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 74714,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.267439,
+  "numTurns": 21,
+  "durationMs": 69460,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5651
+  },
+  "contextTraffic": 534132,
+  "apiCalls": 16,
+  "toolCalls": 17,
+  "toolResultChars": 23653,
+  "narrationWords": 0,
+  "finalWords": 277,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z). Not self-healing — requires action.\n\n**Root cause:**\n`dep-4471` (gateway, deployed by a.novak, 02:12–02:14Z) shipped a config change — *\"connection-per-request for pool isolation\"* — that flipped `gateway.pool.perRequest: false -> true` (also bumped `gateway.timeout.upstreamMs: 2000 -> 2500`, generation 118→119). This switched the gateway from a shared/reused connection pool to one connection per request, against a fixed pool size of 20. Under normal traffic that exhausts the pool (`ERR_POOL_EXHAUSTED`, `in_use=20`), and the wait queue backs up monotonically rather than draining (13 waiting at 02:14 → 74+ by 03:59) — a saturation death spiral, not a transient blip.\n\n**Impact window:**\n- Config applied: `2026-03-14T02:13:41.234Z`\n- First WARN (slow acquire): `02:14:14.920Z`\n- First 503: `02:14:18.972Z`\n- Still failing continuously at end of available log: `03:59:27.974Z` (~1h45m and counting)\n- Affects all 4 backends roughly evenly (billing-svc, orders-svc, catalog-svc, accounts-svc) across `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search`. `/health` still returns 200, so <redacted-secret> auto-restart won't catch this.\n- **Blast radius: gateway only.** Checked `logs/worker.log` for the same window — worker pool (separate, `size=8`) stayed flat at `in_use=1 waiting=0` throughout, job throughput uninterrupted. No cross-service spread.\n\n**Rollback:**\nRoll back **`dep-4471`** (gateway config gen 119 → 118), specifically reverting `gateway.pool.perRequest` to `false`. That's the only deploy time-correlated with the incident; `dep-4470` (worker, 00:48Z) and `dep-4469` (accounts-svc, 23:31Z) predate it and are unrelated, and `dep-4472`/`dep-4473` landed after the 503s had already started.\n\n**Not yet done / next steps:** rollback itself hasn't been executed — flagging for whoever picks this up. If `perRequest: true` is actually needed for pool isolation, pool size (currently 20) needs to scale with it before re-enabling.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c895927f502c09559b37f1aef3cedb5dd89755e3f8a70a538894306e7b16fe12"
+}

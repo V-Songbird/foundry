@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__precap__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25872,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1504702,
+  "numTurns": 10,
+  "durationMs": 24416,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1866
+  },
+  "contextTraffic": 288061,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8370,
+  "narrationWords": 8,
+  "finalWords": 73,
+  "finalText": "Builds clean now. It finishes with 0 errors instead of crashing.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid instead of \"off,\" which would've broken next.\n\nFixed both. The remaining 8 warnings are just deprecation noise from the bump, not real problems.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a274e284e1a7922b1c63a536ebdc345ccfd59e58130e4f564c3c55b0dc7574c7"
+}

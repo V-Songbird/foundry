@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 287131,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.341657,
+  "numTurns": 21,
+  "durationMs": 281280,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 19700
+  },
+  "contextTraffic": 734444,
+  "apiCalls": 21,
+  "toolCalls": 17,
+  "toolResultChars": 18438,
+  "narrationWords": 24,
+  "finalWords": 976,
+  "finalText": "## ON-CALL HANDOFF — Gateway 503s\n\n**Prepared:** 2026-08-25 · **Sources:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n\n> **⚠️ Read first — two separate incidents.** The gateway outage and the worker degradation overlap in time but are causally unrelated. Rolling back the gateway fixes INC-1 only. INC-2 is still getting worse and needs its own owner.\n\n> **⚠️ Verify this is live.** These logs cover **2026-03-14 01:00–03:59Z**. Today is 2026-08-25. Either this is an archived incident or the files on disk are stale — confirm before paging anyone.\n\n---\n\n# INC-1 — Gateway: 83% of requests returning 503\n\n### Root cause\n\nConfig generation 119, shipped by **`dep-4471`**, flipped `gateway.pool.perRequest` from `false` → `true`. Every request now opens its own connection instead of reusing a pooled one. The pool is 20 connections; it pinned at `in_use 20` and never recovered.\n\nConfirming evidence — connection opens jumped **104×** (`gateway.log:1262`):\n```\n03:02:30.904Z WARN pool  connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\nEvery error in the file is the same one — 530 × `ERR_POOL_EXHAUSTED`, no other signature:\n```\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection\n                            from pool (size 20, in_use 20, waiting 13)\n```\n\nCausal chain, second-by-second:\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:00 | dep-4471 starts |\n| 02:12:12.820 | `reload requested by deploy pipeline, generation 118 -> 119` |\n| 02:13:41.234 | `generation 119 applied` — `pool.perRequest: false -> true` |\n| 02:14:00 | dep-4471 finishes |\n| 02:14:14.920 | first `acquire slow: waited 100ms` |\n| **02:14:18.972** | **first 503** — 18.9s after deploy completion |\n\n### Impact window\n\n**Start: `2026-03-14T02:14:18.972Z`** · **Status at last log line (`03:59:27.974Z`): ONGOING** · **Duration: ≥1h 45m**\n\n| Window | Error rate |\n|---|---|\n| 01:00 – 02:09 | 0% |\n| 02:10 – 02:14 | 13% (partial) |\n| **02:15 – 03:59** | **83%, flat, no recovery** |\n\n- **All five business endpoints down equally** (~106 failures each): `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`. Includes checkout — assume revenue impact.\n- **All four upstreams affected equally** (~132 each). Not an upstream fault; it's the gateway's own pool.\n- **This log is `node-3 of 3`.** Same config generation presumably reached all nodes — real user impact is likely **~3× these numbers**.\n\n**Do not mistake this for recovery:** the `waiting` counter climbs 13 → 271, then resets to 12 and climbs again. That's a counter wrapping. The 503 rate stays at 83% straight through it.\n\n### 🔧 Rollback\n\n**Roll back `dep-4471`** (gateway, 02:12–02:14Z, a.novak, *\"config: connection-per-request for pool isolation\"*).\n\n**Target: `gateway.pool.perRequest` → `false`** (revert to config generation 118).\n\nTwo cautions:\n1. Generation 119 also carried **`gateway.timeout.upstreamMs: 2000 → 2500`**, unrelated to the outage. A blanket gen-118 revert takes that with it — decide deliberately rather than by accident.\n2. **Don't just raise the pool size.** Against a 104× churn multiplier that buys minutes, not a fix.\n\n**Verify recovery:** error rate on the five `/v1/*` endpoints drops toward 0%, `in_use` falls below 20, and the churn WARN stops recurring. Confirm on **all three nodes**, not just node-3.\n\n### Action item — alerting gap\n\n`/health` returned **200 for the entire outage** (105 requests, `pool_wait=2ms`) because health checks bypass the exhausted path. On-call wasn't paged until **03:21:05Z — 67 minutes after the first 503**. Health-check-based alerting cannot see this failure mode. File a follow-up to alert on error rate, not liveness.\n\n---\n\n# INC-2 — Workers: unbounded latency growth (separate, unresolved)\n\n### Status: **not caused by INC-1, not fixed by the rollback, still degrading**\n\nJob duration grew **6×**: 200ms at 01:00 → 2324ms at 03:59, at a dead-constant **+165ms per 15 minutes (~11ms/min)**.\n\nWhy it's independent of the gateway:\n- **Predates it** — already climbing in the first log bucket at 01:00, 74 minutes before dep-4471.\n- **Ignores it** — the slope is +165ms/bucket across *every* boundary, including 02:00→02:15 when the gateway went 0% → 83%. Zero inflection.\n\nWhy it's not a database or pool problem:\n- `db_wait` flat at ~5ms all night.\n- Worker pool never contended — all 18 stats lines identical: `size=8 in_use=1 idle=7 waiting=0`.\n- Time is burned **in-process**, accumulating at a constant rate. That's an unbounded-growth signature: leak, untrimmed collection, cache without eviction, or accruing retry/scheduler state.\n\nJobs are still *succeeding* — 1080/1080 `ok`, zero failures, all logged at `INFO`. **This will not trip an error-rate alert.**\n\n**Lead:** `dep-4470` (worker, 00:48–00:55Z, j.tanaka, *\"retry backoff for webhook jobs\"*) finished 5 minutes before the log starts, with degradation already underway on line 2. Timing fits. What doesn't fit: the slowdown is uniform across all six job types (cleanup 5.9× … webhook 6.3×), and a webhook-only change shouldn't do that unless it landed in shared retry/scheduler code.\n\n**➡️ Next step:** pull worker logs from **before 00:48Z**. That single query confirms or kills dep-4470 — this log starts at 01:00, so there's no pre-deploy baseline here.\n\n**⏱ Clock:** straight-lining +11ms/min from 2324ms, average job duration crosses **5s around 08:00Z** and **10s in the early afternoon**. If anything upstream enforces a job timeout, workers begin failing on their own schedule regardless of the gateway fix. Header says 4 replicas, so these are aggregates — per-replica may be worse.\n\n---\n\n## Open questions for the incoming on-call\n\n1. Are nodes 1 and 2 also on generation 119? (Only node-3 logs available.)\n2. Did `dep-4472` (billing, 02:41) and `dep-4473` (catalog, 03:20) land cleanly? Both deployed *through* an 83%-error gateway. **Neither caused INC-1** — errors were flat for 66 minutes before dep-4473 — but dep-4473 starting 65 seconds before the page is an easy misattribution.\n3. What's the actual customer-facing blast radius? Only one of three nodes is visible here.\n4. `/v1/profile` logs `acquire slow` warnings but no terminal status line — its failures aren't counted. **530 is a floor, not a total.**\n\nWant this dropped into a file (`INCIDENT-2026-03-14.md` or similar), or reformatted for Slack/PagerDuty?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c80453c917cfee96e8cc58a069d11d57c5c26200a54275c9300cb93922da3aff"
+}

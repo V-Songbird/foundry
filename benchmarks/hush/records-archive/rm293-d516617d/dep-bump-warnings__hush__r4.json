@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33738,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.240542,
+  "numTurns": 10,
+  "durationMs": 31983,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1757
+  },
+  "contextTraffic": 161284,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6244,
+  "narrationWords": 0,
+  "finalWords": 61,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now, exit 0.** Two real bugs from the bump, not noise.\n\n`[options.js:6](src/core/options.js:6)` read `options.retries`, but the bundler now sends `retryCount`. It threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`. `[retryPolicy.js:7](src/net/retryPolicy.js:7)` threw on unset flags, which the new loader leaves as `undefined`. That now means off.\n\nThe 8 warnings left are all deprecation notices. Worth a cleanup pass later.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e791dc7e603384e2f0ab9c0470c47fd26415651b5986e084121003b94df05bd6"
+}

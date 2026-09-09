@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__noill__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23748,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.120992,
+  "numTurns": 10,
+  "durationMs": 21656,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1227
+  },
+  "contextTraffic": 203441,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11745,
+  "narrationWords": 25,
+  "finalWords": 51,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms it: only rows with both a discount and tax fail, exactly where `orderTotal` computes tax on the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Fixed. Suite is green: `625 total, 625 passing, 0 failing`.**\n\nOnly 3 of 625 cases failed, all in `order totals`. `orderTotal` in [src/pricing.js:39-43](src/pricing.js:39) taxed the pre-discount `cents` instead of the discounted amount, so it only showed up on rows with both a nonzero discount and nonzero tax.\n\nNext: nothing, suite's clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "521348694c0239fe78465e5c72c5d26064afd5d3be83da2c2021bcfee3cf0b77"
+}

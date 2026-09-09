@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__turncmp__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 25,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "turncmp",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 72598,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.43183710000000003,
+  "numTurns": 15,
+  "durationMs": 65804,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3854
+  },
+  "contextTraffic": 599726,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 20888,
+  "narrationWords": 0,
+  "finalWords": 141,
+  "finalText": "**Root cause.** `dep-4471` (gateway, a.novak, 02:12–02:14Z) flipped `gateway.pool.perRequest` from `false` to `true`. That change exhausted the connection pool at its max of 20, so every upstream call started failing with 503.\n\n**Impact window.** First 503 at 02:14:18Z. Still failing at 03:59:27Z, the last line in the log, so it was ongoing when the log was captured. Only the gateway was hit — `worker.log` shows workers on a separate pool, healthy the whole time.\n\n**Rollback.** Revert `dep-4471` on gateway, or just flip `gateway.pool.perRequest` back to `false`. That's the only deploy that touches the gateway that night.\n\nEvery failure repeats the same signature:\n```\nERROR access  req-XXXXX <path> -> <svc> 503 <latency>ms\nERROR pool    req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n`waiting` climbs from 13 to 74+ by the end, confirming it never recovered on its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e28aa3d7ce32379b55d6950960fae64bff2ed24f10eb3076fff639be07036467"
+}

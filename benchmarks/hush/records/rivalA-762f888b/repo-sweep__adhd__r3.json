@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 90,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51262,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.33784699999999995,
+  "numTurns": 11,
+  "durationMs": 50240,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3064
+  },
+  "contextTraffic": 184168,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 20149,
+  "narrationWords": 16,
+  "finalWords": 166,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by finding the remaining usages.",
+    "Now the mechanical rewrite across the 12 in-repo files:"
+  ],
+  "finalText": "Migration finished. 36 call sites across 12 files:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the style of the already-migrated files (e.g. `packages/accounts/src/repo/user.js`). All files pass `node --check`.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost. Since `lib/db.js` says the driver's next major drops `query`, this needs a real fix — upgrading the vendored lib, or wrapping the handle passed to it — not an edit in place. Your call which; I can do the wrapper if you want.\n- **`cache.query('...')`** in the `cachedX` helpers is `lib/cache.js`, a different object with a single-key signature — not part of this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6db3ca876741fd6129dce06a1768ffaaff7710eb9002b4dccdde592e4e4abe6f"
+}

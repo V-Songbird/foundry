@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 94597,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6999129999999999,
+  "numTurns": 8,
+  "durationMs": 92543,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6824
+  },
+  "contextTraffic": 259097,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 63026,
+  "narrationWords": 37,
+  "finalWords": 922,
+  "finalText": "Read the whole file (719 lines) and cross-checked the counts. Here's what happened.\n\n## One-line version\n\nRedis died at 02:14:07. The app's fallback path sent every read straight to the primary store with no circuit breaker and no queue limit enforcement, the request backlog grew unbounded for 17 minutes, and the service OOM'd itself to death at 02:31:52.\n\n**Redis was the trigger; the fallback behavior was the outage.**\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. All `/users`, `/orders`, `/health` return 200. Cache hit ratio 0.90–0.98. Cron ticks OK. |\n| **02:14:03.137** | **Last successful request in the entire log** (`worker-1 GET /orders 200 75ms`) |\n| 02:14:07.113 | `ERROR [api] redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN cache layer degraded — falling back to direct store reads` ← the decision that killed it |\n| 02:14:08 | Cache miss storm begins |\n| 02:14:10 | First `TimeoutError: 5000ms (store overloaded)` — store saturated within **3 seconds** |\n| 02:14:12 | Queue depth 52 |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts, all ECONNREFUSED |\n| **02:29:12** | Queue depth **502 — exceeds the declared max of 500. Nothing happens.** |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**17 minutes 45 seconds** from Redis loss to total outage. Level counts: 348 WARN, 188 ERROR, 173 INFO, 2 FATAL.\n\n## What the numbers tell you\n\n**It was a hard outage from second one, not a degradation.** Zero 200s and zero INFO lines after 02:14:07. The \"degraded\" fallback served nothing successfully — it just absorbed requests until it died.\n\n**Queue growth was perfectly linear: +3 per sample, every sample, 52 → 568.** I checked every step — the only step size present is 3, and it's monotonic across all 173 samples. It never plateaus and never dips. That's the signature of a system with zero backpressure: arrival rate exceeded drain rate by a fixed margin, and every request just accumulated in memory. That accumulation is literally what OOM'd worker-2 (`request backlog`).\n\n**The `max 500` is decorative.** The log says `(max 500)` on all 173 lines, the depth crossed 502 at 02:29:12, and the app kept accepting for another 2m12s up to 568 with no load shedding, no 503s, no rejections. The limit is logged but not enforced.\n\n**Reconnects had no backoff.** The 13 attempts are spaced at *exactly* 80 seconds — 02:15:26, 02:16:46, 02:18:06, and so on. No exponential backoff, no jitter. Not harmful here since Redis was flat-out, but it means a Redis that recovers slowly gets hammered on a fixed cadence by every instance simultaneously.\n\n**All four components failed identically.** The WARN/ERROR lines rotate round-robin through `api`, `worker-1`, `worker-2`, `scheduler`. This is not one bad node — it's a shared dependency taking everything down at once.\n\n**The miss keys are a small bounded set.** `orders:1000`–`orders:1199` — a ~200-key working set on the orders keyspace. (These lines are sampled at ~6s intervals, so this is a sample of the miss traffic, not its volume.) Still, a hot set that small is a strong candidate for a tiny in-process LRU that would have survived the Redis loss entirely.\n\n## Root cause\n\nRedis at `10.0.0.12:6379` became unavailable. `ECONNREFUSED` rather than a timeout means the port was actively closed — the Redis process or container was **gone**, not merely slow or partitioned. Something terminated it.\n\nThe log cannot tell you *why* Redis died. That answer is in Redis's own logs or your orchestrator's event history around 02:14:07 — check for an OOM kill, an eviction, a node drain, or a deploy.\n\nBut Redis dying should have been survivable. What made it fatal:\n\n1. **No circuit breaker on the store.** After the first 5s timeout, the app kept issuing reads it had every reason to expect would time out.\n2. **The 500 queue cap isn't enforced** — no load shedding at any depth.\n3. **The queue is unbounded and in-memory**, so backlog directly consumes heap until V8 aborts (exit 134 = SIGABRT, the standard V8 OOM signature).\n4. **A 5000ms store timeout is far too long** under a stampede — each in-flight request occupies a worker slot for 5 full seconds.\n5. **No fallback cache.** Losing Redis means losing *all* caching, with nothing in between.\n\n## What I'd fix, in order\n\n1. **Enforce the queue limit.** Return 503 above 500 depth. This alone converts the outage from \"process dies, everything lost\" to \"some requests rejected, service survives.\" Cheapest fix, biggest win.\n2. **Circuit breaker on the store**, tripping after N consecutive timeouts, with fast-fail while open.\n3. **Cut the store timeout** to something near p99 (~200–500ms based on the healthy-period latencies, which topped out at 145ms).\n4. **Small in-process LRU** as an L1 in front of Redis — the ~200-key hot set would have ridden this out.\n5. **Exponential backoff with jitter** on reconnects.\n\nTwo things worth flagging: **the log is dated 2026-07-04**, about six weeks before today, and the file was last modified 2026-08-11 — so if \"last night\" means Aug 17–18, this may be an older incident rather than the one you're chasing. Worth confirming you're looking at the right file. And separately, the load *arriving* isn't in this log at all, so I can't tell you whether traffic was normal or whether a spike contributed — the request-rate metrics would settle that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "578281129d3f3f6855e4bde5c1e593ac146b4d7d7e210c084091cebae52b3d31"
+}

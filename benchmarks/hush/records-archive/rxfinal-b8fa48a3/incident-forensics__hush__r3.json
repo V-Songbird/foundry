@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 51,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 56518,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3646154,
+  "numTurns": 12,
+  "durationMs": 49187,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2826
+  },
+  "contextTraffic": 477757,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 15295,
+  "narrationWords": 0,
+  "finalWords": 126,
+  "finalText": "**On-call handoff — gateway 503s, 2026-03-14**\n\n**Root cause:** Deploy `dep-4471` (a.novak, gateway, 02:12–02:14Z) flipped `gateway.pool.perRequest` from `false` to `true`. Right after, the connection pool maxed out at 20/20 in use and stayed there. Every error is `ERR_POOL_EXHAUSTED`, and the wait queue climbs the whole time (13 → 74+), so it never recovers on its own.\n\n**Impact window:** Started 2026-03-14T02:14:18Z. Still failing at the end of the log, 2026-03-14T03:59:27Z, so it was ongoing when the log cuts off.\n\n**Roll back:** `dep-4471` on gateway. Other deploys that night (`dep-4468` catalog, `dep-4469` accounts, `dep-4470` worker, `dep-4472` billing, `dep-4473` catalog) are all clean, no need to touch them.\n\n**Scope:** Gateway only. `worker.log` shows no errors or pool issues in this window, just one unrelated known slow-query warning at 02:36 (OPS-2210).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b5e6d2dd4c690f7f390d5b5375f510d1eed0d62277ed5342c7773f205d47d86e"
+}

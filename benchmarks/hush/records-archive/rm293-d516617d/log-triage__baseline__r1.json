@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 69446,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.323057,
+  "numTurns": 8,
+  "durationMs": 67821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4634
+  },
+  "contextTraffic": 181303,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 7951,
+  "narrationWords": 22,
+  "finalWords": 621,
+  "assistantMsgs": 3,
+  "finalText": "## What happened\n\nA Redis outage at **02:14:07** cascaded into a full service death **17m45s later** at **02:31:52**. Nothing recovered on its own — the log ends with the supervisor killing the process group.\n\n**First, a discrepancy:** every line is timestamped `2026-07-04`, not last night (2026-08-28). Either this is an archived log from the July 4th window, or the clock/rotation is wrong. Worth confirming you're looking at the right incident before acting on this.\n\n### Timeline\n\n| Time | Event |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. 173 successful requests, cache hit ratio 0.90–0.98. |\n| **02:14:07.113** | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | Cache layer degraded → falls back to direct store reads |\n| 02:14:08.202 | Cache miss storm begins (`orders:1000`) |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:15:26–02:31:26 | 13 reconnect attempts (0–12), **all ECONNREFUSED**. Redis never came back. |\n| **02:29:12.359** | Queue depth crosses its limit: 502 (max 500) |\n| 02:31:44.902 | `worker-2` — JavaScript heap out of memory (request backlog) |\n| 02:31:45.001 | Supervisor: worker-2 exited code 134 (SIGABRT), restarting |\n| **02:31:52.318** | Supervisor: api unresponsive, killing process group — **service down** |\n\n### The causal chain\n\nRedis dies → app falls back to reading the store directly → every request that used to be a cache hit now hits the store → store saturates → 5s timeouts → requests pile up in the queue faster than they drain → queue grows unbounded past its 500 cap → the backlog itself exhausts the heap → worker OOMs, api goes unresponsive, supervisor kills everything.\n\nThe queue depth is the clearest progression: 52 at 02:14:12, climbing monotonically to 568 at 02:31:24. The `max 500` was logged as a warning but clearly never *enforced* — depth sailed past it for 2+ minutes with no shedding. That's the bug that turned a dependency outage into a crash.\n\n### Key details\n\n- **`ECONNREFUSED`, not a timeout.** Something actively refused the connection on `10.0.0.12:6379` — the Redis process was down or not listening. This isn't a network blackhole or a firewall drop (those hang). Check whether Redis OOM-killed, restarted, or failed over around 02:14.\n- **Reconnect backoff is flat, not exponential.** Attempts 0–12 are spaced ~80s apart, uniformly. 13 attempts over 16 minutes is unusually passive for a hard dependency.\n- **Only `[api]` logs reconnect attempts.** `worker-1`, `worker-2`, and `scheduler` never do — they just time out. Either they don't own a Redis client, or their reconnect logic is silent.\n- **The whole fleet went down together**, not one bad node: 173 timeouts split near-evenly across api (43), scheduler (43), worker-1 (44), worker-2 (43).\n- **Zero successful requests after 02:14:03.** Not degraded — a complete stop. Every INFO 200 in the file predates the Redis loss.\n- **The pre-incident latency ramp is not a signal.** It's a perfectly repeating 12→145ms sawtooth for the entire healthy period. There was no gradual degradation warning you missed; failure was instantaneous at 02:14:07.\n\n### What I can't tell you from this file\n\nThe log ends at the kill — there's no restart or recovery, so I don't know how long you were actually down. There's also nothing here explaining *why* Redis went away; that needs the Redis-side logs or infra events from ~02:14.\n\n### Where I'd focus\n\n1. **Bound the queue.** Reject/shed at 500 instead of just logging past it. This alone converts a crash into degraded-but-alive.\n2. **Circuit-break the direct-store fallback.** Falling back to uncached reads under full load is what overloaded the store. Failing fast beats amplifying.\n3. **Find the Redis root cause** at 02:14:07 on `10.0.0.12`.\n4. **Fix reconnect backoff** and give workers their own visible reconnect logging.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c565fe7c99112f2a25d9b19485da6bfefb7d19e707a9f8ffac732374117fcae9"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 92954,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7539095000000001,
+  "numTurns": 9,
+  "durationMs": 91738,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6650
+  },
+  "contextTraffic": 284905,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 73045,
+  "narrationWords": 13,
+  "finalWords": 711,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by getting oriented — the changelog format and what's in history/."
+  ],
+  "finalText": "Read both files end to end. Here's what's actually in there.\n\n## The shape of the range\n\n380 commits, and only 37 of them touch behavior anyone outside the repo can see:\n\n| | count | user-visible? |\n|---|---|---|\n| `chore(deps)` | 114 | no — all dev/runtime patch bumps, no majors |\n| `refactor` | 73 | mostly no (3 exceptions below) |\n| `test` | 64 | no |\n| `chore` / `ci` / `docs` | 92 | no |\n| `fix` | 26 | yes |\n| `perf` | 10 | no numbers attached |\n| `feat` | 1 | yes |\n\nDeduped by subject, the 26 fixes collapse to 11 distinct bugs — several subjects land two or three times across different modules (`guard the null cursor in the paginator` appears in api, db, queue and webhooks; `drop the duplicate header` in core ×3, billing, http). I treated same-subject-different-module as one bug fixed in several places.\n\n## Three things to decide before you publish\n\n**1. The history stops on 2026-06-17.** Both files end there — ten weeks before tomorrow's cut. Either the branch genuinely froze in June, or this export is stale and you're missing a quarter of the range. Worth confirming before anything else.\n\n**2. The PR sheet is not a substitute for the log.** It has 127 rows (#4120–#4246) against 380 commits, and it drops user-visible work — `fix(http): clear the timer when the socket drops` and `fix(http): close the pool on shutdown` are in the log with no PR row. I built the digest off `commits.log` and used the sheet only for PR numbers.\n\n**3. Two \"refactors\" are probably breaking and are labeled `code`, not `breaking`.** These are the judgment calls I can't make from commit subjects alone:\n\n- **`stop re-exporting the internal error types`** — seven commits, in core, db, auth, jobs and billing. The author calls the types internal, but this removes symbols from module entry points. If anyone was catching those error classes by import, their code stops compiling. Check whether they were ever in the public entry point.\n- **`refactor(api): drop the unused v1 export route`** (56dc828, #4152) — a route removal, touching `router.js`, `handlers.js` and the api tests. \"Unused\" is the author's claim; if it was reachable by an installed client, it belongs under Breaking.\n\nI've written both into the draft under Breaking. Delete them if you can confirm they were private.\n\n## Draft 4.2.0\n\n```markdown\n## 4.2.0 — 2026-08-30\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on the\n  status code will need updating. (#4223)\n- The internal error types are no longer re-exported from the package entry\n  points. Catch on the error `code` instead. (core, db, auth, jobs, billing)\n- The v1 export route has been removed. (#4152)\n\n### Added\n- Failed webhook deliveries are now retried with exponential backoff. (#4191)\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it closes\n  the pool on shutdown.\n- Paginators no longer throw on a null cursor. (api, db, queue, webhooks)\n- The request body is no longer written to the logs on a database error. (#4157)\n- The trace id now survives a retry. (#4176)\n- Latency histograms report the correct units.\n- An empty allowlist is handled instead of rejecting every request.\n  (store, db, jobs)\n- Trailing slashes are trimmed once, not repeatedly. (queue, jobs)\n- Duplicate headers are no longer emitted. (core, billing, http)\n- The token parser error message says what actually failed.\n  (core, billing, queue)\n```\n\nTwo notes on what I left out. The 10 `perf` commits (batched metric writes, skipped JSON round-trips, a cached parsed schema in `src/api/handlers.js`) carry no measurements, and your template has no Performance heading — I'd rather omit them than ship an unquantified speed claim. And all 114 dependency bumps are patch/minor with no majors, so nothing there changes an installer's resolution in a way worth a line.\n\n`fix(db): stop logging the whole request body` (#4157) is the one I'd flag to whoever handles your security comms — depending on how long it was live, it may deserve more than a changelog bullet.\n\nWant me to write the section into `CHANGELOG.md` above the placeholder comment?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed57ab0ae035a1c7cf3d86b4c40a87386f5074d4e506485f098370de04c7de74"
+}

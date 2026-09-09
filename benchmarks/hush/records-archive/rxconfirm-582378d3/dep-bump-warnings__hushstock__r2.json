@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushstock__r2",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 46854,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2605757,
+  "numTurns": 11,
+  "durationMs": 45212,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2223
+  },
+  "contextTraffic": 393457,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 10741,
+  "narrationWords": 12,
+  "finalWords": 99,
+  "finalText": "It's building clean now — exit 0.\n\nTwo bugs were hiding under the deprecation noise, both from the bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes retry count as `retryCount`. That crashed the link step outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid and threw. The new config loader leaves it `undefined` instead of `false`, so I made `undefined` mean \"off,\" same as before.\n\nThe rest — the `DEP0xxx` lines, the circular-import and unused-export warnings — are just noise from the bump, not breaking anything. Build now finishes with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "563544302bddf0cf867564106abaa0f47f1764809db58ba703d4d0d9ad8f122d"
+}

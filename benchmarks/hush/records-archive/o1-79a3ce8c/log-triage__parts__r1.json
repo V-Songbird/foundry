@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__parts__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "parts",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30654,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.556259,
+  "numTurns": 6,
+  "durationMs": 29175,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1597
+  },
+  "contextTraffic": 212417,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 61497,
+  "narrationWords": 6,
+  "finalWords": 179,
+  "finalText": "**Redis went down, and the app never recovered.**\n\nEverything was fine until `02:14:03Z`. Then Redis refused connections at `10.0.0.12:6379`.\n\nHere's the chain:\n\n```\nredis dies -> cache off -> every read hits the store\n  -> store overloaded -> 5s timeouts -> requests pile up\n  -> queue passes its 500 cap -> worker-2 runs out of memory\n  -> supervisor kills api -> service down\n```\n\nThe queue grew steadily for 17 minutes. It crossed the 500 cap at `02:29:12Z`. Nothing shed load, so it just kept growing to 568.\n\nRedis never came back. All 13 reconnect tries failed, each with the same `ECONNREFUSED`. They fired every 80 seconds flat, so there's no backoff.\n\nThe end, at `02:31:44Z` and `02:31:52Z`:\n\n```\nERROR [worker-2] JavaScript heap out of memory (request backlog)\nFATAL [supervisor] worker-2 exited with code 134, restarting\nFATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nTwo things to fix. The cap of 500 is only logged, never enforced. And the same 200 order keys were fetched over and over with no protection when the cache is gone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1f73f1288471e9880b10bccf4fccf5f32278f918efdab990956e0df56b15d023"
+}

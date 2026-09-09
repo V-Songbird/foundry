@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__exc__r5",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 12,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "exc",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27188,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1302538,
+  "numTurns": 12,
+  "durationMs": 25328,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1414
+  },
+  "contextTraffic": 235981,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11720,
+  "narrationWords": 13,
+  "finalWords": 56,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted amount."
+  ],
+  "finalText": "**Fixed. Suite is green: 625 passing, 0 failing.**\n\n`orderTotal` in [pricing.js:39-43](src/pricing.js:39) taxed the original amount instead of the discounted one.\n\n```\ntax = roundCents(cents * taxRate)   // wrong\ntax = roundCents(discounted * taxRate)   // fixed\n```\n\nOnly showed up on rows with both a discount and a tax rate, which is why most cases passed anyway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16e48dace3ecacaae7acc3998f93ea278baafb82b373e28d1e5f26d47b5a804b"
+}

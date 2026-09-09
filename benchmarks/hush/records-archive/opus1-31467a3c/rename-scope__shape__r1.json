@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__shape__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 14,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "shape",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 71793,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.40871599999999997,
+  "numTurns": 12,
+  "durationMs": 70242,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4437
+  },
+  "contextTraffic": 248472,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 15496,
+  "narrationWords": 0,
+  "finalWords": 223,
+  "finalText": "**It's about 1,300 edits across 94 of the 97 files.** Precisely: 1,291 occurrences, of which 1,205 in 77 files are fair game and 86 in 17 files must not move.\n\nThree places it must not be renamed:\n\n| Where | Hits | Why |\n|---|---|---|\n| `docs/openapi.yaml` | 5 | Public API contract. Renaming breaks every client and needs a new dated version. |\n| `vendor/reporting-sdk/` | 20 | Generated copy, `npm run vendor:refresh` overwrites any edit. Nothing in `services/` or `lib/` imports it. |\n| `migrations/*.sql` | 61 | Already applied in production. Editing them renames nothing and breaks the down steps. |\n\nA fourth spot is half-frozen. In `lib/serialize.js` the map reads `account_id: 'account_id'`, and only the left key may change. The value on the right is the public field name and has to stay.\n\nTwo things to make the platform team answer before you sign. 125 of those hits are raw SQL column references like `WHERE account_id = ?`, so this needs a real `ALTER TABLE ... RENAME COLUMN` in a new migration, and the code and the column have to flip in the same deploy. Separately, 25 repo files write `JSON.stringify({ ...values, account_id })` into a JSONB `payload`, so renaming that key leaves old rows saying `account_id` and new rows saying `owner_id` in the same column unless someone backfills.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eb7216de71ce6b7e03fbffa54f0f0d05e02e1db5ddad40e1a2df2ede43fe153d"
+}

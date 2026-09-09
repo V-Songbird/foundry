@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40111,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.35390499999999997,
+  "numTurns": 9,
+  "durationMs": 38235,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1931
+  },
+  "contextTraffic": 219328,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 20847,
+  "narrationWords": 0,
+  "finalWords": 115,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died, and everything downstream drowned.** One cause, not many.\n\nAt `02:14:07` `[api]` logged `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache fell back to direct store reads. Then 174 cache miss storms and 173 `TimeoutError: request timed out after 5000ms`. Queue depth climbed from 52 to 568 past the 500 max. Redis never came back. 13 reconnect tries, all refused, each 80s apart with no backoff.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost` ([app.log:182](logs/app.log:182)) |\n| 02:31:44 | `worker-2` `JavaScript heap out of memory` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nNext: find why `10.0.0.12:6379` refused connections. The app never recovers on its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "24b1cb761c881b9ff3342f59bfd075cb2999f019238ac2c8e465aa60e6a7410e"
+}

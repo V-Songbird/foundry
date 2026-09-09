@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 33,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 113072,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4584737000000001,
+  "numTurns": 32,
+  "durationMs": 108050,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8674
+  },
+  "contextTraffic": 597002,
+  "apiCalls": 16,
+  "toolCalls": 28,
+  "toolResultChars": 20042,
+  "narrationWords": 13,
+  "finalWords": 66,
+  "finalText": "AUDIT.md written with all four findings ranked by severity:\n\n1. **Critical** — `src/routes/internal.js`: internal endpoints lost auth when the VPN was retired.\n2. **Critical** — `config/staging.js`: plaintext DB password committed to source control.\n3. **High** — `src/repo/report.js`: `runSavedReport` builds SQL by string concatenation (filter/orderBy unvalidated).\n4. **Medium** — `package.json`: `fast-parse` still pinned to yanked, prototype-pollution-vulnerable `1.4.2`.\n\nNo service files were touched — only `AUDIT.md` was created.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4817c0585bd5c2070cd1390b8bcdbafdd89b4e9f178da01048d4ff0f8c18d196"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36685,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24672300000000003,
+  "numTurns": 10,
+  "durationMs": 35073,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2322
+  },
+  "contextTraffic": 177074,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6299,
+  "narrationWords": 34,
+  "finalWords": 244,
+  "finalText": "Build passes now (exit 0). You were right that it wasn't all noise — there were two actual bugs from the bump, hidden in ~950 lines of log:\n\n1. **`src/core/options.js:6`** — the bundler renamed the option `retries` → `retryCount`, this call site still read `options.retries`, so it threw `Cannot read properties of undefined (reading 'toFixed')`. Now reads `retryCount`, falling back to `retries` for anything still on the old shape, with a clear TypeError if neither is a number.\n\n2. **`src/net/retryPolicy.js:7`** — the old config loader returned `false` for unset flags; the new one leaves them `undefined`, which this strict check rejected. Unset now means off, matching the previous default. This one was sequential — it would only have surfaced after fixing #1.\n\nOn the remaining 8 warnings: those are genuinely non-blocking, but two look worth a follow-up ticket rather than leaving indefinitely:\n\n- `W1042` — `crypto.createCipher` in `src/legacy/adapter.js`, flagged \"remove before v5\". That's an insecure API (no explicit IV) and a hard removal deadline.\n- `W3307` — circular import between `src/core/graph.js` and `src/state/tracker.js` with undefined resolution order; that's the kind of thing that breaks unpredictably on the next bundler bump.\n\nThe rest (`DEP0142`, `DEP0198`, `DEP0233`, `DEP0250`, `DEP0267`, `W2213` unused export) are ordinary deprecation noise. I left all of them alone since the files aren't in this tree and you asked for a clean build, not a deprecation sweep — say the word if you want me to take on either of the two above.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bafbbad4fff42377574362e4da6193d9cc05753f8507dd9804177cf70f53cd1a"
+}

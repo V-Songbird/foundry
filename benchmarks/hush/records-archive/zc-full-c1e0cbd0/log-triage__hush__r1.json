@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "zc-full-c1e0cbd0",
+  "seed": "1787383666221",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18490,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14772800000000003,
+  "numTurns": 5,
+  "durationMs": 16546,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1010
+  },
+  "contextTraffic": 203510,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23546,
+  "narrationWords": 0,
+  "finalWords": 181,
+  "finalText": "Here's what happened last night, in order.\n\nThings were fine until **02:14:07 UTC**, when the app lost its connection to Redis (`connect ECONNREFUSED 10.0.0.12:6379`). Redis is the fast cache the app leans on, so losing it meant every request had to hit the slower main database instead.\n\nThat fallback couldn't keep up. Requests started timing out after 5 seconds, and the backlog of waiting requests kept growing, from 52 unhandled requests at 02:14 to over 560 by 02:31. The app tried to reconnect to Redis 12 times over those 17 minutes and failed every single time.\n\nThe pileup finally broke things. At **02:31:44**, one of the worker processes ran out of memory trying to hold the backlog. It crashed and restarted, but 8 seconds later, at **02:31:52**, the main process gave up entirely and shut the whole service down.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable and never came back, and the app had no way to shed load once its fallback path got overwhelmed.\n\n**Next step:** worth checking why Redis dropped and finding it stayed down for 17+ minutes unnoticed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4932736f862148d8dd0b8b9b82cf7c2c97cfccc7915210c7a709769921739f2e"
+}

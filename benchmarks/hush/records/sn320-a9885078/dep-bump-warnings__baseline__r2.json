@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28288,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.11492240000000001,
+  "numTurns": 10,
+  "durationMs": 26971,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1986
+  },
+  "contextTraffic": 210723,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6928,
+  "narrationWords": 43,
+  "finalWords": 124,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "This is a simulated build with two real bugs behind the noise. Let me look at the actual source files.",
+    "Confirmed — the deprecation warnings are noise, but there's a real crash from the options-shape mismatch. Fixing both real bugs the bump exposed."
+  ],
+  "finalText": "Build's green now (0 errors, exit 0). Two real bugs from the bump, both in the link stage:\n\n- `src/core/options.js`: the new bundler passes options as `{ retryCount }`, but the code still read `options.retries` (undefined), crashing on `.toFixed(0)`. Fixed to read `retryCount`.\n- `src/net/retryPolicy.js`: the new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled `true`/`false` and threw otherwise. Now treats `undefined` as disabled.\n\nThe remaining 8 warnings (DEP0142, DEP0198, DEP0233, DEP0250, DEP0267, plus the three `WARN Wxxxx` lines) are just deprecation/lint noise from the bump — nothing there references broken code paths, so I left them as-is. Let me know if you'd like those addressed too (e.g., swapping `Buffer()` for `Buffer.from()`, removing the unused `formatLegacyDate` export).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "145de86ae5702cd81321a0ec6a4206a7bfbfc93832339d6b9439d0b031f69f43"
+}

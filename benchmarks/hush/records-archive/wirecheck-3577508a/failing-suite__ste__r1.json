@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "wirecheck-3577508a",
+  "seed": "1787807898962",
+  "orderIndex": 3,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21339,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.12314199999999999,
+  "numTurns": 10,
+  "durationMs": 18951,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1221
+  },
+  "contextTraffic": 237906,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11369,
+  "narrationWords": 52,
+  "finalWords": 59,
+  "finalText": "All 625 tests pass now.\n\n**The bug:** `orderTotal` in `src/pricing.js:39-43` calculated tax on the original price, not on the discounted price. The spec in `cases.js` charges tax after the discount. Rows with a zero discount or a zero tax hid the mistake, so only 3 of the 625 cases exposed it.\n\n**The fix:** Compute tax from `discounted`, not `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "268ef71fea9964365ae9279810c569100bd25ab5d240658d7196532ef5bd1e7b"
+}

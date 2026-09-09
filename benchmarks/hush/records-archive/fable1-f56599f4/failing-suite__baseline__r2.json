@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 39435,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.47102725,
+  "numTurns": 12,
+  "durationMs": 38712,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2349
+  },
+  "contextTraffic": 195647,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 13184,
+  "narrationWords": 24,
+  "finalWords": 238,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the project layout first, then run the pricing suite and dig into the failures.",
+    "Re-running the suite to confirm it's green."
+  ],
+  "finalText": "The suite is green: all 625 cases pass, exit code 0.\n\n**What was actually broken:** one bug, in `src/pricing.js:39`. Only 3 of the 625 cases were failing, all in the order totals suite. The verbose reporter buried them under roughly 700 lines of passing output.\n\n**The bug:** the order total function applied the discount correctly, but then computed tax on the original pre-discount amount rather than on the discounted amount. Its own doc comment says tax should be charged on what the customer actually pays, and the spec in cases.js agrees. Most rows in that suite have either a zero discount or a zero tax, which masks the ordering mistake. Only the three rows with both non-zero exposed it.\n\n**The fix:** tax is now applied to the discounted amount by chaining the existing tax helper after the discount helper. That matches the spec's formula exactly, including where rounding happens.\n\nExample from one of the failing rows:\n\n```\norderTotal(12000, 15, 0.0825)\nbefore: 10200 + round(12000 * 0.0825) = 11190\nafter:  round(10200 * 1.0825)         = 11042  (expected 11042)\n```\n\nResults before and after:\n\n| Run | Passing | Failing |\n|---|---|---|\n| Before | 622 | 3 |\n| After | 625 | 0 |\n\nThe runner itself is fine. If the wall of text is a recurring pain, the simplest improvement would be a quiet mode in run-tests.js that prints only the failure block and the final summary line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a51c6a7078890fb56d33b16b17774199ba1b300363ead82a4ee46c64c5a7e75"
+}

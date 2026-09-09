@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 38,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 73264,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4143395,
+  "numTurns": 18,
+  "durationMs": 71483,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5098
+  },
+  "contextTraffic": 179168,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 21236,
+  "narrationWords": 7,
+  "finalWords": 108,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the codebase."
+  ],
+  "finalText": "**950 of 1291 hits are safe to rename.** 94 files touched.\n\n| zone | hits | rename? |\n|---|---|---|\n| `services/**` JS names | 950 | yes |\n| `services/**` SQL columns | 250 | no |\n| `migrations/*.sql` | 61 | no |\n| `vendor/reporting-sdk/` | 20 | no |\n| `docs/openapi.yaml` | 5 | no |\n| `lib/` | 5 | mixed |\n\nFrozen: `account_id` in [docs/openapi.yaml:16](docs/openapi.yaml:16) and the `WIRE` values in [lib/serialize.js:8](lib/serialize.js:8). The vendored SDK gets overwritten by `npm run vendor:refresh`. Applied migrations are history. SQL columns need their own migration first. [lib/audit.js:8](lib/audit.js:8) puts `account_id` into log lines.\n\nNext: ask who reads those audit fields.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23cc5a0971c9a61ddcb419d263f9b6d7232f504f4a3ee7d791ab6a97b89c1b19"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__dense-prose__r1",
+  "batchId": "caps-smoke-1c0a76fd",
+  "seed": "1786009892655",
+  "orderIndex": 0,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 33685,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09193650000000002,
+  "numTurns": 9,
+  "durationMs": 31612,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1777
+  },
+  "contextTraffic": 232272,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 4503,
+  "narrationWords": 0,
+  "finalWords": 53,
+  "finalText": "Fixed the bug. The `isExpired` function was using `<` instead of `<=`, so tokens at their exact expiration moment were slipping through as valid.\n\nChanged line 7 from `return token.exp < nowSeconds;` to `return token.exp <= nowSeconds;`. Now tokens are properly rejected the moment they reach their expiration time.\n\nAll 5 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e783ca2cc8bbb6c648871ba717ce28b3fdb87a5c0bac10b6a9e9dfe284274aed"
+}

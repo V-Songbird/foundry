@@ -1,0 +1,28 @@
+name: Benchmark instruments
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  instruments:
+    name: Benchmark instruments
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Use the native source checkout required by Razor's offline tests
+        run: |
+          git -C razor fetch origin "+refs/heads/Codex:refs/remotes/origin/Codex"
+          git -C razor checkout --detach refs/remotes/origin/Codex
+      - name: Check relocated benchmark instruments without model sessions
+        run: node --test benchmarks/foreman/tests/benchmark_records.test.js benchmarks/hush/tests/legacy_probe_loading.test.js benchmarks/razor/tests/*.test.js

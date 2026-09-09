@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r5",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 9,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 17526,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14979399999999998,
+  "numTurns": 7,
+  "durationMs": 15823,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 846
+  },
+  "contextTraffic": 76668,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3029,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: parse the flag in `cli.js`, print `buildRows()` as JSON.** No change to `report.js` or `format.js`.\n\n```js\nfunction main(argv) {\n  const args = argv.filter((a) => a !== '--json');\n  if (args[0] !== 'report') { process.stderr.write(USAGE + '\\n'); return 1; }\n  const rows = buildRows();\n  const out = argv.includes('--json') ? JSON.stringify(rows, null, 2) : toTable(rows);\n  process.stdout.write(out + '\\n');\n  return 0;\n}\n```\n\nOne call to make. The table drops `owner` and `slow` on purpose, per [format.js:3](src/format.js:3). I would emit the full row, since JSON has no width limit. Say the word if you want the four table columns only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "365b94463c53dae9bab571485a4bd44fd569252820db7a149efe974fe99c5a0d"
+}

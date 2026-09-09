@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 31,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 149846,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6806475000000001,
+  "numTurns": 51,
+  "durationMs": 143873,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12907
+  },
+  "contextTraffic": 781280,
+  "apiCalls": 18,
+  "toolCalls": 47,
+  "toolResultChars": 30698,
+  "narrationWords": 121,
+  "finalWords": 140,
+  "finalText": "Confirmed the dependency finding: `package.json` pins `fast-parse` at exactly `1.4.2`, the version `NOTES.md` says was yanked for a prototype-pollution report (fix is `1.4.3`). No caller of `fast-parse` currently exists under `src/`, but it's still a declared production dependency at a publicly pulled, vulnerable version.\n\n`AUDIT.md` is written with all four findings, ordered by severity:\n\n1. **Critical** — `src/routes/internal.js`: unauthenticated internal endpoints (lost its auth when the VPN boundary was retired in the 4.0 migration; only route file missing `requireAuth`)\n2. **Critical** — `src/repo/report.js`: SQL injection via string concatenation in `runSavedReport` (unreached today — no caller yet — but a landmine once wired up)\n3. **High** — `config/staging.js`: plaintext DB password committed to source, unlike dev/prod which read from env\n4. **Medium** — `package.json`: `fast-parse@1.4.2`, pinned at the version yanked for prototype pollution\n\nNo service code was touched — audit only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "45d50eaa6f0b0da2913045f2de01eb574a48a3b6b55627bfdc907dd43af417ed"
+}

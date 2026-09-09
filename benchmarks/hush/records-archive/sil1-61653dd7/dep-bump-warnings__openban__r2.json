@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__openban__r2",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "openban",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41666,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.4398475,
+  "numTurns": 11,
+  "durationMs": 39641,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1686
+  },
+  "contextTraffic": 219831,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7930,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | accept either |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | unset flag is `undefined`, threw | treat as `false` |\n\nThe 8 remaining warnings are deprecation notices. They come from `src/legacy/*` and `punycode`, files not in this tree. Clean those up next if you want a silent log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "32e11c9f1615fe0f5090bb4778d2c93c8cccedd2b63d643a435370227d38b09a"
+}

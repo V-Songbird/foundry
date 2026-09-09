@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30804,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1101146,
+  "numTurns": 10,
+  "durationMs": 29358,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2134
+  },
+  "contextTraffic": 136184,
+  "apiCalls": 5,
+  "toolCalls": 9,
+  "toolResultChars": 13745,
+  "narrationWords": 13,
+  "finalWords": 334,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll search the codebase for all occurrences of `account_id` to scope this out."
+  ],
+  "finalText": "Here's the real picture.\n\n**Size:** `account_id` shows up in 1,082 places across 94 files. But the bulk of that is repetitive — every service (orders, notify, billing, analytics, accounts) has the same repo/service/route pattern for each entity, so it's mechanically large but not conceptually complex. A scripted rename across `services/**` and new migrations would cover most of it in one pass.\n\n**Where it must NOT be renamed:**\n\n1. **`lib/serialize.js`** — the `WIRE` map explicitly freezes `account_id` as the public JSON field name, with a comment saying an internal rename must not reach this side of the map. Rename the internal DB/row field, keep the wire-side key as `account_id`.\n2. **`docs/openapi.yaml`** — `account_id` is documented as a \"Frozen field name\" in both the `Invoice`/`Order` schemas and the `/v2/invoices` query parameter. Renaming it is a breaking API change requiring a new dated API version — not something to bundle into an internal refactor.\n3. **`lib/audit.js`** — audit log lines key on `account_id`; if this is treated as an external/immutable log contract (worth confirming with whoever owns audit/compliance before touching it).\n4. **`vendor/reporting-sdk/**`** — this is vendored third-party code (`client.js`, `query.js`, `export.js`, `schema.js`). Not ours to rename; a local rename here would silently break on the next vendor update.\n5. **`migrations/*.sql`** (9 files, e.g. `20250114_create_accounts.sql`, `20250609_index_account_scans.sql`, `20250624_backfill_account_ids.sql`) — every one is stamped \"Applied in production on [date]... editing one does not rename anything in a database that already ran it, and it breaks the down step.\" These are history; the correct move is a **new** migration (`ALTER TABLE ... RENAME COLUMN account_id TO owner_id`), not edits to old files.\n\n**Recommendation to sign off on:** approve renaming the internal DB column and all internal service/repo/route code via a new migration + codemod, but explicitly carve out: the public wire format (`serialize.js`/`openapi.yaml`) stays `account_id` unless this is paired with a versioned API deprecation, the vendor SDK is untouched, existing migration files are untouched (add a new one instead), and audit.js gets a deliberate decision rather than a drive-by rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7db6e39c50964733f3528b88364b32298ed35eceb5dba8a22d40238f06ba356e"
+}

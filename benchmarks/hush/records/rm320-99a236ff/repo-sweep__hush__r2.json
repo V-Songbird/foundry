@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 35,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 136313,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.0080495,
+  "numTurns": 59,
+  "durationMs": 134683,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13682
+  },
+  "contextTraffic": 435276,
+  "apiCalls": 10,
+  "toolCalls": 58,
+  "toolResultChars": 51231,
+  "narrationWords": 6,
+  "finalWords": 73,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migrated 12 files off `db.query`.** All 36 call sites now use `db.execute({ sql, params })`.\n\n`node --check` passes on all 12. No tests exist in the repo.\n\nLeft alone on purpose:\n\n| Path | Why |\n|---|---|\n| [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) | Header says do not edit. Wiped on upgrade. |\n| `cache.query` calls | Different object. Not part of this. |\n\nNext: decide the vendor file. Options are a wrapper or an upstream fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6eb00694f4c8434dd7b55e047ee2b55a4cf36e0d0de02f2050a7061a2fa55e5f"
+}

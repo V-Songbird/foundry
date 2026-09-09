@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 33375,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.44718225,
+  "numTurns": 10,
+  "durationMs": 32440,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2018
+  },
+  "contextTraffic": 147210,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11246,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes again.** Exit code is 0.\n\nTwo real bugs hid in the noise. Both came from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | Read `retries`, bundler now sends `retryCount` | Accept both keys |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw when `backoffEnabled` was `undefined` | Treat unset as off |\n\nThe 8 `WARN` lines are still there. All are deprecation notes. None break the build.\n\nNext: clean up `src/legacy` for `DEP0142` and `DEP0198`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "209e81e115fb899940e015d56f2ae8528ec9e108da67010eda4fcc12e4c0a6f3"
+}

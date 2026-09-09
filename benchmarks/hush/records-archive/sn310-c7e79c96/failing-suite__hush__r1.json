@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22776,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12343299999999999,
+  "numTurns": 10,
+  "durationMs": 20822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1427
+  },
+  "contextTraffic": 203297,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12073,
+  "narrationWords": 0,
+  "finalWords": 43,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed.** `orderTotal` taxed the pre-discount amount instead of the discounted one.\n\nIn [src/pricing.js:39](src/pricing.js:39), `tax` used `cents * taxRate` instead of `discounted * taxRate`. Now it just calls `applyTax(discounted, taxRate)`.\n\nSuite is green: `625 total, 625 passing, 0 failing`.\n\nNext: nothing, all cases pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c1a336b70d48d54131ab228808a44e0bf2830dd710394f6785c0fe1db3108b94"
+}

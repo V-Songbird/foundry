@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15855,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.198399,
+  "numTurns": 4,
+  "durationMs": 13399,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 573
+  },
+  "contextTraffic": 137430,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "finalText": "Redis died at 02:14:07, `ECONNREFUSED 10.0.0.12:6379`.\n\nCache fell back to direct store reads. Store got overloaded, timeouts started.\n\nQueue depth climbed steadily, 52 up to 568. Redis reconnects kept failing, 12 attempts over 17 minutes.\n\nAt 02:31:44 worker-2 hit heap out of memory. Supervisor restarted it, then at 02:31:52 the api became unresponsive and got killed.\n\nRoot cause: Redis outage with no working fallback, backlog grew until OOM. Fix Redis at 10.0.0.12 and add backpressure so queue depth can't grow unbounded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2abcc9e4a33d93420d4c7321835e0705925fcdfa564b46f3164bf00f540f5a6c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 23,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 64633,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1642062,
+  "numTurns": 13,
+  "durationMs": 59204,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4073
+  },
+  "contextTraffic": 611704,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 73103,
+  "narrationWords": 46,
+  "finalWords": 220,
+  "finalText": "Based on the log analysis, here's the on-call handoff:\n\n---\n\n## Incident: Gateway 503s — Connection Pool Exhaustion\n\n**Status:** Historical (2026-03-14)  \n**Severity:** High (full gateway unavailability)\n\n### Root Cause\nDeploy dep-4471 (gateway, a.novak, 02:12-02:14 UTC) applied config generation 119 with two changes in tandem:\n- `gateway.pool.perRequest: false → true` — enabled per-request pooling for isolation\n- `gateway.timeout.upstreamMs: 2000 → 2500` — increased upstream timeout by 500ms\n\nThe longer timeout caused connections to be held ~25% longer without being released back to the pool. Combined with the per-request mode change, the gateway's connection pool (size 20) became fully exhausted within 33 seconds of deploy completion.\n\n### Impact Window\n**Start:** 2026-03-14T02:14:18Z (first 503)  \n**End:** Unknown (continued through at least 02:17:33Z based on logs)\n\nAll traffic routed through the gateway received `503 Service Unavailable` with error: `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`\n\n### Scope\n- **Gateway:** 503s on all endpoints, connection pool maxed at 20/20\n- **Workers:** Unaffected (separate pool, remained healthy at 1/8 in-use)\n- **Services:** All downstream services were starved of requests during the window\n\n### Rollback Action\n**Roll back deploy dep-4471** to restore previous config:\n- `gateway.pool.perRequest: true → false`\n- `gateway.timeout.upstreamMs: 2500 → 2000`\n\n---\n\n**Next on-call:** Check logs for resolution time and whether manual intervention was needed, or if deploy was auto-rolled back.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ba272087f3884259c7e1b6488c8a0430c67c10acfdce38835f483f25f2b5f232"
+}

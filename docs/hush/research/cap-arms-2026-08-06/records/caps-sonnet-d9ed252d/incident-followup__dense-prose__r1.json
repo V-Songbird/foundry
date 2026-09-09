@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 168,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 55121,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.396474,
+  "numTurns": 9,
+  "durationMs": 50111,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2860
+  },
+  "contextTraffic": 412701,
+  "apiCalls": 9,
+  "toolCalls": 6,
+  "toolResultChars": 23949,
+  "narrationWords": 0,
+  "finalWords": 237,
+  "finalText": "No lockfile means I can't give an exact ioredis version — only what `package.json` pins, so I've noted it as a range with that caveat.\n\n---\n\n**On-Call Handoff — Prod Outage, 2026-07-04**\n\n**Root cause:** Redis at `10.0.0.12:6379` became unreachable (`ECONNREFUSED`) and never recovered. The app made 12 reconnect attempts over 17 minutes, all failed. With the cache gone, traffic fell back to hitting the store directly, which couldn't keep up — timeouts cascaded across `api`, `worker-1`, `worker-2`, and `scheduler`, and the request queue backed up from 52 to over 560 pending requests. That backlog exhausted memory, crashing `worker-2`, and the supervisor then killed the whole process group when `api` stopped responding.\n\n**Impact window:** 02:14:07 UTC (Redis connection lost) to 02:31:52 UTC (service fully down) — roughly 18 minutes of degrading service ending in a full outage.\n\n**ioredis version:** `package.json` pins `^5.4.1`, meaning any `5.x` release ≥ 5.4.1 could have resolved at install time. There's no `package-lock.json` or `node_modules` in this repo to confirm the exact version that was actually running in prod — that'll need to come from the deploy artifact or CI build logs.\n\n**Follow-ups worth raising:**\n- Find out why the Redis host dropped and why reconnects kept failing.\n- Add a queue depth cap so a dead cache degrades gracefully instead of taking down the whole service.\n- Recover the exact ioredis build version from the prod deploy to check against changelog reconnect fixes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "151b914ff0154395e7ea3ef666ba2b2773926ba179ad4bcb5bc9a8b439082661"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 27,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70765,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.68942,
+  "numTurns": 9,
+  "durationMs": 69269,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4460
+  },
+  "contextTraffic": 325239,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 70192,
+  "narrationWords": 37,
+  "finalWords": 417,
+  "assistantMsgs": 3,
+  "finalText": "Done. What actually changed, and the calls I made:\n\n**Real user-facing content: one feature, ten fixes, one perf line.** Everything else — 150+ dep bumps, all the CI/test/chore commits, and the refactors (Ctx→RequestCtx renames, config loader moves, router splits, dead-flag deletions, \"unused v2 debug helper\" drops) — produces no observable difference for someone installing the package, so none of it is in the entry.\n\n**Three things I put under Breaking that weren't labeled as breaking.** These are the ones worth your attention before you cut:\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) was filed as a fix, but it's a contract change. Anyone with `if (status === 403)` reauth logic breaks silently.\n- `refactor(api): drop the unused v1 export route` (#4152) — \"unused\" is a claim about your telemetry, not about your users' code. Removing a route is a removal regardless of the commit prefix.\n- `refactor(*): stop re-exporting the internal error types` (5 commits across db, core, jobs, auth, billing) — \"internal\" or not, they were reachable imports and now aren't. This is the weakest of the three; if you're confident they were never documented, downgrade it to a Fixed-section note or drop it.\n\n**Deduplication.** The same fix landed repeatedly across modules — the null-cursor paginator guard appears in api, db, queue and webhooks; the empty-allowlist fix in db, jobs and store; the duplicate-header fix in core (×3), http and billing. I wrote each as one user-facing line naming the affected areas rather than one bullet per commit.\n\n**Two things I'd verify before publishing:**\n\n1. **I made up the date.** I used 2026-08-28 for tomorrow. But the last commit in `history/` is 2026-06-17 — a two-month gap before a release cut. Either the history export is stale and there are commits it doesn't cover, or the branch really has been frozen since June. Worth checking, because if it's the former this entry is incomplete.\n2. **Minimum Node version.** There are four `docs: note the minimum node version` commits and several `ci: run the suite on node 22`, but nothing in the log shows an `engines` field actually changing. If you did raise the floor, that's a Breaking entry I can't confirm from the history alone — the stat lines only show which files were touched, not what changed inside them.\n\nThe histogram-units fix is the other one I'd flag in the release announcement beyond the changelog — anyone with dashboards built on those metrics will see a discontinuity at the upgrade.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4afbdd64eb2edc32129ec6b8a1973e2f998b3fe5181837ad368a9af2299d2ab4"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 98406,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5170790000000001,
+  "numTurns": 22,
+  "durationMs": 96982,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6851
+  },
+  "contextTraffic": 276823,
+  "apiCalls": 11,
+  "toolCalls": 21,
+  "toolResultChars": 22565,
+  "narrationWords": 23,
+  "finalWords": 689,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll dig into the codebase to scope this.",
+    "1082 occurrences across 94 files. Let me look at the categories that matter for sign-off."
+  ],
+  "finalText": "## How big it is\n\n**~1,290 occurrences of `account_id` across 94 files.** But the raw number badly overstates the real work, and a blind find/replace would break six different things.\n\n| Area | Files | Occurrences | Rename? |\n|---|---|---|---|\n| `services/**` — http layer | 25 | 325 | ✅ yes |\n| `services/**` — service layer | 25 | 400 | ✅ yes |\n| `services/**` — repo layer | 25 | 475 | ⚠️ **mixed** — 150 are SQL text |\n| `migrations/*.sql` | 12 | 61 | ❌ no |\n| `vendor/reporting-sdk/**` | 4 | 20 | ❌ no |\n| `docs/openapi.yaml` | 1 | 5 | ❌ no |\n| `lib/` | 2 | 5 | ⚠️ one side only |\n\nThe safely renameable part is **~1,050 JS identifiers in `services/`** — five services × the same `http → service → repo` triple, 25 times over. It's genuinely mechanical and uniform, but it is not a one-line `sed`.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` (5) — public contract.** `account_id` is a required response field on `Invoice` and `Order` and a public query parameter on `GET /v2/invoices`. The file says it outright: renaming is a breaking change for every client and needs a new dated API version. Out of scope for a refactor.\n\n**2. `lib/serialize.js:8` — the right-hand side of `WIRE`.** This is the seam that makes the whole rename safe:\n\n```js\naccount_id: 'account_id',   // left = internal, right = public/frozen\n```\n\nRename the **key** to `owner_id`, leave the **value** as `'account_id'`. That one line absorbs the entire rename and the wire format never changes. If someone renames both sides, every API response silently changes shape — and with no tests here, nothing catches it.\n\n**3. `migrations/*.sql` (12 files, 61).** All applied in production. Editing them renames nothing in a database that already ran them, and it breaks the `-- down` steps. Migration files are history, not source.\n\n**4. `vendor/reporting-sdk/**` (4 files, 20).** Marked \"generated, do not edit\"; `npm run vendor:refresh` overwrites the tree wholesale. Worth noting: **nothing in `services/` imports this SDK at all** — I checked every `require()`. Editing it would be work that gets silently reverted on the next refresh.\n\n**5. The 150 `account_id` inside SQL string literals in `repo/`.** `'SELECT * FROM invoices WHERE account_id = ?'` refers to the actual database column. Renaming the JS variable is fine; renaming it inside the query string breaks every query unless an `ALTER TABLE` ships first. That's a separate, much riskier project — column rename across 12 tables plus their indexes, with a dual-read window.\n\n**6. The JSONB `payload` key — 25 insert sites.** Every repo does `JSON.stringify({ ...values, account_id })`, so `account_id` is embedded in persisted rows. Renaming the key changes data shape going forward while existing rows keep the old key. Nothing currently reads it back (`serialize` skips `payload`), so blast radius is low today — but it's a data migration, not a rename.\n\n## One thing to check outside the repo\n\n`lib/audit.js` stamps `account_id` on every audit line. If those lines feed a SIEM, log pipeline, or compliance query, the field name is a downstream contract the codebase can't tell you about. Confirm with whoever owns audit before renaming it.\n\n## What I'd sign off on\n\nApprove, **scoped to JS identifiers under `services/` only** — roughly 1,050 sites, plus the one-line `WIRE` key change in `lib/serialize.js`. Explicitly excluded: `vendor/`, `migrations/`, `docs/`, SQL string bodies, and payload keys. The DB column rename and the API field rename are separate projects with their own risk profiles.\n\nTwo caveats worth putting in writing on the sign-off:\n\n- **There are no tests in this repo — zero.** A 1,000-site rename is verified by review alone. That argues for landing it per-service (five reviewable PRs) rather than one 94-file diff.\n- The payoff is a variable name. Zero behavior change, ~1,050 edits, and the public field stays `account_id` anyway — so after this lands, internal and external vocabulary permanently disagree. That's a legitimate outcome if the platform team wants internal consistency, but it's worth them saying so out loud before you sign.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "45f92ce3bd36fe8b8daf69bfcbb7576b84e45bb5e129d563b25e73158a0547f5"
+}

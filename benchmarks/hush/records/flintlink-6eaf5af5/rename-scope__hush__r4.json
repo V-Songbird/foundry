@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 14,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36446,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32342,
+  "numTurns": 17,
+  "durationMs": 34853,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2276
+  },
+  "contextTraffic": 153989,
+  "apiCalls": 6,
+  "toolCalls": 16,
+  "toolResultChars": 22054,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "finalText": "**94 files, 1082 lines. Only the JS variable names can move.**\n\n| Zone | Files | Rename? |\n|---|---|---|\n| `services` | 75 | Yes, JS names only |\n| `migrations` | 12 | No, all applied in prod |\n| `vendor/reporting-sdk` | 4 | No, `vendor:refresh` overwrites |\n| `docs/openapi.yaml` + `lib/serialize.js` | 2 | No, frozen public contract |\n\nThe DB column stays `account_id`. So SQL text inside repos keeps it too, like `WHERE account_id = ?`.\n\nNext: tell them the rename is local variables only, not a blind find and replace.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "87609c5448b6322e6d516b4ebb36525a697c7d2369349a0c46b85b3c36ada3c6"
+}

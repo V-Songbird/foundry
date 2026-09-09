@@ -14,7 +14,12 @@ This is a personal plugin collection maintained by a single author. Contribution
 
 ## Plugin structure
 
-Each plugin follows this layout:
+Foundry uses only `main`. Each plugin submodule uses `main` for its front page,
+`Claude` for Claude Code, and `Codex` for Codex. Make implementation changes on
+the matching platform branch. Hush's Codex branch is an unpublished entry point
+until its port is validated.
+
+The Claude branch follows this layout:
 
 ```
 plugin-name/
@@ -38,7 +43,10 @@ plugin-name/
 └── tests/                 # required when the plugin has scripted behavior
 ```
 
-Each plugin lives in its own repo (mounted here as a git submodule) and
+The Codex branch uses `.codex-plugin/plugin.json`, including its own version
+and interface metadata. Both platforms retain their own skills and hooks.
+
+Each executable plugin branch lives in its own repo (mounted here as a git submodule) and
 carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`,
 `SECURITY.md`, and `CODE_OF_CONDUCT.md` — all required. The community files
 are copied from this repo's `.github/` templates
@@ -61,7 +69,7 @@ limit) are documented inline in the template.
 
 ## What to keep in mind
 
-**Skills are Claude-facing instruction files.** Changes to `SKILL.md` affect how Claude interprets a skill — be precise, and test manually by invoking the affected skill in a real session before submitting.
+**Skills instruct the selected coding assistant.** Changes to `SKILL.md` affect how it interprets a skill — be precise, and test manually by invoking the affected skill in that platform's real session before submitting.
 
 **Hooks are scripts that run on every tool call or session event.** Keep them fast (no network, no blocking I/O) and test on both Unix and Windows.
 
@@ -89,18 +97,37 @@ Run this once after cloning:
 git config core.hooksPath scripts/git-hooks
 ```
 
-This enables a `pre-commit` hook that blocks a commit if it bumps a plugin submodule's pointer without also updating that plugin's `version` and `source.sha` together in `.claude-plugin/marketplace.json` — see [Cutting a release](#cutting-a-release) below for why both fields move together.
+This enables a `pre-commit` hook that checks both staged marketplace catalogs.
+Each entry must name its platform branch and pin a complete commit SHA from
+that branch, with the matching plugin manifest and author. Shared Claude helpers
+are compared on the Claude branches even when a developer has Codex checked out.
+The submodule pointer selects a development checkout independently of the
+release pins. Fetch the platform branches before running these checks.
 
 ---
 
 ## Cutting a release
 
-`.claude-plugin/marketplace.json` is the single owner of a plugin's version. Claude Code resolves a plugin's version from `plugin.json` first, the marketplace entry second, and the git commit SHA last — since no `plugin.json` here ever sets `version`, the marketplace entry is what installers see. That entry has two fields that must change together, in the same commit:
+Both marketplaces are named `foundry`. Claude Code reads
+`.claude-plugin/marketplace.json`; Codex reads `.agents/plugins/marketplace.json`.
+Each source uses the plugin repository URL, `ref: "Claude"` or `ref: "Codex"`,
+and the full validated `source.sha`.
+
+The Claude catalog owns its release versions. Its two release fields move together:
 
 - `version` — the semver string users see; bump it or `/plugin update` reports nothing changed.
 - `source.sha` — the exact commit of the plugin's own repo that `version` maps to; bump it or installers silently keep serving old code under the new label.
 
-Release sequence: commit and push the change inside the plugin's own repo/submodule first, then in this repo update `version` and `source.sha` for that plugin in `marketplace.json`, add the `CHANGELOG.md` entry inside the plugin's own repo, and bump the submodule pointer (`git add <plugin>`) here — all in one commit to this repo. The `pre-commit` hook above enforces the `source.sha`/submodule-pointer half of this mechanically; nothing currently enforces the `version` bump itself, so double-check it before committing.
+Codex's version lives in `.codex-plugin/plugin.json` on its `Codex` branch.
+Every changed installable payload needs a fresh effective version.
+
+Update the changelog and run the platform's checks, then commit and publish the
+plugin's platform branch first. Update that platform's catalog pin in Foundry
+`main`, run `node scripts/git-hooks/check-platform-marketplaces.js`, and publish
+the root afterward. Changing the development gitlink alone does not release a
+plugin. The checks validate refs, manifests, and ownership; review version bumps
+and runtime validation separately. Never add Hush to the Codex catalog before
+its port passes validation.
 
 ---
 

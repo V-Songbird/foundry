@@ -1,0 +1,39 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 68756,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2091216,
+  "numTurns": 11,
+  "durationMs": 67380,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5710
+  },
+  "contextTraffic": 240171,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 21898,
+  "narrationWords": 0,
+  "finalWords": 106,
+  "assistantMsgs": 1,
+  "finalText": "**Wrote the 4.2.0 entry** to [CHANGELOG.md](CHANGELOG.md).\n\nOut of 380 commits, one real feature and ten user-visible fixes, plus one breaking change:\n\n- `401` replaces `403` for an expired token\n- webhook deliveries now retry with backoff\n- duplicate headers, null-cursor pagination crashes, double-trimmed trailing slashes, unhandled empty allowlists, dropped trace ids, wrong histogram units, socket-drop hangs, pool-not-closed-on-shutdown, full request body logged, unclear parser errors\n\nSame fix (e.g. null-cursor guard, duplicate header) landed separately across several modules, so I merged those into single bullets. Worth a second look before you publish: the 401/403 change and the body-logging fix, since both could affect callers or count as security-relevant.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa23ebe3c880d0382f016faef7041eb9688d7c105e86c4ad9512a7bf891220f1"
+}

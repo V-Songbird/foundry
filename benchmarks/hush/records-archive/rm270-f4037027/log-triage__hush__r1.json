@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17684,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1050888,
+  "numTurns": 4,
+  "durationMs": 15725,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 820
+  },
+  "contextTraffic": 160496,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 6543,
+  "narrationWords": 0,
+  "finalWords": 151,
+  "finalText": "Everything was normal until 02:14:07 on July 4th, when the app lost its connection to `Redis`, a fast data store it depends on, at address `10.0.0.12:6379`. The app tried to reconnect 13 times over the next 17 minutes, roughly every 80 seconds, and every attempt failed with the same \"connection refused\" error.\n\nWhile it kept retrying, requests piled up waiting for `Redis` to come back. The wait queue grew past 500 pending requests, and by 02:31:44 one worker ran out of memory trying to hold them all. That worker crashed at 02:31:45, and the supervisor tried to restart it. Seven seconds later, at 02:31:52, the whole service still couldn't respond, so it was killed and went down.\n\nSo the real cause was `Redis` going unreachable at 02:14. Everything after that, the pileup and the crash, was the app slowly drowning while it waited for `Redis` to come back. It never did.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "82080b0da22794496254b875834ee8d35f2f69782bc118e668dd8a80c6f860df"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 67998,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.36119150000000005,
+  "numTurns": 9,
+  "durationMs": 66534,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4154
+  },
+  "contextTraffic": 220784,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 14399,
+  "narrationWords": 6,
+  "finalWords": 696,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\n**One-line version:** Redis went away at 02:14:07, the service fell back to hitting the datastore directly, the resulting cache-miss storm overloaded the store, request queues grew unbounded for 17 minutes, and the box OOM'd. Service down at 02:31:52.\n\n**Heads up on timing:** the log covers `2026-07-04T02:00:00Z → 02:31:52Z`. That's ~7 weeks ago, not last night. Either you're looking at a stale/rotated file, or log shipping is broken and you never got last night's file. Worth confirming before you act on any of this.\n\n### Timeline (all UTC)\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. 173 requests, all `200`, latency a stable 12–145ms sawtooth. Cache hit ratio 0.90–0.98. No degradation whatsoever. |\n| **02:14:07.113** | `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **the trigger** |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First cache miss (`orders:1000`). Misses then march sequentially to `orders:1119` — a cold-cache walk, 174 total |\n| 02:14:10 | First `TimeoutError ... 5000ms (store overloaded)`. 173 of these follow |\n| 02:14:12 | Queue depth 52; climbs linearly (+3 per sample) for the rest of the log |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, **all** `ECONNREFUSED`. Redis never comes back |\n| **02:29:12** | Queue depth crosses the 500 max — backpressure limit blown |\n| 02:31:44 | `[worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (134 = SIGABRT, the OOM abort) |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nNote there is **not a single successful request logged after 02:14:03**. This wasn't a partial degradation — the service stopped serving traffic the moment Redis dropped, and spent 17 minutes dying loudly.\n\n### Root cause\n\nRedis at `10.0.0.12:6379` refused connections and never recovered. `ECONNREFUSED` (not a timeout or reset) means nothing was listening on the port — the Redis process was down or the port was blocked, not a slow/flaky network. Everything downstream is consequence, not cause: cache misses → store overload → 5s timeouts → queue growth → heap exhaustion → OOM kill.\n\n**You need to check the Redis host itself.** The app log can't tell you why it died; it only sees the refusal.\n\n### Three real problems this exposes\n\n1. **The cache-miss fallback has no protection.** Losing the cache instantly converted 100% of reads into store reads with no request coalescing, no circuit breaker, and no stampede guard. The sequential `orders:1000→1119` miss pattern is a textbook cache stampede. A working cache is currently a hard dependency dressed up as an optimization.\n\n2. **`max 500` on the queue is a log message, not a limit.** Depth sailed past 500 at 02:29:12 and reached 568 with nothing shedding load. Had the queue actually bounded and shed at 500, you'd have taken partial errors instead of a full OOM crash — and the process would likely have survived to recover when Redis returned.\n\n3. **Reconnect backoff is flat, not exponential.** The 13 attempts are spaced at a near-constant ~80s (02:15:26, 02:16:46, 02:18:06, …). Whatever ioredis `retryStrategy` is configured, it's pinned at a fixed ceiling. Not the cause here, but it means slow recovery and no fast retry in the first seconds — worth a look in the ioredis setup.\n\nAlso minor: only `[api]` ever logs reconnect attempts. The workers just time out forever with no visible reconnect logic of their own — worth verifying they share the client rather than silently having none.\n\n### What I'd do next\n\n1. Confirm whether this file is actually last night's incident or a stale artifact — that changes everything.\n2. Pull Redis host logs / systemd status around 02:14 for the real root cause.\n3. Make the queue limit enforce (shed at 500) — that alone converts \"service down\" into \"degraded\".\n4. Add stampede protection (single-flight per key + short negative TTL) on the direct-store fallback path.\n\nI've only read the logs — I haven't touched `src/server.js` or any config. Say the word if you want me to dig into the ioredis retry config and the queue handling.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ef5919458feef34748ed5584e1424f4544487c72dfd0914c7640f293c502664"
+}

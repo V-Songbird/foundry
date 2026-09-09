@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "scr2-a8fb037c",
+  "seed": "1787637246895",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53476,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.482835,
+  "numTurns": 7,
+  "durationMs": 52003,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3729
+  },
+  "contextTraffic": 223032,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 33447,
+  "narrationWords": 6,
+  "finalWords": 83,
+  "finalText": "**Redis went down, and everything else followed.**\n\n1. At `02:14:07` Redis at `10.0.0.12:6379` refused connections.\n2. The cache went dead. Every read hit the store directly.\n3. Store reads timed out after 5 seconds. 173 times.\n4. The queue grew from 52 to 568. Its limit is 500.\n5. At `02:31:44` `worker-2` ran out of memory.\n\nAt `02:31:52` the supervisor killed `api`. Service was down.\nRedis never came back. All 13 reconnect tries failed.\nStart with Redis. Nothing else broke on its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "94ca0c06667337948446ae665e3bb00591fcef95a193ef01fc3f7116d31f0074"
+}

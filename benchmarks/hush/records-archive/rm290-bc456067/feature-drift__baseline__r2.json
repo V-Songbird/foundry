@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 50,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 101082,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5804515,
+  "numTurns": 23,
+  "durationMs": 91524,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5408
+  },
+  "contextTraffic": 580016,
+  "apiCalls": 20,
+  "toolCalls": 18,
+  "toolResultChars": 10939,
+  "narrationWords": 18,
+  "finalWords": 143,
+  "assistantMsgs": 7,
+  "finalText": "Dedup added (`src/router.js:32`), backed by a `lastSentAt` map now returned from `createState()`.\n\nReplay confirms it catches exactly the planted flaps: 99 dropped, matching the ~every-ninth repeat `events.js` injects two minutes after its predecessor. All four priorities lost roughly a ninth of their volume, and no non-repeat traffic was affected.\n\nThree details in how I built it:\n\n- The dedup check runs before quiet hours, so a quiet-hour repeat is dropped rather than queued — it's the same notification either way.\n- Only a delivery updates the timestamp. A dropped repeat does not extend the window, so the 5 minutes always runs from the last thing actually sent.\n- I read \"in the last 5 minutes\" as strictly under 5 minutes, so a repeat landing exactly 5 minutes later goes through. Change `<` to `<=` in `route()` if you want that one suppressed too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e320a21fe6998f878762c97af05f96e6480c2f86c0014379694cbd5f901da993"
+}

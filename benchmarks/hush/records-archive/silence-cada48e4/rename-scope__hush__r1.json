@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 71981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23013959999999997,
+  "numTurns": 18,
+  "durationMs": 70331,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5656
+  },
+  "contextTraffic": 388263,
+  "apiCalls": 9,
+  "toolCalls": 17,
+  "toolResultChars": 16515,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "It touches 94 files, but most are safe internal renames. The real risk is 4 spots where `account_id` must stay exactly as it is.\n\n1. **`vendor/reporting-sdk`** (4 files) — outside code, rewritten by `npm run vendor:refresh`. Any edit gets erased.\n2. **`docs/openapi.yaml`** — the public API contract. `account_id` is a frozen field name and a frozen query parameter there.\n3. **`lib/serialize.js`** — the public JSON key sent to every client. It's pinned to that same contract.\n4. **`migrations/`** (12 files) — these already ran in production. Editing them changes nothing live and breaks their own rollback step. A real rename needs a brand new migration.\n\nOne more to check with the platform team: `lib/audit.js` writes `account_id` into every audit log line, and all 25 services call it. Renaming that changes the shape of every audit record, past and future.\n\nThe safe part of the rename is roughly 25 files under `services/*/src/repo`, plus their services and routes, where `account_id` is just a variable name tied to the real database column.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "54dc08303e693a6652f8933c0eaf93a974039049a008e84f71abe3d120006522"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__noill__r4",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 54,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 87400,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.47342500000000004,
+  "numTurns": 23,
+  "durationMs": 85777,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5575
+  },
+  "contextTraffic": 259451,
+  "apiCalls": 10,
+  "toolCalls": 22,
+  "toolResultChars": 20296,
+  "narrationWords": 6,
+  "finalWords": 108,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**Big, but most of it must not move.** `1291` hits in `94` files.\n\n| Zone | Files | Rename |\n|---|---|---|\n| `services/*` JS names | 75 | yes |\n| SQL text inside those repos | 25 | no, column is still `account_id` |\n| `migrations/*.sql` | 12 | no, all applied in prod |\n| `vendor/reporting-sdk` | 4 | no, regenerated on refresh |\n| `docs/openapi.yaml` | 1 | no, public contract |\n\n`WIRE` in [lib/serialize.js:8](lib/serialize.js:8) is the seam. Left side may change. Right side is frozen. Keep the JSONB `payload` key as is too.\n\nNext: sign off only if the diff spares those four zones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "edf58f570b394893336f70acd8c86638b11b194e6f01055977fc75bf95ba4be0"
+}

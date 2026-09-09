@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rx6-32022f5c",
+  "seed": "1786465409125",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13129,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1802628,
+  "numTurns": 3,
+  "durationMs": 11404,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 635
+  },
+  "contextTraffic": 111421,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 153,
+  "finalText": "Redis went down at 02:14:07 and never came back. That single loss cascaded into everything else.\n\nHere's the chain, in order:\n\n1. **02:14:07** — Redis at `10.0.0.12:6379` drops with `ECONNREFUSED`. Cache layer falls back to hitting the store directly.\n2. That fallback overloads the store. Timeouts start immediately, and request queues climb minute over minute (52 → 550+).\n3. Redis retries every 80 seconds for 17 minutes straight (attempts 7 through 12 all failed), so the fallback never lifts.\n4. **02:31:44** — the backlog gets so big `worker-2` runs out of memory and crashes.\n5. **02:31:52** — the API stops responding and the supervisor kills the whole process group. That's the outage.\n\nSo it wasn't a code bug, it was Redis dying and nothing shedding load while it stayed down. Fix Redis first, and consider a circuit breaker or queue cap so a lost cache doesn't take the whole API down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca18634e122d632c800a4c070d396b27900c601167a048a665f3c707038b24cd"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 17523,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.10380230000000001,
+  "numTurns": 2,
+  "durationMs": 16057,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1204
+  },
+  "contextTraffic": 68847,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 60098,
+  "narrationWords": 13,
+  "finalWords": 265,
+  "finalText": "## Root Cause: Redis Cache Failure Caused Cascading Outage\n\nThe production failure was a **cascading system collapse** triggered by Redis becoming unavailable. Here's the timeline:\n\n### 1. Initial Trigger (02:14:07)\nRedis cache at `10.0.0.12:6379` dropped off the network:\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n```\n\n### 2. Immediate Impact (02:14:07-02:14:22)\n- Cache layer degraded, all requests fell back to direct database reads\n- **Cache miss storm** on orders keys with no hits to satisfy them\n- Request queues started accumulating (52 → 100 depth)\n\n### 3. Cascading Failures (02:14:22 onwards)\n- Database couldn't handle the load without cache\n- All workers started timing out after 5000ms\n- Request queues grew linearly (~3 requests/second added)\n- Multiple reconnection attempts to Redis failed with the same error\n\n### 4. Complete Outage (02:31:45)\n- Queue backlogs reached 568+ pending requests\n- **Worker-2 ran out of memory** trying to hold all queued requests\n- Process crashed with exit code 134\n- Supervisor killed the entire process group → service down\n\n## Key Findings\n\n| Metric | Value |\n|--------|-------|\n| **Time to first error** | ~14:07 (immediate from Redis loss) |\n| **Time to complete failure** | ~17:38 (17.5 minutes of degradation) |\n| **Queue depth at failure** | 568/500 max |\n| **Root cause** | Redis unavailable (connection refused) |\n| **Contributing factor** | No circuit breaker; requests queued indefinitely instead of failing fast |\n\n**What actually happened:** Redis went down, the system had no fallback strategy (no circuit breaker or queue limit), and requests piled up until memory exhaustion killed the worker process entirely.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a58e5cbd56bfa48a6d7b7289474e92caa30b74d4b51abfe5365f4c6254f78043"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r2",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26154,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11422500000000001,
+  "numTurns": 11,
+  "durationMs": 24539,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2012
+  },
+  "contextTraffic": 143285,
+  "apiCalls": 5,
+  "toolCalls": 10,
+  "toolResultChars": 11233,
+  "narrationWords": 0,
+  "finalWords": 145,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "I have enough to sign off.\n\n**Big: 1082 occurrences across 94 files.** Four services (`orders`, `notify`, `billing`, `analytics`, `accounts`), their repos/services/routes, plus SQL migrations and docs.\n\nThree places must not be renamed:\n\n| Location | Reason |\n|---|---|\n| `vendor/reporting-sdk/**` | Generated, vendored third-party SDK. Comment says \"Do not edit\" — overwritten on `vendor:refresh`. |\n| `docs/openapi.yaml` + `lib/serialize.js` `WIRE` map | Public API field and query param, explicitly marked \"frozen\" — external clients read `account_id` by name. |\n| `migrations/*.sql` (already applied) | Historical. `20250114_create_accounts.sql` notes edits break the down-step and don't affect prod DBs that already ran it. |\n\nSafe to rename: internal DB column usage inside the four services' repo/service/route files, and `lib/audit.js` (internal log field, not public).\n\n**Next step:** rename can proceed as an internal-only refactor, but the wire field must stay `account_id` forever, or this becomes a breaking API change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b019c345b22dd63148ecc8da8e95fe872503ac3ecd9023006151d879775dc698"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__nudgeban__r2",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nudgeban",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32828,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.252504,
+  "numTurns": 10,
+  "durationMs": 30877,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1607
+  },
+  "contextTraffic": 189422,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6263,
+  "narrationWords": 7,
+  "finalWords": 62,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Accept both |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat as off |\n\nThe other 8 warnings are real deprecations. `crypto.createCipher` in `src/legacy/adapter.js` is the one to fix next. It is dropped in v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "79f95bbf1601b4c6929c7ff529e19981a5bfc3880decac527a5131a7bf71b79a"
+}

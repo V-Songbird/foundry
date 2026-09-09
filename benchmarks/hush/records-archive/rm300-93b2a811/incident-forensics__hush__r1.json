@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 137573,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6339295,
+  "numTurns": 21,
+  "durationMs": 130996,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8409
+  },
+  "contextTraffic": 433138,
+  "apiCalls": 17,
+  "toolCalls": 17,
+  "toolResultChars": 8249,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Handoff is at [HANDOFF.md](HANDOFF.md).\n\n**Roll back `dep-4471`.** It set `gateway.pool.perRequest: false -> true` at `02:13:41Z`. Each request now holds one of 20 pool slots. Impact runs `02:14:18Z` to `03:59:27Z` and is still open. 530 503s, an `83.3%` error rate. All five routes and all four upstreams hit. `/health` still returns 200, so checks stay green.\n\nNext: confirm node-1 and node-2 are in the same state.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63846cb9ca382051c2574107ff0236f20e4789a854ebf67f1d0f23aac5da911f"
+}

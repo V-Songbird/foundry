@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33773,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.19613380000000002,
+  "numTurns": 10,
+  "durationMs": 32381,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1812
+  },
+  "contextTraffic": 266042,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7713,
+  "narrationWords": 12,
+  "finalWords": 92,
+  "finalText": "Build's clean: 0 errors, exit code 0. The 8 remaining warnings are just deprecation noise (Buffer(), punycode, etc.) — not blockers.\n\nFixed 2 real bugs, both from the bundler's options-shape change (`retries` → `retryCount`):\n1. `src/core/options.js:6` — `resolveRetries` read `options.retries` (now undefined), crashed on `.toFixed()`. Fixed to read `options.retryCount`.\n2. `src/net/retryPolicy.js:7` — `isBackoffEnabled` treated unset flags as invalid instead of `false`, since the new loader returns `undefined` instead of `false`. Fixed to treat `undefined` as disabled.\n\nNext: run your test suite to confirm nothing else depends on the old `retries`/`false` behavior elsewhere.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "afa5306014e0291cd0800a4dbb83becd2f771e601097568b147f6d97cf0df757"
+}

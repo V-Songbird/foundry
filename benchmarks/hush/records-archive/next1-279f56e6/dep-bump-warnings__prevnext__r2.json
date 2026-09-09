@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__prevnext__r2",
+  "batchId": "next1-279f56e6",
+  "seed": "1787987410607",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30838,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12399439999999999,
+  "numTurns": 11,
+  "durationMs": 28811,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1745
+  },
+  "contextTraffic": 222362,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7640,
+  "narrationWords": 0,
+  "finalWords": 84,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** Exit code `0`, no errors.\n\nTwo real bugs, both from the bump's changed shapes, not the deprecation noise:\n\n- `[options.js:6](src/core/options.js:6)` read `options.retries`, but the new bundler passes `retryCount`. Fixed to read `retryCount`.\n- `[retryPolicy.js:7](src/net/retryPolicy.js:7)` threw when `backoffEnabled` was `undefined`, since the new config loader stopped defaulting it to `false`. Now treats `undefined` the same as `false`.\n\nThe remaining `WARN` lines (DEP0142, DEP0198, W1042, etc) are pure noise from the bump, not build-breaking. Left as is unless you want those addressed too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1137780dfb733233a7c76fd1aa3d271d02c7e89c79f2f14df16842ce7e81efb5"
+}

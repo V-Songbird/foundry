@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 10,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 31734,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.058086500000000006,
+  "numTurns": 9,
+  "durationMs": 30013,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1518
+  },
+  "contextTraffic": 259310,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 4335,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "finalText": "The bug was in `isExpired()` — it used `<` instead of `<=`. When the expiry time matched the current time exactly, it incorrectly returned false. The comment says tokens expire \"the moment `exp` is reached,\" so the comparison needs to be inclusive. Changed line 7 to use `<=`, and all five tests now pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9045a5003bb4aaf51bc3e6abcab667db7199561ac138769c4d6321b03b4aa811"
+}

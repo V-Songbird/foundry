@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40200,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24719049999999998,
+  "numTurns": 10,
+  "durationMs": 39407,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2804
+  },
+  "contextTraffic": 127760,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 7406,
+  "narrationWords": 39,
+  "finalWords": 268,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by getting oriented in the project.",
+    "Found it. The \"screen full of warnings\" is mostly the fake bundler's canned deprecation log, but underneath it the build is actually **failing** (exit 1). Two real bugs from the bump:"
+  ],
+  "finalText": "Build is green now (exit 0). Both bugs were real and sequential — fixing the first only got you to the second.\n\n**`src/core/options.js:7`** — the bump renamed the option `retries` → `retryCount`, and this call site was missed, so `options.retries.toFixed(0)` threw on `undefined`. Now reads `retryCount` with a fallback to the old name, and raises a clear `TypeError` instead of a cryptic property error if it's genuinely missing.\n\n**`src/net/retryPolicy.js:8`** — the new config loader leaves unset flags as `undefined` where the old one returned `false`. The strict boolean check treated that as a misconfiguration and threw. Absent now means off, matching the previous default; a non-boolean value still throws.\n\nOn the warnings themselves — I did not silence them, and I don't think you want me to:\n\n- All 39 `WARN` lines are emitted unconditionally by `build.js` itself (the deprecation list at lines 18–24, plus the fixed-index warnings at lines 46–48). They point at files like `src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js` — none of which exist in this tree. There's nothing to fix at the source; the only way to remove them is to delete the log lines from `build.js`, which would be hiding the signal, not clearing it.\n- Two of them are worth tracking as real follow-ups whenever those modules land: `W1042` (`crypto.createCipher` — removed in newer Node, not just deprecated) and `W3307` (circular import between `core/graph.js` and `state/tracker.js`, where resolution order is undefined).\n\nSo: the error is gone and the build completes clean. The warning count is unchanged at 8 reported / 39 printed, and that's cosmetic output from the harness rather than anything the bump broke.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "52c753f9c9c535f34393738beef8fed65824d8933946261cd761d852dea7c347"
+}

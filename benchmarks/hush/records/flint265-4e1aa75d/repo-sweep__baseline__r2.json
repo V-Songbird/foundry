@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 28,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 61022,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3747875,
+  "numTurns": 14,
+  "durationMs": 58893,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3770
+  },
+  "contextTraffic": 241122,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 16051,
+  "narrationWords": 49,
+  "finalWords": 183,
+  "assistantMsgs": 5,
+  "finalText": "No package.json or test suite, so `node --check` is the available verification — all files parse.\n\n## Done\n\nMigrated the 12 remaining files (36 call sites) from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n- **accounts** — `admin/apiKeyAdmin.js`, `repo/session.js`, `service/teamService.js`\n- **analytics** — `repo/cohort.js`\n- **billing** — `repo/refund.js`, `service/couponService.js`\n- **catalog** — `admin/variantAdmin.js`, `repo/supplier.js`\n- **orders** — `repo/shipment.js`, `service/returnService.js`\n- **support** — `admin/macroAdmin.js`, `repo/sla.js`\n\nThe result matches the shape of the already-migrated files (e.g. `service/userService.js`). No `db.query` remains under `packages/`.\n\nTwo things I deliberately left alone:\n\n1. **`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. Its header says the vendored copy is replaced wholesale on upgrade and local edits are silently lost, so patching it would be undone on the next bump. Since `lib/db.js` says the driver's next major *drops* `query`, this is a real blocker you'll need to handle another way — pin/patch upstream, wrap the vendored module in a shim that forwards to `execute`, or drop the dependency. Say the word and I'll build the shim.\n\n2. **`cache.query(...)`** calls across many repo files — same method name, different object (`lib/cache.js`), not part of this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6035259c17e7d8b4a9d1b12195d0a4d8b047b01bbd14bea278025b9c86bb6c02"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32991,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.271383,
+  "numTurns": 15,
+  "durationMs": 31468,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1963
+  },
+  "contextTraffic": 138791,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 15253,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "assistantMsgs": 1,
+  "finalText": "**About 1082 hits in 94 files. Roughly 60 are safe to rename.**\n\n| Zone | Hits | Call |\n|---|---|---|\n| `services/*` app code (78 files) | 1000 | Rename |\n| `docs/openapi.yaml` + `lib/serialize.js` right side | 7 | Freeze. Public contract. |\n| `vendor/reporting-sdk` (5 files) | 20 | Freeze. Generated, overwritten by `npm run vendor:refresh`. |\n| `migrations/*.sql` (12 files) | 61 | Freeze. All applied in production. |\n\nColumn stays `account_id` in the DB, so repo SQL strings must keep the old name even when the variable renames. `lib/audit.js` writes an `account_id` key that log queries read.\n\nNext: ask the team if they plan a new dated API version. If not, sign off only on the `services/*` variable rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "49f80637380c5bb9fdccd82d093780da2139ebcd6cbac8cd77564c5f3890177f"
+}

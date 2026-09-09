@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 15432,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.060974,
+  "numTurns": 2,
+  "durationMs": 13692,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 925
+  },
+  "contextTraffic": 50912,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 171,
+  "finalText": "Redis died at 02:14:07 and took the whole service with it.\n\nWhen the cache went down, all reads went straight to your store. The store couldn't handle the traffic and started timing out. Requests piled up in the queue instead of failing fast. By 02:31 the backlog ate all the memory, crashed a worker, and the supervisor killed the service.\n\n**What happened in order:**\n1. Redis stopped responding (connection refused on 10.0.0.12:6379)\n2. Cache layer fell back to hitting the store directly\n3. Store got hammered — every cache miss storm hit it at once\n4. Timeouts set in, but requests queued instead of shedding\n5. Queue grew from 52 → 568 requests over seventeen minutes\n6. Heap ran out of memory from the backlog\n7. Worker-2 crashed, then the API went unresponsive\n\nThe service was down for good at 02:31:52. You need to check why Redis dropped and also add fast-fail behavior to the store layer so it rejects requests when the queue hits 80% full instead of queuing forever.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3f12104295204f89f2ce9557ba74d57bc6577a1176174b97e5d4df12f844a29d"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 21,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 143908,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.065857,
+  "numTurns": 60,
+  "durationMs": 142338,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13189
+  },
+  "contextTraffic": 568693,
+  "apiCalls": 13,
+  "toolCalls": 59,
+  "toolResultChars": 53255,
+  "narrationWords": 8,
+  "finalWords": 91,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding remaining `db.query` call sites."
+  ],
+  "finalText": "**Migrated 36 `db.query` calls across 12 files to `db.execute({ sql, params })`.** All 78 JS files pass `node --check`. No `db.query` left in `packages/`.\n\nI left `vendor/legacy-orm/adapter.js` alone. Its header says do not edit, since upgrades overwrite it. Its 2 calls still use the old form.\n\n| Area | Files |\n|---|---|\n| accounts | 3 |\n| billing | 2 |\n| catalog | 2 |\n| orders | 2 |\n| support | 2 |\n| analytics | 1 |\n\nNext: decide on `vendor/legacy-orm/adapter.js` before the driver drops `query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2bbedcac5addb97a82f6f2a6ea661b7287ea677ba5d9901dea33859255f67fb0"
+}

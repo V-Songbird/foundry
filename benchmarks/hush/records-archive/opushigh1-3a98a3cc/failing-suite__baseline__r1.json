@@ -1,0 +1,45 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 46071,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31796550000000007,
+  "numTurns": 11,
+  "durationMs": 45332,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3364
+  },
+  "contextTraffic": 183594,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12296,
+  "narrationWords": 128,
+  "finalWords": 269,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the project structure.",
+    "Now let me run the suite and pull out just the failure summary rather than the full wall of text.",
+    "3 failures out of 625. Let me see the detail block.",
+    "The output is 625 cases; only **3** actually fail, and they're all the same bug in one function.\n\n`src/pricing.js:41` — `orderTotal` computes tax on the **original** `cents` instead of the discounted amount, contradicting its own docstring (\"the discount has to come off the base before the rate is applied to it\"). Every other suite passes.\n\nThe reason it hid: 66 of the 69 order-total rows have either a zero discount or a zero tax rate, so the two orderings agree. Only the three rows with both non-zero expose it."
+  ],
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n## What was broken\n\nOne bug, in `src/pricing.js:39` `orderTotal`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed the pre-discount base\nreturn discounted + tax;\n```\n\nIt applied the discount, then charged tax on the **original** amount rather than the discounted one — so the customer was taxed on money they never paid. The function's own docstring already specified the correct behavior (\"Tax is charged on the amount the customer pays\"), and `cases.js:89` encodes the same rule, so this was an implementation slip, not a spec disagreement.\n\nThe fix reuses the existing `applyTax` helper, which matches the spec's formula exactly:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n## Why it was hard to see\n\nThe runner prints a line per case, so the 3 real failures sat inside ~625 lines of passing output plus a coverage table. Filtering to just `FAIL` lines and the trailing summary block collapsed it to three entries, all in the `order totals` suite and all overcharging by exactly `discount × taxRate`.\n\nWorth noting for the suite itself: of the 69 order-total rows, 66 have either a zero discount or a zero tax rate, and those two cases produce identical results under either ordering. Only the three explicit rows at `cases.js:80-82` have both non-zero. That coverage gap is why the bug survived — if you add rows, non-zero-both is the combination that carries signal here.\n\nI checked the other eight suites' functions against their docstrings while I was in there and found no other discrepancies; their passing status is genuine, not a similar blind spot.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "57ebbb2069654065b734d1d32d9f6ef9f20cbc2db30e98a1e6120076558a8e38"
+}

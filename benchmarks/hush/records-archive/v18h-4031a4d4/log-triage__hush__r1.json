@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 16039,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06088500000000001,
+  "numTurns": 2,
+  "durationMs": 14344,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 938
+  },
+  "contextTraffic": 50835,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 205,
+  "finalText": "**Redis died at 02:14, took the whole system with it over 17 minutes.**\n\nHere's the chain:\n\n1. **02:14:07** — Redis connection lost (ECONNREFUSED on 10.0.0.12:6379). Cache layer switched to direct store reads.\n\n2. **Immediate cascade** — Without cache, the store got hammered. Cache miss storms on the same keys (orders:1000, 1003, 1006...). Requests started timing out after 5 seconds. Request queues began climbing.\n\n3. **Unstable feedback loop** — Slower responses meant requests piled up in the queue. The queue went from normal → 52 → 55 → 562 → 568. Each timeout meant a retry, feeding back into the queue.\n\n4. **02:31:26** — Redis reconnect attempt 12 failed. Still dead.\n\n5. **02:31:44** — JavaScript heap out of memory. Worker-2 couldn't handle the backlog anymore and crashed.\n\n6. **02:31:45** — Supervisor saw worker-2 down and api unresponsive, killed the process group. Service down.\n\n**The real problem wasn't load — it was the lack of a circuit breaker.** When Redis went down, the app kept trying to serve requests by overloading the store. A circuit breaker or a queue ceiling would have failed fast instead of letting the backlog grow until memory ran out.\n\nCheck why Redis at 10.0.0.12:6379 went down and whether it's back up now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7558b509636f1a9a3f518331b6ddf97698d6b1035d75e115a75f7ee9155f610e"
+}

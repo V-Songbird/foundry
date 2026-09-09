@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 53,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27003,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.203903,
+  "numTurns": 8,
+  "durationMs": 25981,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1621
+  },
+  "contextTraffic": 140183,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 5611,
+  "narrationWords": 47,
+  "finalWords": 185,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project structure and running the suite.",
+    "All 3 failures are in one function. Let me look at it.",
+    "The bug is in `orderTotal` — it applies the discount, but then computes tax on the **pre-discount** amount, contradicting its own doc comment."
+  ],
+  "finalText": "Green: 625/625 passing.\n\n**What was broken:** one line in `src/pricing.js:41`. All 3 failures were the same bug in `orderTotal` — everything else in the wall of text was passing.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxed the pre-discount base\n```\n\nIt discounted the order correctly, then charged tax on the *original* amount. Its own doc comment says the opposite (\"Tax is charged on the amount the customer pays\"), so the intent was unambiguous. Changed `cents` → `discounted`.\n\nThat also explains why the deltas all skewed high and scaled with the discount — e.g. 33400c at 10% off / 20% tax was over by 668c, exactly 20% of the 3340c discount.\n\nOne thing worth flagging, unrelated to the failures: the coverage table lists nine `src/*.js` files (`linetotals.js`, `discounts.js`, `taxes.js`, …) that don't exist — `src/` only holds `pricing.js` and `tiers.js`. The coverage reporting in `run-tests.js` is emitting fabricated per-module rows, so those percentages aren't telling you anything real. I left it alone since you asked for the suite green, but it's misleading output if you're relying on it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ada8a0d0fd1275ef394b5179061eba5f38c3add3688ea4121f2aa0b480b13fc8"
+}

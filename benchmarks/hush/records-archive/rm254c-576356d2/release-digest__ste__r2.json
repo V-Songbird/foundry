@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 47,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 172262,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7566392,
+  "numTurns": 12,
+  "durationMs": 171017,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15523
+  },
+  "contextTraffic": 496720,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 70756,
+  "narrationWords": 65,
+  "finalWords": 257,
+  "finalText": "I went through all 380 commits and the PR sheet. Most of it really was noise — dependency bumps, internal refactors (renaming types, splitting files, collapsing helpers), and test-only changes. I filtered down to what a user would actually notice and added a `4.2.0` section to CHANGELOG.md, placed above 4.1.0 to keep it newest-first (the placeholder comment at the bottom was stale, so I removed it).\n\nWhat made the cut:\n\n**Breaking** — an expired token now returns `401` instead of `403`. Worth flagging since clients that branch on status code need updating.\n\n**Added** — webhook delivery retries with backoff (the one real `feat` commit in the whole log).\n\n**Fixed** — 10 items, the biggest being: the database no longer logs full request bodies (a privacy fix), and pagination no longer breaks on a null cursor across four different modules (API, queue, webhooks, database) — that one showed up as four separate near-identical commits, so I collapsed it into one bullet rather than listing it four times. Same treatment for the \"empty allowlist\" crash, which also recurred across three modules.\n\nOne thing worth flagging: several fix titles repeated verbatim across unrelated modules and even within the same module multiple times (e.g., \"drop the duplicate header\" fixed three separate times in `core` alone). I read that as the same class of bug recurring in parallel codepaths rather than a regression loop, and wrote one bullet per bug class — but if any of those were actually distinct incidents worth calling out separately, let me know and I'll split them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d64ee0fea02e45e456517a7b0544aa84f1c735381a7b5292c162dee02f7011c4"
+}

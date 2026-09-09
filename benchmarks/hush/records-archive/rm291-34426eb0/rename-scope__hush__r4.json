@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 47,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39539,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27373949999999997,
+  "numTurns": 13,
+  "durationMs": 37810,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2292
+  },
+  "contextTraffic": 141626,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 15026,
+  "narrationWords": 5,
+  "finalWords": 101,
+  "assistantMsgs": 2,
+  "finalText": "**Big, but mostly mechanical.** 1082 hits across 94 files.\n\n| Must not rename | Why |\n|---|---|\n| [`docs/openapi.yaml`](docs/openapi.yaml:13) | public field, breaks clients |\n| [`lib/serialize.js:8`](lib/serialize.js:8) right side | frozen wire name |\n| `migrations/*.sql`, 12 files | applied history, breaks down step |\n| `vendor/reporting-sdk`, 4 files | generated, edits get wiped |\n| SQL text in `repo/*.js` | real DB column name |\n\nThe other 76 files are plain JS names. Safe.\n\nSign off only if the plan splits code from column. A column rename needs its own migration. The public field needs a new dated API version.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e53852c65b47ad082b8ac835cb38807576d53602f56a20953831b9bd043b52ae"
+}

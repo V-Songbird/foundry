@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 59,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 115167,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5613505,
+  "numTurns": 14,
+  "durationMs": 107378,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6519
+  },
+  "contextTraffic": 419632,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 14515,
+  "narrationWords": 6,
+  "finalWords": 513,
+  "finalText": "## Incident Handoff — Gateway 503s\n\n**Status at end of log:** unresolved. No recovery and no rollback recorded.\n\n### Root cause\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. Every request now opens its own connection instead of reusing the pool, so the 20-connection pool saturates immediately and never drains.\n\nEvidence chain:\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:00 | dep-4471 starts |\n| 02:12:12.820 | gateway logs reload requested by deploy pipeline, gen 118 → 119 |\n| 02:13:41.234 | gen 119 applied — `gateway.pool.perRequest: false -> true` |\n| 02:14:00 | dep-4471 finishes |\n| 02:14:14.920 | first `acquire slow` warning |\n| 02:14:18.972 | first 503 / `ERR_POOL_EXHAUSTED` |\n| 03:21:05.282 | on-call paged, error_rate 5m avg 71% |\n\nPool state flips at the reload boundary and stays pinned:\n\n```\n02:10:58  size=20 in_use=10 idle=10 waiting=0     <- normal all night\n02:15:58  size=20 in_use=20 idle=0  waiting=12    <- saturated, never recovers\n03:02:30  WARN connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\n104× churn is the signature of per-request pooling.\n\n### Impact window\n**02:14:18.972Z → 03:59:27.974Z (1h 45m), still ongoing when the log ends.**\n\n- 530 × HTTP 503, all `ERR_POOL_EXHAUSTED`\n- 212 × `acquire slow` warnings (`/v1/checkout`, `/v1/profile`)\n- Latency on failed requests 600–999ms, avg 794ms\n- All routes affected (`/v1/checkout`, `/cart`, `/session`, `/orders`, `/catalog/search`), all four upstreams evenly — no single bad backend\n- Error rate 71% at time of page\n\n### Roll back\n**`dep-4471`** — revert `gateway.pool.perRequest` to `false`. That single key is the fix; the other two in gen 119 (`timeout.upstreamMs 2000→2500`, `log.sampleRate` unchanged) are not implicated. If config can be reverted without a redeploy, that's faster than rolling the whole deploy.\n\nDo **not** roll back `dep-4472` (billing-svc) or `dep-4473` (catalog-svc) — both shipped after the 503s started.\n\n### Not part of this incident\nWorker job durations degrade 200ms → 2324ms across the window, but the climb starts at 01:00, **74 min before dep-4471**, with constant slope and no inflection at the config reload. Worker pool is flat (`size=8 in_use=1 idle=7 waiting=0`) throughout; zero job failures. Rolling back dep-4471 will not fix it. Possible lead: `WARN db slow query 1.9s: SELECT * FROM orders WHERE status = ? — unindexed scan, known issue OPS-2210` — but that's one warning against a 3-hour trend, so treat it as a lead, not a cause. Needs its own ticket.\n\n### Gaps for the next on-call\n- No recovery in the log — confirm current live state before acting; this may already be resolved.\n- Gateway `waiting` counter resets 232 → 12 at 03:15:58 mid-climb, then resumes the same slope. Unexplained — possible counter wrap or an unlogged restart. Doesn't change the diagnosis.\n- Worker log starts at 01:00 already mid-degradation, so the true baseline and trigger for the slowdown aren't visible.\n- **Log dates are 2026-03-14; today is 2026-08-26.** If you were reporting this as \"last night,\" these files are stale or misrouted — verify you're reading the live log before trusting the timeline.\n\nWant this written to a file?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9cb4ab7629be6c49f08fc1c2f83096885a743a770e63a43fdd1543b93a925c16"
+}

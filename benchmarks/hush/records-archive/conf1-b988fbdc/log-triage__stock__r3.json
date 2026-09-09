@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r3",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21823,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1207024,
+  "numTurns": 4,
+  "durationMs": 20245,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1023
+  },
+  "contextTraffic": 115586,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 160,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\nTimeline in `logs/app.log`:\n\n1. `02:14:07` `redis connection lost: ECONNREFUSED 10.0.0.12:6379` — cache layer fell back to direct store reads\n2. Cache miss storms and 5000ms store timeouts followed nonstop, across `api`, `worker-1`, `worker-2`, `scheduler`\n3. Request queue depth climbed steadily, `52` at `02:14` to `568` by `02:31`\n4. Redis reconnect attempts (7 through 12 shown) all failed the same way, roughly every 80s\n5. `02:31:44` `worker-2` hit `JavaScript heap out of memory`\n6. `02:31:45` supervisor restarted `worker-2` (exit code 134)\n7. `02:31:52` `api` went unresponsive, supervisor killed the process group — service down\n\nRoot cause: Redis at `10.0.0.12:6379` dropped and never came back, so the store took direct load it couldn't handle, queues backed up for 17 minutes straight, and a worker OOM'd and took the whole API down with it.\n\nNext: check why Redis at `10.0.0.12` went unreachable and consider a queue depth circuit breaker so this fails gracefully instead of OOM-crashing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "29aed280beedc9e6aca06b2527d0ad560bb6bcee03c9d36ba0189f9c726a21ec"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 15702,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.0741829,
+  "numTurns": 2,
+  "durationMs": 14193,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 936
+  },
+  "contextTraffic": 74998,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 60098,
+  "narrationWords": 0,
+  "finalWords": 208,
+  "finalText": "Here's what happened in production last night:\n\n**Root cause: Redis connection failure at 02:14:07 UTC**\n\nThe Redis server at `10.0.0.12:6379` became unreachable (ECONNREFUSED), triggering a cascading failure:\n\n1. **Cache layer degraded** — Without Redis, all requests fell back to direct database reads\n2. **Cache miss storm** — Every request now hit the database directly, overwhelming it\n3. **Request timeouts** — API, workers, and scheduler all started timing out after 5000ms\n4. **Queue explosion** — The request backlog grew from 52 pending requests to 568+ (approaching the 500 limit) in ~13 minutes\n5. **Memory exhaustion** — Worker-2 ran out of memory trying to queue requests and crashed at 02:31:44\n6. **Service down** — The supervisor killed the api process group, taking down the entire service\n\nThe system tried to reconnect to Redis 12 times but failed each time. The problem cascaded fast—from healthy (200 OK responses in 12-110ms) to complete failure in about 17 minutes.\n\n**Action items:**\n- Check Redis server status at `10.0.0.12:6379` — it may have crashed or network connectivity was lost\n- Add circuit breaker / fallback cache if Redis is unavailable\n- Implement request rate limiting to prevent queue explosion during degradation\n- Consider memory limits on request backlog to fail faster instead of OOMing",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eef5e9b5682f751bb5ae9b129ac59931da49eed009e8edc52abafeb1735973fa"
+}

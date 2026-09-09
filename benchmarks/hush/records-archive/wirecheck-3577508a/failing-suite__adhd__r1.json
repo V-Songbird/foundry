@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r1",
+  "batchId": "wirecheck-3577508a",
+  "seed": "1787807898962",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21417,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19638840000000002,
+  "numTurns": 10,
+  "durationMs": 18958,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1286
+  },
+  "contextTraffic": 229811,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11611,
+  "narrationWords": 67,
+  "finalWords": 62,
+  "finalText": "All 625 tests pass now.\n\nThe bug: `orderTotal()` in `src/pricing.js` was computing tax on the pre-discount amount (`cents * taxRate`) instead of the discounted amount, contradicting its own doc comment (\"tax what's actually owed\"). It only showed up in the `order totals` suite's 3 rows where both a discount and a tax rate were non-zero. Fixed to tax `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6d2cc657dfd64809397866c7bfaea4d927cf0d6fa1b28505e7725662f4bfa350"
+}

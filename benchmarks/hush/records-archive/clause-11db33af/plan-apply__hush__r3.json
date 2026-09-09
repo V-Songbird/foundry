@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r3",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 16,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14152,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0711118,
+  "numTurns": 5,
+  "durationMs": 12626,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 603
+  },
+  "contextTraffic": 102537,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no changes made yet.**\n\n`buildRows()` in [report.js](src/report.js:11) already has full data. `toTable` in [format.js:7](src/format.js:7) drops `owner` and `slow` on purpose.\n\n1. Parse `--json` in [cli.js:8](src/cli.js:8), alongside the `report` check.\n2. If set, `JSON.stringify(buildRows())` instead of `toTable(...)`.\n3. Update `USAGE` string.\n\nOpen question: should JSON include `owner` and `slow`, since the table hides them? I'd say yes, full rows, since JSON consumers likely want everything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fb30a0aa92b9f209e3bd63c7bc9b3ae716355d1905837b0c82091cecdbe47fed"
+}

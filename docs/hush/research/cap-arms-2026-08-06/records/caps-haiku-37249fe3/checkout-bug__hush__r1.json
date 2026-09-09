@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 26,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 58356,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0826752,
+  "numTurns": 13,
+  "durationMs": 56711,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3418
+  },
+  "contextTraffic": 358869,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 5628,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "finalText": "Found the bug. The flat coupon logic was subtracting the coupon amount *after* converting to the target currency, when it should subtract *before* converting.\n\nFor a $100 order with EUR (0.9 rate) and a $10 coupon:\n- **Wrong (before):** 100 × 0.9 - 10 = 80\n- **Right (after):** (100 - 10) × 0.9 = 81\n\nSince flat coupons are stored in USD, they need to come off the USD subtotal first. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d0fe6572739f85b6b03d751f3e51fc0df593b08162f0a694575f0b194ea1ad1a"
+}

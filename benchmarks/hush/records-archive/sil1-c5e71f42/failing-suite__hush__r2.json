@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 5,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22950,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11228139999999999,
+  "numTurns": 9,
+  "durationMs": 21197,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1044
+  },
+  "contextTraffic": 176643,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 11865,
+  "narrationWords": 15,
+  "finalWords": 47,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug in `orderTotal`: it taxes the pre-discount `cents` instead of the discounted amount."
+  ],
+  "finalText": "**Suite is green.** 625 total, 625 passing.\n\nThe bug was in `orderTotal` in `[src/pricing.js:41](src/pricing.js:41)`. It taxed the pre-discount amount instead of the discounted one, only showing up on rows where both discount and tax were non-zero.\n\nFixed by taxing `discounted` instead of `cents`. No other changes needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71665917517fa52a5ec9831f2acdd898a391635fc7003ab72744e935f35326f3"
+}

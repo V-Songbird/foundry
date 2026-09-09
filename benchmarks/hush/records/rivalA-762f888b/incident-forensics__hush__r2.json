@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 145,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 85034,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.48204349999999996,
+  "numTurns": 14,
+  "durationMs": 80355,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5172
+  },
+  "contextTraffic": 355205,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 8766,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).** Incident is still open.\n\nRoot cause: `gateway.pool.perRequest` flipped to `true` at `02:13:41Z`. Pool pins at `in_use 20`, queue grows to 271.\n\nWindow `02:14:18Z` to `03:59:27Z`, 1h45m. 548 of 1228 requests failed, 45%. Five `/v1/*` routes hit evenly. `/health` stayed green, which is why nothing auto-caught it.\n\nRoll back `dep-4471`. Config key alone is enough, no full revert.\n\nNext: flip the key, then watch `ERR_POOL_EXHAUSTED` stop.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1e9a151588984a2d4e7a8e001a7188f4c4085cb92f281067f2f23a0633508076"
+}

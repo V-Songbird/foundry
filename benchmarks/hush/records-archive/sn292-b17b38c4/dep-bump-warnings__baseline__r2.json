@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26838,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.13106240000000002,
+  "numTurns": 10,
+  "durationMs": 25096,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1978
+  },
+  "contextTraffic": 204908,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15802,
+  "narrationWords": 83,
+  "finalWords": 104,
+  "assistantMsgs": 2,
+  "finalText": "Build is clean — exit code 0, \"0 errors\". The remaining 8 warnings are just the deprecation noise (`fs.exists`, `Buffer()` constructor, punycode, etc.) baked into the bundler's output; those aren't causing failures.\n\nThe real issue was two bugs the dependency bump exposed, both in call sites that weren't updated for the bundler's new option shapes:\n\n- `src/core/options.js:6` — `resolveRetries` read `options.retries` but the new bundler passes `retryCount`, so it crashed on `undefined.toFixed()`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:7` — `isBackoffEnabled` only accepted explicit `true`/`false`, but the new config loader leaves unset flags as `undefined`, so it threw. Fixed to treat `undefined` as `false` (disabled).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "99c138e96148e23f76c73aaa17e34817e20469d162fe44c82c5fa0105e11a2d8"
+}

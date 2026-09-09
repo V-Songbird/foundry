@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 108,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 87925,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5789925,
+  "numTurns": 17,
+  "durationMs": 86948,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5603
+  },
+  "contextTraffic": 463987,
+  "apiCalls": 17,
+  "toolCalls": 16,
+  "toolResultChars": 19143,
+  "narrationWords": 7,
+  "finalWords": 132,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the codebase."
+  ],
+  "finalText": "**Big, and it has four hard no-rename zones.** Scope is `1291` hits in `94` files, all snake_case, no `accountId` anywhere.\n\n| Zone | Hits | Verdict |\n|---|---|---|\n| `services/*` JS locals and params | ~1053 | Safe |\n| SQL text in `services/*/src/repo/*.js` | 125 | Freeze, no migration renames the column |\n| `migrations/*.sql` | 61 | Freeze, applied history |\n| `vendor/reporting-sdk` | 20 | Freeze, regenerated, unused |\n| `docs/openapi.yaml` | 5 | Freeze, public contract |\n\nTwo more traps. All 25 repos write `account_id` into the `payload` JSONB. And [lib/serialize.js:8](lib/serialize.js:8) `WIRE` needs both sides kept.\n\n[lib/audit.js:8](lib/audit.js:8) reads `fields.account_id` by name across 75 call sites. Rename it half way and audit logs go null with no error.\n\nNext: ask them to split the PR at the repo boundary.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68f71a5cce1dd94bc9c2b1287026793fc53e08c62b563161ad4fa3e43eda198a"
+}

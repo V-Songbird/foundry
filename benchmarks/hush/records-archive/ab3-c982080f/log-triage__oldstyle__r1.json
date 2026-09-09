@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__oldstyle__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26847,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.15609760000000003,
+  "numTurns": 7,
+  "durationMs": 24829,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1459
+  },
+  "contextTraffic": 287528,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 15203,
+  "narrationWords": 0,
+  "finalWords": 125,
+  "finalText": "Redis went down at 02:14:07 and never came back. The app kept retrying every 80 seconds, 13 tries in a row, all failed with the same `ECONNREFUSED 10.0.0.12:6379`.\n\nWith no cache, every request fell straight through to the store. That triggered constant cache miss storms, timeouts, and a request queue that climbed from 52 to over 560, far past its limit of 500, for 17 straight minutes.\n\nAt 02:31:44 worker-2 ran out of memory from the backlog and crashed. Eight seconds later the api stopped responding, and the supervisor killed everything. Service went down at 02:31:52.\n\nSo the real cause is the Redis box at `10.0.0.12` dropping out. Everything else, the timeouts, the queue backup, the crash, was the app slowly drowning without its cache.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9b678b64cf3689bccd735b67c23c98369e78b529c6e0ec869615f380e1224d53"
+}

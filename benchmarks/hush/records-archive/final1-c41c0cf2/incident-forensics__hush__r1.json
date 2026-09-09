@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64659,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21232640000000003,
+  "numTurns": 13,
+  "durationMs": 57955,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3901
+  },
+  "contextTraffic": 430901,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 14828,
+  "narrationWords": 0,
+  "finalWords": 136,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff drafted below.**\n\n```\nON-CALL HANDOFF — Gateway 503s\n\nROOT CAUSE\nDeploy dep-4471 (gateway, a.novak, \"config: connection-per-request\nfor pool isolation\") flipped gateway.pool.perRequest from false to\ntrue. Connections stopped being released back to the pool. Pool\nsize stayed fixed at 20 while waiters climbed from 13 to 74+,\nthrowing ERR_POOL_EXHAUSTED on every request once the pool filled.\n\nIMPACT WINDOW\nStart: 2026-03-14T02:14:18.972Z (first 503, 19s after dep-4471\nfinished at 02:14:00Z)\nEnd: unresolved — still throwing 503s at end of log\n(2026-03-14T03:59:27.974Z), latency degraded from ~660ms to ~850ms\nScope: gateway only. worker.log shows no errors, no 503s, normal\ndb_wait times in the same window — DB and worker pools unaffected.\n\nROLLBACK\nRevert dep-4471 (gateway.pool.perRequest -> false). No other\ndeploy in that window touched the gateway or pool config.\n```\n\nNext: get `dep-4471` reverted, this is still an active outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8bbb8cb9c2f3b5f19d9a3b5e55aca92c75162734fc238da2773379f829615435"
+}

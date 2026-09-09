@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__t31deliver__r1",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 20,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "t31deliver",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 74465,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4097207,
+  "numTurns": 16,
+  "durationMs": 66909,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3806
+  },
+  "contextTraffic": 654709,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 25079,
+  "narrationWords": 0,
+  "finalWords": 182,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing as of last log line (03:59:27Z) — not yet resolved.\n\n**Root cause:** dep-4471 (gateway, a.novak, 02:12–02:14Z) — \"config: connection-per-request for pool isolation.\" It flipped `gateway.pool.perRequest` from `false` to `true` (config generation 118→119), making the gateway acquire a new DB connection per request instead of reusing the shared pool. The fixed pool (size 20) saturated within ~33s of the change taking effect and has stayed pinned at `in_use=20/idle=0` since, with `waiting` climbing unbounded (12 → 232+ and growing).\n\n**Impact window:** 2026-03-14T02:14:18.972Z (first 503, `ERR_POOL_EXHAUSTED`) through at least 03:59:27Z. Affects gateway routes only: `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` — cascading to billing-svc, orders-svc, catalog-svc, accounts-svc backends. Response times degrading over the window (~660ms → 850ms+ before failing).\n\n**Not affected:** Workers (logs/worker.log) — separate connection pool (size 8), steady at `in_use=1/idle=7/waiting=0` throughout, zero job failures. This is gateway-only.\n\n**Roll back:** dep-4471 on gateway — revert `gateway.pool.perRequest` to `false` (config gen 119 → 118). No other deploy in the window is implicated; dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) both came after the outage began and aren't candidates.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dc197984a998e74f3015e6e03e717f26e43310ec25b28cbd7e7fa61634554d13"
+}

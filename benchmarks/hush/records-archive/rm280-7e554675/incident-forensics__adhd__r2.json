@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 91,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 160378,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5703525,
+  "numTurns": 18,
+  "durationMs": 152868,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10192
+  },
+  "contextTraffic": 351494,
+  "apiCalls": 12,
+  "toolCalls": 14,
+  "toolResultChars": 11021,
+  "narrationWords": 8,
+  "finalWords": 653,
+  "finalText": "## Heads-up before you read this\n\nThis handoff is reconstructed from **archived logs dated 2026-03-14**, not from a live incident. Today is 2026-08-27. If you're picking up a page right now, the current 503s are in a file I haven't seen — the analysis below may still apply (same failure mode, same config), but treat the \"ongoing\" status as unknown rather than confirmed.\n\n---\n\n# On-call handoff — gateway 503s\n\n**Incident:** gateway connection pool exhaustion\n**Severity:** SEV-1 — total loss of customer traffic on affected node\n**Evidence:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n\n## Root cause\n\n`dep-4471` — a gateway config change enabling **connection-per-request** pooling — exhausted the gateway's 20-connection pool within seconds of rollout.\n\nEach request now takes its own connection instead of sharing, so the pool saturates immediately and cannot recycle. Requests queue for a connection that never frees, time out, and return 503.\n\n```\ndep-4471  gateway  02:12:00Z → 02:14:00Z  a.novak\n          \"config: connection-per-request for pool isolation\"\n\n02:14:14.920Z WARN  pool  acquire slow: waited 100ms for a connection\n02:14:18.972Z ERROR pool  ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting 13)\n```\n\n**15 seconds** between deploy completion and first symptom. Three supporting signals:\n\n- `in_use 20 / size 20` pinned for the entire incident — never dips once in 1h45m\n- `connection churn: 4180 opens in the last 5m, baseline is 40` — 104× normal, connections discarded rather than reused\n- `waiting` climbs monotonically 13 → ~330, never drains\n\nThe intent (\"pool isolation\") looks deliberate, but pool `size=20` was sized for a shared-connection model and wasn't raised to match.\n\n**Ruled out:** upstream services (all four fail at equal rates — `orders`, `catalog`, `billing`, `accounts`), and the database (worker `db_wait` flat at 5ms throughout, worker pool idle at 1/8).\n\n## Impact window\n\n| | |\n|---|---|\n| **Start** | 2026-03-14 **02:14:14Z** (first warning); first 503 at 02:14:18Z |\n| **End** | **not observed** — still failing at 03:59:27Z when the log ends |\n| **Duration** | **≥ 1h 45m**, ongoing at cutoff |\n| **Failures** | 548 × 503, 530 × `ERR_POOL_EXHAUSTED` |\n| **Blast radius** | after onset, **every non-health request failed** — the only 200s in the log are `/health` |\n\nOnset was abrupt: the preceding 74 minutes are 100% clean 200s with zero warnings.\n\n⚠️ **`/health` kept returning 200 for the whole outage.** Load balancers would have kept this node in rotation while it served nothing but 503s. Worth a follow-up regardless of how this resolves.\n\nOn-call was paged at **03:21:05Z** — `error_rate 5m avg is 71%` — **67 minutes after onset**. Also worth a follow-up.\n\n## Roll back\n\n**`dep-4471`** (gateway, a.novak, 02:12–02:14Z). Config-only, so revert should be fast; confirm pool config returns to connection reuse and watch `in_use` drop below `size`.\n\nDo **not** roll back:\n\n- `dep-4472` (billing, 02:46) and `dep-4473` (catalog, 03:25) — landed *during* the incident, changed nothing in the error pattern. Note that they shipped into a 71%-error-rate window, which suggests no health gate in the deploy pipeline.\n- `dep-4468`, `dep-4469`, `dep-4470` — all pre-date onset by 1h19m–4h with clean logs throughout.\n\n## Open items for whoever picks this up\n\n1. **Blast radius is unconfirmed.** This log is `node-3 of 3`. If nodes 1 and 2 are clean the rollout was partial; if not, it's fleet-wide. Check before estimating customer impact.\n2. **Verify the diff.** `deploys.csv` gives a summary line, not the change. Pull the actual dep-4471 config to confirm the mechanism.\n3. **Separate, unrelated worker issue — not blocking, but real.** Worker job duration ramps linearly 327ms → 2,197ms (6.7×) across the same window, uniform across all six job types, with `db_wait` flat and zero failures. It predates 02:14 and shows no inflection there, so it is *not* caused by dep-4471. Shape suggests an in-process resource leak. Nothing would have paged — jobs all report `finished ok`. Worker logs from earlier that evening would date its start.\n\n---\n\nWant this written to a file (`INCIDENT.md` or similar) rather than left in chat?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68ba5a969017907ddb217ee0bf5172c7ae81ddcb8dd26fc129cb4a10475a203f"
+}

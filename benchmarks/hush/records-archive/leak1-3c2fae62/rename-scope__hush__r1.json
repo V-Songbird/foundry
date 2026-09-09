@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "leak1-3c2fae62",
+  "seed": "1787986431022",
+  "orderIndex": 9,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25108,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1035194,
+  "numTurns": 8,
+  "durationMs": 23464,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1838
+  },
+  "contextTraffic": 112972,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 10933,
+  "narrationWords": 0,
+  "finalWords": 151,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**It's bigger than a find-and-replace, and part of it can't move.**\n\n1082 occurrences across 94 files. Most are internal: DB columns, repo/service/route code in `orders`, `notify`, `billing`, `analytics`, `accounts`. That part is mechanical but wide, plus real migrations for each table.\n\nDo not rename in these spots:\n\n- [`docs/openapi.yaml`](docs/openapi.yaml) — `account_id` is documented as a frozen public field and query param. Renaming breaks every external client.\n- [`lib/serialize.js:8`](lib/serialize.js:8) — the wire-format map explicitly keeps `account_id` as the public JSON key even if the internal column changes.\n- [`vendor/reporting-sdk`](vendor/reporting-sdk/src/schema.js) — third-party vendored code, not ours to edit.\n- [`lib/audit.js`](lib/audit.js:3) — audit lines are likely append-only history, worth checking with platform team before touching past field names.\n\nSo: internal columns and code can be renamed, but the public API contract (`account_id` in responses, query params, and the serializer's outward-facing key) must stay `account_id`. Flag that split to the platform team before signing off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "42aca232c9521a9d93237c246bdeaa3b617ef89a6e10f84d17385f9535447b5a"
+}

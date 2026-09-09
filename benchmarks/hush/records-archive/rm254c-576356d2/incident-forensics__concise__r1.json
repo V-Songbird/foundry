@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 84,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66234,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.7262491,
+  "numTurns": 14,
+  "durationMs": 60602,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3993
+  },
+  "contextTraffic": 932436,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 99022,
+  "narrationWords": 0,
+  "finalWords": 253,
+  "finalText": "Log ends at **2026-03-14T03:59:27.974Z** (line 2015, last line of file) still throwing 503s — `waiting=172` reported in the last pool stats line at 03:55:58. The incident is **ongoing/unresolved** at the end of the captured log, not self-healed.\n\nHere's the handoff:\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** ACTIVE / UNRESOLVED (log capture ends 03:59:27Z still erroring — needs live confirmation this hasn't self-recovered since)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak) shipped a config change flipping `gateway.pool.perRequest: false -> true` (\"connection-per-request for pool isolation\"). This broke connection release/reuse — the pool's `in_use` count pins at its max (20/20) and the `waiting` queue climbs monotonically (13 → 172+) with no drain, instead of cycling normally. Every 503 is `ERR_POOL_EXHAUSTED acquiring connection from pool`.\n\n**Impact window:**\n- Config applied: **2026-03-14 02:13:41.234Z** (generation 118→119)\n- First 503: **2026-03-14 02:14:18.972Z**\n- Still failing at end of available log: **2026-03-14 03:59:27.974Z** (queue depth 172 and rising)\n- Duration so far: **≥1h 45m**, unresolved\n- Scope: gateway only — `worker.log` shows no errors/pool issues in the same window (workers use separate DB connections, unaffected by this gateway config key)\n\n**Rollback target:** `dep-4471` — revert `gateway.pool.perRequest` to `false` (and optionally the `upstreamMs` timeout 2500→2000 bump from the same deploy, though that's not implicated). No other deploy in the window is a plausible cause — `dep-4472` (billing-svc) landed ~27 min later and is unrelated.\n\n**Next steps for on-call:** roll back dep-4471, confirm pool `waiting` drains to 0 and 503s stop, then watch queue depth for a full cycle before closing out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "24a3645dce530a4f3c4a69a0f6d675c987b3bdc4725fe77518443793e1246cd8"
+}

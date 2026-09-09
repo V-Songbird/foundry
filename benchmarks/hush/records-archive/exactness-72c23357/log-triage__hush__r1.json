@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "exactness-72c23357",
+  "seed": "1787382923692",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28585,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.18927199999999997,
+  "numTurns": 7,
+  "durationMs": 26596,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1665
+  },
+  "contextTraffic": 311659,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 26407,
+  "narrationWords": 0,
+  "finalWords": 189,
+  "finalText": "Here's the story, start to end.\n\nAt 02:14:07, the app lost its connection to Redis, its cache at address `10.0.0.12:6379`. The connection was refused, meaning nothing was listening on the other end.\n\nThe app fell back to reading straight from its main data store, skipping the cache. That store couldn't handle the extra load. Requests started timing out after 5 seconds, and the backlog of waiting requests kept growing, from 52 up to 568 by the end.\n\nThe app tried to reconnect to Redis 13 times over the next 17 minutes. Every attempt failed the same way, `connect ECONNREFUSED`, so Redis itself never came back up.\n\nAt 02:31:44, one of the worker processes ran out of memory, worn down by the growing backlog. It crashed and restarted. Nine seconds later the main API stopped responding entirely, and the supervisor killed everything. That's the moment prod went down, 02:31:52.\n\n**Root cause:** Redis died and never restarted. Everything after that was the app slowly drowning without its cache.\n\n**Next step:** get Redis back up at `10.0.0.12:6379` first, that's the actual failure. Everything else was a symptom of the store being overloaded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "61f1c37796eb5630709ab2490b48529d3639644421ea41f721cad75c6151bc72"
+}

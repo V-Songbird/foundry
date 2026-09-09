@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 62,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37058,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21525329999999998,
+  "numTurns": 13,
+  "durationMs": 35517,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3003
+  },
+  "contextTraffic": 182712,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 12326,
+  "narrationWords": 0,
+  "finalWords": 170,
+  "finalText": "94 files touch `account_id`. Most are the same repo/service/route pattern repeated across five services, so it's mechanical, not risky.\n\nFour places must keep the name:\n\n1. `docs/openapi.yaml` — it says so directly: \"Frozen field name,\" renaming breaks every API client.\n2. `lib/serialize.js` — the `WIRE` map's public key. It's the boundary between internal and public JSON, marked frozen on purpose.\n3. Old migration files, like `migrations/20250114_create_accounts.sql` — they're applied history. Editing one won't rename anything in a live database, and it breaks the down step. A real column rename needs a new migration, not an edit to an old one.\n4. `vendor/reporting-sdk/*` — vendored, generated code. It says \"do not edit,\" and a refresh would overwrite any change anyway.\n\nEverything else, the repo/service/route files across notify, analytics, orders, billing, and accounts, uses `account_id` as an internal function param and column name. Safe to rename there.\n\nSo: sign off on the internal rename, but the public field, the wire map, old migrations, and the vendor SDK need to stay as `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "186557d3e4025fec1b2e1db67e09ff4c5564c3537420f54b0308d8354a6f28f1"
+}

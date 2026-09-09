@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__adhd__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 55,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 106803,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6293655,
+  "numTurns": 25,
+  "durationMs": 98186,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5756
+  },
+  "contextTraffic": 647098,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 12369,
+  "narrationWords": 19,
+  "finalWords": 186,
+  "finalText": "Dedup added: `route()` now checks `state.lastSentByKey` before deciding, and records the timestamp only when something actually went out. The priority/quiet-hours logic moved into a `decide()` helper so the history check sits cleanly in front of it.\n\nReplay confirms:\n- `dropped: 99` — exactly the number of flap events `events.js` injects (every 9th event, `i=9..891`), each firing 2 minutes after its predecessor with the same key.\n- `critical pager=200` (down from 225) — suppression applies to criticals too, since you said \"anything with the same key.\"\n- Everything else scales down proportionally; `route() errors: 0`.\n\nTwo judgment calls worth confirming:\n- **Queued counts as sent.** A quiet-hours notification that goes to `queue` starts the 5-minute window, so a flap behind it is dropped rather than queued twice.\n- **The window is measured from the last *delivery*, not the last event.** A steady stream every 4 minutes sends once and then stays suppressed indefinitely, since each drop doesn't refresh the timer. That's the usual intent, but the opposite reading is defensible.\n- Boundary: `at - lastSent <= 5` drops, so a repeat at exactly 5 minutes is suppressed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23c97c6d84f71bc9b79bc3173dd2939424197dd58ad679a5bf608b2f1c607f1e"
+}

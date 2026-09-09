@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 89,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 112641,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5449649999999999,
+  "numTurns": 13,
+  "durationMs": 106868,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6723
+  },
+  "contextTraffic": 381562,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 13922,
+  "narrationWords": 6,
+  "finalWords": 526,
+  "finalText": "# On-Call Handoff — Gateway 503 Incident\n\n**Status at handoff:** UNRESOLVED. Log ends 03:59:27Z with errors still firing and the wait queue still climbing. No recovery observed.\n\n## Root cause\n\nGateway config change `gateway.pool.perRequest: false -> true` exhausted the gateway's upstream connection pool. Each request now holds its own connection instead of sharing, so the 20-slot pool pins at full and requests queue until they time out as 503.\n\n```\n02:13:41.234Z INFO config generation 119 applied: 3 keys changed\n02:13:41.234Z INFO config   gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO config   gateway.timeout.upstreamMs: 2000 -> 2500\n```\n\nPool went from `in_use=10 idle=10 waiting=0` (02:10) to `in_use=20 idle=0` and never released. The `upstreamMs` 2000→2500 bump in the same change makes each held connection worse.\n\nEvery one of the 530 failures carries the same single error code — there is no other error type in the file:\n\n```\nERROR access req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool   req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\n**Upstreams are healthy** — all 180 `/health` checks returned 200 across all four services throughout. Do not chase billing/catalog/orders/accounts.\n\n## Impact window\n\n| | |\n|---|---|\n| First 503 | 2026-03-14 **02:14:18.972Z** (`req-07401`) |\n| Last seen | 2026-03-14 **03:59:27.974Z** (`req-17907`) — log ends, still failing |\n| Duration | ≥ 1h 45m, ongoing |\n| Volume | 530 × 503, steady ~50 per 10 min |\n| Blast radius | All routes: `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`, `/v1/profile`. Checkout affected — assume revenue impact. |\n\n## Roll back\n\n**`dep-4471`** — gateway, 02:12:00Z → 02:14:00Z, author **a.novak**, *\"config: connection-per-request for pool isolation.\"*\n\nRevert to **config generation 118**. Deploy finished 02:14:00Z; first 503 landed 18 seconds later.\n\nRuled out: dep-4472 (billing, 02:41) and dep-4473 (catalog, 03:20) both land after failures were already steady, and errors are spread evenly across all four upstreams rather than concentrated on either.\n\n## Open items for the next shift\n\n1. **Log covers `node-3 of 3` only.** Assume nodes 1 and 2 are equally affected — confirm and roll back fleet-wide, not just this node.\n2. **Unexplained queue reset at 03:15** — waiting dropped 232 → 12, then resumed climbing at the same rate. Likely an unlogged restart or eviction; it clears waiters without fixing the leak, so don't read a dip in graphs as recovery.\n3. **Separate worker issue, not part of this incident.** `logs/worker.log` shows zero errors but job duration ramping linearly +110ms/10min (327ms → 2197ms). It starts at 01:00 — before dep-4471 — with no inflection at 02:14, and the worker pool is idle (`in_use=1` of 8) with flat 5ms `db_wait`. Possibly dep-4470 (worker, finished 00:55). **Needs its own ticket** and worker logs from before 01:00 to confirm.\n4. `WARN db slow query 1.9s ... OPS-2210` at 02:36 in worker.log is a known pre-existing issue, single occurrence, unrelated.\n\n⚠️ **Timeline check before you page anyone:** these logs are dated **2026-03-14**, roughly five months before today (2026-08-27) — not last night. If you're responding to a live incident right now, this file is not it and the current logs need to be located.\n\nWant this saved to a file, or dropped into an incident doc?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "be043eb889858024f8dd6e3e628fe5e5755108773db8ea40216ffdf051526eb3"
+}

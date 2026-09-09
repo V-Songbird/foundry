@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 62,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 112022,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.543606,
+  "numTurns": 18,
+  "durationMs": 105932,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7352
+  },
+  "contextTraffic": 328677,
+  "apiCalls": 11,
+  "toolCalls": 14,
+  "toolResultChars": 15838,
+  "narrationWords": 12,
+  "finalWords": 616,
+  "assistantMsgs": 6,
+  "finalText": "# On-Call Handoff — Gateway 503s\n\n**Incident window:** 2026-03-14 02:14 – 03:59+ UTC · **Status at log end: ONGOING, not recovered**\n\n## Root cause\n\nGateway deploy **dep-4471** (a.novak, 02:12–02:14) flipped `gateway.pool.perRequest: false -> true`. With connection-per-request enabled, every inbound request opens its own upstream connection instead of borrowing from the shared pool. Against a fixed pool of 20, the pool saturated in under a minute and never drained.\n\nLog evidence chain:\n\n```\n02:12:12.820Z INFO  config reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO  config   gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO  config   gateway.timeout.upstreamMs: 2000 -> 2500\n02:14:18.972Z ERROR access req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool   req-07401 ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting 13)\n03:02:30.904Z WARN  pool   connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\n37 seconds from config-applied to first 503. Connection churn at ~100× baseline is the signature of the perRequest flag. Pool went from `in_use=10 idle=10 waiting=0` (02:10) to `in_use=20 idle=0 waiting=232` (03:10) and stayed pinned.\n\n## Impact\n\n- **First error:** 02:14:18.972Z · **Last seen:** 03:59:27.974Z (end of log — still failing)\n- **Duration:** ≥1h45m, no recovery observed\n- **Volume:** 530 × HTTP 503, flat at 50 per 10 min from 02:20 onward\n- **Blast radius:** all 5 upstreams evenly (~26–27 each), all 5 `/v1/*` routes. Not a single-service failure — it's the gateway's own pool.\n- **Peak error rate:** 71% 5m avg; on-call paged 03:21:05.282Z (67 min after onset)\n- `/v1/checkout` and `/v1/profile` also logged 212 `acquire slow` warnings\n\n## Action: roll back dep-4471\n\nOnly gateway deploy in the window and the only change that touches the pool. Reverting `gateway.pool.perRequest` to `false` should be enough — it's a config generation, so a reload to generation 118 may be faster than a full redeploy. If the pool doesn't drain after the flag flips, restart the gateway to clear the 172-deep wait queue.\n\nRuled out: dep-4470 (worker, finished 79 min prior, unrelated — see below); dep-4472 and dep-4473 both **started after** errors were already at steady state.\n\n## Two things to verify before closing\n\n**1. Check the other two nodes.** This log is `node-3 of 3`. The 530 count and the impact numbers above are one third of the fleet — real customer impact is likely ~3×. Confirm node-1 and node-2 show the same signature.\n\n**2. Separate, unresolved worker issue.** logs/worker.log shows zero errors and a flat idle pool (`size=8 in_use=1 waiting=0` at all 19 samples) — workers were **not** affected by this incident. But job duration ramps linearly from 327ms to 2197ms across the window, starting at 01:00, the first line of the log, with no inflection at 02:14. `db_wait` stays capped at 12ms, so the time is in job compute, not connection waits. Possible link to dep-4470 (\"retry backoff for webhook jobs\", finished 00:55, 5 min before the log starts) but I can't confirm without logs from before 01:00. **Worth its own ticket — do not close with this incident.**\n\n## Caveats\n\n- Timestamps are **2026-03-14**, ~5.5 months before today (2026-08-28). If you're responding to a live incident, confirm you're reading the right file — this may be an archived copy.\n- No rollback or revert appears in deploys.csv, consistent with errors continuing to the end of the log.\n- Gateway pool `waiting` counter resets 232 → 12 at 03:15:58 with no restart or reload line to explain it. Either a counter rollover or an unlogged process event on node-3 — flagging in case someone bounced it without recording it.\n- dep-4471's deploy window closed at 02:14:00, 18 seconds *before* the first 503. Anyone watching that deploy would have seen it go green — worth a look at deploy-gate bake time as a follow-up.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "301e35da9f219a8f43ea0a6e3e7432dd2131635bfe706ac1f3696904aecd492b"
+}

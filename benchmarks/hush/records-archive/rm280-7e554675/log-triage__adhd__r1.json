@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54810,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.355448,
+  "numTurns": 10,
+  "durationMs": 53329,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3404
+  },
+  "contextTraffic": 227489,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 16031,
+  "narrationWords": 6,
+  "finalWords": 526,
+  "finalText": "## What happened\n\nFull Redis outage at **02:14:07** cascaded into a total service kill at **02:31:52**. About 18 minutes end to end. Log covers 02:00:00 → 02:31:52 (719 lines).\n\n### Timeline\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Fully healthy. All `200`s, cache hit ratio 0.90–0.96 |\n| 02:14:03 | **Last successful request** (`worker-1 GET /orders 200 75ms`) |\n| 02:14:07.113 | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins (`orders:1000`, climbing sequentially) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth warnings start at 52 |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts (0–12), **all** ECONNREFUSED, ~80s apart. Never reconnects |\n| 02:29:12 | Queue depth **502**, crosses the max of 500 |\n| 02:31:24 | Queue depth 568 — last measurement |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### Causal chain\n\nRedis at `10.0.0.12:6379` went away (ECONNREFUSED = nothing listening, so the process/container died or was firewalled off — not a network blackhole, which would show ETIMEDOUT). The app's degraded-mode fallback sent every read straight to the backing store. Unshielded, the store couldn't take the load and started timing out at 5s. Every request then occupied a connection for 5 full seconds, so the queue filled faster than it drained — depth climbed linearly at roughly **+3 per 2 seconds**, from 52 to 568 with no plateau. Backlog buffered in memory until worker-2 OOM'd (exit 134 = SIGABRT, V8 heap exhaustion), and the supervisor killed the group 7 seconds later.\n\nError counts: 348 WARN, 188 ERROR, 2 FATAL. The 173 TimeoutErrors are all exactly 5000ms — those are the client-side timeout tripping, not variable store latency.\n\n### The actual bugs\n\n1. **Fallback has no circuit breaker.** Degrading from cache to direct store reads is fine; doing it for 100% of traffic with no rate limit or breaker is what killed you. Redis dying should have caused degraded latency, not a full outage.\n2. **Reconnect never recovered.** 13 attempts at ~80s fixed intervals over 16 minutes, all refused. Whatever failed on the Redis host stayed failed — this was never going to self-heal, so check Redis host logs for that box around 02:14.\n3. **Queue max of 500 isn't enforced.** It was logged as exceeded (502, then 568) but nothing shed load. That cap should reject with a 503, not just warn.\n4. **No backpressure between queue depth and memory.** Queue crossed the limit at 02:29:12; OOM hit 02:31:44. You had ~2.5 minutes of warning that nothing acted on.\n\nOne thing to check: these logs are timestamped **2026-07-04**, not last night (today is 2026-08-27). Either you're looking at an old file, log rotation is stale, or the clock on that host is wrong — worth confirming before you post-mortem this as last night's incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "29fd403ef14775ad027c2595eaf3eb8028167116ca1a475cccc02861584ca36c"
+}

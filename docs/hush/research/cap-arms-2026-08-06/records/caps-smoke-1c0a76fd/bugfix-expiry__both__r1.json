@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__both__r1",
+  "batchId": "caps-smoke-1c0a76fd",
+  "seed": "1786009892655",
+  "orderIndex": 2,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 27988,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0856474,
+  "numTurns": 8,
+  "durationMs": 25519,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1357
+  },
+  "contextTraffic": 201650,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 3933,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "finalText": "The bug was in the `isExpired` function. It was using `<` instead of `<=`, so tokens weren't marked expired until *after* the expiration time passed. This let tokens slip through at the exact moment they expired.\n\nChanged line 7 from `return token.exp < nowSeconds;` to `return token.exp <= nowSeconds;`. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8d02f44a5237d56409e2bf169aa46f81d30f98f3f8390d4af6e1397c7d271808"
+}

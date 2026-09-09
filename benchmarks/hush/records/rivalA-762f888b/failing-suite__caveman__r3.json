@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 50,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 21465,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.208622,
+  "numTurns": 6,
+  "durationMs": 20378,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1131
+  },
+  "contextTraffic": 135531,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 4975,
+  "narrationWords": 0,
+  "finalWords": 56,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Green: 625 passing, 0 failing.\n\nOne bug, `orderTotal` in `src/pricing.js:41`. Tax computed on pre-discount `cents`, but discount applied to base — customer taxed on money not paid. All 3 failures were that; deltas exactly `discount * taxRate`.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nReuses existing `applyTax` instead of hand-rolled `roundCents(... * taxRate)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36e866af64d84071e239f8d6ce582a57c223b02aeeb64a7bfb10588429298c8c"
+}

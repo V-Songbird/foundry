@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 46406,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6344995,
+  "numTurns": 7,
+  "durationMs": 45491,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1221
+  },
+  "contextTraffic": 119907,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 10226,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died and took prod down.** [app.log:182](logs/app.log:182)\n\n1. `02:14:07` `Redis` at `10.0.0.12:6379` refused connections.\n2. Cache fell back to direct store reads.\n3. A cache miss storm hit the store.\n4. Timeouts piled up. Queue depth passed 500.\n5. 13 reconnect tries failed over 17 minutes.\n6. `02:31:44` `worker-2` died: `JavaScript heap out of memory`.\n7. `02:31:52` supervisor killed `api`: `service down`.\n\nNext: check why `Redis` on `10.0.0.12` went down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5720a70d9e3c7da48f16ef2559b4e36fff3e60d817e33c7374cbc0c4da7093b2"
+}

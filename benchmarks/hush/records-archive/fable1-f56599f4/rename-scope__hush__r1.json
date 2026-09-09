@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 71946,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6185905,
+  "numTurns": 19,
+  "durationMs": 71104,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4074
+  },
+  "contextTraffic": 130314,
+  "apiCalls": 5,
+  "toolCalls": 18,
+  "toolResultChars": 18428,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big but mostly mechanical.** 1291 hits in 94 files.\n\n| Keep `account_id` here | Why |\n|---|---|\n| [docs/openapi.yaml:16](docs/openapi.yaml:16), [lib/serialize.js:8](lib/serialize.js:8) right side | Public API. Frozen. |\n| `migrations/*.sql`, 12 files | Applied history. Add one new `RENAME COLUMN` migration. |\n| `vendor/reporting-sdk/` | Generated. `npm run vendor:refresh` wipes edits. |\n\nThree more traps. 125 SQL strings need the new migration first. 25 inserts put `account_id` in the JSONB `payload`. Old rows keep the old key. `req.session.account_id` comes from outside this repo. 100 call sites read it.\n\nNext: sign off with the carve-outs written in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6466b5a4f4d0633bf6446d401ddcb16be385768adce06b044be29a7de03aab22"
+}

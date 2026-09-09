@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__first__r1",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "first",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39144,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.4263855,
+  "numTurns": 10,
+  "durationMs": 37266,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1932
+  },
+  "contextTraffic": 189897,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6478,
+  "narrationWords": 7,
+  "finalWords": 73,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, fall back to old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat `undefined` as off |\n\nThe 8 warnings are printed by `build.js` itself. They name files like `src/legacy/adapter.js` that do not exist here. Nothing to fix in this tree.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dafe6aec99e62ce5ec6ebe811e0ad74313654410d6c3999e79f66dba1260fa6c"
+}

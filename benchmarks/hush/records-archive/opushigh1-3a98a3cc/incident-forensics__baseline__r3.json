@@ -1,0 +1,46 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 313907,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.2313095,
+  "numTurns": 22,
+  "durationMs": 310676,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 22221
+  },
+  "contextTraffic": 680072,
+  "apiCalls": 22,
+  "toolCalls": 18,
+  "toolResultChars": 18445,
+  "narrationWords": 81,
+  "finalWords": 871,
+  "assistantMsgs": 9,
+  "narrationTexts": [
+    "I'll start by finding and examining the log file.",
+    "Already have it open from the first pass — yes, and it lines up tightly. Let me verify the mid-incident ones didn't contribute anything.",
+    "Let me look at worker.log properly rather than relying on the summary counts from earlier.",
+    "That changes the answer. Job durations are climbing linearly while `db_wait` stays flat — let me isolate which job types.",
+    "Every job type degrades identically. Let me characterize the exact shape before concluding."
+  ],
+  "finalText": "## On-call handoff — gateway 503 incident\n\n**⚠️ Read first:** this analysis is from `logs/gateway.log`, which covers **2026-03-14 01:00–03:59Z**. Today is 2026-09-08. If you're handing off a live incident, this file is ~6 months stale and you need to confirm you're looking at current logs before acting on any of it. Everything below describes the March 14 event as recorded.\n\n---\n\n### Root cause\n\nGateway config generation 119 flipped **`gateway.pool.perRequest: false -> true`**, applied at `02:13:41.234Z`.\n\nEvery request now takes a dedicated connection instead of multiplexing over the shared pool. Pool size is 20, so concurrency is hard-capped at 20 — far below normal traffic. The pool saturates permanently and never recovers.\n\nEvidence:\n- All 530 `ERR_POOL_EXHAUSTED` lines read `size 20, in_use 20` — pinned at capacity for the full incident.\n- Wait queue grows unbounded, 13 → 271.\n- `connection churn: 4180 opens in the last 5m, baseline is 40` at 03:02:30 — **104x** normal open rate, i.e. connections are being opened and closed per request instead of reused.\n- Failures spread evenly across all four upstreams (~26–27 per path/upstream pair), so this is not a sick dependency.\n- `worker.log` over the same window: zero errors, pool flat at `in_use=1 idle=7`, `db_wait` max 12ms. Not a database issue.\n\nThe same generation also raised `gateway.timeout.upstreamMs: 2000 -> 2500`, which is a secondary aggravator (connections held longer). `gateway.log.sampleRate: 1.0 -> 1.0` was a no-op.\n\n### Impact window\n\n| | |\n|---|---|\n| Config applied | `02:13:41.234Z` |\n| First symptom | `02:14:14.920Z` — `acquire slow: waited 100ms` |\n| **First 503** | **`02:14:18.972Z`** — `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| On-call paged | `03:21:05.282Z` — `error_rate 5m avg is 71%` |\n| Last data point | `03:59:27.974Z` — **still failing** |\n| **Duration** | **≥ 1h 45m, unresolved at end of log** |\n\n**Blast radius:** error rate hit 44% within the first bucket, then locked at a flat **83%** from 02:20 through end of log — exactly 25 failures per 5-minute bucket, no variation.\n\n- **530** logged 503s on this node\n- **+106** `/v1/profile` requests that produced pool warnings but **no access-log record at all** — no status code, silently unaccounted. True failure count is **≥636**\n- All five real endpoints affected equally (106 each): `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`\n- **`/health` never failed** — 106/106 successful. This is why health checks stayed green throughout\n\nThis log is `node-3 of 3`. If the other two nodes behaved the same, **actual customer-facing failures are roughly 1,900**.\n\n### Roll back\n\n**`dep-4471`** — gateway, `2026-03-14T02:12:00Z`, author **a.novak**, *\"config: connection-per-request for pool isolation\"*.\n\nRevert config **generation 119 → 118**. At minimum set `gateway.pool.perRequest` back to `false`; recommend reverting the whole generation since `upstreamMs` shipped in the same change and was never validated independently.\n\nDo **not** roll back these — verified non-contributing:\n- `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) shipped *during* the incident. Error rate is flat 83% across both boundaries — neither helped nor hurt.\n- `dep-4469` (accounts-svc, 23:31, *\"add rate limit to /v1/session\"*) is the tempting red herring. `/v1/session` fails at exactly the same rate as four endpoints that deploy never touched, and every 503 is paired with `ERR_POOL_EXHAUSTED`, not a rate-limit rejection.\n\n**If per-request isolation is actually wanted**, pool size must grow by roughly the peak-concurrency factor before re-enabling. Shipping it against `size 20` will reproduce this exactly.\n\n### Follow-ups for the postmortem\n\n1. **Deploy pipeline reported success 15s before the first 503.** `dep-4471` has `finished_at=02:14:00`; first failure at `02:14:18`. Whatever it gated on passed, so nothing auto-rolled back. Extend the bake window past one minute.\n2. **67-minute detection gap.** Failures started 02:14; page fired 03:21. Alert on 5m avg error rate is too slow for an 83% outage — and `/health` staying green is why nothing else caught it. Health check should exercise a real dependency path.\n3. **Missing access logs.** 106 `/v1/profile` requests logged a pool warning and then vanished with no outcome recorded. Dashboards reading the access log are undercounting failures. Worth finding out whether those requests were dropped or the client disconnected.\n4. **Unexplained pool reset at ~03:39.** Queue depth drops 269 → 14 and immediately climbs again to 74, with no restart/boot/shutdown line anywhere in the file. Either the gateway doesn't log lifecycle events (fix that) or a counter rolled. Note this means a restart did *not* mitigate — saturation resumed instantly.\n5. **Separate issue: worker resource leak.** Unrelated to this incident, but surfaced while ruling the workers out. Job duration climbs linearly from **200ms → 2324ms** over three hours (11.6x), at a constant +11ms per minute of uptime, identically across all six job types, while `db_wait` stays flat at 5.0ms. In-process leak, not DB contention. Slope is unchanged across the gateway incident, so it's independent and pre-existing. Possibly `dep-4470` (worker, 00:48–00:55, *\"retry backoff for webhook jobs\"*) — but that's webhook-specific and all job types degrade equally, so it would have to be shared code. **Unconfirmed: needs worker logs from before 01:00 to establish a baseline.** Restarts mask it, which is likely why it's gone unnoticed; at current slope jobs would exceed their ~10s arrival interval in ~11–12 hours of uptime.\n\n---\n\nWant this written to a file, or trimmed to a paste-sized version for Slack?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ae56fbfab8603382574641913a982142c34aa25dbd794193b61252e810455daf"
+}

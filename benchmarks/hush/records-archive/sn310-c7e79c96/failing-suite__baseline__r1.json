@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20996,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.10698060000000001,
+  "numTurns": 9,
+  "durationMs": 19563,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1425
+  },
+  "contextTraffic": 166163,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 11801,
+  "narrationWords": 45,
+  "finalWords": 69,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms it: only `order totals` fails (3 cases), and only the rows where both discount% and tax rate are non-zero — exactly what the bug hint in `orderTotal`'s comment points at. The tax is being computed on the pre-discount amount instead of the discounted amount."
+  ],
+  "finalText": "All 625 cases pass now.\n\nThe bug was in `orderTotal` (`src/pricing.js`): tax was calculated on the pre-discount amount instead of the discounted amount, contradicting the function's own comment (\"tax is charged on the amount the customer pays\"). Fixed by computing tax on `discounted` instead of the original `cents`. Only the \"order totals\" suite was failing (3/625 cases) — everything else was already green, just buried in the verbose output.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ee40942865fc1c3bb01770640a6ec933a110e9e7736f14296db2e8e65accd17b"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 74,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 7836,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0795152,
+  "numTurns": 1,
+  "durationMs": 6099,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 293
+  },
+  "contextTraffic": 35945,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "finalText": "Rebase and merge both bring one branch's changes into another, but they do it differently.\n\n**Merge** keeps both histories as they happened and adds a new commit that ties them together. Nothing gets rewritten, but you get an extra \"merge commit\" and the history can look tangled.\n\n**Rebase** takes your commits and replays them on top of the other branch, one by one, as if you'd started from there. History stays a straight line, but it rewrites your commits — new hashes, no trace of the old path.\n\nWhen to use each:\n- **Merge** for shared branches, like bringing a feature into `main`. Safe, and doesn't disturb history other people rely on.\n- **Rebase** for your own local branch before sharing it, to clean up a messy trail of commits into a straight one.\n\nOne rule worth keeping: never rebase commits that other people have already pulled. Since it rewrites history, it can knock their work out of sync with yours.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8b49c51bb4a98f22137b02d76600fc33058eaa3c93edbcce146c6378e29e3df2"
+}

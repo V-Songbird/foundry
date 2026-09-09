@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__adhd__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 155,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 160304,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.600096,
+  "numTurns": 12,
+  "durationMs": 156605,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10015
+  },
+  "contextTraffic": 301214,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 13811,
+  "narrationWords": 8,
+  "finalWords": 826,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "# On-Call Handoff — Gateway 503s\n\n**Incident window:** 2026-03-14 02:14:14Z → 03:59:27Z (log end, still active)\n**Severity:** Customer-impacting. All routes, all upstreams.\n**Status at handoff:** **Not mitigated.** No self-recovery observed. Rollback not yet performed.\n**Prepared by:** <email>\n\n> ⚠️ **Read this first:** the log file at `logs/gateway.log` covers **2026-03-14 01:00–03:59Z**, roughly six months before today. This was reported as \"last night.\" Either you're looking at an archive, or the live gateway log is not rotating into this path. **Confirm you're on current data before acting on the rollback below.** If the incident is genuinely live right now, find the real log first — the analysis pattern should still hold, but the timestamps won't.\n\n---\n\n## Root cause\n\n**Gateway connection pool exhaustion caused by a config change, not by any upstream failure.**\n\nAt 02:13:41Z the gateway applied config generation 119, flipping:\n\n```\ngateway.pool.perRequest:   false -> true\ngateway.timeout.upstreamMs: 2000 -> 2500\n```\n\n`perRequest: true` gives every in-flight request its own connection instead of sharing from the pool. Against a pool of 20, that saturates on contact. The timeout bump to 2500ms compounds it by holding each connection ~25% longer before release.\n\nEvery one of the 530 pool errors reads the same:\n\n```\nERROR pool req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\n`in_use 20` of `size 20` — pinned at full utilization for the entire incident.\n\n**Evidence it's the gateway and not a backend:** all 530 503s carry the same request IDs as the pool errors — every 503 *is* a failed pool acquire. They're distributed evenly across all five routes and all four upstreams (~26–27 each). A sick backend would cluster.\n\n## Roll back this deploy\n\n**`dep-4471` — gateway — 02:12:00Z–02:14:00Z — a.novak — \"config: connection-per-request for pool isolation\"**\n\n**Action: revert gateway config generation 119 → 118** (`gateway.pool.perRequest` back to `false`).\n\nTimeline lock-in:\n\n| time | event |\n|---|---|\n| 02:12:00Z | dep-4471 starts |\n| 02:12:12Z | `config reload requested by deploy pipeline, generation 118 -> 119` |\n| 02:13:41Z | `generation 119 applied: 3 keys changed` |\n| 02:14:00Z | dep-4471 finishes |\n| 02:14:14Z | first `WARN pool acquire slow` (+14s) |\n| 02:14:18Z | **first 503** (+18s) |\n\nIt's the only gateway deploy in `deploys.csv`, and its summary text is a plain-language description of the exact failure mode.\n\nIf the revert alone doesn't clear it, raise pool size well above peak concurrency as a stopgap — but the revert is the correct fix; resizing just masks a config that shouldn't be on.\n\n**Do not roll back** dep-4472 (billing-svc, 02:41) or dep-4473 (catalog-svc, 03:20). Both shipped *during* the incident but neither changed the error pattern — the rate stayed flat at 50 per 10 min across both. They're innocent.\n\n## Impact window\n\n- **Onset:** 02:14:14.972Z (first slow-acquire warning); first 503 at 02:14:18.972Z.\n- **Duration:** 1h45m+ and ongoing at log end. **No recovery.**\n- **Volume:** 530 × HTTP 503.\n- **Rate:** flat 50 per 10 minutes from 02:20 onward — no decay, no self-healing.\n- **Blast radius:** all routes (`/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`) and all upstreams (orders, catalog, billing, accounts). Checkout and cart are in the path, so assume revenue impact.\n- **Latency on failures:** 600–999ms, avg 794ms.\n- **Queue depth:** waiters climbed 13 → ~200 in the first hour.\n\n## Follow-ups (not blocking mitigation)\n\n1. **Alerting gap — 67 minutes.** On-call wasn't paged until 03:21:05Z (`error_rate 5m avg is 71%`), over an hour after onset. A 71% error rate should not take 67 minutes to page.\n2. **Deploy pipeline has no health gate.** Two deploys shipped into a gateway running at 71% errors. Nothing stopped them.\n3. **Worker slowdown — separate ticket, separate cause.** `logs/worker.log` shows **zero errors and zero failed jobs**; worker pool is healthy and identical in all 18 samples (`size=8 in_use=1 idle=7 waiting=0`). But job durations ramp linearly **+110ms per 10 minutes** (327ms → 2,197ms, ~11× over three hours) with `db_wait` flat at 0–12ms and throughput flat. **The slope is unchanged across 02:14 — this is not gateway fallout.** It's already underway at the log's first line, so onset predates the file. Flat dependencies + flat throughput + unbounded linear growth reads as a leak. Nearest preceding event is dep-4470 (worker, 00:48–00:55, \"retry backoff for webhook jobs\") — **hypothesis only**, since the ramp hits all job types while that change was webhook-scoped. To confirm: pull worker.log from before 01:00 and check worker RSS/handle counts.\n4. **Queue-depth counter may be buggy.** The `waiting` value appears to wrap and re-climb rather than drain monotonically — worth verifying it's not misreporting.\n5. **`OPS-2210`** (unindexed `SELECT * FROM orders WHERE status = ?`, one 1.9s slow query at 02:36) — pre-existing known issue, does not correlate with anything above. Noted only so the next person doesn't re-discover it.\n\n---\n\nI haven't touched anything — this is analysis only. Want me to drop this into a file (say `HANDOFF.md`), or trim it to a paste-sized version for the incident channel?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0fdd7326c5fa2d454f37d0012a7c5f0182ed446d537c200956293d3726ff1f63"
+}

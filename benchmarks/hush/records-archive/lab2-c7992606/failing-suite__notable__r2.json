@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__notable__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "notable",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19941,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11103720000000002,
+  "numTurns": 9,
+  "durationMs": 18173,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1039
+  },
+  "contextTraffic": 176176,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 11206,
+  "narrationWords": 17,
+  "finalWords": 47,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug in `orderTotal`: tax is computed on the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Suite is green.** 625 total, 625 passing.\n\nThe bug was in `orderTotal` at [src/pricing.js:41](src/pricing.js:41). Tax was computed on the pre-discount amount instead of the discounted one, so any case with both a discount and a tax was wrong.\n\nFixed by taxing `discounted` instead of `cents`.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67e9dad94d9cfe91700f5e86de9335f38bc8e41ada672e1ea2d7d3580b6216ad"
+}

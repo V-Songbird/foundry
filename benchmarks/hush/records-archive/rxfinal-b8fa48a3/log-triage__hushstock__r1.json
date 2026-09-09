@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushstock__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24080,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19499729999999998,
+  "numTurns": 3,
+  "durationMs": 22273,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1644
+  },
+  "contextTraffic": 111207,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "finalText": "Redis went down at 2:14 AM and the app never got it back — that's what took prod out.\n\n1. `redis` dropped at 02:14:07 with connection refused. The app fell back to reading straight from the database.\n2. That fallback path couldn't keep up. Timeouts and cache misses piled up nonstop for the next 17 minutes.\n3. The request queue kept growing past its limit of 500, up to 568.\n4. Twelve reconnect attempts to redis were made. All twelve failed.\n5. At 02:31:44 one worker ran out of memory from the backlog and crashed.\n6. It restarted, but by 02:31:52 the main service stopped responding too and got killed. That's the full outage.\n\nRoot cause: redis died and never came back, and nothing stopped the pileup while it was gone. Worth checking why redis itself dropped, and adding a limit so timeouts can't pile up like that again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3466bb3ace10d799d5f9ba41a0a6eea0993d3a22b0284b5e820c81261363a298"
+}

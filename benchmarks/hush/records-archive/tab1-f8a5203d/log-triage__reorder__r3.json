@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__reorder__r3",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "reorder",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14140,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1186674,
+  "numTurns": 4,
+  "durationMs": 12536,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 810
+  },
+  "contextTraffic": 115814,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\n`redis` at `10.0.0.12:6379` died at `02:14:07`.\n\nReconnects failed 12 times, through `02:31:26`.\n\nCache fell back to direct store reads.\n\nQueue depth climbed from 52 to 568.\n\n`worker-2` hit `JavaScript heap out of memory` at `02:31:44`.\n\n`supervisor` then killed the whole process group at `02:31:52`.\n\nNext: restore `redis` at `10.0.0.12`, then restart the service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc6104be1cc9c60530f39a9c508faf69d63e0bb01ee7435b08c194fd7eb24b27"
+}

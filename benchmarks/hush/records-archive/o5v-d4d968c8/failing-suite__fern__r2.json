@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__fern__r2",
+  "batchId": "o5v-d4d968c8",
+  "seed": "1787819339063",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "fern",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28411,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.24619599999999997,
+  "numTurns": 10,
+  "durationMs": 26202,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1075
+  },
+  "contextTraffic": 169551,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12054,
+  "narrationWords": 0,
+  "finalWords": 48,
+  "finalText": "Green. 625 passing, 0 failing.\n\nOne real bug, in `orderTotal`. It taxed the full base, not the discounted amount. Only 3 rows had both a discount and a tax, so only they caught it.\n\nFix is in `src/pricing.js`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "56eebc0f4d07f376c986f2196905c77ddc3fda7d1412e6607be665d5c2d4c397"
+}

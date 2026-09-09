@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 44,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 134174,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6758921999999999,
+  "numTurns": 12,
+  "durationMs": 132827,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11794
+  },
+  "contextTraffic": 599398,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 74134,
+  "narrationWords": 83,
+  "finalWords": 259,
+  "finalText": "I added the 4.2.0 section, newest on top like 4.1.0/4.0.3 already were (I left the `<!-- 4.2.0 goes here -->` placeholder comment in place at the bottom as a template note for whoever writes the next release).\n\nWhat I found going through all 380 commits: the vast majority are a handful of templates repeated verbatim across modules — dependency bumps, \"collapse the two retry helpers,\" \"drop the unused v2 debug helper,\" \"skip the JSON round-trip on the hot path,\" etc. — pure internal churn, no user-visible effect. Once you filter those out, three kinds of real change survive:\n\n- **One breaking change**: expired tokens now return 401 instead of 403 (`fix(auth)`, #4223) — worth flagging loudly since anyone branching on status code will break.\n- **One new feature**: webhook deliveries now retry with exponential backoff instead of dying on first failure (`feat(webhooks)`, #4191).\n- **A cluster of recurring bug fixes** that show up applied separately to queue/api/webhooks/db/store — same underlying bug class fixed in each resource (null-cursor crashes in paginators, duplicate response headers, trailing-slash duplication, empty-allowlist handling, unclear token-parser errors), plus a couple of standalone ones worth calling out on their own: the DB layer logging full request bodies (privacy-relevant), and trace-id loss across retries (it actually got \"fixed\" three separate times across the branch, which suggests it kept regressing — worth watching after this release).\n\nI left out things like the latency-histogram-units fix and the hot-path JSON/clone perf work — those are internal-only (metrics/perf, no observable behavior change) and match the \"refactors\" bucket you already knew to ignore.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68f1072f506f306c82688020bcac4ae911925ad6d81ad3c0e6cc09c4068c3a94"
+}

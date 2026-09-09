@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 83,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 8745,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08029420000000001,
+  "numTurns": 1,
+  "durationMs": 6680,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 331
+  },
+  "contextTraffic": 35979,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 168,
+  "finalText": "Both combine two branches' history, but they leave different marks.\n\n**Merge** adds a new commit that ties the two histories together. Nothing gets rewritten. You keep the full, real order of events, but the log ends up with extra \"merge\" commits and side branches criss-crossing.\n\n**Rebase** takes your branch's commits and replays them one by one on top of the other branch. The result looks like you'd built your work on the latest code from the start. History becomes a clean straight line, but the original commits are gone — replaced with new ones that just look similar.\n\nA simple way to choose:\n\n- Working on a shared branch, or want the true story of what happened? Use **merge**. It's safe and never rewrites commits other people already have.\n- Cleaning up your own branch before sharing it, or want a tidy line instead of a tangle? Use **rebase**. Just avoid it on commits others have already pulled — rewriting shared history causes real headaches for everyone else.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dbe5c3279a8c19acf80e30a8ca2ee09b3d4b5c8c821d02e37b0dbca22f43141f"
+}

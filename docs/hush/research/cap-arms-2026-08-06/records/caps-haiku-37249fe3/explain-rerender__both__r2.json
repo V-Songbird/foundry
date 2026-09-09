@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 67,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 2,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 9413,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.022639500000000003,
+  "numTurns": 1,
+  "durationMs": 7451,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 533
+  },
+  "contextTraffic": 27057,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 160,
+  "finalText": "The most common reason is that the **parent re-renders**, which re-renders all its children by default in React — even if the props haven't changed. React doesn't skip child renders just because props are the same.\n\nTo fix it, wrap your child component in `React.memo()`:\n\n```javascript\nconst Child = React.memo(({ prop1, prop2 }) => {\n  return <div>{prop1} {prop2}</div>;\n});\n```\n\nNow the child only re-renders if its props actually change.\n\n**But watch for this:** if you pass objects, arrays, or functions as props, they're recreated on every render. React sees them as new and re-renders anyway. Example of the problem:\n\n```javascript\n// Bad — style is a new object each time\n<Child style={{ color: 'red' }} />\n\n// Good — style is stable\nconst style = { color: 'red' };\n<Child style={style} />\n```\n\nUse `useMemo()` or `useCallback()` to keep props stable if they come from calculations or functions. That's usually the real culprit when `React.memo()` doesn't seem to help.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dc1a1e50e33bcbe4727e923f7dd34e295c1d73659997406f10ac97df2a8ba30b"
+}

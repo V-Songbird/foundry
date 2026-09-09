@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20534,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.133252,
+  "numTurns": 5,
+  "durationMs": 18910,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1280
+  },
+  "contextTraffic": 154205,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23574,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis lost its connection and the outage cascaded from there.**\n\nTimeline (2026-07-04):\n1. `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`, cache falls back to direct store reads\n2. Cache miss storms start hitting the store directly, `TimeoutError` after 5000ms on `api`, `worker-1`, `worker-2`, `scheduler`\n3. `request queue depth` climbs steadily from ~52 up to 568, blowing past the max of 500\n4. Redis reconnect attempts (7 through 12, every ~100s) all fail with the same `ECONNREFUSED 10.0.0.12:6379` — redis never came back\n5. `02:31:44` `worker-2` hits `JavaScript heap out of memory (request backlog)` and crashes\n6. `02:31:52` `[supervisor] api unresponsive, killing process group — service down`\n\nRoot cause: redis at `10.0.0.12:6379` went unreachable and never recovered. The fallback path overloaded the store, backlog piled up, and OOM took the process group down. Log ends at the outage, no recovery entry.\n\nFull raw log saved at `<path>\n\nNext: check why redis at `10.0.0.12:6379` was down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3249e55c9371e5fd158d17b6853c2b20a2dac0464e0b29d66e5d162c43140586"
+}

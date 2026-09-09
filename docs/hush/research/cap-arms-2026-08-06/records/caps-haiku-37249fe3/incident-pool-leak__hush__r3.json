@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 106,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 39293,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0717757,
+  "numTurns": 13,
+  "durationMs": 37723,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2490
+  },
+  "contextTraffic": 250555,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 13995,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "finalText": "All tests pass now. The issue was in `processOrder`: when the order validation threw an error, the connection wasn't getting released back to the pool because the `release` call was never reached. The pool.js file had the pattern right with try-finally, but processOrder was skipping the error case entirely.\n\nThe logs show this clearly—workers logged \"job order-4122 failed\" but never \"connection released\" for invalid orders, so connections stayed stuck in the in-use set. Once five failed (the pool size), every request timed out. The fix wraps the work in try-finally so release always runs, matching the safety pattern already in place for the API handlers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "80d423d39ff9b6ede226478c367d07931a87b18e6505446e5d5b47770e83a48b"
+}

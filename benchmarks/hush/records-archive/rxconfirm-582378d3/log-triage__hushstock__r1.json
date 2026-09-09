@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushstock__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18307,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1992605,
+  "numTurns": 4,
+  "durationMs": 16558,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 921
+  },
+  "contextTraffic": 155985,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23562,
+  "narrationWords": 0,
+  "finalWords": 165,
+  "finalText": "**What happened, in order:**\n\n1. `02:14:07` — Redis dropped: `connect ECONNREFUSED 10.0.0.12:6379`. The app fell back to hitting the database directly.\n2. That fallback couldn't keep up. For the next 17 minutes you get a steady drumbeat of cache-miss storms, request timeouts (`store overloaded`), and a growing request queue — it climbed from 52 all the way to 568 (max was 500).\n3. Every couple minutes the app tried to reconnect to Redis and failed — 12 attempts, all refused, right up to `02:31:26`.\n4. `02:31:44` — `worker-2` ran out of memory holding the backlog and crashed.\n5. `02:31:52` — the API stopped responding and the supervisor killed the whole process group. That's the outage.\n\nRoot cause: Redis at `10.0.0.12:6379` going down with nothing absorbing the load in its absence — the backlog just grew until a worker OOM'd and took the service with it. No sign of Redis coming back before the log ends, so worth checking now whether that host is still down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d6fd60d733bb1d5a13b2c2fbd43e045a398b38a37ff224a07e0fefcefea8c475"
+}

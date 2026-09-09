@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 34,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 115339,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7751108999999998,
+  "numTurns": 53,
+  "durationMs": 108961,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8977
+  },
+  "contextTraffic": 959663,
+  "apiCalls": 19,
+  "toolCalls": 49,
+  "toolResultChars": 28804,
+  "narrationWords": 0,
+  "finalWords": 115,
+  "finalText": "`fast-parse` is the only dependency actually needing action — it's pinned at `1.4.2`, the version `NOTES.md` says was yanked for a prototype-pollution bug, and `1.4.3` is the fix. `pg-lite`, `redis-min`, and `date-fmt` are all fine as they are.\n\n`AUDIT.md` is written, four findings ranked by severity:\n\n1. **SQL injection** in `src/repo/report.js` — filter and sort values pasted straight into the query.\n2. **No auth** on `src/routes/internal.js` — metrics and cache-flush open to the internet since the VPN was retired.\n3. **Committed password** in `config/staging.js` — the staging DB credential in plain text.\n4. **Yanked dependency** — `fast-parse` still pinned at the vulnerable `1.4.2`.\n\nNothing in the service itself was touched — just the new `AUDIT.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a073c63e9361a5880b6a314f938afd6d07b4aa5f9a5252c8ad6cb530f752606"
+}

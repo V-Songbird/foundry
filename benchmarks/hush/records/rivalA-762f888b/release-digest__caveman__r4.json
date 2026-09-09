@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 79,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 93435,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5031245,
+  "numTurns": 11,
+  "durationMs": 92464,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3925
+  },
+  "contextTraffic": 305920,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 30170,
+  "narrationWords": 9,
+  "finalWords": 399,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the history and CHANGELOG shape first."
+  ],
+  "finalText": "380 commits. ~12 user-visible. Rest = deps, refactors, tests, CI.\n\n## Draft for CHANGELOG.md\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- An expired token now returns `401` instead of `403`. Clients that branch on\n  the status code need updating.\n- The `v1` export route is gone. Use the current export endpoint.\n- Internal error types are no longer re-exported from package submodules\n  (`core`, `db`, `auth`, `billing`, `jobs`). Deep imports of those types break.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a pending timer when the socket drops.\n- The connection pool is closed on shutdown, so the process exits cleanly.\n- The trace id survives a retry instead of being regenerated.\n- The paginator no longer throws on a null cursor or an empty page.\n- An empty allowlist is handled instead of rejecting every request.\n- A trailing slash is trimmed once, not twice.\n- Duplicate headers are no longer sent.\n- The latency histogram reports the correct units.\n- Request bodies are no longer written to the database logs.\n- The token parser error message says what actually failed.\n```\n\n## Two things to check before publishing\n\n**401 vs 403 (1d2bd55)** — tagged `fix`, but it is a status-code change on the auth path. Put in Breaking, not Fixed.\n\n**v1 export route + error re-exports** — commits say \"unused\" / \"internal\". If those symbols shipped in 4.1 typings, they were public whatever the commit says. Confirm against 4.1 published surface; if truly private, demote both to a plain note.\n\n## Left out deliberately\n\n- 47 deps bumps, all patch/minor (pino, pg, knex, ioredis, fastify, zod, nanoid, dotenv + dev tooling). No majors, no lower bound raised.\n- Perf work (JSON round-trip skipped on hot path, mapper clone avoided, metric writes batched, parsed schema reused). Real, but your three headings have no home for it. Add a `### Performance` section if you want it.\n- Node minimum: 5 docs commits say \"note the minimum node version\" and CI moved to node 22, but **no `engines` change in package.json**. Docs-only claim — don't put a version floor in the notes unless you actually bump `engines`.\n- The log has heavy duplication (same title, different hash/module — e.g. \"keep the trace id across the retry\" 3×, \"drop the duplicate header\" 5×). Collapsed each into one line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ad2815bbcc72469d904d7ae6b1e3dc1e27a62fde49356a30c68aa5ac8be51311"
+}

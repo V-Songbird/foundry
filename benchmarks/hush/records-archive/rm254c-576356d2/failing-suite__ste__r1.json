@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 26,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21651,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1774603,
+  "numTurns": 10,
+  "durationMs": 20410,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1326
+  },
+  "contextTraffic": 228398,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11615,
+  "narrationWords": 52,
+  "finalWords": 72,
+  "finalText": "All 625 tests pass now, exit code 0.\n\nThe bug: `orderTotal` in `src/pricing.js:39-43` computed tax on the pre-discount amount (`cents * taxRate`) instead of the discounted amount. The spec (and `cases.js`) require tax to apply after the discount. It only broke cases with a non-zero discount *and* non-zero tax rate simultaneously, which is why 3 of 66 \"order totals\" cases failed while everything else passed. Fixed by taxing `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a01b30b252fc806937ed8e57f509c6be6e03f37506bd8196e0dc1bfa939a639"
+}

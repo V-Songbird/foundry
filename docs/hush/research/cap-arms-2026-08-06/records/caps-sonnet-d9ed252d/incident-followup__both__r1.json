@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 171,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 77146,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4390413,
+  "numTurns": 14,
+  "durationMs": 71669,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4355
+  },
+  "contextTraffic": 619136,
+  "apiCalls": 14,
+  "toolCalls": 11,
+  "toolResultChars": 13102,
+  "narrationWords": 0,
+  "finalWords": 112,
+  "finalText": "Wrote the handoff to `INCIDENT_HANDOFF.md`.\n\nRoot cause: Redis at `10.0.0.12:6379` went unreachable at 02:14:07 UTC with no circuit breaker, so the app fell back to direct store reads, storming the cache and timing out the store. Reconnects failed 13 times straight until the backlog OOM'd a worker at 02:31:44 and the whole service died by 02:31:52, about 17m 45s of impact.\n\nOne catch on the ioredis version: `package.json` pins `^5.4.1`, but there's no `package-lock.json` in this repo, so I can't confirm the exact resolved version. I noted that gap in the doc and suggested running `npm ls ioredis` on the prod host to get the real number before you check the changelog.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eb903c6d62fb0945fb3e833539da28c385ad60024ea4f321a216f334e44cc121"
+}

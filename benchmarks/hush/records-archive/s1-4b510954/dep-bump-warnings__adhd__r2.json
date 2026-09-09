@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 27,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27745,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.19556579999999998,
+  "numTurns": 11,
+  "durationMs": 26387,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2042
+  },
+  "contextTraffic": 256604,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 10346,
+  "narrationWords": 82,
+  "finalWords": 120,
+  "finalText": "Build's green now — exit code 0, \"0 errors.\"\n\nThe wall of `WARN DEP0*` and dedupe/tree-shaking lines was all cosmetic noise from the bumped bundler; those aren't errors and don't need fixing. The actual blocker was two real regressions introduced by the bump, both at the link stage in `src/`:\n\n- **`src/core/options.js`** — the bumped bundler now hands options as `{ retryCount }` instead of `{ retries }`; the code still read `options.retries`, so it crashed on `undefined.toFixed()`. Fixed to read `options.retryCount`.\n- **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but the strict boolean check threw on anything that wasn't exactly `true`/`false`. Added handling to treat `undefined` as `false` (backoff disabled by default).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09bde727a5669355b106dbf4df6b63cf4f259f780731ee0cbb906bfa63e74383"
+}

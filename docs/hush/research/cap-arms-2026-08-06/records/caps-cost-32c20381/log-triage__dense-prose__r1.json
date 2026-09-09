@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__dense-prose__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 14,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 13375,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.031275300000000006,
+  "numTurns": 2,
+  "durationMs": 11487,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 750
+  },
+  "contextTraffic": 56484,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 104,
+  "finalText": "Redis went down at 02:14:07 and never came back up. Your cache layer fell back to hitting the store directly, but the store got overwhelmed by the load the cache normally absorbed. Over seventeen minutes, the request queue kept growing, timeouts piled up, and memory filled with stuck requests. At 02:31:44, worker-2 ran out of memory and crashed, and by 02:31:45 the whole service was dead.\n\nThe fix is to restart Redis. Once it comes back, the cache will absorb the traffic load again and things should stabilize. But check why Redis stopped — it didn't fail gracefully, it just stopped answering on `10.0.0.12:6379`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01b2936fe79f9045754c8ed6a5a0de074a7af72e53a3c0c8bd230338b464dca8"
+}

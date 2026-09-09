@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 29,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 65145,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3672905,
+  "numTurns": 18,
+  "durationMs": 63577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4131
+  },
+  "contextTraffic": 192872,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 14986,
+  "narrationWords": 7,
+  "finalWords": 86,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase structure."
+  ],
+  "finalText": "**Big but shallow. 1291 hits, 94 files.**\n\nOnly `services` should change. That is 75 files, one repeated shape.\n\n| Zone | Hits | Why frozen |\n|---|---|---|\n| [`docs/openapi.yaml`](docs/openapi.yaml) | 5 | Public API contract |\n| [`lib/serialize.js`](lib/serialize.js:8) WIRE values | 1 | Wire names, frozen |\n| [`migrations/*.sql`](migrations) | 61 | All 12 applied in prod |\n| [`vendor/reporting-sdk`](vendor/reporting-sdk) | 20 | Generated, overwritten |\n\n125 service hits are SQL column names. Those need a new forward migration.\n\nNext: ask them to split the PR.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f6d3d4bfcda988f46a76a5804f1bc9e5618aca77e9481b9370d067808acea6b4"
+}

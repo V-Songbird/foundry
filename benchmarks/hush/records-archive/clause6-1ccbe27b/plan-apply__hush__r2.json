@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r2",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 4,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11502,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0721384,
+  "numTurns": 5,
+  "durationMs": 9928,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 671
+  },
+  "contextTraffic": 102737,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no edits made.**\n\n`buildRows()` already gives full data, `toTable()` only prints `id, suite, status, ms`.\n\n```js\n// cli.js\nconst jsonFlag = argv.includes('--json');\nconst rows = buildRows();\nprocess.stdout.write(jsonFlag ? JSON.stringify(rows, null, 2) : toTable(rows));\nprocess.stdout.write('\\n');\n```\n\nOpen question: JSON should include `owner` and `slow` too, since `toTable` drops them on purpose. Worth confirming you want the full row, not just the four table columns.\n\nNext: implement this in `[cli.js](src/cli.js)` if that matches what you want.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9d1d494a678fc94260382ecef4258a147ecd833baf9dcad3dd5a4fcbbc12658b"
+}

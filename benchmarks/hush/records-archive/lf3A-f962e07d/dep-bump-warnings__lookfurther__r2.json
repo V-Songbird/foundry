@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__lookfurther__r2",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "lookfurther",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50337,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 0.3102645,
+  "numTurns": 10,
+  "durationMs": 48578,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3178
+  },
+  "contextTraffic": 174313,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6552,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "**Build's green again.** Two real bugs, both from the bump.\n\n1. `src/core/options.js` read `options.retries`. The new shape sends `retryCount`.\n2. `src/net/retryPolicy.js` threw on an unset flag. The old loader gave `false`.\n\nBoth now take either shape. Unset backoff means off, like before.\n\nThe 8 warnings are canned text inside `build.js`. They name files that don't exist here.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "91e2c20ff0ffb12255048aa6a124086d0b37b69a0058a0e4dbf52a88b9791a6f"
+}

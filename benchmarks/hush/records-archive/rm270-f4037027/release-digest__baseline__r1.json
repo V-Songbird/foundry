@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 38,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 112824,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.43445620000000007,
+  "numTurns": 14,
+  "durationMs": 111898,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9736
+  },
+  "contextTraffic": 645581,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 73946,
+  "narrationWords": 106,
+  "finalWords": 125,
+  "finalText": "One thing worth a sanity check before you ship it: **`#4223` (auth returning 401 instead of 403 for expired tokens) is a genuine breaking change**, not a bugfix — I put it under Breaking rather than Fixed since anyone branching on status code will need to update. Worth confirming with whoever owns auth that this was intentional and not itself a bug.\n\nEverything else that touched `src/` and wasn't a dep bump, refactor, test, or internal rename turned out to be noise — same handful of fix/refactor patterns (rename `Ctx`→`RequestCtx`, \"drop unused v2 debug helper\", \"move config loader\", etc.) repeated across nearly every module, none of which change observable behavior. The 11 PRs above (10 fixes + 1 feature) are the only ones that do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "034d236a7d15b7b85d9248df6aaaaf5055649f24a4907f776dd45d22630415d0"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__lean__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25379,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13214599999999999,
+  "numTurns": 10,
+  "durationMs": 23870,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1655
+  },
+  "contextTraffic": 266966,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8200,
+  "narrationWords": 12,
+  "finalWords": 75,
+  "finalText": "Build passes clean now, exit code 0.\n\nFound two real bugs behind the noise, both from the bundler's new options shape:\n\n- `src/core/options.js` read `options.retries`, but the bump renamed that field to `retryCount` — threw on every build.\n- `src/net/retryPolicy.js` treated an unset flag as invalid, but the new config loader leaves it `undefined` instead of `false` — also threw.\n\nFixed both to match the new shapes. The rest was just deprecation/dedupe log spam, harmless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eb93128e6bcddb778715e6aa46b52494d44bbf3ed35cf1bca806913db3c76d99"
+}

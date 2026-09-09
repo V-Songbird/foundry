@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__notrunc__r1",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 18,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 77073,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2813866,
+  "numTurns": 15,
+  "durationMs": 75433,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6697
+  },
+  "contextTraffic": 385183,
+  "apiCalls": 10,
+  "toolCalls": 14,
+  "toolResultChars": 35067,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry.** Went through all 380 commits and the PR sheet. Under all the dependency bumps and refactors, only one real feature and a handful of real fixes.\n\nAdded a `4.2.0` section to [CHANGELOG.md](CHANGELOG.md):\n\n- **Added**: webhook deliveries now retry with exponential backoff\n- **Fixed**: null-cursor pagination crash, wrong 403 on expired tokens, full request body in logs, duplicate response header, trace id dropped on retry, wrong latency units, HTTP client hangs on socket-drop or shutdown, double-trimmed trailing slash, empty allowlist error, and leaky token-parser error messages\n\nNo breaking changes. Dep bumps stayed minor/patch, no `engines` change despite the `.nvmrc` churn.\n\nNext: check the dates and wording read right for the meeting.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a356b59ff79d0f27fdc84d435ff468d0a06f9f6ffbc84b97dbd94e2fccecc4fd"
+}

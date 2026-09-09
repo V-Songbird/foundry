@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 107766,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.523436,
+  "numTurns": 16,
+  "durationMs": 99698,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5483
+  },
+  "contextTraffic": 422526,
+  "apiCalls": 14,
+  "toolCalls": 12,
+  "toolResultChars": 8808,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff is at [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`, which set `gateway.pool.perRequest: false -> true` at 02:13:41Z. The pool stayed size 20 and saturated. Impact ran 02:14:18Z to end of log, 1h 45m, 530 of 636 requests failed. Roll back `dep-4471` or revert config generation 119 to 118.\n\nThe doc also flags two things for you. This log is node-3 only, so check nodes 1 and 2. And worker job runtime creeps hourly for an unrelated reason.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "20aae27c30ed9e4c11d0130002f14ec04d637224a7e620f6d51a966ff376725e"
+}

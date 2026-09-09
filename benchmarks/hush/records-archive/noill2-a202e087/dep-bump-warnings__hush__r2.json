@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45459,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.263382,
+  "numTurns": 11,
+  "durationMs": 43907,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2677
+  },
+  "contextTraffic": 149755,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 5977,
+  "narrationWords": 7,
+  "finalWords": 48,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the project structure."
+  ],
+  "finalText": "**Build passes now.** Exit code is `0`.\n\nTwo real bugs, both from the bump. [src/core/options.js:6](src/core/options.js:6) read `options.retries`, renamed to `retryCount`. [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) threw on an unset flag. It now reads `undefined` as off.\n\nThe 8 warnings are hardcoded strings in [build.js:18](build.js:18). They do not come from `src`.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7ac74c4203ab2cb359148e4efd660c9f621ac4f350e4c7623c62f99743a465c1"
+}

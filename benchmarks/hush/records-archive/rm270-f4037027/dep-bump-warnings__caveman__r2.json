@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1361394,
+  "numTurns": 11,
+  "durationMs": 22761,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1656
+  },
+  "contextTraffic": 302056,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 6864,
+  "narrationWords": 23,
+  "finalWords": 56,
+  "finalText": "Build clean, 0 errors, exit 0. Rest = 8 deprecation/lint warnings, harmless noise.\n\nTwo real bugs from bump fixed:\n- `src/core/options.js`: `resolveRetries` read `options.retries` — bundler now sends `retryCount`. Crashed on `.toFixed` of `undefined`.\n- `src/net/retryPolicy.js`: `isBackoffEnabled` threw on unset flag — new config loader leaves it `undefined` instead of `false`. Now treats `undefined` as disabled.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6be22ce4bfe2254a131fb9f55e2df2fe64b0c7b2899b537bb1c7fb2a39ceeacb"
+}

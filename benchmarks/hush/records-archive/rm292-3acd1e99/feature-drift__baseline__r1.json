@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 138627,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.812881,
+  "numTurns": 30,
+  "durationMs": 130806,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7962
+  },
+  "contextTraffic": 836622,
+  "apiCalls": 27,
+  "toolCalls": 25,
+  "toolResultChars": 14726,
+  "narrationWords": 7,
+  "finalWords": 194,
+  "assistantMsgs": 6,
+  "finalText": "Dedup is in, and it's the first rule that uses `state`: `createState()` now returns `{ lastSentAt: new Map() }`, keyed by `event.key`.\n\nDetails worth knowing:\n- The window is `event.at - lastSent < 5`, so a repeat exactly 5 minutes later still goes through. \"In the last 5 minutes\" could be read inclusively; say the word and I'll flip it to `<=`.\n- Only actual sends update the timestamp — a dropped repeat doesn't extend the window, so a flap storm can't suppress indefinitely.\n- Queue deliveries during quiet hours count as \"sent\" for dedup purposes. That's the reading I took of \"already sent something\"; the alternative (queue is not a send) would let quiet-hour repeats stack up in the queue.\n- Dedup keys on `key`, not `subject` — two different `key`s for the same subject route independently, which is why you'll see e.g. `disk-usage` delivered and dropped in the same hour.\n\nReplay: 99 dropped, 0 errors. That matches `events.js` exactly — it injects a flap on every 9th event (100 of them, minus the first, which has no predecessor), each firing 2 minutes after the original. Spot-check: `55 → pager`, `57 → (dropped)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d225c97b219c77caa8b1d137f4244476cec8938c696ae1ff38d6961ed3bcc8c5"
+}

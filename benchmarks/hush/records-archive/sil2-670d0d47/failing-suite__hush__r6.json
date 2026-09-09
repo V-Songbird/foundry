@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r6",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 15,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21745,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1190034,
+  "numTurns": 10,
+  "durationMs": 19678,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1196
+  },
+  "contextTraffic": 202192,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11207,
+  "narrationWords": 23,
+  "finalWords": 50,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms 3 failures, all in `orderTotal`, matching the bug I spotted: tax is computed on the pre-discount amount instead of the discounted amount."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\nThe 3 failures were all in `orderTotal`. It taxed the pre-discount amount instead of the discounted amount.\n\nFixed in `[src/pricing.js:39](src/pricing.js:39)`:\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return roundCents(discounted * (1 + taxRate));\n}\n```\n\nNothing else needed changing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7a0d61c9a22de39a74ca057c74c02b87e875dea9feb1c457ac0f7ad6671bb447"
+}

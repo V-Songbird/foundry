@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33280,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2624495,
+  "numTurns": 9,
+  "durationMs": 31769,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1906
+  },
+  "contextTraffic": 188287,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 11481,
+  "narrationWords": 23,
+  "finalWords": 281,
+  "assistantMsgs": 3,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n## What was actually broken\n\nOnly 3 of 625 cases failed, all in the `order totals` suite, and all from a single bug in `src/pricing.js:39` — `orderTotal` computed tax on the **pre-discount** base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <-- cents, not discounted\nreturn discounted + tax;\n```\n\nThe spec (and the function's own doc comment: \"tax what's actually owed\") says the discount comes off first, then tax applies to the discounted amount. So the engine overcharged tax by `discountPct%` of the tax on every order that had both a discount and a tax.\n\n## Why it looked like a wall of noise\n\nThe suite's 66 other `orderTotal` rows all have either a zero discount *or* a zero tax rate, and in both of those cases the buggy and correct formulas agree. Only the three hand-written rows at the bottom of `cases.js` (`12000c/15%/0.0825`, `8650c/20%/0.05`, `33400c/10%/0.2`) have both non-zero, so those were the only ones that could expose it. Everything else — discounts, taxes, tiers, refunds, shipping, loyalty, rounding — was already passing; the verbose reporter just printed 620+ `ok` lines around them.\n\n## The fix\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nReusing `applyTax` rather than open-coding the multiply keeps the single round-on-the-way-out behavior consistent with the rest of the module, and it matches the spec's `round(round(cents * (1 - pct/100)) * (1 + rate))` exactly — including the intermediate rounding, which a `discounted + roundCents(discounted * taxRate)` formulation would get wrong by a cent on some inputs.\n\nNo other files needed changes; `src/tiers.js` and the test harness are correct as written.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5628c9664f943090de521c3d84fc0c34ec4b5acd4845adacc41a7480c2a5d1cc"
+}

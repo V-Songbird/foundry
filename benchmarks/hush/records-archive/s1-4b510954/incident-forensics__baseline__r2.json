@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 101,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 67138,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.36763880000000004,
+  "numTurns": 16,
+  "durationMs": 61509,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4574
+  },
+  "contextTraffic": 526952,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 22535,
+  "narrationWords": 0,
+  "finalWords": 239,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status: ONGOING** (unresolved as of last log entry, `2026-03-14T03:59:27Z`)\n\n**Root cause**\nDeploy `dep-4471` (gateway, a.novak, `2026-03-14T02:12:00Z`–`02:14:00Z`) — *\"config: connection-per-request for pool isolation\"* — flipped `gateway.pool.perRequest: false -> true` (config generation 118→119, applied `02:13:41.234Z`). This forces each request to hold its own dedicated connection instead of sharing from the pool, saturating the fixed 20-connection pool under normal load. Every 503 since is `ERR_POOL_EXHAUSTED` with the pool pinned at `size 20, in_use 20`, and the wait queue has climbed steadily and without recovery (13 waiting at onset → 74 waiting by end of log).\n\n**Impact window**\n- **Start:** `02:14:18.972Z` (first 503, ~19s after the deploy finished; first soft warning sign at `02:14:14.920Z`)\n- **End:** none — still failing at the end of the log (`03:59:27Z`), ~1h45m and counting\n- **Scope:** gateway only. Hits all four backends roughly evenly (billing, orders, catalog, accounts) via `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`. Workers (`logs/worker.log`) are unaffected — jobs kept completing normally with single-digit `db_wait` throughout; the one `WARN` there (`02:36:22Z`, slow query on `orders`) is a pre-existing known issue (`OPS-2210`), unrelated.\n\n**Action: roll back `dep-4471`**\nRevert `gateway.pool.perRequest` to `false` (or otherwise undo generation 119). No other deploy in `deploys.csv` is close in time or plausibly related — the ones before (`dep-4470` worker, `dep-4469` accounts-svc) and after (`dep-4472` billing-svc, `dep-4473` catalog-svc) don't touch gateway pooling. If per-request connection isolation is genuinely needed, it'll need a larger pool size before re-attempting.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "87a50e863ad6496b7e12c45c645d1c1acbaa79a93752604d91058edb08239a79"
+}

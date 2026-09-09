@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__oldstyle__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 8,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 78799,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3256868,
+  "numTurns": 39,
+  "durationMs": 77144,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10363
+  },
+  "contextTraffic": 448688,
+  "apiCalls": 10,
+  "toolCalls": 38,
+  "toolResultChars": 21297,
+  "narrationWords": 40,
+  "finalWords": 71,
+  "finalText": "Migration's done. All 11 files still on the old call now use `db.execute({ sql, params })`, matching the pattern already used elsewhere.\n\nOne file was left alone on purpose: `vendor/legacy-orm/adapter.js` is a vendored copy, marked \"do not edit, replaced wholesale on every upgrade.\" Editing it would just get overwritten.\n\nAlso worth knowing: several files call `cache.query(...)` too. That's a separate cache module, not the database, so it's unrelated to this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "579dd6a4ed80d6f1ccb8d491f640db9b1a23f733be3d3185447cf59d3f89348d"
+}

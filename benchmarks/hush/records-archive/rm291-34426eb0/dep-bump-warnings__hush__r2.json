@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33170,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.26311700000000005,
+  "numTurns": 10,
+  "durationMs": 31421,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1562
+  },
+  "contextTraffic": 216916,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6298,
+  "narrationWords": 7,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Reads `options.retries`, bundler now sends `retryCount` | Accept both keys |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag from the new loader | Treat `undefined` as `false` |\n\nThe 8 warnings left are the deprecation notices. They are noise from the new versions, not build breaks. Worth clearing `crypto.createCipher` in `src/legacy/adapter.js` before v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8c02a519c7ef39474a1308b91d4cf42d54861705ac876257ca74c7a463672e5a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 68,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 13224,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.023864500000000004,
+  "numTurns": 1,
+  "durationMs": 11386,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 778
+  },
+  "contextTraffic": 27057,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 187,
+  "finalText": "Your parent is re-rendering. React re-renders children whenever their parent renders, even if the props didn't change.\n\nTo prevent it, use `React.memo` to wrap the child component. React will then compare the props and skip the re-render if they're the same.\n\nBut watch out: if you're passing functions, objects, or arrays created inline, they'll have new identities each time, so `React.memo` won't help. Wrap those with `useCallback` (for functions) or `useMemo` (for objects and arrays).\n\n**Quick example:**\n\n```jsx\n// Without memo — re-renders even when props are the same\nfunction Child({ onClick, data }) { /* ... */ }\n\n// With memo — skips re-render when props are the same\nconst Child = React.memo(({ onClick, data }) => { /* ... */ })\n\n// In parent — onClick gets a new identity every render\n// so Child re-renders anyway\n<Child onClick={() => doSomething()} />\n\n// Fix: memoize the callback\nconst handleClick = useCallback(() => doSomething(), [])\n<Child onClick={handleClick} />\n```\n\nThe most common culprit is inline functions or objects. Check what you're passing to the child — if it's created fresh each render, that's why it's re-rendering.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f1c5c91872d4147d9cccbda07e6bf2694781d57337567ccf4350d50db56b4a61"
+}

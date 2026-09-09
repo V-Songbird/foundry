@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 15,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 96530,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.760499,
+  "numTurns": 21,
+  "durationMs": 94844,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5948
+  },
+  "contextTraffic": 745059,
+  "apiCalls": 21,
+  "toolCalls": 20,
+  "toolResultChars": 21258,
+  "narrationWords": 11,
+  "finalWords": 89,
+  "finalText": "**Big, but mostly mechanical.** `account_id` appears 1291 times across 94 files.\n\nThe 75 service files are internal names. Those are safe to rename.\n\nFour places must keep the old name:\n\n| Where | Why |\n|---|---|\n| `docs/openapi.yaml` | Public API, marked frozen |\n| `lib/serialize.js` wire values | The name clients read |\n| `vendor/reporting-sdk`, 4 files | Wiped by `npm run vendor:refresh` |\n| `migrations`, 12 files | All already ran in production |\n\nThe database column is still `account_id`. A new migration must rename it first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3ab041710bf7b58a8755a1df7fc57634a4e9a0f36b32a06c5a51d4ee07be337d"
+}

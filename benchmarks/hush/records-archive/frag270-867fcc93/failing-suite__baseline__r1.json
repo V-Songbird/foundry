@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43125,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2758215,
+  "numTurns": 12,
+  "durationMs": 41775,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2557
+  },
+  "contextTraffic": 208778,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 7040,
+  "narrationWords": 79,
+  "finalWords": 306,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOnly 3 of the 625 cases failed, all in the `order totals` suite, all calling `orderTotal`. The rest of the wall of text was passing cases and a fake coverage table.\n\n`src/pricing.js:39-43` applied the tax rate to the **pre-discount** amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← wrong base\nreturn discounted + tax;\n```\n\nSo the customer got the discount off the subtotal but was still taxed on the full price. The overcharge scaled with discount × tax rate, which is why the deltas grew (148c, 87c, 668c) rather than being a constant offset — a rounding bug would have shown ±1c instead.\n\nThe function's own docstring already specified the intended behavior (\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied\"), and `discounted` was computed correctly one line above and just not used. So this was a typo-class bug, not a spec disagreement.\n\n## The fix\n\nOne character-level change at `src/pricing.js:41`:\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nI kept the existing two-step shape rather than collapsing it to `applyTax(discounted, taxRate)`. Both produce identical results on all three cases, but the split version keeps the pre-tax and tax components separately available, which the surrounding code style suggests is intentional.\n\nI verified the three expected values are arithmetically consistent with tax-on-discounted before making the change, so the fix matches the spec rather than just being tuned to make assertions pass — e.g. 12000 − 15% = 10200, tax 10200 × 0.0825 = 841.5 → 842, total 11042.\n\nNo other files were touched; `src/tiers.js` and the runner were both fine. I deleted the temporary `full-output.txt` I used to page through the output.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "afd07c6f884c94c6ee9a2bac83fb2198bba2a76b39bd6b0b83eca0222963e7ea"
+}

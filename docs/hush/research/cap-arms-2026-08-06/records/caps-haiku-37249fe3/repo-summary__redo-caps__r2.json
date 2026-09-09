@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 136,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 22873,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.038523100000000005,
+  "numTurns": 8,
+  "durationMs": 21190,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1383
+  },
+  "contextTraffic": 84943,
+  "apiCalls": 3,
+  "toolCalls": 7,
+  "toolResultChars": 4271,
+  "narrationWords": 0,
+  "finalWords": 191,
+  "finalText": "This is a small Node.js API service for managing users and orders. Here's how it fits:\n\n**The flow:** A request comes in, the server checks your Bearer token (auth.js). If you're in, the router (routes.js) looks up which endpoint you hit and calls the right handler. Reads go through an LRU cache first; writes skip the cache and hit the store directly.\n\n**The three files doing the work:**\n\n**auth.js** — Verifies your token using HMAC-SHA256. The token format is `userId.signature`. Secret comes from the `AUTH_SECRET` env var or defaults to 'dev-secret' in development.\n\n**cache.js** — A tiny 256-entry LRU cache sitting in front of the store. It only handles repeated reads; data freshness is the store's job.\n\n**store.js** — The backing store. It's in-memory and treats everything like a database record — each piece of data expires 15 minutes after you write it. It holds users and orders.\n\n**routes.js** — Three endpoints: `GET /users` and `GET /orders` (both cached), and `POST /orders` (direct write). Everything returns JSON.\n\nThat's it. A clean, focused service. The entry point is server.js — it spins up the HTTP server and listens on `$PORT` or 8080.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "215575491004f78e65b472c02ed02ec66487f02bd00b656a0e686e13e5d21952"
+}

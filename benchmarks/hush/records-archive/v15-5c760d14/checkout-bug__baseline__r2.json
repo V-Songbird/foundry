@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__baseline__r2",
+  "batchId": "v15-5c760d14",
+  "seed": "1786434953993",
+  "orderIndex": 10,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25537,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.17794210000000002,
+  "numTurns": 9,
+  "durationMs": 23819,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1463
+  },
+  "contextTraffic": 304918,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 4447,
+  "narrationWords": 30,
+  "finalWords": 51,
+  "finalText": "All 5 tests pass. The bug: `computeTotal` in `src/services/pricing.js` converted the subtotal to the target currency first, then subtracted the flat coupon amount as if it were already in that currency — but flat coupons are stored in USD. Fixed by subtracting the flat amount from the USD subtotal before conversion.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c16a7028bacd1e1868d8308833c6ed19b08f93b817c5018a7875a273c716055"
+}

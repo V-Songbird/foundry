@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 59030,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3357495,
+  "numTurns": 11,
+  "durationMs": 58042,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3760
+  },
+  "contextTraffic": 246886,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 7597,
+  "narrationWords": 33,
+  "finalWords": 453,
+  "finalText": "Build is green — exit 0.\n\n## The two real bugs\n\nYou were right that it wasn't all noise. The wall of deprecation warnings was cover for a hard link-stage failure, and there were actually **two** bugs stacked, so fixing the first just moves the error down one line.\n\n**1. `src/core/options.js:7` — renamed option**\n\nThe bump renamed the option `retries` → `retryCount`. This call site still read `options.retries`, got `undefined`, and threw `Cannot read properties of undefined (reading 'toFixed')`. Now reads `retryCount` with a fallback to the old name, so it works with either shape, plus a typed guard so a future rename fails with a message that names the field instead of a bare `TypeError`.\n\n**2. `src/net/retryPolicy.js:7` — unset flag is now `undefined`, not `false`**\n\nThe old config loader returned `false` for unset feature flags; the new one leaves them `undefined`. The strict check only accepted literal booleans and threw on anything else. Now treats unset as off — matching the old default — while still rejecting genuinely wrong types like strings or numbers.\n\nThis second one is the more interesting of the two: it's a **silent behavior change**, not just a crash. Any flag that was implicitly defaulting to `false` before is now `undefined` everywhere, so it's worth grepping for other flag reads that assume a boolean. These were the only two call sites in this tree, but a real codebase probably has more.\n\n## The remaining 8 warnings\n\nI left these, and I want to be explicit about why rather than quietly claiming a clean build:\n\nThey're **static strings in `build.js`** (the `DEPRECATIONS` array at line 18 and the hardcoded pushes at lines 46–48), emitted on a fixed compile-count schedule. They aren't derived from scanning your source. The files they point at — `src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, `src/core/graph.js`, `src/state/tracker.js` — **don't exist in this tree**; the only two real files are the ones I just fixed. The module list it prints (`src/core/mod_00.js`, …) is synthetic too.\n\nSo there's nothing to fix to silence them. The only way to make them disappear is to delete or gate the print statements in `build.js`, which suppresses the bundler's own output rather than fixing anything — and if this harness stands in for a real bundler, that's editing the tool instead of the code. That felt like your call, not mine.\n\nIf \"clean\" means zero warnings on the console, tell me which you want: add a `--quiet`/log-level flag to `build.js`, or point me at the real project where those five files actually live and I'll work the deprecations properly (the `crypto.createCipher` one in particular is worth doing — it's flagged for removal in v5, and it's genuinely insecure since it derives keys with no salt).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "43df88dabeddc4b918f67a47b65f173e0ffe39fe8671a36923f8f3570366d139"
+}

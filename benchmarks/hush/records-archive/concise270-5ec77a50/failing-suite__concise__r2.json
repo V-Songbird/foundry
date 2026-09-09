@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__concise__r2",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36846,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.303184,
+  "numTurns": 12,
+  "durationMs": 35490,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2130
+  },
+  "contextTraffic": 227454,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12311,
+  "narrationWords": 82,
+  "finalWords": 195,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was broken:** one bug, `orderTotal` in `src/pricing.js:41`. It applied tax to the pre-discount base:\n\n```js\nconst tax = roundCents(cents * taxRate);   // cents, not discounted\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax what's actually owed\"), so the discount was effectively taxed as if the customer paid full price — the total always came out high.\n\n**Fix:** tax the discounted amount, reusing the existing helper:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why only 3 of 625 caught it:** the order-totals suite is 66 generated rows where either the discount or the tax rate is zero — either one makes both orderings agree — plus 3 hand-written rows with both non-zero. Those 3 were the only real signal; the rest of the wall of text was noise. The other eight suites were passing all along.\n\nWorth knowing: the fix changes rounding slightly, since it now rounds once after tax rather than rounding discount and tax separately. That matches what `cases.js` encodes as the spec, but if the ledger reconciles against the old two-step rounding anywhere downstream, expect off-by-one-cent diffs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "67a27bfa3babe2608a558b181d1352128e0cedde8b6a3f9c0c35a67c5e023a0b"
+}

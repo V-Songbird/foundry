@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 91,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64717,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5464322,
+  "numTurns": 14,
+  "durationMs": 59460,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4090
+  },
+  "contextTraffic": 785239,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 55844,
+  "narrationWords": 20,
+  "finalWords": 217,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z). Needs action, not just monitoring.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, 02:12–02:14Z) shipped a config change — `gateway.pool.perRequest: false -> true` (\"connection-per-request for pool isolation\"). This made the gateway acquire a new upstream DB connection per request instead of reusing pooled ones. Against the fixed pool size of 20, connections got checked out faster than returned, so the pool saturated and every request past that point queues behind `ERR_POOL_EXHAUSTED`. A second change in the same deploy (`gateway.timeout.upstreamMs: 2000 -> 2500`) made it worse, not better — stuck requests now hold their slot ~500ms longer before failing.\n\n**Impact window:**\n- First warning: `02:14:14.920Z` (`WARN pool` — acquire slow, 100ms wait)\n- First 503: `02:14:18.972Z`\n- Pool fully saturated (`in_use=20, idle=0`) by `02:15:58.529Z`, `waiting` queue has climbed continuously since (13 → 74+ by end of log) — never self-recovers.\n- Confirmed gateway-only: `logs/worker.log` for the same window is clean (no errors, no elevated `db_wait`), so job workers are unaffected.\n\n**Action — roll back:**\n- **`dep-4471`** (gateway config generation 119, a.novak) — revert `gateway.pool.perRequest` to `false` (and optionally the timeout back to `2000ms`). No other deploy in this window (`dep-4469` accounts-svc, `dep-4470` worker, `dep-4472` billing-svc, `dep-4473` catalog-svc) touches the gateway or correlates with onset.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b35caab82ed8efd0970dc99154878dd4308c01484c112a1bb48bcd5ebd91141f"
+}

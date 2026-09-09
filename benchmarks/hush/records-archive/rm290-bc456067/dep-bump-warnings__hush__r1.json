@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33360,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.186002,
+  "numTurns": 10,
+  "durationMs": 31162,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1687
+  },
+  "contextTraffic": 188477,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6150,
+  "narrationWords": 7,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs hid in the noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat it as off |\n\nThe other 8 lines are true deprecation noise. Things like `Buffer()` and `punycode`. They do not break the build. Clearing them is a separate job if you want it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fc60cef19210060adb9fe171717c4ad9c18ff6a65733a7095c37c39084f098ba"
+}

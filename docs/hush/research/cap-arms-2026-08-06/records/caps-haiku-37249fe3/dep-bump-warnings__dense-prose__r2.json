@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 124,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 46278,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0823316,
+  "numTurns": 14,
+  "durationMs": 44736,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2934
+  },
+  "contextTraffic": 346259,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 11584,
+  "narrationWords": 0,
+  "finalWords": 87,
+  "finalText": "Build's clean. The two real bugs were buried in the deprecation warnings from the package bump.\n\nFirst one: `resolveRetries` in `src/core/options.js` was still reading `options.retries`, but the new bundler changed it to hand `options.retryCount`. Changed it to use the new shape.\n\nSecond one: `isBackoffEnabled` in `src/net/retryPolicy.js` threw on `undefined`, but the new config loader leaves unset flags as `undefined` instead of `false`. Added a check to treat `undefined` as the default `false`.\n\nThe 8 remaining warnings are just deprecations from the dependency bump — no code issues.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9d1527266498c986bc9db6ae280655ef5d3040e7042ab571011da77d06b2a402"
+}

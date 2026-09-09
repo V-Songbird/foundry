@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 29,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 116516,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8352735,
+  "numTurns": 57,
+  "durationMs": 114582,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11761
+  },
+  "contextTraffic": 328204,
+  "apiCalls": 8,
+  "toolCalls": 56,
+  "toolResultChars": 40645,
+  "narrationWords": 6,
+  "finalWords": 78,
+  "assistantMsgs": 2,
+  "finalText": "**Migration done.** I moved 36 calls across 12 files to `db.execute({ sql, params })`.\n\nEvery file parses under `node --check`. A repo-wide grep now finds no `db.query` outside `vendor`.\n\n| Left alone | Why |\n|---|---|\n| [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) | Header says do not edit. Upgrades wipe local changes. |\n| `cache.query` in 20 files | Different object. Not part of this. |\n\nNext move is yours on `vendor`. Upstream `legacy-orm` has to fix it, or you shim `db.query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98d89125c8a360f9b7aa986c929b1be87fc7cab29cd6d09a7fc98f7860181050"
+}

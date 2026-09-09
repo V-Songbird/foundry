@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 124809,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5919565,
+  "numTurns": 20,
+  "durationMs": 118920,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7150
+  },
+  "contextTraffic": 381047,
+  "apiCalls": 15,
+  "toolCalls": 16,
+  "toolResultChars": 11884,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff is at [HANDOFF.md](HANDOFF.md).**\n\nRoll back `dep-4471`, gateway, by `a.novak`. It set `gateway.pool.perRequest: false -> true` at `02:13:41Z`. Each request now holds a connection for its full life. The pool of 20 fills and never drains.\n\nImpact ran `02:14:18Z` to `03:59:27Z`. 530 of 636 requests failed, so 83%. The log ends mid-failure, so this is still live.\n\nTwo caveats in the doc. This log is `node-3 of 3`, so true impact is likely triple. Worker slowdown is a separate leak, not this deploy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "52807eb41a560255edc52dbb83b22fae9d400ca021f655d5a484c445dbf0bd35"
+}

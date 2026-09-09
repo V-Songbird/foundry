@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 110,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 74843,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10388939999999999,
+  "numTurns": 11,
+  "durationMs": 72936,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5440
+  },
+  "contextTraffic": 350639,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 15272,
+  "narrationWords": 121,
+  "finalWords": 110,
+  "finalText": "All 40 tests pass. The problem was premature rounding in USD before currency conversion. \n\nWhen you apply a percent discount, you get a fractional value that the code was rounding to 2 decimals immediately. Then it converted that already-rounded value, which gave a different result than converting the precise value and rounding only at the end.\n\nThe fix removes the intermediate `round()` calls in the percent and flat coupon blocks. Now all coupon math happens with full precision, and only the final converted amount gets rounded to the target currency's decimal places. This matches the reference implementation and fixes the off-by-a-cent bugs you were seeing across GBP, CAD, and JPY.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dd2b79f78fb3bd1f0caa47de1bbd60a5d590ad41a4a48564626b67f7e33d877f"
+}

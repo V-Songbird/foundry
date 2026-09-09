@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 58042,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.33298150000000004,
+  "numTurns": 11,
+  "durationMs": 56636,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3724
+  },
+  "contextTraffic": 244908,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 7082,
+  "narrationWords": 54,
+  "finalWords": 333,
+  "finalText": "The build is green again — exit 0, `0 errors`.\n\n**What was actually broken.** Two real bugs, not noise, and they were sequential — fixing the first only surfaced the second:\n\n1. `src/core/options.js:7` — the bumped bundler renamed the option `retries` → `retryCount`. This call site still read `options.retries`, so it was `undefined` and `.toFixed()` threw `TypeError: Cannot read properties of undefined`. That's what aborted the link stage.\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` instead of defaulting them to `false`. The strict boolean check threw on `undefined`. I made an absent flag mean disabled (matching the old loader's behavior) while still throwing on genuinely bad types like strings or numbers.\n\nNote the behavioral consequence of #2: `link ok: exponential backoff disabled`. Absent config now means backoff is off. That matches what the old loader did, so it's not a regression — but if you expected backoff on by default, that's a config change to make explicitly, not a code fix.\n\n**The remaining 8 warnings are genuinely noise, and I left them.** They're `DEP0142/0198/0233/0250/0267` plus `W1042`, `W2213`, `W3307` — deprecation notices from the bumped packages (`fs.exists`, `Buffer()`, `punycode`, etc.) and three lint warnings. Two reasons I didn't touch them:\n\n- They're hardcoded strings in `build.js` (lines 18–24, 46–48), emitted unconditionally on every run regardless of what your source does.\n- They point at files that don't exist in this checkout — `src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js`, `src/state/tracker.js`. Only `src/core/options.js` and `src/net/retryPolicy.js` are present.\n\nSo \"clean\" here means zero errors, not zero warnings — the fake bundler prints `with 8 warnings, 0 errors` on success by design. I could silence them by editing `build.js`, but that would be muting the build tool rather than fixing anything. If the real project has those legacy files, point me at them and I'll work through the deprecations — `W3307` (circular import between `core/graph.js` and `state/tracker.js`, \"resolution order is undefined\") is the one I'd look at first, since undefined resolution order can bite at runtime.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "716804c0ec7670cbe20d29f7a5f74c3a348b262551308dc7e1137e3910844e04"
+}

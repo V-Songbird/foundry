@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 11,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 25022,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0428925,
+  "numTurns": 9,
+  "durationMs": 23495,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1515
+  },
+  "contextTraffic": 113454,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 4530,
+  "narrationWords": 0,
+  "finalWords": 190,
+  "finalText": "It's a small Node.js API server with five pieces working together.\n\n**server.js** boots up an HTTP server on port 8080 (configurable) that guards every request with HMAC bearer-token auth, then hands off to the route handler.\n\n**auth.js** verifies those tokens. They're formatted `userId.signature` where the signature is an HMAC-SHA256 hash of the user ID with a shared secret from the env. Timing-safe comparison to avoid timing attacks.\n\n**routes.js** is the route table. Three endpoints: `GET /users`, `GET /orders`, and `POST /orders`. Reads route through an LRU cache to absorb repeated queries; writes go straight to the store.\n\n**cache.js** is a tiny read-through LRU (256 entries, no TTL). Just sits in front of the store and bumps recent keys to the end.\n\n**store.js** is the data layer — an in-memory map standing in for a database. Each record auto-expires 15 minutes after it's written. Two data types: users and orders.\n\nThe flow: request → auth check → route handler → cache hit or store read for GET, direct store write for POST. Everything is sync except the route handlers (which return promises). No external packages, just Node's http and crypto modules.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "64d077395ab804bd70c12381b0c910c551b42dbde9e8aa63812bb2bbdaeddcd3"
+}

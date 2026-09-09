@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32284,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.12667340000000002,
+  "numTurns": 10,
+  "durationMs": 30948,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2086
+  },
+  "contextTraffic": 171338,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15876,
+  "narrationWords": 102,
+  "finalWords": 111,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "This is a simulated build — the real signal is in the link stage, which reads `src/core/options.js` and `src/net/retryPolicy.js`. Let me inspect those two real bugs.",
+    "Found it — the wall of `WARN`/`note`/`dedupe` lines is harmless noise, but the build actually fails at the link stage with a real `EBUILD02` error. Two real bugs, both caused by the bump changing shapes that these two call sites weren't updated for:\n\n1. `src/core/options.js` — reads `options.retries` but the bumped bundler now passes `retryCount`.\n2. `src/net/retryPolicy.js` — throws when `backoffEnabled` is `undefined`, but the new config loader leaves unset flags as `undefined` instead of `false`."
+  ],
+  "finalText": "Build's clean now (exit 0, 0 errors). The screen of `WARN`/`note`/`dedupe` lines was just deprecation noise from the bumped deps — the actual break was in the link stage, two real bugs from shape changes the bump introduced:\n\n1. **`src/core/options.js`** — bundler now passes `retryCount`, but the code still read `options.retries` → `undefined.toFixed()` crash. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — new config loader leaves unset flags as `undefined` instead of `false`, but the strict boolean check threw on anything but `true`/`false`. Now treats `undefined` as disabled.\n\nThe remaining 8 `WARN`/`DEP0*` lines are genuine (if noisy) deprecation notices from Node/deps, not build failures — worth cleaning up eventually but not blocking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2c2c7631b3106c881052cdb3b1775f0dda96bfe616d4309b6d236fc4b35cfbb3"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__concise__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 18,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 118820,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5208655,
+  "numTurns": 12,
+  "durationMs": 113245,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7568
+  },
+  "contextTraffic": 282543,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 14187,
+  "narrationWords": 6,
+  "finalWords": 574,
+  "assistantMsgs": 5,
+  "finalText": "# On-call handoff — gateway 503s, 2026-03-14\n\n**Status at handoff: ONGOING.** Log ends 03:59:44Z with the gateway still failing ~83% of requests and the pool backlog still growing. Not mitigated.\n\n## Root cause\n\n`dep-4471` (gateway, a.novak, 02:12–02:14Z, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` false → true. Every request now opens its own upstream connection against a pool still fixed at `size=20`, so the pool saturates and requests queue until they fail with `ERR_POOL_EXHAUSTED`, surfaced to clients as 503.\n\n```\n02:12:12Z  config reload requested by deploy pipeline, generation 118 -> 119\n02:13:41Z  generation 119 applied: 3 keys changed\n             gateway.pool.perRequest:    false -> true   <-- cause\n             gateway.timeout.upstreamMs: 2000 -> 2500     <-- aggravator\n             gateway.log.sampleRate:     1.0 -> 1.0       (no-op)\n02:14:18Z  first 503\n```\n\nConfirmation: `03:02:30Z WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — 100x. The `upstreamMs` bump to 2500 makes it worse by holding each connection 500ms longer before release.\n\nEvery 503 has a same-request-id `ERR_POOL_EXHAUSTED` line, 530 of each, exact 1:1. No upstream 5xx, no timeouts, no service-side errors anywhere in the file — the failure is entirely inside the gateway's pool.\n\n## Impact window\n\n**02:14:18Z → ongoing** (1h45m observed). Onset 37s after config apply, 18s after deploy finished.\n\n| Window | 503 | 200 | error rate |\n|---|---|---|---|\n| 01:00–02:10 | 0 | 80/10m | 0% |\n| 02:10–02:20 | 30 | 38 | ramp |\n| 02:20–03:59 | 50/10m | 10/10m | ~83% |\n\n- 530 failed requests total; queue depth `waiting=` climbs monotonically 13 → 172, `in_use=20 idle=0` from 02:15 onward, never recovers.\n- All 5 routes hit evenly (~106 each: `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`); all 4 upstreams evenly (~132 each). Checkout and orders are both affected — assume revenue impact.\n- `/health` unaffected (takes no pool connection) — **health checks are green while the gateway is down**; don't trust them for verification.\n- Page fired 03:21:05Z, 67 min after onset. Detection gap worth a follow-up.\n- Node scope unconfirmed: this log is `node-3 of 3`. Check nodes 1–2 — the config reload came from the deploy pipeline, so assume all three.\n\n## Roll back\n\n**`dep-4471`.** Revert `gateway.pool.perRequest` to `false` (config generation 119 → 118). Recovery should be visible within ~1 min: `idle` climbs off 0, `waiting` drains, 503s stop.\n\nRevert `gateway.timeout.upstreamMs` to 2000 as well unless it was wanted independently — it shipped in the same generation and wasn't separately justified.\n\nDo **not** just raise pool size; per-request connections scale with traffic, so that moves the saturation point without fixing it.\n\nLeave alone: `dep-4472` (billing 02:41) and `dep-4473` (catalog 03:20) both shipped into an already-broken gateway and changed nothing about the error rate. `dep-4468`/`dep-4469` finished hours earlier, clean.\n\n## Separate issue — do not conflate\n\nWorker jobs are degrading linearly and independently: avg 327ms at 01:00 → 2197ms at 03:50, +110ms per 10 min, still climbing at end of log. The ramp shows **no inflection at 02:14**, and the worker's own DB pool is flat and healthy throughout (`size=8 in_use=1 idle=7 waiting=0` at every sample). Zero errors — all 1080 jobs report `finished ok`, which is why nothing has alerted.\n\nRolling back dep-4471 will not fix this. Likely suspect is `dep-4470` (worker, j.tanaka, 00:48–00:55Z, \"retry backoff for webhook jobs\"), which finished ~5 min before the log starts — unconfirmed, as worker.log records no retry or queue-depth data. Needs its own ticket.\n\nThe lone `OPS-2210` slow-query WARN at 02:36 is known, single-occurrence, and unrelated to both.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cd3b4667c74ce35d7928e7fc5541c87e7e177ae6c9cdc6bc16737f9c2ec81c20"
+}

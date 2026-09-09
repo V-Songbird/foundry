@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 10,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21081,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1226726,
+  "numTurns": 5,
+  "durationMs": 19946,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1044
+  },
+  "contextTraffic": 203174,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 9070,
+  "narrationWords": 0,
+  "finalWords": 131,
+  "finalText": "**What happened last night:**\n\nAt 02:14:07, `Redis` (the fast cache your app relies on) lost its connection to `10.0.0.12:6379`, and the app couldn't reach it at all.\n\nWithout the cache, every request fell back to hitting the main database directly. That flood of direct reads overloaded it, so requests started timing out after 5 seconds, and the backlog of waiting requests kept growing.\n\n`Redis` tried to reconnect 7 times, at 02:15, 02:16, 02:18, 02:19, 02:20, 02:22, and 02:23, and failed every single time. The log ends at 02:24:44 still in that state, with 367 requests waiting in line out of a max of 500, and no recovery yet.\n\nSo the root cause is `Redis` going down, not something in your own app code. Worth checking why `10.0.0.12` refused connections around 02:14.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "44fa7f41e305aeaed3bbd84d5bb232cd0feac259a264e68547716c37841e7c1a"
+}

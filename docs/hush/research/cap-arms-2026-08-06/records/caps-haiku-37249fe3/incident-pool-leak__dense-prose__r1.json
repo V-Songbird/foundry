@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 97,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 42785,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0703952,
+  "numTurns": 13,
+  "durationMs": 41238,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2674
+  },
+  "contextTraffic": 227056,
+  "apiCalls": 7,
+  "toolCalls": 12,
+  "toolResultChars": 13316,
+  "narrationWords": 0,
+  "finalWords": 62,
+  "finalText": "Found it. The `processOrder` function was acquiring a connection and then releasing it after the operation, but without a try/finally block. When `run()` threw an error—like the \"invalid order payload\" failures in the logs—the release never happened. The connection stayed locked in the pool forever.\n\nThe fix wraps it with `withConnection`, which guarantees release even on error. All four tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aff5d6ed101eb6b1467476e51cc77f66dae341d9c5456a2bd82b2f7c39c7c026"
+}

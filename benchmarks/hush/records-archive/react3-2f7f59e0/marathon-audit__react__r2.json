@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__react__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 47,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 119453,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6876777,
+  "numTurns": 27,
+  "durationMs": 113050,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7652
+  },
+  "contextTraffic": 1181870,
+  "apiCalls": 27,
+  "toolCalls": 23,
+  "toolResultChars": 16245,
+  "narrationWords": 0,
+  "finalWords": 101,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json`, and NOTES.md says that exact version was yanked by the publisher after a prototype-pollution report, fixed in `1.4.3`. Nobody bumped it.\n\n`AUDIT.md` is written, four findings, worst first, nothing else touched:\n\n1. **SQL injection** in `src/repo/report.js` — `runSavedReport` glues the filter straight into the query string.\n2. **No auth** on `src/routes/internal.js` — leftover from the retired VPN, never patched after the 4.0 migration.\n3. **Hardcoded password** in `config/staging.js` — committed in plaintext, unlike prod which pulls from env vars.\n4. **Yanked dependency** — `fast-parse` still on `1.4.2`, needs `1.4.3`.\n\nRan `verify.js` against it: passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b61b3d795133a96b17891f1be9e0b612b3fda176f6f76b85797eb901d40f9251"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49694,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.42840649999999997,
+  "numTurns": 7,
+  "durationMs": 48836,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3353
+  },
+  "contextTraffic": 174701,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 32144,
+  "narrationWords": 8,
+  "finalWords": 92,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "**`Redis` died and took prod down with it.**\n\n| Time | What |\n|---|---|\n| 02:14:07 | `Redis` at `10.0.0.12:6379` refused connects [logs/app.log:182](logs/app.log:182) |\n| 02:14:08 | Cache bypassed. Reads went straight to store. |\n| 02:29:12 | Queue depth passed its 500 max |\n| 02:31:44 | `worker-2` hit `JavaScript heap out of memory` |\n| 02:31:52 | `api` killed by supervisor. Service down. |\n\n13 reconnect tries failed, all `ECONNREFUSED`. 173 timeouts followed.\n\nOne catch. The log dates read 2026-07-04, not last night.\n\nNext: find why `Redis` refused every connect.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "65183f4ead51d5be4320c986d4a3f6a321e2f6b3e67ef82d4c05d6384a0660e3"
+}

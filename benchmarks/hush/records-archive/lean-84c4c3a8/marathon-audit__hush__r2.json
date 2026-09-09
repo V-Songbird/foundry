@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 33,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 137242,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7462949999999999,
+  "numTurns": 47,
+  "durationMs": 130683,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9644
+  },
+  "contextTraffic": 725191,
+  "apiCalls": 15,
+  "toolCalls": 43,
+  "toolResultChars": 28162,
+  "narrationWords": 0,
+  "finalWords": 98,
+  "finalText": "`fast-parse` is pinned to `1.4.2` in `package.json` — `NOTES.md` says that exact version was yanked by its publisher over a prototype-pollution report, and `1.4.3` is the fix. Everything else (`tiny-router`, `pg-lite`, `redis-min`, `date-fmt`) is fine as-is.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. **SQL injection** — `src/repo/report.js`, saved-report filter/sort concatenated into SQL.\n2. **No auth on internal routes** — `src/routes/internal.js`, exposed since the VPN was retired.\n3. **Committed staging password** — `config/staging.js`.\n4. **Yanked dependency** — `fast-parse@1.4.2` in `package.json`.\n\nNo service files were touched. Good place to stop, or want help fixing any of these?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "81ccf6ab202efc1cf6bfed55582139059de90f20c3d39a6ee12e18aef9bb475c"
+}

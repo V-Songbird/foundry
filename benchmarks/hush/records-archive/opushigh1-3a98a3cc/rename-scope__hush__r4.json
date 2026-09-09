@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 46,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 129065,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7248585000000001,
+  "numTurns": 27,
+  "durationMs": 128140,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9451
+  },
+  "contextTraffic": 455891,
+  "apiCalls": 15,
+  "toolCalls": 26,
+  "toolResultChars": 26525,
+  "narrationWords": 7,
+  "finalWords": 108,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the repository structure."
+  ],
+  "finalText": "**Big but mechanical: 1,266 hits, 94 files.**\n\nShape is 25 entity triples across 5 services. Most hits are plain locals. Rename those freely.\n\nFive zones must not change:\n\n| Zone | Hits | Why |\n|---|---|---|\n| [`migrations/*.sql`](migrations/20250114_create_accounts.sql:9) | 36 | Applied in prod |\n| repo `sql:` strings | 125 | Real DB column |\n| [`vendor/reporting-sdk`](vendor/reporting-sdk/README.md:3) | 20 | `vendor:refresh` overwrites |\n| [`docs/openapi.yaml`](docs/openapi.yaml:16) | 5 | Public contract |\n| [`lib/serialize.js`](lib/serialize.js:8) WIRE value | 2 | Public wire name |\n\nTwo more are coupled. `req.session.account_id` hits 100 sites. The payload JSONB key hits 25.\n\nNext: split the sign-off. Approve the ~950 locals. Hold the rest.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d67d33b2753855cbed956444c9f8f0edae68027a913176d47df36d846cddbb3"
+}

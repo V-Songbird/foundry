@@ -1,0 +1,45 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 34,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 134115,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9035335,
+  "numTurns": 59,
+  "durationMs": 132916,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13524
+  },
+  "contextTraffic": 394904,
+  "apiCalls": 11,
+  "toolCalls": 58,
+  "toolResultChars": 38156,
+  "narrationWords": 52,
+  "finalWords": 202,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by finding the remaining `db.query` call sites.",
+    "The vendor file is marked do-not-edit, so I'll leave that one and flag it. Reading the 11 remaining first-party files.",
+    "Now applying the migration — 3 call sites per file across 12 files.",
+    "Now verifying nothing is left and the files still parse."
+  ],
+  "finalText": "Migration finished. 36 call sites across 12 files moved from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| analytics | `repo/cohort.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\nEach file had the same three sites (get-by-id, list, update); I matched the shape already used by the migrated siblings like `packages/accounts/src/repo/user.js`. All JS files pass `node --check`.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js`** still has two `db.query` calls (lines 9 and 13). Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so patching it in-tree would be undone and wouldn't survive. It does need handling before the driver drops `query`: options are pinning/patching upstream, a `patch-package`-style patch, or wrapping the `db` handle passed into the adapter with a shim that forwards `query` to `execute`. Tell me which you'd prefer and I'll do it.\n- **`cache.query(...)`** calls (in the `cachedX` helpers) are a different API — `lib/cache.js` takes a cache key, not SQL — so they're unrelated to this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "19ff3156f2fa5bb6dee233c9270bf1b0eee06af70326531e4bfddc906c878465"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 45,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 160172,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7447629,
+  "numTurns": 37,
+  "durationMs": 154326,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12008
+  },
+  "contextTraffic": 1115002,
+  "apiCalls": 24,
+  "toolCalls": 33,
+  "toolResultChars": 36873,
+  "narrationWords": 88,
+  "finalWords": 94,
+  "finalText": "`AUDIT.md` is written with all four findings, ranked by severity, each pinned to its file — and the verification script confirms nothing in the service itself was touched.\n\n1. **SQL injection** — `src/repo/report.js`, `runSavedReport`: filter/orderBy/direction concatenated straight into the query, unlike the parameterized query right below it.\n2. **Unauthenticated internal endpoints** — `src/routes/internal.js`: missing `router.use(requireAuth)`, left over from the pre-4.0 VPN-gated era.\n3. **Hardcoded credential** — `config/staging.js`: real DB password in plaintext, unlike `production.js`/`development.js` which pull from env.\n4. **Yanked dependency** — `package.json`: `fast-parse` still pinned at `1.4.2` (prototype-pollution advisory); `1.4.3` is the fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7252d05f8cfbb5aea4e574667fef5b5827c9dfa9ce3804e68830bcce8a896b67"
+}

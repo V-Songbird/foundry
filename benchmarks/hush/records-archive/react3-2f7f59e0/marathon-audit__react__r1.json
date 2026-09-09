@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__react__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 40,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 134295,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6881714999999999,
+  "numTurns": 34,
+  "durationMs": 127780,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9031
+  },
+  "contextTraffic": 912479,
+  "apiCalls": 19,
+  "toolCalls": 30,
+  "toolResultChars": 30875,
+  "narrationWords": 0,
+  "finalWords": 91,
+  "finalText": "Confirmed: `package.json` still pins `fast-parse` at `1.4.2`, the version `NOTES.md` says was yanked over a prototype-pollution report. `1.4.3` is the fix, and nothing was bumped.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. `src/routes/internal.js` — no auth at all, left open when the VPN was retired.\n2. `src/repo/report.js` — SQL injection through string-built queries.\n3. `config/staging.js` — a live database password committed in plaintext.\n4. `package.json` — `fast-parse` still on the yanked, vulnerable `1.4.2`.\n\nThe verify script confirms it: all four findings pass, and no service file was touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "afe19dc5b2e071c8a98dbff07ed7131f1718602677d97c88e94b044f96616732"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__lean__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50152,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37156449999999996,
+  "numTurns": 12,
+  "durationMs": 48638,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3260
+  },
+  "contextTraffic": 270928,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 10565,
+  "narrationWords": 11,
+  "finalWords": 128,
+  "finalText": "You were right, two of them were real. The build now exits `0`.\n\nTwo bugs, both from the shape changes the bump introduced:\n\n- `src/core/options.js` read `options.retries`, but the new bundler passes `retryCount`. It now reads the new key and falls back to the old one.\n- `src/net/retryPolicy.js` threw on an unset flag. The new config loader leaves unset flags as `undefined` instead of `false`, so it now treats absent as off. A non-boolean value still throws.\n\nI checked both against old and new shapes. Retries resolve to `3`, backoff reports disabled.\n\nThe remaining 8 warnings are noise you cannot fix here. They are hardcoded strings in `build.js` and name files that do not exist in this repo, like `src/legacy/adapter.js` and `src/utils/format.js`. Only `src/core` and `src/net` are present.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6dc92df3d8a2bd6218392a08f4ccae2ce9624cdc9413f88c0fb67a16c53f22b"
+}

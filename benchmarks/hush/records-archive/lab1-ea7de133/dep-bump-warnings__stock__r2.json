@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r2",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22843,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1088322,
+  "numTurns": 9,
+  "durationMs": 21069,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1495
+  },
+  "contextTraffic": 167555,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7860,
+  "narrationWords": 0,
+  "finalWords": 55,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit code `0`, 0 errors.\n\nTwo real bugs from the bump, both fixed:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler passes `retryCount`. Threw `TypeError`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) treated unset flags as invalid instead of `false`, since the new config loader leaves them `undefined`.\n\nThe rest was harmless deprecation noise from the bump, unchanged.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d7c7cb58296c69ac5d5a14ee9473e7f04767129c2d50e1def2bb4fa28af5fba"
+}

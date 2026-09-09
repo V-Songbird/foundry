@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 99866,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5600400000000001,
+  "numTurns": 10,
+  "durationMs": 98639,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6525
+  },
+  "contextTraffic": 216536,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 18404,
+  "narrationWords": 6,
+  "finalWords": 709,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "Dug through all 719 lines. Here's what happened.\n\n## One-line version\nRedis at `10.0.0.12:6379` disappeared at 02:14:07. The cache fallback path had no circuit breaker and no queue limit enforcement, so the service spent 17 minutes filling an unbounded request backlog until worker-2 OOM'd and the supervisor killed the api process group at 02:31:52.\n\n**First, a date check:** the log covers `2026-07-04T02:00–02:31Z`. That's ~8 weeks ago, not last night. Either this is an archived file or the wrong log got pulled — worth confirming before you act on it.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. 170 requests, **all HTTP 200**, latency 12–145ms, cache hit ratio 0.90–0.98, cron ticks OK. |\n| **02:14:03.137** | **Last successful request in the entire log.** |\n| 02:14:07.113 | `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` (1ms later) |\n| 02:14:10.228 | First `TimeoutError ... 5000ms (store overloaded)` — 3 seconds after the fallback engaged |\n| 02:15:26 → 02:31:26 | Reconnect attempts 0–12, all ECONNREFUSED |\n| 02:29:12.359 | Queue depth **502** — first breach of the stated max of 500 |\n| 02:31:44.902 | `[worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## Root cause\n`ECONNREFUSED`, not a timeout or a reset. That means something was actively refusing on port 6379 — the Redis process was down or the port wasn't bound. It is not a slow Redis, not packet loss, not a network partition (a partition gives you timeouts). Nothing in these logs says *why* Redis went away; that answer is on the Redis host, and it never came back during the 17-minute window.\n\n## What turned an outage into a crash\nFour things, all in your code rather than in Redis:\n\n1. **Fallback with no protection.** Cache degraded → every miss became a direct store read, with no rate limit or circuit breaker. The store was overloaded within 3 seconds and stayed that way — 173 timeouts at a flat ~10/min for the whole incident.\n2. **The queue limit isn't enforced.** Depth climbed linearly (+3 per sample) from 52 to 568, sailing straight past `max 500` at 02:29:12 with no rejection or load shedding. `max 500` is a log label, not a bound. This is what directly caused the heap OOM.\n3. **The retry loop is broken.** Attempts 0–12 fired at a *fixed* ~80s interval — no exponential backoff, no jitter, and no give-up/alert threshold. 16 minutes of identical failures.\n4. **Only `[api]` owns the Redis client.** All 13 reconnect attempts come from `api`. `worker-1`, `worker-2`, and `scheduler` never log a reconnect — they just time out forever. They appear to have no recovery path of their own.\n\n## Things that look like clues but aren't\n- **Cache hit ratio** (0.90 → 0.98) was *healthy and rising* right up to the failure. No gradual degradation preceded this.\n- **The latency numbers** cycle 12→145ms in a sawtooth throughout, including the healthy period. Not a ramp.\n- **\"cache miss storm\"** is 174 *unique*, sequentially-increasing keys (`orders:1000`–`1199`). This is a cold cache being walked, not a stampede on one hot key — so a single-key fix or request-coalescing on one key won't help.\n- **The 02:31 FATALs are not the incident start.** User-facing impact began at 02:14:07; the crash 17 minutes later was the symptom, not the trigger.\n\n## What these logs can't tell you\nNo Redis-side logs, so the ECONNREFUSED cause is unknown. No deploy or config-change events, so I can't correlate to a release. No memory metrics before the OOM. And **zero request logging after 02:14:03** — since only successful requests get logged, there's no way to size the blast radius from this file. That gap is itself a finding: during a total outage your logs go quiet, which is the exact moment you most need request-level data.\n\nHighest-value fixes, in order: enforce the 500 queue bound with load shedding (prevents the OOM), add a circuit breaker on the store fallback (prevents the overload), then fix the retry to use jittered exponential backoff.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "847bd75d447efb40907581b66a2595be2893c463d9632c3588481a3dd5fc14f1"
+}

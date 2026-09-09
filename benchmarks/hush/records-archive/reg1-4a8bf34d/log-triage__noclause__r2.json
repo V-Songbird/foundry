@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__noclause__r2",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14670,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.117754,
+  "numTurns": 4,
+  "durationMs": 13022,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 741
+  },
+  "contextTraffic": 115558,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 140,
+  "assistantMsgs": 1,
+  "finalText": "**Redis outage triggered a cascading crash.**\n\nAt `02:14:07 UTC` Redis died (`ECONNREFUSED 10.0.0.12:6379`). The app fell back to direct store reads, and cache miss storms plus 5000ms timeouts began across `api`, `worker-1`, `worker-2`, `scheduler`.\n\nReconnect attempts (7 through 12) kept failing every ~90s to 2min, while the request queue grew unbounded, from depth 52 up to 568 against a max of 500.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog and crashed. Supervisor restarted it, but at `02:31:52` `api` went unresponsive and the whole service was killed.\n\n**Root cause: Redis at `10.0.0.12:6379` was unreachable for the full 17-minute window, and there was no backpressure to stop the queue from growing until it OOM'd.**\n\nNext: check why Redis dropped and add a queue depth cap or circuit breaker so a cache outage can't OOM the service again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca2d80d3be1d2f22b86bfa7336f80a374b1638315436b8020f77e466186ba06c"
+}

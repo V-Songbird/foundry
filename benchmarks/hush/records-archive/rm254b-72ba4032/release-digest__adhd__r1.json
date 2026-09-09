@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 41,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 95729,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5989122,
+  "numTurns": 13,
+  "durationMs": 94255,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7815
+  },
+  "contextTraffic": 628845,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 72749,
+  "narrationWords": 18,
+  "finalWords": 215,
+  "finalText": "I went through all 380 commits and the PR sheet. Most of it really was dependency bumps, refactor-only renames, and test/CI churn — I excluded all of that. What's left in `CHANGELOG.md` under **4.2.0** is everything that actually touches behavior a consumer of this package would notice:\n\n- **Breaking**: expired tokens now return 401 instead of 403 — the one real compatibility risk in this release.\n- **Added**: automatic exponential-backoff retry for failed webhook deliveries (the only `feat` commit in the whole range).\n- **Fixed**: 10 bullets, each one collapsing a fix that landed repeatedly across modules (e.g. \"guard the null cursor\" hit queue/api/webhooks/db separately — that's one line, not four) — pagination null-cursor crashes, empty allow-list handling, duplicate headers, double-trimmed trailing slashes, trace ID loss on retry, mislabeled histogram units, unclear token-parser errors, an HTTP timer leak, an unclosed shutdown pool, and full request bodies leaking into logs.\n\nI left out the perf commits (batched metric writes, skipped JSON round-trips, schema reuse, etc.) — they're real but there's no benchmark data in the history to back a concrete claim, so I didn't want to put unverifiable numbers in front of users. Let me know if you want a line added anyway, or if any of the fix groupings should be split back out/attributed differently.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "607c509cb1cf4d6f8a4606421354bbf5e74bc65097a0b1684992609132c8de45"
+}
