@@ -11,6 +11,8 @@ function render(plugin, claude, codex) {
   const header = source.match(/^<div align="center">[\s\S]*?^<\/div>/m)?.[0];
   const animation = source.match(/^<p align="center"><img src="assets\/mascot\.svg"[^\n]+/m)?.[0];
   const summary = source.split("\n").find(line => line.startsWith("> **TL;DR**"));
+  const hero = source.match(/<!-- foundry:hero -->[\s\S]*?<!-- \/foundry:hero -->/)?.[0];
+  if (!hero) throw Error("Product hero and demo are missing");
   if (!header || !animation || !summary) throw Error("Shared branding is incomplete");
   const url = `https://github.com/V-Songbird/${plugin}/tree/`;
   const status = plugin === "hush"
@@ -27,6 +29,8 @@ ${status}
 [**Get started**](#get-started) · [What is this?](#what-is-this) · [How it works](#how-it-works) · [What you can do](#what-you-can-do) · [Evidence](#evidence-and-benchmarks)
 
 ${summary}
+
+${hero}
 
 ${animation}
 

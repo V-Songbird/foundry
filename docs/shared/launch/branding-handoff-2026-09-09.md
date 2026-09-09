@@ -1,10 +1,11 @@
 # Continuidad de identidad visual — 2026-09-09
 
-## Estado: pausado por el propietario
+## Estado: reanudado el 2026-09-09
 
-No ejecutar las correcciones siguientes hasta que el usuario pida continuar.
-Este documento y sus adjuntos guardan la continuidad; no representan cambios ya
-aplicados. No hay procesos de publicación pendientes de esta tarea.
+El usuario pidió continuar. Los cuatro puntos siguientes se ejecutaron en la
+entrega v2: heroes/demos restaurados, tarjetas con figura sola, banners blancos
+y los cinco Social preview subidos y revisados en GitHub. Este documento conserva
+el estado histórico de la pausa; consultar v2 para la entrega actual.
 
 ## Próximo trabajo solicitado
 

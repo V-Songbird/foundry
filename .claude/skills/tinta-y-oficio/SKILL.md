@@ -18,6 +18,12 @@ compacta y visible a 32 px. Conserva el pincel seco, el lettering minúsculo y u
 acento por marca. Respeta cualquier concepto ya aprobado. Genera icono y banner
 coherentes usando referencias; deriva los temas de la misma geometría.
 
+Desde v2, los banners claros usan blanco puro. En tarjetas de Codex, `logo` y
+`logoDark` deben usar los iconos sin lettering; el nombre ya aparece en la tarjeta.
+El Social preview de GitHub requiere subir su imagen al ajuste del repositorio,
+además de actualizar el README. Conserva los heroes y demos al renovar identidad,
+con atribución explícita cuando representen evidencia de Claude.
+
 Usa la herramienta de imagen disponible conforme a sus instrucciones y permisos.
 Registra el modelo solo si se puede verificar. Una cuadrícula visible no prueba
 transparencia: inspecciona el modo y el canal alfa. Si hace falta procesamiento

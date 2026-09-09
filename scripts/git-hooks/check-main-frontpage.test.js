@@ -2,7 +2,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { FILES, SHARED_SECTIONS, checkFiles, checkCommon } = require("./check-main-frontpage");
-const readme = plugin => `# ${plugin}\n[Claude](https://github.com/V-Songbird/${plugin}/tree/Claude)\n[Codex](https://github.com/V-Songbird/${plugin}/tree/Codex)\n<img src="assets/mascot.svg">\n` + SHARED_SECTIONS.map(h => `## ${h}\n\nShared ${h}\n`).join('\n');
+const readme = plugin => `# ${plugin}\n[Claude](https://github.com/V-Songbird/${plugin}/tree/Claude)\n[Codex](https://github.com/V-Songbird/${plugin}/tree/Codex)\n<img src="assets/mascot.svg">\n<img src="assets/hero.svg">\n<img src="assets/demo.svg">\n` + SHARED_SECTIONS.map(h => `## ${h}\n\nShared ${h}\n`).join('\n');
 
 test("a thin selector without product information is rejected", () => {
   assert.ok(checkFiles(FILES, '# razor\n', 'razor').some(e => e.includes('Missing product overview')));
@@ -18,6 +18,12 @@ test("common narrative must match both editions while native commands stay separ
 });
 test("only the documentation selector, assets and minimal maintenance CI pass", () => {
   for (const plugin of ["foreman", "hush", "razor"]) assert.deepEqual(checkFiles(FILES, readme(plugin), plugin), []);
+});
+
+test("branding refreshes cannot silently remove product heroes or demos", () => {
+  for (const name of ['hero', 'demo']) {
+    assert.ok(checkFiles(FILES, readme('razor').replace(`<img src="assets/${name}.svg">`, ''), 'razor').some(e => e.includes('hero and demo')));
+  }
 });
 test("runtime, benchmark, instruction and unrelated CI files cannot enter main", () => {
   for (const file of ["scripts/run.js", "hooks/hooks.json", ".codex-plugin/plugin.json", ".claude-plugin/plugin.json", "AGENTS.md", "CLAUDE.md", "benchmarks/README.md", ".github/workflows/release.yml"]) {
