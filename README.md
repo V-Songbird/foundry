@@ -13,22 +13,25 @@
     <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/Claude_Code-E5582B" alt="Claude Code"/></a>
 </p>
 
-<p align="center">
-    <a href="#install"><strong>Install</strong></a> &nbsp;·&nbsp;
-    <a href="#the-plugins">The plugins</a> &nbsp;·&nbsp;
-    <a href="#new-here">New here?</a> &nbsp;·&nbsp;
-    <a href="#repository-layout">Repository layout</a>
-</p>
+[Choose a plugin](#the-plugins) · [Install](#install) · [Development](#development) · [Community](#community)
 
-> **TL;DR** — foreman keeps your project plan alive between sessions. hush cuts the chatter and the cost. razor stops code nobody needed. All three are available for Claude Code; Foreman and Razor also support Codex.
+## What is Foundry?
 
----
+A coding session ends with a fix, a new idea and a little more code. The next session needs the plan, you need a clear result, and the codebase needs to stay manageable. Foundry is a collection of plugins for those everyday problems.
 
-## New here?
+Each plugin works on its own. Foreman keeps the plan beside your code. Hush reduces narration and long command output. Razor asks whether new code is needed before it gets added.
 
-[Claude Code](https://code.claude.com/docs/en/overview) is Anthropic's AI coding assistant. **Plugins** extend it: they teach Claude new habits, add guardrails, or change how it behaves. One-line install, no setup.
+## The plugins
 
-This is a small, hand-picked collection. Each plugin does one job well and works on its own.
+| When you want to… | Start with | Availability |
+| --- | --- | --- |
+| Pick up the next task with its context intact | [Foreman](https://github.com/V-Songbird/foreman) | Claude Code and Codex |
+| Find the result without reading every step | [Hush](https://github.com/V-Songbird/hush) | Claude Code; Codex in development |
+| Keep a small change from becoming extra maintenance | [Razor](https://github.com/V-Songbird/razor) | Claude Code and Codex |
+
+Ask Foreman “what’s next?” to get a recommended task and a checked handoff. Use Hush when running commentary buries the outcome. Use Razor when an existing function or language feature might solve the task without another dependency.
+
+The edition pages explain native commands, coverage and limitations. Benchmark results belong to the named host and recorded setup; quieter sessions do not always cost less.
 
 ## Install
 
@@ -57,67 +60,14 @@ installs from the plugin repository's platform branch at a pinned revision.
 Open a new Codex task after installation to load the installed skills and hooks.
 Hush for Codex is not available yet.
 
----
-
-## The plugins
-
-### [foreman](https://github.com/V-Songbird/foreman) — Your plan survives the session
-
-Every Claude Code session forgets everything when it ends. Foreman keeps your plan in the repo, committed like code. Ask "what's next?" and you get the recommended task, the reason it's first, and a ready-to-run prompt whose paths were checked against your code. After each commit, it spots the task that looks finished and asks before checking it off.
-
-```
-/plugin install foreman@foundry
-```
-
-### [hush](https://github.com/V-Songbird/hush) — Less chatter, lower cost
-
-Claude bills you for every word it says while it works — narration, previews, walls of command output. hush trims that bulk at the source, before it hits your bill. You get silence while it works, then one clear answer-first summary at the end. Big output is saved whole to a local file before it's shortened, so nothing is lost.
-
-```
-/plugin install hush@foundry
-```
-
-### [razor](https://github.com/V-Songbird/razor) — Stops Claude from over-building
-
-AI assistants love to add: a new library here, five helper files there, an abstraction "for later." razor makes Claude run a short checklist first — is it needed, does it already exist, does the platform do it for free? The first reach for a new dependency gets one challenge, with your project's declared-dependency list right in the message. Never a hard block — always one forced second thought.
-
-```
-/plugin install razor@foundry
-```
-
-### Which one first?
-
-| You want to… | Install |
-| --- | --- |
-| Keep a project plan that outlives the session | **foreman** |
-| Cut token cost and noise | **hush** |
-| Keep the codebase lean | **razor** |
-
-hush and razor are natural partners: hush governs how Claude *talks*, razor governs what it *builds*.
-
----
 
 ## Repository layout
 
-```
-foundry/
-├── flint/
-├── foreman/
-├── hush/
-└── razor/
-```
+The plugin repositories are mounted as [Git submodules](.gitmodules). Each has a main overview and separate Claude and Codex editions. The [Claude catalog](.claude-plugin/marketplace.json) and [Codex catalog](.agents/plugins/marketplace.json) select pinned edition revisions.
 
-Every plugin lives in its own repo, mounted here as a git submodule (see [`.gitmodules`](.gitmodules)), and carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`. The root copies of the community files govern contributions to this marketplace repo itself. The Claude Code catalog is [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json); it owns the Claude release versions and pins each source revision. Codex versions live in each plugin's `.codex-plugin/plugin.json`, with their own catalog at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json).
+[Flint](https://github.com/V-Songbird/flint) provides plain-text writing and coding instructions for sessions where you do not want to install a plugin. It is outside the marketplace.
 
-Foundry itself uses only `main`. Each plugin has three branches: `main` is its
-front page, `Claude` contains the Claude Code plugin, and `Codex` contains the
-Codex version or its unpublished development entry point. The catalogs choose
-the platform branch explicitly; the submodule checkout does not select what
-users install. Hush stays outside the Codex catalog until its port is validated.
-
-[`flint/`](https://github.com/V-Songbird/flint) is mounted the same way but is not a plugin and is not in the marketplace. It is plain text — hush's writing voice and razor's cut-before-adding rules as files you paste into a session with nothing installed. It has no `plugin.json`, no version, and no marketplace entry.
-
----
+Research, benchmark instruments and shared visual guidance live in [docs](docs/README.md) and [benchmarks](benchmarks/README.md). Product usage guides stay with their plugin.
 
 ## Development
 
@@ -139,7 +89,6 @@ Tests, for a plugin that has them:
 node --test <plugin>/tests/*.test.js
 ```
 
----
 
 ## Community
 
