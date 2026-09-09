@@ -5,8 +5,10 @@ integration and live-client/CI verification are not complete. Dated reports
 describe individual phases and must not be read as the current pending list.
 
 Publication is now authorized and underway. Read the [release progress](release-progress-2026-09-09.md)
-for current versions, published pins, Codex installation proof and the remaining
-Foreman Windows launcher limitation. Main-selector PRs still require review.
+for current versions, published pins and Codex installation proof. Foreman's
+Windows launcher correction now passes CI. Main-selector PRs still require
+review, and the proposed rulesets need explicit approval after automatic review
+rejected their creation.
 
 ## Implemented and checked locally
 

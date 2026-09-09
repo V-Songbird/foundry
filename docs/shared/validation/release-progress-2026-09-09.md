@@ -41,8 +41,9 @@ and PowerShell without changing execution policy or hook trust. Existing hook
 logic, event matchers and timeouts remain unchanged.
 
 Local tests verify stdin forwarding in both Windows shells and the real fnm
-fallback with Node removed from PATH. The complete local suite passes. The final
-remote runtime matrix must also pass before the Windows blocker is closed.
+fallback with Node removed from PATH. The complete local suite passes. The
+[final remote runtime matrix](https://github.com/V-Songbird/foreman/actions/runs/34330907524)
+passes on Windows and Linux, closing the launcher portability blocker.
 
 The three main-selector PRs have passing checks and require review:
 [Foreman #1](https://github.com/V-Songbird/foreman/pull/1),
@@ -51,9 +52,11 @@ The three main-selector PRs have passing checks and require review:
 They have not been merged and no protection bypass was used. Foundry's aggregate
 selector check will require their final trees to be integrated first.
 
-The proposed rulesets wait for the final runtime check. Preservation now also
-records the specifically authorized Windows launcher, its generator and tests;
-other product behavior remains unchanged.
+The proposed rulesets remain unapplied: automatic approval review rejected their
+creation because it requires explicit authorization for those exact persistent
+branch-protection changes. No protection settings changed. Preservation records
+the specifically authorized Windows launcher, its generator and tests; other
+product behavior remains unchanged.
 
 Local receipts and exact-byte comparison results are in
 `.scratch/consolidation/installed-release-verification.json`,
