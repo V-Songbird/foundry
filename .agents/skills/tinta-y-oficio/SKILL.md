@@ -1,6 +1,6 @@
 ---
 name: tinta-y-oficio
-description: Crear o ampliar los iconos, logos y banners de Foundry y sus plugins con la identidad Tinta y oficio, variantes clara/oscura y transparencia real. Usar para esta familia visual, no para diseño de interfaces ni marcas ajenas.
+description: Crear o ampliar los iconos, logos, banners y animaciones de Ember de Foundry y sus plugins con la identidad Tinta y oficio, variantes clara/oscura y transparencia real. Usar para esta familia visual, no para diseño de interfaces ni marcas ajenas.
 ---
 
 # Tinta y oficio
@@ -38,3 +38,7 @@ identidad publicada, coordina la misma marca en main y las ediciones existentes.
 
 Mantén este archivo idéntico en `.claude/skills/tinta-y-oficio/SKILL.md` y
 `.agents/skills/tinta-y-oficio/SKILL.md`; la guía compartida contiene los detalles.
+
+## Mascotas y animación
+
+Para escenas de Ember, seguir la dirección aprobada en la sección Ember de la guía compartida y usar assets/ember-approved como referencia (ruta relativa a la guía). SVG original con rellenos planos, silueta redonda tierna y contornos de tinta en personaje y objetos, sin brillos. Hush azul, Foreman verde, Razor rojo: aplicar la paleta al pill del nombre y detalles del README. Conservar literalmente los textos de origen y el relato de cada plugin. La entrega de seis PNG no aplica a las escenas SVG.

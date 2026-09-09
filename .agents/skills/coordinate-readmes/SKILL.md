@@ -46,3 +46,7 @@ present in each edition). Declare the opposite PR number and full head SHA in
 both descriptions; rerun both checks after any head change. Candidate-pair
 success is separate from the final integrated-branch comparison. Do not publish
 selectors or pins until the integrated pair passes.
+
+Apply the approved Ember art direction in docs/shared/launch/tinta-y-oficio.md. Match the name pill and decorative README accents to Hush blue, Foreman green and Razor red in both themes; preserve semantic data colors, original text and benchmark evidence.
+
+Use the approved C layout in .github/PLUGIN_README_TEMPLATE.md: example-led introduction with mascot, benefits, mechanism, practical usage, installation, limits, evidence, references and license. Do not duplicate the promise in a TL;DR. Put measured graphics with evidence. Main keeps the shared story and offers an edition choice.

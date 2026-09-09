@@ -13,7 +13,7 @@ function render(plugin, claude, codex) {
   const summary = source.split("\n").find(line => line.startsWith("> **TL;DR**"));
   const hero = source.match(/<!-- foundry:hero -->[\s\S]*?<!-- \/foundry:hero -->/)?.[0];
   if (!hero) throw Error("Product hero and demo are missing");
-  if (!header || !animation || !summary) throw Error("Shared branding is incomplete");
+  if (!header || !animation) throw Error("Shared branding is incomplete");
   const url = `https://github.com/V-Songbird/${plugin}/tree/`;
   const status = plugin === "hush"
     ? `**Available for [Claude Code](${url}Claude).** The [Codex edition](${url}Codex) is not currently installable.`
@@ -28,17 +28,19 @@ ${status}
 
 [**Get started**](#get-started) · [What is this?](#what-is-this) · [How it works](#how-it-works) · [What you can do](#what-you-can-do) · [Evidence](#evidence-and-benchmarks)
 
-${summary}
+${summary || ""}
 
-${hero}
-
-${animation}
+${sections["What is this?"].includes("assets/mascot.svg") ? "" : animation}
 
 ${block("What is this?")}
 
 ${block("Why you'd want it")}
 
 ${block("How it works")}
+
+${block("What you can do")}
+
+${block("What you can do")}
 
 ## Get started
 
@@ -50,11 +52,11 @@ commands and compatibility notes for your setup.
 | Claude Code | Available | [Install and get started](${url}Claude) |
 ${row}
 
-${block("What you can do")}
-
 ${block("Good to know")}
 
 ## Evidence and benchmarks
+
+${hero}
 
 Measurements belong to the model and setup that produced them. Each edition
 keeps its own results, limitations and any measurements still missing:

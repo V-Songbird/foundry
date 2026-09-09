@@ -134,3 +134,25 @@ guardada. Un banner en el README no actualiza este ajuste.
 Conservar los heroes y demos originales al renovar identidad. Cuando muestran
 sesiones o resultados de Claude, identificarlos explícitamente; no atribuirlos
 a Codex. Conservar la mascota no sustituye las demostraciones del producto.
+
+## Ember: dirección aprobada el 2026-09-09
+
+Referencia aprobada: [Hush](assets/ember-approved/hush.svg). Familia: [Foreman](assets/ember-approved/foreman.svg) y [Razor](assets/ember-approved/razor.svg). Fuentes originales y generador están en esa carpeta.
+
+- Ember conserva la silueta naranja redonda, rostro amable y llama expresiva. No usar corteza oscura, fisuras, aspecto rocoso ni brillos de esquina: perdían ternura. Rellenos planos y contorno de tinta; mejillas discretas.
+- Globos, pill del nombre, teclado, carpeta y tarjetas comparten contornos orgánicos, asimetrías pequeñas y trazos estables. Sin brillos decorativos ni sombras de volumen.
+- Hush azul: #2C75A5 / #79B6DE. Foreman verde: #21553B / #9EC8AC. Razor rojo: #BF4935 / #EB8D79. El pill del nombre, los detalles y los acentos gráficos del README siguen esa misma pareja claro/oscuro. Ember sigue naranja. Los colores semánticos de datos, errores y estados no son acentos de marca.
+- Conservar el relato propio: Hush pasa del tecleo estresado al trabajo tranquilo; Foreman reúne papeles en un plan; Razor retira extras. No convertir todos los relatos en Hush recoloreado.
+- Conservar literalmente las respuestas, etiquetas y referencias del original; no traducirlas ni reescribirlas por estética. La coreografía de mascota es ilustrativa y no representa tiempos de benchmark.
+- Texto quieto durante la lectura, centrado verticalmente en su globo, con pausa final legible. Movimiento continuo, sin desaparición de manos entre estados. SVG autónomo, temas claro/oscuro y alternativa de movimiento reducido.
+- Revisar visualmente la escena y el texto. Validar igualdad del contenido textual y paletas, además de paridad entre ediciones. Los banners y la evidencia gráfica se conservan; no regenerar datos para una renovación estética.
+
+Esta dirección sustituye el color verde histórico de Razor en ADR 0006 y su tratamiento visual anterior. La familia PNG de iconos/banners mantiene su entrega existente; las escenas SVG tienen su propio flujo, sin exigir seis PNG. El formato C fue elegido para la futura reorganización del README; su integración editorial permanece separada de esta aplicación de arte.
+
+## Gráficos de evidencia: tinta sin alterar datos
+
+La dirección aprobada se extiende a los otros gráficos de Foundry. Referencia y generador: assets/graphics-ink/. Renovar marcos, pills y cajas con contornos irregulares y rellenos planos sin sombras. Mantener intactos texto, geometría de marcas medidas, escalas y nodos de animación de replays. Los colores de estado conservan su significado; los acentos de marca siguen azul/verde/rojo. El generador compara nodos de texto, animación y marcas contra fuentes conservadas antes de escribir. Banners, logos e iconos de Tinta y oficio se mantienen como identidad aprobada.
+
+## Integration: C layout and dark artwork
+
+The approved art now accompanies the example-led C layout in the root and plugin READMEs. Shipped SVGs automatically select the dark palette using prefers-color-scheme; fixed dark exports in assets/dark-previews/ allow independent review. Dark banners already exist and are preserved. The C order is governed by the shared README template and coordinate-readmes skill.
