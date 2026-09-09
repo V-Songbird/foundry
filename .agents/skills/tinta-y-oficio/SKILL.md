@@ -1,44 +1,22 @@
 ---
 name: tinta-y-oficio
-description: Crear o ampliar los iconos, logos, banners y animaciones de Ember de Foundry y sus plugins con la identidad Tinta y oficio, variantes clara/oscura y transparencia real. Usar para esta familia visual, no para diseño de interfaces ni marcas ajenas.
+description: Crear o actualizar iconos, logos, banners sociales y de README, gráficos y animaciones de Ember para Foundry con el estilo aprobado de tinta plana. Usar para esta familia visual, no para marcas ajenas ni diseño de interfaces.
 ---
 
-# Tinta y oficio
+# Foundry: tinta plana
 
-Skill de desarrollo de Foundry, compartida por Claude y Codex; no se distribuye
-dentro de cada plugin.
+Skill de desarrollo compartida por Claude y Codex. No se distribuye dentro de los plugins.
 
-Lee `docs/shared/launch/tinta-y-oficio.md` desde la raíz de Foundry antes de producir
-activos. Allí están las siluetas, paletas, prompts de partida, procedencia, tamaños
-y comprobaciones. Abre las comparativas enlazadas para ver los trazos reales.
-Los prompts exactos y originales de v1 están junto a su `build.py`.
+Lee `docs/shared/launch/tinta-y-oficio.md` desde Foundry antes de producir activos. Es la guía canónica y sustituye las instrucciones anteriores de pincel seco. Las fuentes aprobadas están en `docs/shared/launch/assets/ember-brand-kit/source/`; el generador está en la misma carpeta del kit, `build.cjs`.
 
-Para ampliar la familia, parte de la función del plugin y elige una silueta propia,
-compacta y visible a 32 px. Conserva el pincel seco, el lettering minúsculo y un
-acento por marca. Respeta cualquier concepto ya aprobado. Genera icono y banner
-coherentes usando referencias; deriva los temas de la misma geometría.
+Conserva siluetas suaves, rellenos planos y contornos de tinta ligeramente irregulares. Sin pincel seco, degradados, brillo ni chispas decorativas. Foundry es un yunque; Hush, un globo con una raya; Foreman, una cinta plegada; Razor, una hoja con muesca; Flint, una sola piedra. Foundry y Flint no llevan chispa. No volver a conceptos rechazados ni regenerar las fuentes aprobadas con un modelo de imagen.
 
-Desde v2, los banners claros usan blanco puro. En tarjetas de Codex, `logo` y
-`logoDark` deben usar los iconos sin lettering; el nombre ya aparece en la tarjeta.
-El Social preview de GitHub requiere subir su imagen al ajuste del repositorio,
-además de actualizar el README. Conserva los heroes y demos al renovar identidad,
-con atribución explícita cuando representen evidencia de Claude.
+Los colores de marca son idénticos en claro y oscuro; solo cambian tinta y fondo. Usa los valores de la guía. Mantén la geometría y el alfa de iconos/logos iguales entre temas. Conserva la legibilidad a 32 px.
 
-Usa la herramienta de imagen disponible conforme a sus instrucciones y permisos.
-Registra el modelo solo si se puede verificar. Una cuadrícula visible no prueba
-transparencia: inspecciona el modo y el canal alfa. Si hace falta procesamiento
-local, reutiliza las funciones de v1 cuando encajen, con parámetros adaptados al
-nuevo original; sus recortes y umbrales no son universales.
+Por marca entrega ambos temas y fuentes SVG: social 1280×640 (recomendado), banner README 2172×724, logo transparente 1400×420 e icono PNG transparente 1024×1024. Son ocho PNG por marca. Usa el generador con Node y Sharp disponibles; `NODE_PATH` permite indicar un runtime instalado. Consulta la guía para fuentes tipográficas, reproducibilidad, manifiesto y validación. No atribuyas reproducción byte a byte a un entorno con fuentes o renderer distintos.
 
-Entrega seis PNG por marca según la guía, con revisión visual sobre ambos fondos,
-comprobación de alfa idéntico entre temas, manifiesto, prompts y originales.
-Trabaja en una carpeta nueva de `docs/shared/launch/assets/` para conservar v1.
-No copies investigación ni originales al plugin instalable. Al integrar una
-identidad publicada, coordina la misma marca en main y las ediciones existentes.
+Para Ember y evidencia, usa sus generadores separados en `assets/ember-approved` y `assets/graphics-ink`. Conserva las respuestas originales, datos y tiempos medidos; no confundir una ilustración con un replay. Los ocho PNG de identidad no se exigen a una animación SVG.
 
-Mantén este archivo idéntico en `.claude/skills/tinta-y-oficio/SKILL.md` y
-`.agents/skills/tinta-y-oficio/SKILL.md`; la guía compartida contiene los detalles.
+La integración coordina main y ediciones existentes mediante `coordinate-readmes`. Subir el social preview de GitHub es una acción separada de editar README. Generar un kit no publica ni autoriza merges. Conserva originales e historia, mantén investigación fuera de plugins instalables y revisa los PNG reales en ambos temas.
 
-## Mascotas y animación
-
-Para escenas de Ember, seguir la dirección aprobada en la sección Ember de la guía compartida y usar assets/ember-approved como referencia (ruta relativa a la guía). SVG original con rellenos planos, silueta redonda tierna y contornos de tinta en personaje y objetos, sin brillos. Hush azul, Foreman verde, Razor rojo: aplicar la paleta al pill del nombre y detalles del README. Conservar literalmente los textos de origen y el relato de cada plugin. La entrega de seis PNG no aplica a las escenas SVG.
+Mantén este archivo idéntico en `.agents/skills/tinta-y-oficio/SKILL.md` y `.claude/skills/tinta-y-oficio/SKILL.md`.
