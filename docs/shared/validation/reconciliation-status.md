@@ -1,15 +1,19 @@
 # Foundry reconciliation status
 
-Updated 2026-09-09. The local reorganization is substantially implemented;
-integration and live-client/CI verification are not complete. Dated reports
-describe individual phases and must not be read as the current pending list.
+Updated 2026-09-09. The reorganization and publication are integrated. Public
+main pages now carry the complete shared product story and animation, with
+edition-specific installation and evidence linked separately. Dated reports
+describe individual phases; the remaining client verification is listed below.
 
-Publication is now authorized and underway. Read the [release progress](release-progress-2026-09-09.md)
+Read the [release progress](release-progress-2026-09-09.md)
 for current versions, published pins and Codex installation proof. Foreman's
 Windows launcher correction now passes CI. The three main selectors are merged
 and six platform rulesets are active. Temporary approval-count changes were
-restored immediately after each authorized merge. Foundry's final merge and
-post-merge verification are the remaining publication steps.
+restored immediately after each authorized merge. Both Foundry integration PRs
+and the two rounds of plugin main-page PRs are merged. The four publication
+checks passed on Foundry's merged main. Temporary integration branches and main
+worktrees were removed after tree comparisons and verified Git-history backups;
+the Claude/Codex development branches remain available.
 
 ## Implemented and checked locally
 
@@ -34,27 +38,25 @@ Hush/Codex is still unavailable as an installable package.
 
 ## Remaining closure work
 
-- Preserve the verified edition manifests and dataset inventories through final
-  integration; recheck any files changed after those validation snapshots.
-- Preserve the pinned slug expression and its regression corpus. The recorded
-  anchor discrepancies are closed; arbitrary future Markdown/HTML constructs
-  remain outside the lightweight heading reader's claimed coverage.
 - Verify native hook discovery/trust and event delivery in an actual client.
-  Configured commands passing tests does not establish activation.
-- Account for and integrate the changes in Foundry and all nine plugin worktrees.
-  No worktree or backup should be removed before its needed content is preserved.
-- Publish the reviewed edition revisions before selector links and catalog pins;
-  verify actual Actions results and apply the reviewed ruleset transition through
-  the authorized repository process. No remote settings have been changed.
-- Confirm public URL reachability after publication. Local Git-object existence
-  proves the target content is retained, not that GitHub currently serves it.
+  Configured commands, installed files and successful shell tests do not alone
+  prove that the current desktop session has trusted and loaded project hooks.
+
+The owner updates installed Claude plugins; this is not an outstanding assistant
+installation task. Foreman's task 301 remains a separate product-acceptance
+decision. Neither is silently treated as accepted by this repository cleanup.
+
+The pinned slug expression and regression corpus remain maintained checks, not
+a claim to parse every possible future Markdown/HTML construct. Verified file
+inventories and recovery bundles remain under the ignored scratch directory.
 
 ## Product preservation
 
-The original 435-file baseline is retained. Of those files, 434 are byte-identical;
-Foreman's Codex guide differs only in two recorded URL substitutions whose
-reversal reproduces its baseline hash. No plugin runtime, shipped skill, hook,
-manifest, functional test or asset was changed by this consolidation phase.
+The original 435-file baseline is retained. Of those original files, 431 remain
+byte-identical. Explicitly recorded exceptions are two guide URLs, two requested
+Codex manifest version bumps, and Foreman's separately authorized Windows hook
+launcher. Its readable source, generator and regression test are new authorized
+files. Existing hook logic, event matchers and timeouts remain unchanged.
 
 The original audit remains useful as historical diagnosis. Use the evidence
 above to distinguish corrected findings from genuinely open work.
