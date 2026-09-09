@@ -1,7 +1,7 @@
 # Shared plugin README contract
 
 This template covers Claude/Codex editions. Foreman, Hush and Razor main branches
-use an edition selector with minimal documentation CI instead, checked by check-main-frontpage.js.
+use a shared product overview with animation and edition choices, checked by check-main-frontpage.js against both editions.
 Flint's existing main product is outside that policy.
 
 The two editions of each plugin have one product story. Keep the same purpose,

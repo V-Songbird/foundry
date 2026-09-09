@@ -5,9 +5,13 @@ description: Coordinate a Foundry plugin's Claude and Codex README editions, pre
 
 # Coordinate plugin READMEs
 
-This skill coordinates Claude/Codex edition pages. For the separate main selector,
-use Foundry's check-main-frontpage.js and its selector-plus-documentation-CI contract instead; do not
-copy platform sections into main. Flint is excluded from that selector policy.
+This skill coordinates Claude/Codex edition pages and their shared main overview.
+Main retains the shared product story, branding, animation, benefits, mechanism,
+usage examples and general limitations, with a clear edition choice. Keep native
+install commands, compatibility details and measured tables in their editions.
+Use scripts/build-main-readmes.js to regenerate common content and validate main
+with check-main-frontpage.js --claude-ref Claude --codex-ref Codex. Common edition
+changes also update main before release. Flint is excluded from this main policy.
 
 Locate both platform checkouts before editing. Use `git worktree list` or inspect
 the other branch read-only; preserve uncommitted work and stay off `main`.
