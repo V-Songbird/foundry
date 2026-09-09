@@ -7,7 +7,7 @@ const os = require("os");
 const path = require("path");
 const { git, verifyEntry, verifyCatalogs } = require("./check-platform-marketplaces");
 
-function fixture(t) {
+function fixture(t, icon = "./assets/icon.svg") {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-platforms-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const repo = path.join(root, "demo");
@@ -32,8 +32,9 @@ function fixture(t) {
   const claude = commit();
   git(repo, ["switch", "--detach", base]);
   git(repo, ["switch", "-c", "Codex"]);
-  write(".codex-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version: "1.0.0", interface: { composerIcon: "./assets/icon.svg" } }));
+  write(".codex-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version: "1.0.0", interface: { composerIcon: icon } }));
   write("assets/icon.svg", '<svg xmlns="http://www.w3.org/2000/svg"/>');
+  write("assets/icon.png", Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a5ZkAAAAASUVORK5CYII=', 'base64'));
   const codex = commit();
   git(repo, ["switch", "--detach", base]);
   const entry = (platform) => ({
@@ -52,6 +53,14 @@ test("validates both platform pins while the checkout is a documentation-only co
 test("rejects a commit from the other platform branch", (t) => {
   const f = fixture(t); const entry = f.entry("Codex"); entry.source.sha = f.claude;
   assert.match(verifyEntry(f.root, entry, "Codex", f.owner).join("\n"), /cannot validate/);
+});
+
+test("accepts a packaged PNG icon and rejects a missing asset or escaping path", (t) => {
+  for (const icon of ['./assets/icon.png', './assets/missing.png', './assets/../icon.png']) {
+    const f = fixture(t, icon);
+    const errors = verifyEntry(f.root, f.entry('Codex'), 'Codex', f.owner);
+    assert.equal(errors.length === 0, icon === './assets/icon.png');
+  }
 });
 
 test("rejects wrong branch, repository, and abbreviated pins", (t) => {

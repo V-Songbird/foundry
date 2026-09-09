@@ -39,7 +39,7 @@ function main(root=path.resolve(__dirname,'../..')){
   return execFileSync('git',['-C',repo,'show',`${branchRef(repo,platform)}:${file}`],{env,encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:4*1024*1024});
  });
  // Native development skills share one body, not independently drifting ports.
- for(const skill of ['coordinate-readmes']){
+ for(const skill of ['coordinate-readmes','tinta-y-oficio']){
   try{
    const a=fs.readFileSync(path.join(root,'.claude/skills',skill,'SKILL.md'),'utf8');
    const b=fs.readFileSync(path.join(root,'.agents/skills',skill,'SKILL.md'),'utf8');
@@ -47,7 +47,7 @@ function main(root=path.resolve(__dirname,'../..')){
   }catch(error){errors.push(error.message);}
  }
  if(errors.length){console.error(errors.join('\n'));return 1;}
- console.log('Maintenance copies agree across six editions and native README skills.');return 0;
+ console.log('Maintenance copies agree across six editions and shared native skills.');return 0;
 }
 module.exports={compareCopies,main,PAIRS,EDITIONS};
 if(require.main===module)process.exitCode=main();

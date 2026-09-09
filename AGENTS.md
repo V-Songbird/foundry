@@ -21,7 +21,7 @@ history and acceptance states, and record any ID remapping explicitly.
 ## Coordinated documentation
 
 Foreman, Hush and Razor main branches are product overview pages containing README.md,
-LICENSE, the two logo SVGs, the shared animated mascot and the minimal documentation check in
+LICENSE, the branding assets, the shared animated mascot and the minimal documentation check in
 .github/check-main-frontpage.cjs and .github/workflows/test.yml. Use
 check-main-frontpage.js for that contract; the paired README rules below apply
 to Claude/Codex editions. Keep product runtime and unrelated CI out of main,
