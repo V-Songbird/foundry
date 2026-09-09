@@ -9,3 +9,5 @@ Posts, campaign material and authoring assets.
 - [Pitches to newsletters and channels](pitches.md) — `pitches.md`
 - [Foundry promotion strategy](strategy.md) — `strategy.md`
 - [Directory submissions that need your login](submissions.md) — `submissions.md`
+
+- [Tinta y oficio v2: banners blancos y Social preview](assets/tinta-y-oficio-v2/README.md)

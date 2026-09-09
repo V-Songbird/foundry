@@ -4,6 +4,7 @@ const { render } = require('../build-main-readmes');
 const { SHARED_SECTIONS, checkCommon } = require('./check-main-frontpage');
 function edition(name) {
   return `<div align="center">\n<h1>Example</h1>\n</div>\n> **TL;DR** — Shared purpose.\n<p align="center"><img src="assets/mascot.svg" alt="Shared animation"></p>\n` +
+    `<!-- foundry:hero -->\n<img src="assets/hero.svg">\nRecorded Claude evidence.\n<img src="assets/demo.svg">\n<!-- /foundry:hero -->\n` +
     SHARED_SECTIONS.map(h => `## ${h}\nShared ${h}\n`).join('\n') +
     `\n## Install\n<!-- foundry:platform install -->\n${name} install command\n<!-- /foundry:platform install -->\n`;
 }
@@ -11,6 +12,9 @@ test('overview retains the whole shared story without copying native installatio
   const a = edition('Claude'), b = edition('Codex'), main = render('razor', a, b);
   assert.deepEqual(checkCommon(main, a, b), []);
   assert.match(main, /assets\/mascot\.svg/);
+  assert.match(main, /assets\/hero\.svg/);
+  assert.match(main, /assets\/demo\.svg/);
+  assert.match(main, /Recorded Claude evidence/);
   assert.match(main, /## Get started/);
   assert.doesNotMatch(main, /Claude install command|Codex install command|foundry:platform/);
 });

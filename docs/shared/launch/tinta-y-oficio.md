@@ -21,7 +21,8 @@ escudos, degradados, brillos y detalles que desaparezcan a 32 px.
 
 Tinta principal: `#181917` sobre claro y `#EEE9DE` sobre oscuro. Foreman usa verde
 para todo el símbolo. Fondo oscuro del banner: `#191C1B`; el claro conserva el
-papel marfil generado. La geometría no cambia con el tema.
+papel marfil generado en v1. Desde [v2](assets/tinta-y-oficio-v2/README.md),
+el fondo claro es blanco puro. La geometría no cambia con el tema.
 
 ## Cómo se produjo v1
 
@@ -119,3 +120,17 @@ con los seis PNG por marca y sus instrucciones. Mantener originales y prompts en
 Foundry, fuera del paquete instalable del plugin. La publicación debe usar los
 mismos recursos en main, Claude y Codex cuando esas ediciones existan; preparar
 una propuesta no implica reemplazar automáticamente la identidad publicada.
+
+## Integración en interfaces y GitHub
+
+En tarjetas de Codex, `composerIcon`, `logo` y `logoDark` usan la figura sin
+lettering: el nombre ya aparece junto al icono. Reservar el logo con nombre
+para composiciones amplias. Los banners claros usan blanco desde v2.
+
+El Social preview es un ajuste independiente de GitHub. Subir el PNG
+`social-preview.png` de 1280 × 640 de cada marca y verificar la vista previa
+guardada. Un banner en el README no actualiza este ajuste.
+
+Conservar los heroes y demos originales al renovar identidad. Cuando muestran
+sesiones o resultados de Claude, identificarlos explícitamente; no atribuirlos
+a Codex. Conservar la mascota no sustituye las demostraciones del producto.
