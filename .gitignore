@@ -1,9 +1,16 @@
-# Benchmark harness (local-only, never published)
+# Private benchmark experiments and run output (public harnesses live in benchmarks/)
 .benchmarks/
 
 # Python cache directories
 __pycache__/
 .pytest_cache/
+node_modules/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+!.env.sample
 
 .idea/
 *.swp
@@ -18,17 +25,23 @@ Thumbs.db
 !/.claude/settings.json
 !/.claude/hooks/
 !/.claude/rules/
+!/.claude/agents/
+!/.claude/skills/
 
 # Roadmap and foreman config are local-only, not published
 ROADMAP.jsonl
 .foreman/
 
-# This repo's dev config ported to other agent CLIs — local-only, not published
-.agents/*
-!.agents/plugins/
-.agents/plugins/*
-!.agents/plugins/marketplace.json
-.codex/
+# Shared project skills and marketplace; other agent state remains local.
+/.agents/*
+!/.agents/skills/
+!/.agents/plugins/
+/.agents/plugins/*
+!/.agents/plugins/marketplace.json
+
+# Codex project agents; other Codex configuration and session state remain local.
+/.codex/*
+!/.codex/agents/
 
 # Plugin-local session state — written at run time, never published
 .assay/
