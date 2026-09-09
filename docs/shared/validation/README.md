@@ -5,6 +5,7 @@ Reports and supporting scripts, with the platform and revision retained.
 [Plugin index](../README.md)
 
 - [Current reconciliation status](reconciliation-status.md) — current evidence and remaining closure work; start here.
+- [Main product overviews](main-product-overviews-2026-09-09.md) — complete shared product story, animation and edition-aware checks.
 - [Release progress](release-progress-2026-09-09.md) — published versions, installation receipts and remaining CI/review blockers.
 - [Integration inventory](integration-inventory-2026-09-09.md) — repository ownership, file hashes and verified recovery snapshot.
 - [Independent editions](independent-editions-2026-09-09.md) — six exports, standalone suites and maintained-copy enforcement.

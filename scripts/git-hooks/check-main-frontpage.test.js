@@ -1,8 +1,21 @@
 "use strict";
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { FILES, checkFiles } = require("./check-main-frontpage");
-const readme = plugin => `# ${plugin}\n[Claude](https://github.com/V-Songbird/${plugin}/tree/Claude)\n[Codex](https://github.com/V-Songbird/${plugin}/tree/Codex)\n`;
+const { FILES, SHARED_SECTIONS, checkFiles, checkCommon } = require("./check-main-frontpage");
+const readme = plugin => `# ${plugin}\n[Claude](https://github.com/V-Songbird/${plugin}/tree/Claude)\n[Codex](https://github.com/V-Songbird/${plugin}/tree/Codex)\n<img src="assets/mascot.svg">\n` + SHARED_SECTIONS.map(h => `## ${h}\n\nShared ${h}\n`).join('\n');
+
+test("a thin selector without product information is rejected", () => {
+  assert.ok(checkFiles(FILES, '# razor\n', 'razor').some(e => e.includes('Missing product overview')));
+  assert.ok(checkFiles(FILES, readme('razor').replace('<img src="assets/mascot.svg">', ''), 'razor').some(e => e.includes('animation')));
+});
+
+test("common narrative must match both editions while native commands stay separate", () => {
+  const main = readme('razor');
+  const native = command => main + `\n<!-- foundry:platform commands -->\n${command}\n<!-- /foundry:platform commands -->\n`;
+  assert.deepEqual(checkCommon(main, native('/razor:unused'), native('$unused')), []);
+  assert.ok(checkCommon(main.replace('Shared How it works', 'Different behavior'), native('Claude'), native('Codex')).length);
+  assert.ok(checkCommon(main, native('Claude'), native('Codex').replace('Shared How it works', 'Different behavior')).length);
+});
 test("only the documentation selector, assets and minimal maintenance CI pass", () => {
   for (const plugin of ["foreman", "hush", "razor"]) assert.deepEqual(checkFiles(FILES, readme(plugin), plugin), []);
 });

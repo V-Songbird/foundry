@@ -25,5 +25,5 @@ jobs:
         run: |
           for plugin in foreman hush razor; do
             git -C "$plugin" fetch origin "+refs/heads/main:refs/remotes/origin/main" "+refs/heads/Claude:refs/remotes/origin/Claude" "+refs/heads/Codex:refs/remotes/origin/Codex"
-            node scripts/git-hooks/check-main-frontpage.js --repo "$plugin" --plugin "$plugin" --ref refs/remotes/origin/main
+            node scripts/git-hooks/check-main-frontpage.js --repo "$plugin" --plugin "$plugin" --ref refs/remotes/origin/main --claude-ref refs/remotes/origin/Claude --codex-ref refs/remotes/origin/Codex
           done
