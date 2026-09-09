@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 84,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 89603,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2803864,
+  "numTurns": 16,
+  "durationMs": 85088,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5789
+  },
+  "contextTraffic": 663200,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 17664,
+  "narrationWords": 0,
+  "finalWords": 318,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z). No recovery observed in the log window.\n\n**Root cause**\nDeploy `dep-4471` (gateway, author a.novak, \"config: connection-per-request for pool isolation\") shipped a config reload that flipped `gateway.pool.perRequest: false → true` (generation 118→119, applied 02:13:41Z). Within ~30s the connection pool (size 20) saturated to `in_use=20` and has stayed pinned there since, with the `waiting` queue climbing monotonically (13 → 74+ and still rising at end of log) instead of draining. The intent was pool isolation per request, but the effect is connections aren't being released back to the pool — starving it. Every upstream (billing-svc, orders-svc, catalog-svc, accounts-svc) and every route are affected, confirming it's gateway-side, not a single backend.\n\n**Impact window**\n- **Start:** 2026-03-14 02:14:18Z — first 503 (`req-07401 /v1/cart -> billing-svc 503`), paired with first `ERR_POOL_EXHAUSTED`. First warning sign (slow acquire) at 02:14:14Z, ~33s after the config applied.\n- **End:** not yet recovered — log ends 03:59:27Z still throwing 503s, error rate/latency trending worse (503 latency crept from ~660ms to ~850ms+, waiting queue still growing).\n- **Duration so far:** ~1h45m and counting.\n- **Scope:** gateway only. Workers (worker.log) are unaffected — separate connection pool, held steady at `in_use=1/8, waiting=0` throughout; zero errors, all jobs completing normally.\n\n**Rollback**\nRoll back **dep-4471** (gateway, 02:12–02:14Z) — revert `gateway.pool.perRequest` to `false` (or redeploy prior config generation 118). This is the only deploy in deploys.csv that lines up with the incident start.\n\nTwo later deploys are unrelated and don't need action for this incident:\n- dep-4472 (billing-svc, 02:41Z, invoice PDF template fix) — shipped 27min after 503s started.\n- dep-4473 (catalog-svc, 03:20Z, cache TTL 60s→300s) — also after onset, different service.\n\n**Separate/non-blocking:** worker job latency (reindex etc.) shows a slow linear climb (~200ms→2200ms) starting at 01:00Z, an hour before this incident, unaffected by the gateway deploy — worth its own investigation but not part of this rollback.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e6ba7312b0dbb5fc9df8a310f11beb5ba2c04d0a3e7a03f855955cfcbfd42cc1"
+}

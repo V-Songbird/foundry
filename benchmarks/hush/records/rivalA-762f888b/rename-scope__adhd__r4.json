@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__adhd__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 117,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 66773,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.38527900000000004,
+  "numTurns": 9,
+  "durationMs": 65830,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4380
+  },
+  "contextTraffic": 221214,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 21749,
+  "narrationWords": 24,
+  "finalWords": 574,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this rename actually is.",
+    "Now let me look at the places where renaming would be dangerous."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files.** But that headline number is misleading — it's mechanically repetitive. The codebase is 25 identical CRUD slices (5 services × 5 entities × http/service/repo), each with the same ~41 occurrences. It's one pattern copy-pasted, not 1,291 decisions.\n\n| Zone | Occurrences | Files |\n|---|---|---|\n| `services/*/src` | 1,200 | 75 |\n| `migrations/` | 61 | 12 |\n| `vendor/reporting-sdk` | 20 | 4 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/` | 5 | 2 |\n\n## Where it must NOT be renamed\n\n**1. `docs/openapi.yaml` (5) — public API contract.** The file says it explicitly: *\"Every field named here is part of the contract. Renaming one is a breaking change for every client and needs a new dated version.\"* `account_id` is a required response field on `Invoice`/`Order` and a public query param, all annotated \"Frozen field name.\"\n\n**2. `lib/serialize.js` (1) — the wire seam.** `WIRE = { account_id: 'account_id' }`. The right-hand side is the public field name and is frozen by #1. This file is actually the reason the rename is *feasible*: it's the single chokepoint between internal names and the public JSON. The rename must stop here.\n\n**3. `vendor/reporting-sdk/` (20) — vendored, generated.** README: *\"Do not edit these files.\"* Overwritten wholesale by `npm run vendor:refresh`. `account_id` there is upstream's request/response field for a third-party API. Editing it silently reverts on the next refresh and breaks the integration in the meantime.\n\n**4. `migrations/` (61) — applied history.** All 12 are marked applied in production, with an explicit warning: editing one renames nothing in a database that already ran it, and breaks the `down` step. A column rename needs a *new* forward migration (`ALTER TABLE … RENAME COLUMN`), not edits to these.\n\n## The part that isn't free\n\n**125 occurrences inside SQL strings** in the repo layer (`WHERE account_id = ?`, `INSERT INTO invoices (account_id, payload)`). These are database column names, not variables. They can only change in lockstep with an actual `ALTER TABLE` migration across ~12 tables — that's a separate, riskier project with its own deploy sequencing (expand/contract, dual-write, backfill). If the DB column stays `account_id`, these 125 stay too.\n\n**Two more to raise before signing:**\n- `lib/audit.js` emits `account_id` as an audit log field key. Anything downstream querying audit logs by that key breaks. Renaming it is a data-contract change, not a code change.\n- **100 reads of `req.session.account_id`.** If the session payload key renames, sessions issued by old pods are unreadable by new pods mid-deploy — every user gets logged out or 500s. Needs a tolerant-read window, not a big-bang cutover.\n\n## My read for sign-off\n\nThe genuinely free portion is roughly **1,075 occurrences** — local variables, function params, and object keys inside `services/`. That part is a safe mechanical rename, verifiable by the fact that nothing crosses the `serialize.js` seam.\n\nI'd sign off on **the internal-only rename**, scoped as: `services/**` JS identifiers, excluding SQL string literals, excluding the session key, with `lib/serialize.js`'s WIRE right-hand side untouched. Rejecting migrations, vendor, and openapi outright.\n\nI'd **not** sign off today on the DB column rename, the audit field, or the session key bundled in. Ask whether they intend those — if the answer is \"yes, everywhere means everywhere,\" this is a multi-week migration with a public API version bump, not a rename PR. If the answer is \"just the code,\" it's a one-day change and the scope above is your boundary.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac24b5fcc637ced8ba64ad73caf7422b681d53530e8ff5f461bd16bcd225bccd"
+}

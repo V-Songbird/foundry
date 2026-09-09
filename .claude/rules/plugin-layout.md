@@ -1,6 +1,8 @@
 ---
 paths:
   - "**/.claude-plugin/*.json"
+  - "**/.codex-plugin/*.json"
+  - ".agents/plugins/marketplace.json"
   - "*/README.md"
   - "*/CHANGELOG.md"
   - "*/skills/**"
@@ -9,96 +11,36 @@ paths:
   - "*/tests/**"
 ---
 
-# Plugin layout and release discipline
+# Plugin ownership and release layout
 
-Every plugin here lives in its own public GitHub repo, mounted in this one as a
-git submodule (`.gitmodules` lists `foreman`, `hush`, `razor`). Editing a
-plugin means editing inside that submodule and committing there; the parent
-repo only records which commit each plugin is pinned to. Never commit plugin
-source from the parent.
+Foreman, Hush and Razor are independent repositories mounted in Foundry.
+Their Claude and Codex branches contain their native implementations; main is
+the edition selector. Flint keeps its existing standalone product layout.
 
-The canonical layout, community-file rules, and release sequence live in
-[`CONTRIBUTING.md`](../../CONTRIBUTING.md) — read it rather than restating it.
-What follows is only what is easy to get wrong at edit time.
+The Claude catalog is .claude-plugin/marketplace.json in Foundry. It owns the
+Claude edition's version and pins a full SHA on the Claude branch. Its plugin
+metadata lives in .claude-plugin/plugin.json and does not override that version.
 
-## Layout
+The Codex catalog is .agents/plugins/marketplace.json in Foundry. The native
+.codex-plugin/plugin.json owns the Codex package version. The catalog pins its
+full SHA on Codex and uses its own interface/policy/category schema. Do not
+apply Claude's catalog schema or version rule to it.
 
-```
-plugin-name/                  # a separate repo, mounted as a submodule
-├── .claude-plugin/
-│   └── plugin.json           # NO version field — see Versions below
-├── README.md                 # from .github/PLUGIN_README_TEMPLATE.md
-├── CHANGELOG.md              # dated entries, newest first
-├── LICENSE                   # MIT
-├── CONTRIBUTING.md           # verbatim from .github/PLUGIN_CONTRIBUTING_TEMPLATE.md
-├── SECURITY.md               # verbatim from .github/PLUGIN_SECURITY_TEMPLATE.md, plus a plugin section
-├── CODE_OF_CONDUCT.md        # verbatim from .github/PLUGIN_CODE_OF_CONDUCT_TEMPLATE.md
-├── skills/<name>/SKILL.md    # plus references/ for files the skill loads
-├── hooks/hooks.json          # hook event wiring
-├── scripts/                  # helper CLIs, plus scripts/git-hooks/
-└── tests/                    # required when the plugin has scripted behavior
-```
+Each changed installable payload needs an appropriate effective version when
+released. A gitlink update alone is not a release. Use the shared workflow in
+.github/RELEASE_WORKFLOW.md and the requested edition's validation guide.
+The current working tree, a local ref and a published ref are distinct states.
 
-All three community files are required, and the template body is copied from
-this repo's `.github/` templates verbatim — don't hand-drift it. A plugin may
-add its own section into that body when it has something plugin-specific to say
-(hush's `SECURITY.md` adds a note on its `[hush …]` markers before the closing
-`> [!NOTE]` block); every template block has to survive verbatim and in order.
-The root copies of those files govern this marketplace repo itself, not the
-plugins.
+Common README content stays coordinated under the readme-parity rule. Main
+selectors follow their own contract. Product guides and plugin-specific
+decisions accompany the plugin; research and benchmark tooling live in Foundry.
+Community files follow the current .github templates and retain necessary
+edition-specific sections.
 
-## Versions
+Respect the requested file/branch scope and any runtime freeze. Preserve
+unrelated changes. Use a non-main work branch and a non-conflicting prefix on
+Windows, where Codex prevents creating codex/* in the same repository.
 
-`.claude-plugin/marketplace.json` at this repo's root is the single owner of
-every plugin's version; a machine-local PreToolUse guard
-(`.claude/hooks/assay-benchmark-records-guard.js`) denies writing a `version`
-field into any `plugin.json`.
-
-Because plugins are separate repos, each marketplace entry carries
-`"source": {"source": "url", "url": …, "sha": …}`. The entry's `version` and
-`source.sha` must change together in one parent commit, or installers get a
-mismatched label or a silently skipped update.
-
-Two scripts guard this, both under `scripts/git-hooks/`:
-`check-marketplace-sync.js` runs from the parent `pre-commit` hook and blocks a
-commit that moves a submodule pointer without the matching `source.sha`;
-`verify-marketplace-pins.js` runs in CI and re-checks every pin. Neither one
-checks the `version` bump itself — verify that by eye.
-
-The local-only `.claude/skills/cut-release/` skill walks the whole sequence; if
-you are reading this from a clone, see `CONTRIBUTING.md` → "Cutting a release".
-
-## Adding a plugin
-
-1. When onboarding a new plugin, create its own public GitHub repo matching the `## Layout` structure above.
-2. Add it as a submodule here, then add a `marketplace.json` entry with the
-   `url`/`sha` source shape and a `version`.
-3. Run the local-only `manifest-curator` agent (audit mode) and
-   `node scripts/git-hooks/verify-marketplace-pins.js`.
-
-## Tests
-
-Any plugin with scripted behavior carries a `node:test` suite under `tests/`:
-
-```
-node --test <plugin>/tests/*.test.js
-```
-
-Each plugin repo installs its own `pre-commit` hook (copied from
-`scripts/git-hooks/plugin-pre-commit-template.js`) that runs this suite and
-blocks the commit if it fails. Keep those copies in sync with the template.
-CI in this repo validates the marketplace and the git-hook scripts' own tests —
-it does not run the plugins' suites. The repo-wide `run-tests-on-edit` hook
-reruns a plugin's suite when an edit lands in its `scripts/` or `hooks/`.
-
-## Git hooks
-
-Once after cloning, in this repo and in each plugin repo:
-
-```
-git config core.hooksPath scripts/git-hooks
-```
-
-In this repo that enables the marketplace-sync check plus the `pre-commit` and
-`commit-msg` reference-name gates. See `public-docs.md` for the rule they
-enforce.
+Run appropriate product tests for runtime changes, and maintenance checks for
+documentation, metadata and tooling. Do not interpret a manifest/schema pass
+as installed activation or a unit suite as measured model performance.

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 35,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19871,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.17596,
+  "numTurns": 10,
+  "durationMs": 18240,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1388
+  },
+  "contextTraffic": 196489,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 14816,
+  "narrationWords": 32,
+  "finalWords": 72,
+  "finalText": "All 625 tests pass and `verify.js` confirms the fix is legitimate.\n\nThe bug: `orderTotal` in `src/pricing.js` was computing tax on the pre-discount amount instead of the discounted amount (despite the comment above it saying tax should apply after the discount). Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`. Only rows with both a discount and a tax nonzero were affected, which is why most of the wall of text was passing noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ba1fd78e294bcf5acb43b6a3c543c72c3c274a82b1d38552f38847c04db36b3b"
+}

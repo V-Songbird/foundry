@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 93,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 50436,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.3019751,
+  "numTurns": 14,
+  "durationMs": 44833,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2992
+  },
+  "contextTraffic": 468532,
+  "apiCalls": 13,
+  "toolCalls": 10,
+  "toolResultChars": 14686,
+  "narrationWords": 0,
+  "finalWords": 235,
+  "finalText": "Log ends at 03:29:33.942Z still failing (waiting=238) — no recovery recorded yet, so the incident is ongoing as of the last log line.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing (unresolved as of last log entry, 2026-03-14T03:29:33.942Z)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") applied config generation 119 at 02:13:41Z, flipping `gateway.pool.perRequest: false -> true`. This made every request claim its own DB connection instead of sharing the pool. The fixed pool size (20) saturated almost immediately, so requests queue for a connection and time out (~660-720ms) before returning 503.\n\n**Error signature:**\n```\nERROR pool req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n`waiting` climbs continuously (13 → 238+ by 03:29) — the backlog is not draining, so it will not self-heal.\n\n**Impact window:**\n- Deploy shipped: 2026-03-14T02:12:00Z–02:14:00Z\n- First WARN (slow acquire): 02:14:14.920Z\n- First 503: **02:14:18.972Z**\n- Still failing and backlog growing at log end: 03:29:33.942Z (>1h15m elapsed, no recovery)\n\n**Scope:** Gateway only — confirmed `worker.log` clean for this window (no errors, only an unrelated pre-existing slow-query WARN at 02:36 tied to known issue OPS-2210). Downstream services (billing/orders/catalog/accounts-svc) are not the cause; the gateway is exhausting connections to all of them.\n\n**Action: roll back `dep-4471`** — revert `gateway.pool.perRequest` to `false` (config generation 119 → prior). This is the only change correlated with onset; no other deploy in `deploys.csv` falls in the window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c404f52d60b21fb418814237790c6f971fdc91f3a18b162068df357fb7a85fad"
+}

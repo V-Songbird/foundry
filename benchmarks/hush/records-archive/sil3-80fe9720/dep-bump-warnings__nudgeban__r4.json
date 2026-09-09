@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__nudgeban__r4",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nudgeban",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33265,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.2519825,
+  "numTurns": 10,
+  "durationMs": 31625,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1626
+  },
+  "contextTraffic": 189261,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6322,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n`[options.js:6](src/core/options.js:6)` read `options.retries`. The bump renamed it `retryCount`. Now it takes either.\n\n`[retryPolicy.js:8](src/net/retryPolicy.js:8)` threw on an unset flag. Unset now means off.\n\nThe 8 warnings are all deprecations. `Buffer()`, `punycode`, `crypto.createCipher` and five more. They do not break the build. Worth a separate pass before v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b1bd0e6bc7deee140b05ec5edff9a66c67d197c32bffb9e7df786057651b1755"
+}

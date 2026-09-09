@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27427,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.13077260000000002,
+  "numTurns": 11,
+  "durationMs": 26482,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2077
+  },
+  "contextTraffic": 259291,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 9059,
+  "narrationWords": 23,
+  "finalWords": 116,
+  "finalText": "Build is clean now (exit 0). Two real bugs from the bundler bump, buried under the deprecation noise:\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but this code still read `options.retries` (undefined), crashing on `.toFixed()`. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only handled explicit `true`/`false` and threw on anything else. Added an `undefined` → `false` case.\n\nThe remaining ~8 warnings are genuine deprecation noise (Node's `fs.exists`, `Buffer()`, `punycode`, etc.) unrelated to the crash — not addressed since you asked to get the build passing, but worth a follow-up pass if you want those cleaned up too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7a3694f2305345f87aaa9b13a7732673d47ffeba68583fd96f2c9bb8f9b83e7e"
+}

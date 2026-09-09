@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__labelonly__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32278,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12512059999999997,
+  "numTurns": 11,
+  "durationMs": 30885,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1727
+  },
+  "contextTraffic": 223243,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8417,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Builds clean now, 0 errors.**\n\nTwo real bugs were hiding in the warning noise, both from the bundler bump changing option shapes.\n\n- [`src/core/options.js`](src/core/options.js) read `options.retries`, but the new bundler passes `retryCount`. Fixed to use `retryCount`.\n- [`src/net/retryPolicy.js`](src/net/retryPolicy.js) threw on `undefined` backoff flags. New config loader leaves unset flags `undefined` instead of `false`, so I made it just check `=== true`.\n\nRest of the warnings are genuine deprecation noise (`fs.exists`, `Buffer()`, `punycode`, etc), not blockers.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "792a8019bb3761a5984fac461fd1f524bc380815726ab3f78201b87701eff604"
+}

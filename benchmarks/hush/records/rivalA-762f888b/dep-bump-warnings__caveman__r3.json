@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 33,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31579,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.261718,
+  "numTurns": 10,
+  "durationMs": 30632,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2095
+  },
+  "contextTraffic": 164397,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 5975,
+  "narrationWords": 11,
+  "finalWords": 124,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I look first.",
+    "Two real bugs, both from bump. Fix both."
+  ],
+  "finalText": "Build green. Exit 0, 0 errors.\n\n**Two real bugs, both from bump:**\n- `src/core/options.js:6` — option renamed `retries` to `retryCount`; call site never updated, so `options.retries.toFixed()` threw. Now reads `retryCount ?? retries ?? 0`.\n- `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined`, old one gave `false`. Strict check threw on `{}`. Now `undefined`/`null` = disabled; non-boolean still throws.\n\nSecond bug was hidden behind first — only surfaced after fixing options.\n\n**8 warnings remain, all noise.** Emitted unconditionally by `build.js` (hardcoded `DEPRECATIONS` array plus 3 `W####` lines at fixed module counts). They point at files that don't exist in this tree (`src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js`). Nothing to fix in code — silencing them means editing the bundler's own output. Say word if want that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60f58e6749a560ddb8a7091e499732b4aa4b95b69558a432e81a1c2e50c02f96"
+}

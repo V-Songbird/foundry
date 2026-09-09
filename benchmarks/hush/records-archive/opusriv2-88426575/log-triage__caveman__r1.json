@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42991,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.668516,
+  "numTurns": 7,
+  "durationMs": 38840,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2531
+  },
+  "contextTraffic": 202518,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 50953,
+  "narrationWords": 0,
+  "finalWords": 478,
+  "finalText": "## What happened\n\nRedis died. Everything else is downstream noise.\n\n**Timeline (2026-07-04 UTC):**\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Normal. All 200s, cache hit ratio 0.90–0.98 |\n| 02:14:07.113 | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | Cache layer degraded, fall back to direct store reads |\n| 02:14:08 | Cache miss storm starts (`key orders:1000`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52 — starts climbing linearly, +3 every 2s |\n| 02:15:26 – 02:31:26 | 13 reconnect attempts (0–12), all ECONNREFUSED |\n| 02:29:12 | Queue depth 502 — **crosses max 500, keeps growing** |\n| 02:31:26 | Reconnect attempt 12 fails, depth 565+ |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nLog ends there. No recovery in file.\n\n**Chain:** Redis refuses connections → cache bypassed → every request hits store → store overloads → 5s timeouts → requests pile in queue → queue unbounded → heap exhausted → worker OOM (134 = SIGABRT) → api hung → supervisor kills group.\n\n**Volume:** 188 ERROR, 348 WARN. 173 timeouts, 174 miss storms. Last successful request logged 02:14:03 — service served nothing useful for the full 17m 45s.\n\n## Root cause\n\nRedis at `10.0.0.12:6379` down. `ECONNREFUSED`, not timeout/reset — nothing listening on port. Redis process dead or not restarted; not a network partition. Logs contain zero cause for that — check Redis host itself.\n\n## Three bugs that turned an outage into a crash\n\n1. **Queue max 500 not enforced.** Depth logged past 502, 550, 568 — max is a log label, not a limit. Real cap or load shedding would have kept processes alive.\n2. **Fallback has no circuit breaker.** Cache miss on degraded path goes straight to store forever. Should fail fast after N timeouts, not queue.\n3. **Reconnect is fixed 80s interval, no backoff, no give-up.** 02:15:26, 02:16:46, 02:18:06 — exactly 80s apart, 13 times. `ioredis` default `retryStrategy` was likely overridden; not the crash cause but no jitter.\n\n## Fixes, ordered\n\n1. Bound queue, shed load at cap (503 + `Retry-After`). Stops OOM.\n2. Circuit breaker on store calls — open after threshold, serve degraded response instead of queueing.\n3. Redis HA (Sentinel/cluster) so single host loss is not total cache loss.\n4. Alert on `redis connection lost` and on queue depth > 50% max. Depth grew 17 min before death — plenty of warning, nobody paged.\n\n## One flag\n\nLog is dated **2026-07-04**, ~7 weeks old, not last night. Either wrong file, or log rotation is broken and last night's events are elsewhere. Confirm before writing this up as the incident report.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "caa874e6faea788863b6934992ee8de26c6095968512565ff2a64bb11c9e9fcf"
+}

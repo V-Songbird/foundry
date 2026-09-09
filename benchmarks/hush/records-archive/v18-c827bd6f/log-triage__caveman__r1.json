@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21336,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.43637070000000006,
+  "numTurns": 4,
+  "durationMs": 19544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1109
+  },
+  "contextTraffic": 208203,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60279,
+  "narrationWords": 0,
+  "finalWords": 222,
+  "finalText": "Root cause chain, all times UTC 2026-07-04:\n\n**02:14:07** — Redis at `10.0.0.12:6379` drop: `redis connection lost: connect ECONNREFUSED`. Cache layer fall back to direct store reads.\n\n**02:14:08 onward** — cache miss storm hit store direct, no cache buffer. Store overload start: repeat `TimeoutError: request timed out after 5000ms (store overloaded)` across api/worker-1/worker-2/scheduler, every ~2sec, nonstop for 17 min.\n\n**Queue depth climb steady**, 52 at 02:14:12 up to 568 at 02:31:24 (limit 500 — breached ~02:29:06, queue depth 502, never recover).\n\n**Redis reconnect attempts fail 13 times** (attempt 0 through 12), each ~2min apart, 02:15:26 through 02:31:26. Redis never come back whole incident.\n\n**02:31:44** — worker-2 heap out of memory (request backlog pile up, unbounded).\n**02:31:45** — supervisor restart worker-2 (exit code 134).\n**02:31:52** — api unresponsive, supervisor kill whole process group. **Service down.** Log end there, no recovery line.\n\n**Root cause:** Redis instance at 10.0.0.12:6379 went down at 02:14:07 and never reconnect (12 failed attempts over 17 min). App fallback-to-direct-store-reads design flaw — no circuit breaker, no queue cap enforcement (kept growing past declared max 500), no request shedding. Backlog eventually OOM'd worker-2, cascade take down whole api process group.\n\nNext step, if want: check Redis host 10.0.0.12 for what killed it around 02:14, and add real backpressure (shed requests / circuit break) so Redis outage don't cascade to full outage again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1d4fd19a7096a52d9a7f0f41a3d6bc5ac66124100f30cf0aec4897e3cc810d72"
+}

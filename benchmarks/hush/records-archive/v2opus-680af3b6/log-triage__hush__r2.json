@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "v2opus-680af3b6",
+  "seed": "1787812913236",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52309,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3085155,
+  "numTurns": 7,
+  "durationMs": 49877,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2541
+  },
+  "contextTraffic": 206539,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 6107,
+  "narrationWords": 0,
+  "finalWords": 50,
+  "finalText": "**Redis died, and the app starved.**\n\n1. `02:14:07` Redis refused connections at `10.0.0.12:6379`.\n2. Every read hit the store instead. It buckled.\n3. The queue passed its 500 limit at `02:29:12`.\n4. `02:31:52` the supervisor killed everything. Service down.\n\nRedis never returned. 13 retries failed. Log dates say July 4.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5d84869e35647b787333959b9382c760104a3d6c4c77f2f50c6dc03369c541b4"
+}

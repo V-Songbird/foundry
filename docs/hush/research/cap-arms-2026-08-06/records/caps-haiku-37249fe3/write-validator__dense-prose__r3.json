@@ -1,0 +1,37 @@
+{
+  "key": "write-validator__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 92,
+  "task": "write-validator",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 9854,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0229125,
+  "numTurns": 1,
+  "durationMs": 8215,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 620
+  },
+  "contextTraffic": 26989,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "finalText": "```python\nimport re\n\ndef validate_email(email: str) -> bool:\n    \"\"\"Validate an email address using regex.\"\"\"\n    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\n    return re.match(pattern, email) is not None\n```\n\nThat covers most common cases. For stricter validation that follows RFC standards, use the `email-validator` library:\n\n```python\nfrom email_validator import validate_email, EmailNotValidError\n\ndef validate_email_strict(email: str) -> bool:\n    \"\"\"Validate an email using RFC standards.\"\"\"\n    try:\n        validate_email(email)\n        return True\n    except EmailNotValidError:\n        return False\n```\n\nThe regex version is simple and fast. The library version is more thorough but requires installation. The only truly reliable way is sending a confirmation link, since you can't really know if an address is valid until someone receives mail there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6da38986d8572ec1d61369c1cfdab5c7999d0d78092ef503dd0fea9b8ab6f5bc"
+}

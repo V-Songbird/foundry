@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 47900,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08722040000000003,
+  "numTurns": 12,
+  "durationMs": 46385,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2995
+  },
+  "contextTraffic": 384442,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 14097,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "finalText": "Build is clean. The failure was in `packages/shared/config.js` — the `resolveRelease()` function was using shallow object merge (`Object.assign`) when it needed deep merge for nested objects. When a package override specified a partial change like `output: { format: 'esm' }`, it completely replaced the entire `output` object from defaults, dropping `dir` and `entry` keys that should've stayed.\n\nI added a `deepMerge()` helper that recursively merges objects, so partial overrides now properly blend with defaults. All six packages now resolve their release config correctly, and the build finishes with 5 expected warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f4e3e876bcc4756b318d34ac2377f73002563dc73b0aef09455d264c8dda31f8"
+}

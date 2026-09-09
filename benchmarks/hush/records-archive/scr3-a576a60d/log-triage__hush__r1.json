@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "scr3-a576a60d",
+  "seed": "1787637417989",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54362,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47296199999999994,
+  "numTurns": 7,
+  "durationMs": 52528,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3516
+  },
+  "contextTraffic": 261190,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 27083,
+  "narrationWords": 6,
+  "finalWords": 89,
+  "finalText": "**Redis died and took prod down with it.**\n\n```\n02:14:07  redis refused connections at 10.0.0.12:6379\n02:14:07  cache off, every read now hits the store\n02:14:10  store overloaded, requests start timing out\n02:29:12  queue passes its 500 limit, still climbing\n02:31:44  worker-2 runs out of memory, restarts\n02:31:52  api killed, service down\n```\n\nRedis never came back. All 13 reconnect tries were refused. Every error traces back to that one box. The outage ran 17 minutes 45 seconds. Fix Redis first.\n\nThe log is dated July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09ed16df2249f8a1827ca55ae6c56d63631d7fe97010ca00ee25e69a26581d63"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28504,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21736860000000002,
+  "numTurns": 4,
+  "durationMs": 26696,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1749
+  },
+  "contextTraffic": 146553,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 152,
+  "finalText": "It started at 02:14:07 with Redis dying — `connect ECONNREFUSED 10.0.0.12:6379`. The app fell back to hitting the database directly, and that triggered cache miss storms and 5-second timeouts.\n\nFrom there it snowballed for 17 minutes straight. The request queue climbed from 52 up past its own max of 500, hitting 568 by the end. Redis reconnect attempts failed every single time, roughly every 2 minutes, 12 tries total, still refused at the end.\n\nIt ended at 02:31:44 — `worker-2` ran out of memory from the backlog, got restarted, then eight seconds later the whole `api` process group was killed because it stopped responding. That's the crash.\n\nSo the chain was: Redis went down, nothing gave up on it, requests piled up faster than they drained, and the pileup finally ate all the memory. Getting Redis back up and adding a queue limit or circuit breaker would stop this from happening again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8ec359d0de5dbb4cc436196eb8dc196e522b6554dd51667be31716e592909b78"
+}

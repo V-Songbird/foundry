@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__lean__r1",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29422,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2358636,
+  "numTurns": 10,
+  "durationMs": 27954,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1820
+  },
+  "contextTraffic": 357200,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8837,
+  "narrationWords": 42,
+  "finalWords": 103,
+  "finalText": "**Found it and fixed it.** The bundle stage failed after lint because `resolveRelease` in `packages/shared/config.js:15` merged config layers with a shallow `Object.assign`. Any package that overrode a nested key — like `@acme/api` setting `output: { format: 'esm' }` — wiped out the rest of `output`, including `dir`, so the build's own sanity check aborted with `EBUNDLE07 config-incomplete`.\n\nFixed it to merge `output` and `sourcemap` as their own layers instead of replacing them wholesale. Build now finishes clean: `build finished in 74.3s with 5 warnings, 0 errors`, exit code 0. The included `verify.js` also confirms: \"config merge layers properly and the build is green.\"",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "73265ac6c3e2fafe492d61a11382e7e81a43694bf9c2cecc335504930735d1d0"
+}

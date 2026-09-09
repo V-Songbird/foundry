@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__lean__r1",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27006,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.187848,
+  "numTurns": 9,
+  "durationMs": 24968,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1381
+  },
+  "contextTraffic": 215770,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10655,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "Build is fixed. The break was in `packages/shared/config.js:15` — `Object.assign` shallow-merged the layers, so any package override that set one key inside `output` or `sourcemap` wiped out the sibling keys instead of layering over them. Replaced it with a small `deepMerge` that merges nested objects key-by-key instead of replacing them wholesale.\n\nBoth the build and the verifier come back clean: `build.js` exits 0 with 5 warnings, 0 errors, and `verify.js` reports the config merge layers properly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "06ad1b236d03666b55c257f5eb75f0db4b8cffc6f0663327555fc8733e45bb41"
+}

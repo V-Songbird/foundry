@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 83140,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2547514,
+  "numTurns": 16,
+  "durationMs": 81687,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7830
+  },
+  "contextTraffic": 321244,
+  "apiCalls": 9,
+  "toolCalls": 15,
+  "toolResultChars": 21234,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**4.2.0 notes are written to [CHANGELOG.md](CHANGELOG.md).**\n\nOf 382 commits, only 27 were user-facing fix/feat — the rest were deps, refactors, tests, and CI.\n\n- Breaking: expired tokens now return `401` instead of `403`\n- Added: failed webhook deliveries retry with exponential backoff\n- Fixed: 10 items — null-cursor paginator crashes, duplicate headers, doubled trailing slash, empty allowlists rejecting requests, dropped trace ids on retry, wrong latency-histogram units, vague token-parser errors, an HTTP hang on socket drop, an unclosed pool on shutdown, and request bodies leaking into logs\n\nSeveral fixes (paginator, headers, allowlist, token-parser) landed repeatedly across queue/api/webhooks/db/core/billing — I merged each into one bullet rather than listing every module.\n\nNext: check the release date I used, 2026-08-30, matches your actual cut date.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3059267f37fb76c438115d7a4774b7b3612064eff953355257e3e2e4d489388f"
+}

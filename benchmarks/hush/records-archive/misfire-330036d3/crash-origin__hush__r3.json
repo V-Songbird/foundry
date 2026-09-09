@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r3",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 4,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20552,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09276759999999999,
+  "numTurns": 11,
+  "durationMs": 18814,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1037
+  },
+  "contextTraffic": 159878,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 3300,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refreshToken`, not `decode`.**\n\n[src/auth/refresh.js:14-16](src/auth/refresh.js:14) returns `undefined` for any non-recoverable error, including `invalid_grant` (a revoked refresh token, per the log). That `undefined` flows into `decode(token)` at [src/session.js:8](src/session.js:8), where `token.split('.')` throws.\n\nThe trace blames [src/auth/tokens.js:6](src/auth/tokens.js:6), but that function just fails loudly on bad input. The actual cause is `refreshToken` swallowing the revoked-token error instead of throwing or signaling \"reauth needed.\"\n\nNext: decide how `refresh.js` should signal an unrecoverable auth failure to callers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d53e0962a6cc19d4f8e6f2227e866c499b8d523d4d7115c19798f40f09cfc161"
+}

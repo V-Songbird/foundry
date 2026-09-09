@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__secondfact__r1",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 21,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "secondfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61269,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.3877698,
+  "numTurns": 15,
+  "durationMs": 54087,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2843
+  },
+  "contextTraffic": 632604,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 22946,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "finalText": "**On-call handoff: gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. That change stopped connections being reused, and the fixed 20-slot pool ran out. Every error since is `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** Started 2026-03-14 02:14:19 UTC, right as the deploy finished at 02:14. Still ongoing at 03:59:27 UTC, the last line in the log. It never recovered on its own, waiting requests climbed from teens to over 70.\n\n**Roll back:** `dep-4471` on gateway. Revert `gateway.pool.perRequest` to `false`, or size the pool for per-request connections if that's kept.\n\n**Scope:** Gateway only. Worker pool stayed steady the whole night, no errors there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3cd258721629c0e0434e920ba00b1bf33a8768277818f9bb3c87bc991f19f05c"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r3",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 7,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17434,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07084800000000001,
+  "numTurns": 6,
+  "durationMs": 15614,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1027
+  },
+  "contextTraffic": 76964,
+  "apiCalls": 3,
+  "toolCalls": 5,
+  "toolResultChars": 2171,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, nothing changed yet**\n\n`buildRows()` in `[src/report.js](src/report.js)` already returns full rows, including `owner` and `slow`, which `toTable` drops. So JSON output should serialize `buildRows()` directly, not go through the table logic.\n\n1. Add a `toJson` export in `[src/format.js](src/format.js)` for symmetry with `toTable`.\n2. In `[src/cli.js](src/cli.js)`, check for `--json` in argv and branch:\n\n```js\nconst useJson = argv.includes('--json');\nconst rows = buildRows();\nprocess.stdout.write((useJson ? toJson(rows) : toTable(rows)) + '\\n');\n```\n\nReady to make these edits when you say go.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3e39904d5235777375bd0e565026de40d102f72ba83ae6e5446ddc206c961498"
+}

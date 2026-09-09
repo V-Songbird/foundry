@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 35,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38082,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.28558300000000003,
+  "numTurns": 11,
+  "durationMs": 36490,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2061
+  },
+  "contextTraffic": 220250,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 11706,
+  "narrationWords": 61,
+  "finalWords": 216,
+  "finalText": "Green: 625 total, 625 passing, exit 0.\n\n**What was actually broken** — one line in `src/pricing.js:41`. `orderTotal` applied the tax rate to the original `cents` instead of the discounted subtotal:\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on pre-discount amount\nreturn discounted + tax;\n```\n\nThe function's own docstring says tax is charged on what the customer pays, so the code disagreed with its stated contract. Fixed by taxing the discounted amount via the existing `applyTax` helper:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why the wall of text was mostly noise:** 622 of 625 cases already passed. The order-totals suite has 69 rows, but 66 of them have either a zero discount or a zero tax — with either factor zero, both orderings give the same answer, so they passed regardless. Only the 3 rows with both non-zero (`12000/15%/8.25%`, `8650/20%/5%`, `33400/10%/20%`) could expose the ordering mistake, and all 3 were failing. That's the tell that it was an ordering bug rather than a rounding or off-by-one issue — the deltas (145, 87, 668) scale with `cents × pct × rate`, exactly the term you drop by taxing the wrong base.\n\nThe other 8 suites were untouched and stayed green. I changed only that one function; no test expectations were modified.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75c2e9247ecfd2733f26b72747b14226c337c54188af38b112396e6648dfa5f4"
+}

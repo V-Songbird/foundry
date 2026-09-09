@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 157802,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7057834999999999,
+  "numTurns": 16,
+  "durationMs": 151574,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10249
+  },
+  "contextTraffic": 467032,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 15959,
+  "narrationWords": 6,
+  "finalWords": 760,
+  "assistantMsgs": 5,
+  "finalText": "# On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status at end of available data: ONGOING.** Log ends 03:59:27Z still failing. No recovery, no rollback, no restart recorded. Assume still broken unless you can confirm otherwise from live metrics.\n\n---\n\n## Root cause\n\nConfig generation 119 flipped `gateway.pool.perRequest: false -> true`, causing the gateway to open a new connection per request instead of reusing pooled ones. The pool (size 20) saturated within seconds and never recovered.\n\n```\n02:13:41.234Z INFO  config  generation 119 applied: 3 keys changed\n02:13:41.234Z INFO  config    gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO  config    gateway.timeout.upstreamMs: 2000 -> 2500\n02:13:41.234Z INFO  config    gateway.log.sampleRate: 1.0 -> 1.0\n```\n\nEvery failed request emits a matched pair — the 503 is the gateway failing to acquire from its own pool, not an upstream rejection:\n\n```\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nConfirming evidence:\n- **Pool stats invert at the reload.** Before: `in_use=3..11 idle=9..17 waiting=0`. After: every sample `in_use=20 idle=0`, `waiting` climbing to a peak of **271**.\n- **Churn warning, 03:02:30Z:** `4180 opens in the last 5m, baseline is 40` — ~100×, the direct signature of per-request connections.\n- **Failures spread evenly across all four upstreams** (accounts 159 / billing 158 / catalog 160 / orders 159) and all routes. No sick downstream.\n- **Workers unaffected** — 1,080 jobs, 1,080 successes, DB pool flat at `size=8 in_use=1 idle=7 waiting=0` throughout. Rules out shared-DB or infrastructure-wide causes.\n\n## Impact window\n\n| | |\n|---|---|\n| **Start** | **02:14:18Z** (`req-07401`, first 503) |\n| **First symptom** | 02:14:14Z — `acquire slow` warnings, 4s earlier |\n| **Paged** | 03:21:05Z — **67 min after onset** |\n| **End** | Not reached; ≥1h45m as of 03:59:27Z |\n\n- **83% error rate** after onset: 636 requests, **530 × 503**, 106 × 200.\n- **All 106 successes were `/health`**, still returning 200 with `pool_wait=2ms`. 100% of real customer traffic was failing. Affected routes: `/v1/checkout`, `/v1/cart`, `/v1/orders`, `/v1/session`, `/v1/catalog/search`, `/v1/profile`.\n- 503 latency degraded 659ms → 999ms over the window.\n- Numbers are **node-3 of 3 only**. Multiply by ~3 for fleet impact if the config rolled to all nodes, which a generation bump normally does.\n\n## Roll back\n\n**dep-4471** — `gateway`, 02:12:00–02:14:00Z, **a.novak**, *\"config: connection-per-request for pool isolation\"*\n\nRevert gateway config **generation 119 → 118**. That restores `perRequest: false`.\n\nBundled in the same generation and reverted with it: `upstreamMs 2500 → 2000` (was 2000 before; neither it nor the no-op `sampleRate 1.0 → 1.0` is implicated, but a clean generation revert is safer than cherry-picking under pressure).\n\n**Do not roll back** dep-4472 (billing-svc, 02:41Z) or dep-4473 (catalog-svc, 03:20Z) — both shipped *after* the first 503 and cannot be causal. dep-4468/4469/4470 all finished by 00:55Z, followed by 7,400 clean requests.\n\nIf a config revert isn't immediately available, raising `gateway.pool.size` well above 20 is a stopgap that buys headroom, but it does not fix the churn and will re-saturate under load. Prefer the revert.\n\n## Verify after rollback\n\n1. Pool stats return to `in_use` well under 20 with `waiting=0`.\n2. `ERR_POOL_EXHAUSTED` stops.\n3. Connection churn returns toward the 40/5m baseline.\n4. Non-`/health` routes return 200 with low `pool_wait`.\n\n## Follow-ups (not blocking)\n\n- **Health-check blind spot — highest-value fix.** `/health` passed continuously while everything else failed, which is why paging took 67 minutes. It needs to exercise the connection pool.\n- **Unexplained counter behavior.** `waiting` resets twice (192 → 212 → 232 → **12** at 03:15:58, then climbs again) with no restart line in the log. `in_use` stayed pinned at 20/20 and 503s never paused, so this looks like a counter wrap or metrics reset rather than real recovery — but it's unexplained and worth confirming it isn't masking node churn.\n- **Worker latency drift, unrelated to this incident.** Job durations ramp linearly 200ms → 2,324ms, but the ramp starts at 01:00:00 — 74 min *before* the config change — with no inflection at onset and `db_wait` flat at 0–12ms. Separate issue; possibly related to dep-4470 (webhook retry backoff, 00:48Z), which shipped just before the log opens.\n- **Known issue, unrelated:** one `WARN db slow query 1.9s ... unindexed scan, known issue OPS-2210` at 02:36:22Z.\n\n---\n\n**Attribution caveat:** the logs prove generation 119 broke the pool, and dep-4471 is the only gateway-touching change in the window with a matching description and timing to the second. But `deploys.csv` doesn't record deploy contents, so \"dep-4471 delivered generation 119\" is inference from timing plus summary text. Confirm against the gateway's config generation history before writing the postmortem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5048b545dcb0206216b8708d33704e23375a7870268785f624c372682c4ccd6d"
+}

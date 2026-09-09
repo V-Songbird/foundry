@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 54,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 72397,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4184612999999999,
+  "numTurns": 15,
+  "durationMs": 65894,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3153
+  },
+  "contextTraffic": 659939,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 14503,
+  "narrationWords": 0,
+  "finalWords": 160,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, `2026-03-14T02:12Z`–`02:14Z`) shipped \"connection-per-request for pool isolation,\" flipping config key `gateway.pool.perRequest` from `false` to `true` (generation 118 → 119, applied `02:13:41Z`). That change makes every request grab its own dedicated connection instead of sharing the pool, so the fixed pool of 20 fills up fast under normal load.\n\n**Impact window:** First `503` at `02:14:18.972Z`, about 37 seconds after the config applied. Still ongoing at the end of the log, `03:59:27.974Z`, with the wait queue climbing (up to 74 waiting) — not self-healing. 548 total `503`s, 530 tagged `ERR_POOL_EXHAUSTED (size 20, in_use 20, ...)`. Hits `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search` across all backend services.\n\n**Roll back:** `dep-4471`. Revert `gateway.pool.perRequest` to `false` (the other two keys changed in that deploy, `upstreamMs` timeout and `log.sampleRate`, aren't implicated).\n\n**Not affected:** Workers (`logs/worker.log`) ran clean through the same window, 1080/1080 jobs ok. One unrelated pre-existing slow-query warning (`OPS-2210`) at `02:36Z`, no connection to this incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fff15804e3b4671741f05f3fc22a119c1438374118c28825d36d113bf07f29ae"
+}

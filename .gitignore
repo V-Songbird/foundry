@@ -1,5 +1,5 @@
-# Private benchmark experiments and run output (public harnesses live in benchmarks/)
-.benchmarks/
+# Local workspaces, backups and maintenance output
+.scratch/
 
 # Python cache directories
 __pycache__/
@@ -18,7 +18,7 @@ venv/
 *~
 .DS_Store
 Thumbs.db
-/docs/*
+# Research and maintained documentation are public project material.
 /plugins/
 
 **/.claude/*
@@ -28,9 +28,15 @@ Thumbs.db
 !/.claude/agents/
 !/.claude/skills/
 
-# Roadmap and foreman config are local-only, not published
+# Nested project stores stay local; Foundry's planning records are shared.
 ROADMAP.jsonl
+!/ROADMAP.jsonl
 .foreman/
+!/.foreman/
+/.foreman/*
+!/.foreman/config.json
+!/.foreman/notes.jsonl
+!/.foreman/archive.jsonl
 
 # Shared project skills and marketplace; other agent state remains local.
 /.agents/*
@@ -42,6 +48,7 @@ ROADMAP.jsonl
 # Codex project agents; other Codex configuration and session state remain local.
 /.codex/*
 !/.codex/agents/
+!/.codex/hooks.json
 
 # Plugin-local session state — written at run time, never published
 .assay/

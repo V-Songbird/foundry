@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51841,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38799,
+  "numTurns": 12,
+  "durationMs": 49487,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2597
+  },
+  "contextTraffic": 208204,
+  "apiCalls": 6,
+  "toolCalls": 11,
+  "toolResultChars": 26120,
+  "narrationWords": 6,
+  "finalWords": 53,
+  "assistantMsgs": 2,
+  "finalText": "**Migrated 36 `db.query` calls across 12 files.** All now use `db.execute({ sql, params })`.\n\n`node --check` passes on every file. No `db.query` left outside vendor.\n\nI left `vendor/legacy-orm/adapter.js` alone. It has 2 calls. Its header says do not edit, since upgrades overwrite it.\n\n`cache.query` is a separate API. I did not touch it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6517e9b0d4107f47b8ad16d49fb98eae25a09c873ba40b6b59d82ce21716d323"
+}

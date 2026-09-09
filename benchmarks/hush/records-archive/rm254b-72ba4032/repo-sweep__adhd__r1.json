@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 51,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74867,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5808633,
+  "numTurns": 39,
+  "durationMs": 73352,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10139
+  },
+  "contextTraffic": 341425,
+  "apiCalls": 9,
+  "toolCalls": 38,
+  "toolResultChars": 26072,
+  "narrationWords": 101,
+  "finalWords": 68,
+  "finalText": "Migration finished. All 12 application call sites (`support`, `orders`, `catalog`, `billing`, `analytics`, `accounts` packages) now use `db.execute({ sql, params })`. The only remaining `db.query` usage is in `vendor/legacy-orm/adapter.js`, which is intentionally left alone — it's a vendored dependency (\"replaced wholesale on every upgrade, local changes are silently lost\"), and `lib/db.js` still exposes `db.query` as a deprecated shim precisely to keep that vendored code working until it's upgraded upstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bd2ec9b1065d8d1f51489fe18ad8388798f5fa6e959426dc4dabd0d8b7421a43"
+}

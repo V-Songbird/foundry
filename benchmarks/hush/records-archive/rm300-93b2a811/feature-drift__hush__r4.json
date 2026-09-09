@@ -1,0 +1,40 @@
+{
+  "key": "feature-drift__hush__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 55,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 124423,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6769160000000001,
+  "numTurns": 24,
+  "durationMs": 115102,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6936
+  },
+  "contextTraffic": 568125,
+  "apiCalls": 21,
+  "toolCalls": 19,
+  "toolResultChars": 15785,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 5,
+  "narrationTexts": [],
+  "finalText": "**Repeats inside 5 minutes now drop.**\n\n`node simulate.js` is clean. 99 dropped, 0 errors. That is the flap traffic `events.js` plants every ninth event, plus keys that collide within the window.\n\n`[src/router.js:46](src/router.js:46)` holds it. `createState()` returns `{ sentAt: new Map() }`. Only a real send starts the window. A dropped repeat does not extend it. I read 5 minutes as strict, so an event exactly 5 minutes later sends.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8b30c9f80ea4deec2229fc9038de5f6c0741e25cd6bef3073b3228bf2e6338a3"
+}

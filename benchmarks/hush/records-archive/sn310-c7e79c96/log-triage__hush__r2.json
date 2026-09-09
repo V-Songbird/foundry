@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18750,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19310500000000003,
+  "numTurns": 4,
+  "durationMs": 17185,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 927
+  },
+  "contextTraffic": 95810,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 33452,
+  "narrationWords": 0,
+  "finalWords": 167,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Root cause: Redis died at 02:14:07, and nothing recovered it for 17 minutes.**\n\nTimeline:\n\n| Time | Event |\n|---|---|\n| `02:14:07` | `redis connection lost: ECONNREFUSED 10.0.0.12:6379`, cache falls back to direct store reads |\n| `02:14:07`–`02:31:26` | 12 reconnect attempts, all failed, same `ECONNREFUSED` |\n| meanwhile | cache miss storms hammer the store, `TimeoutError`s every few seconds, queue depth climbs `52 → 568` |\n| `02:31:44` | `worker-2` OOMs from the backlog |\n| `02:31:45` | supervisor restarts `worker-2` |\n| `02:31:52` | `api` unresponsive, supervisor kills the process group — **service down** |\n\nSo it's a single point of failure: `Redis` at `10.0.0.12:6379` went unreachable, the app had no real circuit breaker (kept retrying and hammering the store instead of shedding load), the queue backed up for 17 straight minutes until a worker OOM'd and took the whole thing down.\n\nFull log saved at `<path> if you want to dig further.\n\nNext: check why Redis at `10.0.0.12:6379` dropped and stayed down that long.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "913fc47b2801eadbdc645329941f3f92104f738353cf9450106f29182d8e9835"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__redo-caps__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 3,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 31043,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0537325,
+  "numTurns": 7,
+  "durationMs": 29205,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1519
+  },
+  "contextTraffic": 179788,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 10366,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "finalText": "Build is clean. The error was on line 17 of `src/core/settings.js` — it was trying to reference an undefined variable `retries` instead of pulling it from the `env` object passed in. Changed it to `env.retries || 1` so it reads the caller's value with a sensible fallback.\n\nThe three warnings (deprecated API, unused export, circular import) are real quality-of-life improvements you can address when ready, but they don't block the build anymore.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ef976725e457cb16f0db344526fc317d439141cd5c0d61d056e8f4d226ddf17"
+}

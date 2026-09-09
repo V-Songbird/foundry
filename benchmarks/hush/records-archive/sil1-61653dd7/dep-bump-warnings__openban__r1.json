@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__openban__r1",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "openban",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40371,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-openban:HushOpenBan",
+  "costUsd": 0.43767449999999997,
+  "numTurns": 10,
+  "durationMs": 38531,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1970
+  },
+  "contextTraffic": 217360,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6120,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Exit 0.\n\nTwo real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | Read `options.retries`, bundler now sends `retryCount` | Accept both, type-check |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag | Treat `undefined` as `false` |\n\nThe 8 remaining warnings are noise. They are `DEP*` deprecations plus `W1042`, `W2213`, `W3307`, hardcoded strings in [build.js:18](build.js:18). No code path produces them.\n\nNext: `crypto.createCipher` and the `src/core/graph.js` circular import are worth real fixes later.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cbd35d556c70433648f6d85b8f5411f75e68807fde419f445bc2dcfcf736bb12"
+}

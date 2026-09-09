@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__redo-caps__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 129,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 40144,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06840779999999999,
+  "numTurns": 12,
+  "durationMs": 38494,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2230
+  },
+  "contextTraffic": 274911,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 8820,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "finalText": "Build is clean. Two real bugs were hiding in the noise from the package bump:\n\n1. **options.js** — `resolveRetries` was reading `options.retries` but the new bundler passes `options.retryCount`. Changed it to use the right key.\n\n2. **retryPolicy.js** — `isBackoffEnabled` didn't handle `undefined`, which the new config loader now returns for unset flags. Added a check to treat `undefined` as disabled (returns `false`).\n\nThe 8 remaining warnings are deprecation noise from the bumped packages — not a problem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "25676e197c093f63eb7e6fc64f70e502175c4401576fb4163e4c4184866f9074"
+}

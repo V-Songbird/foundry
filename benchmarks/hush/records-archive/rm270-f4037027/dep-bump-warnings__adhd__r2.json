@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 22,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26846,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.1281234,
+  "numTurns": 10,
+  "durationMs": 25741,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1864
+  },
+  "contextTraffic": 258833,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8573,
+  "narrationWords": 60,
+  "finalWords": 87,
+  "finalText": "Build now completes with exit 0 (was failing with `EBUILD02 link-failed`). The remaining 8 warnings are just the pre-existing deprecation noise from the bump (DEP0142/0198/0233/0250/0267, etc.) — harmless.\n\nThe real breakage: two link-stage call sites weren't updated for the bumped bundler's new config shape.\n- `src/core/options.js:7` — read `options.retries` instead of the new `options.retryCount`, so `undefined.toFixed()` threw.\n- `src/net/retryPolicy.js:8` — `isBackoffEnabled` rejected `undefined` flags with a thrown error instead of treating unset as disabled (the new loader no longer sends explicit `false`).\n\nBoth fixed; build is clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "93f98848a64ef9fd70043b21a27778810a22363e8bf3d3b7da09df625f61055d"
+}

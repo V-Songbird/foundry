@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37972,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.275246,
+  "numTurns": 6,
+  "durationMs": 36138,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2092
+  },
+  "contextTraffic": 164008,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 12585,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died and took prod with it.**\n\n1. `02:14:07` Redis refused connects at `10.0.0.12:6379`.\n2. Cache went degraded, fell back to direct store reads.\n3. Store overloaded. 173 timeouts at 5000ms.\n4. Queue depth grew 52 to 568. Cap is 500.\n5. `02:31:44` `worker-2` died of heap exhaustion. `02:31:52` supervisor killed the api group.\n\nAll 13 reconnect tries failed. Redis never came back. Fix Redis first. Note the log is dated `2026-07-04`, not last night. See [logs/app.log:182](logs/app.log:182).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aef14a4311965561500cff57da1184389b3a3a9d73b550dc997a1528fe5eadf7"
+}

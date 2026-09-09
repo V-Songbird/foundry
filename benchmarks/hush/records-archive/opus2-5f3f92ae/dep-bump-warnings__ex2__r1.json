@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ex2__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ex2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50017,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37322600000000006,
+  "numTurns": 12,
+  "durationMs": 48510,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3090
+  },
+  "contextTraffic": 272129,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 12257,
+  "narrationWords": 14,
+  "finalWords": 111,
+  "finalText": "Build passes now, exit `0`, 0 errors.\n\nTwo real bugs, both from the bump:\n\n- `src/core/options.js` read `options.retries`, but the new bundler passes `retryCount`. That threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`. It now reads the new name and falls back to the old one.\n- `src/net/retryPolicy.js` threw on an unset flag. The old config loader returned `false`, the new one returns `undefined`. Unset now means off, same as before.\n\nThe 8 remaining warnings are noise. They name files like `src/legacy/adapter.js` and `src/utils/format.js`, which don't exist in this project. `build.js` prints those lines unconditionally, so nothing in the source can silence them. Want me to strip them from `build.js`?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5f35ca6f8959fbe367e8ebad724fbac075fa0dc50736b733c1bebe6a174e6a8b"
+}

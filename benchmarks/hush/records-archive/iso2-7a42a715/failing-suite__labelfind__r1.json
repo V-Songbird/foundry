@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__labelfind__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30498,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12967599999999999,
+  "numTurns": 12,
+  "durationMs": 28809,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1388
+  },
+  "contextTraffic": 230262,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12124,
+  "narrationWords": 13,
+  "finalWords": 33,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted amount."
+  ],
+  "finalText": "**Suite is green.** 625 passing, 0 failing.\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount. Spec requires tax on the discounted total. Changed `tax = roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ccb0f784454fe9f97df13ca59218aed82948581822040ee5135c828877afc46a"
+}

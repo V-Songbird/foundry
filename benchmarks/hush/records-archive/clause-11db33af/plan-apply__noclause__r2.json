@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r2",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 14,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 10727,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0642178,
+  "numTurns": 4,
+  "durationMs": 9113,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 606
+  },
+  "contextTraffic": 76238,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 41,
+  "assistantMsgs": 1,
+  "finalText": "**Plan:** parse `--json` in `cli.js`, branch output.\n\n`buildRows()` already gives full data. Add:\n\n```js\nif (argv.includes('--json')) {\n  process.stdout.write(JSON.stringify(buildRows()) + '\\n');\n} else {\n  process.stdout.write(toTable(buildRows()) + '\\n');\n}\n```\n\nNo changes needed to `report.js` or `format.js`. Want me to make the edit?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "88ec9d4f5943e6dc4cb0f078013685df855a596a4f846616b514b6e91c74599d"
+}

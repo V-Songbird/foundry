@@ -1,0 +1,39 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35876,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2442855,
+  "numTurns": 10,
+  "durationMs": 34349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1920
+  },
+  "contextTraffic": 149506,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6333,
+  "narrationWords": 7,
+  "finalWords": 78,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | Read `options.retries`, new shape is `retryCount` | Accept both, throw a clear `TypeError` otherwise |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag | Treat `undefined` as `false` |\n\nThe 8 warnings are still there. They are all `DEP` deprecation notices plus 3 lint warnings. None break the build. Say the word and I will clear those too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0e9c329750a7f6263201418ef8af2090442453b2153a6a6ca289aa919b6f6e8b"
+}

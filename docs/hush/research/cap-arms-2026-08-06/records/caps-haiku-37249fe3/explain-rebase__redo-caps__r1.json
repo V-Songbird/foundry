@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 75,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 10543,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0227495,
+  "numTurns": 1,
+  "durationMs": 8410,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 557
+  },
+  "contextTraffic": 27055,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 202,
+  "finalText": "**Merge** combines two branches and keeps both histories visible. It creates a new commit that says \"these two lines of work joined here.\" The history shows parallel tracks that eventually come together.\n\n**Rebase** replays your branch's commits on top of the other branch, like you had started from a newer point. The history looks like a straight line — it erases the fact that you worked in parallel.\n\n**Use merge** when:\n- You're pulling into a shared branch (main, production) that other people rely on\n- You want to keep a record that features existed as separate lines of work\n- You're integrating a long-lived feature branch\n\n**Use rebase** when:\n- You're updating your feature branch with changes from main (keeps your branch clean and up-to-date)\n- You're cleaning up your own commits before you ask for review\n- You're the only one using that branch\n\n**The real rule**: Don't rebase branches that other people are pulling from. Once history is shared, rewriting it causes pain. But rebase is great for branches only you touch — it keeps the main timeline readable.\n\nMost teams end up with: rebase while you're working alone, merge when you're ready to combine into a shared branch.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6eda00a3736b7398489afb61246b915cbd07ae12cabbf45899af8d5ddd392ef3"
+}

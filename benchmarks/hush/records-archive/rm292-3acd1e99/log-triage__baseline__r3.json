@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 63131,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3373045,
+  "numTurns": 10,
+  "durationMs": 61778,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4030
+  },
+  "contextTraffic": 188681,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 13015,
+  "narrationWords": 6,
+  "finalWords": 645,
+  "assistantMsgs": 2,
+  "finalText": "Here's what the log shows. One thing up front: **this log is not from last night.** Every line is timestamped `2026-07-04`, covering 02:00:00 → 02:31:52 UTC — roughly seven weeks ago. Either you're looking at a stale/rotated file, or last night's incident is a repeat of this one. Worth confirming before you act on it.\n\n## What happened: Redis went away, and nothing degraded gracefully\n\n**02:00 – 02:14 — healthy.** 719 lines total; the first 181 are clean. Request latency cycles 12→96ms in a steady sawtooth with zero drift, cache hit ratio sits between 0.90 and 0.98. No warning signs at all — this was not a slow burn.\n\n**02:14:07 — the trigger.** A single line:\n\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\nWARN  [api] cache layer degraded — falling back to direct store reads\n```\n\n`ECONNREFUSED` means nothing was listening on that port — Redis was down or gone, not slow. **The log never explains why**; that root cause lives on the Redis host, not here.\n\n**02:14 – 02:31 — the cascade.** The fallback path is what actually killed you. With ~95% of reads previously served from cache, every one of them went straight to the backing store:\n\n| Signal | Count | Behavior |\n|---|---|---|\n| `cache miss storm: key orders:N` | 174 | keys 1000→1119, sequential |\n| `TimeoutError: 5000ms (store overloaded)` | 173 | backing store saturated |\n| `request queue depth N (max 500)` | 173 | **52 → 568**, linear +3/sample, never once dips |\n\nThe queue depth is the clearest tell: perfectly linear growth for 17 minutes with no recovery. Arrival rate exceeded drain rate from the moment the cache dropped, and nothing shed load. It blew through the stated max of 500 at **02:29:12** (depth 502) and kept climbing regardless — the limit is logged but not enforced.\n\n**Reconnect never worked.** 13 attempts (`attempt 0` through `attempt 12`), from 02:15:26 to 02:31:26, all `ECONNREFUSED`. They're spaced ~80 seconds apart at a **fixed interval — there's no exponential backoff**, and more importantly no circuit breaker: the service kept accepting full traffic against a store it couldn't serve for the entire 17 minutes.\n\n**02:31:44 – 02:31:52 — death.** The unbounded queue became a memory problem:\n\n```\nERROR [worker-2] JavaScript heap out of memory (request backlog)\nFATAL [supervisor] worker-2 exited with code 134, restarting\nFATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nCode 134 is SIGABRT — V8 aborting on heap exhaustion. Eight seconds later the supervisor killed the whole process group. **The log ends there**, so there's no recovery recorded in this file — I can't tell you how long the outage lasted or how it resolved.\n\n## The actual failure chain\n\nRedis died → cache fallback sent 100% of reads to the backing store → store saturated and timed out → requests queued without limit → queue backlog exhausted worker heap → supervisor killed the service.\n\nRedis was the trigger, but it shouldn't have been fatal. The service turned a dependency outage into a total outage because the fallback had no backpressure.\n\n## Where I'd focus\n\n1. **Enforce the queue cap.** `max 500` is logged but clearly not applied — depth reached 568. Rejecting requests past the limit would have kept the process alive instead of OOMing.\n2. **Add a circuit breaker on the cache-miss path.** Once the store is timing out consistently, fail fast rather than piling on 173 more 5-second timeouts.\n3. **Fix the reconnect loop** — fixed 80s interval, no backoff, no jitter, no alert escalation after N failures.\n4. **Find out why Redis at 10.0.0.12:6379 refused connections.** Nothing in this file answers that; check the Redis host's own logs for the same window.\n\nThe one thing I'd verify first is the date. If last night's failure looks identical, items 1–3 are still unfixed and you'll get a third one.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a9e4e04efccc605b28786fc3b68d9a2b0dd2416d64fcf17d6d76ec32426e88fe"
+}

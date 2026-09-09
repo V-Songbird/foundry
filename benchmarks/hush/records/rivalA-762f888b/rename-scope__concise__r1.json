@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__concise__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 101,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 72318,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.369566,
+  "numTurns": 7,
+  "durationMs": 71503,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4834
+  },
+  "contextTraffic": 171924,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 21482,
+  "narrationWords": 7,
+  "finalWords": 564,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase to scope this."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 97 files** — but that number overstates the work. The codebase is 25 entities × 3 layers (`repo` / `service` / `http`), and every file in a layer is a **byte-identical template**. There are really only ~3 distinct code shapes to get right; the rest is a codemod.\n\n| Area | Occurrences | Files |\n|---|---|---|\n| `services/**` (25 repos, 25 services, 25 routes) | 1,200 | 75 |\n| `migrations/*.sql` | 61 | 16 |\n| `vendor/reporting-sdk/` | 20 | 4 |\n| `lib/serialize.js`, `lib/audit.js` | 5 | 2 |\n| `docs/openapi.yaml` | 5 | 1 |\n\nThere are zero `accountId`/`accountID` variants — one spelling throughout, which makes the mechanical part clean.\n\n## Where it must not be renamed\n\nSeven hard stops. The first four are stated in-repo:\n\n1. **`lib/serialize.js` — the `WIRE` map's right-hand values.** The file says it outright: those keys are the public API, frozen. Renaming the left key is fine (`owner_id: 'account_id'`); the value must stay.\n2. **`docs/openapi.yaml`** (5 sites) — response fields on `Invoice`/`Order` *and* the `?account_id=` query param on `/v2/invoices`. Renaming is a breaking change needing a new dated version.\n3. **`vendor/reporting-sdk/**`** (20 sites) — vendored generated code; `npm run vendor:refresh` overwrites any edit. It's also the SDK's own wire format. Note nothing in the repo currently imports it, so it can simply be excluded from the codemod path.\n4. **Applied migrations** (61 sites, 16 files) — each header says editing them renames nothing in a DB that already ran them and breaks the down step. A column rename needs a *new* migration.\n\nThree more that aren't flagged anywhere and are the ones I'd actually hold the sign-off on:\n\n5. **The 125 `account_id` strings inside SQL literals** in the 25 repo files (`WHERE account_id = ?`). These are the live column name, not a variable. They may only change in lockstep with an `ALTER TABLE` in a new migration — a codemod that treats them as identifiers ships a rename that passes lint and fails at runtime on every query.\n6. **`JSON.stringify({ ...values, account_id })`** — 25 sites, one per repo `insert*`. This is ES6 shorthand, so renaming the variable silently renames the key *persisted into the `payload` JSONB column*. New rows would carry `owner_id` inside the blob while every historical row carries `account_id`. Needs to be pinned explicitly: `{ ...values, account_id: owner_id }`.\n7. **`req.session.account_id`** — 100 sites. The session object is produced by auth middleware that isn't in this repo. You can rename the local you assign it to, but the property read can't change unilaterally.\n\nAlso worth a look: `lib/audit.js` writes `account_id` as an audit-log field name. Whether that's renameable depends on who queries those logs downstream — not answerable from this repo.\n\n## Recommendation\n\nSign off, but scope it explicitly as an **internal-only rename with pinned boundaries**, not \"everywhere.\" The genuinely safe surface is roughly 950 sites — function params, destructuring, local variables, comments — all mechanical. The other ~340 sit on a contract: DB column, public JSON, OpenAPI, session shape, persisted payload, vendored code.\n\nThe failure mode to guard against is a global find-and-replace, which would look correct and break the API contract and every query at once. Ask for the boundary pins (items 1, 5, 6) to be visible in the diff, and for the column rename to be a separate migration on its own timeline.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c9a12d58537ea33a06f73ce95654cda76418b7ff21a3f8082fab4a66331b7ff6"
+}

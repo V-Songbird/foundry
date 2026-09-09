@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__planword__r1",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 2,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "planword",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13754,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.074906,
+  "numTurns": 5,
+  "durationMs": 12006,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 853
+  },
+  "contextTraffic": 103175,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 2118,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "assistantMsgs": 1,
+  "finalText": "`buildRows()` already has the full data, including `owner` and `slow` that the text table drops.\n\n```js\n// cli.js\nconst jsonFlag = argv.includes('--json');\nconst rows = buildRows();\nprocess.stdout.write(jsonFlag ? JSON.stringify(rows, null, 2) + '\\n' : toTable(rows) + '\\n');\n```\n\nOpen question: should `--json` include `owner`/`slow`, which the table hides, or match the table's columns exactly? I'd lean toward the full row, since JSON consumers usually want everything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "08d3fde79ac711a8667b0689aba211eabf7259ae768640251c2d75f22f1290a4"
+}

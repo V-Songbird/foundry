@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 77985,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8907525000000001,
+  "numTurns": 28,
+  "durationMs": 77181,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5885
+  },
+  "contextTraffic": 218388,
+  "apiCalls": 7,
+  "toolCalls": 27,
+  "toolResultChars": 31318,
+  "narrationWords": 78,
+  "finalWords": 285,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll search the repo for remaining `db.query` calls and look at how the migrated code uses `db.execute` so the new calls match.",
+    "All 36 remaining calls across 12 package files share three identical shapes. I'll read each file, then rewrite the calls to the object form.",
+    "Every file has the same three call shapes with only the table name varying, so I'll apply one regex rewrite to the 12 package files, leaving `cache.query` and the vendored adapter untouched."
+  ],
+  "finalText": "Migration finished. Every `db.query` call in the application code is now `db.execute({ sql, params })`, and a runtime check confirms the shared handle only records the new form.\n\n**What I changed**\n\nTwelve files still used the positional form, three calls each. They were the same three shapes everywhere, so each became the object form with the SQL and params moved into `sql` and `params` keys. The files, by package:\n\n- accounts: `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js`\n- analytics: `repo/cohort.js`\n- billing: `repo/refund.js`, `service/couponService.js`\n- catalog: `repo/supplier.js`, `admin/variantAdmin.js`\n- orders: `repo/shipment.js`, `service/returnService.js`\n- support: `repo/sla.js`, `admin/macroAdmin.js`\n\n**What I verified**\n\nI loaded all 75 package modules and called every exported function with sample arguments. The db handle in `lib/db.js` records each call with its form.\n\n| Check | Result |\n|---|---|\n| Recorded call forms | execute only |\n| Malformed calls (non-string sql or non-array params) | 0 |\n| Remaining `db.query` in `packages/` | 0 |\n\n**Two things I deliberately left alone**\n\n- `cache.query` calls in the repo modules are a different API. The cache handle takes a key, not SQL, and has no `execute`. Those stay as they are.\n- `vendor/legacy-orm/adapter.js` still has two `db.query` calls. Its header says it is a vendored copy of legacy-orm 2.1.4 that is replaced wholesale on upgrade, and local edits are silently lost. Fixing it there would not stick. Because it imports the shared db handle, the deprecated `query` method in `lib/db.js` cannot be removed yet. The real fix is upstream, or a small shim in `lib/db.js` that forwards `query` to `execute` until the vendored package is upgraded. I did not add that shim since it changes the shared handle rather than a call site, and it is your call.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "683a4a462e2ecd004101a25aa553ab499eb6ce0c230abd0375569afa90716d0e"
+}

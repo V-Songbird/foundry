@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 51,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32490,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.27680899999999997,
+  "numTurns": 9,
+  "durationMs": 31100,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2391
+  },
+  "contextTraffic": 144227,
+  "apiCalls": 5,
+  "toolCalls": 8,
+  "toolResultChars": 14435,
+  "narrationWords": 22,
+  "finalWords": 95,
+  "finalText": "Migrated 12 files (36 call sites) to `db.execute({ sql, params })`:\n\n- `packages/analytics/src/repo/cohort.js`\n- `packages/accounts/src/{service/teamService.js, admin/apiKeyAdmin.js, repo/session.js}`\n- `packages/support/src/{repo/sla.js, admin/macroAdmin.js}`\n- `packages/billing/src/{service/couponService.js, repo/refund.js}`\n- `packages/orders/src/{service/returnService.js, repo/shipment.js}`\n- `packages/catalog/src/{repo/supplier.js, admin/variantAdmin.js}`\n\nTwo things left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so patching it there won't survive. Needs either an upstream fix or a wrapper/shim on your side; tell me which and I'll do it.\n- `cache.query(...)` calls across many repos — different object, unrelated to this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d95fb72bd4e5201f29c6bdf5b4a95143685a4a75c067bcc7da43bd30c33b09d5"
+}

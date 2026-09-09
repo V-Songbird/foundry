@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 25,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22167,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1001702,
+  "numTurns": 8,
+  "durationMs": 20589,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1579
+  },
+  "contextTraffic": 112634,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 10475,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "This confirms three hard no-rename zones. That's enough to answer.\n\n**94 files, ~1,082 occurrences.** Mostly in `services/*` app code, mechanical.\n\nThree places must keep `account_id` exactly:\n\n- `[lib/serialize.js:8](lib/serialize.js:8)` — public JSON field, frozen by the API contract, documented in `docs/openapi.yaml`. Comment says renaming here must not happen.\n- `docs/openapi.yaml` (5 hits) — the public API schema and query param, same contract.\n- `vendor/reporting-sdk/**` (4 files) — vendored, generated code. Comment says \"Do not edit,\" it gets overwritten by `npm run vendor:refresh`.\n- All `migrations/*.sql` (18 files) — already applied in production per the header comments. Editing them renames nothing in a live database and breaks the down step. A real rename needs a new migration, not an edit.\n\nSo the safe scope is internal variable and DB-column naming in `services/**` and `lib/audit.js`, not the wire format.\n\nNext: confirm with platform team whether they mean an actual DB column migration or just internal code, since the public API name can't move regardless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "455f6c6e5f13782e3d11d7a29f3630dd857daeabe18aaa4c026a4761b11ebf41"
+}

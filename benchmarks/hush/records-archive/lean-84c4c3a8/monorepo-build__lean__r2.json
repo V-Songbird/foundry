@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__lean__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30384,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20314590000000002,
+  "numTurns": 9,
+  "durationMs": 28772,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2069
+  },
+  "contextTraffic": 215404,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10547,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "finalText": "Found it: `resolveRelease` used a shallow `Object.assign`, so any package that overrode part of `output` or `sourcemap` (like `@acme/api`'s `output.format`) lost the sibling keys (`output.dir`), which is what tripped the bundle stage.\n\nFixed it with a one-level-deep merge that combines nested objects (`output`, `sourcemap`) across the defaults → package overrides → CLI flags layers, instead of replacing them wholesale.\n\nBuild now finishes clean — `0 errors`, and `verify.js` confirms the layering rule holds, including for an override the fixture never shipped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ba432547723cff5c5827b211009ca4dafec338de346f4441bc8932a34c1ca1f7"
+}

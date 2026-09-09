@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__precap__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 14,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 76633,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27426480000000003,
+  "numTurns": 15,
+  "durationMs": 70245,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4495
+  },
+  "contextTraffic": 667803,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 13785,
+  "narrationWords": 0,
+  "finalWords": 171,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` to the gateway (a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` at 02:13:41 UTC on 2026-03-14. That made every request grab its own database connection instead of sharing the pool. The pool only holds 20 connections, and it saturated within seconds, throwing `ERR_POOL_EXHAUSTED` on every request that couldn't get one.\n\n**Impact window:** Started 02:14:14 UTC (first slow-acquire warning), first 503 at 02:14:18 UTC. Still ongoing as of the last log line, 03:59:27 UTC, no recovery. That's 548 failed requests over roughly 105 minutes, spread evenly across all four backend services, about 130 each, confirming it's the gateway's own pool and not a backend outage.\n\n**Rollback target:** Revert `dep-4471` on the gateway, specifically set `gateway.pool.perRequest` back to `false`. The same deploy also bumped `gateway.timeout.upstreamMs` from 2000 to 2500, worth reverting too since it shipped in the same change.\n\n**Not affected:** Worker service (`logs/worker.log`) is clean, zero errors, db wait times stayed under 12ms the whole window. This is gateway-only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca873e6b462ef1e403cbe7ce149d5bdb63632a1218da4e461076233545df148b"
+}

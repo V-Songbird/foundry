@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 46,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53284,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.35523849999999996,
+  "numTurns": 15,
+  "durationMs": 51187,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3187
+  },
+  "contextTraffic": 188701,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 18934,
+  "narrationWords": 5,
+  "finalWords": 98,
+  "assistantMsgs": 2,
+  "finalText": "**Big but mechanical.** 1082 lines across 94 files.\n\n| Must not rename | Why |\n| --- | --- |\n| `vendor/reporting-sdk/` | Generated. `npm run vendor:refresh` overwrites it. |\n| `docs/openapi.yaml` | Public contract. Renaming breaks every client. |\n| `WIRE` values in [lib/serialize.js:8](lib/serialize.js:8) | Frozen public JSON key. |\n| `migrations/` | Applied history. Editing breaks the down step. |\n| SQL strings in repos, 125 lines | Real DB column, still `account_id`. |\n\nSafe zone is variables and params in `services/`. That is the other ~1200 hits. Ask them if a column migration is planned.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d8a4f776d7f7da0341bf681cd17c867923e87aca27eb8f6ffa1b2a3abc6fd3eb"
+}

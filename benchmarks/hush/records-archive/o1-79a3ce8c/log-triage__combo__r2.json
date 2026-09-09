@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__combo__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 11,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43265,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.33342900000000003,
+  "numTurns": 7,
+  "durationMs": 41675,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2445
+  },
+  "contextTraffic": 218047,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 9890,
+  "narrationWords": 0,
+  "finalWords": 142,
+  "finalText": "**Redis went down, and the app never recovered.**\n\nEverything was fine until `02:14:07`. Then Redis at `10.0.0.12:6379` refused connections. The app fell back to reading the store directly. That's the whole outage in one line.\n\nWhat followed, in order:\n\n1. Cache misses flooded the store. 174 miss-storm warnings.\n2. The store got overloaded. 173 timeouts at 5000ms.\n3. Requests piled up. Queue went 52 → 568, passing the 500 cap at `02:29:12`.\n4. `worker-2` ran out of memory at `02:31:44` and died with code 134.\n5. The supervisor killed everything at `02:31:52`.\n\nTwo things stand out. Not one request succeeded after `02:14:03`, so it was a full outage for 18 minutes, not a slowdown. And all 13 reconnect tries used a flat 80-second gap, never backing off, never succeeding.\n\nRedis itself never came back. Whatever knocked it over is outside this log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d25d9cde145323a7439eb6217f7c91bae87501ad4e59943f3a70568fea2f1b69"
+}

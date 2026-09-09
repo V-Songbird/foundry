@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "rx4-4f2394ae",
+  "seed": "1786463924622",
+  "orderIndex": 6,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 95789,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6429125000000001,
+  "numTurns": 56,
+  "durationMs": 94182,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11704
+  },
+  "contextTraffic": 429783,
+  "apiCalls": 11,
+  "toolCalls": 55,
+  "toolResultChars": 25586,
+  "narrationWords": 14,
+  "finalWords": 74,
+  "finalText": "All twelve stragglers are moved over now. `packages/analytics/repo/cohort.js`, `orders/service/returnService.js`, `orders/repo/shipment.js`, `billing/repo/refund.js`, `billing/service/couponService.js`, `support/admin/macroAdmin.js`, `support/repo/sla.js`, `catalog/admin/variantAdmin.js`, `catalog/repo/supplier.js`, `accounts/service/teamService.js`, `accounts/admin/apiKeyAdmin.js`, and `accounts/repo/session.js` each had three calls swapped to `db.execute({ sql, params })`.\n\nTwo things I left alone on purpose:\n- `cache.query` calls in those same files — that's a different object, not the database.\n- `vendor/legacy-orm/adapter.js` — its header says it's overwritten on every upgrade, so local edits would just get lost.\n\n`node verify.js` passes clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63d752474d9c184e20628f27932bee5f383a462f7aa8b1feeecfb0ac5ca7f9c2"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 60632,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4760899999999999,
+  "numTurns": 12,
+  "durationMs": 58939,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3884
+  },
+  "contextTraffic": 173996,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 16698,
+  "narrationWords": 8,
+  "finalWords": 85,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "**`Redis` died and the service starved behind it.**\n\n| time | event |\n|---|---|\n| `02:14:07` | `Redis` `10.0.0.12:6379` refused, cache off |\n| `02:29:12` | queue depth 502, max 500 |\n| `02:31:44` | `worker-2` `JavaScript heap out of memory` |\n| `02:31:52` | supervisor killed api, service down |\n\nFirst bad line is [logs/app.log:182](logs/app.log:182).\n\n173 timeouts at `5000ms` followed the cache loss.\nAll 13 reconnect tries got `ECONNREFUSED`.\nZero requests succeeded after `02:14:07`.\nThis log is dated `2026-07-04`.\n\nNext: find why `10.0.0.12:6379` refused.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "288093fdec03971fc084753731c94c68a51a9e4cabc6e0cf6bad3f0299352474"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__noill__r1",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35710,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.24155000000000001,
+  "numTurns": 10,
+  "durationMs": 34000,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1885
+  },
+  "contextTraffic": 149320,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6067,
+  "narrationWords": 7,
+  "finalWords": 70,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "Two real bugs, both from the bump. Fixed both.\n\n**Build passes now, exit 0.**\n\n`resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Now it takes either. See [options.js:6](src/core/options.js:6).\n\n`isBackoffEnabled` threw on `undefined`. The new config loader leaves unset flags undefined. Now that means off. See [retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe 8 warnings are hardcoded log lines in `build.js`. No source file backs them. They are pure noise.\n\nNext: nothing. Build is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "41e1131ba243867838106fb224ca8f2b74eb69d1497775de3b81068b4bd2305b"
+}

@@ -1,0 +1,45 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42479,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3022585,
+  "numTurns": 11,
+  "durationMs": 41536,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2954
+  },
+  "contextTraffic": 182522,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12263,
+  "narrationWords": 108,
+  "finalWords": 303,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the project structure.",
+    "Now let me run the suite, filtering to just the failure summary rather than the wall of passes.",
+    "3 failures out of 625. Let me see just those.",
+    "All three failures are one bug. `orderTotal` computes the tax off the **undiscounted** base:\n\n`src/pricing.js:41` — `roundCents(cents * taxRate)` uses `cents`, not `discounted`. That's invisible on any row where either the discount or the tax is zero (which is 66 of the 69 order-total rows), so only the three rows with both non-zero expose it. The function's own doc comment states the intended rule: discount first, then tax the amount actually owed."
+  ],
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n## What was actually broken\n\nOne bug, three symptoms — all in `orderTotal` (`src/pricing.js:39`):\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed the pre-discount base\nreturn discounted + tax;\n```\n\nThe discount was applied correctly, but the tax was computed against the original `cents` instead of the discounted amount, so every order with both a discount and a tax was overcharged by `discount × taxRate`.\n\nThe fix routes the discounted subtotal through the existing `applyTax`, which is the rule the function's own doc comment describes:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n## Why it looked worse than it was\n\nThe wall of text is the runner's design — it prints an `ok` line for all 625 cases plus a coverage table, so 3 real failures sit inside ~620 lines of noise. The failures were all in the `order totals` suite; the other 8 suites were clean.\n\nThe suite also nearly missed this. Of 69 order-total rows, 66 have either a zero discount or a zero tax, and both of those cases make the buggy and correct formulas agree. Only the three hand-written rows at `cases.js:80-82` (`12000c/15%/8.25%`, `8650c/20%/5%`, `33400c/10%/20%`) have both non-zero, and those are exactly the three that failed. The overcharge scaled with order size — 148c, 87c, and 668c respectively.\n\nOne thing worth flagging: the fix rounds twice (once after the discount, once after tax), because that's what the spec in `cases.js:89` encodes — `round(round(cents * (1 - pct/100)) * (1 + rate))`. That matches the module's stated contract that every public function returns integer cents, so intermediate values are already rounded. If your ledger actually wants a single rounding at the end, the spec and the engine would both need to change together; I left the existing convention alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e0c81abf44d4fb824a5740822fcd8c7c3fb36f50ef16331fa14456055b35d9d0"
+}

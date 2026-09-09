@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 84,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 63768,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5346119,
+  "numTurns": 14,
+  "durationMs": 58596,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3919
+  },
+  "contextTraffic": 708178,
+  "apiCalls": 12,
+  "toolCalls": 10,
+  "toolResultChars": 60753,
+  "narrationWords": 0,
+  "finalWords": 250,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved (still erroring at the end of the captured log)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation,\" 02:12–02:14 UTC) broke connection pool release. Starting ~15 seconds after the deploy finished, the pool (fixed size 20) stopped cycling normally and pinned at `in_use=20`. Every subsequent request that couldn't get a connection queued and then failed with `503 ERR_POOL_EXHAUSTED`; the wait queue grew continuously (12 → 74+ waiting) with no recovery through the rest of the log.\n\n**Impact window:**\n- First error: **2026-03-14 02:14:18.972Z** (first `WARN` slow-acquire at 02:14:14.920Z, 4s prior)\n- Last error observed: **2026-03-14 03:59:27.974Z** (end of captured log — incident had not recovered)\n- Duration so far: **~1h 45m** and counting\n- Scope: gateway only. `worker.log` shows no errors and normal `db_wait` times throughout the same window — background jobs (email/webhook/settle/export/cleanup/reindex) were unaffected. This is isolated to the gateway's connection pool, not a downstream DB/service outage.\n\n**Rollback:**\nRoll back **dep-4471** (gateway, connection-per-request pool isolation config) first. It's the only deploy that lands right before onset — finished at 02:14:00Z, errors began 02:14:18Z.\n\nOther deploys in the window are not implicated:\n- `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both landed *after* the pool was already exhausted — check for compounding effects, but they aren't the trigger.\n\n**Next steps for on-call:** roll back dep-4471, confirm `pool stats` in gateway.log return to normal cycling (in_use well under 20, waiting=0), then watch for backlog drain of the queued/waiting requests.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "091ca027f0a2b0ae8f2b6f879597efbda99d409555aebec4df93e3fcabee2afd"
+}

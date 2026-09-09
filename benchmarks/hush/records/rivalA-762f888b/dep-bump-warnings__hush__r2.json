@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 28,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31467,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23915750000000002,
+  "numTurns": 10,
+  "durationMs": 30509,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1704
+  },
+  "contextTraffic": 157708,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6327,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** The error was two real bugs, not noise.\n\n`options.retries` was renamed to `retryCount` by the bump. It threw. Now [options.js:6](src/core/options.js:6) takes both.\n\n`backoffEnabled` came back `undefined`, and the strict check threw on it. [retryPolicy.js:9](src/net/retryPolicy.js:9) now reads unset as `false`.\n\nThe 8 warnings are hardcoded strings in [build.js:18](build.js:18). No source file backs them.\n\nNext: confirm `backoff disabled` is the default you want.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca1b443771e874ac9e4a24752fcdf3d56d7d453a25b4a6c90a1ca4482175ce63"
+}

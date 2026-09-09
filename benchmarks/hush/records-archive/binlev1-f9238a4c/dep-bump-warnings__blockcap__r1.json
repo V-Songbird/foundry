@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__blockcap__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 1,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "blockcap",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37137,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.24488649999999998,
+  "numTurns": 10,
+  "durationMs": 35440,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1909
+  },
+  "contextTraffic": 150194,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6303,
+  "narrationWords": 7,
+  "finalWords": 68,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now, exit 0.** Two real bugs, not noise.\n\nThe bump renamed `retries` to `retryCount`, so `resolveRetries` crashed on `undefined`. Fixed in [options.js:6](src/core/options.js:6). The new config loader leaves unset flags `undefined`, which `isBackoffEnabled` threw on. Unset now means off, in [retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe other 8 lines are real deprecation warnings. `Buffer()`, `fs.exists`, `punycode`, `crypto.createCipher` and 4 more.\n\nNext: clear those deprecations if you want a truly silent log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "82f3e5dc19d9bec532eae99342f2d8ae25d37f284b9393510d392229c528f3c2"
+}

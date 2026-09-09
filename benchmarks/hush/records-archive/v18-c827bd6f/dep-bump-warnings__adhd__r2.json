@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22147,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.1647605,
+  "numTurns": 9,
+  "durationMs": 20937,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1568
+  },
+  "contextTraffic": 197885,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5840,
+  "narrationWords": 7,
+  "finalWords": 109,
+  "finalText": "Build passes with 0 errors now (exit code 0).\n\n**What was actually broken (2 bugs from the bump, not noise):**\n1. `src/core/options.js:6` — bundler now sends `{ retryCount }`, code still read `options.retries` → crashed on `undefined.toFixed()`. Fixed to read `retryCount`.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined` instead of `false`, but the check only handled `true`/`false` and threw on anything else. Fixed to treat non-`true` as disabled.\n\nThe remaining ~8 warnings (DEP0142, DEP0198, deprecated `crypto.createCipher`, unused export, circular import) are pre-existing noise, not from your bump — build finishes clean, 0 errors.\n\nNext: run your real test suite to confirm retry/backoff behavior is correct downstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "792887f0b483c733f18eab0ca11fe8521871fb37a4ed8765bee06227c6bc5bcd"
+}

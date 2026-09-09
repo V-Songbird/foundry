@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushv2__r2",
+  "batchId": "v2opus-680af3b6",
+  "seed": "1787812913236",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushv2",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35265,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2853885,
+  "numTurns": 7,
+  "durationMs": 32939,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1411
+  },
+  "contextTraffic": 206442,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 7359,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "finalText": "**`Redis` died and took the service with it.**\n\n1. `02:14:07` — `Redis` at `10.0.0.12:6379` refused connections. Cache off.\n2. Every read hit the store directly. Requests timed out at 5 seconds.\n3. The backlog grew past its limit of 500. It reached 568.\n4. `02:31:44` — `worker-2` ran out of memory. `api` was killed at `02:31:52`.\n\nAll 13 reconnect tries failed. One note: these logs are dated July 4th, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0be38fdbd25bb956a6789fb0be0fba68b7a4015974732606359e82f9cd3033f5"
+}

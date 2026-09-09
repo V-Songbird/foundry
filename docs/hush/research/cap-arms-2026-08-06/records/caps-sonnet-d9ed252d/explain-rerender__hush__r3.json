@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__hush__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 69,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 3,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11035,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08458020000000001,
+  "numTurns": 1,
+  "durationMs": 9460,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 651
+  },
+  "contextTraffic": 35894,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 129,
+  "finalText": "That's actually the normal behavior, not a bug. By default, React re-renders every child whenever its parent re-renders — it doesn't check if the props are the same.\n\nTo stop that, wrap the child in `React.memo`. That tells React to skip the re-render if the props haven't changed.\n\nBut watch out for one trap: if any of the props are functions, objects, or arrays written inline (like `onClick={() => ...}` or `style={{ color: 'red' }}`), React sees a brand new one on every render, even if the values look identical. So `memo` won't help unless you also wrap those with `useCallback` or `useMemo` in the parent.\n\nAlso worth checking: if the child reads from a Context, it re-renders whenever that context's value changes, no matter what props you pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "80d9a16a91fdf2eb86ce263f1aa3bcb7bfb58db9da9a47a6f62e0dd5f16fc490"
+}

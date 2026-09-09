@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40503,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2498435,
+  "numTurns": 11,
+  "durationMs": 38832,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1959
+  },
+  "contextTraffic": 390054,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 8634,
+  "narrationWords": 8,
+  "finalWords": 80,
+  "finalText": "Build's green now, no more errors.\n\nTwo real bugs from the bump, both in the link stage:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid instead of off, so it would've thrown next.\n\nThe rest of the noise — `Buffer()`, `punycode`, loader hook, etc. — is just deprecation chatter from the bumped packages, not errors. Build now finishes with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c8f6243e2cead8f9d25baf63cc3bd0fa640ee8c1b1a15d2660487e653e2280d"
+}

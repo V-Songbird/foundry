@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__flint__r4",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 24753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.28187349999999994,
+  "numTurns": 7,
+  "durationMs": 23451,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1234
+  },
+  "contextTraffic": 169310,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 15651,
+  "narrationWords": 0,
+  "finalWords": 113,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died, and the app followed it down.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:10 | Cache miss storm, first `TimeoutError` at 5000ms |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, all refused |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nRedis never came back. All reads hit the store direct. Queue depth climbed from 52 to 568 against a max of 500. That backlog ate the heap.\n\nFix Redis at `10.0.0.12:6379` first. Then add load shedding above the 500 cap. See [app.log:182](logs/app.log#L182).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8fd65ec1930bf11cb9a9d6e3f34c42da22284ed58728970c14b3b0f6d25d151"
+}

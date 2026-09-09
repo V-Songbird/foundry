@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 55,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 146753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8669362999999999,
+  "numTurns": 54,
+  "durationMs": 140829,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10952
+  },
+  "contextTraffic": 1053144,
+  "apiCalls": 21,
+  "toolCalls": 50,
+  "toolResultChars": 26941,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "`AUDIT.md` is written, four findings, worst first, service code untouched — verifier passes.\n\n1. **SQL injection** in `src/repo/report.js` — the report filter and sort are pasted straight into the query string.\n2. **No auth** on `src/routes/internal.js` — `/internal/metrics` and `/internal/flush-cache` are open to anyone since the VPN was dropped.\n3. **Hardcoded password** in `config/staging.js` — the staging DB credential sits in plain text.\n4. **Yanked dependency** — `fast-parse` is still pinned to `1.4.2`, the version pulled for prototype pollution; `1.4.3` fixes it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31d58e20a6b0f489c05301421585347bc84bbcea5405d9ea6e1aa0e6d78f4bd7"
+}

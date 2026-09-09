@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 30,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50931,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.6219250000000001,
+  "numTurns": 8,
+  "durationMs": 49129,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3469
+  },
+  "contextTraffic": 246627,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 71378,
+  "narrationWords": 9,
+  "finalWords": 402,
+  "finalText": "Out of 380 commits, ~35 touch user-visible behavior. The rest is deps, CI, tests, and internal renames. Three things belong under **Breaking** that aren't labeled as breaking anywhere in the history — those are the ones I'd look at hardest.\n\n## Draft\n\n```markdown\n## 4.2.0 — 2026-08-26\n\n### Breaking\n- An expired token now returns 401 instead of 403.\n- The internal error types are no longer re-exported. Import them from their\n  own module, or stop depending on them.\n- The v1 export route is gone.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Paginating past the last page no longer throws on a null cursor.\n- Trailing slashes in a configured URL are trimmed once, not repeatedly.\n- An empty allowlist is treated as empty rather than as \"allow everything\".\n- Responses no longer carry a duplicated header.\n- The latency histogram reports the right units.\n- The trace id survives a retry.\n- The request body is no longer written to the logs.\n- A dropped socket clears its timer instead of leaking it.\n- The connection pool closes on shutdown.\n- The token parser error message says what actually failed.\n```\n\n## What to check before you ship this\n\n- **The three breaking items are inferred, not declared.** They landed as `refactor:` and `fix:` commits (`56dc828`, `d7cf97b` + 6 others, `1d2bd55`). If the v1 export route and the error-type re-exports were genuinely never public, drop that section and this is a minor release. If they were, 4.2 needs the breaking heading and possibly a major.\n- **The empty-allowlist fix is a security-shaped change.** `62afbff`, `5f89a20`, `dc8b5d2` — if an empty allowlist previously meant \"allow everything\", someone running with one is about to see traffic get denied on upgrade. Worth its own callout rather than a one-liner in Fixed.\n- **Node version.** Four `docs: note the minimum node version` commits and CI moved to node 22, but nothing touched `engines`. Either the floor really moved and the manifest is stale, or the docs are. I couldn't tell from the history — you'd need the actual `package.json`.\n\nLeft out deliberately: 9 perf commits (batched metric writes, skipped JSON round-trips, dropped clones, cached parsed schema). Real work, but no numbers attached and none of it changes an API. If you have benchmarks, one line under Added would carry it.\n\nWant me to write this into `CHANGELOG.md`?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "70a84f540eb6012b350e271d8b8a5c7ce0189f53511b5f934ef5831affa57b55"
+}

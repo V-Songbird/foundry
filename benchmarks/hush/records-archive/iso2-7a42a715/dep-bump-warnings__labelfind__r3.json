@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__labelfind__r3",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27823,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12375740000000002,
+  "numTurns": 11,
+  "durationMs": 26201,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1693
+  },
+  "contextTraffic": 224493,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7691,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is clean.** Exit `0`, `build finished in 44.9s with 8 warnings, 0 errors`.\n\nTwo real bugs from the bump, both fixed:\n\n1. [`options.js:7`](src/core/options.js:7) — bundler now hands `{ retryCount }`, code still read `options.retries` → crash. Now reads `options.retryCount`.\n2. [`retryPolicy.js:8`](src/net/retryPolicy.js:8) — new config loader leaves unset flags `undefined` instead of `false`, and the strict check threw on that. Now treats `undefined` as `false`.\n\nThe rest was harmless deprecation noise, unchanged.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0fe479cd8a7d2213639767eb17d030d6db4d23d641e42779532b8064c6750365"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 52,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 115526,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6743124999999999,
+  "numTurns": 27,
+  "durationMs": 111027,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6848
+  },
+  "contextTraffic": 624473,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 15069,
+  "narrationWords": 18,
+  "finalWords": 158,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "The spec is a straight priority→channel mapping, so that's what I'll write."
+  ],
+  "finalText": "Dedup is in. `route()` now checks a per-key last-sent time in `state` before applying the priority/quiet-hours rules, which moved into a `channelsFor()` helper; `createState()` returns `{ lastSentByKey: new Map() }`.\n\nReplay: `dropped: 99`, 0 errors — that matches the flap events `events.js` plants (same key, +2 minutes). Spot-checking pairs shows the first delivers and the repeat drops, across queue, pager, and email paths alike.\n\nTwo judgment calls, both easy to flip:\n\n- **Only successful sends arm the window, and it doesn't slide.** A dropped repeat doesn't refresh the timestamp, so a steady 2-minute flap delivers again at the 6-minute mark rather than being suppressed forever.\n- **Queued counts as sent.** A quiet-hours notification that goes to `queue` suppresses a repeat of the same key for 5 minutes. If you'd rather dedup only real deliveries and let everything pile into the queue overnight, that's a one-line change.\n\nThe window is strict: a repeat exactly 5 minutes later goes through.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f6caa886c6e2f5b0f2d9716bc80b8ec786a73f645b033c8e8121728a1edf4b61"
+}

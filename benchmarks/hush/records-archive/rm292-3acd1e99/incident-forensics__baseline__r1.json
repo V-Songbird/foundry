@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 199819,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9424659999999999,
+  "numTurns": 17,
+  "durationMs": 193350,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12896
+  },
+  "contextTraffic": 617802,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 31216,
+  "narrationWords": 6,
+  "finalWords": 870,
+  "assistantMsgs": 5,
+  "finalText": "# On-Call Handoff — Gateway 503s\n\n**Incident date:** 2026-03-14 (all times UTC) · **Source:** `logs/gateway.log` (node-3 of 3), `logs/worker.log`, `deploys.csv`\n**Status at end of log:** ONGOING — not recovered, no rollback recorded\n\n> Note for whoever picks this up: these logs are dated 2026-03-14, not last night. If you're chasing a live incident, confirm you're looking at the right files.\n\n---\n\n## Root cause\n\nDeploy **dep-4471** applied gateway config generation 118→119 at `02:13:41.234Z`, flipping:\n\n```\ngateway.pool.perRequest: false -> true        ← the cause\ngateway.timeout.upstreamMs: 2000 -> 2500      ← aggravating\ngateway.log.sampleRate: 1.0 -> 1.0            ← no-op\n```\n\n`pool.perRequest=true` gives every in-flight request its own dedicated connection instead of sharing. The pool is **size 20**. At normal request rates that ceiling is hit almost immediately, and everything beyond 20 concurrent requests queues until it fails:\n\n```\nERROR pool  req-NNNNN ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\nThe `upstreamMs 2000→2500` bump in the same generation makes it worse — each connection is held 25% longer before releasing.\n\n**Confidence: high.** First 503 landed **37 seconds** after the config applied. Pool went from `in_use=3..9 idle=11..17 waiting=0` to `in_use=20 idle=0` and never recovered. Queue depth climbed monotonically 13 → 271. All four upstreams and all five customer routes failed in equal proportion (~106 each), which rules out any single upstream. `ERR_POOL_EXHAUSTED` count exactly equals the 503 count (530/530) — every 503 is a pool exhaustion, one-to-one.\n\n---\n\n## Impact window\n\n| | |\n|---|---|\n| **Start** | `02:14:18.972Z` (req-07401, `/v1/cart -> billing-svc 503 659ms`) |\n| **End** | Not observed — still failing at `03:59:27.974Z` when the log ends |\n| **Duration** | **≥ 1h 45m** |\n| **Error rate** | ~62% of requests (5 × 503 + 2 × slow-acquire + 1 × `/health` 200 per minute); ops measured **71% on 5m avg** |\n| **Totals** | 530 × 503, 530 × `ERR_POOL_EXHAUSTED`, 212 × acquire-slow WARN |\n\n**Affected (100% of non-health traffic):** `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 failures each. `/v1/profile` degraded (slow-acquire warnings only).\n\n**Latency degraded throughout:** 503s took 659ms at onset → 999ms by 03:59. Acquire waits 100ms → 750ms+.\n\n### Two things to fix beyond the config\n\n1. **`/health` stayed green the entire outage** — 105 × 200 at `pool_wait=2ms`, because it doesn't take a pooled connection. Nothing auto-detected a total customer-facing failure. The health check needs to exercise the pool.\n2. **67-minute detection gap.** First 503 at 02:14:18; on-call paged at `03:21:05.282Z` (`error_rate 5m avg is 71%`). Alert threshold and/or window needs tightening.\n\nAlso worth flagging: **dep-4473** (catalog-svc, m.silva) shipped at **03:20Z**, an hour into a 71%-error-rate outage — one minute before the page fired. Deploys should be gated on gateway error rate.\n\n---\n\n## Roll back: dep-4471\n\n```\ndep-4471 | gateway | 02:12:00Z → 02:14:00Z | a.novak\n         | \"config: connection-per-request for pool isolation\"\n```\n\nRevert gateway config **generation 119 → 118**. The single key that matters is `gateway.pool.perRequest` back to `false`; take `upstreamMs` back to `2000` with it, since they shipped together and were never validated independently.\n\n**Do not roll back** dep-4472 (billing-svc, 02:41Z) or dep-4473 (catalog-svc, 03:20Z) — both shipped *after* onset and their services were already failing beforehand. dep-4468/4469/4470 all finished by 00:55Z, followed by 79 minutes of clean 200s.\n\n**Verify recovery on:** `waiting` returning to 0 in `INFO pool stats`, `idle` climbing back to 11–17, and 200s resuming on the five `/v1/*` routes — not on `/health`, which was never red.\n\n**If `perRequest` isolation is genuinely needed**, it can't ship against a pool of 20. Sizing needs to come from real concurrency measurements before a second attempt.\n\n---\n\n## Not part of this incident — but needs a ticket\n\n`worker.log` is clean: 1,080 jobs, all `finished ok`, zero errors, worker pool flat at `size=8 in_use=1 waiting=0` throughout. Workers were unaffected.\n\nHowever, worker job durations climb **linearly across the whole window** — 327ms avg at 01:0x → 2,197ms at 03:5x, a steady +110ms per 10 minutes, ~7× over three hours. **No inflection at 02:14**, so it is not related to the gateway; it was already underway when the log starts. It hits all six job types equally and `db_wait` stays flat at ~5ms, so it isn't DB contention — looks process-wide (leak or unbounded accumulator).\n\nNearest suspect is **dep-4470** (worker, j.tanaka, 00:48→00:55Z, \"retry backoff for webhook jobs\"), but I can't confirm it: the drift affects all job types rather than just `webhook`, no retries are logged, and the log begins after onset. At this slope jobs cross 5s around 08:00Z. Separate investigation.\n\nUnrelated single WARN, already tracked: `02:36:22.838Z` slow query 1.9s on `orders`, known issue **OPS-2210**.\n\n---\n\n## Caveats\n\n- This is **one node's log** (`node-3 of 3`). I have no data on nodes 1 and 2 — a config-generation rollout would normally hit all three, but that's an assumption, not something these files show.\n- The log ends at 03:59 with the incident active. Whether it self-resolved or was mitigated after that isn't in these files.\n- Log artifacts to not misread as recovery: the `waiting=` counter tops out at 271 and wraps to ~12 after 03:39 (the `INFO pool stats` lines keep climbing — 172 at 03:55), and some timestamps run backwards within a minute (e.g. `03:38:02` printed after `03:38:58`).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f130159e75359b096b9c2dc832e7fcc5ac73f01750e6b448bdfcb72b9a9f05bd"
+}

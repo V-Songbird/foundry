@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__t31deliver__r2",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 18,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "t31deliver",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 212219,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9957675,
+  "numTurns": 32,
+  "durationMs": 200796,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9175
+  },
+  "contextTraffic": 1023888,
+  "apiCalls": 29,
+  "toolCalls": 27,
+  "toolResultChars": 23421,
+  "narrationWords": 7,
+  "finalWords": 180,
+  "finalText": "All four rules are in, and the router is done.\n\n**The repeat rule** — `dropped: 99`, up from 0. That's the flaps in `events.js` being caught. Every channel count came down a little, since the repeats no longer reach any of them.\n\nOne choice I made inside it: a dropped repeat does not reset the clock. The five minutes keep running from the last notification that actually went out. Otherwise a thing flapping every two minutes would stay silent forever, and you'd never hear about it again.\n\nThe window is \"less than five minutes\", so a repeat at exactly five minutes goes through. Easy to flip if you want it the other way.\n\n**Where it all stands** — low to email, normal to push, high to sms and email, critical to pager. Between 22:00 and 07:00 everything queues except critical, which still pages. Repeats of a key inside five minutes drop, at every priority.\n\nI also ran `verify.js`, the checker sitting in the folder: `OK the router matches the rules as they finally stood`. No errors in the replay either.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b3fffe8634f4ce392737f7ad3a1c4c6ec70a42d97b767012798c360e98a95974"
+}

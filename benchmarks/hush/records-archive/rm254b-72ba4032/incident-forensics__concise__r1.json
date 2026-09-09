@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 89,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51423,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5165659,
+  "numTurns": 13,
+  "durationMs": 45349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2943
+  },
+  "contextTraffic": 732757,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 57185,
+  "narrationWords": 0,
+  "finalWords": 211,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing (unresolved as of last log entry 03:59:27Z)\n\n**Impact window:** 2026-03-14 02:14:14Z → still active at 03:59:27Z (log ends there, no recovery observed). 503s recurring every ~4s in bursts, with wait-queue depth climbing steadily (13 → 74 waiters) and acquire wait times growing (100ms → 890ms) — degrading, not stabilizing.\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 02:12:00Z–02:14:00Z) — *\"config: connection-per-request for pool isolation\"* — flipped `gateway.pool.perRequest: false -> true` via config reload (generation 118→119, applied 02:13:41Z). This forces a new connection acquisition per request against a fixed pool size of 20, which saturates and never drains. First slow-acquire warning at 02:14:14.920Z, first 503 at 02:14:18.972Z, ~33s after the config applied.\n\n**Evidence:** `ERROR pool ... ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)` paired with each `503` response, affecting all upstreams (billing, orders, catalog, accounts) — confirms it's the shared gateway pool, not one backend.\n\n**Scope:** Gateway only. `worker.log` shows no errors or pool exhaustion in this window (one unrelated pre-existing slow-query warning, OPS-2210).\n\n**Action: roll back `dep-4471`** (revert `gateway.pool.perRequest` to `false`, or redeploy prior gateway config generation 118). No other deploy in this window is implicated — `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) both landed after onset and are unrelated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ddd63f7e5de89c6ef01593726c8a6840cfc4b7289b241c2cea94da27c1dd3fd"
+}

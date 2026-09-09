@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__flint__r1",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27991,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.3677365,
+  "numTurns": 6,
+  "durationMs": 26557,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1295
+  },
+  "contextTraffic": 141800,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 14020,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died and took the service with it.** One cause, not many.\n\nTimeline:\n1. `02:14:07` — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`, cache falls back to direct store reads.\n2. `02:14:08` on — cache miss storm, 173 `TimeoutError` at 5000ms, store overloaded.\n3. Queue climbs from 52 to 568 past the 500 max over 17 min.\n4. 13 reconnect attempts all fail, same `ECONNREFUSED`.\n5. `02:31:44` — `JavaScript heap out of memory`, `worker-2` exits 134, then `FATAL [supervisor] api unresponsive`.\n\nNext: find why Redis at `10.0.0.12:6379` went down. The queue had no cap and the app had no backpressure, so it filled memory.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b4d257b0e2c30c28a9fb58eaa7db92f4b4f54bd15680699edbe4476eebf4c383"
+}

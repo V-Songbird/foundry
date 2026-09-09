@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62355,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32475539999999997,
+  "numTurns": 17,
+  "durationMs": 54100,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3120
+  },
+  "contextTraffic": 650921,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 52603,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "assistantMsgs": 4,
+  "finalText": "Errors are ongoing through the end of the log file, at `03:59:27Z` (line 2015, last line), still unresolved, `waiting` queue now at 74. No recovery or second config generation appears in the file.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Root cause**\nDeploy `dep-4471` (gateway, `a.novak`) applied config generation 119 at `2026-03-14T02:13:41Z`, flipping `gateway.pool.perRequest` from `false` to `true`. This exhausts the fixed-size connection pool (`size 20`) under normal load. Every request now logs `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, and `N` (queued requests) has climbed steadily from `13` to `74+` with no recovery.\n\n**Impact window**\n`02:14:18Z` (first 503) through end of available log data at `03:59:27Z`. Still ongoing, unresolved, over 1h45m in. Affects `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` across `billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc`. `worker.log` shows no impact, workers use a separate connection path.\n\n**Rollback**\nRevert `dep-4471` (`gateway.pool.perRequest: true -> false`). No other deploy in `deploys.csv` lands near the window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "66693239b7d0ad32efe75ee3abf347c1c3f704acafeaf520e716467216a3c9c0"
+}

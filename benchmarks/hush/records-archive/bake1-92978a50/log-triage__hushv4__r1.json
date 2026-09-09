@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushv4__r1",
+  "batchId": "bake1-92978a50",
+  "seed": "1787816448085",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushv4",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31843,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.317768,
+  "numTurns": 6,
+  "durationMs": 29780,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1257
+  },
+  "contextTraffic": 189998,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 17715,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "**Redis died, and everything fell over behind it.**\n\nAt `02:14:07` Redis at `10.0.0.12:6379` refused connections. Reads went straight to the store, which then timed out constantly. The request queue grew for 15 minutes, passing its 500 limit at `02:29:12`.\n\nThen `worker-2` ran out of memory at `02:31:44` and restarted. The supervisor killed `api` at `02:31:52`. All 13 Redis reconnect tries failed. The log stops there, so no recovery is recorded. Note the date is July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d5f5c5910095c4bb4ccc7bac92473083aa62d54d742815be26c1861b45b7cb00"
+}

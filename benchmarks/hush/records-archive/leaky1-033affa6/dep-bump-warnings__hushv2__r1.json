@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushv2__r1",
+  "batchId": "leaky1-033affa6",
+  "seed": "1787817689918",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushv2",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38810,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.297084,
+  "numTurns": 10,
+  "durationMs": 36583,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1944
+  },
+  "contextTraffic": 208475,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6168,
+  "narrationWords": 7,
+  "finalWords": 55,
+  "finalText": "**The build passes now.** Exit code 0.\n\nTwo real bugs, both from the bump:\n1. `resolveRetries` read `options.retries`. The new shape is `retryCount`. That crashed the link step.\n2. `isBackoffEnabled` threw on an unset flag. Unset now means `false`, like before.\n\nThe 8 warnings stay. `build.js` prints those as fixed text, not from your code.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "32453c61423334958fc7b4ddaddc73030d4489612950dbc1d258976a5b7782e4"
+}

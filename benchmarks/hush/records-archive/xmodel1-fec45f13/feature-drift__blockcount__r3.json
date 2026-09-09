@@ -1,0 +1,45 @@
+{
+  "key": "feature-drift__blockcount__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 71,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "blockcount",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 97662,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcount:Blockcount",
+  "costUsd": 0.501621,
+  "numTurns": 32,
+  "durationMs": 88933,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6304
+  },
+  "contextTraffic": 1317318,
+  "apiCalls": 28,
+  "toolCalls": 27,
+  "toolResultChars": 59691,
+  "narrationWords": 57,
+  "finalWords": 59,
+  "assistantMsgs": 9,
+  "narrationTexts": [
+    "Straightforward mapping, no dedup/rate-limit logic requested.",
+    "My filter didn't match the summary lines. Let me pull the tail directly.",
+    "Critical still pages at hour 00, others go to queue. Let me check the tail summary for full confirmation.",
+    "Flap repeats (evt-0288 at +2min from evt-0287, same key) now dropped as expected. Let me check the tail summary."
+  ],
+  "finalText": "**Dedup added.**\n\nIf a notification with the same `key` went out within the last 5 minutes, the repeat drops. `dropped: 99`, matching the ~1-in-9 flap rate `events.js` generates.\n\nEvery category still shows through: `low`, `normal`, `high`, `critical` all deliver on their first occurrence, only flap repeats get cut. `route() errors: 0`.\n\nNext: nothing. Dedup verified against the full replay.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8d7bab0deadea0d3f2c28bce67c3d67bcb070d8f0a30d4b2e0f2705e5e9448fc"
+}

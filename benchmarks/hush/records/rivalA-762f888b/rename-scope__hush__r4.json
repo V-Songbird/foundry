@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 116,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39498,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3273375,
+  "numTurns": 13,
+  "durationMs": 38559,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2464
+  },
+  "contextTraffic": 199983,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 16338,
+  "narrationWords": 7,
+  "finalWords": 119,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the repository structure."
+  ],
+  "finalText": "**Big but shallow: 1082 hits in 94 of 97 files.** All same shape, 25 repo/service/http triples.\n\nFour places it must **not** be renamed:\n\n| Where | Hits | Why |\n|---|---|---|\n| `docs/openapi.yaml` + `WIRE` values in [lib/serialize.js:8](lib/serialize.js:8) | 6 | Public API contract. Rename breaks clients. |\n| `vendor/reporting-sdk/` | 12 | Vendored, `npm run vendor:refresh` overwrites it. |\n| `migrations/*.sql` | 37 | Applied in prod. Editing history breaks the down step. |\n| SQL string literals in `services/*/src/repo/` | 125 | Column is still `account_id`. |\n\nSo only ~900 JS identifier hits are safe. The column rename needs a new migration first.\n\nNext: say if you want that split as a per-file list for the sign-off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "93a96550b4295f77e5de0520a4a004f154a848cd43abd7e70cf9e9c1b55cb50d"
+}

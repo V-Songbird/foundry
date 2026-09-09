@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lean__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53394,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.45040499999999994,
+  "numTurns": 9,
+  "durationMs": 51625,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3535
+  },
+  "contextTraffic": 208171,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 32852,
+  "narrationWords": 6,
+  "finalWords": 99,
+  "finalText": "Redis went down and took the service with it. Note the log is dated `2026-07-04`, not last night.\n\n- `02:14:07` Redis refused connections at `10.0.0.12:6379`.\n- Cache fell back to direct store reads.\n- The store overloaded. Requests timed out at 5000ms.\n- Backlog climbed for 17 minutes straight.\n- `02:29:12` backlog passed its own 500 limit unchecked.\n- `02:31:44` `worker-2` died of memory exhaustion.\n- `02:31:52` supervisor killed the api process group.\n\nRedis never recovered across 13 retries. Those retries were fixed at 80 seconds apart with no backoff. The 500 queue cap was logged but never enforced.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dace5d7992d539bacc1712c624bbe734ba4d66648e01cdbb0d8c51be0cfb04a9"
+}

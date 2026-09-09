@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21659,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.30123089999999997,
+  "numTurns": 4,
+  "durationMs": 20186,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1523
+  },
+  "contextTraffic": 168546,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60109,
+  "narrationWords": 0,
+  "finalWords": 278,
+  "finalText": "Here's the story the log tells:\n\n**02:00–02:14** — everything nominal: steady `/users`, `/orders`, `/health` traffic across api/worker-1/worker-2/scheduler, cache hit ratios 90–98%.\n\n**02:14:07.113** — trigger event: `redis connection lost: ECONNREFUSED 10.0.0.12:6379`. The api immediately falls back to direct store reads (cache layer degraded).\n\n**02:14:08 → 02:31:26** — cascading failure, repeating every ~2s in a tight cycle across all four services:\n- cache miss storms (every read now misses, since redis is down)\n- `TimeoutError: request timed out after 5000ms (store overloaded)` — the direct-read fallback can't handle the load\n- `request queue depth` climbing steadily and *linearly*: 52 → 500 (the stated max) around 02:29:06, then **kept climbing past its own max** (502, 505, ... 568) — the queue cap wasn't actually being enforced/shed\n- Redis reconnect attempts fired roughly every 100s (attempts 0 through 12), **every single one failed** with the same ECONNREFUSED — redis never came back during the incident\n\n**02:31:44.902** — `worker-2` hits `JavaScript heap out of memory (request backlog)` — the unbounded queue growth finally exhausted memory.\n\n**02:31:45.001** — supervisor restarts worker-2.\n\n**02:31:52.318** — supervisor gives up: `api unresponsive, killing process group — service down`. That's the actual outage moment.\n\n**Root cause:** Redis at `10.0.0.12:6379` dropped at 02:14:07 and never recovered. The app's fallback-to-direct-store-reads path had no effective backpressure/shedding — the request queue was supposed to cap at 500 but kept growing unchecked, which starved memory and eventually took the whole service down ~17 minutes after the initial redis loss.\n\n**What to check next:** why redis at `10.0.0.12` went unreachable (host/network issue, OOM on the redis box, etc.) and why the \"max 500\" queue depth guard didn't actually reject/shed requests once it exceeded that number.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eaa6be22ed64c0cf514192409ebdcf61cd1e01a691c49794d9c80a358647286c"
+}

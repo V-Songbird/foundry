@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r3",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23488,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1273766,
+  "numTurns": 12,
+  "durationMs": 21736,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1287
+  },
+  "contextTraffic": 229731,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11701,
+  "narrationWords": 13,
+  "finalWords": 40,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted amount."
+  ],
+  "finalText": "**Fixed. Suite is green.**\n\n`orderTotal` in [pricing.js:41](src/pricing.js:41) taxed the pre-discount amount. Tax should apply to what the customer actually pays.\n\nChanged `tax = roundCents(cents * taxRate)` to use `discounted` instead of `cents`.\n\n625 total, 625 passing, 0 failing.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "da376695ea37e0d02101ee5d53f654edd5a801c90ef5ddc585a644489ad131b1"
+}

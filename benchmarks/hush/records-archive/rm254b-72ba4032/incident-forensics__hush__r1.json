@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 88,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 60771,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.44932009999999994,
+  "numTurns": 19,
+  "durationMs": 54210,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3126
+  },
+  "contextTraffic": 743663,
+  "apiCalls": 17,
+  "toolCalls": 15,
+  "toolResultChars": 23674,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "Here's the handoff, ready to paste.\n\n---\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (a.novak, 02:12–02:14 UTC) flipped `gateway.pool.perRequest` from `false` to `true`. That change drains the connection pool, and it's been stuck at `size 20, in_use 20` ever since, throwing `ERR_POOL_EXHAUSTED` on every request that can't get a connection.\n\n**Impact window:** Started 02:14:18 UTC, four minutes after the deploy landed. Still ongoing as of the last log line, 03:59:27 UTC. Wait queue has climbed past 200 requests deep. Workers are unaffected, this is gateway-only.\n\n**Roll back:** `dep-4471` on the gateway service. Revert `gateway.pool.perRequest` to `false`.\n\nOne heads-up: `dep-4472` (billing-svc) went out at 02:41, during the incident. Worth a quick look after the rollback, just to rule out any overlap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e3a7e306d5113eaadf0006164c8aa2387d153742d3a4c7d48d52ef83afe8d5b3"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 90,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 49672,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19722119999999999,
+  "numTurns": 12,
+  "durationMs": 44258,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2573
+  },
+  "contextTraffic": 467848,
+  "apiCalls": 11,
+  "toolCalls": 8,
+  "toolResultChars": 8341,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "**On-call handoff: gateway 503s**\n\n**Root cause:** Deploy `dep-4471` to the gateway, \"config: connection-per-request for pool isolation,\" by a.novak, finished at 2026-03-14T02:14:00Z. 19 seconds later the connection pool started maxing out at 20 of 20 connections in use, throwing `ERR_POOL_EXHAUSTED` and returning 503s.\n\n**Impact window:** Started 2026-03-14T02:14:18.972Z. Still ongoing at the end of the log, 03:59:27.974Z, with 530 pool-exhaustion errors logged and the wait queue climbing from 13 requests to 271.\n\n**Scope:** Gateway only. Workers (`logs/worker.log`) show no related errors in this window.\n\n**Rollback:** Revert `dep-4471` (gateway, a.novak, 02:12–02:14 UTC).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a058647766e3222816f16598e46b65363a65598e1f336cbfcf64bb14aeb65b30"
+}

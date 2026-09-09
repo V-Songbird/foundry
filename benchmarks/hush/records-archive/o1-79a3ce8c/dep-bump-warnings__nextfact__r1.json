@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__nextfact__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56140,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.33925150000000004,
+  "numTurns": 10,
+  "durationMs": 54568,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3362
+  },
+  "contextTraffic": 212960,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7660,
+  "narrationWords": 11,
+  "finalWords": 78,
+  "finalText": "**Good call, one wasn't noise.** The build was actually failing, not just warning.\n\nTwo real bugs, both from the same bump:\n1. The options shape changed. `retries` is now `retryCount`. `src/core/options.js` reads either name now.\n2. Unset flags come back `undefined`, not `false`. `src/net/retryPolicy.js` treats unset as off again.\n\n`node build.js` now exits 0. Retry budget 3, backoff disabled.\n\nThe other 8 warnings are noise from the bumped packages. They point at files this repo does not have.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac90e614689412a9ff0d976eb169e2aefde85d1641aa50db9bcb09254f3dccd6"
+}

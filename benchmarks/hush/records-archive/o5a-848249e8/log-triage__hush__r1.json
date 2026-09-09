@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "o5a-848249e8",
+  "seed": "1787818512985",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52677,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.34739200000000003,
+  "numTurns": 9,
+  "durationMs": 50597,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2571
+  },
+  "contextTraffic": 244110,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 10111,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "**Redis died and took prod down with it.**\n\n1. 02:14:07: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\n2. Reads went straight to the store. Timeouts started.\n3. 13 reconnect tries, all refused.\n4. Queue passed its 500 cap at 02:29:12.\n5. 02:31:44 worker-2 ran out of memory. 02:31:52 api killed.\n\nThese lines are dated 2026-07-04, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "242341b2b05b4453b5b8830e684c73c1dbd7efec77c13037e2ece2178fc64ea1"
+}

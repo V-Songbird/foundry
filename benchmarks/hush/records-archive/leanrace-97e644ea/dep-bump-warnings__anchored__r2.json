@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__anchored__r2",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24757,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1392456,
+  "numTurns": 10,
+  "durationMs": 23274,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1689
+  },
+  "contextTraffic": 276976,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8367,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "finalText": "Building clean now, exit 0.\n\nMost of that wall of output was just deprecation noise from the bump, harmless. Two real bugs were hiding in it though:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That threw and killed the build.\n2. `src/net/retryPolicy.js` required `backoffEnabled` to be strictly `true` or `false`. The new config loader leaves it `undefined` when unset, so it threw right after the first fix.\n\nFixed both: `resolveRetries` now reads `retryCount`, and `isBackoffEnabled` treats anything other than `true` as disabled instead of throwing.\n\nBuild finishes in 44.9s with 8 warnings (all deprecation noise) and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01a2cbffc5630f454dab7cfb83e68808b4ae336b0114258de5be860f3deb289c"
+}

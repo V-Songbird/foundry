@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 156,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 15399,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0320985,
+  "numTurns": 2,
+  "durationMs": 13414,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 902
+  },
+  "contextTraffic": 56515,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "finalText": "Redis went down at 02:14:07. Your app fell back to direct database reads, but the store couldn't keep up with the traffic. Request queues started piling up, then memory filled with the backlog. Worker-2 ran out of memory and crashed around 02:31:44. The supervisor couldn't restart it, so the whole service went down at 02:31:52.\n\nThe chain took about 17 minutes from the Redis loss to total failure. You had 188 errors and 348 warnings as things degraded — mostly cache misses, timeouts, and queue depth warnings that showed the system drowning.\n\nTo prevent this next time: monitor Redis connection health, set up alerting if it goes down, or configure a circuit breaker to fail fast instead of letting queues back up indefinitely.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0fa661a68cb0cba7933272c4ed5f586ec56023d7c642e44dceb297201057378b"
+}

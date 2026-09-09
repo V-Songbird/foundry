@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 11,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 33495,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.055887400000000004,
+  "numTurns": 9,
+  "durationMs": 31812,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1610
+  },
+  "contextTraffic": 231657,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 3994,
+  "narrationWords": 0,
+  "finalWords": 55,
+  "finalText": "Fixed the auth bug. The `isExpired` function was checking `token.exp < nowSeconds`, but it should check `token.exp <= nowSeconds`. According to the code comment, a token is expired the moment its expiration time is reached, not after—so when now equals exp, the token should already be invalid. Changed the operator and all 5 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3cd207e5efc4832b8754265403cad3af6b1bf7edbbd31e0eea1fb7b34819d7e4"
+}

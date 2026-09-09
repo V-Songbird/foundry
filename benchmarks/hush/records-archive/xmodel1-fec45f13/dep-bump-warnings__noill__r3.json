@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__noill__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31414,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.128232,
+  "numTurns": 14,
+  "durationMs": 29857,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1874
+  },
+  "contextTraffic": 225871,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 8123,
+  "narrationWords": 21,
+  "finalWords": 79,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Fix both: `resolveRetries` reads `options.retries` but callers now pass `retryCount`, and `isBackoffEnabled` throws on `undefined` instead of treating it as disabled."
+  ],
+  "finalText": "**Build passes now, 0 errors.**\n\nTwo real bugs, both in the link stage:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the bumped bundler now passes `retryCount`. Fixed to match.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) threw when a flag was `undefined` instead of `false`. New config loader leaves unset flags `undefined`, so it crashed every build. Now treats anything but `true` as disabled.\n\nThe rest was deprecation noise (`Buffer()`, `fs.exists`, `punycode`, etc), harmless.\n\nNext: consider silencing `punycode`/`Buffer()` warnings upstream if they keep cluttering CI logs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "091c51edade93ee08b92943f2f528c5f13475324af5470b4192bd72db098ec59"
+}

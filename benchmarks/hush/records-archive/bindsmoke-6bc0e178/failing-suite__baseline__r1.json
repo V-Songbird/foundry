@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "bindsmoke-6bc0e178",
+  "seed": "1787151615496",
+  "orderIndex": 2,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23238,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31377910000000003,
+  "numTurns": 9,
+  "durationMs": 21764,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1475
+  },
+  "contextTraffic": 219571,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10358,
+  "narrationWords": 35,
+  "finalWords": 60,
+  "finalText": "All 625 cases pass now, and `verify.js` confirms the fix.\n\nThe bug: `orderTotal` in `src/pricing.js` was computing tax on the pre-discount amount instead of the discounted amount — contradicting its own docstring (\"the discount has to come off the base before the rate is applied to it\"). One-line fix: tax now uses `discounted * taxRate` instead of `cents * taxRate`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2fa39caf7af93e57fe25c18997338e56a7b4e13dce4ea4b5ad5b22c62382649a"
+}

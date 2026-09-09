@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 46081,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2251115,
+  "numTurns": 10,
+  "durationMs": 44136,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1994
+  },
+  "contextTraffic": 198571,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11238,
+  "narrationWords": 6,
+  "finalWords": 135,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died, and the cache-miss load killed the app.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | Cache miss storm, reads hit the store direct |\n| 02:15:26 | Reconnects start. 13 tries, all refused |\n| 02:29:12 | `request queue depth 502 (max 500)` |\n| 02:31:44 | `JavaScript heap out of memory (request backlog)`, `worker-2` dies code 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nRedis at `10.0.0.12:6379` never came back. Reconnects were flat at 80s apart with no backoff and no give-up. 173 store timeouts and 174 cache miss storms in between.\n\nNext: check why Redis went down. Then add a circuit breaker so a cold cache cannot queue the app to death.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d8fdae10012cc0b296fa000476d9d86b673289905fea5dd64aadda60b6382fa4"
+}

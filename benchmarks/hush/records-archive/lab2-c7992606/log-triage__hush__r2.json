@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39346,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10858099999999998,
+  "numTurns": 4,
+  "durationMs": 37950,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3659
+  },
+  "contextTraffic": 115762,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis went down and took prod with it.**\n\n`redis` at `10.0.0.12:6379` dropped at `02:14:07Z`. `[api]` lost connection right away. Queue depth climbed past `500`, hitting `568`. 12 reconnects failed over 17 minutes.\n\n`worker-2` ran out of memory at `02:31:44Z`. `[supervisor]` killed `api` at `02:31:52Z`. Service went down.\n\nNext: restore `redis` at `10.0.0.12:6379`, then add backpressure so queue depth can't run away like that again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c0405478ea08a6f2c0edfa14ba319213a70a08a9eb6783925dfdf3c19154e8c"
+}

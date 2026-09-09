@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 42,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 128478,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8021516,
+  "numTurns": 33,
+  "durationMs": 122330,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8658
+  },
+  "contextTraffic": 980607,
+  "apiCalls": 21,
+  "toolCalls": 29,
+  "toolResultChars": 26067,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "finalText": "`fast-parse` is pinned at `1.4.2` — the version `NOTES.md` says was yanked for a prototype-pollution bug. `pg-lite` and `redis-min` are current, and `date-fmt` is the one already flagged as harmless.\n\n`AUDIT.md` is written, four findings ordered by severity:\n\n1. **Critical** — SQL injection in `src/repo/report.js`, filter and sort built by string concatenation.\n2. **Critical** — `src/routes/internal.js` reachable with no auth, now that the VPN is gone.\n3. **High** — plaintext staging DB password committed in `config/staging.js`.\n4. **Medium** — `fast-parse` still on the yanked `1.4.2` in `package.json`.\n\nNo service code touched — verified clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "13eb2471d1ec9ca8792c56f201fee5267ffee32c3eda2ef99b3b974c59b40cd4"
+}

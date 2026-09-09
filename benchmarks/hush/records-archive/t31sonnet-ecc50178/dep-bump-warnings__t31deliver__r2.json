@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__t31deliver__r2",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "t31deliver",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34352,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19800669999999998,
+  "numTurns": 11,
+  "durationMs": 32431,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1868
+  },
+  "contextTraffic": 263287,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8583,
+  "narrationWords": 16,
+  "finalWords": 109,
+  "finalText": "It's building clean now — exit 0.\n\nTwo real bugs were hiding in that wall of deprecation noise, both from the bundler bump changing shapes it hands to your code:\n\n- `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the right field.\n- `src/net/retryPolicy.js` threw on `undefined` — the old config loader used to send `false` for an unset flag, the new one sends nothing. Now `undefined` is treated as disabled instead of erroring.\n\nThe rest (Buffer, punycode, module.parent deprecations, etc.) is just noise from the bump and still prints as warnings, but it's not breaking anything — build exits 0 with 8 warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c614d4548863b1c4765ab9fe3e32bd24f7444c0afaba802e72531999839dccd1"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__both__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 12,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 13060,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0315168,
+  "numTurns": 2,
+  "durationMs": 11250,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 794
+  },
+  "contextTraffic": 56547,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "finalText": "Redis went down at 02:14:07, and the cascade took about 17 minutes to kill the service.\n\nWhen Redis fell over, the cache layer degraded and dumped everything to direct store reads. The store couldn't handle the load — requests started timing out immediately, queues backed up past the 500-request limit, and memory pressure built from the accumulating backlog. By 02:31:44, worker-2 ran out of heap. The crash triggered a supervisor restart, but by then the API was already unresponsive, so the supervisor killed the whole process group at 02:31:52.\n\nRedis couldn't reconnect — it tried 12 times and kept hitting `ECONNREFUSED` on 10.0.0.12:6379. The service stayed down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eb37affd0d36f3525daa6c2669f25d41d85d7e455d8787371f3ef5619ba3f9d2"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 64,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83839,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.422722,
+  "numTurns": 18,
+  "durationMs": 82429,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6079
+  },
+  "contextTraffic": 206417,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 19737,
+  "narrationWords": 24,
+  "finalWords": 656,
+  "finalText": "I've read the boundary files and counted every layer. Here's the picture.\n\n## Size\n\n**~1,290 occurrences on ~1,080 lines across 94 files.** No `accountId` camelCase variants exist anywhere — it's `account_id` uniformly, which makes it look more mechanical than it is.\n\n| Area | Files | Occurrences |\n|---|---|---|\n| `services/*/src/{http,service,repo}` | 75 | 1,200 |\n| `migrations/*.sql` | 12 | 61 |\n| `vendor/reporting-sdk` | 4 | 20 |\n| `docs/openapi.yaml` | 1 | 5 |\n| `lib/{audit,serialize}.js` | 2 | 5 |\n\nThe services layer is 5 services × 25 domains × 3 layers, and the files are near-identical templates. Genuinely repetitive.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` + the right-hand side of `WIRE` in `lib/serialize.js:8`.** This is the public API contract. `serialize.js` exists specifically as the internal→public boundary, and the comment says an internal rename must not cross it. The OpenAPI doc calls `account_id` a \"Frozen field name\" and says renaming needs a new dated version. Renaming here breaks every client.\n\n**2. `migrations/*.sql` — all 12 files.** Every one carries the header: applied migrations are history, editing them renames nothing in a database that already ran them, and it breaks the `down` steps. If the column is genuinely to be renamed, that's a *new* migration, not an edit.\n\n**3. `vendor/reporting-sdk/**` — 4 files.** Marked \"Do not edit,\" regenerated wholesale by `npm run vendor:refresh` (pinned to 3.8.1 in `package.json`). Any edit is silently reverted on the next refresh, and `account_id` there is a third-party wire format anyway.\n\n**4. The 125 SQL string literals in `services/*/src/repo/*.js`.** This is the one that will bite. Every repo file has lines like:\n\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\n```\n`services/billing/src/repo/invoice.js:10`\n\nThat `account_id` is the *database column*, not a JS identifier — but it's the same token, sitting inside a string, in the same files as renameable variables. A blind find-and-replace renames the column reference and every query in the platform fails at runtime. The column can only change via a new migration, coordinated separately.\n\n**5. `JSON.stringify({ ...values, account_id })` — 25 sites** (e.g. `services/billing/src/repo/invoice.js:35`). That key is persisted into the `payload` JSONB column. Renaming it makes new rows structurally disagree with every existing row unless you also backfill.\n\n**6. `lib/audit.js:8`** — softer, but the audit line field is read by downstream log tooling. I'd treat it as an external contract until someone confirms otherwise.\n\n## What that leaves\n\nThe actually-renameable surface is local JS identifiers: function parameters, destructuring, and internal object keys in the http and service layers, plus repo function *parameters* (but not the SQL strings they're interpolated into). Roughly 700–800 of the ~1,290 occurrences.\n\n## My read for sign-off\n\nThe count says \"mechanical\"; the structure says otherwise. The dangerous cases and the safe cases are *the same token in the same files* — `account_id` as a bound variable and `account_id` as a column name sit two lines apart in every repo file. That defeats the tool you'd normally reach for, and there's no test suite here to catch a bad replace (`lib/db.js` is a recording stub that returns `[]` for everything — every query \"succeeds\" whether or not the SQL is valid).\n\nI'd ask the platform team two things before signing:\n\n1. **Is the database column being renamed too, or just the code?** If just the code, this is a pure-identifier rename and items 1–6 above are all hard exclusions — worth confirming they've scoped it that way. If the column is also moving, that's a separate multi-phase migration (add column, dual-write, backfill, cutover) and the code rename shouldn't land first.\n2. **How are they executing it?** A repo-wide `sed` is not safe here. This needs either an AST-aware rename or a file-by-file pass with SQL strings explicitly excluded.\n\nIf you want, I can produce the exact exclusion list as a machine-readable manifest, or spot-check their diff against these six constraints once they post it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c3e105616cbabc7a0d6c8f406e5cdf3d7f4a732152370c375b9e383f8cf3f4e9"
+}

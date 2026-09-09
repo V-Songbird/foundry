@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25437,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1817354,
+  "numTurns": 8,
+  "durationMs": 24196,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1456
+  },
+  "contextTraffic": 282112,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 8714,
+  "narrationWords": 27,
+  "finalWords": 50,
+  "finalText": "All 625 tests pass now. The bug was in `orderTotal` in `src/pricing.js:39-43`: tax was calculated on the pre-discount subtotal instead of the discounted amount, even though the function's own doc comment says tax should apply to \"the amount the customer actually pays.\" Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fe0a08c36622e039a6dcfea5e77f3ffacea4fb3711134f6c7115dbeabb1bf2cc"
+}

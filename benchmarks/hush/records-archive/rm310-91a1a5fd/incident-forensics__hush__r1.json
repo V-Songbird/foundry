@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 146228,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6298755,
+  "numTurns": 17,
+  "durationMs": 139035,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8762
+  },
+  "contextTraffic": 402534,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 9166,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Root cause: `dep-4471` set `gateway.pool.perRequest: false -> true`.** [HANDOFF.md](HANDOFF.md)\n\nEach request now takes its own connection. The size-20 pool saturated 38s later.\n\nWindow: `02:14:18Z` to `03:59:27Z`, still failing. 530 of 1228 requests failed. Peak was 71%.\n\nRollback target is `dep-4471`, gateway config generation 119 to 118.\n\nRaising pool size will not hold. Per-request checkout scales with traffic.\n\nNext: roll back `dep-4471`, watch `waiting` drop to 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "80d69d85b1bcff09dab8048afee1ee78a2f55d1b5bcc4b8923103cf993fca48b"
+}

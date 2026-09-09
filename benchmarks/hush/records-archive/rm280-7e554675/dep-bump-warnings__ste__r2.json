@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42738,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.27116850000000003,
+  "numTurns": 10,
+  "durationMs": 41351,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2544
+  },
+  "contextTraffic": 185468,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6226,
+  "narrationWords": 7,
+  "finalWords": 210,
+  "finalText": "The build passes now. Exit code is 0.\n\n## The two real bugs\n\nThe bump broke two link-stage call sites. They were sequential, so the first error hid the second.\n\n1. `src/core/options.js:6` — the options object renamed `retries` to `retryCount`. This call site still read `options.retries`, which was `undefined`, so `.toFixed(0)` threw a `TypeError`. It now reads `retryCount`, falls back to `retries`, and rejects a non-numeric value with a clear message.\n2. `src/net/retryPolicy.js:7` — the old config loader returned `false` for an unset flag. The new loader returns `undefined`. The strict check accepted only `true` or `false`, so it threw on every unset flag. Unset now means off, which matches the old behavior. A non-boolean value still throws.\n\n## The remaining 8 warnings\n\nThey are noise from the build harness, not from your source. `build.js` prints them as fixed strings (`build.js:18-24` and `build.js:46-48`), and they name files such as `src/legacy/adapter.js` that do not exist in this tree. Only `src/core/options.js` and `src/net/retryPolicy.js` hold real code here.\n\nSo the count stays at 8 warnings. I can delete those lines from `build.js`, but that only hides output and fixes nothing. If the warnings come from a real bundler in your full repo, point me at that checkout and I will work through them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c0e629a697b35692bd576fce818544d415adcb624baa60c8140faf9f8fb7346f"
+}

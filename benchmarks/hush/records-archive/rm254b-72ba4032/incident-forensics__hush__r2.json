@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 94,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 68676,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6210363,
+  "numTurns": 17,
+  "durationMs": 62456,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3315
+  },
+  "contextTraffic": 907711,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 67058,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "The log ends at 03:59:27 still throwing the same error, so this was ongoing, not resolved, as of the last entry.\n\n**On-call handoff**\n\n**Root cause:** Deploy `dep-4471` (a.novak, gateway) shipped at 02:12–02:14 and flipped `gateway.pool.perRequest` from `false` to `true`. That made every request claim its own DB connection instead of sharing the pool, and the 20-connection pool couldn't keep up.\n\n**Impact window:** Started 2026-03-14 02:14:18 UTC. Still active as of the last log entry, 03:59:27 UTC. Every affected request returns `503` with `ERR_POOL_EXHAUSTED`, and the wait queue has climbed the whole time, over 170 requests waiting at points, so it's not self-healing.\n\n**Scope:** Gateway only. `worker.log` shows normal `db_wait` times throughout with zero errors, so the database and background jobs are healthy.\n\n**Fix:** Roll back `dep-4471` on the gateway, reverting `gateway.pool.perRequest` to `false`. That's the only deploy that lines up with the failure. Two other deploys landed nearby but don't fit: `dep-4472` (billing-svc, 02:41) is after the incident started, and `dep-4473` (catalog-svc, 03:20) is on a different, unaffected service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "327d7d60584497fa7f0e8ad064f6977ac234b39eed9ddf469b319c1058121786"
+}

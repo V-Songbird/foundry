@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 93,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66016,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29821220000000004,
+  "numTurns": 17,
+  "durationMs": 61154,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4184
+  },
+  "contextTraffic": 758391,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 27269,
+  "narrationWords": 0,
+  "finalWords": 223,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing as of last log entry (03:59:27Z) — not yet resolved.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` via config reload (generation 118→119, applied 02:13:41.234Z). This stopped connections from being shared/reused; the fixed 20-connection pool saturated within ~30s. Every 503 since is paired with `ERROR pool ... ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, and the `waiting` backlog has climbed continuously (13 at onset → 74+ by end of log) with no recovery.\n\n**Impact window:**\n- Start: **2026-03-14 02:14:18.972Z** (first 503, ~30s after config applied; first pool WARN at 02:14:14.920Z)\n- End: **not yet recovered** — still throwing 503s / pool exhaustion at 03:59:27Z, the last line in `gateway.log`\n- Scope: **gateway only**. Checked `worker.log` for the same window — workers run a separate pool, stayed healthy throughout (jobs completing normally, `db_wait` 0–12ms, pool stats clean). No cross-service spread.\n\n**Rollback:**\nRevert **`dep-4471`** (gateway, started 02:12:00Z / finished 02:14:00Z) — specifically the `gateway.pool.perRequest: false -> true` change. The other two keys changed in that same deploy (`gateway.timeout.upstreamMs: 2000 -> 2500`, `gateway.log.sampleRate` unchanged at 1.0) are not implicated and don't need to be touched.\n\n**Not the cause:** `dep-4472` (billing-svc) and `dep-4473` (catalog-svc) both shipped well after the 503s started (02:41Z and 03:20Z) — unrelated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9f080344ccd4ee6cd3b0acc7538c685a821ba3f8a7b497c7fef24c966fced9af"
+}

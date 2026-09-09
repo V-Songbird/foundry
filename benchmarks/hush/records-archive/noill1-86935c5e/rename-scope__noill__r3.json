@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__noill__r3",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 28,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 69974,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.420397,
+  "numTurns": 22,
+  "durationMs": 68360,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4489
+  },
+  "contextTraffic": 229943,
+  "apiCalls": 9,
+  "toolCalls": 21,
+  "toolResultChars": 20188,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Do not sign this off as a flat rename.** 1291 hits sit in 94 files. Only about 980 are safe.\n\n| Must not rename | Hits | Why |\n|---|---|---|\n| `migrations/*.sql` | 61 | applied history, needs a new migration |\n| SQL strings in `src/repo/*.js` | 125 | real column name |\n| `req.session.account_id` | 100 | key set outside this repo |\n| `vendor/reporting-sdk/` | 20 | overwritten by `vendor:refresh` |\n| `docs/openapi.yaml` | 5 | public contract, frozen field |\n| `WIRE` values in [lib/serialize.js:8](lib/serialize.js:8) | 1 | public wire name |\n\nNext: ask them for a column migration plan first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10e528a00176d45ba9b740de432c844a2854a5606afee0335d80d626c8131b09"
+}

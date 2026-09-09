@@ -1,0 +1,40 @@
+{
+  "key": "feature-drift__hush__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 116639,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7216445,
+  "numTurns": 28,
+  "durationMs": 107959,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6034
+  },
+  "contextTraffic": 654008,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 12247,
+  "narrationWords": 0,
+  "finalWords": 59,
+  "assistantMsgs": 5,
+  "narrationTexts": [],
+  "finalText": "**Dedupe is in.** Same `key` inside 5 minutes now drops, in [src/router.js:34](src/router.js:34).\n\n`createState()` now holds `lastSentByKey`, a `Map` of key to last send time.\n\n`node simulate.js`: 99 dropped, zero errors. Those are the flaps.\n\nTwo calls I made. A queued send counts as sent, so it starts the 5 minutes. A drop does not update the clock.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "617b092d4c383d05f0179b7f7c42589d709b4dfa607c5ce975876dd86f54949e"
+}

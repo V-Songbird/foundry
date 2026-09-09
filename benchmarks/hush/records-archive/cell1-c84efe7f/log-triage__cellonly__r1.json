@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__cellonly__r1",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "cellonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13867,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.174879,
+  "numTurns": 4,
+  "durationMs": 11894,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 713
+  },
+  "contextTraffic": 115816,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage triggered a cascading OOM crash.**\n\nAt `02:14:07` Redis died: `ECONNREFUSED 10.0.0.12:6379`.\n\nCache fell back to direct store reads. Store couldn't keep up.\n\nTimeouts and queue depth climbed for 17 minutes straight. Queue depth passed its 500 max around `02:29:06` and kept growing.\n\nRedis reconnects (attempts 7 through 12) all failed too. Worker-2 hit `heap out of memory` at `02:31:44`. Supervisor killed the process group at `02:31:52`.\n\nNext: fix Redis at `10.0.0.12:6379` and cap the request queue so it can't grow unbounded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1400166ca9cdb8ceece6eda95cab3f644ff129866633bdd13028603cba7187cc"
+}

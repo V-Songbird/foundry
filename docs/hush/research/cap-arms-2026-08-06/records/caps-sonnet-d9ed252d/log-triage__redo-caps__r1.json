@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 157,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30118,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2066093,
+  "numTurns": 7,
+  "durationMs": 28372,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1638
+  },
+  "contextTraffic": 243699,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 11435,
+  "narrationWords": 0,
+  "finalWords": 155,
+  "finalText": "Redis went down at **02:14:07** and everything cascaded from there.\n\n1. `redis` (the fast cache) lost its connection — `ECONNREFUSED` on 10.0.0.12:6379.\n2. The app fell back to reading straight from the main store, which is much slower.\n3. Requests started timing out, and the request queue backed up nonstop — from 52 waiting jobs up to 568.\n4. The app tried to reconnect to redis 13 times over the next 17 minutes. Every attempt failed.\n5. At **02:31:44**, `worker-2` ran out of memory from the growing backlog and crashed.\n6. Right after, the `api` process stopped responding, and the supervisor killed the whole service.\n\nSo the trigger was redis dropping, and the real damage came from the slow fallback path never draining the backlog before redis could recover. Worth checking why redis at 10.0.0.12 went unreachable, and maybe adding a queue limit so a dead cache can't take the whole service down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e03e29c895cac4e827c1f6f95294392486bc93e16b73446813c4355b5fca7b21"
+}

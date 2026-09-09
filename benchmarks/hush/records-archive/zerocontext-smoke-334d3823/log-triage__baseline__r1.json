@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "zerocontext-smoke-334d3823",
+  "seed": "1787382000518",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21821,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2037038,
+  "numTurns": 4,
+  "durationMs": 18994,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1227
+  },
+  "contextTraffic": 187595,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60359,
+  "narrationWords": 0,
+  "finalWords": 337,
+  "finalText": "## What happened\n\nLog spans 2026-07-04 02:00–02:31 UTC. Timeline:\n\n1. **02:14:07.113** — First failure: `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Redis at `10.0.0.12:6379` went unreachable, cache layer immediately fell back to direct store reads.\n2. **02:14:07 – 02:31:26** — With the cache gone, every request became a direct hit on the backing store. The store couldn't handle the load: repeating pattern of `cache miss storm`, `TimeoutError: request timed out after 5000ms (store overloaded)`, and steadily climbing `request queue depth` (52 → 568, well past the max of 500).\n3. **Every ~2 minutes**, `[api]` tried to reconnect to Redis and failed — 12 consecutive attempts (02:15:26 through 02:31:26), all `ECONNREFUSED`. Redis never came back on its own.\n4. **02:31:44.902** — `worker-2` hit `JavaScript heap out of memory (request backlog)` — the growing unprocessed queue exhausted memory.\n5. **02:31:45.001** — Supervisor restarted worker-2 (exit code 134 = SIGABRT from OOM).\n6. **02:31:52.318** — `api` became unresponsive; supervisor killed the whole process group. **Service down.** Log ends here.\n\n## Root cause\n\nRedis (`10.0.0.12:6379`) went down at 02:14:07 and stayed down for the rest of the log (never a successful reconnect). Without cache, the backing store got hammered directly and couldn't keep up, causing cascading timeouts. Request queues backed up unbounded for ~17 minutes until memory exhaustion crashed worker-2, which cascaded into the API becoming unresponsive and the whole service being killed.\n\n**Trigger:** Redis outage at 02:14:07. **Fatal blow:** OOM crash at 02:31:44 after 17+ minutes of unmitigated queue buildup.\n\n## Recommendations\n- Check what killed Redis on `10.0.0.12` around 02:14 UTC — that's the actual root cause upstream of this log.\n- The queue had no backpressure/shedding — it grew to 568 vs. a stated max of 500 without anything actually blocking new work. Worth adding a circuit breaker so timeouts don't cascade into OOM.\n- Reconnect backoff was fixed at ~2 min for 12 tries with no success — consider whether that's too slow or if it should trigger an alert/failover after N failures instead of retrying indefinitely.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7b4e220bdd21720b475f714927bd820f7b4ab1945405db39722c1aabeb130b7b"
+}

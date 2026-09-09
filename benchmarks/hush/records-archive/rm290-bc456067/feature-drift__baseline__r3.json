@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 53,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 102000,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6456125,
+  "numTurns": 24,
+  "durationMs": 92669,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5959
+  },
+  "contextTraffic": 634035,
+  "apiCalls": 21,
+  "toolCalls": 19,
+  "toolResultChars": 15042,
+  "narrationWords": 33,
+  "finalWords": 100,
+  "assistantMsgs": 7,
+  "finalText": "Dedup added (`src/router.js:29`): `state.lastSentAt` maps key → minute of last delivery; a repeat within 5 minutes returns `[]`.\n\nTwo judgment calls worth knowing about:\n- The window starts only on an actual delivery, not on a drop — so a burst of flaps can't chain the suppression forward indefinitely.\n- \"Within the last 5 minutes\" is inclusive (`<= 5`). The synthetic flaps are +2 minutes apart, so nothing in this replay sits on the boundary either way.\n\nReplay: 99 dropped, 0 errors. The `disk-usage` flap pairs at +2 minutes show the second one suppressed while the earlier one delivers normally.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8ae61d805fb6b409fe01b30eebc62c0b3b6dc44729f61796152647807a502568"
+}

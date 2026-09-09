@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__shortstyle__r1",
+  "batchId": "three-0423088d",
+  "seed": "1787418273908",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "shortstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40599,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23126899999999997,
+  "numTurns": 6,
+  "durationMs": 38743,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2705
+  },
+  "contextTraffic": 268293,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 53020,
+  "narrationWords": 0,
+  "finalWords": 202,
+  "finalText": "Redis fell over at 2:14 AM and the app never recovered from it. Here's the chain:\n\n1. **2:14:07** — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). The app switched to reading straight from the database instead.\n2. That fallback couldn't keep up. From then on, requests kept timing out at 5 seconds, over and over, roughly every few seconds.\n3. The app tried reconnecting to Redis 13 times between 2:15 and 2:31. Every single attempt failed. Redis never came back.\n4. The backlog of stuck requests kept growing the whole time. It was supposed to cap at 500, but it blew past that and reached 568.\n5. **2:31:44** — `worker-2` ran out of memory trying to hold that backlog and crashed.\n6. **2:31:52** — the supervisor gave up, killed the whole api process, and the service went fully down.\n\nSo the root cause is the Redis box at 10.0.0.12 going unreachable. Everything after that, the timeouts, the growing backlog, the crash, was a chain reaction from losing Redis with no working circuit breaker. About 18 minutes passed between the first Redis drop and the full outage. Getting Redis back up and adding a real cap on that queue would stop this from happening again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ea044fabc9fead5c8e209aca0b037100f1abbb5e57d813f450b795c9c511c19b"
+}

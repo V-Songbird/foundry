@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 37192,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07158850000000001,
+  "numTurns": 11,
+  "durationMs": 35748,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2778
+  },
+  "contextTraffic": 253644,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12911,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "finalText": "Fixed it. The build was failing at the config merge stage—the `resolveRelease()` function was using shallow `Object.assign()`, which replaced entire nested objects instead of merging their keys.\n\nWhen a package override specified `output: { format: 'esm' }`, it wiped out the other `output` keys like `dir` and `entry` from the defaults, leaving incomplete configs that the build rejected.\n\nI replaced the shallow merge with a proper deep merge function that preserves partial overrides at every level. Now `@acme/api` gets `output.format: 'esm'` from its package override while keeping `output.dir: 'dist'` and `output.entry: 'index.js'` from the defaults—exactly as the config is supposed to work.\n\nBuild is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c3bd5285efa14479a52965768363fb208b497fb2d9b51dec4996a30f172b8044"
+}

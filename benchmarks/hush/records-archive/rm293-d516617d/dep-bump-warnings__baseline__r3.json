@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52201,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29663100000000003,
+  "numTurns": 11,
+  "durationMs": 50720,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3165
+  },
+  "contextTraffic": 230424,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 6197,
+  "narrationWords": 53,
+  "finalWords": 396,
+  "assistantMsgs": 5,
+  "finalText": "Build's green. Here's what happened.\n\n## The two real bugs\n\nBoth were the same dependency bump changing data shapes that two call sites still assumed the old form of. They were sequential — the first one aborted the link stage before the second could even show itself.\n\n**1. `src/core/options.js:6` — options shape mismatch**\n\nThe bumped bundler renamed `retries` → `retryCount`. This call site was missed, so `options.retries` was `undefined` and `.toFixed()` threw:\n\n```\nERROR EBUILD02 link-failed: TypeError: Cannot read properties of undefined (reading 'toFixed')\n```\n\nFixed by reading `retryCount` with a fallback to the old `retries` name, so any call site not yet migrated keeps working.\n\n**2. `src/net/retryPolicy.js:7` — stricter flag check**\n\nOnly visible once #1 was fixed. The new config loader leaves unset flags as `undefined`; the old one returned `false`. The strict boolean check treated `undefined` as a config error:\n\n```\nERROR EBUILD02 link-failed: Error: backoffEnabled must be a boolean, got undefined\n```\n\nFixed by treating an absent flag as disabled — matching pre-bump behavior. Any other non-boolean value still throws, so genuinely bad config isn't swallowed.\n\nBuild now ends `build finished in 44.9s with 8 warnings, 0 errors`, exit 0.\n\n## What I did not fix — the 8 warnings\n\nI couldn't get to literally zero warnings, and I'd rather flag that than paper over it. The remaining warnings are emitted as hardcoded strings in `build.js` (the `DEPRECATIONS` array at line 18, plus the `W1042`/`W2213`/`W3307` pushes at lines 46–48). They reference files that don't exist in this tree — `src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js`. The only two source files here are the two I fixed.\n\nSo there's no source change that clears them; the only way to make them disappear would be to delete the strings from the fake bundler, which would hide the signal rather than fix anything. If this stub is standing in for a real bundler, those warnings are worth a look on their own — `crypto.createCipher` (W1042) and the circular import (W3307) are the two I'd prioritize, since the first is a genuine security-relevant deprecation and the second gives undefined resolution order.\n\nOne judgment call worth your review: `resolveRetries` now defaults to `0` when neither key is present. That keeps the build from crashing on a missing value, but if a missing retry budget should be a hard failure in your setup, say the word and I'll make it throw instead.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8c79822f7c5a3356d4607ffd92390bcd7fcde7e302d1700c9f06e31357ff8fe7"
+}

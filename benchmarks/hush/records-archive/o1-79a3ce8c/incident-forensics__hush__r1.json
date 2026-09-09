@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 146860,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8583759999999999,
+  "numTurns": 26,
+  "durationMs": 140794,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9777
+  },
+  "contextTraffic": 693639,
+  "apiCalls": 19,
+  "toolCalls": 22,
+  "toolResultChars": 14179,
+  "narrationWords": 0,
+  "finalWords": 84,
+  "finalText": "Written to `HANDOFF.md`. The short version:\n\n**Roll back `dep-4471`**, the gateway config deploy by `a.novak`. Set `gateway.pool.perRequest` back to `false`. That is config generation 119 back to 118. Do it on all three gateway nodes.\n\nImpact ran 02:14:18Z to 03:59:27Z. That is 530 failed requests, 83% of traffic. The log ends with it still broken, so treat it as live.\n\nThe handoff also flags three things for later. `/health` never noticed. The page took 67 minutes. And the worker slowdown is real but separate.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "07ae0d8a892985190ecd36d3dc6e72e4c7f070bdabbe49d843ad6ee255acbffe"
+}

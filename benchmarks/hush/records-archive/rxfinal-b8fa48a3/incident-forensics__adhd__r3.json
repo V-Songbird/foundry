@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 53,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64887,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3672965,
+  "numTurns": 16,
+  "durationMs": 59112,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3716
+  },
+  "contextTraffic": 606092,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 16858,
+  "narrationWords": 0,
+  "finalWords": 202,
+  "finalText": "Ongoing, not resolved — log ends mid-incident at 03:59:27.974Z with `waiting 74` (up from 13 at the start), still climbing.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status: ONGOING** (not yet resolved as of last log line, 03:59:27Z)\n\n**Root cause:** Connection pool exhaustion. Deploy dep-4471 flipped `gateway.pool.perRequest` from `false` to `true`, which stopped reusing pooled connections. Pool (fixed size 20) saturates within ~33s and every request queues for a connection until it eventually times out and returns 503.\n\n**Rollback target:** `dep-4471` — gateway, deployed by a.novak, 2026-03-14T02:12:00Z–02:14:00Z, \"config: connection-per-request for pool isolation\". Revert `gateway.pool.perRequest` to `false` (or roll back the full config generation 119 → 118).\n\n**Impact window:**\n- Start: 2026-03-14T02:14:18Z (first 503, `req-07401`) — first warning sign at 02:14:14.920Z (slow pool acquire)\n- End: not yet — still failing as of 03:59:27Z, 1h45m+ elapsed\n- Scope: gateway only, all upstreams affected (billing-svc, orders-svc, catalog-svc, accounts-svc) — confirmed workers (`worker.log`) unaffected, they use a separate DB pool\n\n**Signature error:**\n```\nERROR pool req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n`waiting` count has climbed from 13 → 74 and is not recovering on its own — needs manual rollback.\n\nNext: revert dep-4471 / set `gateway.pool.perRequest: false` now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "61b2a9a1d06136e107ba7a93d95f4362f36c2cd3bd33318db7e4fd07a364cf1f"
+}

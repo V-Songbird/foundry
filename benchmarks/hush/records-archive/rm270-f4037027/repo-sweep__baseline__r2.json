@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 56,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84273,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.364252,
+  "numTurns": 39,
+  "durationMs": 83295,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10873
+  },
+  "contextTraffic": 468024,
+  "apiCalls": 11,
+  "toolCalls": 38,
+  "toolResultChars": 20386,
+  "narrationWords": 155,
+  "finalWords": 126,
+  "finalText": "All 12 files load cleanly and use `db.execute({ sql, params })` now, matching the already-migrated files exactly.\n\nSummary:\n- Migrated 12 files across `accounts`, `analytics`, `billing`, `catalog`, `orders`, and `support` packages from `db.query(sql, params)` to `db.execute({ sql, params })`.\n- Left `vendor/legacy-orm/adapter.js` untouched — it's explicitly marked \"Do not edit, replaced wholesale on every upgrade,\" so it still calls `db.query`. Since `db.js` still exports `query` (deprecated but functional) alongside `execute`, this won't break anything, but it's a gap worth tracking upstream (either in the vendor package's next release or via a wrapper if you need it off the old API sooner).\n- Noted `cache.query` calls in several files (session/cohort/refund/supplier/shipment/sla) — that's a distinct cache module API, unrelated to this db migration, so I left those alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62b320a036446d6d350048e9fa3c69f3c1f4f7380a41fa21c2c2912acb3ca989"
+}

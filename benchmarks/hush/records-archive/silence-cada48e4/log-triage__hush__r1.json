@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18550,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12459579999999999,
+  "numTurns": 4,
+  "durationMs": 16652,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 981
+  },
+  "contextTraffic": 170852,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 14204,
+  "narrationWords": 0,
+  "finalWords": 163,
+  "finalText": "Everything runs clean until 02:14:07 on 2026-07-04. Then Redis, the fast lookup service at 10.0.0.12, drops with `ECONNREFUSED`. The app falls back to reading straight from the main store, which it wasn't built to handle at full load.\n\nFrom there it's a slow death. Reconnects to Redis keep failing, once every 80 seconds, all the way to attempt 12 at 02:31:26, and every attempt fails the same way. Meanwhile the backup queue keeps growing, from 52 waiting jobs up past 500, and requests start timing out after 5 seconds because the main store can't keep up.\n\nIt ends at 02:31:44. One of the workers, `worker-2`, runs out of memory and dies. The supervisor restarts it, but eight seconds later the whole `api` service stops responding, and at 02:31:52 the service goes down for good.\n\nSo the real cause was Redis going unreachable at 02:14:07. Everything after that, the timeouts, the memory crash, the outage, was the app struggling for 17 minutes without it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "320cb6de57f51286e24a1939e42ccf57f0ab34f07ac8882578baa32a1ab27a55"
+}

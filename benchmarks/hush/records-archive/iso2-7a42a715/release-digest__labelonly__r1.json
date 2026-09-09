@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__labelonly__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 28,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 118237,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37502060000000004,
+  "numTurns": 16,
+  "durationMs": 116747,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10079
+  },
+  "contextTraffic": 597307,
+  "apiCalls": 14,
+  "toolCalls": 15,
+  "toolResultChars": 39324,
+  "narrationWords": 62,
+  "finalWords": 112,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Good, the grep already covered the full 762-line file (last fix entry at line 758). Now let me check the labels breakdown in the PR sheet and glance at the tail of commits.log to confirm nothing else is there.",
+    "Confirmed complete — the file ends at line 762 and I've captured the full fix/feat list. Now updating CHANGELOG.md with the 4.2.0 entry."
+  ],
+  "finalText": "**Wrote the 4.2.0 entry to [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, 27 were real fixes or a feature. Most repeat the same bug across modules (null cursor crash hit queue, api, webhooks, and db separately), so I grouped those into one line each.\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook retries with exponential backoff\n- Fixed: pagination crash, duplicate header, trailing-slash routing, empty allowlist, trace id lost on retry, full request body in db logs, HTTP client hang and pool leak, wrong histogram units, vague token errors\n\nNext: check the `401`/`403` change against any client docs that assert on status code, that's the one likely to surprise someone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "655ad8bdd7ce0d6d033ce42ca933f0f4b269187ba3a8c8bcb1454a392a24def3"
+}

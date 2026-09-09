@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 44,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30692,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21318549999999997,
+  "numTurns": 7,
+  "durationMs": 29577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1506
+  },
+  "contextTraffic": 146448,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 8167,
+  "narrationWords": 15,
+  "finalWords": 187,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout.",
+    "Found it — one bug, in `orderTotal`."
+  ],
+  "finalText": "Green: 625/625 passing, exit 0.\n\n**What was actually broken** — a single bug in `src/pricing.js:39` `orderTotal`. Only 3 of the 625 cases failed, all in the \"order totals\" suite; everything else was noise.\n\nThe function discounted the order correctly but then computed tax on the **pre-discount** amount:\n\n```js\nconst tax = roundCents(cents * taxRate);   // `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nThat contradicted its own doc comment (\"tax is charged on the amount the customer pays\"), so customers were overcharged tax on the discounted-away portion — the overcharge scaled with discount × rate (e.g. +668 cents on the 33400c / 10% off / 20% tax case).\n\nFix: tax the discounted subtotal, reusing the existing helper.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nOne note: this rounds twice (once after the discount, once after tax), which is what the other functions do and what all three expected values assume — e.g. 12000 → 10200 → 11041.5 → 11042. If your ledger actually wants a single rounding at the end, that's a different (and slightly different-valued) change, so I left the existing convention alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "48243179aebb0ae61b907edb2bd2f0710649f00afd497675da0d0cc866d5ea3c"
+}

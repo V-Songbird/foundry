@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r3",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 26,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27520,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1210456,
+  "numTurns": 10,
+  "durationMs": 25822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1956
+  },
+  "contextTraffic": 175724,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12193,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Confirmed: applied migrations are explicitly marked as history that must not be edited. That covers all three no-touch zones. Enough to sign off.\n\n**Big, but mechanical: ~1080 occurrences across 94 files, three places must stay `account_id`.**\n\n- `services/*` (orders, billing, notify, analytics, accounts) — internal code, safe to rename, bulk of the count.\n- `vendor/reporting-sdk/*` — generated/vendored, `schema.js:3` says \"Do not edit.\"\n- `migrations/*.sql` — already applied in prod; `20250114_create_accounts.sql:3` says editing history breaks nothing but the down step. A rename needs a new migration, not edits to old ones.\n- `docs/openapi.yaml` and the `WIRE` map in `lib/serialize.js:8` — public API contract, explicitly \"frozen field name.\"\n\nNext: get platform team to scope the rename to `services/**`, exclude `vendor/`, `migrations/`, and the wire-format layer.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "de8244d21841cb2a9ff3ccb11610a03aa41759b91b5939c68643de66e2e0c10d"
+}

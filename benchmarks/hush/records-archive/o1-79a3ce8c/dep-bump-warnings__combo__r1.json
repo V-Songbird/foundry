@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__combo__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44599,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.34441900000000003,
+  "numTurns": 11,
+  "durationMs": 43153,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2753
+  },
+  "contextTraffic": 246831,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7077,
+  "narrationWords": 11,
+  "finalWords": 102,
+  "finalText": "**Build passes now.** You were right, two of them were real.\n\nBoth were the same bump changing shapes underneath your code:\n\n1. `src/core/options.js` read `options.retries`. The new bundler sends `retryCount`. It now takes either, and falls back to `0`.\n2. `src/net/retryPolicy.js` demanded a real `true` or `false`. The new config loader leaves unset flags as `undefined`. Unset now means off, like before. A junk value still throws.\n\n`build finished in 44.9s with 8 warnings, 0 errors`, exit 0.\n\nThe 8 warnings left are noise. They name files like `src/legacy/adapter.js` that don't exist here. They come from inside the bundler, not your code.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0cca3a8bffb429a7cecc6217a9600b879dd0f73951e2e9e4eeba9a89a26de142"
+}

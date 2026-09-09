@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__hush__r6",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21797,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1255998,
+  "numTurns": 12,
+  "durationMs": 20112,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1223
+  },
+  "contextTraffic": 227042,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11627,
+  "narrationWords": 0,
+  "finalWords": 55,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. Suite is green: 625 passing, 0 failing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:41](src/pricing.js:41). Tax was computed on the pre-discount amount instead of the discounted amount, contradicting the function's own comment.\n\nOnly the `order totals` suite showed failures before, since it's the only one that mixes a nonzero discount with a nonzero tax rate.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e58796abdb6cd6e9c0dd9d1f3c8b75d1842c7e3579aef093ffb05a88ec2214db"
+}

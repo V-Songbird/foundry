@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__noill__r1",
+  "batchId": "noill1-86935c5e",
+  "seed": "1788038063484",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 114735,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.7422165,
+  "numTurns": 49,
+  "durationMs": 113156,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11232
+  },
+  "contextTraffic": 292041,
+  "apiCalls": 9,
+  "toolCalls": 48,
+  "toolResultChars": 27266,
+  "narrationWords": 8,
+  "finalWords": 60,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding the remaining call sites."
+  ],
+  "finalText": "**Migration done in 12 files, 36 call sites.** All parse clean under `node --check`.\n\nLeft alone on purpose:\n\n| What | Why |\n|---|---|\n| `vendor/legacy-orm/adapter.js` 2 sites | Header says do not edit, replaced on upgrade |\n| `cache.query(...)` ~20 sites | Different object, not `db` |\n\nNext: ask the legacy-orm upstream to move, or wrap the vendor calls.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d978a549aa35c99f028c2f8e646deec5045ef2b9cad79d11ad8be33eef2dd7d0"
+}

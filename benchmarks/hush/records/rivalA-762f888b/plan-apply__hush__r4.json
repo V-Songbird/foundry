@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 176,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 18212,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16935999999999998,
+  "numTurns": 7,
+  "durationMs": 17166,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 942
+  },
+  "contextTraffic": 104342,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 3031,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan, nothing changed yet.**\n\nOne catch: \"same data\" is ambiguous. `toTable` drops `owner` and `slow` on purpose. `buildRows()` keeps both. I'd have `--json` print the full row, since JSON has no width limit, and say so.\n\nTwo edits:\n\n```js\n// src/format.js\nfunction toJson(rows) { return JSON.stringify(rows, null, 2); }\nmodule.exports = { toTable, toJson, COLUMNS };\n\n// src/cli.js  — main(argv)\nconst args = argv.filter((a) => a !== '--json');\nconst json = argv.includes('--json');\nif (args[0] !== 'report') { ... }\nprocess.stdout.write((json ? toJson : toTable)(buildRows()) + '\\n');\n```\n\n`USAGE` becomes `usage: cli.js report [--json]`. Row order stays slowest first. No test files exist, so I would check by running both forms.\n\nNext: say if `--json` should carry `owner` and `slow`, then I write it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9f17e72e0bca92573cff82930077752979f5ecd4182371e087b9772a982ec753"
+}

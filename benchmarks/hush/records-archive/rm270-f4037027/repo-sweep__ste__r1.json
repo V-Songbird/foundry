@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 48,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 78686,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.34575259999999997,
+  "numTurns": 47,
+  "durationMs": 77701,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11162
+  },
+  "contextTraffic": 346876,
+  "apiCalls": 8,
+  "toolCalls": 46,
+  "toolResultChars": 20373,
+  "narrationWords": 87,
+  "finalWords": 98,
+  "finalText": "All 12 files loaded correctly with no syntax errors, and no test suite exists to run.\n\nMigration complete. All 12 application files that still called `db.query(sql, params)` now use `db.execute({ sql, params })`:\n\n- `packages/analytics/src/repo/cohort.js`\n- `packages/orders/src/service/returnService.js`\n- `packages/orders/src/repo/shipment.js`\n- `packages/billing/src/repo/refund.js`\n- `packages/billing/src/service/couponService.js`\n- `packages/support/src/admin/macroAdmin.js`\n- `packages/support/src/repo/sla.js`\n- `packages/catalog/src/admin/variantAdmin.js`\n- `packages/catalog/src/repo/supplier.js`\n- `packages/accounts/src/service/teamService.js`\n- `packages/accounts/src/admin/apiKeyAdmin.js`\n- `packages/accounts/src/repo/session.js`\n\nI left `vendor/legacy-orm/adapter.js` untouched — it's explicitly flagged \"do not edit, replaced wholesale on every upgrade.\" If that vendored dependency needs to drop `db.query` too, that has to happen upstream or via a wrapper, not by editing the vendored file directly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4aedcd54d089b2b6a96d9f05072d5402bd355b97337139b13b73a7dff24a75a3"
+}

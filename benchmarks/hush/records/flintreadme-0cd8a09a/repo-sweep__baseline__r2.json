@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83232,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.462621,
+  "numTurns": 16,
+  "durationMs": 82015,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5280
+  },
+  "contextTraffic": 238595,
+  "apiCalls": 9,
+  "toolCalls": 15,
+  "toolResultChars": 24337,
+  "narrationWords": 77,
+  "finalWords": 222,
+  "assistantMsgs": 5,
+  "finalText": "Migration finished. 39 call sites across 12 first-party files moved from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nThe rewrites match the style of the files migrated in earlier passes (e.g. `packages/billing/src/repo/coupon.js`). Every `.js` file passes `node --check`, and a smoke test through `lib/db.js`'s call log confirms the calls now land on the `execute` form with SQL and params intact.\n\nTwo things I deliberately did **not** change:\n\n1. **`cache.query(...)` — 25 sites, left as-is.** Despite the matching name, `lib/cache.js` documents it as taking a cache key, not SQL; it's an unrelated API and not part of this deprecation.\n2. **`vendor/legacy-orm/adapter.js` — 2 remaining `db.query` calls.** The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on every upgrade with local changes silently lost. Editing it would be undone by the next upgrade, so it needs a different fix: pin/upgrade to a legacy-orm release that uses `execute`, or wrap the adapter locally. Worth flagging since `lib/db.js` says the driver's next major drops `query` entirely — that vendored file is the one thing that will break at that point.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "88c7494e065e663d7aeecdf323b05a1c5c3cf7c33e6d80a52a195eb46ebb221d"
+}

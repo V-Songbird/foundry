@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 40,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 118445,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6408269,
+  "numTurns": 12,
+  "durationMs": 117183,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10251
+  },
+  "contextTraffic": 470647,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 70936,
+  "narrationWords": 83,
+  "finalWords": 196,
+  "finalText": "I added the 4.2.0 entry to CHANGELOG.md. Out of 380 commits and ~130 merged PRs, almost everything was dependency bumps, refactors (config-loader moves, retry-helper collapses, Ctx→RequestCtx renames), test hardening, and CI tweaks — none of that is user-visible, so it's excluded.\n\nWhat's actually notable:\n\n- **Breaking**: expired tokens now return 401, not 403 — flagged separately since it can break error-handling logic that branches on status code.\n- **Added**: webhook retries with exponential backoff (the only `feat` commit in the whole range).\n- **Fixed**: 10 items. Several were the same bug class landing in different modules over the six weeks of commits (e.g., \"guard the null cursor in the paginator\" hit the API, queue, webhooks, and DB clients on four separate dates) — I collapsed those into one bullet each instead of listing every module separately.\n\nOne thing worth double-checking before you publish: the request-body-logging fix (`db: stop logging the whole request body`) sounds like it could be a privacy/PII issue depending on what was in those bodies — you may want to verify with whoever wrote that fix whether it needs a more explicit callout or a security advisory rather than a plain changelog line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "29383ac3f941b1e5d41f45d6b425a7d386da2fa55f5cfa5bd236ba682c22864e"
+}

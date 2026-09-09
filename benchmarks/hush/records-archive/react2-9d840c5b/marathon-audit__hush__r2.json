@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 45,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 139803,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7419033,
+  "numTurns": 36,
+  "durationMs": 133272,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9222
+  },
+  "contextTraffic": 1123873,
+  "apiCalls": 24,
+  "toolCalls": 32,
+  "toolResultChars": 22121,
+  "narrationWords": 0,
+  "finalWords": 124,
+  "finalText": "`fast-parse` is still pinned at `1.4.2` in `package.json` — the version `NOTES.md` says was yanked for a prototype-pollution report. The fix, `1.4.3`, was never picked up. The other flagged dependencies check out fine: `date-fmt`, `pg-lite`, and `redis-min` all match what `NOTES.md` says is current or acceptable.\n\n`AUDIT.md` is written with all four findings, most severe first:\n\n1. **`src/routes/internal.js`** — no auth at all, now that the VPN it relied on is gone.\n2. **`src/repo/report.js`** — SQL injection in `runSavedReport` via string-built queries.\n3. **`config/staging.js`** — a live staging database password committed in plain text.\n4. **`package.json`** — `fast-parse` stuck on the yanked `1.4.2`.\n\nThe verifier confirms it: `OK AUDIT.md names all four findings and the service was left alone`. No service files were touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7517358510789892d69275eff5a6904cdce27f40fe0970b2e61db5ed30f99983"
+}

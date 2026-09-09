@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 52,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24878,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19827750000000002,
+  "numTurns": 8,
+  "durationMs": 23357,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 979
+  },
+  "contextTraffic": 273050,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 10931,
+  "narrationWords": 9,
+  "finalWords": 80,
+  "finalText": "Found it: `src/core/settings.js` referenced a variable `retries` that was never defined, instead of reading it off the `env` argument. That crashed the link stage with `ReferenceError: retries is not defined`.\n\nFixed by changing `maxRetries: retries` to `maxRetries: env.retries`. Build now exits clean at 0 errors.\n\nThe leftover 3 warnings are just noise, not bugs: a deprecated `crypto.createCipher` call, an unused export, and a circular import between `graph.js` and `tracker.js`. Worth cleaning up eventually, but none of them broke the build.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "15c01f7ba8d7ca9698258148d709cf89e993f3642631704742d7971a44cc37a5"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__noill__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28533,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.18320800000000004,
+  "numTurns": 11,
+  "durationMs": 26678,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1766
+  },
+  "contextTraffic": 223937,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8160,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean, exit 0.**\n\nTwo real bugs, not noise, both in the link stage:\n\n- [`src/core/options.js`](src/core/options.js:6) read `options.retries`, but the bumped bundler now hands `retryCount`. Fixed to use `retryCount`.\n- [`src/net/retryPolicy.js`](src/net/retryPolicy.js:7) threw on `undefined` flags. New config loader leaves unset flags `undefined` instead of `false`. Now treats `undefined` as disabled.\n\nThe rest was deprecation warnings, dedupe logs, and progress noise from the bump, not the cause of the failure.\n\nNext: nothing, build passes with 8 known deprecation warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "93cf2470ac8ff09248723ebbe6762581bbc375ab1d04d8271490ba20d72ea264"
+}

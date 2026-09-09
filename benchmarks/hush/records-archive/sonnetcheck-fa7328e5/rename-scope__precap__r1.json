@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__precap__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30776,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13736079999999998,
+  "numTurns": 14,
+  "durationMs": 29088,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2463
+  },
+  "contextTraffic": 204076,
+  "apiCalls": 5,
+  "toolCalls": 13,
+  "toolResultChars": 7771,
+  "narrationWords": 0,
+  "finalWords": 256,
+  "finalText": "I've got a clear picture now.\n\nIt's about 1,082 uses of `account_id`, spread across 94 files. Most of that is safe to rename: the four internal services (`orders`, `notify`, `billing`, `analytics`) and the `accounts` service itself all use `account_id` as a plain internal column name, in their repo, service, and route files.\n\nThree places must not be touched:\n\n1. **The public API contract.** `lib/serialize.js` maps internal row fields to the JSON every client reads. It says outright: \"an internal rename must not reach this side of the map.\" `docs/openapi.yaml` documents `account_id` as a public field too. Renaming here breaks every external client without warning.\n2. **The vendored SDK.** `vendor/reporting-sdk` is a third-party copy, and its own README says \"Do not edit these files\" since the folder gets wholesale overwritten by `npm run vendor:refresh`. Any edit there is silently thrown away.\n3. **Already-applied database migrations.** Files like `20250114_create_accounts.sql` and `20250624_backfill_account_ids.sql` are marked as applied in production back in January and June 2025. Editing them doesn't rename anything in a database that already ran them, and it breaks their rollback step. A rename needs a brand-new migration, not edits to old ones.\n\nOne more soft spot: `lib/audit.js` writes `account_id` into every audit log line. That's a call for the platform team, since renaming it could make old and new audit entries hard to line up later.\n\nSo: safe to sign off on renaming the internal column and code across the five services, not safe to rename in the public API layer, the vendored SDK, or old migration files.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7f683533e3ec131bb03254fc4027348b42922be60a7963fdc988b35f249e434c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22324,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.17993820000000002,
+  "numTurns": 10,
+  "durationMs": 21051,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1357
+  },
+  "contextTraffic": 235114,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7790,
+  "narrationWords": 9,
+  "finalWords": 60,
+  "finalText": "Build clean, exit 0.\n\nTwo real bugs, bundler bump caused both:\n\n- `src/core/options.js` — read `options.retries`, new shape send `retryCount`. Crashed link stage.\n- `src/net/retryPolicy.js` — strict boolean check threw on `undefined` (new loader leaves unset flags undefined, not `false`). Now just `=== true` check, defaults false.\n\nRest (8 warnings: DEP0142/0198/0233/0250/0267 deprecations, unused-export, circular-import) — noise, non-fatal, safe leave alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9e24c866430511f6872ca3c849cd7dd8046bb6a58024e69260a773f7a0a566f4"
+}

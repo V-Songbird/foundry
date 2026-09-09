@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 81552,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2882378,
+  "numTurns": 15,
+  "durationMs": 80018,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7168
+  },
+  "contextTraffic": 404224,
+  "apiCalls": 10,
+  "toolCalls": 14,
+  "toolResultChars": 35221,
+  "narrationWords": 5,
+  "finalWords": 109,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Now writing the 4.2.0 section."
+  ],
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, almost everything was dep bumps, refactors, or tests. Real changes:\n\n- Breaking: expired token now returns `401`, not `403`\n- Added: failed webhook deliveries retry with backoff\n- Fixed: null-cursor pagination crash, dropped trace ids on retry, HTTP client hangs and pool leaks on shutdown, full request body in DB logs, duplicate response header, doubled trailing slash, empty allowlist errors, wrong latency histogram units\n\nSeveral fixes (null cursor, duplicate header, empty allowlist) recur across multiple modules, so I merged those into one line each rather than listing every module separately.\n\nNext: you review wording before the 4.2 cut tomorrow.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d1e0153f896d2e0c6caba5216e3112ac764214bedd4d17c7680e10851141cf6c"
+}

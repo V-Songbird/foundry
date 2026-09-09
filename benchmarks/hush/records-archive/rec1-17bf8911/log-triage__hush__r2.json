@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15479,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11878699999999999,
+  "numTurns": 4,
+  "durationMs": 13600,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 835
+  },
+  "contextTraffic": 115776,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 111,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\nAt `02:14:07` `redis` at `10.0.0.12:6379` dropped with `ECONNREFUSED`. The app fell back to direct store reads, which it couldn't sustain.\n\nFrom there queue depth climbed non-stop, `500` → `570+`, with steady `TimeoutError` and cache-miss storms on `api`, `worker-1`, `worker-2`, `scheduler`. Redis reconnects kept failing, at least attempts `7` through `12`, roughly every two minutes.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` and restarted. Eight seconds later `api` went unresponsive and the supervisor killed the process group. Service down at `02:31:52`.\n\nRoot cause is the `redis` connection loss. Everything after is fallout.\n\nNext: fix `redis` reachability to `10.0.0.12:6379` and check why it dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "128278c80e741c305c320b477c94ed981e725d7b4b8db65e7434efb5f947381f"
+}

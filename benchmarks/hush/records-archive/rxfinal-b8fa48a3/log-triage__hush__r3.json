@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15525,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1966577,
+  "numTurns": 4,
+  "durationMs": 13715,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 695
+  },
+  "contextTraffic": 156652,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23647,
+  "narrationWords": 0,
+  "finalWords": 136,
+  "finalText": "File ends there, at line 719. No recovery logged.\n\nRedis dropped at 02:14:07 (`connect ECONNREFUSED 10.0.0.12:6379`), and the app never got it back — reconnect attempts failed every ~90 seconds, 12 tries in a row. With no cache, every request fell through to the store, which couldn't keep up: timeouts, growing queue depth, cache miss storms, all piling up for 17 straight minutes. Queue depth climbed from 52 to over 550, way past the max of 500. At 02:31:44 a worker ran out of memory from the backlog and crashed, and eight seconds later the whole API gave up and the process group was killed. Service down at 02:31:52, and the log stops there with no recovery.\n\nRoot cause: Redis at `10.0.0.12:6379` went unreachable and never came back. Next step is checking why that box dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b0a5bc934ccf8579283c1f9f56c97dbdb13b243edbc1e855be81cd8b0bb813f5"
+}

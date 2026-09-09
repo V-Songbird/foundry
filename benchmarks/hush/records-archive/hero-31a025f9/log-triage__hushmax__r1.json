@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushmax__r1",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17037,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.149273,
+  "numTurns": 5,
+  "durationMs": 15382,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 975
+  },
+  "contextTraffic": 117584,
+  "apiCalls": 3,
+  "toolCalls": 4,
+  "toolResultChars": 8269,
+  "narrationWords": 0,
+  "finalWords": 118,
+  "finalText": "It started with redis going down. At 02:14:07 the api lost its redis connection, `ECONNREFUSED 10.0.0.12:6379`. It kept retrying every 80 seconds and failing, 13 times over 17 minutes.\n\nWhile redis was gone, everything backed up. Cache misses piled up, request timeouts hit every few seconds, and the queue depth climbed from 379 past 568, way over the 500 limit.\n\nThat backlog finally broke `worker-2`. It ran out of memory at 02:31:44 and crashed. The supervisor restarted it, but 8 seconds later the api itself stopped responding, so the supervisor killed the whole process group. Service went down at 02:31:52.\n\nSo the real root cause is the redis box at `10.0.0.12:6379` going unreachable. Everything after that was fallout.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ff848c4d2e2c8e8317933218241fbd9b0d31d22a8c0490231d5c67d1bfbbfd87"
+}

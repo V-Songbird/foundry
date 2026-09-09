@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__carry__r1",
+  "batchId": "it4-03b4bae4",
+  "seed": "1787878658583",
+  "orderIndex": 2,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "carry",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 120224,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-carry:HushCarry",
+  "costUsd": 0.871726,
+  "numTurns": 59,
+  "durationMs": 118231,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11772
+  },
+  "contextTraffic": 414241,
+  "apiCalls": 10,
+  "toolCalls": 58,
+  "toolResultChars": 38782,
+  "narrationWords": 19,
+  "finalWords": 80,
+  "assistantMsgs": 4,
+  "finalText": "**Migrated 12 files off `db.query`.** That was 34 call sites, all rewritten to `db.execute({ sql, params })`.\n\nNo `db.query` callers remain under `packages/`. `node --check` passes on every file. There are no tests in the repo to run.\n\nI left `[vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9)` alone. Its header says do not edit, since upgrades overwrite it. Its 2 calls break when the driver drops `query`. Your call on whether to pin or patch upstream.\n\nI also left `cache.query` alone. That is a different object.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c3b097f4f856bf837f02de6c07c12b0272732f1dddaa452f54f598150fbb4b5d"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41200,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2831435,
+  "numTurns": 7,
+  "durationMs": 39281,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1843
+  },
+  "contextTraffic": 192881,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 10971,
+  "narrationWords": 6,
+  "finalWords": 125,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died and took prod with it.** One cause, not a mess.\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | Cache bypassed. Reads hit the store direct |\n| 02:29:12 | Queue depth `502` passes max `500` |\n| 02:31:44 | `worker-2` heap out of memory, code `134` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nThe 173 `TimeoutError` and 174 cache miss lines are all downstream noise. Redis never came back. All 13 reconnects failed, spaced a flat 80s apart, so the retry has no backoff and no cap.\n\nNext: check why `10.0.0.12:6379` refused connections. Then cap the queue so a cache outage sheds load instead of eating heap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3c895bba5fdb407151446d7cb3cd24cb0fac108545f2549c71bbbc83f45dd1b"
+}

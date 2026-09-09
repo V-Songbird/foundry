@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__turn2__r2",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 19,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "turn2",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 63434,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.31904570000000004,
+  "numTurns": 14,
+  "durationMs": 56765,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3064
+  },
+  "contextTraffic": 525468,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 10852,
+  "narrationWords": 0,
+  "finalWords": 168,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause**\n`dep-4471` (gateway, a.novak, 02:12–02:14 UTC): \"config: connection-per-request for pool isolation.\" It flipped `gateway.pool.perRequest` from `false` to `true` and bumped `gateway.timeout.upstreamMs` from 2000 to 2500. Pool size stayed fixed at 20 connections, so once each request started claiming its own connection, the pool maxed out and everything behind it queued.\n\n**Impact window**\nStarted 2026-03-14 02:14:19 UTC, about 30 seconds after the config took effect. Still ongoing as of the last log entry, 03:59:44 UTC — 548 failed requests (`503`, `ERR_POOL_EXHAUSTED`) and climbing, wait queue grew from 13 to 74+. Affected routes: `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search`, across all four backend services. `/health` kept returning 200 the whole time, so this wouldn't have tripped basic uptime checks.\n\n**Not affected**\nWorker fleet (`logs/worker.log`) stayed clean through the same window — no errors, no 503s, jobs finishing normally.\n\n**Rollback**\nRoll back `dep-4471` on gateway — revert `gateway.pool.perRequest` to `false` (and `gateway.timeout.upstreamMs` back to 2000 if bundled). No other deploy near the window touches the gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa759182027ef4fa70c486d16aadb47924b0565952687481cc8fd0f72589b1f9"
+}

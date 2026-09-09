@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__flint__r2",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 10,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "flint",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37537,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.3017535,
+  "numTurns": 13,
+  "durationMs": 36406,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2521
+  },
+  "contextTraffic": 142524,
+  "apiCalls": 6,
+  "toolCalls": 12,
+  "toolResultChars": 17690,
+  "narrationWords": 4,
+  "finalWords": 144,
+  "assistantMsgs": 2,
+  "finalText": "**Big but shallow.** 1082 hits in 94 files. Roughly 1028 of them, in 75 service files, are safe internal renames.\n\nFour places must not be renamed:\n\n| Where | Files | Why |\n|---|---|---|\n| `docs/openapi.yaml` | 1 | Public contract. Rename needs a new dated version. |\n| `vendor/reporting-sdk/src/` | 4 | Generated. `npm run vendor:refresh` overwrites edits. |\n| `migrations/*.sql` | 12 | Already applied. Editing breaks the down step. |\n| `WIRE` values in [lib/serialize.js:8](lib/serialize.js:8) | 1 | Right side is the wire name. Key may change, value may not. |\n\nThe real trap is SQL text in the 25 `repo/*.js` files. `WHERE account_id = ?` is a DB column, not a variable. A blind find-replace breaks every query.\n\nSign off only if the change is variables and params, plus a column rename migration if they want the DB moved too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c2346a3f7ca223cb483220f7b8503b3b335fa83c8104a89182efce23e6ef2a79"
+}

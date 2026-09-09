@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__parts__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 17,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "parts",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23305,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.2687222,
+  "numTurns": 6,
+  "durationMs": 21841,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1247
+  },
+  "contextTraffic": 251681,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 31408,
+  "narrationWords": 13,
+  "finalWords": 142,
+  "finalText": "Found it, this tells the whole story end to end.\n\n**Redis died, and nothing ever gave up waiting for it.**\n\nAt 02:14:07 the app lost its connection to Redis at `10.0.0.12:6379`. It tried to reconnect 13 times over the next 17 minutes, every attempt refused. Every service kept queuing requests instead of failing fast, so the queue grew from 52 to over 570, way past its stated max of 500. By 02:31:44 `worker-2` ran out of memory holding that backlog and crashed. A minute later the `api` process stopped responding entirely, and the supervisor killed the whole process group. Service went down at 02:31:52.\n\nSo: Redis outage → no circuit breaker on the queue → memory exhaustion → full crash. Worth checking why Redis at `10.0.0.12` went down, and adding a queue depth cap or fail-fast instead of letting it climb unbounded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1b849ffc96e2691ae03c30223e5ca19116273acfb440d7f1a4399b7b354ef628"
+}

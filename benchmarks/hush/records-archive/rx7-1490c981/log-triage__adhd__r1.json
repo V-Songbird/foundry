@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rx7-1490c981",
+  "seed": "1786465735558",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15117,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.29601299999999997,
+  "numTurns": 3,
+  "durationMs": 13645,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 848
+  },
+  "contextTraffic": 145916,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 17,
+  "finalWords": 222,
+  "finalText": "Got the full picture. Here's what happened:\n\n**Root cause: Redis died at 02:14:07, nothing brought it back, prod OOM'd 17 minutes later.**\n\n1. **02:14:07** — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). App fell back to direct store reads instead of failing fast.\n2. **02:14:08 → 02:31:26** — Death spiral: every ~2s, cache-miss storms hit the store directly, store times out (5000ms), request queue grows. Queue depth climbed from 52 to **568** (max was supposed to be 500 — the cap wasn't enforced).\n3. Redis **auto-reconnect tried 12 times** (02:15:26 → 02:31:26, roughly every 100s) and **failed every single time** — Redis at 10.0.0.12:6379 never came back.\n4. **02:31:44** — `worker-2` hit **JavaScript heap out of memory** from the request backlog it couldn't drain.\n5. **02:31:45** — supervisor restarted worker-2 (exit code 134 = SIGABRT from OOM).\n6. **02:31:52** — `api` itself became unresponsive; supervisor **killed the whole process group — service down**.\n\n**Bottom line:** Redis at `10.0.0.12:6379` went unreachable and never recovered on its own. The app's fallback-to-direct-store-reads was the right instinct but had no backpressure — the queue cap (500) wasn't actually enforced, so it grew unbounded until a worker OOM'd and took the whole service down with it.\n\nNext: check why redis at `10.0.0.12:6379` was unreachable (host down? network partition? OOM on the redis box itself) — that's outside this log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2da141888f24fbad09492f34c2a204d9981fb14b24099f4d6b057a9430971edf"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "scr2-a8fb037c",
+  "seed": "1787637246895",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 59260,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.42769399999999996,
+  "numTurns": 8,
+  "durationMs": 57535,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3998
+  },
+  "contextTraffic": 241925,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 17378,
+  "narrationWords": 6,
+  "finalWords": 98,
+  "finalText": "**Your cache server died and took the whole app down.**\n\nAll was well until 02:14:07 on July 4. Then the cache at `10.0.0.12:6379` refused every connection.\n\n1. The app fell back to reading the main store.\n2. The store could not keep up. Requests timed out at 5 seconds.\n3. Waiting work piled up. The queue hit 568 against a 500 limit.\n4. It retried the cache 13 times. All refused.\n5. At 02:31:44 `worker-2` ran out of memory.\n6. At 02:31:52 the supervisor killed everything.\n\nNo request completed after 02:14:03. The outage lasted 17 minutes 45 seconds.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "76291c97ebdc753fa30b89fff1c90dcab0c983f1522313b3e0d69ef624752dd6"
+}

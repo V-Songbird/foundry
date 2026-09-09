@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 220100,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.853577,
+  "numTurns": 17,
+  "durationMs": 214590,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14061
+  },
+  "contextTraffic": 462885,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 19751,
+  "narrationWords": 8,
+  "finalWords": 937,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "# On-Call Handoff — Gateway 503s\n\n**Incident:** gateway connection pool exhaustion\n**Status at handoff:** 🔴 **ONGOING** — still erroring at the last log line (03:59:27Z). Not mitigated.\n**Prepared:** 2026-08-29 · from `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n\n---\n\n## Root cause\n\nConfig change `gateway.pool.perRequest: false → true` made every request check out its own connection from a pool whose size was left at **20**. The pool saturated within ~40 seconds and never recovered.\n\n```\n02:12:12.820Z INFO  config reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO  config generation 119 applied: 3 keys changed\n02:13:41.234Z INFO  config   gateway.pool.perRequest:    false -> true   ← this one\n02:13:41.234Z INFO  config   gateway.timeout.upstreamMs: 2000 -> 2500\n02:13:41.234Z INFO  config   gateway.log.sampleRate:     1.0 -> 1.0      (no-op)\n02:14:14.920Z WARN  pool   req-07400 /v1/checkout acquire slow: waited 100ms\n02:14:18.972Z ERROR pool   req-07401 ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting 13)\n```\n\nEvery one of the 530 errors is the same code, `ERR_POOL_EXHAUSTED`, and every one reads `size 20, in_use 20` — pinned at ceiling, zero idle. Waiters climb monotonically 13 → 232+. One error type, one cause, no secondary failures.\n\n**Confidence: high on the correlation, moderate on the mechanism.** The timing is unambiguous and the log contains no competing candidate. The pool-sizing explanation is inferred from the `in_use 20 / idle 0` pattern — I have not seen the gateway's actual pool config, so confirm `size 20` is still the live value before assuming a resize is the fix.\n\n## Impact window\n\n| | |\n|---|---|\n| **First 503** | `2026-03-14T02:14:18.972Z` (req-07401) |\n| **Last log line** | `2026-03-14T03:59:27.974Z` — still failing |\n| **Observed duration** | **1h 45m 09s**, end not established |\n| **Volume** | 530 × 503, flat at **50 per 10 min** from 02:20 on — no self-recovery |\n| **Error rate** | 71% of gateway log lines are ERROR |\n| **Paged** | 03:21:05Z — **67 minutes after onset** |\n\n**Failing (503):** `/v1/cart`, `/v1/checkout`, `/v1/session`, `/v1/orders`, `/v1/catalog/search` — 106 each, evenly spread across all four upstreams. Not upstream-specific.\n\n**Degraded but not failing:** `/v1/profile` — 106 slow-acquire warnings, **zero 503s**. Worth a look during review; it shares the pool but never tipped over, which is odd and might indicate a different routing path.\n\n**Unaffected:** `/health` — all 180 checks returned 200 at `pool_wait=2ms` throughout. **This is why the page was 67 minutes late.** Health checks stayed green through a 71% error rate.\n\n## Roll back\n\n### ▶ `dep-4471` — gateway — a.novak — 02:12→02:14Z\n*\"config: connection-per-request for pool isolation\"*\n\nFirst 503 landed **19 seconds** after this deploy finished, 37 seconds after its config applied. It is the only deploy in the window and the only change of any kind the log records.\n\nRolling back to **generation 118** should restore service. If the rollback path is config-only, reverting `gateway.pool.perRequest` to `false` is the minimal change — the other two keys in that generation are a timeout bump and a no-op. If per-request pooling is wanted for real, it needs a pool sized for concurrent in-flight requests, not 20.\n\n### Do NOT roll back\n- **`dep-4470`** (worker, 00:48–00:55, *\"retry backoff for webhook jobs\"*) — tempting on timing, but see below. Rolling it back will not help and will muddy the picture.\n- **`dep-4472`** (billing-svc, 02:41) and **`dep-4473`** (catalog-svc, 03:20) — both shipped *after* onset, neither changed the error rate (flat 50/10min straight through both). Not implicated.\n\n---\n\n## ⚠️ Second, unrelated issue — currently untracked\n\n**The workers are fine on errors and not fine on latency.** 1080 jobs, 100% `finished ok`, pool untouched at `in_use=1 waiting=0`, `db_wait` flat. They did not share the gateway's failure.\n\nBut job duration ramps **200ms → 2324ms (11x)** at a dead-linear +110ms per 10 minutes, and:\n\n- it **does not inflect at 02:14** — unrelated to the gateway incident;\n- it is **already running at 01:00**, the first line of the log, so it predates the window;\n- it is **uniform across all six job types** (+2000ms each), which rules out `dep-4470` — a webhook-path change would not slow `cleanup` and `export` identically.\n\nOne related line, a known issue:\n```\n02:36:22.838Z WARN db slow query 1.9s: SELECT * FROM orders WHERE status = ?\n              — unindexed scan, known issue OPS-2210\n```\n\nNobody has been paged for this and it was ~3 hours old at end of window. Uniform slowdown across all job types points at a shared resource, not a code path. **Needs its own ticket** — don't let it get closed out with the gateway incident.\n\n## Follow-ups\n\n1. **Verify the rollback took** — watch for `idle` returning above 0 in the `INFO pool stats` line, not just 503s stopping.\n2. **Fix health checks.** `/health` cannot bypass the connection pool. This is the single highest-value fix here — it cost 67 minutes.\n3. **Gate deploys on gateway error rate.** `dep-4472` and `dep-4473` shipped into an active 71%-error incident; `dep-4473` went out 5 minutes *after* on-call was paged.\n4. **File the worker latency ticket**, cross-reference OPS-2210.\n5. **Alert on `ERR_POOL_EXHAUSTED` directly** — a first-occurrence alert would have fired at 02:14:18 instead of 03:21.\n\n## Caveats for whoever picks this up\n\n- The gateway log header reads **`node-3 of 3`**. This is one node. I have no visibility into nodes 1 and 2 — they may be equally affected (same config generation would have rolled to them) or the true user-facing impact may be 3x what's shown here. **Check the other two nodes before sizing customer impact.**\n- Both logs end at 03:59. Whether the incident continued past 04:00 is not knowable from these files.\n- `deploys.csv` records timestamps and summaries only — it confirms *what shipped when*, not what the config did mechanically.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c049edb10d089671d9793371be2e932b310891076a272e4790c537434e389ec9"
+}

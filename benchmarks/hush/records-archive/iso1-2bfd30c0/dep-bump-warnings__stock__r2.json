@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27785,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1171684,
+  "numTurns": 10,
+  "durationMs": 26067,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1673
+  },
+  "contextTraffic": 195947,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7816,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean, exit 0.**\n\nTwo real bugs from the bump, both in the link stage:\n\n- `[src/core/options.js](src/core/options.js)` — `resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Fixed the field name.\n- `[src/net/retryPolicy.js](src/net/retryPolicy.js)` — `isBackoffEnabled` threw on `undefined`. New config loader leaves unset flags `undefined` instead of `false`. Now treats `undefined` as disabled.\n\nThe rest was deprecation noise, unrelated. No further action needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c17f2c0a1b3c81fd9afde949afebf3cfca6c89e15f9f50f27ab81bcb3a63b58"
+}

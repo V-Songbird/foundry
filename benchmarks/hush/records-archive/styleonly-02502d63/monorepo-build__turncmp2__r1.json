@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__turncmp2__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 7,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "turncmp2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27376,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1961076,
+  "numTurns": 9,
+  "durationMs": 25724,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1800
+  },
+  "contextTraffic": 215341,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10617,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "finalText": "Found it: the config merge used a shallow `Object.assign`, so any package that overrode one key inside `output` or `sourcemap` lost the rest of that object — that's what `build.js` was choking on after the lint pass.\n\nFixed `packages/shared/config.js` to merge `output` and `sourcemap` one level deep instead of replacing them wholesale. `verify.js` now passes, and the build itself finishes green with the same 5 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4aa215b9dee6fed0cb8828711e2c549684bcd3f30ab33cd5d809ff488c52f17"
+}

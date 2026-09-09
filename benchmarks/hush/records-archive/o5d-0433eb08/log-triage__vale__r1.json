@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__vale__r1",
+  "batchId": "o5d-0433eb08",
+  "seed": "1787819135921",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "vale",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51339,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "vale:Vale",
+  "costUsd": 0.3024505,
+  "numTurns": 7,
+  "durationMs": 49155,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2666
+  },
+  "contextTraffic": 193499,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 11235,
+  "narrationWords": 6,
+  "finalWords": 90,
+  "finalText": "Redis died at 02:14:07. All of it flows from there.\nCache off, every read hit the store. Timeouts began 3 seconds later.\nQueue grew 52 to 568. It passed the 500 cap at 02:29:12.\n13 reconnect tries, all refused, 80s apart. None worked.\nworker-2 died on heap OOM. api was killed at 02:31:52.\n\n```\n2026-07-04T02:14:07.113Z ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n2026-07-04T02:31:44.902Z ERROR [worker-2] JavaScript heap out of memory (request backlog)\n2026-07-04T02:31:52.318Z FATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nFix Redis at 10.0.0.12:6379 first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4502105405c33ca54844a3e642e823a474ce01c2bece8d331040616edfaf72e"
+}

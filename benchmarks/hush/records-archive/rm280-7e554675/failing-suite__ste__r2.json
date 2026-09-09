@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 31,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28416,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.274644,
+  "numTurns": 9,
+  "durationMs": 26576,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1540
+  },
+  "contextTraffic": 173690,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15619,
+  "narrationWords": 71,
+  "finalWords": 176,
+  "finalText": "The suite is green: 625 total, 625 passing, 0 failing, exit code 0.\n\n**What was broken**\n\nOne bug, in `orderTotal` in `src/pricing.js`. The function applied the discount correctly, but then computed the tax from the original `cents` value instead of the discounted value:\n\n```js\nconst tax = roundCents(cents * taxRate);   // wrong base\nreturn discounted + tax;\n```\n\nThe result was an overcharge. For example, `orderTotal(33400, 10, 0.2)` returned 36740 cents instead of 36072 cents.\n\n**The fix**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why the output was so large**\n\nOnly 3 of the 625 cases failed. The runner prints one line per case, so about 620 passing lines hid the 3 failures. All 3 failures were the same bug. In the `order totals` suite, most rows use a zero discount or a zero tax. Those rows give the same answer with either tax base, so they passed and masked the defect. Only the last three rows have both a non-zero discount and a non-zero tax, so only those rows could expose it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "97eeb6e2ea8853a5d6a7067ae6c2567253d12cb1817b557a0b1b525d84998ba4"
+}

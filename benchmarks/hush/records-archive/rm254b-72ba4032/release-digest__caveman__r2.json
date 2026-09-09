@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 42,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 95446,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5569563,
+  "numTurns": 10,
+  "durationMs": 94156,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8432
+  },
+  "contextTraffic": 403304,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 72478,
+  "narrationWords": 28,
+  "finalWords": 150,
+  "finalText": "CHANGELOG.md written, 4.2.0 section filled.\n\n11 real changes found among the 380 commits — everything else (deps bumps, refactors, test/CI churn) filtered out via merged-prs.tsv `code` label cross-checked against file paths in commits.log:\n\n**Breaking:** auth now returns 401 not 403 for expired tokens — flag this loud, clients checking status codes will break.\n\n**Added:** webhook retry with exponential backoff.\n\n**Fixed:** trace ID dropped on retry, trailing-slash path bug (queue + jobs), DB logging full request bodies, wrong units in store latency histogram, null-cursor crash in webhook pagination, duplicate HTTP header, unclear queue token-parser error.\n\nNote: commits.log had extra near-duplicate titles (e.g. \"drop the duplicate header\" also on unrelated core files, \"keep the trace id\" showing up 3x, \"guard the null cursor\" also on db) that never appear in merged-prs.tsv — treated those as unmerged/superseded noise, not release content. Worth a sanity check on your end if you want extra certainty.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a5e081d2661040ced0362495feb4f055d439bf3da0fc13d99e1ca91c667f4578"
+}

@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74528,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3321048,
+  "numTurns": 45,
+  "durationMs": 73019,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10485
+  },
+  "contextTraffic": 324519,
+  "apiCalls": 8,
+  "toolCalls": 44,
+  "toolResultChars": 44390,
+  "narrationWords": 40,
+  "finalWords": 101,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "Good, `cache.query` is unrelated (a separate cache client), leaving that alone. Let me check `lib/db.js` and the vendor adapter's context.",
+    "All 12 files follow the same pattern. Applying the migration to each.",
+    "Confirming no `db.query` calls remain outside vendor code."
+  ],
+  "finalText": "**Migration finished.** Moved 12 files off `db.query` to `db.execute({ sql, params })`.\n\n| Package | Files |\n|---|---|\n| analytics | `cohort.js` |\n| orders | `returnService.js`, `shipment.js` |\n| billing | `refund.js`, `couponService.js` |\n| support | `macroAdmin.js`, `sla.js` |\n| catalog | `variantAdmin.js`, `supplier.js` |\n| accounts | `teamService.js`, `apiKeyAdmin.js`, `session.js` |\n\nLeft `vendor\\legacy-orm\\adapter.js` on `db.query` — it's a vendored file marked \"do not edit, replaced wholesale on every upgrade.\" `cache.query` calls in the `cached*` helpers are a separate cache client, not this migration.\n\nNext: decide whether `legacy-orm` needs a vendor-side fix upstream, since `db.query` is slated for removal.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "285ebec0954900dc42668d75d253b6e1cbee0a8c858f5e1cac8a2087e4c34ce5"
+}

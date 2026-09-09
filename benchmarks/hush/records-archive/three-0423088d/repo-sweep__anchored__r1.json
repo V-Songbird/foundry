@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__anchored__r1",
+  "batchId": "three-0423088d",
+  "seed": "1787418273908",
+  "orderIndex": 12,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 100375,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5548262,
+  "numTurns": 59,
+  "durationMs": 98900,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12632
+  },
+  "contextTraffic": 688638,
+  "apiCalls": 13,
+  "toolCalls": 58,
+  "toolResultChars": 47243,
+  "narrationWords": 40,
+  "finalWords": 68,
+  "finalText": "All 12 files syntax-checked clean, no `FAIL` lines.\n\nMigration's done. All 33 `db.query` calls across the 12 remaining package files (billing, support, catalog, analytics, orders, accounts) are now `db.execute({ sql, params })`, matching the pattern already used elsewhere. `vendor/legacy-orm/adapter.js` still uses `db.query`, but that's a vendored third-party copy marked \"do not edit — replaced wholesale on upgrade,\" so I left it alone. Every changed file passed `node --check`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cb485bc57899fe9cdc51e25e44226835bc74f7a9e221e0e161d212ebbbe75fac"
+}

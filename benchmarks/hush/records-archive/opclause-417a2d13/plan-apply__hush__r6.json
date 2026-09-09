@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r6",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 10,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 18800,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14993299999999998,
+  "numTurns": 7,
+  "durationMs": 16134,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 852
+  },
+  "contextTraffic": 76665,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3029,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: `--json` prints `buildRows()` rows straight, no table.**\n\n```js\n// cli.js\nconst args = argv.slice(1);\nconst json = args.includes('--json');\nif (command !== 'report' || args.some((a) => a !== '--json')) { usage; return 1; }\nconst rows = buildRows();\nprocess.stdout.write((json ? JSON.stringify(rows, null, 2) : toTable(rows)) + '\\n');\n```\n\nOne call to make. \"Same data\" is ambiguous. `toTable` drops `owner` and `slow` on purpose, see [format.js:3](src/format.js:3). I would emit all six fields in JSON. Say the word if you want just the four table columns.\n\n`format.js` and `report.js` stay untouched. Usage line becomes `usage: cli.js report [--json]`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6640436d535261791b0b23b476733d0c784959d2f877f84282fc3d734125bf77"
+}

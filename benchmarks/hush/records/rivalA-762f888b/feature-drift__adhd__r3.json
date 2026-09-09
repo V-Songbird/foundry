@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 133,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 130299,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7165655,
+  "numTurns": 28,
+  "durationMs": 124679,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7853
+  },
+  "contextTraffic": 655547,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 13374,
+  "narrationWords": 6,
+  "finalWords": 192,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Dedupe is in. `route()` now checks `state.lastSentAt` first and returns `[]` if the same key was delivered within 5 minutes; the timestamp is recorded only when the notification actually went somewhere, so a suppressed repeat can't keep sliding the window forward. `createState()` returns `{ lastSentAt: new Map() }`.\n\nReplay: 99 dropped, 0 errors. Those 99 are exactly the flaps `events.js` plants (every 9th event, same key 2 minutes after the previous) — I checked the gap between each dropped event and its prior delivery, and every one is 2 minutes. No other repeat fell inside the window, so nothing legitimate got swallowed.\n\nTotals after dedupe: queue 266, email 223, pager 200, sms 112, push 112.\n\nTwo things to flag:\n- A queued notification counts as \"sent\" for dedupe purposes, so a quiet-hours queue entry suppresses a repeat 2 minutes later. That seemed right to me — it's still a delivery — but if the queue should be exempt, it's a one-line change.\n- At exactly 5 minutes I drop (`<= 5`). Nothing in the replay lands on that boundary, so it doesn't move any numbers either way; say if you want strictly-less-than.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "80568ab1789052c518122f72ea4f69aa6a2c8afc8fc05fd8904086451fc754d0"
+}

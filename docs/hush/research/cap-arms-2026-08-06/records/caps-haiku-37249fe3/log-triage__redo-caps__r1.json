@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 157,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11070,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.030728900000000003,
+  "numTurns": 2,
+  "durationMs": 9298,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 665
+  },
+  "contextTraffic": 56474,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "finalText": "**Redis went down at 02:14:07, and it cascaded from there.**\n\nThe app tried to fall back to direct database reads when the cache layer disappeared. That overloaded the database, requests started timing out, and the request queue filled up faster than it drained. By 02:31:44, the Node process ran out of memory from the backed-up requests and crashed. The supervisor couldn't restart it, and the whole service went down at 02:31:52.\n\nThe redis server at 10.0.0.12:6379 stayed unreachable — reconnect attempt 12 failed at 02:31:26. Until that comes back, the system can't handle the traffic. The cascade happened in about 17 minutes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "378164d907beb6e4867e2db88c1c7a4864da39070ae8f30624898a15166b424f"
+}

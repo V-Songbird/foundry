@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lean__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 60070,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.600313,
+  "numTurns": 6,
+  "durationMs": 58314,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3981
+  },
+  "contextTraffic": 187577,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 27461,
+  "narrationWords": 6,
+  "finalWords": 107,
+  "finalText": "Redis went down and took the whole service with it.\n\n| time (UTC) | event |\n|---|---|\n| 02:14:07 | redis at `10.0.0.12:6379` refused connections |\n| 02:14:07 | cache disabled, reads fell back to the store |\n| 02:14:10 | first `TimeoutError: request timed out after 5000ms` |\n| 02:29:12 | backlog passed its cap of 500 |\n| 02:31:44 | worker-2 hit `JavaScript heap out of memory` |\n| 02:31:52 | supervisor killed the api, service down |\n\nNo request succeeded after 02:14:03. All 13 reconnect attempts got the same refusal. Collapse took 17 minutes start to finish. Fix redis first, then add load shedding.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d13c9e7f30b89f6da9e3d77196ac44720e41651a8d5502977b896a708d38d677"
+}

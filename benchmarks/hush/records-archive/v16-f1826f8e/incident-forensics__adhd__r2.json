@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 45,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65795,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.28029,
+  "numTurns": 14,
+  "durationMs": 59234,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3254
+  },
+  "contextTraffic": 430693,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 8676,
+  "narrationWords": 18,
+  "finalWords": 208,
+  "finalText": "Log ends at 03:59:27 still throwing 503s — ongoing, not resolved.\n\n**On-call handoff:**\n\n```\nINCIDENT: Gateway 503s\nSTATUS: Ongoing (not yet resolved as of last log line 03:59:27Z)\n\nROOT CAUSE:\nDeploy dep-4471 (gateway, a.novak, \"connection-per-request for\npool isolation\") changed gateway.pool.perRequest false -> true\nat config generation 119 (applied 02:13:41Z). This exhausts the\n20-connection pool under load — each request now holds its own\nconnection instead of sharing. Every 503 pairs 1:1 with\nERR_POOL_EXHAUSTED (size 20, in_use 20, waiting N). Backlog\n(waiting count) climbed from 13 at onset to 71-74 by end of log\n— actively degrading, not stabilizing.\n\nIMPACT WINDOW:\nStart: 2026-03-14T02:14:18Z (first 503, req-07401)\nFirst warning sign: 02:14:14Z (pool acquire slow warning)\nEnd: still active at 03:59:27Z (log cutoff)\nDuration so far: ~1h45m\nTotal 503s logged: 548\n\nSCOPE:\nGateway only. logs/worker.log shows workers/DB pool unaffected\n(only 1 unrelated pre-existing WARN, known issue OPS-2210, at\n02:36:22Z, 22min after onset — not correlated).\n\nACTION - ROLL BACK:\ndep-4471 (gateway config deploy, 02:12:00-02:14:00Z).\nRevert gateway.pool.perRequest to false (or roll back full\nconfig generation 119 -> 118). This should also implicitly\nrevert the timeout bump (upstreamMs 2000->2500) bundled in the\nsame generation — confirm that's acceptable or reapply separately.\n```\n\nNext: page a.novak (deploy author) and execute the rollback of dep-4471.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "774e0caeb8dee0e29ee1731b9a87c87ab402d95a00ed082affb3c2c2c434c139"
+}

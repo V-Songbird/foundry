@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 25,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76504,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.7564310000000001,
+  "numTurns": 10,
+  "durationMs": 73990,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5030
+  },
+  "contextTraffic": 393351,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 71726,
+  "narrationWords": 17,
+  "finalWords": 396,
+  "finalText": "Draft entry is in `CHANGELOG.md:3`. Of 380 commits, ~35 touch behavior users can see; the rest is 130 dep bumps, 84 refactors, 100 test/CI/chore.\n\n**The thing to check before you cut:** three commits labeled `refactor` and one labeled `fix` are actually breaking, so 4.2 is not the minor release the commit log makes it look like.\n\n- `stop re-exporting the internal error types` — 8 commits across core, db, auth, billing, jobs. Labeled refactor, but it removes exports. Anyone importing those types breaks on upgrade.\n- `refactor(api): drop the unused v1 export route` (#4152) — \"unused\" is an assertion about *your* callers, not external ones. Worth confirming against traffic before you ship it as a refactor.\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) — correct fix, but it's a contract change for anyone branching on the status code.\n\nTwo more worth flagging in the notes rather than burying:\n\n- `fix(db): stop logging the whole request body` — request bodies were going into logs until now. If those logs are retained or shipped anywhere, that's a disclosure question for whoever owns it, separate from the release.\n- `fix: use the right units in the latency histogram` — silently changes what existing dashboards and alerts are plotting.\n\nJudgment calls I made, reverse any you disagree with:\n\n- **Grouped repeated fixes.** The same fix message appears across 3–4 modules (null cursor in four paginators, duplicate header in three). I wrote each as one user-facing line rather than four, since installers see one behavior change, not four.\n- **Left perf out.** Nine perf commits (batched metric writes, skipped JSON round-trips, reused parsed schema). Your template says three headings only, and none of them individually cross \"someone installing would notice.\" Say the word and I'll add a line under Added.\n- **Dated it 2026-08-27.** Last commit in `history/` is 2026-06-17, so there's a ~10-week gap between the log and tomorrow's cut — if work landed after that, it isn't in these files and isn't in the draft.\n\nOne I couldn't resolve: five `docs: note the minimum node version` commits and several `ci: run the suite on node 22` land in this range. If the supported Node floor actually moved, that belongs under Breaking — but the log only shows docs and CI touched, never `engines` in `package.json`, so I didn't write it in. Worth a look.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3b7d7b9081c04c10f23842bac5412d02aa1e8c62f829cd4c91bdb9c863eab7eb"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 25995,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.43125949999999996,
+  "numTurns": 5,
+  "durationMs": 24912,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1606
+  },
+  "contextTraffic": 173274,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 42948,
+  "narrationWords": 0,
+  "finalWords": 345,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died, cache fell away, store got hammered, memory blew up.** Classic cascade.\n\n## Timeline (all 2026-07-04 UTC)\n- `02:00–02:14` — healthy. `/users`, `/orders`, `/health` all 200. Cache hit ratio 0.90–0.98.\n- `02:14:07` — trigger:\n  ```\n  ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n  WARN  [api] cache layer degraded — falling back to direct store reads\n  ```\n- `02:14:08+` — cache miss storm on `orders:*` keys. Every read hit backing store direct.\n- `02:14:10+` — store overloaded. `TimeoutError: request timed out after 5000ms` across api, worker-1, worker-2, scheduler. 188 ERROR lines total.\n- `02:14–02:31` — queue depth climbs monotonic 52 → 568. Steady ~3/tick, never drains.\n- `02:15:26 – 02:31:26` — 13 redis reconnect attempts, attempt 0 through 12, **all fail same ECONNREFUSED**. Redis never came back.\n- `02:31:44` — collapse:\n  ```\n  ERROR [worker-2] JavaScript heap out of memory (request backlog)\n  FATAL [supervisor] worker-2 exited with code 134, restarting\n  FATAL [supervisor] api unresponsive, killing process group — service down\n  ```\n\nTotal: ~17.5 min from Redis loss to service down.\n\n## Root cause\nRedis at `10.0.0.12:6379` refusing connections. Everything else downstream.\n\n## Three real bugs beyond the outage\n1. **No backpressure.** Log says `(max 500)` but depth reached **568** — limit logged, never enforced. Queue grew unbounded until heap died. This turned degraded service into total outage.\n2. **No circuit breaker.** On cache miss every request went straight to store. Nothing shed load or served stale. Store had no chance.\n3. **Reconnect backoff wrong.** Attempts 0–6 spaced ~80s apart, attempts 7–12 also ~80s. Flat interval, no exponential backoff, no cap-and-alert. 13 attempts over 16 min and no escalation before the crash.\n\n## Fix order\n1. Enforce the 500 queue cap — reject with 503 when full. Stops OOM.\n2. Circuit breaker on store calls after N consecutive timeouts.\n3. Alert on `redis connection lost` immediately, not after supervisor FATAL.\n\n## One flag\nLog dates are **2026-07-04**, not last night (today is 2026-09-01). Either this is an old archived log or the timestamps are wrong. Check you pulled the right file before you write up the postmortem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "342bc29415f800c4ce1cc3ab15aaeb3b9feacded58e5b202162289a29fb6c72a"
+}

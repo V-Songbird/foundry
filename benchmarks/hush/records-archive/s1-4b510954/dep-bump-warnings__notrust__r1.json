@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__notrust__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 24,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrust",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30176,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 0.21718900000000002,
+  "numTurns": 10,
+  "durationMs": 28659,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1982
+  },
+  "contextTraffic": 278967,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7947,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "finalText": "Build's clean now. Two real bugs, not noise.\n\n`resolveRetries` in `src/core/options.js` was reading `options.retries`, but the bumped bundler now hands it `retryCount`. Fixed to read the right field.\n\n`isBackoffEnabled` in `src/net/retryPolicy.js` threw when the flag was `undefined`. The new config loader leaves unset flags as `undefined` instead of `false`. It now treats `undefined` as disabled, same as before.\n\n`node build.js` finishes with `0 errors` now. The rest were plain deprecation noise from the bump, safe to leave.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92671e0bc0e8f689882c4985a2205cba52145bd8aa7fe8cd42e7b001261d2dcb"
+}

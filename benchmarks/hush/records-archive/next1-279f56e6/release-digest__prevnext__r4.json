@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__prevnext__r4",
+  "batchId": "next1-279f56e6",
+  "seed": "1787987410607",
+  "orderIndex": 23,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 61180,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2059162,
+  "numTurns": 11,
+  "durationMs": 59737,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5493
+  },
+  "contextTraffic": 244044,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 21456,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry into `[CHANGELOG.md](CHANGELOG.md)`.**\n\nOut of 380 commits, one real breaking change, one feature, nine fixes worth telling users about.\n\n- Expired tokens now return `401` instead of `403` — worth flagging loud, it'll break anyone matching on status code\n- Webhook retries now use exponential backoff\n- Nine fixes: null-cursor paginator crashes, duplicate trailing slashes, empty-allowlist rejection, lost trace ids on retry, duplicate headers, request bodies leaking into logs, wrong latency units, hung HTTP client, clearer token errors\n\nEverything else was deps bumps, refactors, and test churn — left out. Worth a second look before you ship: confirm the `401`/`403` change is intentional and not just a fix someone forgot to flag as breaking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1fd4edcb9ca52e5a6ac23434f6b89047c4fa3dd11e0b670d8cebc2e5fa4d5cde"
+}

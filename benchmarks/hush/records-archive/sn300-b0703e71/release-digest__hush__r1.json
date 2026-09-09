@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 81777,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2758468,
+  "numTurns": 12,
+  "durationMs": 80220,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7137
+  },
+  "contextTraffic": 352767,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 34843,
+  "narrationWords": 0,
+  "finalWords": 108,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry to [CHANGELOG.md](CHANGELOG.md).**\n\nSifted 380 commits. Found one breaking change, one feature, ten real fixes. Everything else was dep bumps, refactors, or test churn.\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook deliveries retry with exponential backoff\n- Fixed: crashes on null cursor, hangs on socket drop and shutdown, double-trimmed slashes, duplicate headers, dropped trace ids, wrong histogram units, full request body logged\n\nSeveral fixes landed the same way across multiple modules (queue, api, db, etc), so I grouped those into one bullet each.\n\nNext: check the 401/403 change with whoever owns auth, since that's the one that could break callers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a69927098dba800a355a34f46c3df72a783fdefc83dc602d2dd527b3cd7ddd8f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r1",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 31,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 149892,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2423052,
+  "numTurns": 45,
+  "durationMs": 143803,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9289
+  },
+  "contextTraffic": 1200700,
+  "apiCalls": 33,
+  "toolCalls": 41,
+  "toolResultChars": 19517,
+  "narrationWords": 9,
+  "finalWords": 76,
+  "finalText": "Audit complete. Four findings in AUDIT.md:\n\n1. **SQL injection** in the report layer — filter and orderBy concatenated directly into queries\n2. **Missing auth** on internal endpoints — /internal/metrics and /internal/flush-cache exposed after VPN removal\n3. **Hardcoded credential** in staging config — real Postgres password committed to the repo\n4. **Yanked dependency** — fast-parse 1.4.2 has a known prototype-pollution vulnerability, needs 1.4.3\n\nVerification passed. The service code was left untouched — this is a read-only audit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ad3aaf02dac6bfa81e7a5e2355fe590ca19975c55c1c535991f5f360f4547944"
+}

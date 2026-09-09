@@ -1,0 +1,106 @@
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+
+selftest: all instruments valid
+running 21 cells, 3 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260706-083629
+  [1/21] dep-slug / ponytail #0  LOC=3 correct=1 safe=1 cost=$0.0343196 installs=0
+  [2/21] dep-slug / baseline #0  LOC=8 correct=1 safe=1 cost=$0.0326714 installs=0
+  [3/21] dep-slug / razor #0  LOC=5 correct=1 safe=1 cost=$0.030807499999999998 installs=0
+  [4/21] dep-toml / baseline #0  LOC=17 correct=1 safe=1 cost=$0.039986100000000004 installs=0
+  [5/21] dep-uuid / baseline #0  LOC=3 correct=1 safe=1 cost=$0.0268701 installs=0
+  [6/21] dep-toml / ponytail #0  LOC=20 correct=1 safe=0 cost=$0.0575666 installs=0
+  [7/21] dep-toml / razor #0  LOC=15 correct=1 safe=1 cost=$0.056329199999999996 installs=0
+  [8/21] dep-uuid / ponytail #0  LOC=3 correct=1 safe=1 cost=$0.0326936 installs=0
+  [9/21] dep-uuid / razor #0  LOC=3 correct=1 safe=1 cost=$0.028008500000000002 installs=0
+  [10/21] sprawl-todo / razor #0  LOC=13 correct=1 safe=1 cost=$0.0595708 installs=0
+  [11/21] oh-question / baseline #0  LOC=0 correct=1 safe=1 cost=$0.052966200000000005 installs=0
+  [12/21] sprawl-todo / ponytail #0  LOC=17 correct=1 safe=1 cost=$0.07549459999999998 installs=0
+  [13/21] oh-question / ponytail #0  LOC=0 correct=1 safe=1 cost=$0.0274431 installs=0
+  [14/21] oh-question / razor #0  LOC=0 correct=1 safe=1 cost=$0.0237125 installs=0
+  [15/21] oh-typo / baseline #0  LOC=0 correct=1 safe=1 cost=$0.028136200000000004 installs=0
+  [16/21] sprawl-todo / baseline #0  LOC=12 correct=1 safe=1 cost=$0.1087156 installs=0
+  [17/21] oh-typo / ponytail #0  LOC=0 correct=1 safe=1 cost=$0.0321568 installs=0
+  [18/21] oh-typo / razor #0  LOC=0 correct=1 safe=1 cost=$0.0277897 installs=0
+  [19/21] vibe-jsonconf / baseline #0  LOC=93 correct=1 safe=1 cost=$0.0330564 installs=0
+  [20/21] vibe-jsonconf / ponytail #0  LOC=30 correct=0 safe=1 cost=$0.0336929 installs=0
+  [21/21] vibe-jsonconf / razor #0  LOC=91 correct=1 safe=1 cost=$0.0552633 installs=0
+
+=== dep-slug  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0      8      1     87282   $0.0327    13.3         0
+  ponytail        1.0    1.0      3      1     93333   $0.0343    11.6         0
+  razor           1.0    1.0      5      1     87868   $0.0308    17.2         0
+
+=== dep-toml  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     17      1    144966   $0.0400    18.7         0
+  ponytail        1.0    0.0     20      1    191820   $0.0576    30.5         0
+  razor           1.0    1.0     15      1    212529   $0.0563    30.1         0
+
+=== dep-uuid  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0      3      1     85529   $0.0269     8.6         0
+  ponytail        1.0    1.0      3      1     92445   $0.0327    11.1         0
+  razor           1.0    1.0      3      1     86889   $0.0280    10.3         0
+
+=== oh-question  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0      0      0     48798   $0.0530     4.6         0
+  ponytail        1.0    1.0      0      0     53100   $0.0274     4.7         0
+  razor           1.0    1.0      0      0     49546   $0.0237     4.8         0
+
+=== oh-typo  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0      0      0     73974   $0.0281     8.0         0
+  ponytail        1.0    1.0      0      0     80305   $0.0322    10.8         0
+  razor           1.0    1.0      0      0     74812   $0.0278     7.5         0
+
+=== sprawl-todo  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     12      1    552766   $0.1087    60.1         0
+  ponytail        1.0    1.0     17      1    236742   $0.0755    38.8         0
+  razor           1.0    1.0     13      1    215994   $0.0596    27.6         0
+
+=== vibe-jsonconf  (haiku, n=1) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  baseline        1.0    1.0     93      1     51487   $0.0331    18.0         0
+  ponytail        0.0    1.0     30      1     28461   $0.0337    17.6         0
+  razor           1.0    1.0     91      1    109590   $0.0553    35.5         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260706-083629\results.json + summary.json (21 cells)

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__lean__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 93514,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.48546259999999997,
+  "numTurns": 48,
+  "durationMs": 91855,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11788
+  },
+  "contextTraffic": 509736,
+  "apiCalls": 11,
+  "toolCalls": 47,
+  "toolResultChars": 43296,
+  "narrationWords": 29,
+  "finalWords": 83,
+  "finalText": "Migration finished. 12 files still called `db.query` and all now use `db.execute({ sql, params })`, matching the pattern already used elsewhere.\n\nFiles updated: `cohort.js`, `returnService.js`, `shipment.js`, `refund.js`, `couponService.js`, `macroAdmin.js`, `sla.js`, `variantAdmin.js`, `supplier.js`, `teamService.js`, `apiKeyAdmin.js`, `session.js`.\n\nOne file still uses `db.query`: `vendor/legacy-orm/adapter.js`. I left it alone — its header says it's a vendored copy, replaced wholesale on upgrades, and local edits get silently lost.\n\nAll 12 edited files pass `node --check`. Since `db.query` in `lib/db.js` stays functional (just deprecated), nothing breaks in the meantime.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1f76d3c398d162542cd9b46500072c1d80368ad0edb876fe14ca4a9b41ca9428"
+}

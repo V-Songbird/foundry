@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45590,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5329345,
+  "numTurns": 6,
+  "durationMs": 43980,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2787
+  },
+  "contextTraffic": 200556,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60736,
+  "narrationWords": 22,
+  "finalWords": 624,
+  "assistantMsgs": 3,
+  "finalText": "## What happened\n\n**Root cause: Redis went away at 02:14:07 and never came back. Everything after that is downstream collapse.**\n\nThe log covers `2026-07-04T02:00:00Z` → `02:31:52Z` (719 lines). One caveat up front: these timestamps are July 4, ~7 weeks ago — not last night. Either the file is stale/rotated oddly, or the incident you're thinking of is in a different log. Worth confirming before you act on this.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. All 200s, cache hit ratio 0.90–0.98, cron ticks OK. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First cache-miss storm (`orders:1000`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52/500, and climbing monotonically from here |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts (0–12), **every single one ECONNREFUSED**. No success, ever. |\n| 02:29:12 | Queue depth **502 — exceeds the stated max of 500** and keeps going |\n| 02:31:24 | Queue depth peaks at 568 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nLog ends there. **No recovery is recorded** — the service was down when logging stopped.\n\n### The failure chain\n\nRedis (10.0.0.12:6379) refused connections → cache layer fell back to reading the store directly → every request became a store read → store saturated (5s timeouts) → requests piled up in the queue faster than they drained → queue grew unbounded for 17 minutes → worker-2 OOM'd on the backlog → supervisor killed the api process group.\n\nLine counts: 188 ERROR, 348 WARN, 2 FATAL. Not a single successful request is logged after 02:14:03 — the last `GET /health 200` was 02:13:52. So user-facing impact started essentially at 02:14, ~17 minutes before the process actually died.\n\n### Three things the log tells you about your own resilience, beyond \"Redis died\"\n\n1. **The reconnect had no backoff and no ceiling.** Attempts land at 02:15:26, 02:16:46, 02:18:06, 02:19:26 … exactly 80s apart, 13 times. Fixed interval, retrying forever, never escalating or giving up. `ECONNREFUSED` (not timeout) means nothing was listening at all — this looks like Redis was down/moved, not a network blip, so 17 minutes of identical retries bought nothing.\n\n2. **The queue-depth limit isn't enforced.** The log itself says `max 500`, yet depth sailed past it to 568 with no shedding, no 503s, no circuit breaker. That's the difference between \"degraded but alive\" and OOM. If the cache-degraded path had shed load or tripped a breaker at 500, you'd have served errors instead of dying.\n\n3. **The cache fallback is the amplifier, not the mitigation.** Falling back to direct store reads on 100% of traffic is what overloaded the store. Note the miss-storm keys cycle through a fixed set (`orders:1000`–`orders:1199`, repeating) — a small hot key set being re-fetched over and over. Request coalescing / single-flight on those keys would have cut store load by orders of magnitude.\n\n### What I'd check next\n\n- Why Redis at `10.0.0.12:6379` stopped accepting connections at 02:14:07 — that answer isn't in this file. Check the Redis host's own logs, and whether it was an instance replacement/IP change (ECONNREFUSED for 17 straight minutes smells like the endpoint moved).\n- Whether the service came back after 02:31:52, and how — nothing here says it did.\n- `package.json` shows `ioredis ^5.4.1`; its retry strategy and `maxRetriesPerRequest` are the likely place the 80s fixed-interval behavior is configured.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c35fd0585e035c875d49ed95fccc21a82e6da1dea46b7ce9bb4702529a53714b"
+}

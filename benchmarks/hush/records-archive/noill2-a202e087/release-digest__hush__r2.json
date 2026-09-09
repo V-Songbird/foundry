@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70873,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.54745,
+  "numTurns": 14,
+  "durationMs": 69339,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4863
+  },
+  "contextTraffic": 273888,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 36047,
+  "narrationWords": 8,
+  "finalWords": 95,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the repository structure."
+  ],
+  "finalText": "**Wrote 4.2.0 into [CHANGELOG.md:3](CHANGELOG.md:3).** Of 380 commits, 227 were deps, tests, CI and chores. Three breaking items hide in commits labelled `refactor` and `fix`.\n\n| Breaking | Where |\n|---|---|\n| Internal error types no longer re-exported | `core` `db` `auth` `jobs` `billing` |\n| v1 export route removed | `src/api/router.js` |\n| Expired token returns `401`, was `403` | `src/auth/token.js` |\n\nOne feature: webhook retry with backoff. The latency histogram unit fix will shift dashboard numbers.\n\nNext: check whether webhook retry is on by default in `src/core/config.js`. I guessed yes from the commit stat.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4f066664fc609c0cf054f4f0bf93e65aa5b0cd62082494f8d696160c208e7ac1"
+}

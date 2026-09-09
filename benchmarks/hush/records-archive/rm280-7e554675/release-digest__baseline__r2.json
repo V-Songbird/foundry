@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 43,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 94754,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7886314999999999,
+  "numTurns": 9,
+  "durationMs": 93309,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6672
+  },
+  "contextTraffic": 364868,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 76662,
+  "narrationWords": 23,
+  "finalWords": 712,
+  "finalText": "I read all 380 commits and the 127-row PR sheet. Here's the breakdown:\n\n| Type | Count | User-facing? |\n|---|---|---|\n| chore (mostly deps) | 153 | No |\n| refactor | 73 | Mostly no — **but 9 touch the public surface** |\n| test | 64 | No |\n| ci | 33 | No |\n| fix | 26 | Yes → collapses to ~11 distinct |\n| perf | 10 | Arguably |\n| feat | 1 | Yes |\n\nThe 380 commits contain about **15 things a user would notice**. Much of the noise is literal duplication — `fix(api): keep the trace id across the retry` appears 3×, `fix(core): drop the duplicate header` 3×, the same pino bump lands 8 times.\n\n## What actually changed\n\n**Behavior changes people will hit**\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) — this is the big one. It's labeled a fix, but any client branching on 403 breaks. I'd put it under Breaking, not Fixed.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits across auth, billing, core, db, jobs. \"Refactor\" undersells it: imports that used to resolve now won't.\n- `refactor(api): drop the unused v1 export route` (#4152) — \"unused\" is the author's read of internal telemetry, not a guarantee. It's a removed HTTP route.\n\n**The one feature**\n\n- `feat(webhooks): retry failed deliveries with exponential backoff` (#4191). It also touched `src/core/config.js`, so it almost certainly ships a new config option — you'll want the option name and default in the note.\n\n**Real fixes**, deduped across modules:\n\n- HTTP client: timer no longer leaks when the socket drops; pool now closes on shutdown\n- Paginator no longer throws on a null cursor (hit api, db, queue, webhooks — one symptom, four call sites)\n- Duplicate header no longer sent (core, http, billing)\n- Trace id survives a retry\n- Empty allowlist no longer errors (db, jobs, store)\n- Trailing slash trimmed once, not twice (jobs, queue)\n- Latency histogram was reporting the wrong units (core, store) — worth calling out separately if anyone dashboards these\n- `fix(db): stop logging the whole request body` (#4157) — logged request bodies may sit in existing log stores; that's arguably a note for operators, not just a bugfix line\n\n## Draft for CHANGELOG.md\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- An expired token now returns 401 instead of 403. If you branch on the\n  status code, update that check.\n- The internal error types are no longer re-exported from `auth`, `billing`,\n  `core`, `db`, and `jobs`. Import them from their own module.\n- The v1 export route has been removed.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n  <!-- confirm the config option name + default from src/core/config.js -->\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and now\n  closes its pool on shutdown.\n- Paginating with a null cursor no longer throws.\n- A retry keeps the trace id.\n- An empty allowlist is handled instead of erroring.\n- Requests no longer carry a duplicated header.\n- The latency histogram reports the correct units.\n- Request bodies are no longer written to the logs.\n```\n\n## Two things to check before you ship\n\n**Node version.** Four `docs: note the minimum node version` commits and six `ci: run the suite on node 22` commits, but I see no `engines` change in any `package.json` diff — every `package.json` edit sits inside a dep-bump commit. If the floor really did move, that's a Breaking line and it's currently missing. If it didn't, the docs are ahead of the code.\n\n**The PR sheet is not a complete record.** It lists 15 user-facing PRs; the commit log has 37. Both `fix(http)` items, `fix(api): guard the null cursor`, `fix(db): handle an empty allowlist`, and `fix(core): use the right units` exist only as commits. Don't build the notes from the sheet.\n\nI left the 10 `perf` commits out to keep the three headings your template specifies — the two worth mentioning are `perf(api): reuse the parsed schema between requests` and `perf(core): skip the JSON round-trip on the hot path`. Say the word and I'll fold them in or write the draft into CHANGELOG.md.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e16459ac173e6abff7721aa5f7f9a5d1f0cc6d5f372a2344c38232570a92f535"
+}

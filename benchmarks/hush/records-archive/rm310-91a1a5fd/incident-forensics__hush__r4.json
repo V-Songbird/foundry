@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 155598,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6421620000000001,
+  "numTurns": 18,
+  "durationMs": 148725,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9041
+  },
+  "contextTraffic": 397102,
+  "apiCalls": 16,
+  "toolCalls": 14,
+  "toolResultChars": 10470,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).** Root cause is `dep-4471`, which flipped `gateway.pool.perRequest` to true without raising pool size 20.\n\nImpact ran `02:14:18Z` to at least `03:59:27Z`, still ongoing at log end. That is 1h45m and 530 failed requests.\n\nOne number I had not pinned before: post-onset, 100% of non-`/health` requests failed. `/health` stayed 200 the whole time because it takes no pool connection. That is why the page came 67 minutes late.\n\nNext: roll back `dep-4471`, or just set `gateway.pool.perRequest` to false.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83f541a1a0aa597cd7f894060b8db37053efad1193fbc9ab2d187dde6affe1e1"
+}

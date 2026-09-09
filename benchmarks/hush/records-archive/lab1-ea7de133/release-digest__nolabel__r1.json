@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__nolabel__r1",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "nolabel",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 99705,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2492572,
+  "numTurns": 12,
+  "durationMs": 97879,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8627
+  },
+  "contextTraffic": 241710,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 21657,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry to `CHANGELOG.md`.**\n\nOut of 380 commits, one real feature and eleven real fixes. Everything else was `chore(deps)`, `refactor`, `test`, or `ci` noise.\n\n- **Added**: webhooks now retry failed deliveries with exponential backoff\n- **Fixed**: null-cursor pagination crashes, duplicate response headers, double-trimmed trailing slashes, empty-allowlist handling, dropped trace IDs on retry, wrong latency units, unclear token-parser errors, a socket-drop timer leak, pool-not-closed on shutdown, DB logging full request bodies, and expired tokens wrongly returning 403 instead of 401\n\nSeveral of these (null cursor, duplicate header, trace ID, token parser) showed up as the same bug fixed independently across multiple modules — I merged those into one line each rather than listing every module's commit.\n\nWorth a second look before you ship it: the 401-vs-403 change is a real behavior change for anyone branching on status code — you may want it called out more prominently, possibly under a Breaking heading instead of Fixed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "717c37101589d2ce48f9e8a83430d600488b3ed3b15ead06a61c8f3de77f7d6a"
+}

@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 76345,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.285025,
+  "numTurns": 60,
+  "durationMs": 74842,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9809
+  },
+  "contextTraffic": 311249,
+  "apiCalls": 9,
+  "toolCalls": 59,
+  "toolResultChars": 22735,
+  "narrationWords": 40,
+  "finalWords": 63,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "Let me check `lib/db.js` for the exact deprecation contract and inspect each remaining file.",
+    "Now let me read all 13 files with remaining `db.query` usages.",
+    "Now verify no `db.query` calls remain outside vendor, and that tests pass if any exist."
+  ],
+  "finalText": "No test suite in the repo, so nothing to run.\n\n**Migrated 11 files** from `db.query(sql, params)` to `db.execute({ sql, params })`.\n\nRepos/services in `analytics`, `orders`, `billing`, `support`, `catalog`, `accounts` each had 3 calls (get, list, update).\n\nLeft `vendor/legacy-orm/adapter.js` untouched — it's marked \"Do not edit, replaced wholesale on every upgrade.\" Also left `cache.query` calls alone, that's a different module, not `db`.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "507152b03885976382e905739a877cd129c96def208c7d0fc8e430cb5ccfde2e"
+}

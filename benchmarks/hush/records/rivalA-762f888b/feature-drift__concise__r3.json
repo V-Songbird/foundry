@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__concise__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 130,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 122665,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.719033,
+  "numTurns": 27,
+  "durationMs": 117799,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7289
+  },
+  "contextTraffic": 694508,
+  "apiCalls": 27,
+  "toolCalls": 22,
+  "toolResultChars": 14174,
+  "narrationWords": 18,
+  "finalWords": 134,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project files first.",
+    "The mapping is straightforward — a table lookup, no state needed."
+  ],
+  "finalText": "Done. `route()` checks a per-key last-delivery time in `state` before anything else and returns `[]` on a repeat within 5 minutes; `createState()` now returns `{ lastSentAt: new Map() }`.\n\nVerified independently against the replay: 99 drops, every one a same-key repeat inside the window, and no repeat inside the window slipped through. 0 errors. That's the planted flaps (`prev.at + 2`, roughly every ninth event) being caught.\n\nTwo judgment calls, both easy to flip:\n- The window is inclusive — a repeat at exactly 5 minutes is dropped.\n- Only a delivery starts the window, so a dropped repeat doesn't extend it. A key flapping every 3 minutes therefore gets through every 6, rather than being suppressed forever.\n\nA queued notification counts as sent, so a quiet-hour repeat is dropped rather than queued twice.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9742ebd8ebef78feba8605c0332f7259289522b3977425687bfe6ad57806c9c0"
+}

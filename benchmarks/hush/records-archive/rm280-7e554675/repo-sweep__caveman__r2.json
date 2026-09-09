@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__caveman__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 55,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39191,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.35065549999999995,
+  "numTurns": 11,
+  "durationMs": 37853,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2516
+  },
+  "contextTraffic": 200571,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 19487,
+  "narrationWords": 19,
+  "finalWords": 97,
+  "finalText": "Migration done. 12 files, 36 call sites moved to `db.execute({ sql, params })`:\n\n- `packages/accounts`: `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js`\n- `packages/billing`: `repo/refund.js`, `service/couponService.js`\n- `packages/orders`: `repo/shipment.js`, `service/returnService.js`\n- `packages/catalog`: `repo/supplier.js`, `admin/variantAdmin.js`\n- `packages/analytics`: `repo/cohort.js`\n- `packages/support`: `repo/sla.js`, `admin/macroAdmin.js`\n\nAll JS files pass `node --check`.\n\nTwo things left alone deliberately:\n\n- `vendor/legacy-orm/adapter.js:9,13` — still on `db.query`. Header says vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, local edits silently lost. Real fix is upstream/version bump, not an edit here. Only remaining `db.query` callers in repo.\n- `cache.query(...)` in ~20 repo files — different object (`lib/cache.js`), unrelated API, untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4162dd0478bd952434d8a236f3d613d5371f3530a73129c50f7b3d2cad3db4a2"
+}

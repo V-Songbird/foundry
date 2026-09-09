@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25800,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14701519999999998,
+  "numTurns": 10,
+  "durationMs": 23901,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1844
+  },
+  "contextTraffic": 286231,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6996,
+  "narrationWords": 28,
+  "finalWords": 121,
+  "finalText": "Build passes clean now, 0 errors.\n\nTwo spots hadn't caught up to the new bundler's option shapes. In `src/core/options.js`, retry counts used to arrive as `retries`, but the bumped bundler now sends them as `retryCount`. The code was still reading the old name, so it crashed on `undefined`. Fixed it to read `retryCount`.\n\nIn `src/net/retryPolicy.js`, the backoff flag used to come back as `false` when unset. Now it comes back as `undefined`, and the check only handled `true` or `false`, so it threw an error on anything else. Fixed it to treat `undefined` the same as `false`.\n\nThe rest of the warnings were just deprecation noise from the bump, not real problems. Build now finishes with 8 warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6acb09a85774c44aebbe5d5b7b77ea762ca5963b647a08e72d5d3a667cd17c22"
+}

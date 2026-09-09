@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 41,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 161775,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.838494,
+  "numTurns": 31,
+  "durationMs": 155689,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10252
+  },
+  "contextTraffic": 1315039,
+  "apiCalls": 27,
+  "toolCalls": 27,
+  "toolResultChars": 29677,
+  "narrationWords": 64,
+  "finalWords": 121,
+  "finalText": "`fast-parse` is pinned to `1.4.2` in `package.json` — and `NOTES.md` says that exact version was yanked by the publisher over a prototype-pollution report, with `1.4.3` as the fix. Nothing in `src/` actually imports it, so it's a supply-chain risk rather than a live one right now, but it needs the bump regardless.\n\n`AUDIT.md` is written with all four findings, ranked by severity:\n\n1. **Critical** — hardcoded staging DB password in `config/staging.js`\n2. **High** — `src/routes/internal.js` reachable with no auth\n3. **High** — SQL built by concatenation in `src/repo/report.js`\n4. **Medium** — `fast-parse@1.4.2`, yanked for prototype pollution\n\nNo service files were touched. I ran `verify.js` and it passes:\n\n```\nOK AUDIT.md names all four findings and the service was left alone\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9a982fe5fb18deb7e14b0907ee3e24f7477ef184e8260239333653a18a8427ec"
+}

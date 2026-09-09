@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21925,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1208112,
+  "numTurns": 13,
+  "durationMs": 20148,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1291
+  },
+  "contextTraffic": 200401,
+  "apiCalls": 7,
+  "toolCalls": 12,
+  "toolResultChars": 11512,
+  "narrationWords": 0,
+  "finalWords": 52,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. 625 passing, 0 failing.**\n\n`orderTotal` in `src/pricing.js` taxed the pre-discount amount instead of the discounted one, contradicting its own comment.\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nOnly rows with both a discount and a tax rate exposed it, which is why most of the wall of text was noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4fb83b2170b46bbf76adc1158d5adbe77e0fa23b09ae62f63ffde72df7e2de46"
+}

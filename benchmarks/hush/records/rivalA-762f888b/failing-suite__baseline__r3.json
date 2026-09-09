@@ -1,0 +1,45 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 51,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42854,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2735895,
+  "numTurns": 9,
+  "durationMs": 42025,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2717
+  },
+  "contextTraffic": 191109,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 7287,
+  "narrationWords": 72,
+  "finalWords": 326,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the project.",
+    "3 real failures out of 622, all in one suite. Let me see them.",
+    "The bug is in `orderTotal`: it applies tax to the pre-discount base. Let me confirm against the other cases in that suite before changing it.",
+    "Only those 3 cases exercise a discount and tax together — the other 66 have one of them zero, which is why the bug hid. Fixing:"
+  ],
+  "finalText": "Green: 625/625, exit 0.\n\n**What was actually broken** — one line, one bug. The 716-line wall of output contained only 3 real failures, all in the `order totals` suite (cases 433–435).\n\n`orderTotal` in `src/pricing.js:41` computed tax on the pre-discount base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxing the undiscounted amount\nreturn discounted + tax;\n```\n\nSo the customer was taxed on money they never paid. The function's own doc comment states the intended behavior (\"Tax is charged on the amount the customer pays\"), so the code contradicted its contract — this was a genuine bug in the engine, not a stale test expectation. Confirmed against the case data: 12000 − 15% = 10200, ×0.0825 = 841.5 → 842, total 11042, which is exactly what the test expects. Same for the other two.\n\nThe fix is `cents` → `discounted`.\n\n**Why it hid for so long:** of the 69 `orderTotal` cases, 66 have either a zero discount or a zero tax rate, and both branches agree whenever one input is zero. Only 3 cases exercise a discount and a tax simultaneously, and all 3 failed. I checked this before editing so I could be sure the change wasn't trading one set of failures for another.\n\nTwo things worth flagging, neither of which I changed:\n\n- **Coverage gap.** 66 of 69 cases in that suite can't distinguish correct from incorrect behavior. That ratio is why a plain arithmetic error survived. Worth adding a few multi-input cases.\n- **A rounding decision is now load-bearing.** The code rounds the discount and the tax separately, then adds. Rounding once at the end (`applyTax(discounted, taxRate)`) gives identical answers on all 3 cases but can differ by a cent elsewhere. I kept the existing two-step shape since that's what the ledger comment implies and it's what the tests were written against — but if you have a canonical rounding rule, that's the spot to confirm it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4acf7c96925c1a1e82684a5c30fa6b5e7bf40b405ebef703b7866b6e0426a6d"
+}

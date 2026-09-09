@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__noill__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 28,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 94298,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.259733,
+  "numTurns": 13,
+  "durationMs": 92497,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8343
+  },
+  "contextTraffic": 298714,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 23024,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**4.2.0 written into [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, one breaking change, one feature, ten fixes worth telling people about.\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook deliveries retry with backoff on failure\n- Fixed: null pagination cursors crashing, duplicate response headers, double trailing slashes, empty allowlists, dropped trace ids, wrong histogram units, vague token-parser errors, full request bodies in logs, a leaked connection pool on shutdown, a timer not clearing on socket drop\n\nEverything else was dependency bumps, refactors, or test/CI churn, left out per the file's own rule.\n\nNext: check the `401`/`403` change against your API docs before it ships, since it's the one that can break callers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "14c77fa4aafc85e56b9bba939db5dd7598b8b6e2b084e1892cb86f15e8ef4df6"
+}

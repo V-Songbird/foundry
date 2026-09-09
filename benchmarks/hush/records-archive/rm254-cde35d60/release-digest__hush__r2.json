@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 47,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74064,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3725979,
+  "numTurns": 11,
+  "durationMs": 72478,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6764
+  },
+  "contextTraffic": 257170,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 30246,
+  "narrationWords": 0,
+  "finalWords": 158,
+  "finalText": "I dug through both the raw commit log and the PR sheet and wrote the 4.2.0 entry into `CHANGELOG.md`.\n\nUnder all the dependency bumps and refactors, ten real user-facing changes showed up.\n\n**Breaking:** an expired token now returns 401, not 403.\n\n**Added:** webhook deliveries retry with exponential backoff on failure.\n\n**Fixed:** paginators no longer crash on a null cursor, a duplicate response header is gone, trailing slashes trim once instead of twice, empty allowlists stopped breaking requests, request bodies are no longer logged, trace ids survive retries, the latency histogram reports correct units, token parser errors read clearer, and the HTTP client stops leaking a timer and a connection pool.\n\nOne thing worth flagging: several of these bugs (the null cursor, the duplicate header, the trailing slash) were fixed separately in multiple modules over the six weeks, not once. I folded each into a single changelog line and named the affected modules, rather than listing every repeat fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b7b71f0635ddd2d7f009ddf4075627e2e33bd3658b68dfaa7c4bf3f85c7b6ff0"
+}

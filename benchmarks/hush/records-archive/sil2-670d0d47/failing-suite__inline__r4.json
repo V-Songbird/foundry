@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__inline__r4",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "inline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34391,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13650879999999999,
+  "numTurns": 13,
+  "durationMs": 32703,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1445
+  },
+  "contextTraffic": 262648,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 11832,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Suite is green: 625 total, 625 passing.**\n\nThe bug was in [`orderTotal`](src/pricing.js:39). Tax was computed on the pre-discount `cents` instead of the discounted amount, so any case with both a discount and a tax rate overcharged. All 3 failures were exactly those rows.\n\nFixed by taxing `discounted` instead of `cents`. Nothing else to do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59ea89e395fc90fefa385060d6dab8439d540286292925ca1cdf3ba3c03a17ad"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "ab-style-52859765",
+  "seed": "1787386633516",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23379,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1359918,
+  "numTurns": 6,
+  "durationMs": 21371,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1274
+  },
+  "contextTraffic": 240328,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 11093,
+  "narrationWords": 0,
+  "finalWords": 129,
+  "finalText": "Redis, the fast cache your app leans on, dropped its connection at 2:14 AM. From address 10.0.0.12, port 6379, refused the connection.\n\nThe app tried to cope by reading straight from the main store instead of the cache. That store couldn't handle the extra load. Requests started timing out after 5 seconds, over and over. The queue of waiting requests kept growing, from 52 up past 568.\n\nFor 17 minutes the app kept retrying redis and failing. At 2:31 AM it gave up after 12 failed attempts. Right after that, one worker ran out of memory from the backlog and crashed. The whole service went down at 2:31:52 AM.\n\nSo the real cause was the redis outage. Everything after that, the crash included, was fallout from losing that connection.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8043c13b2aeaa2ee0a60014a75d3ed42a5d198be02a057ce4a28bb3608089ad"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83807,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5385515,
+  "numTurns": 11,
+  "durationMs": 82390,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5209
+  },
+  "contextTraffic": 340053,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 31811,
+  "narrationWords": 16,
+  "finalWords": 508,
+  "assistantMsgs": 3,
+  "finalText": "Draft is in `CHANGELOG.md:3`. Here's what I found and the calls I made.\n\n**The shape of it:** 380 commits, 126 merged PRs. 153 chore, 73 refactor, 64 test, 33 ci, 20 docs — that's 90% of the log and none of it reaches a user. What's left: 1 feat, 26 fix, 10 perf.\n\n**The one new thing:** `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48). It touched `src/webhooks/dispatch.js` *and* `src/core/config.js`, which suggests it added a config knob — you'll want to name the option and its default in the entry. I couldn't get the name from the log.\n\n**Three things I'd call breaking, none of them labeled as such:**\n\n- `stop re-exporting the internal error types` — 8 commits across core, db, auth, billing, jobs. The authors called them \"internal,\" but re-exports are reachable, and anyone doing `instanceof` on them breaks silently on upgrade. This is the one most likely to bite.\n- `refactor(api): drop the unused v1 export route` (56dc828) — filed as a refactor, but it touched `router.js`, `handlers.js`, and the API tests. \"Unused\" means unused by *us*.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55) — a correct fix, but clients branching on the status code will change behavior.\n\nI put all three under Breaking because a user upgrading is the one who finds out. If you know the v1 route and the error types were never public, demote them — but that's a call from knowledge I don't have here.\n\n**Two things I could not verify, both worth a check before you ship:**\n\n- **Minimum Node version.** Five `docs: note the minimum node version` commits plus `ci: run the suite on node 22`, but every one of them only touched README/docs files. No commit in the log touches `engines` in `package.json`. So either the floor moved and the manifest wasn't updated, or the docs are describing a floor that was already there. If it moved, that's a Breaking entry and I've left it out. Worth one look at `package.json`.\n- **Perf.** Ten commits — batched metric writes, skipped JSON round-trips, a reused parsed schema. I left all of them out. Your heading set is Breaking/Added/Fixed with no Performance heading, and none of the commits carry a number. \"Faster\" with nothing behind it isn't something someone installing the package would notice. If you have benchmark figures, `perf(api): reuse the parsed schema between requests` (9f02d92) is the one most likely to show up in real traffic.\n\nTwo caveats on the whole thing: this directory has `history/` and `CHANGELOG.md` but no source tree, so every line above is read off commit subjects and diffstats — I read no diffs. And the last commit is 2026-06-17, ten weeks before today, so if work continued elsewhere it isn't in this log. I dated the release 2026-08-28 for tomorrow's cut.\n\nThe Fixed list is deduped by symptom, not by commit — \"guard the null cursor in the paginator\" landed four separate times in queue, api, webhooks, and db, and a user experiences that as one bug.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "35818748884f9c6629f4ae0a5e33d069dc39b8ee77a925404b6a79331eb19651"
+}

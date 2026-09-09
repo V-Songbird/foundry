@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 57,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 70902,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4410624,
+  "numTurns": 44,
+  "durationMs": 69637,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10001
+  },
+  "contextTraffic": 259823,
+  "apiCalls": 7,
+  "toolCalls": 43,
+  "toolResultChars": 18091,
+  "narrationWords": 73,
+  "finalWords": 94,
+  "finalText": "Migration is done. All 10 remaining app files (`returnService.js`, `teamService.js`, `supplier.js`, `shipment.js`, `apiKeyAdmin.js`, `cohort.js`, `session.js`, `couponService.js`, `sla.js`, `variantAdmin.js`, `refund.js`, `macroAdmin.js`) now use `db.execute({ sql, params })`.\n\nThe one remaining `db.query` call is in `vendor\\legacy-orm\\adapter.js`, which is explicitly marked \"vendored copy... do not edit — replaced wholesale on every upgrade.\" That's not part of the app's own migration surface — `db.query` still works there (deprecated but functional per `lib/db.js`), so it's safe to leave. If you want it gone too, the real fix is upgrading/patching the vendor package upstream rather than editing the local copy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e95deb7edea5c282a6b0f8f1ca7ec50004c4ecb54516188e26d67535ac768ade"
+}

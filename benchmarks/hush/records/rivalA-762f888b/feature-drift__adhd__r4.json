@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__adhd__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 136,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 111264,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.629288,
+  "numTurns": 26,
+  "durationMs": 105686,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6436
+  },
+  "contextTraffic": 585413,
+  "apiCalls": 23,
+  "toolCalls": 21,
+  "toolResultChars": 12497,
+  "narrationWords": 6,
+  "finalWords": 153,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Done. `createState()` now returns `{ lastSentByKey: new Map() }`, and `route()` drops an event whose key was last *delivered* under 5 minutes ago.\n\nReplay: 99 dropped, 0 errors — that matches the harness's ~every-ninth flap (same key, +2 minutes). Deliveries fell accordingly (e.g. pager 225→200, queue 300→266).\n\nThree decisions I made, easy to flip if you meant otherwise:\n\n- **Only real deliveries arm the window.** A dropped repeat doesn't refresh the timestamp, so the window doesn't slide indefinitely under a sustained flap.\n- **Boundary is strictly under 5 minutes.** Exactly 5 minutes later sends. The harness's flaps are +2, so this doesn't affect the numbers either way.\n- **Critical is deduped too.** You said \"drop the repeat\" without carving it out — hence pager 225→200. If a repeated critical should always page, I'll exempt it.\n\nQueued items count as sent for dedupe purposes, so a quiet-hour flap won't stack duplicates on the queue.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "61272c4bd4ed74a692eaf7b98c13479c1da010e3b0282026f1625fc905142f53"
+}

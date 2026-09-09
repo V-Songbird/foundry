@@ -1,0 +1,40 @@
+{
+  "key": "feature-drift__hush__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 52,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 133268,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.758019,
+  "numTurns": 30,
+  "durationMs": 124956,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6826
+  },
+  "contextTraffic": 742629,
+  "apiCalls": 27,
+  "toolCalls": 25,
+  "toolResultChars": 14417,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "assistantMsgs": 5,
+  "narrationTexts": [],
+  "finalText": "**Repeats inside 5 minutes now drop.** Dedupe at [src/router.js:37](src/router.js:37).\n\n`state.lastSent` is a `Map` from `key` to the `at` of the last delivery. Only a real delivery arms the window. A dropped repeat does not extend it. Window is `at - last < 5`, so a repeat at exactly 5 minutes still sends.\n\n`node simulate.js` runs clean. 99 dropped, zero errors.\n\nThe dedupe covers every priority, `critical` included. `pager` fell from 225 to 200.\n\nNext: say so if `critical` should skip dedupe.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "64839cf3643b8efaf51d8d78e9b5ccba4af8fa0a4438954366d5b349ed0ffb53"
+}

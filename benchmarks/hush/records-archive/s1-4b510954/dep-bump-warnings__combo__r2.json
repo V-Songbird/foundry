@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__combo__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 32,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26586,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.21615659999999998,
+  "numTurns": 10,
+  "durationMs": 24966,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1725
+  },
+  "contextTraffic": 280151,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8591,
+  "narrationWords": 10,
+  "finalWords": 69,
+  "finalText": "Build's clean now. Two real bugs, both from the same option-shape change in the bump.\n\n`src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount` instead. `src/net/retryPolicy.js` treated a missing flag as an error, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed both, and the rest was just deprecation noise.\n\nBuild now exits 0 with 8 warnings, all harmless deprecation notices, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8c057cb381e60414f33984904d1c385db2c08b78249ca4285fd869af8c2bf705"
+}

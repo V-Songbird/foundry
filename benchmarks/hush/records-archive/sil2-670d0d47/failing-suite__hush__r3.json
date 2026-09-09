@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r3",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26555,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13009,
+  "numTurns": 12,
+  "durationMs": 24771,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1381
+  },
+  "contextTraffic": 230681,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12292,
+  "narrationWords": 17,
+  "finalWords": 37,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed the bug: `orderTotal` in `src/pricing.js` taxed the pre-discount amount instead of the discounted amount. Fixing it."
+  ],
+  "finalText": "**Fixed — suite is green, 625/625 passing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`, matching the \"discount first, then tax\" rule the tests expect.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2463d5c6414f4ad250a5438ed4487034b6925c1eea628e51e9661f55f1f891fd"
+}

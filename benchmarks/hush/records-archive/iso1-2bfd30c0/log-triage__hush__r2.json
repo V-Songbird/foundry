@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17615,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12594139999999998,
+  "numTurns": 5,
+  "durationMs": 16110,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 909
+  },
+  "contextTraffic": 129874,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 24625,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\n`02:14:07` `redis` connection lost, `ECONNREFUSED 10.0.0.12:6379`. `api` fell back to direct store reads.\n\nThat triggered a cache miss storm and rising request queue depth, from `02:14` to `02:31`, with steady `TimeoutError` after 5000ms on `api`, `worker-1`, `worker-2`, and `scheduler`.\n\n`redis` reconnect attempts failed 12 times, every ~2 minutes, never recovered.\n\nQueue depth hit 568 of a max 500 by `02:31:24`. Then:\n- `02:31:44` `worker-2` `JavaScript heap out of memory`\n- `02:31:45` `supervisor` restarted `worker-2`\n- `02:31:52` `supervisor` killed the process group, `api unresponsive, service down`\n\nNext: fix `redis` at `10.0.0.12:6379` first, that's the root cause.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a7b28e865fda28b41498ae9110fe49d5ef69fa3199eb28cd2425a831ba858972"
+}

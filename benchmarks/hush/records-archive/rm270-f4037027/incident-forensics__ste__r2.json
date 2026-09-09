@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 95,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 77169,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.254305,
+  "numTurns": 16,
+  "durationMs": 72440,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5426
+  },
+  "contextTraffic": 581265,
+  "apiCalls": 14,
+  "toolCalls": 12,
+  "toolResultChars": 14724,
+  "narrationWords": 35,
+  "finalWords": 266,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing at time of writing (last log entry 2026-03-14T03:59:27Z, still failing)\n\n**Impact window:** 2026-03-14T02:14:18Z → ongoing (not yet recovered as of 03:59Z log cutoff)\n- First warning sign: 02:14:14.920Z (`pool acquire slow: waited 100ms`)\n- First 503: 02:14:18.972Z\n- Affects all gateway routes (`/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search`) across all upstream services (billing, orders, catalog, accounts-svc). `/health` stays 200 throughout — gateway process itself is up.\n- Backlog is not draining: `waiting` count on the pool climbed from 13 at 02:14Z to 74+ by 03:59Z.\n\n**Root cause:** Connection pool exhaustion. `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") deployed 02:12–02:14Z and flipped `gateway.pool.perRequest` from `false` to `true` (config generation 119, applied 02:13:41Z). Pool size stayed fixed at 20. Under normal concurrent load, per-request connections exhausted the pool almost immediately — first 503 landed 37 seconds after the config applied.\n\n**Roll back:** `dep-4471` on `gateway`. Revert `gateway.pool.perRequest` to `false` (or roll back to config generation before 119) and reload/restart the gateway — the pattern shows no sign of self-recovery.\n\n**Not implicated:**\n- `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) both shipped after the outage began; they aren't the cause, though their success is hard to confirm while the gateway is failing.\n- Workers (`logs/worker.log`): no errors, no correlation with 02:14Z. Only one unrelated WARN (known issue OPS-2210, slow unindexed query). Job duration is climbing linearly all log long (200ms → 2300ms) but that trend predates the incident by over an hour and shows no inflection at 02:14Z — separate, pre-existing issue worth a follow-up ticket, not part of this incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "65cea5908cf60a726145eebc70d2a5856e57fec366f3073a242e29f973c34c94"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20278,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.18831620000000002,
+  "numTurns": 5,
+  "durationMs": 18440,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1181
+  },
+  "contextTraffic": 153833,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23471,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage triggered a cascading crash.**\n\n`Redis` at `10.0.0.12:6379` dropped at `02:14:07`. Reconnects kept failing every two minutes, through at least attempt 12. Cache fell back to direct store reads. Cache misses and timeouts piled up for 17 minutes. Queue depth climbed from 52 to 568. `worker-2` hit `JavaScript heap out of memory` at `02:31:44`. `supervisor` killed the process group at `02:31:52`. Service went down.\n\nNext: restore `Redis` first, then check the queue's missing backpressure limit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e6c3c65f4470377b6e9b08239563f2073475ddda1ce83617f1dc18d064403677"
+}

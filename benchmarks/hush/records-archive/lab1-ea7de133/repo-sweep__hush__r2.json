@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 22,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 82190,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3051842,
+  "numTurns": 37,
+  "durationMs": 79967,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10556
+  },
+  "contextTraffic": 345246,
+  "apiCalls": 10,
+  "toolCalls": 36,
+  "toolResultChars": 25100,
+  "narrationWords": 51,
+  "finalWords": 73,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "Vendor file explicitly says \"do not edit — replaced wholesale on every upgrade.\" Skipping that one. Confirming `lib/db.js` still exposes `query` before I proceed.",
+    "All 12 non-vendor files follow this identical 3-call shape. Migrating each with the same `sql`/`params` rewrite the already-migrated services use.",
+    "Verifying no `db.query` calls remain outside vendor."
+  ],
+  "finalText": "**Migration done.** Moved 12 files from `db.query` to `db.execute({ sql, params })`, matching the pattern already used across the codebase.\n\nOne `db.query` call remains, in `vendor\\legacy-orm\\adapter.js`. That file is a vendored copy replaced wholesale on every upstream upgrade, with a comment saying not to edit it, so I left it alone.\n\nNext: `db.query` is still exported from `lib/db.js` for that vendor adapter. Drop it only after the vendor package itself moves to `execute`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e34f9b118faba4c4d289be7f93d0b43785777b669bd668ed28837be1e3ccaf20"
+}

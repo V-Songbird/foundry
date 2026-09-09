@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 18,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84134,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3680578,
+  "numTurns": 39,
+  "durationMs": 82363,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10529
+  },
+  "contextTraffic": 430455,
+  "apiCalls": 9,
+  "toolCalls": 38,
+  "toolResultChars": 49168,
+  "narrationWords": 38,
+  "finalWords": 65,
+  "finalText": "Migrated 12 files in `packages/` from `db.query` to `db.execute({ sql, params })`: `cohort.js`, `returnService.js`, `shipment.js`, `refund.js`, `couponService.js`, `macroAdmin.js`, `sla.js`, `variantAdmin.js`, `supplier.js`, `teamService.js`, `apiKeyAdmin.js`, `session.js`.\n\nLeft `vendor/legacy-orm/adapter.js` alone. Its header says it's overwritten wholesale on every vendor upgrade, so local edits would just get lost.\n\n`cache.query` calls in several files are a separate cache module, not `db.query`. Left those untouched.\n\nNo `db.query` calls remain under `packages/`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1b958183f34f5907b34210ee21111e6470d29ba4b5b62293748b1e3773a624aa"
+}

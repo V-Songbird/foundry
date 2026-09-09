@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31407,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1165388,
+  "numTurns": 11,
+  "durationMs": 29634,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1864
+  },
+  "contextTraffic": 169550,
+  "apiCalls": 5,
+  "toolCalls": 10,
+  "toolResultChars": 10795,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "assistantMsgs": 1,
+  "finalText": "**It's ~1082 occurrences across 94 files, in five services (orders, notify, billing, analytics, accounts) plus repos, services, and HTTP routes.**\n\nThree places must keep `account_id` exactly as-is:\n\n| Location | Why |\n|---|---|\n| `docs/openapi.yaml` and `WIRE` map in [lib/serialize.js:8](lib/serialize.js:8) | public API field, frozen by contract, clients read it by name |\n| `vendor/reporting-sdk/**` | third-party vendored SDK, not yours to rename |\n| All files under `migrations/` (e.g. `20250114_create_accounts.sql`) | already applied in production, editing breaks the down-step and doesn't rename a live column |\n\nSo the real, safe scope is the internal repo/service/http layers across the five services. `lib/audit.js` also keys audit lines on `account_id` — check with the platform team whether that's an internal detail or an external log contract before touching it.\n\nNet: sign off on renaming the internal usages, but block renaming the OpenAPI contract, the vendor SDK, and the SQL migration history.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53d5152753226203b51e332958e5b12f5b54a7dce8afc7584479e2c517a9309e"
+}

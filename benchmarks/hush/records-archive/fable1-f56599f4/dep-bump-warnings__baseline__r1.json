@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 72236,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.46876825,
+  "numTurns": 11,
+  "durationMs": 71520,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3139
+  },
+  "contextTraffic": 135419,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 9632,
+  "narrationWords": 14,
+  "finalWords": 331,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the project layout and run the build to see the warnings."
+  ],
+  "finalText": "The build now succeeds with exit code 0. Your instinct was right, but the thing that mattered wasn't a warning. Buried under the deprecation spam was a hard error at the link stage, and once that was fixed a second one was waiting behind it.\n\n**What was actually broken**\n\nBoth problems came from the bundler bump changing the shape of the data it hands your modules, in files the bump didn't touch:\n\n- `src/core/options.js` read the retry budget from `options.retries`. fakepack 4.x passes it as `retryCount`, so the field was undefined and calling a method on it threw the TypeError you saw. The function now accepts either name and rejects anything that isn't a finite number.\n- `src/net/retryPolicy.js` only accepted a literal `true` or `false` for the backoff flag. The new config loader leaves unset flags as `undefined`, which tripped the strict check. Unset is now treated as disabled. Non-boolean junk like a string still throws, so config typos remain visible.\n\nI verified both functions directly with the old shape, the new shape, and bad input, and the full build runs to completion and emits the bundle.\n\n**About the warnings**\n\nThe eight warnings still print. They are all emitted by the bundler about deprecated APIs in your legacy code, and they are informational, not blocking. Quick read on them:\n\n- **Worth acting on soon:** `crypto.createCipher` in the legacy adapter is flagged for removal before v5, and the circular import between the core graph and state tracker gives undefined resolution order. That second one can turn into real bugs.\n- **Routine noise:** the `Buffer()` constructor, `fs.exists`, `punycode`, and `module.parent` deprecations. Straightforward mechanical swaps when you get to them.\n- **Cosmetic:** one unused export in the format utility.\n\nI didn't touch any of those because the files they point at aren't in this checkout, and silencing them at the bundler level would hide the two genuinely useful ones. If you want, point me at the legacy code and I can clear them properly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "770017a039dbd3f7548e0ace7d7293d7dbf87d2a0995958daffef95245a7d632"
+}

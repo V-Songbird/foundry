@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__react__r2",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 32254,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.061986200000000005,
+  "numTurns": 10,
+  "durationMs": 30671,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2073
+  },
+  "contextTraffic": 240891,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7938,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "finalText": "The issue was in `packages/shared/config.js` — it was using `Object.assign()` for shallow merging, which completely replaced nested objects instead of merging them. When `@acme/api` provided a partial override like `output: { format: 'esm' }`, it wiped out the `dir` key from the defaults.\n\nI added a `deepMerge()` function that recursively combines nested objects, so partial overrides now preserve the keys they don't touch. Build passes clean now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3e5d635eba0015377b15e962bcf663f00ba88adc75520ad2001ad8d11b9318e6"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 156318,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6463995,
+  "numTurns": 13,
+  "durationMs": 150424,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9889
+  },
+  "contextTraffic": 392292,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 14720,
+  "narrationWords": 25,
+  "finalWords": 696,
+  "assistantMsgs": 6,
+  "finalText": "Here's the handoff. It's written to be pasted into an incident channel or ticket as-is.\n\n---\n\n# On-Call Handoff — Gateway 503s\n\n**Status at end of available data:** ONGOING — unresolved as of the last log line (2026-03-14T03:59:27Z). No recovery observed.\n**Severity:** All five customer-facing API endpoints failing, ~62% of requests.\n**Prepared by:** <email>\n\n## TL;DR\n\nA gateway config change enabled connection-per-request pool handling. Connections are acquired and never returned, so the 20-connection pool leaked to full within ~40 seconds and never recovered. **Roll back `dep-4471`.**\n\n## Root cause\n\n`dep-4471` (gateway, author **a.novak**, 02:12:00–02:14:00Z, *\"config: connection-per-request for pool isolation\"*) applied config generation 118 → 119 at **02:13:41.234Z**:\n\n```\ngateway.pool.perRequest:     false -> true    <-- cause\ngateway.timeout.upstreamMs:  2000  -> 2500\ngateway.log.sampleRate:      1.0   -> 1.0     (no-op)\n```\n\n**37 seconds later** the first 503 fired. Every one of the 530 failures carries a paired pool error on the same request id:\n\n```\n2026-03-14T02:14:18.972Z ERROR access req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool   req-07401 ERR_POOL_EXHAUSTED acquiring connection\n                                      from pool (size 20, in_use 20, waiting 13)\n```\n\n530 `ERROR access` 503s, 530 `ERR_POOL_EXHAUSTED` — exact 1:1, no exceptions. This is the gateway's own pool, not upstream failure.\n\nThe pool telemetry confirms a **leak, not load**:\n\n| | before change | after change |\n|---|---|---|\n| `in_use` (of 20) | oscillates 3–11 | pinned at 20, `idle=0` |\n| `waiting` | 0 | grows +20 every 5 min, peak **271** |\n| `acquired_total` | ~1070 / 5 min | ~1070 / 5 min (**unchanged**) |\n\nRequest volume is flat across the boundary. Only the return path broke.\n\n## Impact window\n\n| | |\n|---|---|\n| **Start** | 2026-03-14T02:14:18.972Z (`req-07401`) |\n| **End** | Unresolved; log ends 03:59:27.974Z (`req-17907`) still failing |\n| **Duration** | ≥1h 45m |\n| **Failures** | 530 × HTTP 503 |\n\n**Affected** — 106 failures each: `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`.\n**Unaffected** — `/health`, `/v1/profile`. Clean before 02:14: 698 successful requests, zero errors from 01:00.\n\n## Action: roll back `dep-4471`\n\nRevert `gateway.pool.perRequest` to `false` (config generation 119 → 118). Restart gateway nodes to drain leaked connections — the queue will not clear on its own; it grew monotonically for 105 minutes.\n\n**Verify recovery via:** `INFO pool stats` returning to `idle > 0` and `waiting=0`. Do not use `/health` (see below).\n\nDo not retry the change until the leak is found in the `perRequest` code path. Note the log header says `node-3 of 3` — this is one node's log; check whether nodes 1 and 2 show the same pattern, as the config reload came from the deploy pipeline and likely hit all three.\n\n**Ruled out** — `dep-4472` (billing, 02:41) and `dep-4473` (catalog, 03:20) both shipped *after* onset; the wait queue kept climbing at an unchanged rate straight through `dep-4473`. `dep-4470` (worker, 00:48–00:55) is 79 minutes prior with a clean worker log after it. Nothing else shipped between 00:55 and 02:12.\n\n## Two follow-ups (not blocking rollback)\n\n**1. Detection gap — 67 minutes.** On-call wasn't paged until 03:21:05 (`error_rate 5m avg is 71%`). `/health` returned 200 with `pool_wait=2ms` for the entire outage while every real endpoint failed. The health check doesn't touch the connection pool, so it cannot detect pool exhaustion. Worth its own ticket.\n\n**2. Unrelated worker latency creep.** `worker.log` shows all 1080 jobs succeeding with an idle pool (`size=8 in_use=1 waiting=0`) — workers were *not* affected. But job durations climb linearly ~200ms → ~2300ms (+660ms/hr), uniformly across all six job types, with `db_wait` flat at ~5ms. It's already underway at 01:00, before the outage, so it's a separate issue and this window doesn't explain it. Needs pre-01:00 logs or process metrics. Separate ticket — don't let it confuse the rollback.\n\n---\n\n⚠️ **Before you page anyone:** these logs are dated **2026-03-14**, roughly five months before today (2026-08-27), not last night. `deploys.csv` matches the same window, so both files describe one old incident consistently — but if you're chasing a live outage, this is the wrong dataset and the real logs are somewhere else. Worth resolving before acting on any of the above.\n\n---\n\nWant me to save this to a file, or go look for the pool code that reads `gateway.pool.perRequest` to find the actual leak?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "43f1866559188f31a4493f435df1c519fda6e0760b13ab96d4f977ebc36fa520"
+}

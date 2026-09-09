@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__ste__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 52,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 184255,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.8312039999999999,
+  "numTurns": 58,
+  "durationMs": 178883,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15015
+  },
+  "contextTraffic": 1228569,
+  "apiCalls": 24,
+  "toolCalls": 54,
+  "toolResultChars": 34445,
+  "narrationWords": 224,
+  "finalWords": 106,
+  "finalText": "Verifier passes: all four findings are named with the right file and detail, and the service tree is untouched. `AUDIT.md` is written up, ordered by severity:\n\n1. **`src/routes/internal.js`** — unauthenticated internal endpoints (metrics dump + cache flush), exposed since the VPN boundary was retired.\n2. **`src/repo/report.js`** — SQL injection via string-built query in `runSavedReport`.\n3. **`config/staging.js`** — plaintext database password committed to source control.\n4. **`package.json`** — `fast-parse` still pinned at the yanked, vulnerable `1.4.2`.\n\nEach entry names the file, explains the problem, and gives a fix recommendation — but per your instruction, I only wrote to `AUDIT.md`; nothing in `src/`, `config/`, or `package.json` was edited.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ea9dcd5899626bb03faa9d2744b963b3defe9368472f22152fe0fa4088952839"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__brieflouder__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 46,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "brieflouder",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 76002,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "brieflouder:Brieflouder",
+  "costUsd": 0.25837140000000003,
+  "numTurns": 43,
+  "durationMs": 74286,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10241
+  },
+  "contextTraffic": 204063,
+  "apiCalls": 6,
+  "toolCalls": 42,
+  "toolResultChars": 17281,
+  "narrationWords": 18,
+  "finalWords": 91,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirmed shape. Now migrate each file's three call sites.",
+    "Verify no stray `db.query` remains outside the vendor file."
+  ],
+  "finalText": "**Migration done.** Moved 12 files off `db.query` to `db.execute({ sql, params })`.\n\n| Package | Files |\n|---|---|\n| support | `sla.js`, `macroAdmin.js` |\n| billing | `couponService.js`, `refund.js` |\n| analytics | `cohort.js` |\n| catalog | `variantAdmin.js`, `supplier.js` |\n| accounts | `apiKeyAdmin.js`, `teamService.js`, `session.js` |\n| orders | `returnService.js`, `shipment.js` |\n\nOne holdout left on purpose: [vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js:9) still calls `db.query`, but it's a vendored file marked \"do not edit, replaced wholesale on upgrade.\"\n\nNext: decide if `adapter.js` needs a wrapper shim instead, since it can't be edited directly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d6b852b9e0b467615c211d81ab6b0be3bede6b7a6ac05c2b99cb2730dd9e5fb"
+}

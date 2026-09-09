@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__labelfind__r2",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35754,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1294644,
+  "numTurns": 11,
+  "durationMs": 34280,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1939
+  },
+  "contextTraffic": 225090,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 9030,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, 0 errors.**\n\nThe bump broke two call sites in the link stage.\n\n1. [src/core/options.js:6](src/core/options.js:6) — bundler now passes `retryCount`, not `retries`. Fixed to read `options.retryCount`.\n2. [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) — new config loader leaves unset flags `undefined` instead of `false`. `isBackoffEnabled` threw on that. Now treats `undefined` as `false`.\n\nThe rest of the noise (`DEP0142`, `DEP0198`, etc) is just deprecation chatter from the deps themselves, not build-breaking.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "69f2dcf85b8aa365c8cce67a1f5c27d9782f2f68eb579a392d75e34e90219dd7"
+}

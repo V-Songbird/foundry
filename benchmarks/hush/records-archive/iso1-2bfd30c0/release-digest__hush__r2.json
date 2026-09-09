@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 21,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 65534,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22087120000000002,
+  "numTurns": 10,
+  "durationMs": 64087,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5935
+  },
+  "contextTraffic": 209939,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 30221,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nWent through all 380 commits and 129 merged PRs. Under the dep bumps and refactors, 27 `fix` commits and 1 `feat` were real, spread across 10 modules (api, queue, db, webhooks, core, billing, http, jobs, store, auth) as the same bug classes got fixed module by module.\n\nOne breaking change: expired tokens now return `401`, not `403`. One addition: webhook retries with exponential backoff. Nine fix groups, including a request-body-logging leak and a token-parser message that leaked internal detail.\n\nNext: read it over, since I merged near-duplicate fixes (like the null-cursor and trace-id ones) into single bullets.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "365e19138d59dcc06ffb664b945dee0490713e88eb4916f58e2d279390a90e83"
+}

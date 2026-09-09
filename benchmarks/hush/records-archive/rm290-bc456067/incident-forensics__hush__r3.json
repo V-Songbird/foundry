@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 98197,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4709095,
+  "numTurns": 13,
+  "durationMs": 89621,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5387
+  },
+  "contextTraffic": 346914,
+  "apiCalls": 12,
+  "toolCalls": 9,
+  "toolResultChars": 7754,
+  "narrationWords": 5,
+  "finalWords": 55,
+  "assistantMsgs": 5,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest` to `true` at 02:13:41.234Z. The size-20 pool saturated in 37s. Every 503 carries `ERR_POOL_EXHAUSTED`.\n\nImpact: 02:14:18.972Z to 03:59:27.974Z, 530 errors, still open at log end. `/health` stayed 200, so alerts missed it.\n\nRoll back `dep-4471`. Also check node-1 and node-2 — this log is node-3 only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98cec8d3bbdae3301d73bd5a2bdebc932d2924129000105c7e5686d076a8ca0c"
+}

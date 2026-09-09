@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__fern__r2",
+  "batchId": "o5v-d4d968c8",
+  "seed": "1787819339063",
+  "orderIndex": 15,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "fern",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 81733,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.40308449999999996,
+  "numTurns": 14,
+  "durationMs": 73406,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3540
+  },
+  "contextTraffic": 342877,
+  "apiCalls": 12,
+  "toolCalls": 10,
+  "toolResultChars": 7631,
+  "narrationWords": 0,
+  "finalWords": 121,
+  "finalText": "```\nGATEWAY 503s — HANDOFF\n\nRoot cause: dep-4471 set gateway.pool.perRequest false -> true.\nEach request now takes its own connection. Pool size 20 never grows.\nEvery 503 carries ERR_POOL_EXHAUSTED. Wait queue climbed 13 -> 271.\nChurn hit 4180 opens per 5m, baseline 40.\n\nImpact: 02:14:18Z to 03:59:27Z, still active at log end. 530 x 503.\nAll 5 routes, all 4 upstreams. Error rate 71% at the 03:21 page.\n\nRoll back: dep-4471 (gateway, a.novak). Nothing else.\ndep-4472 and dep-4473 shipped after 503s began.\n\nNot related: worker job time rose 278ms -> 2092ms, starting 01:00.\nPredates the deploy. db_wait flat at 5ms. Needs its own ticket.\n```\n\nOne caveat. This log is node-3 of 3. I have not seen nodes 1 and 2.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d3041af34e802b42262ea8d94d292cea8dc17250c51c84df454035769f84a045"
+}

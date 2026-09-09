@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 2,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 28394,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.05271640000000001,
+  "numTurns": 9,
+  "durationMs": 26319,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1508
+  },
+  "contextTraffic": 204237,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 4363,
+  "narrationWords": 0,
+  "finalWords": 42,
+  "finalText": "Fixed the bug. The `isExpired` function was using `<` when it needed `<=`. A token expires the moment `exp` reaches the current time, not after. Changed line 7 from `return token.exp < nowSeconds;` to `return token.exp <= nowSeconds;`. All 5 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36153ebd8ddd808d8a1cc5e4668166fe56c0d4ebab547d38aba8ba3175677c21"
+}

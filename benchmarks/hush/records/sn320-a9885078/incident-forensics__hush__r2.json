@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51004,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20583120000000005,
+  "numTurns": 15,
+  "durationMs": 44257,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2848
+  },
+  "contextTraffic": 412840,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 19964,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Gateway 503s, root cause found.**\n\n**Root cause:** `dep-4471` (gateway, a.novak, `02:12–02:14Z`) — \"connection-per-request for pool isolation\" — stopped connections being returned to the pool. `in_use` pins at `20/20` and `waiting` climbs continuously after the deploy, never draining.\n\n**Impact window:** `02:14:18Z` to at least `03:59:27Z` (log tail, still ongoing when captured). Started 19s after `dep-4471` finished. `worker.log` clean throughout, no `503`s, only a known unrelated `WARN` (`OPS-2210`). Impact isolated to `gateway`.\n\n**Rollback:** revert `dep-4471` on `gateway`. No other deploy correlates, `dep-4472` (billing-svc) and `dep-4473` (catalog-svc) shipped after the pool was already exhausted.\n\nNext: roll back `dep-4471` and confirm `pool waiting` returns to `0`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d959651ee32f98236777df5f02550f41dadb3525acac486cd0f9e0d09fbc2cb0"
+}

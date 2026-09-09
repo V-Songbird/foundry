@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 44,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70826,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5134395,
+  "numTurns": 9,
+  "durationMs": 69295,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4551
+  },
+  "contextTraffic": 277084,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 38021,
+  "narrationWords": 7,
+  "finalWords": 506,
+  "finalText": "380 commits. ~15 user-visible. Rest = 150ish dep bumps, ~50 refactors, ~90 test/ci/chore.\n\n## What actually changed\n\n**One feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48, PR #4191). Touches `src/core/config.js` — likely new config knobs. Get names from Ana Ruiz before shipping notes.\n\n**Three things that break callers, all mislabeled:**\n- `refactor(api): drop the unused v1 export route` (56dc828, PR #4152). Labeled refactor, but touches `router.js` + `handlers.js` + tests. Route removal. Confirm \"unused\" means no external traffic.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits, scopes core/db/jobs/auth/billing/store. Import surface shrank. Anyone catching those types breaks on upgrade.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55, PR #4223). Status code change. Clients branching on 403 break.\n\n**Node version — verify.** 5 `docs: note the minimum node version` commits, CI moved to node 22, `.nvmrc` pinned. Docs and CI are not binding. Check whether `package.json` `engines` actually changed. If yes it's Breaking; if no, drop it.\n\n**Real fixes** (deduped — same subject repeats across scopes):\n\n| Effect | Commits |\n|---|---|\n| timer not cleared when socket drops | f66d359 |\n| connection pool not closed on shutdown | eb874a5 |\n| paginator crashed on null cursor | api/queue/webhooks/db ×4 |\n| empty allowlist rejected everything | store/db/jobs ×3 |\n| trailing slash trimmed twice | queue/jobs ×2 |\n| duplicate header sent | http/core/billing ×5 |\n| trace id lost across retry | api ×3 |\n| whole request body written to logs | 1b55313 — privacy, call out |\n| latency histogram used wrong units | core/store ×2 |\n| token parser error message vague | core/billing/queue ×3 |\n\n**Perf, 12 commits** (batch metric writes, skip JSON round-trip, drop mapper clone, reuse parsed schema). No heading for these in your format. Recommend omit — none change behavior.\n\n**Deps: omit all.** Runtime bumps (pg, pino, knex, ioredis, fastify, undici, zod, nanoid, dotenv) all patch/minor. Rest dev-only.\n\n## Draft\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- Expired tokens now return 401 instead of 403. Clients that branch on 403\n  need updating.\n- The internal error types are no longer re-exported from the package root.\n  Import them from their own modules, or match on the error code instead.\n- The v1 export route has been removed. Use the v2 route.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it closes\n  its connection pool on shutdown.\n- Paginating past the last page no longer throws on a null cursor.\n- An empty allowlist no longer rejects every request.\n- Requests no longer go out with a duplicate header.\n- The trace id survives a retry.\n- Request bodies are no longer written to the logs.\n- The latency histogram reports the right units.\n```\n\nBlockers before you publish: the webhook config option names, whether `engines` moved, and whether that v1 route had live callers. Want me to write this into CHANGELOG.md?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d0bf96802036da974a0e3464cbc99be67903120847b1b403870a79f202a96b3"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 54,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 130863,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8101484999999999,
+  "numTurns": 29,
+  "durationMs": 122109,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7634
+  },
+  "contextTraffic": 781939,
+  "apiCalls": 26,
+  "toolCalls": 24,
+  "toolResultChars": 11858,
+  "narrationWords": 19,
+  "finalWords": 195,
+  "assistantMsgs": 7,
+  "finalText": "Done — dedupe is at `src/router.js:38`, backed by a `lastSentAt` Map in `createState()`.\n\nBehavior, confirmed by a direct probe (last line above): first send delivers, the +2min repeat on the same key returns `[]`, a +5min repeat delivers again, and a different key at +2min is unaffected.\n\nTwo judgment calls, both easy to flip:\n- **Exactly 5 minutes gets through.** \"In the last 5 minutes\" is a half-open window (`at - lastSent < 5`), so a repeat at +5 delivers. Change `<` to `<=` at `src/router.js:39` if you want that suppressed.\n- **The window starts on delivery, not arrival.** A suppressed repeat doesn't extend the window, so a steady flap every 2 minutes delivers roughly every 6 minutes rather than going silent forever. If you'd rather each repeat push the window out, move the `set` above the dedupe check.\n\nReplay: `dropped: 99`, 0 errors. That's the 99 flaps the events file plants (`i % 9`, +2 min on the same key) minus one — `evt-0009` and `evt-0018` land on different keys where the flap coincides with a key rollover. Critical drops from 225 to `pager=200` and the other priorities lose their share of the repeats.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "729aaf049dd4fdd12f99a59bc3d8c1123fe8bfe125052fd7e3b702dbf5ec6054"
+}

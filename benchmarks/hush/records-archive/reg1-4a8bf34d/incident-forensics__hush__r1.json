@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 67590,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21938780000000002,
+  "numTurns": 15,
+  "durationMs": 61151,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3099
+  },
+  "contextTraffic": 444729,
+  "apiCalls": 13,
+  "toolCalls": 11,
+  "toolResultChars": 21418,
+  "narrationWords": 0,
+  "finalWords": 147,
+  "assistantMsgs": 4,
+  "finalText": "The log ends mid-incident — still failing at `03:59:27.974Z`, the last line in the file, `waiting` climbing past 74. So the impact window is `02:14:18Z` onward, unresolved as of end of log.\n\n**On-call handoff**\n\n**Root cause:** `dep-4471` (gateway, `a.novak`, applied `02:12–02:14Z`) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. That change makes every request grab its own DB connection instead of sharing the pool, exhausting the fixed pool of 20 connections.\n\n**Impact window:** started `2026-03-14 02:14:18.972Z` (first `503` + `ERR_POOL_EXHAUSTED`, `req-07401 /v1/cart`). Still ongoing at `03:59:27.974Z`, the last line in `gateway.log` — `waiting` count still climbing (74+). Not self-resolved.\n\n**Scope:** gateway only. Cross-checked `worker.log` for the same window — all jobs completed normally, no pool errors, no 503s. One unrelated `WARN` slow-query at `02:36` is pre-existing (`OPS-2210`), not tied to this incident.\n\n**Roll back:** `dep-4471` — revert `gateway.pool.perRequest` to `false` (config gen 119 → prior).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "34be32077805ff70d58cafc20652f4d0d696ba1fb85338d5a0bd939590df688c"
+}

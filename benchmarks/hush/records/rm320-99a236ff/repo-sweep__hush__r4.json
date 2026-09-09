@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 135563,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.973746,
+  "numTurns": 60,
+  "durationMs": 133962,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13191
+  },
+  "contextTraffic": 439507,
+  "apiCalls": 11,
+  "toolCalls": 59,
+  "toolResultChars": 46687,
+  "narrationWords": 6,
+  "finalWords": 64,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migration done in 12 files.** 36 `db.query` calls became `db.execute({ sql, params })`.\n\n`node --check` passes on every file. No tests exist to run.\n\nI left `vendor/legacy-orm/adapter.js:9` alone. Its header says do not edit, since upgrades replace it wholesale. Two `db.query` calls remain there.\n\n`cache.query` is a different object. Untouched.\n\nNext: decide on the vendor file. Options are a wrapper or an upstream fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0f35ab4c4bf45abf824b1d9cc263c4e44a9806a41a80d1eda14beb58dec1557d"
+}

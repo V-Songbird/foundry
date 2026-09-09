@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 114,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 48837,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08200640000000001,
+  "numTurns": 14,
+  "durationMs": 47232,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3647
+  },
+  "contextTraffic": 261135,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 14117,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "finalText": "Root cause: the implementation was rounding after each coupon in USD, then converting and rounding again. This lost precision.\n\nWhen a 10% coupon applied to $19.98 gave $17.982, rounding it early to $17.98 meant that converting at 0.78 GBP/USD gave $14.0244 → 14.02 instead of the correct $14.02596 → 14.03.\n\nThe fix removes the early rounding calls on the coupon lines. Now the code only rounds once, at the very end in the target currency, matching how the reference implementation works. All 40 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ecdf8ccc1ded86c99a45edc6f25d4d92bffe8257243e3dad8bd2879429310dc6"
+}

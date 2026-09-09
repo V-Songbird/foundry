@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 24,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39277,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26429949999999997,
+  "numTurns": 11,
+  "durationMs": 37476,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1790
+  },
+  "contextTraffic": 190947,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 12129,
+  "narrationWords": 37,
+  "finalWords": 156,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n**What was actually broken** — 3 failures out of 625, all in `order totals`, all one bug:\n\n`src/pricing.js:39` `orderTotal` applied tax to the *pre-discount* base and added it on:\n\n```js\nconst tax = roundCents(cents * taxRate);   // cents, not discounted\nreturn discounted + tax;\n```\n\nIts own doc comment says tax is charged on what the customer actually pays. Fixed to tax the discounted amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nWhy it hid: every other order-total row has either a 0% discount or a 0 tax rate, and with either at zero the two formulas agree. Only the three rows with both non-zero (`12000c/15%/8.25%`, `8650c/20%/5%`, `33400c/10%/20%`) could expose it. The other 8 suites were never failing — the wall of text was ~620 passing lines plus a coverage table.\n\nI only changed the one function; no test or case data was touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1bebdfb9b6af0050d496cabf4e29aaf8062fdadb1d102c4f6e5102adc70acf51"
+}

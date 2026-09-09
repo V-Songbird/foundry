@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 134,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 103368,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.6569055,
+  "numTurns": 26,
+  "durationMs": 97360,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5422
+  },
+  "contextTraffic": 643962,
+  "apiCalls": 23,
+  "toolCalls": 21,
+  "toolResultChars": 12144,
+  "narrationWords": 5,
+  "finalWords": 83,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I look at files first."
+  ],
+  "finalText": "Dedupe in. 99 repeats dropped (the +2min flaps), 0 errors.\n\nTwo calls I made:\n- Window is `at - lastSent <= 5`, so a repeat exactly 5 min later is dropped. Flip to `< 5` if you want 5 minutes exclusive.\n- Only a real delivery resets the window; a dropped repeat doesn't extend it. Otherwise a steady flap stream could suppress a key forever.\n\n`createState()` now returns `{ lastSentByKey: Map }` — anything constructing state by hand needs that shape, not `{}`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63e6b15e264bc96c6e6cb298c68e3d6541f1240641a09b85b075f4c56d7a7cdf"
+}

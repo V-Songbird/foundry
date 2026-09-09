@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28656,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12563180000000002,
+  "numTurns": 11,
+  "durationMs": 27065,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1771
+  },
+  "contextTraffic": 222998,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8017,
+  "narrationWords": 16,
+  "finalWords": 69,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Two real bugs, both caused by the dependency bump changing shapes the code wasn't updated for."
+  ],
+  "finalText": "**Build's clean.** Exit 0, 0 errors.\n\nTwo real bugs from the bump, both in the link stage:\n\n- [options.js:7](src/core/options.js:7) read `options.retries`, but the new bundler passes `retryCount`. Threw on `undefined.toFixed()`.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) treated an unset flag as invalid. New config loader leaves it `undefined` instead of `false`. Now treats `undefined` as disabled.\n\nThe rest was ~950 lines of deprecation noise (`DEP0142`, `DEP0198`, etc), not worth acting on.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e2d84d81dd0d078ce8cee03f4670fdc54c0944b514db8825fa2d5d3e017c80f9"
+}

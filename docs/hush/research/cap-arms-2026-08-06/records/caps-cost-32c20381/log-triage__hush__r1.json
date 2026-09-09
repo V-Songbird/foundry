@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 13,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 19880,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.031446999999999996,
+  "numTurns": 2,
+  "durationMs": 18177,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 803
+  },
+  "contextTraffic": 56420,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "Redis crashed at 02:14:07. Without cache, every request hit the data store directly and it couldn't keep up. Requests started timing out after 5 seconds, but the app kept queuing them instead of dropping them. The backlog grew from 52 queued requests to over 500 in about 17 minutes, eating up memory the whole time. At 02:31:44, the JavaScript heap ran out of memory, worker-2 crashed, and the supervisor killed everything to stop the cascade.\n\n**The fix:** Redis needs to come back up. Once it does, the cache layer will absorb the load spike and the backlog should clear. If Redis stays down, you'll need a circuit breaker to reject requests instead of queuing them infinitely — right now there's no backpressure.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "35a0bceb65add6c0dd8061f79257fa048001028119a5591119750414d5eafb0a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 69125,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4434295,
+  "numTurns": 9,
+  "durationMs": 67451,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4886
+  },
+  "contextTraffic": 205758,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 18866,
+  "narrationWords": 6,
+  "finalWords": 113,
+  "finalText": "**Redis died and took the whole service with it.**\n\n```\n02:14:07  redis at 10.0.0.12:6379 refuses connections\n02:14:07  cache switched off, reads go straight to the store\n02:14–02:31  every read times out at 5s, backlog grows\n02:29:12  backlog passes its limit of 500, hits 502\n02:31:44  worker-2 runs out of memory, restarted\n02:31:52  supervisor kills the api, service down\n```\n\nThe error was `ECONNREFUSED`. That means Redis was not listening at all. The app retried 13 times over 16 minutes. Every retry was refused the same way. First error to dead service: 17 minutes, 45 seconds.\n\nNothing recovers until Redis is back up.\n\nOne oddity. This log is dated July 4, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53835a4b1371b97f1e5ecd63286044892ddaf95b16352b93add59af61f6f927b"
+}

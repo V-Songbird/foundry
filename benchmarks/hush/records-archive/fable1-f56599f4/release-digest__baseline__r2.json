@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 15,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 103753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.27407925,
+  "numTurns": 7,
+  "durationMs": 103042,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7549
+  },
+  "contextTraffic": 195621,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 72053,
+  "narrationWords": 32,
+  "finalWords": 788,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll read the history folder and the changelog, then sort the commits into user-facing changes versus internal noise.",
+    "Now let me pull out every non-chore commit so I can classify them systematically."
+  ],
+  "finalText": "Short version: of the 380 commits, 37 are feat, fix or perf, and after collapsing the same fix landing in several modules there are about 14 things a user would notice. One of them is a new feature, and four are behaviour changes that I'd treat as breaking. Details and a paste-ready draft below.\n\n**What the noise looks like**\n\n| Type | Commits |\n|---|---|\n| chore (deps, lockfile, editorconfig) | 153 |\n| refactor | 73 |\n| test | 64 |\n| ci | 33 |\n| docs | 20 |\n| fix | 26 |\n| perf | 10 |\n| feat | 1 |\n\nEvery dependency bump is a patch or minor of a runtime or dev dependency, and each one landed six to eight times under the same title. None of them changes anything for an installer. The refactors are internal except for two, which I've moved into the breaking list.\n\n**Draft for CHANGELOG.md**\n\n```markdown\n## 4.2.0 — 2026-09-09\n\n### Breaking\n- An expired token now gets a 401 instead of a 403. Anything that matches\n  on 403 to detect expiry needs updating.\n- The latency histogram now reports in the right units. Dashboards and\n  alerts built on the old values will shift.\n- The v1 export route is gone.\n- The db, core, jobs, auth and billing modules no longer re-export their\n  internal error types.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client clears its timer when the socket drops and closes the\n  pool on shutdown.\n- A header is no longer sent twice.\n- The trace id survives a retry.\n- The db layer no longer logs the whole request body.\n- Paginators no longer throw on a null cursor.\n- An empty allowlist is handled instead of failing.\n- A trailing slash is trimmed once, not repeatedly.\n- The token parser's error message says what was actually wrong.\n```\n\n**Things to confirm before you publish.** The log only gives titles and file stats, so these are judgment calls you should check against the code.\n\n- **Error type re-exports.** Six commits titled \"stop re-exporting the internal error types\" touch db, core, jobs, auth and billing. If any of those types were reachable from the package entry point, this is breaking. If they were only ever internal, drop it from the notes.\n- **The v1 export route.** Commit 56dc828 is labelled refactor but removes a route and its handler. \"Unused\" is the author's claim. If anyone outside still calls it, this is breaking.\n- **Empty allowlist.** Landed in db, jobs and store. The title doesn't say whether empty now means deny all or allow all, and those are very different notes. Check one of the tests.\n- **Webhook retry config.** The feature commit 395fb48 also edits the core config loader, so there is almost certainly a new option. Name it in the notes. The \"document the retry envelope\" docs commit probably describes it.\n- **Histogram units.** Say which direction the values moved, since operators will need to fix alert thresholds.\n- **Minimum Node version.** Six docs commits \"note the minimum node version\" and CI moved to Node 22. I can't see whether the engines field changed. If the floor went up, that belongs under Breaking.\n- **Error message wording.** The token parser fix changes error text in three modules. The team also switched every test to assert on error code rather than message, which suggests message text is not contract. Fine to leave under Fixed.\n\n**Left out on purpose.** The ten perf commits (batched metric writes, skipping a JSON round-trip, dropping a clone, caching a parsed schema) don't fit the three headings and the previous entries never listed perf. If you want one line, batching the metric writes is the only one an operator could observe.\n\n**Two things worth knowing about the history itself.**\n\n- **Several fixes never went through a PR.** The two HTTP client fixes, clear the timer on socket drop and close the pool on shutdown, are the most substantive user-facing changes in the release, and neither appears in the merged-PR sheet. Same for the null-cursor fixes in api, db and queue and the empty-allowlist fixes in db and store. They're on the branch, but there's no review trail.\n- **The PR sheet doesn't match the log.** Authors and dates differ for the same title, and the sheet has 127 rows against 380 commits. Don't use it for attribution.\n\nAlso, a dozen commits labelled test also edit source files, for example test commit e180e99 changes the API router. I can't tell from stats whether behaviour moved. Nothing to write up, but worth a glance if you're already in the diff.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c20cfd918fb2a637954792532ffbf153e0a3b615eba4781dc65d789d53001241"
+}

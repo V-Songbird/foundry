@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__caveman__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 33,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27853,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.25915649999999996,
+  "numTurns": 10,
+  "durationMs": 26146,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1298
+  },
+  "contextTraffic": 173511,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11659,
+  "narrationWords": 41,
+  "finalWords": 73,
+  "finalText": "Green. 625/625, exit 0.\n\nRoot cause — `src/pricing.js:39` `orderTotal`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed pre-discount base\nreturn discounted + tax;\n```\n\nTaxed full `cents` instead of discounted amount. Fix:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nOnly 3 of 625 cases had discount and tax both non-zero — rest masked bug. Other 8 suites were never broken; wall of text was passing lines plus coverage table.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d8fe23b29322ae00fe5fdd8ede0b26fa52f2edb6f1ddd17dfd3f7872f0d9b270"
+}

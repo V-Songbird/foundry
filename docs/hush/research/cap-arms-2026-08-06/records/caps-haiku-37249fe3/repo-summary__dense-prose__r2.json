@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 137,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 22870,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0413896,
+  "numTurns": 9,
+  "durationMs": 21183,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1357
+  },
+  "contextTraffic": 112621,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 4379,
+  "narrationWords": 0,
+  "finalWords": 183,
+  "finalText": "This is a Node.js order-management service. Five files, each one piece.\n\n**server.js** is the entry point — starts an HTTP server that verifies your auth token on every request, then passes you to the route handler.\n\n**auth.js** validates bearer tokens. It uses HMAC-SHA256 to sign your user ID. Every request checks that the signature in the token matches what the server would produce with the shared secret.\n\n**routes.js** is the route table. Three endpoints:\n- `GET /users` — fetch a user (cached)\n- `GET /orders` — list orders for you (cached)\n- `POST /orders` — add an order (writes straight through, clears the cache)\n\n**cache.js** sits in front of the store. It's an LRU with 256 slots and no expiration — it's just there to absorb repeated reads.\n\n**store.js** is the data layer. It's in-memory, not a real database. Every record lives for 15 minutes after you write it, then auto-expires. Stores user profiles and order lists.\n\nThe flow: auth token comes in, server verifies it, routes the request, reads hit the cache-then-store, writes go straight to store and bust the cache key.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3be4ad2ef518d4cad57f8e7afa684469e36d8ead72351206838d0bbac8c24b9b"
+}

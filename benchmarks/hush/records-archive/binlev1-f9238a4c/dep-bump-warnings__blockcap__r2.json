@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__blockcap__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "blockcap",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37344,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 0.24918749999999998,
+  "numTurns": 11,
+  "durationMs": 35748,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1940
+  },
+  "contextTraffic": 151338,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6690,
+  "narrationWords": 8,
+  "finalWords": 76,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project structure."
+  ],
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, fall back to old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, threw | Treat `undefined` as `false` |\n\nThe 8 remaining lines are deprecation warnings only. They name real work like `Buffer()` and `crypto.createCipher`.\n\nNext: clear those deprecations if you want a fully silent log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "82fc4a4d4ead4ab0e7ef66d73b64b235839fc1cfb5162ec9d839f1010ed7f925"
+}

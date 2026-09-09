@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 93,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65381,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.32456039999999997,
+  "numTurns": 15,
+  "durationMs": 59379,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4662
+  },
+  "contextTraffic": 447404,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 15348,
+  "narrationWords": 0,
+  "finalWords": 217,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing as of last log entry (03:59:27Z) — not yet resolved.\n\n**Root cause:** `dep-4471` (gateway, deployed by a.novak, 02:12:00Z–02:14:00Z) — config change *\"connection-per-request for pool isolation\"*, which flipped `gateway.pool.perRequest: false -> true` (applied at 02:13:41.234Z, config generation 118→119). This appears to have multiplied concurrent connection demand against a fixed pool cap of 20, causing pool exhaustion within ~33 seconds of the config taking effect.\n\n**Impact window:** 2026-03-14 **02:14:18.972Z** (first 503, `ERR_POOL_EXHAUSTED`) through at least **03:59:27.974Z** (end of available log), so **≥1h45m** and still active. Errors recur in ~60s bursts (4-5 consecutive 503s per burst, one burst per checkout cycle), hitting all backend services roughly evenly (billing-svc, orders-svc, catalog-svc, accounts-svc) — confirms it's gateway-side pool starvation, not a single downstream failure. Queue depth (`waiting`) climbed from 13 at onset to 74 by 03:59, so it's not self-healing. `/health` checks return 200 throughout — process is alive, just starved.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window — workers show no pool exhaustion, no 503s, and flat `db_wait` throughout; the job fleet was unaffected.\n\n**Action: roll back `dep-4471`** (or hotfix `gateway.pool.perRequest` back to `false`) to relieve pool pressure. No other deploy in `deploys.csv` is implicated — `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both landed after the errors were already underway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "905a1b72de3320a94ce8ac9b671f717a5f51c36b4525d87adc261fab0beb5e45"
+}

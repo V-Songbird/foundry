@@ -1,0 +1,40 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 46929,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6426692500000001,
+  "numTurns": 16,
+  "durationMs": 45777,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3025
+  },
+  "contextTraffic": 175343,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 23164,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Moved 36 calls in 12 files.**\n\nAll now use `db.execute({ sql, params })`. No `db.query` is left in `packages/`. Each file passes `node --check`.\n\nOne skipped: [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit. Upgrades replace it wholesale.\n\n`cache.query` calls are a separate API. Left as is.\n\nNext: bump `legacy-orm` past 2.1.4 to clear the last two calls.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d159d901ae5f82dcc1d23b5474ba2f85c986d5b1ec929c81bbb4251a3f5235e4"
+}

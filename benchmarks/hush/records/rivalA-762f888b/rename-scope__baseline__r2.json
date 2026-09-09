@@ -1,0 +1,44 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 109,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 81821,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4342025,
+  "numTurns": 9,
+  "durationMs": 81039,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5409
+  },
+  "contextTraffic": 231086,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 22421,
+  "narrationWords": 29,
+  "finalWords": 563,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll survey the codebase to give you a real answer.",
+    "Now let me look at the places where renaming is questionable.",
+    "Now the application layers — repo, service, http."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files.** That number is scarier than the work is — the codebase is highly repetitive:\n\n| Layer | Occurrences | Files |\n|---|---|---|\n| `services/*/src/repo` | 475 | 25 |\n| `services/*/src/service` | 400 | 25 |\n| `services/*/src/http` | 325 | 25 |\n| `migrations/*.sql` | 61 | 12 |\n| `vendor/reporting-sdk` | 20 | 4 |\n| `lib/` | 5 | 2 |\n| `docs/openapi.yaml` | 5 | 1 |\n\n75 of the 94 files are 25 identical repo/service/http triples (`invoice`, `order`, `pageview`…) — same five functions, same shape. There is **no test suite anywhere in the repo**, so nothing will catch a mistake mechanically.\n\n## Where it must NOT be renamed\n\n**1. `vendor/reporting-sdk/` (20 occurrences) — hard no.** The README says \"Do not edit these files\"; `npm run vendor:refresh` (pinned to `reporting-sdk@3.8.1` in package.json) overwrites the directory wholesale. Beyond that, `account_id` there is the *vendor's* request/response wire field — renaming it breaks the calls even if the edit survived.\n\n**2. `docs/openapi.yaml` + the right-hand side of `WIRE` in `lib/serialize.js` (7 occurrences) — no, not without a new API version.** `account_id` is a public response field *and* a public query parameter on `/v2/invoices`. The OpenAPI doc states renaming one \"is a breaking change for every client and needs a new dated version,\" and `lib/serialize.js:5-11` is the single choke point that enforces it. That file is the firewall: an internal rename is fine as long as the mapping still emits `account_id` on the wire.\n\n**3. `migrations/*.sql` (61 occurrences) — no.** All twelve are marked applied in production. Editing them renames nothing in a database that already ran them, and it desyncs the `down` steps.\n\n**4. SQL identifiers inside the repo layer (125 occurrences) — not yet.** Every `WHERE account_id = ?`, `INSERT INTO invoices (account_id, …)` names the live DB column. These can only change after a *new forward* migration renames the column, which is its own project (rename + dual-read window, or a view).\n\n## Two things I'd flag that aren't obvious\n\n- **`req.session.account_id` — read in all 25 route files.** The session object is minted by auth middleware that isn't in this repo. Whoever owns that has to ship the rename in lockstep, or auth silently yields `undefined` and every request 500s (or worse, the `if (!account_id) throw` guards are the only thing standing between that and a cross-account read).\n- **`JSON.stringify({ ...values, account_id })` in all 25 repo files** (e.g. `services/billing/src/repo/invoice.js:36`) writes the key into the `payload` JSONB column. Renaming it means new rows carry `owner_id` inside `payload` while every existing row carries `account_id` — a silent split in persisted data that no migration covers. Also worth a note: `lib/audit.js:8` puts `account_id` on every audit line, which downstream log queries and dashboards likely key on.\n\n## What I'd sign off on\n\nNot as one PR. Split it:\n\n- **Now, safe:** internal JS locals, parameters, and object keys — roughly **1,080 occurrences**, purely mechanical, contained by `serialize.js` at the wire boundary. Coordinate the session-shape change with the auth owner.\n- **Separate project:** the DB column (new migration, dual-read).\n- **Separate project:** the public field (new dated API version).\n- **Never:** vendored SDK, applied migrations.\n\nIf \"everywhere\" means a single find-and-replace across all 1,291, I'd withhold sign-off — it breaks the public contract, corrupts vendored code on next refresh, and mismatches SQL against live columns.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "04eeeefa85586cd415f417f2487a582f6d1e1d7b683d015003b132e19845f5f9"
+}

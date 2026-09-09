@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 36,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 122496,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47271290000000005,
+  "numTurns": 14,
+  "durationMs": 120846,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10783
+  },
+  "contextTraffic": 387643,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 21533,
+  "narrationWords": 0,
+  "finalWords": 104,
+  "finalText": "I went through all 127 merged PRs and the raw commit log. Wrote the 4.2.0 section into `CHANGELOG.md`.\n\nOut of everything, one real breaking change and one real feature: expired tokens now return `401` instead of `403`, and failed webhook deliveries retry automatically with backoff. The rest is eight genuine bug fixes — things like a leaked request body in the db logs, a double-trimmed trailing slash, dropped trace ids on retry, wrong units on a latency metric.\n\nEverything else in the history — the dependency bumps, the renames, the retry-helper collapses — doesn't change behavior anyone would notice, so I left it out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "300c0618554272488fabed6d2eb13ad3c5a6b9a508ff8459cd86308af01dec78"
+}

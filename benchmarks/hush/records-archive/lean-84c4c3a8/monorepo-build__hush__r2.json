@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 36819,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2184686,
+  "numTurns": 10,
+  "durationMs": 34719,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1873
+  },
+  "contextTraffic": 284275,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 8802,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "Found it and fixed it. The build failed in the bundle stage, past all the lint noise, because `packages/shared/config.js` used `Object.assign` to layer package overrides onto the release defaults. That's a shallow merge, so any package overriding part of `output` or `sourcemap` (like `@acme/api` setting `output: { format: 'esm' }`) wiped out the sibling keys (`dir`, `entry`) instead of just changing that one field.\n\nI replaced it with a merge that recurses into nested objects like `output` and `sourcemap`, so overrides only touch the keys they name.\n\nBuild now finishes clean: `build finished in 74.3s with 5 warnings, 0 errors`, exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "47af1d439dd75e61616f13b45970e7e3589e779267b2dab03ac65b55791a37b6"
+}

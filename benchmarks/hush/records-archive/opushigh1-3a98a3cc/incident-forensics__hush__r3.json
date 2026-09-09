@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 202561,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.9619645,
+  "numTurns": 21,
+  "durationMs": 198728,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15063
+  },
+  "contextTraffic": 611675,
+  "apiCalls": 21,
+  "toolCalls": 17,
+  "toolResultChars": 11385,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff is at [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `gateway.pool.perRequest` went false to true. Each request now grabs its own connection. Pool size stayed 20. Connection churn rose 104x.\n\nWindow: `02:14:18Z` to `03:59:27Z`, still open. Every non-health request failed. That is 530 of them.\n\nRoll back `dep-4471`. Leave `dep-4472` and `dep-4473` alone.\n\nNext: revert, then watch `waiting` drop to 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "70469dc72e5730b09acb865c875a5d690301deadb7c1c412fe0652c51a6b9958"
+}

@@ -1,0 +1,46 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 27,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 103637,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8276715000000001,
+  "numTurns": 10,
+  "durationMs": 102463,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7111
+  },
+  "contextTraffic": 379304,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 75493,
+  "narrationWords": 67,
+  "finalWords": 594,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet ends 2026-06-17. Let me read the full commit log.",
+    "I have the full history. Let me extract the user-facing categories systematically.",
+    "Let me cross-check the two sources before I write anything.",
+    "Cross-check confirms the commit log is authoritative — the PR sheet is missing 17 user-facing changes and the undici bump. Writing the entry now."
+  ],
+  "finalText": "Written into `CHANGELOG.md:3`. Here's what I found and the judgment calls behind it.\n\n## The signal\n\n380 commits, and 350ish of them are invisible to users: 114 dependency bumps, 39 chores, 33 CI, 20 docs, 60 test commits, and 52 refactors. What's left is **one feature, ~15 distinct bug fixes, and four things that will break someone.**\n\nThe dependency bumps are noisier than they look: pino appears 12 times, zod 10, but always the *same* version range (`9.2.0 → 9.3.1`). Those are re-opened bot PRs, not sequential upgrades — net effect is one bump per package. No runtime dep crossed a major, so there's nothing for users to act on. I left dependencies out of the notes entirely.\n\n## The calls I made\n\n**Four items I promoted to Breaking**, none of which are labeled as breaking in the history:\n\n- **`refactor(api): drop the unused v1 export route`** (#4152) — filed as a refactor and described as \"unused,\" but it deleted a route from `router.js` and `handlers.js`. \"Unused\" is an inward-facing claim about the codebase; from outside, an endpoint disappeared. This is the one I'd most want a human to confirm before you ship.\n- **\"stop re-exporting the internal error types\"** — 9 commits across core, db, auth, billing, jobs. Individually each reads as tidying; together they remove error classes from the package surface. Anyone doing `catch (e) { if (e instanceof FooError) }` breaks silently.\n- **`fix(auth): return 401 for an expired token instead of 403`** (#4223) — a genuine fix, but it's a contract change. Filed under Fixed it'd get skimmed past; it needs to be where people look for required action.\n- **\"use the right units in the latency histogram\"** — correcting a metric is still changing what every existing dashboard and pager threshold reads.\n\n**What I deliberately left out:** the `Ctx` → `RequestCtx` renames, the config-loader moves, the \"v2 debug helper\" removals, and the router file splits. All internal — only breaking for someone deep-importing past your entry points.\n\n**The 9 perf commits I dropped.** Your template has three headings and the comment restricts it to what an installer would notice. Not one perf commit carries a number, so I'd only be able to write \"things are faster,\" which isn't a claim you want in release notes you can't back. If you have benchmarks elsewhere, `perf(api): reuse the parsed schema between requests` and the metric-write batching are the two most likely to be measurable.\n\n## Two things you should know before tomorrow\n\n**The history stops on 2026-06-17 — that's ten weeks before your cut date.** Both files end there, and the log header says it was generated for a release meeting. If anything merged to `release/4.2` since mid-June, it is not in these notes. This is the item I'd resolve first; I'd hold the date line until you've confirmed it.\n\n**The PR sheet is not a reliable source on its own.** I cross-referenced it against the commit log: it's missing 17 user-facing changes and the entire undici bump. Two of the misses are notable — `fix(http): clear the timer when the socket drops` and `fix(http): close the pool on shutdown` are both real user-visible fixes with no PR row. I worked from the commit log for everything above. If the sheet feeds anything else in your release process, it's under-reporting.\n\nI dated the entry 2026-08-30 on your \"cutting tomorrow.\" The Breaking wording tells people what to do but not what to migrate *to* — I don't have the codebase, so the replacement export endpoint is a blank you'll need to fill.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e26a5147a6192369bb47792f0ac7110b88c6816fdce846925cfa42072dc4c62"
+}

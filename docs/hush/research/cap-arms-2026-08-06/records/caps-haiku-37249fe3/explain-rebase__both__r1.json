@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 72,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11305,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0229715,
+  "numTurns": 1,
+  "durationMs": 9382,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 601
+  },
+  "contextTraffic": 27056,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 195,
+  "finalText": "**Merge** ties two branches together with a new commit that says \"these branches came together here.\" You keep both histories intact. It's safe because nobody's past commits change.\n\n**Rebase** replays your commits on top of the other branch, as if you had started from a different point. It rewrites your commit history to make a cleaner line.\n\n**Use merge when:**\n- You're pulling a feature branch into main or a shared branch\n- Multiple people are working on the same branch\n- You want a clear record of when branches joined\n\n**Use rebase when:**\n- You're cleaning up your own branch before pushing it out\n- You want a straight-line history that's easier to follow\n- Only you are working on that branch\n\nThe golden rule: **rebase on your own work, merge on shared branches.** Rebasing rewrites commits, so if someone else is also on that branch, their copy of the history breaks. Merge is safe because it only adds a new commit — everyone's old commits stay as they were.\n\nFor a feature branch you're working on solo, rebase keeps things tidy. For main or anything multiple people touch, merge is the safer play.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5af678f9598c49b9374e5eb6f8f3334dd6ae7f490209d75909e0e0619c88a101"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 17,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38889,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.22947630000000002,
+  "numTurns": 12,
+  "durationMs": 37598,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2191
+  },
+  "contextTraffic": 366551,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 10312,
+  "narrationWords": 156,
+  "finalWords": 105,
+  "finalText": "Both the build and the repo's own verification script pass now.\n\n**Root cause:** `packages/shared/config.js`'s `resolveRelease` used a shallow `Object.assign` to layer defaults → package overrides → CLI flags. Since `output` and `sourcemap` are nested objects, any package overriding just one nested key (e.g. `@acme/api` setting `output: { format: 'esm' }`) replaced the *entire* `output` object, wiping out `dir`. The bundle stage then correctly detected the missing `output.dir` and aborted.\n\n**Fix:** Changed the merge to shallow-merge nested objects (`output`, `sourcemap`) one level deep across each layer, so partial overrides only touch the keys they name — matching the documented layering behavior in the file's own comment.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b8ac72415443f4eaa3bbac1c4f6976f4ed69d57c4a213290b19500d225b10451"
+}

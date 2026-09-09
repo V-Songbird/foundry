@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 65,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 8134,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0815292,
+  "numTurns": 1,
+  "durationMs": 6448,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 414
+  },
+  "contextTraffic": 35978,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 91,
+  "finalText": "Two things usually cause this.\n\nFirst, a plain child re-renders whenever its parent re-renders, no matter the props. React only skips a re-render if the child is wrapped in `React.memo`.\n\nSecond, even with `React.memo`, if you pass an inline function or object (like `onClick={() => ...}` or `style={{...}}`), that's a brand new value every render. It looks the same to you but fails React's equality check.\n\nFix: wrap the child in `React.memo`, and wrap any function or object props in `useCallback` or `useMemo` so they keep the same reference across renders.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f05dfaffb9010f654bdd7a82a922e94e138fc12d85773323af8390b67fce340"
+}

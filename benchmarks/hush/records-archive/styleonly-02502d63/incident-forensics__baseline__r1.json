@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 24,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65874,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5157678,
+  "numTurns": 14,
+  "durationMs": 60376,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3808
+  },
+  "contextTraffic": 751853,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 52891,
+  "narrationWords": 32,
+  "finalWords": 210,
+  "finalText": "**On-call Handoff — Gateway 503s**\n\n**Root cause:** dep-4471 (gateway, a.novak, \"config: connection-per-request for pool isolation\", shipped 2026-03-14T02:12–02:14Z). Config generation 118→119 applied at 02:13:41Z, flipping `gateway.pool.perRequest: false -> true` (also bumped `upstreamMs: 2000 -> 2500`). After this, connections stop being released back to the pool — `in_use` pins at 20/20 and the `waiting` queue climbs continuously (13 at onset → 74+ by end of log) rather than draining. Requests fail with `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)` → 503.\n\n**Impact window:** started **2026-03-14T02:14:18.972Z** (first 503, req-07401 /v1/cart), **still ongoing/unresolved as of the last log entry at 03:59:27.974Z** — this is a sustained, worsening outage, not a transient blip. Roughly 1h45m and counting at time of log capture.\n\n**Scope:** gateway only. Cross-checked `worker.log` for the same window — all 4 worker replicas stayed healthy throughout (no errors, no pool exhaustion, jobs completing normally). Only unrelated blip was one known-issue slow-query WARN (OPS-2210) at 02:36Z. So this did not exhaust shared DB/backend capacity, it's isolated to the gateway's connection pool config.\n\n**Action:** roll back **dep-4471** (revert `gateway.pool.perRequest` to `false`, or redeploy prior gateway config generation 118). No other deploy in the window (dep-4469 accounts-svc, dep-4470 worker, dep-4472 billing-svc, dep-4473 catalog-svc) touches the gateway pool or correlates with onset.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7814d64467a1efd832f1a7087aaaf525527556429f7bb172e785f2171c226cf7"
+}

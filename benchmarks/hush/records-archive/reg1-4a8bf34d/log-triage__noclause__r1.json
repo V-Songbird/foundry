@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__noclause__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14096,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.117577,
+  "numTurns": 4,
+  "durationMs": 12345,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 740
+  },
+  "contextTraffic": 115515,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 146,
+  "assistantMsgs": 1,
+  "finalText": "**Redis loss triggered a cascading overload that took down prod.**\n\nTimeline, 2026-07-04:\n\n1. `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — cache layer degrades, falls back to direct store reads.\n2. Direct reads cause a cache miss storm and rising queue depth, `TimeoutError` on every service every few seconds.\n3. Twelve reconnect attempts (`02:14` to `02:31:26`) all fail with the same `ECONNREFUSED`, redis never comes back.\n4. Queue depth climbs from 52 to 568, past the 500 max, backlog piles up.\n5. `02:31:44` `worker-2` hits `JavaScript heap out of memory`, restarts, then `02:31:52` `api unresponsive, killing process group — service down`.\n\nRoot cause: Redis at `10.0.0.12:6379` went unreachable and never recovered. No cache invalidation, no circuit breaker — direct-store fallback overloaded the store and starved memory.\n\nNext: check why redis at `10.0.0.12` dropped, and add a circuit breaker so a redis outage degrades instead of cascades.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "db40aa4b8431593f8c2387768c94f6d66888851e94e7d1253d6c21ac167ea1fb"
+}

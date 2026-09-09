@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__turn2__r1",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 8,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "turn2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 95737,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5503885,
+  "numTurns": 46,
+  "durationMs": 93233,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11290
+  },
+  "contextTraffic": 426590,
+  "apiCalls": 11,
+  "toolCalls": 45,
+  "toolResultChars": 19919,
+  "narrationWords": 63,
+  "finalWords": 66,
+  "finalText": "Migrated all 12 files still on `db.query` over to `db.execute({ sql, params })` — 36 call sites in total, each a get-by-id, list, or update. Left `cache.query` and the vendored `legacy-orm/adapter.js` alone since they're not part of this migration.\n\nThe verify script confirms it: no `db.query` left in `packages/`, every `db.execute` call carries both `sql` and `params`, and all the modules still load and run correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75158ea8407bb94a1d5cf2d2cc7c5bfc3d4425d4a765c98728853eb542f5ea59"
+}

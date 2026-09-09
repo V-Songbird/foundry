@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "sn291-a1dafbca",
+  "seed": "1787887694776",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33360,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21867560000000003,
+  "numTurns": 3,
+  "durationMs": 31457,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3183
+  },
+  "contextTraffic": 107330,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "finalText": "**Redis outage cascaded into a full service outage.**\n\n`redis` at `10.0.0.12:6379` dropped at `02:14:07`. It never reconnected, failing 12 times by `02:31:26`.\n\nThe app fell back to direct store reads. Miss storms overloaded it. Queue depth passed its `500` cap, hitting `568`.\n\n`worker-2` crashed at `02:31:44` from `JavaScript heap out of memory`. It restarted. `api` stayed unresponsive and was killed at `02:31:52`.\n\nFix `redis` connectivity first, that's the root cause.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1c3adcad33f78238aeafc979050dbeadbc791189a83c1bc78db661ecaeb05eb8"
+}

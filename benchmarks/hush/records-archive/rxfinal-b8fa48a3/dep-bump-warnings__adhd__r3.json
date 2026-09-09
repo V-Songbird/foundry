@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27389,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.1865903,
+  "numTurns": 10,
+  "durationMs": 26025,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1684
+  },
+  "contextTraffic": 235668,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8121,
+  "narrationWords": 11,
+  "finalWords": 80,
+  "finalText": "Build passes clean now, 0 errors.\n\nFixed two real bugs, both from the bundler's new options shape:\n1. `src/core/options.js:6` — read `options.retries` (old key), threw on undefined. Now reads `retryCount`.\n2. `src/net/retryPolicy.js:7` — treated unset flag as invalid instead of `false`. Now treats `undefined` as disabled.\n\nThe 8 remaining warnings are just deprecation noise (`fs.exists`, `Buffer()`, punycode, etc.) — not blocking, safe to ignore for now.\n\nNext: run your real test suite to confirm nothing else regressed from the bump.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c73feeb59e220eee614b0ed20327552ff9ea9005b8c87511b3535c8c2530ff8"
+}

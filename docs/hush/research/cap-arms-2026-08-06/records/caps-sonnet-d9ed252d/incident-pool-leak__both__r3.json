@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 107,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34281,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22485349999999998,
+  "numTurns": 11,
+  "durationMs": 31412,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1838
+  },
+  "contextTraffic": 315678,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8019,
+  "narrationWords": 40,
+  "finalWords": 69,
+  "finalText": "Found it: `processOrder` (`src/jobs/processOrder.js`) acquired a connection but only released it on success, skipping the `withConnection` safety wrapper that `api.js` uses. Every failed order permanently ate a connection.\n\nYour worker log shows exactly that: `pool in-use` climbs with each `invalid order payload` failure, hits `5/5`, then the worker dies with `pool exhausted`.\n\nFixed by wrapping the release in `try/finally`, same pattern as `withConnection`. All 4 tests pass now (88ms).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d0687e9cbb18b09af9daca32f8188f9d4fc9108cf55504a96f4f60a41a73dd3"
+}

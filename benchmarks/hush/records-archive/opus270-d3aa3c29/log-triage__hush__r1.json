@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34148,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5042584999999999,
+  "numTurns": 7,
+  "durationMs": 32816,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1769
+  },
+  "contextTraffic": 228068,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 11295,
+  "narrationWords": 6,
+  "finalWords": 56,
+  "finalText": "**Redis went down and took the app with it.** It refused connections at `10.0.0.12:6379`.\n\n```\n02:14:07  Redis connection lost\n          ↓ every read hits the database instead\n02:14:10  first 5-second timeouts (173 total)\n02:29:12  queue passes its 500 limit\n02:31:44  worker-2 runs out of memory\n02:31:52  service down\n```\n\nAll 13 reconnect tries failed. Fix Redis first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0d26f7bc0a2a06be4f4d51d6a506f53983991f9ea16d37b1c8a8ab3dfdae6e15"
+}

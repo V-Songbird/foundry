@@ -1,75 +1,80 @@
 ---
 name: cut-release
-description: >-
-  Developer tool for this marketplace repo. Walks through cutting a release
-  for one plugin: adds the CHANGELOG entry in the plugin's own submodule,
-  commits and pushes it there, then bumps that plugin's "version" and
-  "source.sha" together in the root .Codex-plugin/marketplace.json (the two
-  fields that must move together, per this repo's release discipline), and
-  commits/pushes the root repo. User-invocable only — never triggered
-  automatically, since it commits and pushes to two separate repos.
-disable-model-invocation: true
-allowed-tools: Bash, Read, Edit
+description: Prepare and publish an explicitly requested Foundry plugin-edition release using its actual platform branch, version owner and catalog. Includes coordinated README and verification gates; never an automatic release trigger.
 ---
 
-EXPERIMENTAL Codex-port copy, forked from .claude/skills/cut-release/SKILL.md and never re-synced. The root manifest is .claude-plugin/marketplace.json; per-port manifests live at plugins/<name>-codex/.codex-plugin/. Do not follow the .Codex-plugin / .Codex paths below.
+# Release a Foundry plugin edition
 
-# cut-release
+Use this workflow only for an explicit release request. Establish the plugin,
+edition and intended version from that request and the current repository state.
+If the edition is ambiguous, resolve it before writing metadata. Running in a
+particular assistant does not by itself choose the edition being released.
 
-Cuts a release for one plugin in this marketplace. This repo's rule: `.Codex-plugin/marketplace.json` is the SINGLE owner of a plugin's version (no `plugin.json` here ever sets `version`), and its `version` + `source.sha` fields must change together, in the same commit, or installers get a mismatched label or a silently-skipped update. See `CONTRIBUTING.md` → "Cutting a release" for the full rationale.
+## Sources of truth
 
-## Step 0 — figure out which plugin, and confirm the code is ready
+| Edition | Plugin metadata | Catalog | Version owner |
+| --- | --- | --- | --- |
+| Claude | `<plugin>/.claude-plugin/plugin.json` on Claude | `.claude-plugin/marketplace.json` in Foundry | the Claude catalog entry |
+| Codex | `<plugin>/.codex-plugin/plugin.json` on Codex | `.agents/plugins/marketplace.json` in Foundry | the native plugin manifest |
 
-Ask which plugin to release if not stated: `foreman`, `hush`, or `razor`.
+Both catalog entries identify the plugin repository, platform ref and full
+validated commit SHA. Claude's version and source.sha move together. A Codex
+release updates its native version and then pins that exact integrated commit;
+do not introduce a Claude-style version field into the Codex catalog.
 
-```bash
-git -C "<plugin>" status --short
-git -C "<plugin>" log origin/main..HEAD --oneline
-```
+Hush/Codex is not installable until its package and validation exist. Do not
+create a release or add it to the catalog merely because the branch exists.
 
-If there are uncommitted changes in the plugin's submodule, stop and ask whether to commit them first (this skill does not write plugin source code — it only handles the release bookkeeping). If there are local commits not yet pushed, note that Step 2 will push them along with the CHANGELOG commit.
+## Prepare a reviewable release
 
-**foreman only:** its `TaskCreated`/`TaskCompleted` hooks parse an undocumented Codex hook-input schema. Compare `Codex --version` against the version noted in `.benchmarks/foreman-handoff/task-schema-canary.js`'s last run (and the schema-date comments atop `foreman/hooks/task-created.js` / `task-completed.js`) — if the binary bumped since then, run `node .benchmarks/foreman-handoff/task-schema-canary.js` before proceeding, and update those two header comments if it reveals drift.
+1. Locate Foundry and the intended plugin checkout. Check its branch, HEAD,
+   working tree and published refs. Confirm its physical working directory with
+   `git rev-parse --show-toplevel`; worktree-list output alone can identify a
+   submodule's gitdir instead. Preserve other working copies and unrelated edits.
+2. Work on an appropriate non-main branch. On Windows, an existing Codex ref can
+   prevent a codex/ prefix; use a non-conflicting maintenance branch. A plugin's
+   main branch is its selector, never the implementation release destination.
+3. Establish the exact release surface and inspect the changes since the last
+   published pin for this edition. A dirty checkout is not authorization to
+   include everything in it. Prepare the requested files and checks before
+   requesting any genuinely missing publication approval.
+4. Write a short user-facing CHANGELOG entry and update the edition's version
+   owner. Use the user's version when supplied; otherwise choose or clarify the
+   bump according to the actual compatibility change. Keep unrelated metadata.
+5. Use coordinate-readmes and check the actual candidate pair. The CLI supports
+   `--pair <Claude-README> <Codex-README>` and
+   `--git-pair <plugin-repo> <Claude-candidate-ref> <Codex-candidate-ref>`.
+   Shared changes need both candidates; model-specific measurements must retain
+   their own evidence. Missing benchmarks stay explicitly unmeasured.
+6. Run the relevant plugin, packaging, documentation and maintenance checks.
+   Read the edition's compatibility/validation guide. Do not run a Claude hook
+   canary against a Codex package, invent hook events, or treat unit tests as
+   installed activation. Paid benchmarks and installations need their own scope.
 
-## Step 1 — pick the new version
+## Integrate and publish the selected edition
 
-Read the plugin's current version from `.Codex-plugin/marketplace.json` (root) for this plugin's entry. Ask the user for the new version, or propose one via semver bump (patch for fixes, minor for new user-facing behavior, major for breaking changes) based on the commits found in Step 0. Keep the `-alpha` suffix if the current version has one, unless the user says this release drops it.
+Commit only the reviewed release surface. Use the repository's actual PR and
+branch-protection process to integrate into Claude or Codex. Push the explicit
+reviewed branch/ref to its intended destination; never substitute `origin main`
+for the current edition. Preserve any separate acceptance or merge requirement
+from the user. Do not bypass a failing check to force a release through.
 
-## Step 2 — update the plugin's own CHANGELOG.md and push
+Once the edition commit is integrated and remotely reachable, record its full
+SHA in the correct Foundry catalog. Verify the remote branch contains that SHA.
+For Claude, update the catalog version in that same root change. For Codex,
+verify the pinned manifest contains the new effective version. A gitlink update
+alone does not publish a package update.
 
-1. `Read` `<plugin>/CHANGELOG.md`.
-2. Ask the user for a one-line, user-facing summary of what this release changes (or draft one from the Step 0 commit log and confirm it with the user — per `.Codex/rules/public-docs.md`: effect-first, no methodology, no run tags, no history narration).
-3. `Edit` the file: insert a new heading `## <version> — <YYYY-MM-DD>` directly below the intro paragraph (above the most recent existing version heading), followed by the summary paragraph. Do not add an `[Unreleased]` staging heading — this repo's actual practice adds the versioned heading directly at release time.
-4. Commit and push inside the submodule:
-   ```bash
-   git -C "<plugin>" add CHANGELOG.md
-   git -C "<plugin>" commit -m "Release <version>"
-   git -C "<plugin>" push origin main
-   ```
-   The plugin's own pre-commit hook (if `core.hooksPath` is configured) runs its test suite here — if it fails, stop and report; do not bypass with `--no-verify` without the user's explicit go-ahead.
+Run `node scripts/git-hooks/check-platform-marketplaces.js` from Foundry and
+the relevant documentation/integration checks. Integrate the reviewed root
+catalog change through its normal PR process. Publish destination branches
+before selector pages that link to them. Do not fold unrelated local work into
+either repository's release commit.
 
-## Step 3 — bump version + source.sha together in marketplace.json
+## Report the outcome
 
-1. Get the new commit: `git -C "<plugin>" rev-parse HEAD`.
-2. `Read` `.Codex-plugin/marketplace.json`.
-3. `Edit` that plugin's entry: set `"version"` to the Step 1 value AND `"source"."sha"` to the Step 3.1 commit, in the same edit pass. Both fields must change together — this is exactly what the root's own pre-commit hook (`scripts/git-hooks/check-marketplace-sync.js`) checks for.
-
-## Step 4 — commit and push the root repo
-
-```bash
-git -C . add .Codex-plugin/marketplace.json "<plugin>"
-git -C . commit -m "Release <plugin> <version>"
-git -C . push origin main
-```
-
-The root pre-commit hook verifies the staged submodule pointer bump matches marketplace.json's new `source.sha` — if it blocks, re-check that both Step 3 edits landed (a partial edit, e.g. `sha` updated but `version` not, still triggers real problems even though this specific hook only checks `sha`).
-
-## Step 5 — confirm
-
-Report the new version, the plugin's new commit SHA (short form), and both push results. If either push failed (e.g. blocked by a permission gate), stop and surface that clearly rather than retrying silently.
-
-## What this skill does not do
-
-- Write or edit plugin source code, skills, agents, or hooks.
-- Decide the version bump size without asking — always confirm with the user unless they already stated it.
-- Force-push, skip hooks, or bypass a failing test without explicit user confirmation.
+Report the plugin and edition, version, integrated plugin SHA, root catalog SHA,
+actual push/check results and any remaining activation or publication boundary.
+If a remote operation fails, inspect the result and report its concrete state;
+do not silently broaden the push or retry with force. Do not claim publication
+from a local commit, valid manifest or passing unit suite alone.

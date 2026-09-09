@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 20,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 215995,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.9898195000000001,
+  "numTurns": 23,
+  "durationMs": 206025,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13061
+  },
+  "contextTraffic": 786230,
+  "apiCalls": 22,
+  "toolCalls": 19,
+  "toolResultChars": 12221,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "finalText": "The handoff is written to `HANDOFF.md`. The short version:\n\n**Root cause.** `dep-4471` turned on `gateway.pool.perRequest`. Every request now takes its own connection. The pool of 20 stays full.\n\n**Impact.** Started `2026-03-14T02:14:18Z`. Still failing when the log ends at 03:59. 530 of 1228 requests failed.\n\n**Roll back `dep-4471`.** Config generation `119 -> 118`. Flipping that one key back is enough.\n\nThe doc also flags that `/health` stayed green the whole time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1f3c952483539d568ec7b2bf5d049bb70d5ef168f1b54fe8453923f3c60ed4a8"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 10,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65317,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.5666732999999999,
+  "numTurns": 15,
+  "durationMs": 58757,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3430
+  },
+  "contextTraffic": 878689,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 54758,
+  "narrationWords": 56,
+  "finalWords": 155,
+  "finalText": "## On-call handoff — gateway 503s\n\n**Root cause:** dep-4471 (gateway, a.novak, 02:12–02:14 UTC) — \"config: connection-per-request for pool isolation.\" Flipped `gateway.pool.perRequest: false → true` (config gen 118→119). Every request now grabs its own DB connection instead of sharing the pool (size 20) → pool saturates → `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** 2026-03-14 02:14:18 UTC → still ongoing at log end (03:59:27 UTC, last line in `logs/gateway.log`). Not self-healing — queue depth (`waiting=`) climbed from 13 to 74 over that span. `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders` all affected; `/health` kept returning 200 throughout.\n\n**Blast radius:** gateway only. `logs/worker.log` shows worker's separate DB pool flat (`size=8 in_use=1 idle=7 waiting=0`) unchanged through the whole window — no 503s there, unaffected.\n\n**Rollback:** revert dep-4471 — set `gateway.pool.perRequest` back to `false`. No other deploy is implicated (nearest other one is billing-svc dep-4472 at 02:41, different service, after the incident already started).\n\nNext: roll back dep-4471, confirm `waiting=0` returns in `pool stats` lines.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6719afdf8cf806729a0eb9bfd986b1ee8332f2089d3dc2fd1e6d84ae9c2dbe8f"
+}

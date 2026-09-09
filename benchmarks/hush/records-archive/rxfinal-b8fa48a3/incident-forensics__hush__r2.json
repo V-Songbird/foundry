@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 49,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51784,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32618729999999996,
+  "numTurns": 16,
+  "durationMs": 44640,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2223
+  },
+  "contextTraffic": 596194,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 10952,
+  "narrationWords": 0,
+  "finalWords": 119,
+  "finalText": "Here's the handoff, ready to paste.\n\n---\n\n**Gateway 503 Incident — On-Call Handoff**\n\n**Root cause:** `dep-4471` (gateway, a.novak, \"connection-per-request for pool isolation\") shipped at 02:12–02:14 UTC. It broke connection pooling. The pool holds only 20 connections and stopped releasing them. Every request past 20 waits and times out.\n\n**Impact window:** Started 2026-03-14 02:14:14 UTC. Still ongoing as of the last log line, 03:59:27 UTC. Wait queue has grown from 13 to 74 requests. Every route is failing: cart, session, checkout, orders, catalog search.\n\n**Roll back:** `dep-4471`. It's the only gateway change in this window and it lines up exactly with the first error.\n\n**Not affected:** Worker service is healthy. No pool errors there, just one known slow-query warning (`OPS-2210`).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f05b49d62d8cde31b00285e94a2d566f491f98a6c7c7efe531cb140cfa3229c1"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__concise__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 11,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45415,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5634324999999999,
+  "numTurns": 6,
+  "durationMs": 44363,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2945
+  },
+  "contextTraffic": 230121,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 60858,
+  "narrationWords": 8,
+  "finalWords": 541,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "## What happened\n\nA Redis outage took down the service in ~18 minutes. It wasn't a code failure — it was a cache dependency loss with no backpressure to survive it.\n\n**First, a flag:** every line in `logs/app.log` is dated **2026-07-04**, ~02:00–02:31 UTC. That's two months ago, not last night. Either this is an archived log or log rotation/shipping isn't working. Worth checking before you conclude this is the incident you're chasing.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14:03 | Healthy. All 200s, cache hit ratio 0.90–0.98. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | Cache degraded, falls back to direct store reads |\n| 02:14:08 → | Cache miss storm + `TimeoutError` after 5000ms on every backend, queue depth climbing |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, all ECONNREFUSED. Redis never came back. |\n| 02:29:12 | Queue depth **502 (max 500)** — limit breached, kept growing to 568 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n188 ERROR lines total: 173 timeouts, 13 failed reconnects, 1 initial connection loss.\n\n### Root cause chain\n\n1. Redis at `10.0.0.12:6379` refused connections — ECONNREFUSED, not a timeout, so the process was down or the port closed. Nothing in the app logs explains why; that's the thing to investigate on the Redis side.\n2. The fallback path sent every miss straight to the primary store. Cache hit ratio was ~95%, so this was roughly a 20× load multiplier landing instantly.\n3. The store saturated and started timing out at 5s, which made each in-flight request hold resources five seconds instead of ~100ms.\n4. Queue depth grew linearly (~30/min) for 17 minutes straight and blew past the stated max of 500 without anything shedding load.\n5. worker-2 OOM'd on the backlog; the api process group followed.\n\n### Three defects this exposes\n\n- **`max 500` isn't enforced.** The log records depth 502, 505, … 568. It's a metric label, not a limit. A real bounded queue that 503s on overflow would have kept the process alive.\n- **Reconnects are on a flat 80s interval** (02:15:26, 02:16:46, 02:18:06 … exactly 80s apart) with no backoff and no circuit breaker. Meanwhile every request kept attempting the store — nothing stopped hammering the overloaded dependency.\n- **No request coalescing.** The miss-storm keys cycle through `orders:1000`–`orders:1199` and wrap around repeatedly — only 200 distinct hot keys. Single-flight locking would have collapsed thousands of duplicate store reads into 200.\n\nAlso worth noting: **there is not a single INFO request-completion line after 02:14:03**. No 5xx logged, no `/health` checks. From 02:14 to 02:31 the only signal was WARN/ERROR chatter. Whatever watches health had ~18 minutes of silence and didn't act on it.\n\n### Caveat on scope\n\nThe directory only contains `logs/` and `package.json` (`incident-service@2.4.0`, ioredis ^5.4.1 / express / pino) — no `src/`, so I couldn't confirm the fallback, queue, and reconnect behavior in code. The three defects above are inferred from log evidence, which is strong but not the same as reading the implementation.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "64907fe94f7885afeb8d9935c3bedc012f03a2a82789febbde970dad511470e2"
+}

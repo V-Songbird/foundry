@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 42,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 23126,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.237002,
+  "numTurns": 7,
+  "durationMs": 21880,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1233
+  },
+  "contextTraffic": 162359,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 7177,
+  "narrationWords": 20,
+  "finalWords": 77,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "Bug: `orderTotal` taxes pre-discount base. Comment says tax the discounted amount; code uses `cents`."
+  ],
+  "finalText": "Green. 625/625 passing.\n\nOnly 3 real failures in that wall of text, all one bug in `src/pricing.js:41` (`orderTotal`): tax computed on pre-discount `cents` instead of the discounted amount — so discounted orders with nonzero tax came out high. Other 622 cases passed because they had tax 0 or no discount, which hides the difference.\n\n```js\nconst tax = roundCents(discounted * taxRate);  // was: cents * taxRate\n```\n\nMatches the function's own doc comment (\"tax what's actually owed\").",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fa24590eea0d102efa09124e3ca05799b6b084d900033b9b030af124c4e84f2f"
+}

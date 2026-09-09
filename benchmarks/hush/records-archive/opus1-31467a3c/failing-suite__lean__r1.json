@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__lean__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34266,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.31990050000000003,
+  "numTurns": 11,
+  "durationMs": 32642,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1910
+  },
+  "contextTraffic": 246826,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12393,
+  "narrationWords": 8,
+  "finalWords": 110,
+  "finalText": "Green. `625 total, 625 passing, 0 failing`, exit 0.\n\nOnly 3 of the 625 cases were actually broken. All three were in `order totals`, and all had a discount and a tax at the same time. `orderTotal` in `src/pricing.js` took the discount off correctly, then charged tax on the original price instead of the discounted one. The rest of the wall of text was passing cases and a coverage table.\n\nThe fix, one line:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nThe function's own comment already described this behavior, so the code was the thing that was wrong, not the tests.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "04b5a5960f3718af1a28f76d5fba43ee62cf6091c4883fbeabb5a55aaca0a6c1"
+}

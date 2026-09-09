@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__adhd__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 78,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 104163,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.573305,
+  "numTurns": 12,
+  "durationMs": 103191,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6733
+  },
+  "contextTraffic": 319943,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 31201,
+  "narrationWords": 34,
+  "finalWords": 599,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at what's in the directory.",
+    "Let me pull out the signal — filtering the noise categories first.",
+    "I've got the picture. Writing the draft into `CHANGELOG.md` in your existing shape:"
+  ],
+  "finalText": "Draft is in `CHANGELOG.md:20`. Here's how I got there and what you should check before you publish.\n\n## The shape of the history\n\n380 commits, and the noise ratio is about what you feared:\n\n| Type | Count | User-visible? |\n|---|---|---|\n| chore (153) / test (64) / ci (33) | 250 | No |\n| refactor | 73 | Mostly no — **3 exceptions**, below |\n| docs | 20 | No |\n| perf | 10 | No API change |\n| fix | 26 | Yes, ~10 distinct issues |\n| feat | 1 | Yes |\n\nAll 39 dependency bumps are patch/minor on runtime deps (fastify 4.28.0→4.28.1, pino, knex, pg, undici, zod, ioredis, nanoid, dotenv) or dev tooling (vitest 1→2, esbuild 0.21→0.23). Nothing there reaches an installer. I left them out entirely.\n\n## What actually changed\n\n**One feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (#4191). It also touched `src/core/config.js`, so it probably added a config knob — if there's a new option name, the release notes should name it.\n\n**Four breaking changes, and three of them are not labelled as breaking.** This is the part worth your attention:\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) is filed as a fix, but it's a contract change. Anyone whose refresh logic keys on 403 breaks silently on upgrade.\n- Seven `refactor(*): stop re-exporting the internal error types` commits across auth, billing, core, db, jobs. \"Internal\" is the author's word; if consumers were importing those from the root, this is a breaking removal.\n- `refactor(api): drop the unused v1 export route` (#4152) — \"unused\" is likewise an assertion, and it touched `router.js`, `handlers.js` and the API tests.\n- `fix(store|core): use the right units in the latency histogram` — correct code, but every existing dashboard and alert now reads wrong. That's an operator-visible break even though nothing in the API moved.\n\n**The fixes worth grouping.** Many bugs were fixed once per module rather than once, so the raw list triple-counts. Collapsed: null cursor in the paginator (4 modules), empty allowlist (3), trace id lost across retry (4), duplicate header (3), trailing slash (2), plus the HTTP timer/pool leaks and `fix(db): stop logging the whole request body` — that last one is a privacy fix and I'd consider calling it out above the rest.\n\n## Three things to verify before you ship\n\n1. **My fix descriptions are partly inferred.** The log gives subjects and diffstats, not diffs. \"The token parser reports which field failed\", \"paths no longer lose a segment\", and \"empty allowlist treated as empty rather than absent\" are my reading of terse subjects. Skim those four diffs and correct the wording — the grouping is sound, the symptom phrasing may not be.\n\n2. **The Node minimum is unresolved.** There are ~15 commits across `docs: note the minimum node version`, `chore: pin the node version in .nvmrc`, and `ci: run the suite on node 22`. But *no* commit touches an `engines` field in `package.json` — only `.nvmrc`, docs, and CI. So this may be a repo convention rather than an enforced requirement. If `engines` did change, it belongs under Breaking; I left it out rather than guess.\n\n3. **The history stops on 2026-06-17.** Both the commit log and the PR sheet end there, and you're cutting tomorrow, 2026-09-02. That's a 10-week gap. Either the release branch froze in June, or this export is stale and there's a chunk of 4.2 I haven't seen. Worth confirming before you sign off — I also dated the entry 2026-09-02 on the assumption you're cutting tomorrow.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "41bbb289354e7aaab05698326a32b1b56bd69adea95bcd25e09a8bba7f79cf83"
+}

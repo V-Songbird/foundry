@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__notrust__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 29,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrust",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32225,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 0.2509704,
+  "numTurns": 13,
+  "durationMs": 30738,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2168
+  },
+  "contextTraffic": 362079,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 9317,
+  "narrationWords": 15,
+  "finalWords": 97,
+  "finalText": "Builds clean now, 0 errors.\n\nTwo real bugs were hiding under the deprecation noise, both from the bundler bump changing option shapes:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That threw on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js` required `backoffEnabled` to be strictly `true` or `false`, but the new config loader leaves it `undefined` when unset. That threw too.\n\nFixed both, so retries resolve and backoff just checks for `true` instead of demanding a boolean. Build now finishes with 8 warnings, 0 errors, those remaining warnings are just the deprecation noise from the bump, nothing broken.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75b076d355a523f966943a933b4db12a8d42a37f1ae48419c009eea1ea29bff0"
+}

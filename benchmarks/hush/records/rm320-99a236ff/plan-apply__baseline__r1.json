@@ -1,0 +1,42 @@
+{
+  "key": "plan-apply__baseline__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 64,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31477,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.16605399999999998,
+  "numTurns": 8,
+  "durationMs": 30294,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2193
+  },
+  "contextTraffic": 70832,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 3081,
+  "narrationWords": 15,
+  "finalWords": 522,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the code first so the plan is grounded in what's actually there."
+  ],
+  "finalText": "Read all four files. Here's how I'd do it.\n\n## What's there\n\n- `src/report.js` — `buildRows()` reads `data/runs.json`, maps to `{id, suite, status, ms, owner, slow}`, sorts by `ms` descending. Format-agnostic already.\n- `src/format.js` — `toTable(rows)` renders only `COLUMNS = ['id','suite','status','ms']`, deliberately dropping `owner` and `slow`.\n- `src/cli.js` — `argv[0] !== 'report'` → usage + exit 1; otherwise print table.\n\nThe seam is already in the right place: `buildRows()` is the data, `toTable()` is one presentation of it. JSON becomes a second presentation, a sibling to `toTable` — no changes to `report.js`.\n\n## The one decision worth making up front\n\n\"Same data\" is ambiguous, and the code is unusually explicit about it. `format.js` says it drops `owner`/`slow` because *the table is too narrow*, and that \"anything that needs the whole row has to go back to `buildRows()`, not to this.\"\n\nSo: **JSON should emit the full row — all six fields, including `owner` and `slow`** — not the table's four columns. The column subset is a terminal-layout concession, not a statement about what the report's data is; a JSON consumer has no width limit and `slow` is a computed field that's genuinely useful to a machine. Reusing `COLUMNS` to filter the JSON would bake a rendering constraint into the machine-readable output.\n\nI'll build it that way unless you want strict visual parity with the table. It's a one-line difference if you'd rather have the four columns.\n\n## Plan\n\n1. **`src/format.js`** — add `toJson(rows)` alongside `toTable`, returning `JSON.stringify(rows, null, 2)`. Export it. Keeps both renderers in the formatting module; `toJson` ignores `COLUMNS` by design, and I'd note that in a comment next to the existing one so the asymmetry reads as intentional.\n2. **`src/cli.js`** — parse `--json` out of the args after the command word. Something like: command is `argv[0]`, flags are the rest; `--json` selects `toJson`, absence selects `toTable`. Pick the renderer, then a single `process.stdout.write(render(buildRows()) + '\\n')`.\n3. **Unknown flags** — `report --jsonn` currently would be silently ignored under a naive check. I'd reject anything in the remaining args that isn't `--json` with the usage message and exit 1, matching the existing failure behavior for a bad command.\n4. **`USAGE`** — update to `usage: cli.js report [--json]`.\n\n## Properties I'd preserve\n\n- Sort order (slowest first) carries into the JSON array — `JSON.stringify` keeps array order, so this is free, but it's the thing to eyeball.\n- Exit codes unchanged: 0 on success, 1 on usage error.\n- Trailing newline on stdout, same as the table, so shell redirection behaves.\n- Usage errors still go to stderr, keeping stdout pure JSON for piping into `jq`.\n\n## Verification\n\nNo test files and no `package.json` in the repo, so this is manual: run `node src/cli.js report`, `node src/cli.js report --json`, `node src/cli.js report --bogus`, and `node src/cli.js` — confirm the table is byte-identical to before, the JSON parses and has 5 objects with `r-105` (9120ms) first and `slow: true`, and both error cases print usage to stderr with exit 1.\n\nRoughly a dozen lines across two files. Want me to go ahead, and do you want full rows or the table's four columns?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "732ceb394bd37e7d2aed0d46b42368394333fab0a9103b6960f4ae6453cff8b8"
+}

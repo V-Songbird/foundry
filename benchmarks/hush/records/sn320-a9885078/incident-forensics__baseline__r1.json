@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 77291,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26239300000000004,
+  "numTurns": 18,
+  "durationMs": 71722,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4655
+  },
+  "contextTraffic": 598028,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 21955,
+  "narrationWords": 0,
+  "finalWords": 259,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Confirmed — log ends at 03:59:27.974Z still throwing 503s, unresolved. Here's the handoff.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of end of available logs (03:59:27Z). Needs rollback.\n\n### Root Cause\nDeploy `dep-4471` (gateway, author **a.novak**, 02:12:00Z–02:14:00Z) — *\"config: connection-per-request for pool isolation\"* — flipped `gateway.pool.perRequest` from `false` to `true` (config generation 118→119, applied 02:13:41.234Z). This causes each request to grab its own connection from the pool instead of sharing/reusing, and with the pool fixed at **size 20**, demand outstripped supply within ~33 seconds. Every 503 since is `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, with the wait queue growing unbounded (13 → 74+) — no self-recovery observed.\n\n### Impact Window\n- **Start:** 2026-03-14 **02:14:18.972Z** (first 503, ~35s after the config change applied)\n- **End:** none — still failing at 03:59:27.974Z, the last timestamp in `logs/gateway.log`. Treat as **still live**.\n- **Scope:** gateway only. Checked `logs/worker.log` for the same window — worker pool (`size=8`) stayed steady at `in_use=1, waiting=0` throughout; no job failures, no correlation. Not a shared-dependency outage.\n\n### Rollback\n**Roll back `dep-4471`** (gateway) — revert `gateway.pool.perRequest` to `false` (or ship a fix raising pool size to accommodate per-request connections if `perRequest=true` is actually wanted long-term).\n\nOther deploys in the window (`dep-4472` billing-svc 02:41Z, `dep-4473` catalog-svc 03:20Z) are unrelated — they landed after the incident already started and don't touch pooling config.\n\n### Verify after rollback\nNext `pool stats` log line should show `in_use` back under `size` and `waiting=0`; 503 rate should drop to zero within one request cycle.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c36f874aec5feed0c1560ea340142d3d11a6c98deb13c09a582502dcc2eee815"
+}

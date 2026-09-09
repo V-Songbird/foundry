@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r1",
+  "batchId": "bindsmoke-6bc0e178",
+  "seed": "1787151615496",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28554,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2057901,
+  "numTurns": 11,
+  "durationMs": 26986,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1734
+  },
+  "contextTraffic": 266109,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15389,
+  "narrationWords": 54,
+  "finalWords": 75,
+  "finalText": "Both the runner (625/625 passing) and `verify.js` confirm it's fixed.\n\nThe bug: `orderTotal` in `src/pricing.js` applied tax to the pre-discount amount instead of the discounted amount, despite its own comment saying tax should be charged on what the customer actually pays. Only order rows with *both* a nonzero discount and tax rate exposed it, which is why most of the earlier passing cases masked it. Fixed by taxing the discounted total instead of the original.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "707501856e4cd9c2e6c1e6cc23e68ba48eced2e9e847fb8509ad3f7a7b81d8f9"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "write-validator__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 85,
+  "task": "write-validator",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 7996,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0223275,
+  "numTurns": 1,
+  "durationMs": 6209,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 481
+  },
+  "contextTraffic": 27044,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "```python\ndef validate_email(email: str) -> bool:\n    \"\"\"Check if an email address is valid using regex pattern.\"\"\"\n    import re\n    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\n    return re.match(pattern, email) is not None\n```\n\nFor something more robust that handles edge cases per RFC 5322, use the `email-validator` library:\n\n```python\ndef validate_email(email: str) -> bool:\n    \"\"\"Validate email using email-validator library.\"\"\"\n    from email_validator import validate_email, EmailNotValidError\n    try:\n        validate_email(email, check_deliverability=False)\n        return True\n    except EmailNotValidError:\n        return False\n```\n\nThe regex version is lightweight and covers most common cases. The `email-validator` version is stricter and handles more RFC rules, but requires `pip install email-validator`. Pick the first unless you need strict RFC compliance.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7cfafa945df735c16ef14ddf18c2b50a7fc717eb28aedd4449e62edefeaf68cf"
+}

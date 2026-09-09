@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__baseline__r1",
+  "batchId": "v15-5c760d14",
+  "seed": "1786434953993",
+  "orderIndex": 8,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25017,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.147642,
+  "numTurns": 9,
+  "durationMs": 23815,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1434
+  },
+  "contextTraffic": 204170,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 4428,
+  "narrationWords": 36,
+  "finalWords": 39,
+  "finalText": "All 5 tests pass. The bug: flat coupons are denominated in USD, but `computeTotal` subtracted `coupon.amount` from the total *after* currency conversion. Fixed by subtracting the flat discount in USD first, then converting the result to the target currency.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "64cedaecf9b095f648b9b95fb124ace9687d615e5c80f8153dfdb6a4c80f5dfc"
+}

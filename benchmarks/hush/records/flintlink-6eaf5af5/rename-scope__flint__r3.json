@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__flint__r3",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 13,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "flint",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29255,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.26983799999999997,
+  "numTurns": 12,
+  "durationMs": 27748,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1852
+  },
+  "contextTraffic": 141118,
+  "apiCalls": 6,
+  "toolCalls": 11,
+  "toolResultChars": 15097,
+  "narrationWords": 7,
+  "finalWords": 125,
+  "assistantMsgs": 2,
+  "finalText": "**1082 hits in 94 files. Only 75 can be renamed.**\n\n| Area | Files | Rename? |\n|---|---|---|\n| `services/**` | 75 | Yes, safe |\n| `migrations/**` | 12 | No, all applied in prod |\n| `vendor/reporting-sdk` | 4 | No, generated |\n| `docs/openapi.yaml` | 1 | No, frozen contract |\n| `lib/serialize.js` | 1 | Left key only |\n\nThe SQL strings inside `services/**` repos still say `WHERE account_id = ?`. Those are column names. They must stay until a real migration renames the column.\n\nIn `[lib/serialize.js:8](lib/serialize.js:8)` the `WIRE` map goes internal to public. Rename the left side only. The right side is the wire name.\n\nNext: confirm the team plans a column migration, or the diff is variable names only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7a74ce685a30b5b6ceb134caaf95c6fa1eadaff4aa48c82db50eaac84290fbfa"
+}

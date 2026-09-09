@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 9,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18328,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2007814,
+  "numTurns": 4,
+  "durationMs": 16679,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1155
+  },
+  "contextTraffic": 114259,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 25198,
+  "narrationWords": 0,
+  "finalWords": 146,
+  "finalText": "Redis died at 02:14, and the app never recovered.\n\nHere's the chain:\n\n1. `02:14:07` — redis connection lost (`ECONNREFUSED 10.0.0.12:6379`).\n2. The app fell back to hitting the store directly, which it wasn't built to handle. Cache misses piled up and requests started timing out.\n3. For 17 minutes, api kept retrying redis every 80 seconds and kept failing (12 attempts, `02:15` to `02:31`), while the request queue climbed steadily to 568.\n4. `02:31:44` — worker-2 ran out of memory from the backlog and crashed.\n5. `02:31:52` — the api process stopped responding and got killed. Service went down.\n\nSo the trigger was redis going unreachable, and the real damage was the backlog with no circuit breaker, which turned a cache outage into a full crash. Worth adding a queue depth limit or fast-fail when redis is down, and finding out why redis at 10.0.0.12 dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "af2ff3f8b7a57aacffcfa7fab0abd8cbb01e75d17107097b093114679b9954d5"
+}

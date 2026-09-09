@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 27,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28317,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.21992270000000003,
+  "numTurns": 12,
+  "durationMs": 27001,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1777
+  },
+  "contextTraffic": 282013,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 17239,
+  "narrationWords": 85,
+  "finalWords": 56,
+  "finalText": "Both the test suite and the ground-truth verifier pass.\n\n**Bug:** in `src/pricing.js`, `orderTotal` computed tax on the original amount instead of the discounted amount, even though its comment said tax should apply after the discount.\n\n**Fix:** one line — tax now applies to `discounted` instead of `cents` (src/pricing.js:41).\n\nAll 625 cases pass and `verify.js` confirms it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "310cfef4f14039308ef31137126b823014450804ab7744d13f61146b631a9236"
+}

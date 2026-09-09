@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 109,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 46618,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0777333,
+  "numTurns": 13,
+  "durationMs": 44874,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3103
+  },
+  "contextTraffic": 251582,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 14972,
+  "narrationWords": 0,
+  "finalWords": 104,
+  "finalText": "Found it. The pricing engine was rounding intermediate values in USD after each discount, then converting currencies, then rounding again. This caused precision loss.\n\nWhen you apply a 10% discount to $19.98, you get $17.982. Rounding that to $17.98 and then converting to GBP at 0.78 gives 14.0244 → 14.02. But if you skip the intermediate rounding and convert first (17.982 × 0.78 = 14.0259...), then round, you get 14.03—the correct answer.\n\nThe test reference implementation only rounds once, at the very end in the target currency. I removed the intermediate `round()` calls after applying percent and flat discounts. All 40 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "06c0625c44785dfe1954110d66c955ac9f52d8791c4bf812310eeb71fe437535"
+}

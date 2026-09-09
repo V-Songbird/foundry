@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17405,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.318414,
+  "numTurns": 4,
+  "durationMs": 16016,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 925
+  },
+  "contextTraffic": 209325,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60279,
+  "narrationWords": 0,
+  "finalWords": 174,
+  "finalText": "Line 720 empty (EOF). Root cause chain, clear:\n\n**Trigger — 02:14:07:** Redis at `10.0.0.12:6379` die, `ECONNREFUSED`. API cache layer fall back to direct store reads.\n\n**Cascade (02:14–02:31):** No cache = every request hit store direct. Store overload, 5000ms timeouts spread across api/worker-1/worker-2/scheduler, repeat every few sec, non-stop 17 min. Redis reconnect attempt fail 12 times (0 through 12), each ~2min apart, never recover. Request queue depth climb steady: 52 → 568 (max meant to be 500, blown past it around 02:25:48).\n\n**Death spiral (02:31):**\n- 02:31:26 — reconnect attempt 12 fail, still no redis\n- 02:31:44 — worker-2 heap out of memory, backlog too big\n- 02:31:45 — supervisor restart worker-2 (exit code 134)\n- 02:31:52 — api itself unresponsive, supervisor kill whole process group. Service down.\n\n**Root cause:** Redis dead at 10.0.0.12:6379, no circuit breaker / backpressure on cache-miss fallback — store got hammered raw, queue grew unbounded till worker OOM.\n\n**Fix direction:** need redis restored, plus circuit breaker on store fallback + queue depth cap to fail fast instead of unbounded backlog.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5163cfce9b5c613c340d71a1c64e63bb94bd9fbe9049d9c584bfa56610f41d68"
+}

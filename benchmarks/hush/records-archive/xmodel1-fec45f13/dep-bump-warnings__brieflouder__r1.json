@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__brieflouder__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "brieflouder",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37349,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "brieflouder:Brieflouder",
+  "costUsd": 0.19172460000000002,
+  "numTurns": 12,
+  "durationMs": 35628,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1988
+  },
+  "contextTraffic": 229067,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 10313,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is clean.** Exit code 0, 8 warnings, 0 errors.\n\nTwo real bugs, both from the bundler bump:\n\n- [options.js:7](src/core/options.js:7) — `resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Fixed the key.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) — `isBackoffEnabled` threw on `undefined` flags. New config loader leaves unset flags as `undefined` instead of `false`. Now treats `undefined` as `false`.\n\nThe rest was deprecation noise from the bump, not worth chasing. `retry budget resolved to 3` and `backoff disabled` now print correctly.\n\nNext: nothing. Build passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5814ed0b2304da4f16d0dc85bb66efe0d1bfb17eddc38fb95382aee2555e054b"
+}

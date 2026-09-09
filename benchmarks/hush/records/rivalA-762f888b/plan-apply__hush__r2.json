@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__hush__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 166,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 17619,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1702765,
+  "numTurns": 7,
+  "durationMs": 16542,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 978
+  },
+  "contextTraffic": 104346,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 3031,
+  "narrationWords": 0,
+  "finalWords": 116,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Plan ready. Nothing changed.**\n\nThe catch: \"same data\" is not one thing. `buildRows()` in [report.js:11](src/report.js:11) makes 6 fields. `toTable` in [format.js:7](src/format.js:7) prints only 4. It drops `owner` and `slow` on purpose, for width.\n\nJSON has no width limit. So I would print all 6 fields. Say the word if you want the 4.\n\nThe change, in [cli.js:8](src/cli.js:8):\n\n```js\nfunction main(argv) {\n  const [command, ...flags] = argv;\n  if (command !== 'report') { process.stderr.write(USAGE + '\\n'); return 1; }\n  const rows = buildRows();\n  const out = flags.includes('--json') ? JSON.stringify(rows, null, 2) : toTable(rows);\n  process.stdout.write(out + '\\n');\n  return 0;\n}\n```\n\n`USAGE` gets `[--json]`. No touch to `report.js` or `format.js`.\n\nNext: say go, and pick 6 fields or 4.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5ecaf8364e36f2171756082dafc12798b6004894faf566085e4724f593bfa980"
+}

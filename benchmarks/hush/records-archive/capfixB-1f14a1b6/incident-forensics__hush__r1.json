@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 55428,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3402005,
+  "numTurns": 15,
+  "durationMs": 47534,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2743
+  },
+  "contextTraffic": 496717,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 19417,
+  "narrationWords": 0,
+  "finalWords": 153,
+  "finalText": "Still failing at the very end of the log, 03:59:27, and the waiting count has climbed from 13 to 74. It never recovered on its own.\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** deploy `dep-4471` (a.novak, gateway, 02:12–02:14) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. That change stopped connections from being returned to the pool, so `in_use` climbed to the pool's max of 20 and never came back down.\n\n**Impact window:** started 2026-03-14 02:14:18 UTC (first 503, `req-07401`), still ongoing at the end of the log, 03:59:27 UTC. Not self-healing, wait queue is up to 74 and rising.\n\n**Errors seen:** every failure is a 503 paired with `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, N climbing steadily.\n\n**Scope:** gateway only. Checked `worker.log` for the same window, jobs kept completing fine, no pool errors there.\n\n**Roll back:** `dep-4471` (config generation 119 → 118), reverting `gateway.pool.perRequest` to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6d49aa9fb74bb18211d87d338fe10039e9603694a3f850b2ae28464bbf52bf0e"
+}

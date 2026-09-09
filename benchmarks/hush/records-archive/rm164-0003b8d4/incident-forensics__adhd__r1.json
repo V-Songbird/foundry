@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 52,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 75899,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5119809,
+  "numTurns": 17,
+  "durationMs": 69826,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4693
+  },
+  "contextTraffic": 683033,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 53602,
+  "narrationWords": 49,
+  "finalWords": 343,
+  "finalText": "Confirmed: the log ends at `03:59:27.974Z` still actively erroring — the incident had **not** recovered by the end of the captured log. It's ongoing/unresolved as of the last line.\n\nNow I have everything needed for the handoff.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** 🔴 Ongoing (unresolved as of last log entry)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, author a.novak, \"config: connection-per-request for pool isolation\") changed `gateway.pool.perRequest` from `false` → `true` via config generation 118→119, applied at `02:13:41Z`. This stopped connections from being reused across requests, and the gateway's fixed-size connection pool (20) saturated almost immediately under normal load. Every subsequent request that needs a connection queues up; the `waiting` count has climbed continuously and unboundedly since (13 at first failure, 161+ by 03:03Z, still rising through 03:59Z at last log line) — the pool never drains once it isolates a connection per request.\n\n**Impact window:**\n- **Start:** `2026-03-14T02:14:18.972Z` — first `503`/`ERR_POOL_EXHAUSTED` (`req-07401`), 19s after the `dep-4471` deploy finished (`02:14:00Z`) and 38s after the config was applied (`02:13:41Z`).\n- **End:** Not yet recovered — still throwing 503s (`ERR_POOL_EXHAUSTED`) at `03:59:27.974Z`, the last timestamp in the log. Treat as ongoing until confirmed otherwise.\n- **Scope:** Gateway only. Confirmed via `logs/worker.log` — worker's separate pool stayed healthy the entire window (`size=8 in_use=1 idle=7 waiting=0` unchanged), jobs completed normally. Not a shared DB/dependency issue.\n- **Blast radius:** All routes/upstreams affected — `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` — spread across billing-svc, orders-svc, catalog-svc, accounts-svc as targets (client-side pool exhaustion, not one backend dying). `/health` checks continued returning 200 throughout.\n\n**Action — roll back:**\nRevert **`dep-4471`** — set `gateway.pool.perRequest` back to `false` (config generation 119 → 118, or an equivalent forward-fix reload). This is the fastest mitigation; no other deploy in the window is implicated (`dep-4470` finished 1h17m earlier, `dep-4472` started 27 min after the first 503 and is unrelated to gateway).\n\n**Follow-up:** once rolled back, confirm the pool `waiting` count drains to 0 and 503 rate returns to zero before closing out. Worth a post-mortem on why per-request pooling wasn't load-tested against the 20-connection cap before shipping.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f99f2e047cf3581e71dcae2842104e28763450f0f551949318077d19154553c5"
+}

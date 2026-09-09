@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24121,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1509448,
+  "numTurns": 8,
+  "durationMs": 22584,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1458
+  },
+  "contextTraffic": 326124,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 8290,
+  "narrationWords": 0,
+  "finalWords": 99,
+  "finalText": "It builds clean now, 0 errors.\n\nTwo spots broke from the bump. In `src/core/options.js`, the new bundler renames a setting from `retries` to `retryCount`, but the code still read the old name, so it crashed. I pointed it at the new name. In `src/net/retryPolicy.js`, a missing setting now shows up as `undefined` instead of `false`, and the check only understood `true` or `false`, so it crashed too. I made `undefined` count as off, same as before.\n\nThe rest was just noise: deprecation notices from the bumped packages, not real failures. Build now finishes with 8 warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2f73e9570ba38cfed061ceee1248fe859031c7ecf10306c76ef0eebe78a04425"
+}

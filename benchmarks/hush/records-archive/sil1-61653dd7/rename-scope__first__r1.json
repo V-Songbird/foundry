@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__first__r1",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 8,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "first",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40923,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.33575049999999995,
+  "numTurns": 16,
+  "durationMs": 39095,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2625
+  },
+  "contextTraffic": 184208,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 19115,
+  "narrationWords": 6,
+  "finalWords": 124,
+  "assistantMsgs": 2,
+  "finalText": "**Big but mostly safe: 1025 of 1082 hits are internal.** 94 files total.\n\n| Zone | Hits | Files | Rename? |\n|---|---|---|---|\n| `services/**` http/repo/service | 1025 | 75 | Yes |\n| `migrations/**` | 37 | 12 | No, applied history |\n| `docs/openapi.yaml` | 5 | 1 | No, public contract |\n| `vendor/reporting-sdk` | 12 | 4 | No, overwritten by `vendor:refresh` |\n| `lib/serialize.js` wire value | 1 | 1 | No, left key only |\n\nTwo traps. The SQL column stays `account_id` unless a new migration renames it. So strings inside `repo/*.js` cannot flip with the variables. And `lib/audit.js` writes an `account_id` log field that dashboards may query.\n\nAsk them which they mean: variables only, or column too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "642737ff47bf80876e69b54d793529ba33fc04245cf5d6b33d1a5fd897d76b5f"
+}

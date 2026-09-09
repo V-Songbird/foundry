@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__adhd__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 91862,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.45700550000000006,
+  "numTurns": 20,
+  "durationMs": 90313,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6344
+  },
+  "contextTraffic": 237890,
+  "apiCalls": 8,
+  "toolCalls": 19,
+  "toolResultChars": 18709,
+  "narrationWords": 41,
+  "finalWords": 749,
+  "finalText": "## Size\n\n**~1,290 occurrences across 94 files** (1,082 matching lines). By area:\n\n| Area | Occurrences | Files | Renameable? |\n|---|---|---|---|\n| `services/**` | 1,200 | 75 | Mostly — see carve-outs |\n| `migrations/*.sql` | 61 | 16 | **No** |\n| `vendor/reporting-sdk` | 20 | 4 | **No** |\n| `lib/` | 5 | 3 | Partly |\n| `docs/openapi.yaml` | 5 | 1 | **No** |\n\nThe services tree is extremely uniform — 25 near-identical repo/service/route triples across `accounts`, `billing`, `orders`, `analytics`, `notify`. That's what makes the raw count big and the actual thinking small. The risk isn't volume, it's that a naive find-and-replace hits four surfaces where the string is *not* an internal identifier.\n\n## Where it must not be renamed\n\n**1. `docs/openapi.yaml` — public API contract.** `account_id` is a required response field on `Invoice`/`Order` and a public query parameter on `/v2/invoices`. The file says so explicitly: renaming is a breaking change requiring a new dated version. Out of scope for a refactor.\n\n**2. `lib/serialize.js` — the right-hand side of `WIRE`.** This is the firewall that makes the rest of the rename safe:\n\n```js\nconst WIRE = {\n  account_id: 'account_id',   // left = internal, right = public/frozen\n};\n```\nThe left key may become `owner_id`; the right value must stay `'account_id'`. Get this one line right and the public JSON is unchanged no matter what happens internally. `serialize.js:8` is the single most important line in the whole review.\n\n**3. `migrations/*.sql` — applied history.** All 16 are marked applied in production. Editing them renames nothing in a database that already ran them, and it breaks the `down` steps. If the team wants the *column* renamed, that's a **new** migration plus a backfill — a separate, much riskier project than this one.\n\n**4. `vendor/reporting-sdk/` — generated, do not edit.** `npm run vendor:refresh` overwrites the tree wholesale; patches belong upstream. Also worth telling them: nothing in `services/` or `lib/` imports this SDK, so editing it is pure downside — the changes get silently reverted on the next refresh and buy nothing.\n\n## Two carve-outs inside `services/` that a bulk replace will get wrong\n\n**SQL column names in string literals (~125 occurrences, all 25 repo files).** These reference the real DB column, which migrations still define as `account_id`:\n\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\nparams: [account_id, id],   // ← this one renames; the string does not\n```\nThe JS parameter and the SQL column share a spelling today. After the rename they must diverge. Every query breaks at runtime if the literal changes — and note these fail at *query* time, not at load time, so tests that mock `db.execute` won't catch it.\n\n**JSONB payload keys (25 occurrences, one per repo).** `insertInvoice` and its 24 siblings do:\n\n```js\nparams: [account_id, JSON.stringify({ ...values, account_id })]\n```\nThat key is persisted into the `payload` column. Rename it and new rows are shaped differently from every row already written, with no backfill. Keep it as `account_id`, or treat it as a data migration.\n\n## Two things to decide, not blockers\n\n- **`req.session.account_id` (100 call sites).** The session object is populated by auth middleware that isn't in this tree — `lib/` only has `db.js`, `audit.js`, `serialize.js`. You can rename the local variable freely; the property read can't change until whoever owns that middleware ships the same rename. Ask the platform team who owns it.\n- **`lib/audit.js:8`** stamps `account_id` onto every audit line. Internal to this repo, but if any log pipeline, SIEM query, or dashboard keys on that field, renaming it breaks them silently — no test will fail. Worth one question to whoever consumes the audit stream.\n\n## My read for sign-off\n\nApprovable today, scoped to **JS identifiers only in `services/**` plus the left-hand key in `serialize.js`** — roughly 1,000 of the 1,290 occurrences. That's genuinely mechanical given how uniform the triples are.\n\nMake the approval conditional on: `docs/`, `migrations/`, and `vendor/` showing **zero** diff, and `serialize.js` showing exactly one changed token. Those are trivial to verify — if the PR touches any of those three directories, send it back without reading further.\n\nOne naming note for the author: in `services/accounts`, `account_id` scopes sessions/profiles/invites *to the account*, and `accounts` itself has `account_id REFERENCES accounts(account_id)`. `owner_id` reads there as \"the owner *of* the account,\" which is a different thing. Worth asking whether they want the rename in that service at all, or only in the services where the account is genuinely the owning tenant.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c418e904e8e3a8d354c432a19d62f26f53764806ecdc59680f7c06e00ba9e14f"
+}

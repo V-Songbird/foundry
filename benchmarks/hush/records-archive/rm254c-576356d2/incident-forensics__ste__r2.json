@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 95,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 82060,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8009737,
+  "numTurns": 18,
+  "durationMs": 76498,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5498
+  },
+  "contextTraffic": 1224908,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 85794,
+  "narrationWords": 51,
+  "finalWords": 256,
+  "finalText": "Confirmed — log ends mid-incident at 03:59:27.974Z, still erroring, no recovery. Here's the handoff.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (2026-03-14T03:59:27.974Z). Not self-healing — requires action.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` via config generation 119, applied at 02:13:41.234Z. Connections stopped being returned to the shared pool after use. The pool pegs at `size=20, in_use=20` and the `waiting` queue has climbed continuously and monotonically since onset (13 → 74+ over ~1h45m), consistent with a connection leak, not a traffic spike.\n\n**Impact window:**\n- **Start:** 2026-03-14T02:14:14.920Z (first `WARN pool acquire slow`), first hard `503 ERR_POOL_EXHAUSTED` at **02:14:18.972Z**\n- **End:** none — still active at end of available logs (03:59:27.974Z), ~1h45m and counting\n- **Scope:** gateway only. Confirmed via `logs/worker.log` that the worker fleet's separate pool (`size=8`) stayed healthy (`in_use=1 idle=7 waiting=0`) throughout the same window — no cross-service spread.\n- **Pattern:** roughly 1 in 8 gateway requests failing per cycle, on `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, and intermittently `/v1/checkout`. `/health` unaffected (doesn't touch the pool).\n\n**Rollback:**\n- **Roll back `dep-4471`** (gateway, started 02:12:00Z, finished 02:14:00Z) — restore `gateway.pool.perRequest` to `false`.\n- Pool is already saturated with leaked connections, so a config rollback alone likely won't self-clear it — **recycle/restart the gateway pool** (or the gateway processes) after rollback to drop the stuck connections and let `waiting` drain.\n- No other deploy in `deploys.csv` correlates with the incident window (prior: dep-4470 finished 00:55Z; next: dep-4472 billing-svc started 02:41Z, unrelated).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ff1f85473e8007c56a76c39a7ae52bb39dd7c80106bcfb3964b52bb4a9fa3476"
+}

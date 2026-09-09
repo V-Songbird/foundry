@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 59,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 177594,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7426315,
+  "numTurns": 16,
+  "durationMs": 170982,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11723
+  },
+  "contextTraffic": 479227,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 12672,
+  "narrationWords": 23,
+  "finalWords": 845,
+  "assistantMsgs": 6,
+  "finalText": "# On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Prepared:** 2026-08-27 · **Source:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv` · **Status at end of logs: ONGOING, NOT MITIGATED**\n\n---\n\n## TL;DR\n\nGateway config change **dep-4471** flipped `gateway.pool.perRequest` to `true`, so every request opens its own connection instead of reusing a pooled one. The 20-slot pool pinned at capacity within 37 seconds and has been returning 503s ever since. **Roll back `gateway.pool.perRequest` to `false`.**\n\n---\n\n## Root cause\n\n`dep-4471` (gateway, `a.novak`, 02:12–02:14:00Z, *\"config: connection-per-request for pool isolation\"*) applied config generation 119:\n\n```\n02:12:12.820Z INFO config  reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO config  generation 119 applied: 3 keys changed\n02:13:41.234Z INFO config    gateway.pool.perRequest: false -> true   <-- cause\n02:13:41.234Z INFO config    gateway.timeout.upstreamMs: 2000 -> 2500\n02:13:41.234Z INFO config    gateway.log.sampleRate: 1.0 -> 1.0\n02:14:14.920Z WARN pool    req-07400 /v1/checkout acquire slow: waited 100ms\n02:14:18.972Z ERROR access req-07401 /v1/cart -> billing-svc 503 659ms\n```\n\n**37 seconds** from the key flipping to the first slow acquire; **19 seconds** from deploy completion to the first 503.\n\nEvery failure is one identical pair, 530 of each:\n\n```\nERROR access  req-14107 /v1/checkout -> orders-svc 503 604ms\nERROR pool    req-14107 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 220)\n```\n\n`in_use 20` of `size 20` on all 530 — the pool is saturated and the wait queue grows (avg 83 in the 02:00 hour → 155 in the 03:00 hour, peak 271). One line names the mechanism outright:\n\n```\n03:02:30.904Z WARN pool  connection churn: 4180 opens in the last 5m, baseline is 40\n```\n\n~100x baseline connection creation, exactly what connection-per-request produces.\n\n**Confidence: high, but causation is inferred from timing + mechanism, not proven.** What's solid: the config key changed, the log records it, churn went 100x, and failures began 37s later. Not yet verified: no one has actually toggled the flag back and observed recovery. That's the next action, and it's also the test.\n\n## Impact window\n\n**Start `02:14:18.972Z` · still failing at end of log `03:59:27.974Z` · ≥ 1h 45m**\n\n| Bucket | Error rate |\n|---|---|\n| 01:00–02:09 | 0% (80 req/bucket, `pool_wait=0–3ms`) |\n| 02:10–02:19 | 44% (onset mid-bucket) |\n| 02:20–03:59 | **83%**, flat (50 of 60 req/bucket) |\n\nAffected uniformly — all five routes at 106 failures each (`/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`), all four upstreams at ~132 each. **`/v1/checkout` is failing**, so this is revenue-impacting.\n\n**`/health` returned 200 on all 180 requests** — it takes no pooled connection, so health checks stayed green the entire time. Nothing auto-alerted; on-call was paged at `03:21:05` off an error-rate threshold, **67 minutes after onset**. Fix this gap in the postmortem.\n\nThe log ends at 03:59 with errors still firing. **Confirm current live state before acting — this data is stale and someone may have already intervened.**\n\n## Roll back\n\n**`dep-4471`** — revert `gateway.pool.perRequest: true -> false`.\n\nTwo cautions:\n\n- **Prefer reverting the single key, not all of generation 119.** A full revert also drops `gateway.timeout.upstreamMs` 2500 → 2000. That key is not implicated in the 503s, and narrowing timeouts during an active incident risks a new failure mode.\n- **Loop in a.novak first if reachable.** The change is described as *\"pool isolation\"* — it likely fixed something real, and reverting reintroduces it. Don't block on this if checkout is still down; roll back and follow up.\n\nNot the cause, ruled out: dep-4468/4469/4470 all finished before 00:55 and the log is clean through 02:13; dep-4472 (02:41) and dep-4473 (03:20) both land after the rate was already flat at 83% and moved nothing.\n\n## Separate issue — do not conflate\n\n**Workers were unaffected by this incident.** 1098 INFO / 1 WARN / 0 ERROR, all 1080 jobs `finished ok`, own pool flat at `size=8 in_use=1 idle=7 waiting=0` across all 18 samples.\n\nBut worker job durations ramp linearly all window — **327ms → 2197ms, +110ms per 10 min, ~7x** — uniform across all six job types with `db_wait` flat at 5ms. It's already underway at 01:00 with no inflection at 02:14, so it predates and is independent of the gateway failure. Signature suggests per-job accumulation in a long-lived process. `dep-4470` (worker, \"retry backoff for webhook jobs\", finished 00:55:00Z) landed 5 min before the log opens and is a plausible trigger, **unconfirmed** — logs don't reach back far enough for a baseline.\n\n**File as its own ticket.** At current slope it crosses 2.5s around 04:10 and keeps climbing. Pull pre-01:00 worker logs to test the dep-4470 hypothesis.\n\n## Next actions\n\n1. Verify live gateway state — is it still 503ing?\n2. Revert `gateway.pool.perRequest` → `false`; watch for `ERR_POOL_EXHAUSTED` to stop and `in_use` to drop below 20.\n3. Notify a.novak; find out what \"pool isolation\" was solving so it can be redone safely.\n4. Ticket: `/health` doesn't exercise the connection pool — 67-min detection gap.\n5. Ticket: worker linear slowdown, unrelated.\n\n---\n\nI made no changes to anything — this was read-only analysis. I have not looked at how gateway config is stored or deployed, so I can't yet tell you the exact mechanics of the rollback; say the word and I'll trace it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fd7f13d875296d0b656730f6f12c8ecb714239eb9850f1d89b438b90c99d43c5"
+}

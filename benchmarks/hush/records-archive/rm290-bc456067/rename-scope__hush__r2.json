@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51662,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.365199,
+  "numTurns": 18,
+  "durationMs": 49870,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3313
+  },
+  "contextTraffic": 238785,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 14084,
+  "narrationWords": 8,
+  "finalWords": 120,
+  "assistantMsgs": 2,
+  "finalText": "**Roughly 1291 hits in 94 files.** Three zones must keep `account_id`.\n\n| Zone | Files | Hits | Why frozen |\n|---|---|---|---|\n| `vendor/reporting-sdk` | 4 | 20 | Generated. `npm run vendor:refresh` overwrites edits. |\n| `migrations/*.sql` | 12 | 61 | Applied in prod. Editing history breaks the down step. |\n| Public API | 2 | 6 | `[docs/openapi.yaml](docs/openapi.yaml:16)` and the wire values in `[lib/serialize.js:8](lib/serialize.js:8)`. Renaming breaks every client. |\n\nThat leaves ~1204 hits in `services` and `lib/audit.js`. But 250 of those sit inside SQL strings. Those match real DB columns. They can only change with a new migration that renames the column.\n\nMy call. Approve the internal rename. Hold the column rename as its own change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d136a16ee417440edcb18ed02f44b4af7010bbe2e8031d739eeb219a6f18f340"
+}

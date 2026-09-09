@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 43,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 59317,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.47538800000000003,
+  "numTurns": 16,
+  "durationMs": 57481,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3874
+  },
+  "contextTraffic": 253794,
+  "apiCalls": 8,
+  "toolCalls": 15,
+  "toolResultChars": 31061,
+  "narrationWords": 8,
+  "finalWords": 84,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll search the codebase for remaining `db.query` calls."
+  ],
+  "finalText": "**Migrated 36 `db.query` calls across 12 files to `db.execute({ sql, params })`.** All 12 pass `node --check`.\n\nLeft alone on purpose:\n\n| What | Why |\n|---|---|\n| [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) | 2 calls. File says do not edit. Upgrades wipe local changes. |\n| `cache.query` in repo files | Different API. Not part of this move. |\n\nNo tests in the repo, so I could not run any.\n\nNext: raise the vendor `legacy-orm` calls with the driver upgrade, since `query` dies in the next major.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dfe275254bae5a1abd77d6c6ac5760285b4c6ce98bdbbd94d09bc74c735dd133"
+}

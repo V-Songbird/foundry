@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 67,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40728,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2152278,
+  "numTurns": 13,
+  "durationMs": 38758,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3140
+  },
+  "contextTraffic": 231183,
+  "apiCalls": 7,
+  "toolCalls": 12,
+  "toolResultChars": 14444,
+  "narrationWords": 0,
+  "finalWords": 382,
+  "finalText": "Here's the real picture.\n\n**Scope: ~1,082 occurrences across 94 files.** It's not scattered — it's one consistent pattern repeated across 6 services (accounts, billing, orders, analytics, notify, +vendor): every repo function takes `account_id`, every SQL query filters `WHERE account_id = ?`, every service/route layer threads it through. Mechanically it's a big but uniform find-and-replace — internal variable names, SQL params, function args. That part is low-risk and could genuinely be done today if scoped correctly.\n\n**Three places it must NOT be renamed:**\n\n1. **`lib/serialize.js`** — this is the internal→public JSON mapping layer, and it says outright: *\"the keys on the RIGHT are the public API... frozen by the API contract, an internal rename must not reach this side of the map.\"* `account_id` is the wire field name every external client reads. Renaming it breaks every API consumer.\n2. **`docs/openapi.yaml`** — documents `account_id` as the public API contract (request/response schemas, path param). Same constraint as above; it's the spec for #1.\n3. **`vendor/reporting-sdk/`** — vendored, generated third-party SDK (explicitly marked \"Do not edit... regenerated, local edits are overwritten\"). `account_id` there is that SDK's own wire format for an external reporting API, not our schema — unrelated and untouchable by us.\n\n**One more thing that constrains the DB layer:** the migration files (`migrations/*.sql`) are marked as already applied in production — one literally says *\"Applied migrations are history: editing one does not rename anything in a database that already ran it, and it breaks the down step.\"* So the actual Postgres column `account_id` (used as the tenant-scoping FK/index across every table) can't be renamed by editing old migrations — it needs a new `ALTER TABLE ... RENAME COLUMN` migration, and that's a live schema change with its own coordination/rollout cost (and every one of those repo/service files' SQL strings would need to move in lockstep with it).\n\n**Bottom line for your sign-off:** the *internal* rename (service/route/repo variable and param names) is mechanical and safe to greenlight. The *public API field* and the *vendored SDK* must keep `account_id` forever — that's a hard no, not a \"later.\" The *DB column* rename is a separate, real migration with production coordination, not something to bundle into \"just rename everywhere.\" I'd approve internal-only today and push back on anyone who wants the API field or vendor SDK touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "284e8c340cd009147492a4e1f2cc5a4ed0122b3d77a33bba5a909a380f58ec7a"
+}

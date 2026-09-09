@@ -1,0 +1,44 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80728,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.39499,
+  "numTurns": 16,
+  "durationMs": 79364,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5662
+  },
+  "contextTraffic": 204687,
+  "apiCalls": 9,
+  "toolCalls": 15,
+  "toolResultChars": 14846,
+  "narrationWords": 51,
+  "finalWords": 610,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this actually is.",
+    "1082 occurrences across 94 files. Let me look at the categories that matter — vendor, migrations, the public API contract, and the shared lib.",
+    "Let me get an exact breakdown by category, and separate SQL column references from JS identifiers."
+  ],
+  "finalText": "## Size\n\n**~1,290 occurrences across 94 files** (1,082 lines contain it). But the raw number is misleading — it splits into very different piles:\n\n| Where | Files | Hits | Renameable? |\n|---|---|---|---|\n| `services/**` JS identifiers | 75 | ~1,050 | Yes — mechanical |\n| `services/**` inside SQL strings | — | ~150 | Only after a DB migration |\n| `migrations/*.sql` | 12 | 61 | **No** |\n| `vendor/reporting-sdk/**` | 4 | 20 | **No** |\n| `docs/openapi.yaml` | 1 | 5 | **No** (without a new API version) |\n| `lib/` | 2 | 5 | Partly — one line is the seam |\n\nThe services layer is genuinely repetitive: 25 route/service/repo triples that all follow the same shape (`invoiceRoutes.js` → `invoiceService.js` → `repo/invoice.js`), with `account_id` as a parameter, an object key, and an audit field. That part is a find-and-replace with review.\n\n## Four places it must not be renamed\n\n**1. `lib/serialize.js:8` — the public wire map.** This is the whole rename's pressure valve:\n```js\nconst WIRE = { account_id: 'account_id', ... };  // left = internal, right = public\n```\nThe right-hand side is the frozen public JSON key. A correct rename changes only the left: `owner_id: 'account_id'`. If someone runs a global replace, both sides flip and every API client breaks silently — the response still serializes, just with a key nobody reads.\n\n**2. `docs/openapi.yaml`** — `account_id` appears in the `Invoice` and `Order` schemas (both in `required`) and as the `/v2/invoices?account_id=` query param. The file states renaming a field is a breaking change needing a new dated version. Off the table for a same-day rename.\n\n**3. `vendor/reporting-sdk/src/*`** — header says generated, `npm run vendor:refresh` overwrites local edits. Any rename here silently reverts on the next refresh. Worth knowing: **nothing in the repo currently imports this SDK**, so it needs no adapter today — just exclude the directory.\n\n**4. `migrations/*.sql`** — all 12 are dated and marked applied in production. Editing them renames nothing in a database that already ran them and breaks the `-- down` steps. A column rename needs a *new* migration (`ALTER TABLE ... RENAME COLUMN`), and until that ships, the ~150 `account_id` references inside SQL strings in `services/**/repo/*.js` must stay as-is.\n\n## What I'd actually ask before signing\n\nThe request \"rename everywhere\" is really three projects, and they should be priced separately:\n\n- **Code-only** (local vars, params, object keys in services): ~1,050 sites, one seam file, no coordination. Doable.\n- **+ DB column**: new migration, 150 SQL strings, expand/contract deploy so old and new code can both run. Days, not hours.\n- **+ public API**: new dated API version and client migration. A quarter.\n\nMy recommendation: **sign off on the code-only scope**, with `lib/serialize.js`, `docs/openapi.yaml`, `vendor/`, and `migrations/` explicitly out of bounds and the SQL strings left alone. That gets the readability win the platform team wants without touching a contract.\n\nTwo things to flag on the way:\n\n- **There are no tests in this repo.** A 1,050-site rename with no test safety net is the biggest risk here, larger than any individual file. I'd want the diff reviewed with the excluded paths verified as untouched — that check is cheap and catches the serialize.js failure mode.\n- **`lib/audit.js:8`** pins `account_id` as an audit-log field name. That's a soft contract with whatever queries those logs (dashboards, alerts). Not code-breaking, but confirm with whoever owns log consumers before it changes.\n\nOne pre-existing gap I noticed while reading the request surface: the OpenAPI spec documents `?account_id=` as a filter on `/v2/invoices`, but every handler reads `req.session.account_id` and nothing reads `req.query.account_id`. Unrelated to the rename, just spec drift worth a ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f1d46dec5c69d3e54c4b0a8e0896dbde289bbd980467750b2e27fbc501e08fa3"
+}

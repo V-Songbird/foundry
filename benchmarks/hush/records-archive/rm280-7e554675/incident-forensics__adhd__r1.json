@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 84,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 156334,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.693321,
+  "numTurns": 15,
+  "durationMs": 150279,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9787
+  },
+  "contextTraffic": 468040,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 17328,
+  "narrationWords": 6,
+  "finalWords": 723,
+  "finalText": "## Gateway 503 Incident — On-Call Handoff\n\n**Status at end of available data: ONGOING.** The log ends at 03:59:27Z still throwing 503s. No recovery, no rollback, and no mitigation is recorded. Assume unresolved until you confirm otherwise.\n\n---\n\n### Root cause\n\nConfig deploy **dep-4471** set `gateway.pool.perRequest: false -> true`. The gateway began acquiring a fresh connection from its 20-connection pool per request instead of reusing them. The pool exhausted within seconds and never recovered.\n\n```\n02:12:12.820Z INFO  config  reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO  config  generation 119 applied: 3 keys changed\n02:13:41.234Z INFO  config    gateway.pool.perRequest: false -> true      <-- cause\n02:13:41.234Z INFO  config    gateway.timeout.upstreamMs: 2000 -> 2500    <-- aggravating\n02:13:41.234Z INFO  config    gateway.log.sampleRate: 1.0 -> 1.0          <-- no-op\n```\n\nEvidence: all 530 failures carry the same error, paired to a 503 on the same request id in the same millisecond.\n\n```\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nPool pinned at `size=20 in_use=20 idle=0` from 02:15 onward, wait queue climbing monotonically 12 → 112 → 172. Failures spread evenly across all 5 upstreams and all 6 routes, so this is not a bad dependency — it's the gateway's own pool. The `upstreamMs` bump to 2500 made each held connection hold ~25% longer, deepening the queue.\n\n### Impact window\n\n| | |\n|---|---|\n| **First 503** | 2026-03-14T02:14:18.972Z (18s after dep-4471 finished) |\n| **Last 503 in log** | 2026-03-14T03:59:27.974Z |\n| **Duration** | ≥ 1h 45m — still failing at log end |\n| **Failed requests** | 530 of 1,048 non-health requests — **50.6%** |\n| **Paged** | 03:21:05Z, `error_rate 5m avg is 71%` — 67 min after onset |\n\nAffected: `/v1/checkout`, `/v1/cart`, `/v1/orders`, `/v1/session`, `/v1/catalog/search`, `/v1/profile`. Checkout and orders were failing, so treat this as revenue-impacting. Latency on failures drifted 659ms → 850ms.\n\n### Roll back\n\n**dep-4471** — gateway, 2026-03-14T02:12:00Z–02:14:00Z, **a.novak**, *\"config: connection-per-request for pool isolation\"*.\n\nRevert `gateway.pool.perRequest` to `false`. Also revert `gateway.timeout.upstreamMs` to `2000` unless it was wanted independently. Config-only change, so a generation rollback to 118 should be enough — no binary redeploy.\n\n**Talk to a.novak first if they're reachable.** The summary says \"for pool isolation,\" so this was a deliberate fix for requests sharing connections. Reverting restores availability but reinstates whatever they were isolating against. The durable fix is likely a larger pool or per-tenant pools, not per-request acquisition — but don't block the revert on that conversation.\n\n**Not the cause, do not roll back:** dep-4470 (worker, 00:48Z — workers clean), dep-4472 (billing, 02:41Z) and dep-4473 (catalog, 03:20Z) — both shipped *after* onset, into an active outage.\n\n### Blast radius\n\nGateway only. `worker.log` covers the identical window with **zero errors**: 1,080/1,080 jobs `finished ok`, worker DB pool flat at `size=8 in_use=1 idle=7 waiting=0` across all 18 snapshots, `db_wait` ≤12ms throughout. Separate pool, unaffected path.\n\n### Two follow-ups (not blockers)\n\n1. **`/health` returned 200 for the entire outage** — 180 checks, `pool_wait=2ms` throughout. Health checks don't take a pool connection, so nothing auto-rolled back or shed the node while half of real traffic failed. That's why it ran 1h45m and why the page took 67 minutes. The health check needs to exercise the pool.\n2. **Worker job durations climbed 5x** (437ms → 2087ms avg) across the window. Unrelated to this incident — the slope is a constant +330ms/30min with no inflection at 02:14, and `db_wait` stays flat, so the time is in the job bodies, not the DB. Predates the log. Nearest suspect is dep-4470, but that was scoped to webhook jobs while the drift hits all six types, so I'd doubt it. Needs pre-00:48Z logs or a restart to diagnose. **Separate ticket.**\n\n---\n\n### Caveat on dates — read this\n\nYou described the 503s as starting \"last night,\" but **these files are from 2026-03-14**, and `gateway.log` was last modified 2026-08-07. `deploys.csv` ends at 03:25Z on 2026-03-14. Nothing here covers 2026-08-26/27.\n\nSo either (a) last night is a **recurrence** and you're looking at stale data — pull the current gateway.log and check whether `perRequest` is `true` again, or (b) **log shipping/rotation is broken** and the gateway hasn't written fresh logs in ~3 weeks, which is its own incident. Worth resolving before this handoff goes to the next shift, since the rollback target above is a 5-month-old deploy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0fd2b0115775262fdea92c8e5b6ea184c56ad51f27af31ad0689a73ff5fdf921"
+}

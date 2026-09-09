@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__lean__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 15,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 82362,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5054703,
+  "numTurns": 43,
+  "durationMs": 80753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10582
+  },
+  "contextTraffic": 326322,
+  "apiCalls": 8,
+  "toolCalls": 42,
+  "toolResultChars": 21451,
+  "narrationWords": 10,
+  "finalWords": 61,
+  "finalText": "Migration's done. Twelve files still had `db.query` calls and now use `db.execute({ sql, params })` instead: `cohort.js`, `sla.js`, `apiKeyAdmin.js`, `session.js`, `returnService.js`, `macroAdmin.js`, `couponService.js`, `teamService.js`, `refund.js`, `supplier.js`, `variantAdmin.js`, and `shipment.js`.\n\nLeft untouched, on purpose: `cache.query` calls (a different thing entirely) and `vendor/legacy-orm/adapter.js` (vendored code, gets overwritten on upgrade anyway). The verify script confirms it — every call site moved, nothing else did.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e99be73b00ff39782d42e07c3f3ead8c647c26b559685ba6e409459df869daf"
+}

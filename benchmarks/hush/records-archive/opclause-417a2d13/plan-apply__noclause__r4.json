@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r4",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 7,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19400,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.152169,
+  "numTurns": 7,
+  "durationMs": 17505,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 925
+  },
+  "contextTraffic": 76737,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3298,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: add `--json` to the `report` command.**\n\nThe data splits two ways. `buildRows()` in [report.js:11](src/report.js:11) yields six fields. `toTable` in [format.js:7](src/format.js:7) prints only four. It drops `owner` and `slow` for width reasons.\n\nSo \"same data\" is ambiguous. I'd emit the full `buildRows()` row, all six fields. That matches the note in `format.js` saying whole-row consumers go to `buildRows`, not the table.\n\nSteps:\n1. Add `toJson(rows)` to `format.js`, `JSON.stringify(rows, null, 2)`.\n2. In [cli.js:14](src/cli.js:14), branch on `argv.includes('--json')`.\n3. Update `USAGE` to `report [--json]`.\n4. Reject unknown flags so typos fail loud.\n\nSay the word and I build it. Tell me if you want four fields instead.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "13f87bf0c51d7cde2029b2bd5da6fb57e85c27786d75a7516fcf0ca886a6cd30"
+}

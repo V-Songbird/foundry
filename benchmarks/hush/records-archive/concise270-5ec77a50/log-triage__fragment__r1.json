@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fragment__r1",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fragment",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29090,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.6922564999999999,
+  "numTurns": 4,
+  "durationMs": 27163,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1718
+  },
+  "contextTraffic": 164529,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60197,
+  "narrationWords": 5,
+  "finalWords": 54,
+  "finalText": "**Redis died and took prod down. The log is from July 4.**\n\n1. `Redis` at `10.0.0.12:6379` refused connections at 02:14:07.\n2. Reads went straight to the store. It overloaded.\n3. All 13 reconnect tries failed.\n4. The queue passed its 500 cap, hitting 568.\n5. `worker-2` ran out of memory. `api` killed at 02:31:52.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bb46fe9fb3ec83478d82ba2821d5ad5e3684cca75ed220c146d805a3dbf2005e"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 133644,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.664418,
+  "numTurns": 19,
+  "durationMs": 125953,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7263
+  },
+  "contextTraffic": 564118,
+  "apiCalls": 18,
+  "toolCalls": 15,
+  "toolResultChars": 10643,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoll back `dep-4471` by `a.novak`, or set `gateway.pool.perRequest` back to `false`. It flipped every request onto its own connection against a pool of 20.\n\nImpact ran `02:14:18Z` to `03:59:27Z` and is still open. 530 errors, 83% of requests after onset, all routes and all upstreams.\n\nThe doc flags two things you should not chase. Worker slowness is separate and belongs to `OPS-2210`. This log is `node-3 of 3`, so check the other two nodes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "90a0381c0b0fb10127ee46ab52027e57616d4a7764c39b7095ce3b7655181de9"
+}

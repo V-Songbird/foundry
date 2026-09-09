@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22421,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1062074,
+  "numTurns": 8,
+  "durationMs": 20814,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1623
+  },
+  "contextTraffic": 143053,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 10516,
+  "narrationWords": 0,
+  "finalWords": 157,
+  "assistantMsgs": 1,
+  "finalText": "Confirmed. This is public API surface, matching `lib/serialize.js`.\n\n**94 files, ~1080 occurrences** — big, but mechanical. Internal DB columns, repo/service/route code across `orders`, `notify`, `billing`, `analytics`, `accounts` all use `account_id` consistently and can be renamed together with SQL migrations for the column rename.\n\nThree places must stay `account_id`:\n\n1. `docs/openapi.yaml` — public API field and query param, marked \"frozen\" ([openapi.yaml:13](docs/openapi.yaml:13)).\n2. `lib/serialize.js` — the internal→wire map that feeds that API; comment says an internal rename \"must not reach this side of the map\" ([serialize.js:8](lib/serialize.js:8)).\n3. `vendor/reporting-sdk/**` — vendored/generated third-party code, \"Regenerated... local edits are overwritten\" ([schema.js:3](vendor/reporting-sdk/src/schema.js:3)); also `client.js`, `query.js`, `export.js`.\n\nAlso check `lib/audit.js` — audit log entries are keyed `account_id`; if these are stored/replayed externally, renaming could break historical log parsing. Worth confirming with platform team before touching it.\n\nSign-off: fine to approve renaming inside service internals and DB layer, but the migration needs a compat column/alias, and `openapi.yaml`, `serialize.js`'s wire side, and `vendor/reporting-sdk` must be excluded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c8270bbb68c82a3cb434c13d1c37eae5d1f45899b5da361fa5d44a1fe9a11e1c"
+}

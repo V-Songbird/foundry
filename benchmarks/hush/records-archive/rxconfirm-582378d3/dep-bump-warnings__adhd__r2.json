@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21269,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.16185980000000003,
+  "numTurns": 9,
+  "durationMs": 19959,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1453
+  },
+  "contextTraffic": 197063,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5568,
+  "narrationWords": 5,
+  "finalWords": 67,
+  "finalText": "Build's clean: 0 errors.\n\nTwo real bugs, both from the bundler bump changing shapes:\n1. `src/core/options.js:6` — read `options.retries` but the new bundler passes `retryCount`. Fixed to read `retryCount`.\n2. `src/net/retryPolicy.js:7` — strict check threw on `undefined`, but the new config loader leaves unset flags `undefined` instead of `false`. Now treats `undefined` as `false` (disabled).\n\nThe other ~950 lines were deprecation/dedupe noise, not errors — left alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "590a849180ec47573f45504dac5d498fba33d4fa56781309d3f800d14e0fb575"
+}

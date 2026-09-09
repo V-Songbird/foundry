@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40375,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2883167,
+  "numTurns": 13,
+  "durationMs": 38822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2417
+  },
+  "contextTraffic": 484377,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 9449,
+  "narrationWords": 12,
+  "finalWords": 101,
+  "finalText": "Build's green now: `build finished in 74.3s with 5 warnings, 0 errors`, and `verify.js` confirms it.\n\nThe break was in `packages/shared/config.js`. It merged the defaults, per-package overrides, and CLI flags with `Object.assign`, which is shallow. So a package like `@acme/api` that only overrides `output.format` was losing `output.dir` entirely, since the whole `output` object got replaced instead of merged. I swapped it for a proper deep merge that combines nested objects key by key.\n\nThe five lint warnings are still there, same as before — those were never the problem, just noise burying the real error further down in the bundle stage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "de051e8382de6b952827de567dacfbb1e594450005087734ccc9e1f640c0c89a"
+}

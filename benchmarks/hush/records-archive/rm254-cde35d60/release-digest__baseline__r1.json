@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 41,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 143316,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6890321999999999,
+  "numTurns": 12,
+  "durationMs": 141893,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12149
+  },
+  "contextTraffic": 615262,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 74156,
+  "narrationWords": 54,
+  "finalWords": 204,
+  "finalText": "Done. Notes on how I got there, since the 380 commits were mostly noise:\n\n- **Filtered out entirely**: dependency bumps, refactors, CI/test-only changes, editorconfig/lockfile churn, and internal perf micro-optimizations (JSON round-trip skipping, clone avoidance, metric batching) — none of that is observable from outside the package.\n- **Deduplicated repeated bugs**: several fix commits used near-identical wording but landed in different modules on different dates (e.g. \"guard the null cursor in the paginator\" showed up separately in queue, API, webhooks, and DB; \"drop the duplicate header\" hit core, billing, and HTTP three separate times; \"keep the trace id across the retry\" was fixed three times in the API module alone). I collapsed each into one bullet rather than listing every occurrence.\n- **One real Breaking change**: expired tokens now return `401` instead of `403` (`src/auth/token.js`, `src/auth/session.js`) — a status-code contract change, not just an internal fix.\n- **One real feature**: webhook deliveries now retry with exponential backoff instead of dropping after one attempt.\n- **Flagged as notable Fixed**: the DB client no longer logs full request bodies, since that's a privacy-relevant fix people should know landed.\n\nThe CHANGELOG.md now has the 4.2.0 entry at the top, dated 2026-08-21, in the same three-heading format as 4.1.0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0f5a9f848eaba58662bd630b7632152b2077e4bbeee4cf1a9716aa2a0b590fd8"
+}

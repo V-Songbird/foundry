@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43522,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.295322,
+  "numTurns": 11,
+  "durationMs": 41929,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2469
+  },
+  "contextTraffic": 195786,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 13864,
+  "narrationWords": 101,
+  "finalWords": 359,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOnly 3 of the 625 cases failed, all in the `order totals` suite, all one bug in `src/pricing.js:39`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed the pre-discount base\nreturn discounted + tax;\n```\n\n`orderTotal` took the discount off correctly, but then computed tax against the **original** `cents` instead of the discounted amount, and added it on. So the customer was taxed on money they never paid.\n\nThe function's own docstring already stated the correct rule — *\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied to it\"* — so the code contradicted its documented intent, not the spec. The fix matches the docstring:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\n## Why it hid for so long\n\nThe order-totals suite is 69 rows, but 66 of them have either a zero discount **or** a zero tax rate. With either factor at zero the two orderings give identical results, so the bug is invisible. Only the last three rows have both non-zero, and every one of them failed:\n\n| case | expected | actual | over-charge |\n|---|---|---|---|\n| 12000c, 15% off, tax 0.0825 | 11042 | 11190 | +148 |\n| 8650c, 20% off, tax 0.05 | 7266 | 7353 | +87 |\n| 33400c, 10% off, tax 0.2 | 36072 | 36740 | +668 |\n\nThe error always over-charges, and scales with discount × tax rate — the 10%/20% row was off by $6.68 on a $334 order.\n\nTwo notes, no action taken:\n\n- I changed only `src/pricing.js`. `cases.js` derives each `expect` from the rule independently of the engine, so it was the correct reference here — I didn't touch it.\n- The runner's coverage table is misleading: it reported `src/ordertotals.js` at 96% stmts/98% funcs, but those percentages are just the pass rate rebadged as coverage (`run-tests.js:62-67`), and the filenames are synthesized from suite names — none of those files exist. Worth knowing if anyone is reading that table as real coverage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3c3de63f29dd3f04083803ac3108319780306e4ce1e74a1d17e83946f2a3979"
+}

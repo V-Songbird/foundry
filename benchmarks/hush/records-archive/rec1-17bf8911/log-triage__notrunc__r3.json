@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__notrunc__r3",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37312,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1448692,
+  "numTurns": 4,
+  "durationMs": 35874,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3421
+  },
+  "contextTraffic": 115798,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full service crash.**\n\nRedis died at `02:14:07`, `ECONNREFUSED 10.0.0.12:6379`.\n\nCache fell back to direct reads, triggering miss storms.\nTimeouts then spread across `api`, workers, `scheduler`.\nQueue depth hit 568, well past the 500 max.\n12 Redis reconnect attempts failed over 17 minutes.\n`worker-2` ran out of memory. Supervisor killed the process group. Service went down at `02:31:52`.\n\nNext: restore Redis at `10.0.0.12:6379`, then restart the service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "adc57084a90b04bcc0080e4b727790269de80e3bc39aaeebd23ef03fcde5b71a"
+}

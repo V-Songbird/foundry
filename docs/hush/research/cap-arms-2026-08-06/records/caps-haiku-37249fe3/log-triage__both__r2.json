@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 161,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 17786,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.033056,
+  "numTurns": 2,
+  "durationMs": 16131,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1097
+  },
+  "contextTraffic": 56561,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 184,
+  "finalText": "**Redis fell over at 02:14:07, and the app couldn't handle it.**\n\nThe cascade:\n1. Redis connection died (`ECONNREFUSED 10.0.0.12:6379`). App fell back to hitting the store directly instead of cache.\n2. That triggered a cache-miss storm — the same keys getting hammered over and over (orders:1000, 1003, 1006...).\n3. Store got buried. Requests started timing out after 5 seconds, but they stayed queued instead of failing fast.\n4. Queue depth climbed past the 500-item limit. By 02:31, it was at 568+ and still climbing.\n5. Reconnection attempts to Redis kept failing for 17 minutes.\n6. The backlog of stuck requests filled up heap memory until worker-2 crashed at 02:31:44.\n7. Supervisor restarted worker-2, but by then the whole api was wedged. At 02:31:52 it killed the process group and the service went dark.\n\n**Root issue:** No circuit breaker or request shedding. The app kept accepting requests it couldn't handle instead of failing them fast. With a timeout + fast-fail strategy, it would've stayed up even without Redis.\n\nThe full log is at `<path> if you need to dig deeper into the middle 500 lines.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d12a8e8201b8c90e809bdfde7742a8316931d2b2e6cef505780c0d1ee1d8d822"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 76,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 78350,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.730341,
+  "numTurns": 9,
+  "durationMs": 77513,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5345
+  },
+  "contextTraffic": 345171,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 71168,
+  "narrationWords": 102,
+  "finalWords": 594,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory.",
+    "I read both files end to end. Here's what I found, then the draft.\n\nOf the ~380 commits and 127 PRs, the substance is small: **1 feature, ~10 distinct bugs (each fixed repeatedly across modules), 4 perf themes, and 3 things that will break someone.** Everything else is dep bumps, CI, tests, and renames.\n\nThe important thing the labels hide: the same bug shows up under many scopes. \"guard the null cursor in the paginator\" lands in `api`, `queue`, `db`, and `webhooks` — that's one user-facing fix, not four. I collapsed those."
+  ],
+  "finalText": "Written into `CHANGELOG.md:20`. Now the parts you should look at before you publish.\n\n**Four judgment calls I made, listed so you can overrule them**\n\n1. **The three Breaking items aren't labeled breaking anywhere.** No commit says BREAKING, and three of them are filed as `refactor` or `fix`. I promoted them because each one changes something a caller observes:\n   - `fix(auth): return 401 for an expired token instead of 403` (#4223) — a fix internally, a contract change externally.\n   - `refactor(*): stop re-exporting the internal error types` — 8 commits across 5 modules. \"Internal\" describes intent, not reachability; if anyone imported those types from the top level, they're broken. Worth a two-minute check of whether they were in the published typings.\n   - `refactor(api): drop the unused v1 export route` (#4152) — \"unused\" is a claim about your telemetry, not about your users. If that's backed by real traffic data, downgrade it.\n\n2. **The histogram unit fix is in Breaking, not Fixed.** `fix(store)/fix(core): use the right units in the latency histogram`. The code got more correct and every existing dashboard got more wrong. That's the kind of thing people want above the fold.\n\n3. **Perf has no home in your shape.** There are four real perf themes — skipped JSON round-trip on the hot path, dropped clone in the mapper, batched metric writes, reused parsed schema between requests (8 commits total). None is a Breaking/Added/Fixed item, and none has a number attached, so I left them all out rather than invent a \"faster!\" claim. If you want them, the honest line is one sentence under Added: *\"Reduced allocation on the request hot path and in metric writes.\"* Your call.\n\n4. **Wording I inferred from commit subjects, not code.** These read well but I couldn't verify the direction:\n   - \"empty allowlist treated as empty instead of allow-everything\" — `fix(*): handle an empty allowlist` doesn't say which way the bug went. If it was fail-closed becoming fail-open, that's a security note, not a Fixed bullet.\n   - \"trimmed once, not twice\" — `trim the trailing slash once` could equally mean it wasn't trimmed at all before.\n   - \"reports which part of the token failed\" — `tighten the token parser error message` only tells you the message changed. If anyone matches on that string, it's a fourth Breaking item.\n\n**Two things I deliberately left out**\n\n- **Dependency bumps.** 60+ of them, and the runtime-facing ones (`fastify`, `pg`, `knex`, `ioredis`, `undici`, `pino`, `zod`, `nanoid`, `dotenv`) are all patch or minor. Nothing a consumer notices. Note the log has heavy duplication — `pino 9.2.0 → 9.3.1` appears 11 times, `pg 8.12.0 → 8.13.0` 9 times — so the raw count badly overstates the churn.\n- **`refactor(*): delete the dead feature-flag branch`** — 10 commits across 7 modules. If those flags were only ever internal, this is invisible and correctly omitted. If any were documented or settable via env, each removal is a Breaking item and I've under-reported. This is the one gap I'd want you to check.\n\n**One open question I can't resolve from history/**\n\n`docs: note the minimum node version` appears 5 times, alongside `ci: run the suite on node 22` (5×) and `chore: pin the node version in .nvmrc` (4×). That pattern usually means the floor moved. The log only shows filenames and line counts, never contents, so I can't confirm it. **If the minimum Node version changed in 4.2, that belongs at the top of Breaking** — it's the single thing most likely to break an install, and it's the one item here I'd hold the release note for.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cb67a30efd141c8a1f458de5423b44ef8cc85320bedd517e5ddbaccb77ed0c82"
+}

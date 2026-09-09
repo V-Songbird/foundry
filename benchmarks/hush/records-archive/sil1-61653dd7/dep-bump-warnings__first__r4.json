@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__first__r4",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "first",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34611,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.249337,
+  "numTurns": 10,
+  "durationMs": 32953,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1901
+  },
+  "contextTraffic": 162421,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6408,
+  "narrationWords": 6,
+  "finalWords": 64,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now, exit 0.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Bump renamed `retries` to `retryCount` | Read both |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag now `undefined`, threw | Treat as `false` |\n\nThe 8 warnings are `DEP0142`, `crypto.createCipher`, and a `src/core/graph.js` circular import. All real, none fatal. Want me to clear those too?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bb92d7b3c3eb7441cc9aa834c79d445d7ed9f0565e529b3adc9efb2f04d892c3"
+}

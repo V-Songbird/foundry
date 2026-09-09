@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__labelfind__r2",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19200,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1066816,
+  "numTurns": 6,
+  "durationMs": 17629,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1251
+  },
+  "contextTraffic": 141704,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 10724,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died, and the app never recovered.**\n\nAt `02:14:07` `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache fell back to direct store reads, triggering a cache miss storm and 5000ms timeouts on every worker.\n\nRequest queue depth climbed from 52 to 568, well past the max of 500, over the next 17 minutes. Redis reconnect attempts kept failing (attempt 12 failed at `02:31:26`).\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog, then `02:31:52` the supervisor killed the whole process group: `api unresponsive, killing process group — service down`.\n\nNext: restore Redis at `10.0.0.12:6379` and check why reconnect never succeeded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8bf64893926952a0e8ce69889715e5ee1d2d3adade189310ca939f5fdf375a73"
+}

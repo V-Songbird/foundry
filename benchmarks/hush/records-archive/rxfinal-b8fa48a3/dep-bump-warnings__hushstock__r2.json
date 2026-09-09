@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushstock__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33370,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21977210000000003,
+  "numTurns": 10,
+  "durationMs": 31321,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1781
+  },
+  "contextTraffic": 312755,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8133,
+  "narrationWords": 10,
+  "finalWords": 94,
+  "finalText": "Build's clean now — 0 errors.\n\nTwo real bugs were hiding in that wall of noise, both from the same bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the link step outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid instead of \"off\" — the old config loader used to send `false`, the new one sends `undefined`.\n\nFixed both, and the leftover `DEP0*` and `WARN`/`note` lines are just noise from the bump itself, not bugs. Build now finishes with 8 warnings, 0 errors, exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "64a83527429f7b22a3c9f58208d2c84c47e2e5cc6059f139bbc06e1f7b0c1856"
+}

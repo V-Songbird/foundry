@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__noclause__r3",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 5,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16600,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08962200000000001,
+  "numTurns": 9,
+  "durationMs": 14837,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 911
+  },
+  "contextTraffic": 158924,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 3243,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is in `refresh.js`, not `tokens.js`.**\n\nThe trace blames `[tokens.js:6](src/auth/tokens.js:6)`, but that's just where `undefined.split` finally throws.\n\n1. `auth.internal` returns 400 `invalid_grant` (refresh token revoked).\n2. [refresh.js:14-15](src/auth/refresh.js:14-15) treats that as non-recoverable and returns `undefined` instead of throwing or signaling failure.\n3. [session.js:8](src/session.js:8) passes that `undefined` straight into `decode`, which crashes on `.split`.\n\nOpen `refresh.js` around line 13-15. It swallows the revoked-token case silently. `tokens.js` is innocent, just the crash site.\n\nNext: decide how `resumeSession` should handle a revoked token, likely a 401 instead of swallowing to `undefined`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ba71ef9ee95adaf213336eaec5b672ee9be16a89388a64aa5b676708e49555f8"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 11,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 86299,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7189925,
+  "numTurns": 18,
+  "durationMs": 79383,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4116
+  },
+  "contextTraffic": 926620,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 48807,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` at 02:13:41 UTC. Connections stopped being released back to the pool. Within 33 seconds the pool (size 20) was maxed out and stayed there, with the waiting queue climbing continuously.\n\n**Impact window:** 02:14:18 UTC 2026-03-14 to at least 03:59:27 UTC (end of available log, still failing — not self-recovered). First error: `req-07401`, `ERROR pool ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)`. By the last log line, waiting had grown to 74. Gateway-only — `worker.log` shows workers on a separate pool, unaffected throughout.\n\n**Roll back:** `dep-4471` (gateway config, generation 119). Revert `gateway.pool.perRequest` to `false`. The two other config changes in that same reload (`upstreamMs: 2000->2500`, `sampleRate: 1.0->1.0`) are not implicated and don't need touching.\n\n**Not the cause:** `dep-4472` (billing-svc) and `dep-4473` (catalog-svc) shipped later, after the incident was already underway — unrelated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f29d5537a0b0293a2c0edd10ea42da66cec8846ef671f3a9638d3b4f45c8caa0"
+}

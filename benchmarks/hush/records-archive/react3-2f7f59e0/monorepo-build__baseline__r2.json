@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 12,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39098,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.22293059999999998,
+  "numTurns": 11,
+  "durationMs": 36697,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2204
+  },
+  "contextTraffic": 329669,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 10882,
+  "narrationWords": 100,
+  "finalWords": 132,
+  "finalText": "The build is fixed and verified.\n\n**Root cause:** `resolveRelease` in `packages/shared/config.js` used a shallow `Object.assign` to layer defaults → package overrides → CLI flags. Since layers like `@acme/api`'s `{ output: { format: 'esm' } }` only specify one nested key, the shallow merge replaced the entire `output` object wholesale, wiping out `output.dir` and `output.entry`. The bundle stage then failed its `cfg.output.dir` check and aborted the build.\n\n**Fix:** replaced the shallow merge with a recursive `mergeLayer` that deep-merges plain objects (like `output` and `sourcemap`) while letting non-object values simply override, applied in sequence for defaults → overrides → CLI flags. Confirmed with `node build.js` (0 errors, 5 warnings) and `node verify.js` (checks the layering rule itself, including partial CLI overrides not shipped in the fixtures, and that `RELEASE_DEFAULTS` isn't mutated) — both pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f38d609bf240c1242591fbf6f301027e08e26b8390c73f22e09caf1af51fa412"
+}

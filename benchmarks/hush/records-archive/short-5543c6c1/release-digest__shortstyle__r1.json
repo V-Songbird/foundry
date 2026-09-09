@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__shortstyle__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 7,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "shortstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 181947,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38826120000000003,
+  "numTurns": 17,
+  "durationMs": 179933,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10629
+  },
+  "contextTraffic": 599039,
+  "apiCalls": 11,
+  "toolCalls": 16,
+  "toolResultChars": 39844,
+  "narrationWords": 0,
+  "finalWords": 124,
+  "finalText": "I went through all 380 commits and 127 merged PRs since 4.1. Almost everything was dependency bumps, test churn, and internal refactors, exactly as you guessed. I found one real new feature and eleven real fixes, and added a 4.2.0 section to `CHANGELOG.md` in the usual shape.\n\n**Added:** webhook deliveries now retry with exponential backoff after a failure.\n\n**Fixed**, most notably:\n- Expired tokens now return 401, not 403.\n- The database client stopped logging the full request body.\n- A null-cursor crash in pagination is fixed across the queue, api, webhooks, and db endpoints.\n\nThe other eight fixes are smaller but real (trace id on retry, duplicate headers, latency units, and so on), all listed in the file. No breaking changes this time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ee00ccc1aca5ffb28953eaeaf7163de65088a5da7455bd0e3a6753c6aeb30cb2"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 105,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 67350,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.4681725,
+  "numTurns": 22,
+  "durationMs": 66420,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4844
+  },
+  "contextTraffic": 249573,
+  "apiCalls": 9,
+  "toolCalls": 21,
+  "toolResultChars": 24893,
+  "narrationWords": 8,
+  "finalWords": 517,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I need to look at the codebase first."
+  ],
+  "finalText": "## Size\n\n**1082 occurrences, 94 files.** But split by risk, not by count:\n\n| Zone | Files | Occurrences | Rename? |\n|---|---|---|---|\n| `services/*/{http,service,repo}` JS identifiers | 75 | ~875 | Yes — mechanical |\n| `services/*/repo/*.js` SQL column refs | 25 | 125 | **No** — column name |\n| `services/*/repo/*.js` JSONB payload key | 25 | 25 | **No** — persisted data |\n| `migrations/` | 12 | 61 | **No** — applied history |\n| `vendor/reporting-sdk/` | 5 | 20 | **No** — regenerated |\n| `docs/openapi.yaml` | 1 | 5 | **No** — public contract |\n| `lib/serialize.js` WIRE right side | 1 | 1 of 2 | **No** — wire name frozen |\n| `lib/audit.js` | 1 | 2 | Judgment call |\n\nReal safe scope: ~875 renames, 75 files, one layer. Rest is 207 occurrences that must stay.\n\n## Must not rename\n\n**1. SQL column names.** `services/*/repo/*.js` embed `account_id` in query strings — `'SELECT * FROM invoices WHERE account_id = ?'`. Column is `account_id` in production. Rename in JS string = every query 500s. 125 sites across 25 repo files. Renaming the column needs its own migration + dual-read window, separate decision from this one.\n\n**2. Migrations.** `migrations/` header says it: applied migrations are history. Editing them renames nothing in a DB that already ran them, and breaks the down step. 12 files, all applied in production (last 2025-06-24).\n\n**3. Vendored SDK.** `vendor/reporting-sdk/` — \"Do not edit these files\", overwritten by `npm run vendor:refresh` (reporting-sdk@3.8.1 pinned in package.json). Edits silently revert on next refresh. 5 files.\n\n**4. Public API contract.** `docs/openapi.yaml` freezes `account_id` as response field on Invoice/Order and as `/v2/invoices` query param. Renaming = breaking change, needs new dated version. `lib/serialize.js` `WIRE` enforces this — the key on the **right** is the wire name and must stay `account_id`; only the left (internal) key may change.\n\n**5. JSONB payload key.** `insertInvoice` writes `JSON.stringify({ ...values, account_id })`. Existing rows already have `account_id` inside `payload`. Rename = new rows disagree with old rows, no migration covers it.\n\n**6. `lib/audit.js`.** Emits `account_id` on every audit line. Internal code, but audit output likely feeds a log pipeline / compliance search outside this repo. Not renameable from inside this repo alone — ask whether anything downstream queries that field.\n\n## Sign-off recommendation\n\nApprove narrowly: **JS variable/parameter/property names in `services/`, plus the left-hand internal key in `serialize.js` WIRE.** Explicitly out of scope: SQL strings, JSONB keys, migrations, vendor, openapi, wire names, audit field.\n\nBlocker to check before signing: no test files exist anywhere in this repo. A 875-site rename in a codebase where every repo function's entire security property is \"no query runs without an account_id\" (their comment, in every repo file) has nothing catching a mistake. `lib/db.js` is a recording test double, so tests were intended — ask where they went.\n\nAlso flag: the rename does not remove the confusion, it moves it. After it, `owner_id` in JS maps to `account_id` in SQL in the same function, same file, 25 times. That is worse to read than today unless the column rename is scheduled too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "74318cdce8de694a7b8e2ac1a62a1641b1301c29939a480c3194b58d181f59e4"
+}

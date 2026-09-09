@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__carry__r1",
+  "batchId": "it4-03b4bae4",
+  "seed": "1787878658583",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "carry",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37267,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-carry:HushCarry",
+  "costUsd": 0.31485650000000004,
+  "numTurns": 7,
+  "durationMs": 35356,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1592
+  },
+  "contextTraffic": 207317,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 17899,
+  "narrationWords": 6,
+  "finalWords": 132,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died and took the service with it.** One cause, 17 minutes of fallout.\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | Cache falls back to direct store reads |\n| 02:14:10 | First `TimeoutError` after 5000ms, store overloaded |\n| 02:29:12 | Queue depth 502 passes the 500 cap |\n| 02:31:44 | `worker-2` dies, `JavaScript heap out of memory` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nAll 13 reconnect tries failed, same `ECONNREFUSED`, 80s apart. Redis never came back. Everything else is noise from that.\n\nNext: find why `10.0.0.12:6379` refused. Then cap the queue for real and bound the backlog so a cache loss cannot OOM the workers. See `[app.log:182](logs/app.log:182)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7e7d363216ff6c351697b0d9ae217463e829fd00ee2b4dde37139243d23b92dd"
+}

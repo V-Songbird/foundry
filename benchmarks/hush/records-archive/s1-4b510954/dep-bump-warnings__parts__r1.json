@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__parts__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 22,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "parts",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26521,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.19919640000000002,
+  "numTurns": 7,
+  "durationMs": 24892,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1574
+  },
+  "contextTraffic": 273340,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 5659,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "Build's clean now, 0 errors.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump.\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. Crashed on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid. The new config loader leaves it `undefined` instead of `false`, so it threw.\n\nFixed both: `options.js` now reads `retryCount`, and `retryPolicy.js` treats `undefined` as backoff disabled. Ran `node build.js`, it finishes clean with exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d53e404f55440a081eda32c388189870ac37eaa05c423214affdf61220fe7247"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31631,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19651480000000004,
+  "numTurns": 10,
+  "durationMs": 30337,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2151
+  },
+  "contextTraffic": 201587,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15967,
+  "narrationWords": 133,
+  "finalWords": 106,
+  "finalText": "Build's clean now — exit code 0, `0 errors`.\n\nThe dependency bump changed two contracts and left two call sites behind:\n\n- `src/core/options.js:6` — new bundler passes `{ retryCount }` instead of `{ retries }`; code still read `options.retries` (undefined), crashing on `.toFixed()`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:7` — new config loader leaves unset flags as `undefined` instead of `false`; the strict boolean check threw on anything but literal `true`/`false`. Added an `undefined` → `false` case.\n\nEverything else in the log (the ~950 lines of `DEP0xxx`/`WARN Wxxx`/dedupe noise) is harmless deprecation chatter from the bump — 8 warnings still print, but they're informational, not blocking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01e6851d57178e3783c64c6a4feeb064d1a18f03bd1fa5090a0e05a9ca14f5c8"
+}

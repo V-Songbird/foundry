@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 130,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29742,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2133263,
+  "numTurns": 10,
+  "durationMs": 27824,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1772
+  },
+  "contextTraffic": 277562,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8365,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "finalText": "Build's clean now, 0 errors.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing shapes it hands to your code:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler sends `retryCount`. Fixed to read the right field.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid and threw. The new config loader leaves it `undefined` instead of `false`, so I made `undefined` mean disabled, same as before.\n\nEverything else was just deprecation and dedupe chatter, safe to ignore.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "55fa5524915fa3958aa87557d5bf51393ff9896a96d47dcb6050e14215b04e1d"
+}

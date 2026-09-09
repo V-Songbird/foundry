@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r3",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 20,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 96562,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.269956,
+  "numTurns": 12,
+  "durationMs": 95048,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7871
+  },
+  "contextTraffic": 259979,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 36542,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section to** `[CHANGELOG.md](CHANGELOG.md)`.\n\nOut of 380 commits, almost everything was dep bumps, refactors, and tests. Six things actually touch behavior.\n\n- `401` instead of `403` for an expired token — flagged as breaking, since clients checking the status code will see this\n- Webhook retries now use exponential backoff (new)\n- Paginator null-cursor crash fixed across api, queue, webhooks, db\n- Trace id no longer dropped on retry\n- Full request body no longer logged\n- HTTP client no longer hangs on server close, pool now closes on shutdown, and duplicate headers are gone\n\nSkipped things like \"tighten the token parser error message\" and \"trim the trailing slash once\" as too minor to matter. Worth a skim before you publish.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "87b7acf6672fc54c5e848db6ed3c34eeb630000a1883745d7a7ef32ffde781ba"
+}

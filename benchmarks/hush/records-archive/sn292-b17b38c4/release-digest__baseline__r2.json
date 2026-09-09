@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 15,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 160163,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4885964,
+  "numTurns": 14,
+  "durationMs": 158753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13198
+  },
+  "contextTraffic": 690115,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 72936,
+  "narrationWords": 154,
+  "finalWords": 143,
+  "assistantMsgs": 2,
+  "finalText": "CHANGELOG.md now has a 4.2.0 entry. Two things worth your judgment call before you ship it:\n\n1. **The 401/403 auth change** — I put it under Breaking since anyone matching on `403` for expired tokens will break, even though it reads like a bug fix (403 was arguably wrong). Move it to Fixed if you consider the old behavior unsupported/undocumented.\n2. **Perf PRs excluded** — 4 merged perf PRs (metric write batching, avoiding a clone, skipping a JSON round-trip) shipped but had no concrete numbers attached, so I left them out rather than write a vague \"faster\" bullet. Say the word if you have benchmark numbers and want one added.\n\nEverything else in the log is one line per distinct shipped behavior, deduped against the merged-PR sheet (not the raw commit log, which had a lot of same-titled fixes that never actually merged).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "babf3f2342da8e61d2957d8a27b3bd180a9696a5ff84e8b8bf051688d48e7686"
+}

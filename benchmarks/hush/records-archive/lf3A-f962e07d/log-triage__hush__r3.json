@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 55428,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3769535,
+  "numTurns": 11,
+  "durationMs": 53584,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3025
+  },
+  "contextTraffic": 215866,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15298,
+  "narrationWords": 0,
+  "finalWords": 135,
+  "finalText": "**Redis died, and the app never recovered from it.**\n\nTimeline from `logs/app.log`:\n\n```\n02:14:07  redis connection lost — ECONNREFUSED 10.0.0.12:6379\n02:14:08  cache bypassed, every read hits the store\n02:14:10  first 5s timeouts, queue depth 52\n02:29:12  queue depth 502, past the 500 cap\n02:31:44  worker-2 dies: JavaScript heap out of memory\n02:31:52  supervisor kills the process group — service down\n```\n\nBefore 02:14 everything was fine. Cache hits sat near 0.95.\n\nThe last good request was at `02:14:03`. Nothing succeeded after that.\n\nRedis never came back. 13 reconnect tries, all refused, one every 80 seconds. Fixed spacing, so no backoff. The queue had no cap that actually stopped work, so it grew until memory ran out.\n\nWorth fixing next: make cache misses fail fast instead of piling up, and make that 500 limit shed load.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1eedd12fdee8212e46882553562254f923944a8738e31a4b9788956e53e9f287"
+}

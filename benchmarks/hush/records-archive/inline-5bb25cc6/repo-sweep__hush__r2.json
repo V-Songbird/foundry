@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84304,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5694428,
+  "numTurns": 45,
+  "durationMs": 82619,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10276
+  },
+  "contextTraffic": 450958,
+  "apiCalls": 11,
+  "toolCalls": 44,
+  "toolResultChars": 20987,
+  "narrationWords": 25,
+  "finalWords": 75,
+  "finalText": "Done. Twelve files still had the old `db.query(sql, params)` calls — all in `packages/`, each a repo or service module with a get/list/update trio. All now use `db.execute({ sql, params })`.\n\nI left two things alone on purpose:\n- `vendor/legacy-orm/adapter.js` — vendored code, replaced wholesale on upgrade, not meant to be edited.\n- `cache.query(...)` calls — a different method on a different object, not part of this migration.\n\n`node verify.js` confirms the migration is clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f7f2a4714eb4d5a1429607ec4d2575a536d4be488a5cc0c89ae8e984003beae0"
+}

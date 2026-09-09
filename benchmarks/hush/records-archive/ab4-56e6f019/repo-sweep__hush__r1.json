@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 9,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 78196,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3294068,
+  "numTurns": 40,
+  "durationMs": 76545,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10327
+  },
+  "contextTraffic": 424038,
+  "apiCalls": 9,
+  "toolCalls": 39,
+  "toolResultChars": 26087,
+  "narrationWords": 20,
+  "finalWords": 81,
+  "finalText": "Every real call site is switched over. I moved 12 files in accounts, analytics, billing, catalog, orders, and support to `db.execute({ sql, params })`, matching the pattern already used elsewhere in the codebase.\n\nOne file still calls the old `db.query`: `vendor\\legacy-orm\\adapter.js`. I left it alone on purpose. Its own comment says it's a vendored copy that gets replaced wholesale on every upgrade, so any edit there would be silently lost. You'll want to fix that one upstream, not in this repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "758c750f66b27a9941c0c5c0c2ff5059d20c5771c300ee61d0ecb8a6fe831f9a"
+}

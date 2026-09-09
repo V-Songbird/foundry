@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 124,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 120469,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6142965,
+  "numTurns": 20,
+  "durationMs": 115453,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7421
+  },
+  "contextTraffic": 501465,
+  "apiCalls": 20,
+  "toolCalls": 15,
+  "toolResultChars": 11747,
+  "narrationWords": 6,
+  "finalWords": 156,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Dedup added, `src/router.js:36`; `createState()` now seeds `sentAtByKey`.\n\nReplay: 99 dropped, 0 errors — that lines up with the ~100 deliberate flaps in `events.js` (same key firing 2 minutes later), and the dropped rows are exactly those repeats. Every channel count falls proportionally; nothing else changed.\n\nTwo judgment calls worth confirming:\n\n- **It suppresses repeat criticals too** (`pager` 225 → 200). You said \"if we already sent something with the same key\" without carving out critical, so I applied it uniformly. Easy to exempt critical if a repeat page should always go through.\n- **The window keys off the last *delivered* event, not the last seen one**, and it's inclusive (`at - lastSentAt <= 5`). So a suppressed repeat doesn't extend the window — three flaps 2 minutes apart send the first, drop the second, and the third at +4 is still inside the original 5 minutes so it also drops; a fourth at +6 would send.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9eeb95d78e31ad0ac0044ed3fcaadaf184ad43ff026f18fe48f021779d236b8c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 47,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 89291,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5411459999999999,
+  "numTurns": 19,
+  "durationMs": 82766,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4889
+  },
+  "contextTraffic": 806475,
+  "apiCalls": 19,
+  "toolCalls": 15,
+  "toolResultChars": 25354,
+  "narrationWords": 0,
+  "finalWords": 131,
+  "finalText": "**Root cause**\n`dep-4471` shipped to the gateway at 02:14:00Z, by a.novak: \"config: connection-per-request for pool isolation.\" Right after, the pool maxed out and stayed there, throwing `ERR_POOL_EXHAUSTED` on every request that couldn't get a connection.\n\n**Impact window**\nFirst slow-acquire warning at 02:14:14.972Z. First 503 four seconds later, at 02:14:18.972Z. Still throwing 503s at the last line of the log, 03:59:27.974Z, with the wait queue up to 74. No recovery seen in the log.\n\n**Rollback target**\n`dep-4471` on gateway. That's the only deploy that touches the gateway's pool config in this window.\n\n**Blast radius**\nGateway only. Workers checked clean, separate pool, steady 1-of-8 connections all night, no errors.\n\nOne loose thread: `gateway.log` has two timestamps that jump backward around 01:43–01:44. Worth a quick look at log integrity before you close this out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "08bf5acc882a3538e8aedd730a376bc117eb0a70efda45e2aedde0906de7d58c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 77,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 134921,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8903445000000001,
+  "numTurns": 35,
+  "durationMs": 127309,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7433
+  },
+  "contextTraffic": 1012779,
+  "apiCalls": 32,
+  "toolCalls": 30,
+  "toolResultChars": 15346,
+  "narrationWords": 19,
+  "finalWords": 130,
+  "finalText": "Dedupe is in, using the previously-unused `state`.\n\n`createState()` now returns `{ lastSentAt: new Map() }`, and `route()` (`src/router.js:34`) checks it before deciding a channel: if the same `key` was sent within `DEDUPE_MINUTES` (5), it returns `[]`.\n\nTwo judgment calls worth naming:\n- The timestamp is only recorded when something actually goes out, so a suppressed repeat doesn't extend the window — five minutes runs from the last real send, not the last event.\n- A quiet-hour queue counts as \"sent\" for this purpose. If you'd rather queued items not suppress a later repeat, that's moving one line.\n\nReplay: 900 events, 0 errors, 99 dropped as repeats. Spot-checked `evt-0243` (`disk-usage:4` at minute 48, two minutes after `evt-0242` at 46) — correctly suppressed. Volumes fell accordingly: pager 225→200, queue 300→266, email 251→223.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b06b2a1ce3acc45758246ba5c75b53d186f4c0885fabfbaba7e2e0867ed9b44a"
+}

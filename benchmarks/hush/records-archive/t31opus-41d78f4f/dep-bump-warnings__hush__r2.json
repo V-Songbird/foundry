@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51597,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32048,
+  "numTurns": 11,
+  "durationMs": 49730,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2914
+  },
+  "contextTraffic": 202073,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6521,
+  "narrationWords": 11,
+  "finalWords": 105,
+  "finalText": "**The build passes now.** Exit code 0.\n\nTwo real bugs, both from the bump. They ran one after the other, so the first hid the second.\n\n1. `src/core/options.js` read `options.retries`. The new bundler sends `retryCount`. It now reads the new name and falls back to the old one.\n2. `src/net/retryPolicy.js` threw on an unset flag. The old config loader gave `false`, the new one gives `undefined`. Unset now means off, like before.\n\nThe 8 warnings are still there. They're plain text baked into `build.js`, not from your code. The files they name, like `src/legacy/adapter.js`, don't exist here. Nothing to fix unless you want them silenced.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e03fe2fd8ab671bc1239e5a72f0faab9bb8310e363459f6206302fe468873112"
+}

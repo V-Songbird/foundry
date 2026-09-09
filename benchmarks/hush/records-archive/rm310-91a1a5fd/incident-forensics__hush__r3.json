@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 135443,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6321189999999999,
+  "numTurns": 20,
+  "durationMs": 128170,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7241
+  },
+  "contextTraffic": 484727,
+  "apiCalls": 19,
+  "toolCalls": 16,
+  "toolResultChars": 11194,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `gateway.pool.perRequest: false -> true` in config generation 119. The pool of 20 stays fully saturated.\n\nImpact: `02:14:18Z` to `03:59:27Z`, still failing at log end. 530 503s on this node. All 5 endpoints, all 4 upstreams.\n\nRoll back `dep-4471`.\n\nThe doc also names two ruled-out deploys and the worker slowdown as a separate ticket.\n\nNext: revert `gateway.pool.perRequest` and reload.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4f9e3d9b99f89d01e62140a0e3ec400da301916e3f428e7a3911959eb8878983"
+}

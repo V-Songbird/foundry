@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 27,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 77614,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6259667999999999,
+  "numTurns": 13,
+  "durationMs": 72471,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4317
+  },
+  "contextTraffic": 848043,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 76150,
+  "narrationWords": 0,
+  "finalWords": 235,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of end of log window (03:59:27Z) — needs active rollback.\n\n**Root cause:**\n`dep-4471` (gateway, deployed by a.novak, 02:12:00Z–02:14:00Z) — *\"config: connection-per-request for pool isolation\"*. It flipped `gateway.pool.perRequest: false -> true` (config generation 118→119, applied 02:13:41.234Z). This change grabs a dedicated connection per request instead of sharing the pool, and exhausts the fixed 20-connection pool under normal traffic. Confirmed by `ERR_POOL_EXHAUSTED` errors showing `in_use` pinned at 20 for the entire incident, with the `waiting` queue growing monotonically (13 → 74+) — connections never freed back up.\n\n**Impact window:**\n- Start: **2026-03-14 02:14:18.972Z** (first 503, `req-07401`; preceded by first \"acquire slow\" WARN at 02:14:14.920Z)\n- End: **not resolved** — still throwing 503s at 03:59:27Z, the last timestamp in the log. Assume ongoing until rollback confirmed.\n- Scope: **gateway only**. `logs/worker.log` shows no errors/503s across the same window — job runners use separate DB connection handling and were unaffected. `/health` also returned 200 throughout, so this is upstream-connection starvation, not a full outage.\n\n**Action: roll back `dep-4471`** (revert `gateway.pool.perRequest` to `false`, or redeploy prior gateway config generation 118). No other deploy in the window is a plausible cause — nearest neighbors are `dep-4470` (worker, 00:48Z, unrelated service) and `dep-4472` (billing-svc, 02:41Z, after onset).\n\n**Non-issue for this incident:** worker.log has one WARN slow-query at 02:36:22Z, but it's a pre-existing tracked issue (OPS-2210), unrelated to the gateway pool config.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7aaeabb7f462f24058a47303edadecff578eb5c224e79f3b356adda63eb00f9b"
+}

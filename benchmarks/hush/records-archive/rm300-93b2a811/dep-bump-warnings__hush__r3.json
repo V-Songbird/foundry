@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43249,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2560925,
+  "numTurns": 11,
+  "durationMs": 41884,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2268
+  },
+  "contextTraffic": 150800,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6380,
+  "narrationWords": 7,
+  "finalWords": 79,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | Read `retries`, bump renamed it `retryCount` | Read new name, fall back to old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag | Treat unset as `false` |\n\n`node build.js` exits 0. The other 8 warnings are `DEP0142`, `DEP0198` and 6 more. They are printed as fixed strings inside `build.js` and name files that do not exist here.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7ffc5f9e686c5e9fe2a7013b23eca51ffa4c0bd768abbb6be8a7ba36505ab4a6"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 121638,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.604316,
+  "numTurns": 19,
+  "durationMs": 113665,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6560
+  },
+  "contextTraffic": 533394,
+  "apiCalls": 18,
+  "toolCalls": 15,
+  "toolResultChars": 6242,
+  "narrationWords": 0,
+  "finalWords": 66,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`, the gateway config \"connection-per-request for pool isolation\". It shipped `02:12`–`02:14`. First 503 lands 18 seconds later. Pool churn hit `4180` opens per 5m against a baseline of `40`.\n\nImpact runs `02:14:18Z` to `03:59:27Z`, still firing at log end. `530` 503s. On-call was paged 67 minutes late.\n\nRoll back `dep-4471`. The worker slowdown is filed as a separate issue.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2a55dcabc9653a38ae56d7a458c41aac815ce71d8acfd60f53deba678b78ab9f"
+}

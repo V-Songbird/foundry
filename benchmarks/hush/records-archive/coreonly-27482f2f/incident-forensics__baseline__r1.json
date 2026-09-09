@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 17,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 74393,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7039167,
+  "numTurns": 16,
+  "durationMs": 69323,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4595
+  },
+  "contextTraffic": 1039411,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 80909,
+  "narrationWords": 20,
+  "finalWords": 195,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of end of log coverage (03:59:27Z)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` via config generation 118→119, applied at 02:13:41Z. This stopped DB connections from being released back to the pool. `in_use` pinned at the pool max (20/20) and the wait queue has grown continuously and unbounded since (13 → 76+ waiters), never recovering on its own. Requests to all four upstreams (billing-svc, orders-svc, catalog-svc, accounts-svc) are affected — it's gateway-side pool starvation, not a backend or traffic issue.\n\n**Impact window:**\n- Deploy shipped: 02:12:00Z–02:14:00Z (dep-4471)\n- First error: **02:14:18.972Z** (`ERR_POOL_EXHAUSTED`, first `503` on `/v1/cart`)\n- Still failing at end of available logs: **03:59:27.974Z** (~1h45m and counting)\n- Scope: gateway only. Worker fleet (separate pool, size=8) confirmed healthy throughout — no exhaustion, no failed jobs.\n\n**Rollback target:**\n**dep-4471** (gateway) — revert `gateway.pool.perRequest` to `false` (config gen 119 → 118). No other deploy in the window correlates; dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) both post-date the onset and are unrelated.\n\n**Not the cause (ruled out):** worker fleet, billing-svc/catalog-svc deploys, traffic spike (request volume flat before/after).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c92996175b81412b7fdbd2b07c7ebf86c4730a8da8676d578f2747cc2300b422"
+}

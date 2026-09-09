@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__notable__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 33,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "notable",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33987,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12837400000000002,
+  "numTurns": 12,
+  "durationMs": 32362,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2695
+  },
+  "contextTraffic": 146763,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 13679,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Confirmed: `account_id` is both the real DB column name (raw SQL, not an ORM field) and the code param name across ~19 repo/service/route triplets in 5 services.\n\n**Scope: 1082 occurrences across 94 files.** Renaming the column means a new `ALTER TABLE ... RENAME COLUMN` migration per table plus updating every `repo/*.js` SQL string and every `service/*.js` / `http/*Routes.js` param name that threads it through (accounts, orders, billing, notify, analytics — [services](services)).\n\n**Must not touch, 3 places:**\n\n1. `migrations/*.sql` — existing files are applied history. Editing them doesn't rename anything in prod and breaks the down-step (stated directly in [migrations/20250114_create_accounts.sql:3-4](migrations/20250114_create_accounts.sql)). Rename needs a *new* migration.\n2. `vendor/reporting-sdk/**` — vendored/generated, overwritten by `npm run vendor:refresh` ([vendor/reporting-sdk/src/client.js:3-4](vendor/reporting-sdk/src/client.js)).\n3. The wire side of `lib/serialize.js`'s `WIRE` map, and `docs/openapi.yaml` — `account_id` is the public API contract every external client reads by name, explicitly frozen in the code comment ([lib/serialize.js:3-8](lib/serialize.js)).\n\nNext: confirm whether \"everywhere\" is meant to include the DB column, or just internal code/params — that decides if a new migration is in scope.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6e23c339009ce67661212d2d23719485faf189f77a60605a44e6d55762dc226f"
+}

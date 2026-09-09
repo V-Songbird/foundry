@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "why1-9bdca161",
+  "seed": "1788002457000",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30594,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.127852,
+  "numTurns": 11,
+  "durationMs": 29034,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1957
+  },
+  "contextTraffic": 223108,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8014,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean now.** Exit 0, 8 warnings, 0 errors.\n\nTwo real bugs from the bump, not noise, both in the link stage:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler hands `retryCount`. Fixed to read `retryCount`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) threw when `backoffEnabled` was `undefined`. New config loader leaves unset flags undefined instead of `false`. Now treats undefined as disabled, same as `false`.\n\nRemaining 8 warnings are deprecation/lint noise (`DEP0142`, `DEP0198`, unused export, circular import, etc), not build-breaking.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "08c5facd1831d68147ca1d09e4f8b39372dfe9a2e5996f0cbfe1e132ab8a7187"
+}

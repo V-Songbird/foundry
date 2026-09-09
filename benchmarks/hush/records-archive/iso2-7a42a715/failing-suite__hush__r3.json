@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r3",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 25,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24966,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11930879999999999,
+  "numTurns": 10,
+  "durationMs": 23135,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1072
+  },
+  "contextTraffic": 203022,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12072,
+  "narrationWords": 8,
+  "finalWords": 42,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount."
+  ],
+  "finalText": "**Suite is green.** 625 total, 625 passing.\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount. Tax should apply after the discount.\n\nChanged `tax = roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`. That was the only failure, 3 cases in \"order totals\".\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7dadca9f1421e1f01620d4b001fd0025256021611421758ec7063e635aac0655"
+}

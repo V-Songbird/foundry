@@ -1,0 +1,47 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 25,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 130835,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.973422,
+  "numTurns": 13,
+  "durationMs": 129485,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8520
+  },
+  "contextTraffic": 553599,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 77589,
+  "narrationWords": 99,
+  "finalWords": 521,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet only runs to 2026-06-17, so the commit log likely has more. Let me read it.",
+    "Let me pull the user-visible categories out systematically rather than eyeballing.",
+    "Now the refactors — most are invisible, but a few change the public surface.",
+    "Let me confirm the PR sheet doesn't contain anything the commit log misses.",
+    "Both sources cover the same window (2026-05-02 → 2026-06-17) and the PR sheet adds nothing the commit log lacks, so I worked from the log. Here's the entry, inserted at the top of `CHANGELOG.md`:"
+  ],
+  "finalText": "## What the numbers look like\n\n380 commits. **1 feat, 26 fix, 10 perf** — everything else (343) is chore/refactor/test/ci/docs. So your instinct was right; the signal is small.\n\nThe 16 dependency bumps are all patch or minor within the same major (`pino` 9.2.0→9.3.1, `pg` 8.12.0→8.13.0, `zod` 3.23.6→3.23.8, etc.), and every repeat of a given bump shows the *same* from→to versions — those are log duplicates, not sequential bumps. Nothing there an installer would notice, so I left deps out entirely. Same for the 73 refactors, except three that change the public surface.\n\n## The judgment calls worth your review\n\n**Three things labeled `refactor`/`fix` are really breaking**, and I promoted them:\n\n- `refactor(api): drop the unused v1 export route` (56dc828) — \"unused\" is an internal claim. It removed a route from `router.js` and `handlers.js`. If any customer still calls it, they get a 404. Worth confirming against access logs before you ship this line; if it's genuinely dead, drop it to a footnote.\n- `stop re-exporting the internal error types` (8 commits across auth/billing/core/db/jobs) — filed as refactor, but if those types were reachable from the package entry point this breaks imports. **Check whether they were actually in the public entry point** — if they were only ever reachable via deep paths like `pkg/dist/db/query`, downgrade this.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55) — a wire-visible status code change. Filed as a fix, behaves like a break.\n\n**Two fixes I'd consider calling out beyond the changelog:**\n\n- `fix(db): stop logging the whole request body` (1b55313) — request bodies were going to logs. If those logs were retained or shipped anywhere, that may need a security note rather than just a changelog line.\n- `fix(core|store): use the right units in the latency histogram` — anyone with dashboards or alerts on that metric will see values shift. I added the rescaling warning.\n\n**I dropped all 10 perf commits.** They're micro-optimizations (\"avoid the extra clone in the mapper\", \"skip the JSON round-trip on the hot path\") with no benchmark numbers attached. Claiming a user-visible speedup without a measurement would be unsupported. If you have numbers, they'd justify a line — though your template's three fixed headings don't leave an obvious home for them.\n\n## Two things to check before cutting\n\n1. **History ends 2026-06-17, but you're cutting 4.2 on 2026-08-30.** Both files stop at the same date, so it's not one stale export — but that's a ten-week gap. Either the branch genuinely froze in June, or `history/` was generated a while ago and there are commits missing. Worth confirming.\n\n2. **The Node version.** Several `docs: note the minimum node version` commits and CI moving to node 22 suggest the floor may have risen, but nothing in the log touches an `engines` field. I didn't write a Node requirement in, since I can't confirm one. If `engines` did change, that's a Breaking entry.\n\nAlso: the webhook backoff commit touched `src/core/config.js`, so it probably added a configuration knob. I described the behavior without naming an option — if there's a new setting, that name should go in the Added line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31adfa93fed109d67778f192419a37550f7bdf051f535c4d3305fd706e7f8870"
+}

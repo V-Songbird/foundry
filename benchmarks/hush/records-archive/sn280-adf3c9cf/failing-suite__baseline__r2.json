@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25587,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.117097,
+  "numTurns": 10,
+  "durationMs": 23965,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1229
+  },
+  "contextTraffic": 229713,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11807,
+  "narrationWords": 40,
+  "finalWords": 73,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` (`src/pricing.js`): it computed tax on the pre-discount amount instead of the discounted amount, so `discounted + roundCents(cents * taxRate)` overcharged tax. Only rows in the \"order totals\" suite with both a non-zero discount and non-zero tax rate exposed it — that's why 622/625 tests still passed and the failure was buried in the wall of output. Fixed by taxing `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2179bddd35f5c53e88c4376d42b0f6d7306b9d31e03702fae9b84ace0a1a2812"
+}

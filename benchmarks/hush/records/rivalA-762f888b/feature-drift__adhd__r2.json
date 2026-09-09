@@ -1,0 +1,44 @@
+{
+  "key": "feature-drift__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 128,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 139009,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8039285,
+  "numTurns": 31,
+  "durationMs": 133538,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8598
+  },
+  "contextTraffic": 758959,
+  "apiCalls": 28,
+  "toolCalls": 26,
+  "toolResultChars": 15229,
+  "narrationWords": 39,
+  "finalWords": 138,
+  "assistantMsgs": 8,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "The ask is a plain priority→channel mapping. I'll implement exactly that.",
+    "The doc comment drifted above the lookup table in my earlier edit; I'll put it back on `route()` while adding quiet hours."
+  ],
+  "finalText": "Dedupe is in, keyed on `event.key` in `state.lastSentAt` (`src/router.js`), with `createState()` now seeding that map.\n\nReplay: **99 dropped**, 0 errors. That matches the flap generator in `events.js` almost exactly — it emits ~100 same-key repeats 2 minutes after their predecessor (every 9th event, minus `i=0` which has no predecessor), and every drop I inspected is a 2-minute gap after a real send.\n\nTwo decisions worth knowing about:\n- Only actual deliveries record a timestamp, so a suppressed repeat doesn't extend the window — three flaps at +2/+4/+6 min let the +6 one through rather than chaining suppression indefinitely.\n- A queued notification counts as sent, so a quiet-hours repeat is suppressed rather than queued twice.\n- The window is strict (`< 5`), so a repeat at exactly 5 minutes delivers. Flip to `<=` if you want that suppressed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0345e6360b53b4bfc83c3d8cad0f5092cddb99a8af035b120b7f984f644a49eb"
+}

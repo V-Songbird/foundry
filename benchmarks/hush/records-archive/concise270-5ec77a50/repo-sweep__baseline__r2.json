@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 64042,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.38164200000000004,
+  "numTurns": 13,
+  "durationMs": 62642,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4449
+  },
+  "contextTraffic": 209938,
+  "apiCalls": 7,
+  "toolCalls": 12,
+  "toolResultChars": 16064,
+  "narrationWords": 77,
+  "finalWords": 195,
+  "finalText": "Migration finished. 12 files converted, 36 call sites:\n\n| Package | Files |\n|---|---|\n| accounts | `admin/apiKeyAdmin.js`, `repo/session.js`, `service/teamService.js` |\n| analytics | `repo/cohort.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `admin/variantAdmin.js`, `repo/supplier.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `admin/macroAdmin.js`, `repo/sla.js` |\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the formatting of files migrated in earlier passes byte-for-byte (verified `repo/sla.js` against its already-migrated sibling `repo/macro.js`). All 77 files under `packages/` and `lib/` pass `node --check`.\n\nTwo things I deliberately left alone:\n\n**`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on every upgrade with local changes silently lost — so patching it would be reverted and, worse, would hide the problem. This is the one real blocker to deleting `db.query` from `lib/db.js:13`: the deprecated method must stay until the vendored dep is upgraded to a version that calls `execute`, or you shim `query` at the adapter's `require` boundary. Worth an upstream ticket rather than an edit here.\n\n**`cache.query(...)`** in ~20 repo files is untouched — that's the cache handle (`lib/cache.js`), a different API, not part of this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fdbd842d3e6aebd6d0fe7fd3880734c3a30f2a2e6fd263bb2af212f33d2a33f4"
+}

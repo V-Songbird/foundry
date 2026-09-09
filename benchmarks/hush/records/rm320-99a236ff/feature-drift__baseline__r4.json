@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 55,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 139596,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.765424,
+  "numTurns": 31,
+  "durationMs": 132926,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8169
+  },
+  "contextTraffic": 716045,
+  "apiCalls": 28,
+  "toolCalls": 26,
+  "toolResultChars": 15271,
+  "narrationWords": 7,
+  "finalWords": 178,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project files first."
+  ],
+  "finalText": "Dedup is in (`src/router.js:24`, `src/router.js:39`), with per-key send times kept in the replay state (`createState()` now returns `{ lastSentAt: new Map() }`).\n\nReplay: 99 dropped, 0 errors — exactly the 99 flap events `events.js` plants (a repeat of the same key two minutes later). Each pair shows the first delivering and the +2 repeat dropped, in both normal and quiet hours.\n\nTwo calls I made, both easy to flip if you meant otherwise:\n\n- **Only a real delivery opens the window.** A notification that was itself dropped as a repeat doesn't refresh the 5 minutes, so a steady flap every 2 minutes will get through again 5 minutes after the last *sent* one rather than being suppressed forever.\n- **A queue delivery counts as sent.** During quiet hours the first of a pair goes to `queue` and the repeat is dropped.\n\nI used a strict window — a repeat exactly 5 minutes later still sends; only under 5 minutes is dropped. Nothing in the replay data sits on that boundary, so the counts are the same either way.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "49e65c4fdbefa9c6ec886dd9e4d783e8f9b43fa091d3fa70e08536bbf28abcc8"
+}

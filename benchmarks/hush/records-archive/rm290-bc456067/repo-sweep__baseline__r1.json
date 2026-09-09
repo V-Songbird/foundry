@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 33,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56442,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.41224049999999995,
+  "numTurns": 14,
+  "durationMs": 54921,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3350
+  },
+  "contextTraffic": 284429,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 21593,
+  "narrationWords": 65,
+  "finalWords": 203,
+  "assistantMsgs": 6,
+  "finalText": "Migration finished. **36 call sites across 12 files** moved from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n- `packages/accounts` — `admin/apiKeyAdmin.js`, `repo/session.js`, `service/teamService.js`\n- `packages/analytics` — `repo/cohort.js`\n- `packages/billing` — `repo/refund.js`, `service/couponService.js`\n- `packages/catalog` — `admin/variantAdmin.js`, `repo/supplier.js`\n- `packages/orders` — `repo/shipment.js`, `service/returnService.js`\n- `packages/support` — `admin/macroAdmin.js`, `repo/sla.js`\n\nEvery site was the same two-positional-arg shape, so the rewrite was mechanical and matches the style of the files migrated in earlier passes. All JS files pass `node --check`.\n\nTwo things I deliberately left alone:\n\n**`vendor/legacy-orm/adapter.js` still calls `db.query`** (lines 9 and 13). Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost — so patching it in place would be undone by the next vendor bump. Since `lib/db.js` notes the driver's next major *drops* `query`, this is a real loose end that needs a durable fix rather than an edit here: pin/patch upstream, wrap the adapter behind a local shim, or drop the dependency. Worth deciding before the driver upgrade lands. Say the word if you'd like me to do the edit anyway or build the shim.\n\n**`cache.query(...)` in `repo/sla.js:18`** (and the sibling repo files) is the cache API, unrelated to the db handle — untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "37450b222df0282323e290410e72da651eb33b83295be37667e2f49e25d2eb18"
+}

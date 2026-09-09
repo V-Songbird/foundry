@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 89288,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.540849,
+  "numTurns": 9,
+  "durationMs": 87621,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5971
+  },
+  "contextTraffic": 160203,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 13757,
+  "narrationWords": 6,
+  "finalWords": 883,
+  "finalText": "I read the whole file (719 lines). Here's what happened.\n\n## One-line summary\n\nRedis went away at `02:14:07`, the service fell back to reading the store directly with no circuit breaker or load shedding, and the resulting unbounded request backlog ate the heap 17 minutes later. Service died at `02:31:52`.\n\n**First, a date discrepancy worth checking:** every line in this log is stamped **2026-07-04**, ~7 weeks ago — not last night. Either you're looking at an archived/stale copy, log rotation is broken, or the container clock is wrong. If prod fell over last night, this file may not be the right evidence.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Fully healthy. 170 requests, **all 200s**, latency cycling 12→145ms, cache hit ratio 0.90–0.98. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **trigger** |\n| 02:14:07.114 | `WARN cache layer degraded — falling back to direct store reads` ← **the decision that caused the outage** |\n| 02:14:08 → | Cache miss storm begins (174 warnings), `TimeoutError ... after 5000ms (store overloaded)` begins (173 errors) |\n| 02:14:12 | Queue depth warnings start at 52, climbing ~3 every 6s |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts (0–12), **fixed ~80s interval**, every one ECONNREFUSED |\n| **02:29:12** | Queue depth **502 — exceeds the stated max of 500** and keeps growing to 568 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (134 = SIGABRT, Node's OOM abort) |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## Root cause\n\nRedis at `10.0.0.12:6379` became unreachable. **ECONNREFUSED, not a timeout** — that means something actively refused the TCP connection, i.e. nothing was listening on that port. That's a dead/restarting Redis process or a moved endpoint, not packet loss or a slow network. The cause of the Redis outage itself is not in this log; you'll need Redis's own logs or the infra event history for `10.0.0.12` around 02:14.\n\nLosing the cache alone shouldn't take down the service. What did is the fallback path.\n\n## Why a cache outage became a total outage\n\n1. **Fallback with no circuit breaker.** At 90–98% hit ratio, losing the cache means ~10–50x the read volume hits the store instantly. The service just… sent it all through. Every request then took 5000ms and timed out.\n2. **The queue cap is advisory, not enforced.** Depth passed 500 at 02:29:12 and kept climbing to 568 with no shedding, no 503s, no backpressure. Every queued request holds memory — that's the direct line to the OOM.\n3. **Reconnect is a fixed 80s interval, not exponential backoff, and gives up context.** 13 attempts across 16 minutes, none successful. Also, only `[api]` logs reconnect attempts at all — `worker-1`, `worker-2`, and `scheduler` never do, so their reconnect behaviour is either absent or invisible.\n4. **5s timeout is too long** for the arrival rate. Requests accumulated far faster than they drained.\n\n## Things the log tells you that the FATAL lines don't\n\n- **The user-visible outage started at 02:14, not 02:31.** Request-completion logging stops dead at `02:14:03` — there is not a single `GET ... 200` or any other status code after that point. Requests were queuing and timing out, not completing. Your real downtime is ~17m45s longer than the \"service down\" line suggests.\n- **No non-200 was ever logged.** Timeouts weren't being surfaced as HTTP statuses in the access log, so any dashboard built on status codes would have shown a flat green line while everything was on fire. Worth checking your alerting.\n- **Zero memory or GC pressure warnings before the OOM.** The heap death at 02:31:44 came with no ramp-up signal at all. You had a 15-minute window with a visibly growing queue and nothing paged on it.\n- **The supervisor logged only 2 lines all night.** Very thin instrumentation for the component that decides to kill things.\n- **DEBUG logging is enabled in production** (`cache hit ratio` lines). Minor, but it's there.\n\n## What I'd fix\n\n1. Circuit breaker on the cache-miss fallback path — when Redis is down, fail fast or serve stale rather than stampeding the store.\n2. Actually enforce `max 500`: shed with 503 above the cap instead of queuing indefinitely.\n3. Exponential backoff with jitter on Redis reconnect, and alert on the *first* connection loss — not on the FATAL 17 minutes later.\n4. Alert on queue depth crossing a fraction of max (say 250), which would have fired around 02:22 and given you 10 minutes.\n5. Drop the store timeout well below 5s, and make timeouts show up as 5xx in the access log so status-code dashboards reflect reality.\n6. Consider a Redis replica/failover so a single node refusing connections isn't a service-wide event.\n\nOne caveat: this directory contains only `package.json` and the log — there's no `src/` here, so points 1–4 are inferences from log behaviour, not things I verified in code. `package.json` confirms the stack (`ioredis` 5.4.1, `express` 4.19.2, `pino` 9.3.1) but the entrypoint `src/server.js` isn't present. If you point me at the actual repo I can confirm whether the circuit breaker and queue cap are genuinely missing or just misconfigured.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e1c9cbb0ab5cf268a7a5ede07f7624795d5a994e28f422a6141f4d795d15e256"
+}

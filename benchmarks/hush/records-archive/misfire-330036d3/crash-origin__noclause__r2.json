@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__noclause__r2",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 2,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26103,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.109709,
+  "numTurns": 11,
+  "durationMs": 24274,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1357
+  },
+  "contextTraffic": 216275,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 3879,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is `[refresh.js:15](src/auth/refresh.js:15)`, not `tokens.js:6`.**\n\nWhen `auth.internal` returns `invalid_grant`, `post()` throws with `err.code = 'invalid_grant'`. That code isn't in `RECOVERABLE`, so `refreshToken` swallows it and returns `undefined` instead of throwing.\n\n`session.js:8` then calls `decode(undefined)`, and `decode` crashes trying `token.split('.')` at `tokens.js:6`. The trace blames `tokens.js` only because that's where the `undefined` finally gets dereferenced.\n\nNext: decide whether `refreshToken` should throw on unrecoverable codes instead of returning `undefined`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a497afa018a66d1ea0946ba594f8cdd23fcd32f3bdc1185c20f786ab3e79a57"
+}

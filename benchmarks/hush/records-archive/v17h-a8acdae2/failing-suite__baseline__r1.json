@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 42577,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.07516239999999999,
+  "numTurns": 12,
+  "durationMs": 40901,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2676
+  },
+  "contextTraffic": 316515,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 15408,
+  "narrationWords": 93,
+  "finalWords": 62,
+  "finalText": "All green! The issue was in the `orderTotal` function at line 41 of `src/pricing.js`. It was calculating tax on the original price instead of the discounted price. Tax should only apply to what the customer actually pays after the discount is applied. Changed `const tax = roundCents(cents * taxRate);` to `const tax = roundCents(discounted * taxRate);` and all 625 tests now pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "56cbf4520f731ad4bedc2f2ec204800ef66b8961d680b54d483bf1c18f672d88"
+}

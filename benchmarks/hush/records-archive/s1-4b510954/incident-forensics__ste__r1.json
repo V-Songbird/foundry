@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 92,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 73898,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.42577429999999994,
+  "numTurns": 19,
+  "durationMs": 68564,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5392
+  },
+  "contextTraffic": 622535,
+  "apiCalls": 14,
+  "toolCalls": 15,
+  "toolResultChars": 24187,
+  "narrationWords": 0,
+  "finalWords": 282,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident\n\n**Status:** Ongoing at time of last log entry. No fix applied yet.\n\n### Root cause\n\nDeploy `dep-4471` (service `gateway`, author a.novak) changed the config key `gateway.pool.perRequest` from `false` to `true`. The deploy ran from 02:12:00Z to 02:14:00Z on 2026-03-14. The gateway applied the new config as generation 119 at 02:13:41Z.\n\nWith `perRequest` set to `true`, the gateway does not reuse pooled connections. The connection pool has a fixed size of 20. Demand exceeded that fixed size within seconds of the config change, and the pool stayed full. Every subsequent request that could not get a connection failed with `ERR_POOL_EXHAUSTED` and returned a 503. The wait queue grew across the whole log, from 13 waiting requests near the start to 74 at the last entry. The pool did not recover on its own.\n\n### Impact window\n\n- **Start:** 2026-03-14T02:14:18.972Z (first 503, request `req-07401`)\n- **End:** not yet resolved. The log ends at 03:59:27.974Z with 503s still occurring.\n- **Scope:** gateway only. The worker fleet (`logs/worker.log`) shows a healthy pool (`size=8 in_use=1 idle=7 waiting=0`) for the full window and no `ERROR` lines. Do not treat this as a downstream or shared-infrastructure incident.\n\n### Rollback target\n\nRoll back **`dep-4471`**. Set `gateway.pool.perRequest` back to `false`.\n\nSteps for the next on-call engineer:\n\n1. Revert the gateway config to generation 118, or set `gateway.pool.perRequest` to `false` directly.\n2. Confirm the 503 rate and the pool `waiting` count both drop after the revert.\n3. Leave `gateway.timeout.upstreamMs` at `2500`. This value is unrelated to the pool exhaustion and changed in the same deploy.\n\nI did not apply the rollback. Confirm with me, or run it yourselves, before you change the live gateway config.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "511ed9d0b33d7fec27cb5a18b01130687069c0b5c610df5fa7f449401dd11824"
+}

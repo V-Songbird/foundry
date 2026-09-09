@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 35,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 129375,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8911355,
+  "numTurns": 60,
+  "durationMs": 127965,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13314
+  },
+  "contextTraffic": 354558,
+  "apiCalls": 10,
+  "toolCalls": 59,
+  "toolResultChars": 36458,
+  "narrationWords": 6,
+  "finalWords": 66,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll search for remaining `db.query` calls."
+  ],
+  "finalText": "**Migration done.** 12 files moved to `db.execute({ sql, params })`, 36 call sites.\n\nAll 75 package modules load clean.\n\nI left `vendor/legacy-orm/adapter.js` alone. Its header says do not edit, it is overwritten on upgrade. Two `db.query` calls remain there.\n\nI also left `cache.query` alone. That is the cache key API, not the db.\n\nNext: ask the vendor to ship a `db.execute` build, or wrap the adapter.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98d51ce9cbf0defb7c272fec03a16da47f7c18068fe07ecc35cbb96ef7d514b2"
+}

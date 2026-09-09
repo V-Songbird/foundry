@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 126521,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.529146,
+  "numTurns": 17,
+  "durationMs": 119341,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6706
+  },
+  "contextTraffic": 356362,
+  "apiCalls": 15,
+  "toolCalls": 13,
+  "toolResultChars": 7680,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest` to `true` at `02:13:41Z`. The pool of 20 saturated 37s later.\n\nWindow: `02:14:18.972Z` to `03:59:27.974Z`, 1h 45m, still failing at log end. 530 failures, 71% error rate.\n\nRoll back `dep-4471`. Ping `a.novak`.\n\nThe note also flags that `/health` stayed 200, so it will not confirm the fix.\n\nNext: roll back, then verify on `/v1/checkout`, not `/health`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e3a2a176e8c2f3a9ebc4945489e72370666dbacbcb5ba09c836aa7ba05478dbd"
+}

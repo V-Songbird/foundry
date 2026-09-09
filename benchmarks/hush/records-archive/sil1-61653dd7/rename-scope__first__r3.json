@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__first__r3",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 13,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "first",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34818,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.260886,
+  "numTurns": 9,
+  "durationMs": 33096,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2238
+  },
+  "contextTraffic": 138797,
+  "apiCalls": 5,
+  "toolCalls": 8,
+  "toolResultChars": 11262,
+  "narrationWords": 8,
+  "finalWords": 135,
+  "assistantMsgs": 2,
+  "finalText": "**1082 hits in 94 files. About 1027 are safe. Four zones must not be renamed.**\n\n| Zone | Files | Why |\n|---|---|---|\n| `docs/openapi.yaml` | 1 | Public contract. Rename is a breaking change. |\n| `lib/serialize.js` `WIRE` values | 1 | Right side is the wire name. Left side may change. |\n| `vendor/reporting-sdk` | 4 | Generated. `npm run vendor:refresh` overwrites edits. |\n| `migrations/*.sql` | 12 | Applied history. Editing breaks the down step. |\n\nThe safe 1027 sit in 75 service files plus [audit.js:8](lib/audit.js:8). They split into three layers. Repo, service, http.\n\nOne catch. Repo SQL strings name the real column, as in [invoice.js:10](services/billing/src/repo/invoice.js:10). Those need a new `ALTER TABLE` migration, not an edit to an old one.\n\nSign off only if the plan keeps `serialize.js` mapping `owner_id` to `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c81e3da108867a9e9994f123e3687b8892a4da810db20da24299587bbb55a220"
+}

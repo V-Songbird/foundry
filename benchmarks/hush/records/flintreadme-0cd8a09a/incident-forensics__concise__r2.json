@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__concise__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 21,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 135936,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5818114999999999,
+  "numTurns": 15,
+  "durationMs": 130977,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8448
+  },
+  "contextTraffic": 358367,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 11664,
+  "narrationWords": 5,
+  "finalWords": 577,
+  "assistantMsgs": 5,
+  "finalText": "## On-call handoff — gateway 503s\n\n**Status at handoff:** unresolved. 503s were still firing when the log ends.\n\n### Root cause\n\n`gateway.pool.perRequest` flipped `false → true`, shipped by `dep-4471`. With connection-per-request, each in-flight request holds its own connection, so the 20-connection pool caps the gateway at 20 concurrent requests. The same change raised `gateway.timeout.upstreamMs` 2000 → 2500, so each connection is held ~25% longer, which makes the ceiling bind harder.\n\nConfig applied at 02:13:41 UTC:\n\n```\n02:13:41.234Z INFO config generation 119 applied: 3 keys changed\n02:13:41.234Z INFO config   gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO config   gateway.timeout.upstreamMs: 2000 -> 2500\n02:13:41.234Z INFO config   gateway.log.sampleRate: 1.0 -> 1.0\n```\n\nFirst `acquire slow` warning 33s later, first 503 at 02:14:18. Every 503 pairs 1:1 with `ERR_POOL_EXHAUSTED` on the same request id. Pool sat at `size=20 in_use=20 idle=0` for the entire window with the wait queue growing monotonically (13 → 74 waiters; 5-min stats 132 → 152 → 172). It was not draining on its own.\n\n### Impact window\n\n- **Start:** 2026-03-14 02:14:18 UTC\n- **End:** not observed — still erroring at 03:59:27 UTC when the log ends\n- **Duration:** ≥1h45m, continuous, no recovery gap\n- **Volume:** 530 × 503 on this node. Header says `node-3 of 3`, so fleet impact is likely ~3× (~1,600) if the config applied everywhere — **confirm generation 119 on nodes 1 and 2.**\n- **Routes:** `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 each. Checkout and cart were down.\n\n**`/health` returned 200 throughout** (106/106 after onset). Health checks bypass the pool, so uptime monitoring stayed green through the whole outage. That's why two deploys (`dep-4472` billing 02:41, `dep-4473` catalog 03:20) shipped blind into a broken gateway. Alerting gap worth its own ticket.\n\n### Roll back\n\n**`dep-4471`** — gateway, 02:12–02:14 UTC, a.novak, \"config: connection-per-request for pool isolation.\"\n\nRevert config generation **119 → 118**. That restores `perRequest: false` and the 2000ms upstream timeout together.\n\nDo not mitigate by raising pool size instead — that just moves the ceiling from 20 to N concurrent requests and leaves the same failure mode under load. Whatever pool-isolation problem `dep-4471` was solving needs a different fix.\n\nNo rollback needed for `dep-4472` or `dep-4473`; both landed after onset and are not implicated.\n\n### Unrelated second issue — do not conflate\n\nWorker job duration is degrading linearly: 327ms avg at 01:00 → 2,197ms at 03:45 UTC, ~110ms per 15 min, no plateau. Onset predates this log (already 200ms and climbing at 01:00). All 1,080 jobs succeeded; zero errors.\n\nNot the database — `db_wait` is flat at 0–12ms while total duration grows 7×, so the time is in the worker process. The `OPS-2210` slow-query WARN at 02:36 is a single occurrence and doesn't explain the ramp. `dep-4470` (worker, 00:48) is timing-suggestive but the ramp is already underway at 01:00 and hits all six job types equally, so it doesn't fit; confirming needs worker logs from before 00:48.\n\nThis did **not** contribute to the 503s — worker logs show nothing at 02:14 — which is what isolates the fault to the gateway's own pool. Extrapolates past 5s jobs in ~3 hours. Separate ticket.\n\n### Caveat on the timestamps\n\nThese logs cover **2026-03-14 01:00–03:59 UTC**. Today is 2026-08-28, so this is not last night's data — it's an archive or a stale path. Verify you're looking at the live gateway log before rolling anything back; if the current incident is genuinely from last night, the analysis above may describe a different, older occurrence of the same failure.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bd1493dc81982433c13bae459517c0016c66065c8105e915c8c08fa84c5211e8"
+}

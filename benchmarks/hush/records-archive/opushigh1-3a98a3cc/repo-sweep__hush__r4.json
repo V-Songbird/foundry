@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 39,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 72829,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5793725,
+  "numTurns": 19,
+  "durationMs": 71796,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4650
+  },
+  "contextTraffic": 390476,
+  "apiCalls": 13,
+  "toolCalls": 18,
+  "toolResultChars": 33035,
+  "narrationWords": 7,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the repository structure."
+  ],
+  "finalText": "**Migration done in app code.** 36 `db.query` calls in 12 files now use `db.execute({ sql, params })`.\n\nLeft alone on purpose:\n\n| What | Why |\n|---|---|\n| `cache.query` in 21 files | Takes a cache key, not SQL |\n| [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) and :13 | Vendored, edits lost on upgrade |\n\nEvery module still loads under `node`.\n\nNext: the vendor call needs an upstream fix or a wrapper. `db.query` cannot be dropped until then.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92c800eeaee4b466f15c18a226948b73f5f72e980474262b5206a123379a8821"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 10,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54033,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.3682885,
+  "numTurns": 10,
+  "durationMs": 52629,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3150
+  },
+  "contextTraffic": 210828,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 20176,
+  "narrationWords": 7,
+  "finalWords": 549,
+  "finalText": "## First, a date check\n\nThe log covers **2026-07-04, 02:00:00Z to 02:31:52Z**. That is not last night (2026-08-27). Either the file is an old copy, or the service writes stale timestamps. Verify which one before you act on this report.\n\n## What happened\n\nRedis went away. Everything after that is the cascade.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14:03 | Normal. All requests return 200. Cache hit ratio 0.90–0.98. |\n| 02:14:03.137 | Last successful request (`worker-1 GET /orders 200 75ms`). |\n| 02:14:07.113 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | The api falls back to direct store reads. |\n| 02:14:08 onward | Cache miss storm. Every read goes to the store. |\n| 02:14:10 onward | First `TimeoutError: request timed out after 5000ms (store overloaded)`. |\n| 02:14:12 onward | Request queue depth grows from 52. It grows by 3 every 6 seconds. |\n| 02:15:26 – 02:31:26 | 13 Redis reconnect attempts (0 to 12). All fail with ECONNREFUSED. |\n| 02:29:12 | Queue depth passes the limit of 500 (`502 (max 500)`). The service does not shed load. |\n| 02:31:44.902 | `worker-2`: JavaScript heap out of memory (request backlog). |\n| 02:31:45.001 | Supervisor restarts worker-2 (exit code 134 = SIGABRT). |\n| 02:31:52.318 | Supervisor kills the process group. Service down. |\n\n### Cause chain\n\n1. Redis at `10.0.0.12:6379` refused connections. ECONNREFUSED means the port was closed, not a network drop or a timeout. The Redis process was down, or it was restarted, or a firewall rule changed.\n2. The cache fallback sent full read traffic to the backing store. The store could not carry it.\n3. Requests timed out after 5000ms, but the callers kept queueing new work.\n4. The queue grew without a bound in practice. It held the backlog in memory.\n5. `worker-2` ran out of heap and aborted. The supervisor then declared the api unresponsive and killed everything.\n\nTotal time from the Redis loss to the service down: **17 minutes, 45 seconds**.\n\n## Three defects that turned an outage of one dependency into a full outage\n\n1. **The reconnect logic has no backoff.** All 13 attempts are 80 seconds apart. It never gives up and never escalates.\n2. **The queue limit of 500 is not enforced.** The log shows depth 502, then 568, with no rejected request and no circuit breaker. The limit is a warning threshold only.\n3. **The fallback has no protection.** A cache miss goes straight to the store with no request coalescing and no rate limit. One cold key set became a stampede.\n\n## What to do\n\n1. Find out why Redis at `10.0.0.12:6379` stopped. Start there. Check the Redis host uptime, its own OOM killer log, and any change to a firewall or a security group at about 02:14Z.\n2. Enforce the queue limit. Reject with 503 above 500, instead of a warning.\n3. Add exponential backoff with a cap to the ioredis reconnect strategy.\n4. Add a circuit breaker on the store path, so timeouts stop new work quickly.\n5. Add single-flight (request coalescing) on cache misses.\n\nI did not read the application source. Only `logs/app.log` and `package.json` are in this directory, so the fixes above come from the log evidence, not from the code.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d98cdd9c1ed7d070cfb614d98a0b77f83e413904b7e20b24f3d83b49682b5b96"
+}

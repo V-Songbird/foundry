@@ -1,0 +1,38 @@
+{
+  "key": "crash-origin__carry__r1",
+  "batchId": "it3-39449455",
+  "seed": "1787878427787",
+  "orderIndex": 3,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "carry",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 15951,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-carry:HushCarry",
+  "costUsd": 0.1653055,
+  "numTurns": 7,
+  "durationMs": 13923,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 787
+  },
+  "contextTraffic": 102023,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 4118,
+  "narrationWords": 7,
+  "finalWords": 85,
+  "assistantMsgs": 2,
+  "finalText": "**Look at `src/auth/refresh.js:15`.**\n\n`refreshToken` returns `undefined` for non-recoverable errors. `invalid_grant` is one. That `undefined` flows to `decode`, which calls `.split` on it and throws.\n\n`tokens.js:6` is only where it lands. It got a bad value from a caller.\n\n| File | Line | Role |\n|---|---|---|\n| [refresh.js:15](src/auth/refresh.js:15) | 15 | Real cause. Returns `undefined`. |\n| [session.js:7](src/session.js:7) | 7 | Passes it on unchecked. |\n| [tokens.js:6](src/auth/tokens.js:6) | 6 | Crash site only. |\n\nA revoked token should be a `401`, not a `500`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "947e7fa32705e0adede9297011930747988a7770cd893c98008e4ac581b58c11"
+}

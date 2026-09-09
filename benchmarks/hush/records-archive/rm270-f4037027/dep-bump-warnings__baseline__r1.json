@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22827,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1169238,
+  "numTurns": 10,
+  "durationMs": 21794,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1539
+  },
+  "contextTraffic": 251762,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6902,
+  "narrationWords": 40,
+  "finalWords": 96,
+  "finalText": "Build's clean now (exit 0, 0 errors). The rest of the output — deprecation notices, tree-shaking notes, dedupe lines — is just noisy but harmless logging from the bump; the actual bugs were two call sites that weren't updated for the new bundler's options shape:\n\n- `src/core/options.js:6` — still read `options.retries`, but the bumped bundler now passes `retryCount`, so it crashed on `undefined.toFixed()`.\n- `src/net/retryPolicy.js:7` — required `backoffEnabled` to be strictly `true`/`false` and threw otherwise, but the new config loader leaves unset flags as `undefined` instead of `false`. Simplified it to just check for `=== true`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3509b2a713afa41d5279a17093dbc2a4542adfc26c91acbbb2ca4b215d656911"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 121,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 52658,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07797240000000001,
+  "numTurns": 14,
+  "durationMs": 50974,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2669
+  },
+  "contextTraffic": 316958,
+  "apiCalls": 10,
+  "toolCalls": 13,
+  "toolResultChars": 11801,
+  "narrationWords": 0,
+  "finalWords": 106,
+  "finalText": "Built clean. Two things broke with the bump:\n\n1. **options.js** — the bundler changed how it passes retry settings. It now sends `retryCount` instead of `retries`, but the code was still looking for the old field.\n\n2. **retryPolicy.js** — the new config loader leaves flags as `undefined` instead of defaulting to `false`, but the code threw an error on undefined. Changed it to return `false` when the flag isn't set, matching the old behavior.\n\nThe remaining 8 warnings are just deprecation notices from the dependencies themselves — Node's built-in warnings about things like old `Buffer()` usage and the `punycode` module. Those aren't a problem for you.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "735ae1e29f3446431b100ea48f2184ea5822ac7bc9cb2fedb0455897d194fda5"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "zc-full-c1e0cbd0",
+  "seed": "1787383666221",
+  "orderIndex": 5,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40015,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16545919999999997,
+  "numTurns": 16,
+  "durationMs": 38368,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3081
+  },
+  "contextTraffic": 286348,
+  "apiCalls": 7,
+  "toolCalls": 15,
+  "toolResultChars": 10050,
+  "narrationWords": 0,
+  "finalWords": 207,
+  "finalText": "Here's the shape of it.\n\nIt touches 94 files. Five services (orders, notify, billing, analytics, accounts) each have `account_id` threaded through their repo, service, and http route layers as a plain internal column and variable name. That part is a big but mechanical find-and-replace.\n\nThree places must not be renamed:\n\n1. **`vendor/reporting-sdk/`** (4 files). It's a vendored third-party copy. Its own README says \"do not edit these files\" — a refresh script overwrites them anyway.\n2. **`docs/openapi.yaml`** and the wire-format map in **`lib/serialize.js`**. Both say `account_id` is the frozen public API field name. Renaming it breaks every client and needs a new API version, not a code rename.\n3. **All 12 files in `migrations/`**. They're already applied in production. Editing an old migration doesn't rename anything in a live database, and it breaks the down step. A real rename needs a *new* migration, not edits to old ones.\n\nOne more soft spot: `lib/audit.js` writes `account_id` into audit log lines. Nothing marks it frozen, but if anything downstream parses audit logs by that field name, worth confirming before touching it.\n\nSo: sign off on the internal rename across the five services, but the vendor SDK, the public API contract, and the twelve applied migrations should stay as `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2045d6e4563a96044bc4a8e30001f1c77836d59b814db6355fa1a7160e01a23a"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "smoke254-672c908d",
+  "seed": "1787245204197",
+  "orderIndex": 2,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23529,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31600029999999996,
+  "numTurns": 11,
+  "durationMs": 21848,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1564
+  },
+  "contextTraffic": 237289,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 16851,
+  "narrationWords": 66,
+  "finalWords": 101,
+  "finalText": "Both are green (exit 0), all 625 cases pass.\n\n**The bug:** in `src/pricing.js`, `orderTotal` applied the tax rate to the *original* price instead of the *discounted* price — even though its own comment said tax should be charged on the discounted amount. Fixed by taxing `discounted` instead of `cents`:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return roundCents(discounted * (1 + taxRate));\n}\n```\n\nOnly 3 of the 625 cases (the \"order totals\" rows with both a non-zero discount and non-zero tax) exposed this, which is why it was buried. `run-tests.js` and `verify.js` both now exit 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9fae5af3c546bb99000521f16fe89d025ecd55fce42ec902a35db09e6d842ee4"
+}

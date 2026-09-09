@@ -1,0 +1,46 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 113447,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8215905,
+  "numTurns": 10,
+  "durationMs": 112163,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8016
+  },
+  "contextTraffic": 323572,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 73283,
+  "narrationWords": 59,
+  "finalWords": 691,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet stops at 2026-06-17. Let me read the full commit log.",
+    "Both files cover the same window (2026-05-02 → 06-17). Now let me extract the user-facing categories systematically.",
+    "Let me verify a few specific items before drafting.",
+    "I have what I need. Writing the draft into the placeholder:"
+  ],
+  "finalText": "Draft is in `CHANGELOG.md:20`. Here's what I found and how I decided.\n\n## The shape of the release\n\n380 commits. After stripping deps, CI, tests, docs, and chores, **32 commits** were `feat`/`fix`/`perf` — and those collapse to about **13 distinct user-facing changes**, because the same fix was applied module-by-module. \"Guard the null cursor in the paginator\" landed four separate times (api, db, queue, webhooks); \"duplicate header\" three times; \"empty allowlist\" three times. I merged those into one line each rather than repeating them per module — a user experiences one bug, not four.\n\n## The things worth leading with\n\n- **`fix(db): stop logging the whole request body`** (1b55313) — this is the most consequential item in the release. Request bodies were going into logs. Anyone with log retention or shipping logs to a third party may want to know this was true through 4.1.\n- **`fix(*): use the right units in the latency histogram`** (core, store) — silently changes what your metrics report. Dashboards and alert thresholds built against 4.1 numbers will read differently after upgrading. I called that out explicitly in the entry.\n- **`fix(auth): return 401 for an expired token instead of 403`** — labeled `fix`, but it changes a response contract. I put it under **Breaking**, following your 4.1 precedent where the `timeout` units change also got Breaking treatment despite being a consistency fix.\n\n## Two items I pulled out of the refactor pile\n\nThese were labeled `refactor`, which is why they'd be easy to miss, but they are user-visible — **please confirm both before you ship**:\n\n1. **`refactor(api): drop the unused v1 export route`** (56dc828) — it touches `router.js`, `handlers.js`, and the tests. \"Unused\" is an internal judgment; if any consumer still calls that route, this is a breaking removal. I listed it under Breaking on that assumption.\n2. **`refactor(*): stop re-exporting the internal error types`** — seven commits across jobs, db, core, auth, billing. If those types were reachable from the package entry point, imports will break. I left this **out** of the draft because I can't tell from the log whether they were ever publicly importable. If they were, it needs a Breaking line.\n\n## Open questions\n\n- **The history stops at 2026-06-17** — both the log and the PR sheet. You're cutting on the 30th of August. If anything landed in those ten weeks, it isn't in here.\n- **Minimum Node version.** Six `docs: note the minimum node version` commits plus `ci: run the suite on node 22` and `.nvmrc` pinning. That pattern usually means a floor moved, which is a Breaking line for installers — but no commit actually says a version was dropped, so I didn't invent one. Worth a look at the `engines` field.\n- **The webhook backoff feature** touches `src/core/config.js`, which suggests it added a config option. If it's tunable, the entry should name the option.\n- **\"Handle an empty allowlist\"** — I couldn't tell from the title whether the old behavior was a crash or a fail-open (allow-everything). If it was fail-open, that's a security note, not a routine fix.\n\n## What I deliberately left out\n\n**Performance.** There are 8 perf commits — skipping a JSON round-trip on hot paths, dropping clones in mappers, batching metric writes, reusing parsed schemas. Users would plausibly notice these, but your template says three headings and 4.1 has no Performance section, so I didn't add one unilaterally. Say the word and I'll add it.\n\n**All 16 dependency bumps.** Every one is same-major and internal. The only two that even look interesting — `vitest 1.6.0 → 2.0.1` and `esbuild 0.21.4 → 0.23.0` — are dev dependencies. Runtime deps (pino, fastify, pg, knex, ioredis, undici, zod, nanoid, dotenv) are all patch/minor. Nothing here reaches an installer.\n\nAlso dropped: 15 `refactor` commits that are genuinely internal (Ctx→RequestCtx renames, config loader moves, dead feature-flag branches, unused v2 debug helpers), and every `ci:`/`chore:`/`test:`/`docs:` commit.\n\nOne thing I noticed but didn't act on: the PR sheet has duplicate rows for identical work (#4120 and #4121 are the same pino bump by different authors, and there are several more). Doesn't affect the notes, but your merge sheet may be double-counting.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c7b9993a063645c25d943a37f0d94d6d0c104d31a374d885f9d95a312162a6e3"
+}

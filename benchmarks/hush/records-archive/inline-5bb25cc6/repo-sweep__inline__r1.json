@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__inline__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 12,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "inline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 136457,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8897663,
+  "numTurns": 39,
+  "durationMs": 134816,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10635
+  },
+  "contextTraffic": 1762373,
+  "apiCalls": 39,
+  "toolCalls": 38,
+  "toolResultChars": 27754,
+  "narrationWords": 112,
+  "finalWords": 67,
+  "finalText": "Migrated the last 12 stragglers over to `db.execute({ sql, params })` — one file in each of analytics, orders (×2), billing (×2), support (×2), catalog (×2), and accounts (×2). Left `cache.query` and the vendored `legacy-orm/adapter.js` alone since those aren't part of the swap.\n\n`node verify.js` confirms it: no `db.query` left in app code, every `execute` call carries `sql` and `params`, and every module still loads and runs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f96f2bdb3d508a7b85fc38282857d8ed38f5077aad8807289c7e0d47ac09695"
+}

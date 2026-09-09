@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__stock__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 56322,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23198220000000003,
+  "numTurns": 17,
+  "durationMs": 49573,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3492
+  },
+  "contextTraffic": 432842,
+  "apiCalls": 12,
+  "toolCalls": 13,
+  "toolResultChars": 24533,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**On-call handoff — gateway 503s**\n\nRoot cause: `dep-4471` (gateway, `a.novak`, `2026-03-14T02:12-02:14Z`) flipped `gateway.pool.perRequest` `false -> true`. Pool stayed capped at 20 connections, exhausted within seconds. Every 503 logs `ERR_POOL_EXHAUSTED`, waiting queue climbed from 13 to 74+.\n\nImpact window: `2026-03-14T02:14:18Z` through end of log at `03:59:27Z`, unresolved, still erroring. Gateway only, hitting all backends (billing, orders, catalog, accounts). `worker.log` confirms workers were unaffected.\n\nRollback: revert `dep-4471`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "454371762d386f3c52af67274c41a1df0c40c702c1052af4e748cd54051e9618"
+}

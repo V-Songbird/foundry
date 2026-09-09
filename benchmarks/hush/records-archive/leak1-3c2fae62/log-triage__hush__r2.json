@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "leak1-3c2fae62",
+  "seed": "1787986431022",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25166,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1227962,
+  "numTurns": 3,
+  "durationMs": 21818,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1547
+  },
+  "contextTraffic": 90949,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\n`redis` at `10.0.0.12:6379` dropped at `02:14:07` ([logs/app.log:3](logs/app.log:3)). Cache fell back to direct store reads, which couldn't keep up.\n\nFrom there queue depth climbed steadily past its `500` cap and `TimeoutError`s piled up every few seconds. 12 reconnect attempts to redis all failed, last one at `02:31:26`.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` and restarted. Eight seconds later the `api` process went unresponsive and `supervisor` killed the whole process group, taking the service down ([logs/app.log:717-719](logs/app.log:717)).\n\nRoot cause: redis never came back. Next step is finding why redis at `10.0.0.12` stayed unreachable for 17+ minutes.",
+  "stderr": "SessionEnd hook [node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-end-cleanup.js\"] failed: Hook cancelled\n",
+  "debugManifest": null,
+  "contentSha256": "3cc69712d92df23d3e074a6385176bdba382570bb6e34f9263d6ce0f4ffbe592"
+}

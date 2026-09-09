@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 47634,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5696195000000001,
+  "numTurns": 7,
+  "durationMs": 46319,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2877
+  },
+  "contextTraffic": 256773,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 60961,
+  "narrationWords": 5,
+  "finalWords": 678,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nA Redis outage triggered a cache-stampede → store overload → memory exhaustion cascade. The service was healthy for ~14 minutes, then died 17 minutes after Redis dropped.\n\n**Timeline** (all times UTC, from `logs/app.log`):\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Normal. `/users`, `/orders`, `/health` all 200, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **root cause** (`logs/app.log:182`) |\n| 02:14:07.114 | Cache layer degraded, falls back to direct store reads (`:183`) |\n| 02:14:08 | First `cache miss storm: key orders:1000` (`:184`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` (`:185`) |\n| 02:14:12 → 02:31:26 | Queue depth climbs monotonically and linearly, 52 → 568, ~3 per sample (`:186`–`:715`) |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts (0–12), **every one fails with the same ECONNREFUSED** |\n| **02:29:12** | Queue depth 502 crosses the max of 500 (`:647`) — backpressure limit breached, no shedding happens |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` (`:717`) |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (`:718`) |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` (`:719`) |\n\n**Volume:** 719 lines — 173 INFO, 348 WARN, 188 ERROR, 2 FATAL. Of the errors: 173 store timeouts, 14 Redis connection failures, 1 OOM.\n\n## The causal chain\n\n1. Redis at `10.0.0.12:6379` refused connections — not a timeout or a reset, **ECONNREFUSED**, meaning nothing was listening. Redis was down or gone (crash, restart, evicted pod, changed IP), not slow.\n2. The app degraded gracefully *in the wrong direction*: instead of shedding load, it fell back to reading the backing store directly for every request.\n3. 174 cache miss storms hammered the store, which started timing out at 5s.\n4. Because requests took 5s instead of ~100ms and nothing shed load, the queue grew at a constant rate for 17 straight minutes, right past its own 500 limit.\n5. The backlog was held in memory. worker-2 exhausted the heap and got SIGABRT (exit 134 = 128+6). The api process went unresponsive — almost certainly the same GC death spiral — and the supervisor killed the group.\n\n## Things worth flagging\n\n- **The reconnect logic never backed off and never gave up.** Attempts 0–12 are spaced almost exactly 80 seconds apart with identical failures. A fixed interval with no jitter, no escalation, no circuit breaker. Over 17 minutes it never once succeeded.\n- **`max 500` on the queue is decorative.** The log says \"(max 500)\" while reporting depth 568. Whatever that limit is, it isn't enforced — no 503s, no rejections. That's the difference between a degraded service and a dead one.\n- **The scheduler kept running.** Cron ticks and `/health` polls continued into the cascade, adding load during the failure instead of pausing.\n- **No `/orders` or `/users` responses appear after 02:14:07.** Not a single 200 or 5xx — requests went into the queue and never came back out. User-facing impact started immediately at 02:14, not at 02:31 when the process died.\n\n## Recommended fixes, in order of impact\n\n1. Enforce the queue cap — reject with 503 above a threshold. This alone converts the outage from \"process dies\" to \"partial degradation.\"\n2. Circuit-break the store when timeouts spike; fail fast rather than queueing 5-second waits.\n3. Exponential backoff with jitter on Redis reconnect, plus an alert after N failures.\n4. Add request-level admission control / concurrency limits so the backlog can't be unbounded in memory.\n5. Investigate why Redis at `10.0.0.12` vanished — that's the actual trigger and nothing here explains it. Check Redis's own logs and whatever orchestrates it around 02:14 UTC on 2026-07-04.\n\n**One discrepancy:** you said prod fell over *last night*, but this log is dated **2026-07-04**, roughly seven and a half weeks ago. Either this is an archived log from a prior incident, or last night's log is somewhere else — worth confirming you're looking at the right file before you act on this.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6114ce34335fadd5815859894fa27220264c1d8b14c44cadb6f83e5f6c823776"
+}

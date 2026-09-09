@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28236,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2005075,
+  "numTurns": 10,
+  "durationMs": 26645,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1607
+  },
+  "contextTraffic": 247983,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7749,
+  "narrationWords": 10,
+  "finalWords": 93,
+  "finalText": "Found it. The bundler bump changed the shape of the options it hands your code, and two spots never caught up.\n\n`src/core/options.js` still read `options.retries`, but the new bundler sends `retryCount` — that was crashing the link step outright. `src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag, but the new config loader leaves it `undefined` when unset, so that threw too.\n\nI updated both to match the new shapes. Build now finishes clean: 0 errors, exit code 0. The remaining 8 warnings are just deprecation noise from the bump, nothing broken.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60592c451c8ec69e40b0cca4322e394fad7a279360263026a6c9791badc5cc21"
+}

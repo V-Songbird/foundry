@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 46,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 115970,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5659535,
+  "numTurns": 15,
+  "durationMs": 108599,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6537
+  },
+  "contextTraffic": 424670,
+  "apiCalls": 14,
+  "toolCalls": 11,
+  "toolResultChars": 9856,
+  "narrationWords": 8,
+  "finalWords": 83,
+  "assistantMsgs": 5,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).** Status is ONGOING, not resolved.\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest: false -> true`. The gateway opens a connection per request against a pool of `size 20`. Result is 530 `ERR_POOL_EXHAUSTED` errors and `connection churn: 4180 opens in the last 5m, baseline is 40`.\n\nWindow: `02:14:18.972Z` to log end `03:59:27.974Z`, 1h 45m, 83% error rate. All five `/v1/*` endpoints down. Only `/health` returns 200, so it is a false all-clear.\n\nNext: roll back `dep-4471` and set `gateway.pool.perRequest` back to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa32c4e76dab5ffbe2ce4be7e644e51344e0a86f71589e9205c57eeea3c94e98"
+}

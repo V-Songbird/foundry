@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 51,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27980,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.1848765,
+  "numTurns": 9,
+  "durationMs": 26399,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1336
+  },
+  "contextTraffic": 229311,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15303,
+  "narrationWords": 65,
+  "finalWords": 56,
+  "finalText": "All 625 tests pass and `verify.js` confirms the fix.\n\nThe bug: `orderTotal` in `src/pricing.js:41` computed tax on the pre-discount amount instead of the discounted amount, contradicting its own doc comment (\"tax is charged on the amount the customer pays\"). Fixed by taxing `discounted` instead of `cents` — one-line change, suite went from 3 failing to 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "654e4f7df4dc211925d266d65371f9ee7bbca557a71c18bef9a7451544c9d125"
+}

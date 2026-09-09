@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__t31deliver__r2",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 23,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "t31deliver",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 84392,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4346457,
+  "numTurns": 20,
+  "durationMs": 77893,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5253
+  },
+  "contextTraffic": 639124,
+  "apiCalls": 15,
+  "toolCalls": 16,
+  "toolResultChars": 24605,
+  "narrationWords": 0,
+  "finalWords": 219,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing (unresolved as of end of captured logs, 03:59:27Z)\n\n**Root cause:** dep-4471 (gateway, a.novak, \"config: connection-per-request for pool isolation\"), deployed 02:12–02:14Z. The new pool config stops connections from being released back to the pool — `in_use` pins at 20/20 (pool size 20) and `waiting` climbs monotonically (13 → 74+) with no drain, matching a connection leak rather than a traffic spike.\n\n**Impact window:** Started 2026-03-14 02:14:14Z (first `WARN pool acquire slow`), first hard failure 02:14:18.972Z:\n```\nERROR access req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool   req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\nStill active at the last log line, 03:59:27Z — 1h45m and counting. Every `ERROR` in gateway.log (530+) is the same `ERR_POOL_EXHAUSTED` cause, hitting all four downstream services (billing/orders/catalog/accounts-svc) roughly evenly. `/health` checks kept returning 200 throughout, so the gateway process itself stayed up — only the connection pool is starved.\n\n**Scope:** Gateway only. Cross-checked worker.log for the same window — 0 real errors, DB pool stats flat at `in_use=1 idle=7 waiting=0` the entire time, jobs completing normally. Not a shared DB or infra issue.\n\n**Rollback target:** dep-4471 (gateway). No other deploy is a candidate — dep-4470 (worker) finished over an hour before onset; dep-4472 (billing-svc) shipped 02:41, after the 503s were already underway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fd68a37172a53b7913222085731f244edea75d0c3e221dd2d946176ee5834296"
+}

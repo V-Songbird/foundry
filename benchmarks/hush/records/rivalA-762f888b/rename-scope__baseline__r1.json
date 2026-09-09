@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 103,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 93305,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.46920749999999994,
+  "numTurns": 10,
+  "durationMs": 92424,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6192
+  },
+  "contextTraffic": 254309,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 23580,
+  "narrationWords": 29,
+  "finalWords": 678,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this really is.",
+    "Now the important part — where it *must not* be renamed. Let me look at the boundary files."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files.** Breakdown:\n\n| Zone | Occurrences | Files |\n|---|---|---|\n| `services/**` (5 services × repo/service/http) | 1,200 | 75 |\n| `migrations/` | 61 | 12 |\n| `vendor/reporting-sdk/` | 20 | 4 |\n| `lib/` (audit, serialize) | 5 | 2 |\n| `docs/openapi.yaml` | 5 | 1 |\n\nThe services layer is highly repetitive — every repo file is the same 5-query shape, every route file the same 4 handlers. So it's ~1,200 mechanical edits with maybe 6 distinct patterns. That part is a day, not a quarter.\n\nThe problem is that a plain find-and-replace hits five things that aren't internal names.\n\n## Must not be renamed\n\n**1. `docs/openapi.yaml` (5) — public API contract.** The file says it outright: every field named there is frozen, and renaming one needs a new dated API version. `account_id` is a response field on Invoice/Order and a public query parameter on `/v2/invoices`.\n\n**2. `lib/serialize.js` — and this one fails silently.** `WIRE` maps internal key → public key. The right-hand side must stay `'account_id'`. But the *left*-hand key is the internal name, so it has to change to `owner_id` in lockstep with the rows. If someone renames the row fields and misses this map:\n\n- `row['account_id']` is now undefined → `account_id` vanishes from every response\n- the passthrough loop at line 18 sees `WIRE['owner_id']` is falsy → it emits `owner_id` instead\n\nThat's a breaking API change with no error, no test failure, on every serialized object. This is the single highest-risk line in the change.\n\n**3. `vendor/reporting-sdk/` (20, 4 files) — do not touch.** Vendored generated copy of a third-party SDK; the README says edits are overwritten wholesale by `npm run vendor:refresh`. Even if renamed, `account_id` there is the *upstream vendor's* wire format, so a rename would be both discarded and wrong.\n\n**4. Applied migrations (61, 12 files) — history, not schema.** All are marked applied in production. Editing them renames nothing in a live database and breaks the `down` steps. A column rename needs a **new** migration plus an expand/contract rollout.\n\n**5. SQL column names inside repo string literals (~125).** In `services/*/src/repo/*.js`, `account_id` appears both as a JS parameter (renameable freely) and as a *column name* inside SQL text:\n\n```js\nasync function getInvoice(account_id, id) {              // ← safe to rename\n  sql: 'SELECT * FROM invoices WHERE account_id = ?',    // ← DB column, only with the migration\n```\n\nThese can only move when the actual column moves. Until then the JS side can be `owner_id` while the SQL text stays `account_id`.\n\n## Two more to confirm before you sign\n\n**Stored JSON payloads.** 25 insert sites do `JSON.stringify({ ...values, account_id })` into a `payload JSONB` column. Renaming that key changes the shape of *new* rows while every existing row keeps `account_id` — a mixed-schema table with no error to tell you. Either leave the payload key alone or budget a backfill.\n\n**`req.session.account_id` — 100 sites.** This is the session claim shape and it's read on every route. I can't see the session issuer in this repo. If sessions are minted by another service or if already-issued cookies exist in the wild, renaming this logs everyone out or, worse, makes `account_id` undefined and drops tenant scoping. Get the platform team to confirm who owns that shape.\n\n## Sign-off recommendation\n\nApprove it **scoped to internal identifiers only** — JS parameters, local variables, object keys inside service/repo function signatures. That's the real bulk of the 1,291 and it's genuinely low-risk.\n\nRequire these as explicit exclusions in the PR: `vendor/`, `migrations/`, `docs/openapi.yaml`, the `WIRE` right-hand values, SQL string literals, and the `payload` JSON key. The DB column rename and the session claim are separate changes with their own rollouts; they shouldn't ride along in this PR.\n\nOne aside: the migrations directory is unreliable as a record — `20250624_backfill_account_ids.sql` is byte-identical to `20250128_create_invoices.sql`, `20250609_index_account_scans.sql` creates the orders table, and `accounts` has a self-referencing FK to a column that isn't its primary key. Don't use it to infer the production schema; get the real one before approving any column rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "94b4e04e56cce305b0b0035bcb0f71f99fc05b788bc1937390173aae6cf8ce75"
+}

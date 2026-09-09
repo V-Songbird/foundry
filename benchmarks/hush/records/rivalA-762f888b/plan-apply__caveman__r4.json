@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 179,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19067,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.16844299999999998,
+  "numTurns": 6,
+  "durationMs": 18037,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1120
+  },
+  "contextTraffic": 85779,
+  "apiCalls": 4,
+  "toolCalls": 5,
+  "toolResultChars": 2531,
+  "narrationWords": 0,
+  "finalWords": 213,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Plan:\n\n**1. Ambiguity to settle first — \"same data\" means what?**\n`buildRows()` returns 6 fields (`id, suite, status, ms, owner, slow`). `toTable` deliberately prints only 4 — comment in `format.js:3-6` says `owner`/`slow` are dropped for terminal width, not because they're irrelevant.\n\n- **My default:** JSON emits full `buildRows()` output, all 6 fields. JSON has no width limit, and the comment says anything wanting whole row goes back to `buildRows()`. That's the point of a JSON flag.\n- If you truly want byte-identical column set, say so and I restrict to `COLUMNS`.\n\n**2. Changes** (2 files, no new deps):\n- `src/format.js` — add `toJson(rows)` = `JSON.stringify(rows, null, 2)`. Keeps \"how to print\" in format module, matches existing split.\n- `src/cli.js` — parse `--json` from remaining argv after `report`; pick `toJson` vs `toTable`; unknown flags exit 1 with usage. Update `USAGE` to `usage: cli.js report [--json]`.\n- `src/report.js` — untouched. Sort order (slowest first) preserved in JSON.\n\n**3. Verify:** run `node src/cli.js report`, `node src/cli.js report --json`, `node src/cli.js report --bogus` (expect usage + exit 1), and `node -e` piping JSON output through `JSON.parse`.\n\nNo tests dir exists, so verification is manual runs unless you want me to add a test harness.\n\nSay go, and answer the field-set question if you want the restricted version.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "91c903e926cb23d93fceb7db59ed2dd031e226416383bc9d7590662059333086"
+}

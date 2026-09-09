@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__moss__r1",
+  "batchId": "o5b-c46f1643",
+  "seed": "1787818757484",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "moss",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41288,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "moss:Moss",
+  "costUsd": 0.304752,
+  "numTurns": 8,
+  "durationMs": 39231,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1693
+  },
+  "contextTraffic": 225197,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 13416,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "**Redis died and took prod with it.**\n\n```\n02:14:07 ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n02:29:12 WARN  [api] request queue depth 502 (max 500)\n02:31:44 ERROR [worker-2] JavaScript heap out of memory (request backlog)\n02:31:52 FATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nCache fell back to direct store reads. Reads timed out. Queues grew for 17 minutes. All 13 redis reconnects got ECONNREFUSED.\n\nFix redis at `10.0.0.12:6379` first. Then add a queue cap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b64203d176ad02c581dc2a28741f6db87c9e6dc66e1e122e0ee49d1e30484d3b"
+}

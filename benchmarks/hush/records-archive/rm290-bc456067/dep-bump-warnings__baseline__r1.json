@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40169,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20254149999999999,
+  "numTurns": 11,
+  "durationMs": 38448,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2541
+  },
+  "contextTraffic": 177392,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6187,
+  "narrationWords": 45,
+  "finalWords": 299,
+  "assistantMsgs": 3,
+  "finalText": "Build passes now (exit 0), with the link stage completing both phases.\n\n**The two real bugs**, both from the bundler bump (3.11.2 → 4.2.0):\n\n1. `src/core/options.js:7` — the options object it hands modules renamed `retries` → `retryCount`. This call site wasn't updated, so `options.retries` was `undefined` and `.toFixed(0)` threw `TypeError`. That's what aborted the build. Now reads `retryCount`, falling back to `retries` for any pre-bump callers.\n\n2. `src/net/retryPolicy.js:7` — hidden behind the first one; it only surfaced once the build got past the link phase. The new config loader leaves unset flags as `undefined` where the old one returned `false`, and the strict boolean check threw on that. An absent flag now means off, matching the pre-bump default. A non-boolean value still throws, since that's a genuine config error.\n\n**On the rest of the noise:** the 8 warnings are unchanged and I left them alone. They're emitted by the bundler about `src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, etc. — none of those files exist in this repo. Only `src/core/options.js` and `src/net/retryPolicy.js` are here, so those warnings are coming from vendored/bundled dependency code, not yours. Genuinely just noise from your side, but two are worth a note for later:\n\n- `DEP0198 Buffer()` and `W1042 crypto.createCipher` are flagged \"remove before v5\" — they'll become hard errors on the next major, in a dependency you don't control. Worth checking whether the upstream package has a newer release.\n- `W3307 circular-import: src/core/graph.js <-> src/state/tracker.js` says resolution order is undefined. Also not in this tree, but a circular import is the kind of thing that changes behavior silently across a bundler major. If those files exist in a wider repo this directory is part of, that one's worth a look.\n\nI didn't verify beyond the build itself — there are no tests in this directory to run.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "879573bbbeb97e67c621f212ddc07b37504208844c0bddea03450f50a5d343bd"
+}

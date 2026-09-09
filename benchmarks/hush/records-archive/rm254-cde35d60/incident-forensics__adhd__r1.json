@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 88,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 64060,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.52176,
+  "numTurns": 13,
+  "durationMs": 57966,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4118
+  },
+  "contextTraffic": 732862,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 53607,
+  "narrationWords": 41,
+  "finalWords": 245,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** ONGOING (unresolved as of last log entry, 2026-03-14 03:59:27Z)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, author a.novak, \"config: connection-per-request for pool isolation\") shipped 02:12:00–02:14:00Z. It flipped config `gateway.pool.perRequest: false -> true` (applied as generation 119 at 02:13:41.234Z) without increasing pool size. The new per-request acquisition pattern saturates the fixed 20-connection pool under normal load — every request holds/re-acquires a connection instead of sharing efficiently, so the pool pins at `in_use=20` and a queue backs up indefinitely (`waiting` climbed from 13 to 74+ over the log window, wait times up to ~890ms).\n\n**Impact window:**\n- First warning: 02:14:14.920Z (slow acquire)\n- First 503: **02:14:18.972Z** — 19s after the deploy finished\n- Still failing at end of available log: 03:59:27.974Z, no recovery, no rollback logged\n- Scope: **gateway only**. Cross-checked `worker.log` for the same window — jobs completed normally throughout, no pool exhaustion or errors there. Confirms this is isolated to the gateway's connection pool, not a downstream DB/service-wide issue.\n\n**Error signature (repeating):**\n```\nERROR access  req-XXXXX /v1/<route> -> <svc> 503 <duration>ms\nERROR pool    req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n**Action: roll back `dep-4471`** (gateway config gen 119 → 118), specifically revert `gateway.pool.perRequest` to `false`. Alternatively, if per-request pooling is intentional, pool size needs to scale with it — but rollback is the fast path to stop the bleeding. The other two keys changed in that deploy (`upstreamMs 2000->2500`, `log.sampleRate 1.0->1.0`) are not implicated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d9e9e6102f33b89e325e199eaec1e64400063283f3e306bdafc9a828dc4d3deb"
+}

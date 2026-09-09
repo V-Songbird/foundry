@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 49,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 24926,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2594275,
+  "numTurns": 10,
+  "durationMs": 23748,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1330
+  },
+  "contextTraffic": 151173,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12018,
+  "narrationWords": 20,
+  "finalWords": 88,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "One bug. `orderTotal` tax computed on pre-discount `cents`, spec say tax on discounted amount."
+  ],
+  "finalText": "Green. 625 passing, 0 failing.\n\n3 failures, all one bug in `src/pricing.js:41` `orderTotal`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed pre-discount base\n```\n\nTaxed original `cents`, not discounted amount — contradict own doc comment above it. Only rows with both discount and tax non-zero exposed it (3 of 69 order-total rows); rest had a zero factor hiding it.\n\nFix:\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nAlso drop `discounted + tax` structure — `applyTax` already round on way out, so no double-round drift.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "577044a93ed624a0731274fe02b1835f0a9c1d7b00cb6e44268f1269e0b36f6e"
+}

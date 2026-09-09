@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushv5__r1",
+  "batchId": "bake1-92978a50",
+  "seed": "1787816448085",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushv5",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41551,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3130305,
+  "numTurns": 10,
+  "durationMs": 38095,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1912
+  },
+  "contextTraffic": 213068,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 9418,
+  "narrationWords": 7,
+  "finalWords": 56,
+  "finalText": "**The build passes now.** Two real bugs, both from the bump.\n\n1. `src/core/options.js` read `options.retries`. The new bundler sends `retryCount`. It now takes either name.\n2. `src/net/retryPolicy.js` threw on an unset flag. Unset now means off, like before.\n\nThe 8 remaining warnings are deprecation notices. They name files like `src/legacy/adapter.js`, which this project does not contain.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8e854cd709628d78cde76b82e1f6cd2e073075a950b478ae53bd5f0bd2174412"
+}

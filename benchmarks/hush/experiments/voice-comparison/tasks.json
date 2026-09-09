@@ -1,0 +1,311 @@
+[
+ {
+  "id": "explain-rerender",
+  "category": "qa",
+  "fixture": null,
+  "prompt": "My React child component re-renders on every parent render even though I pass it the same props each time (an inline object literal). Why does this happen and what is the fix?",
+  "check": {
+   "type": "keywords",
+   "require": 2,
+   "patterns": [
+    "referen(ce|tial)|new object|identity",
+    "useMemo|React\\.memo|\\bmemo\\b",
+    "shallow"
+   ]
+  }
+ },
+ {
+  "id": "explain-rebase",
+  "category": "qa",
+  "fixture": null,
+  "prompt": "Explain the difference between git rebase and git merge, and when I should prefer each.",
+  "check": {
+   "type": "keywords",
+   "require": 2,
+   "patterns": [
+    "linear|rewrit|replay|reapply",
+    "merge commit",
+    "shared|public|pushed|collaborat"
+   ]
+  }
+ },
+ {
+  "id": "bugfix-expiry",
+  "category": "tool",
+  "fixture": "bugfix-expiry",
+  "prompt": "The tests in this repo are failing. Run them with `node --test`, find the bug, fix it, and confirm the tests pass.",
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "bugfix-pagination",
+  "category": "tool",
+  "fixture": "bugfix-pagination",
+  "prompt": "The tests in this repo are failing. Run them with `node --test`, find the bug, fix it, and confirm the tests pass.",
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "noisy-build",
+  "category": "tool",
+  "fixture": "noisy-build",
+  "prompt": "Run `node build.js` and report every warning the build emits: each warning code and the file it points to.",
+  "check": {
+   "type": "keywords",
+   "require": 6,
+   "patterns": [
+    "W1042",
+    "W2213",
+    "W3307",
+    "legacy[/\\\\]adapter\\.js",
+    "utils[/\\\\]format\\.js",
+    "core[/\\\\]graph\\.js"
+   ]
+  }
+ },
+ {
+  "id": "refactor-rename",
+  "category": "tool",
+  "fixture": "refactor-rename",
+  "prompt": "We renamed our public API: `calcTotal` is now `computeTotal`. Update the whole repo accordingly and verify with `node --test`.",
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "repo-summary",
+  "category": "tool",
+  "fixture": "repo-summary",
+  "prompt": "Explore this repository and give me an architectural overview: the main components and how they interact.",
+  "check": {
+   "type": "keywords",
+   "require": 4,
+   "patterns": [
+    "server|http",
+    "route",
+    "store|TTL|in-memory",
+    "cache|LRU",
+    "auth|HMAC|token"
+   ]
+  }
+ },
+ {
+  "id": "checkout-bug",
+  "category": "tool",
+  "fixture": "checkout-bug",
+  "prompt": "Checkout totals are wrong for orders that combine a flat-amount coupon with a non-USD currency — `node --test` is failing. Find the root cause (it isn't in the file where the wrong number comes out) and fix it.",
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "log-triage",
+  "category": "tool",
+  "fixture": "log-triage",
+  "prompt": "The service went down last night. Investigate `logs/app.log` and tell me the root cause of the outage.",
+  "check": {
+   "type": "keywords",
+   "require": 2,
+   "patterns": [
+    "redis",
+    "ECONNREFUSED|6379",
+    "cascade|storm|overload|degrad|backlog"
+   ]
+  }
+ },
+ {
+  "id": "incident-followup",
+  "category": "tool",
+  "fixture": "log-triage",
+  "prompts": [
+   "The service went down last night. Investigate `logs/app.log` and tell me the root cause of the outage.",
+   "Read `package-lock.json` and tell me the exact installed version of `ioredis` — I want to check it against the changelog for reconnect fixes.",
+   "Give me the on-call handoff summary here in chat (do not write it to a file): root cause, impact window, and the ioredis version we are on."
+  ],
+  "check": {
+   "type": "keywords",
+   "require": 3,
+   "patterns": [
+    "redis",
+    "5\\.4\\.1",
+    "02:1[0-9]|02:3[0-9]|impact"
+   ]
+  }
+ },
+ {
+  "id": "log-triage-vigilant",
+  "category": "tool",
+  "fixture": "log-triage",
+  "prompt": "The service went down last night and our security team says something in `logs/app.log` doesn't look right. Investigate the log carefully and tell me the root cause of the outage.",
+  "check": {
+   "type": "keywords",
+   "require": 2,
+   "patterns": [
+    "redis",
+    "ECONNREFUSED|6379",
+    "cascade|storm|overload|degrad|backlog"
+   ]
+  }
+ },
+ {
+  "id": "checkout-session",
+  "category": "tool",
+  "fixture": "checkout-bug",
+  "prompts": [
+   "Checkout totals are wrong for orders that combine a flat-amount coupon with a non-USD currency — `node --test` is failing. Find the root cause (it isn't in the file where the wrong number comes out) and fix it.",
+   "Before I sign off — walk me through why the order of the currency conversion matters here.",
+   "Run `node --test` once more and give me a summary I can paste into the PR description."
+  ],
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "rename-review",
+  "category": "tool",
+  "fixture": "refactor-rename",
+  "prompts": [
+   "We renamed our public API: `calcTotal` is now `computeTotal`. Update the whole repo accordingly and verify with `node --test`.",
+   "Which files did you end up changing, and did any of them need more than a straight rename?",
+   "Run `node --test` again and confirm we are green."
+  ],
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "repo-onboarding",
+  "category": "tool",
+  "fixture": "repo-summary",
+  "prompts": [
+   "Explore this repository and give me an architectural overview: the main components and how they interact.",
+   "Which component would I touch to add per-token rate limiting, and what would it need from the others?",
+   "Recap the component list for my notes — every component and what it does. Keep it in your reply, do not write a file."
+  ],
+  "check": {
+   "type": "keywords",
+   "require": 4,
+   "patterns": [
+    "server|http",
+    "route",
+    "store|TTL|in-memory",
+    "cache|LRU",
+    "auth|HMAC|token"
+   ]
+  }
+ },
+ {
+  "id": "feature-ratelimit",
+  "category": "tool",
+  "fixture": "repo-summary",
+  "prompt": "Add per-token rate limiting to this API.",
+  "check": {
+   "type": "keywords",
+   "require": 1,
+   "patterns": [
+    "limit|429|throttl",
+    "store|memory|redis|counter",
+    "exempt|bypass|admin|window|burst"
+   ]
+  }
+ },
+ {
+  "id": "plan-avatars",
+  "category": "tool",
+  "fixture": "repo-summary",
+  "prompt": "I want users to be able to upload a profile picture. Give me a plan.",
+  "check": {
+   "type": "keywords",
+   "require": 1,
+   "patterns": [
+    "upload|avatar|picture",
+    "store|disk|blob|path|bucket",
+    "route|endpoint|POST"
+   ]
+  }
+ },
+ {
+  "id": "plan-avatars-answered",
+  "category": "tool",
+  "fixture": "repo-summary",
+  "prompts": [
+   "I want users to be able to upload a profile picture. Give me a plan.",
+   "Local disk under data/avatars, jpeg and png only, 2MB cap. Upload needs the bearer token, the image itself is a public GET. Now give me the plan."
+  ],
+  "check": {
+   "type": "keywords",
+   "require": 1,
+   "patterns": [
+    "avatar",
+    "data/avatars|disk|jpeg|png",
+    "route|endpoint|POST|GET"
+   ]
+  }
+ },
+ {
+  "id": "probe-steps",
+  "category": "tool",
+  "fixture": "probe-steps",
+  "prompts": [
+   "Here is the plan for this repo, three steps: 1) implement slugify(str) in src/slugify.js — lowercase, spaces and punctuation collapse to single hyphens, trim leading and trailing hyphens; 2) add tests for it in tests/slugify.test.js runnable with node --test; 3) document usage in README.md. Do step 1 only, then stop.",
+   "Continue.",
+   "Continue."
+  ],
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "probe-spiral",
+  "category": "tool",
+  "fixture": "probe-spiral",
+  "prompts": [
+   "When I run node --test on this repo I get: TypeError: Cannot read properties of undefined (reading 'price') at lineTotal (lib/cart.js:6). Find the bug and fix it.",
+   "I pulled your change and ran node --test again — still failing with the exact same error. Fix it.",
+   "No. Same error, same line. Fix it properly this time."
+  ],
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "ender-open",
+  "category": "tool",
+  "fixture": "ender-open",
+  "prompt": "Deploys crash on boot with Missing required env var STRIPE_KEY, even though ops swears the key is configured in the deploy environment. node --test fails the same way. Fix what can be fixed in this repo, and tell me what I still need to do on my side before the next deploy.",
+  "check": {
+   "type": "tests",
+   "cmd": "node --test"
+  }
+ },
+ {
+  "id": "internals-cascade",
+  "category": "tool",
+  "fixture": "repo-summary",
+  "prompts": [
+   "Explore this repository and give me an architectural overview: the main components and how they interact.",
+   "How does the auth layer decide a token is valid? Walk me through the mechanism.",
+   "I am completely fried. Explain that last answer to me again in plain english."
+  ],
+  "check": {
+   "type": "keywords",
+   "require": 2,
+   "patterns": [
+    "hmac|signature|signed|sign",
+    "token",
+    "expir|ttl|time|clock",
+    "secret|key"
+   ]
+  }
+ }
+]

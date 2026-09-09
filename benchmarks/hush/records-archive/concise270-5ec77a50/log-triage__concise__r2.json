@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57843,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.322465,
+  "numTurns": 10,
+  "durationMs": 56437,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3229
+  },
+  "contextTraffic": 232872,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8958,
+  "narrationWords": 0,
+  "finalWords": 545,
+  "finalText": "**Root cause: Redis died at 02:14:07, and the service had no protection against the resulting cache stampede. It degraded for 18 minutes and the supervisor killed it at 02:31:52.**\n\n### Timeline (all 2026-07-04 UTC)\n\n| Time | Event |\n|---|---|\n| 02:00–02:13 | Healthy. Cache hit ratio 0.90–0.98, all 200s. |\n| **02:14:07.113** | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` — Redis stopped accepting connections. |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` (the fatal design choice) |\n| 02:14:08 | Cache miss storm begins — every `orders:*` key goes straight to the backing store. |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52/500, climbing steadily (~3 per tick). |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, **all** ECONNREFUSED, fixed ~80s interval. Redis never came back. |\n| 02:29:00 | Queue depth passes the 500 max — backpressure limit blown, requests just pile up in memory. |\n| 02:31:44.902 | `worker-2: JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | Supervisor: worker-2 exited code 134 (SIGABRT), restarting |\n| **02:31:52.318** | Supervisor: `api unresponsive, killing process group — service down` |\n\n### What actually happened\n\nRedis went away hard (connection *refused*, not timed out — the process was down or the port closed, not a network blip). The app's fallback path sent 100% of read traffic to the primary store, which couldn't take it. Every request then took 5s to time out while new ones kept arriving, so the queue grew monotonically for 17 minutes, past its own 500 limit, until worker-2 exhausted the heap holding the backlog. The api process was already wedged and the supervisor killed the whole group.\n\nRedis being down was the trigger; **the outage was caused by the fallback + unbounded queue**, not by Redis itself.\n\n### Notable\n\n- **The 500 max was never enforced.** Depth logged 568 against `max 500` — it's a warning threshold, not a limit. This is the single biggest finding.\n- **Reconnect never succeeded and never gave up.** 13 attempts at a flat ~80s interval (not exponential backoff), still ECONNREFUSED at the end. Nothing in the log shows anyone trying to restart Redis.\n- **No circuit breaker.** After the first few hundred timeouts the system should have shed load or served stale/empty rather than continuing to hammer the store.\n- **Cache keys are sequential** (`orders:1000` → `orders:1119`, +3 per storm line) — looks like a scan/enumeration pattern, so the misses were maximally uncacheable.\n- 173 timeouts and 174 miss-storm warnings spread evenly across api, worker-1, worker-2, scheduler — this hit every process, not one bad node.\n\n### What I'd fix, in order\n\n1. Make `max 500` an actual hard cap — reject with 503 above it instead of queueing.\n2. Circuit-break the store fallback: if Redis is down, don't send full traffic to the primary; serve degraded/stale or fail fast.\n3. Exponential backoff with jitter on reconnect, plus an alert when reconnect attempts exceed ~3.\n4. Alert on queue depth and on `cache layer degraded` — you had 17 minutes of clear warning signal before anything died.\n5. Find out why Redis at 10.0.0.12:6379 went down and stayed down; the app log can't tell you that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b5fdc641153ba126d9ff1fba45909d4beca75a4ee070f766d091f215daada7e8"
+}

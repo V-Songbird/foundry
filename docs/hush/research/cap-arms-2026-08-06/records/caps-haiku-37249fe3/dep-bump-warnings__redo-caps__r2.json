@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 127,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 49241,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0896681,
+  "numTurns": 15,
+  "durationMs": 47591,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2735
+  },
+  "contextTraffic": 415296,
+  "apiCalls": 13,
+  "toolCalls": 14,
+  "toolResultChars": 13146,
+  "narrationWords": 0,
+  "finalWords": 62,
+  "finalText": "Build is clean now. Two bugs from the package bump:\n\n1. **options.js** — Expected `retryCount` but was still reading `retries`. \n2. **retryPolicy.js** — Didn't handle `undefined` for the backoff flag; the new config loader leaves unset flags as undefined instead of false.\n\nThe remaining warnings are just Node.js deprecation notices that'll stick around until the legacy code using those APIs gets migrated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d8c24582b8cf1710b135cdf55ce4afd475cfcc81007a13cffb17c220c2decc46"
+}

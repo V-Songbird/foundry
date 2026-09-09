@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__noill__r5",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 57,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 98054,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.5285385,
+  "numTurns": 25,
+  "durationMs": 96431,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7145
+  },
+  "contextTraffic": 240428,
+  "apiCalls": 9,
+  "toolCalls": 24,
+  "toolResultChars": 22506,
+  "narrationWords": 6,
+  "finalWords": 110,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**Bigger than a rename.** `1291` hits, `94` files.\n\nSafe to rename: JS locals in `services/`. That is most of it.\n\n| Must not rename | Hits | Why |\n|---|---|---|\n| SQL in `**/repo/*.js` | 125 | real DB column |\n| `req.session.account_id` | 100 | session set outside this repo |\n| `migrations/` | 61 | applied in prod, history |\n| `JSON.stringify` payload key | 25 | stored JSONB key |\n| `vendor/reporting-sdk` | 20 | `npm run vendor:refresh` overwrites |\n| `docs/openapi.yaml` | 5 | public contract, breaking |\n| [serialize.js:8](lib/serialize.js:8) wire value | 1 | frozen public name |\n\nNext: sign only if those stay frozen.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "de8c2f115a0c1e1d5488cde2879e6c8f64fee8057516d31127ac0a1aab771d8e"
+}

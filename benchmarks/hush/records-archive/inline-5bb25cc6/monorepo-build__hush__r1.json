@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24980,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19173449999999997,
+  "numTurns": 9,
+  "durationMs": 23388,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1456
+  },
+  "contextTraffic": 215950,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10206,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "finalText": "Found it. The build stage after lint calls `resolveRelease` in `packages/shared/config.js`, which merged config layers with `Object.assign` — a shallow merge. Any package overriding one key inside `output` or `sourcemap` (like `@acme/api`'s `sourcemap.mode`) wiped out the sibling keys instead of just changing that one, so `output.dir` came out missing and the build threw and aborted.\n\nFixed it with a proper deep merge that combines nested objects key-by-key across defaults, package overrides, and CLI flags, without touching the original defaults. `node verify.js` now passes clean, and the build itself exits 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d0faae350507d81624590d2d9db22b94d479075499ef791f67862f65bb55cfdb"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 119,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 64543,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09904860000000001,
+  "numTurns": 13,
+  "durationMs": 62650,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4676
+  },
+  "contextTraffic": 351254,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 15611,
+  "narrationWords": 13,
+  "finalWords": 122,
+  "finalText": "The bug was rounding intermediate values. The implementation rounded USD to 2 decimals after each coupon was applied, then converted to the target currency. This lost precision and caused compounding errors.\n\nWhen you round early (17.98 USD) then convert (× 0.78 = 14.0244), you lose the extra precision. But if you don't round until the end (17.982 × 0.78 = 14.02596), the final result rounds correctly to 14.03 instead of 14.02.\n\nThe fix was to remove the intermediate rounding calls and only round once at the very end, after currency conversion. This matches the reference implementation in the test. All 40 tests now pass — the pattern was any non-USD currency with a percent coupon (since USD's 1.0 rate masked the error).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bdc6af7fc150ffc4ad519896c9b713467ba55837a183e5922fe4f375146a2075"
+}

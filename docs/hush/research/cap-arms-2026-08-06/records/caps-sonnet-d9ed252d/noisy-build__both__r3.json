@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 58,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23689,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1769237,
+  "numTurns": 7,
+  "durationMs": 22105,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 967
+  },
+  "contextTraffic": 230243,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 7537,
+  "narrationWords": 0,
+  "finalWords": 79,
+  "finalText": "Build's clean now — exit 0, \"0 errors.\"\n\nThe real bug was in `src/core/settings.js`: `resolveConfig` referenced a variable `retries` that was never defined (should've read from `env.retries`), so it crashed at the link stage every time. Fixed it to fall back to `3` when not provided.\n\nThe 3 warnings you saw (deprecated `crypto.createCipher`, an unused export, a circular import) are just noise from the fake bundler and don't fail the build — the crash was the only real error.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2fa1fb9c001cd74388a6b536118fa86f653b9199b37f6dcd33a4a155bbb41c99"
+}

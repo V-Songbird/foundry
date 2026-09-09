@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 191298,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.810853,
+  "numTurns": 17,
+  "durationMs": 184552,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12669
+  },
+  "contextTraffic": 527806,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 13830,
+  "narrationWords": 8,
+  "finalWords": 660,
+  "assistantMsgs": 5,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Incident:** `ERR_POOL_EXHAUSTED` → 503s on gateway node-3\n**Status at end of log: ONGOING, not recovered.** Still erroring on the final line.\n\n---\n\n### Root cause\n\nConfig change `gateway.pool.perRequest: false -> true`, shipped by **dep-4471**.\n\nThe gateway went from multiplexing requests over a shared connection pool to taking one connection per request. Pool size stayed at 20. Once 20 requests are in flight, every subsequent request queues and eventually fails to acquire.\n\nCausal chain from the log:\n\n```\n02:12:12.820Z INFO  config  reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO  config  generation 119 applied: 3 keys changed\n02:13:41.234Z INFO  config    gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO  config    gateway.timeout.upstreamMs: 2000 -> 2500\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting 13)\n```\n\n37 seconds from config apply to first 503. Corroborated at 03:02:30:\n```\nWARN pool  connection churn: 4180 opens in the last 5m, baseline is 40\n```\n100× the baseline connection open rate against an unchanged `size=20` pool — exactly what per-request connections produce.\n\n`ERR_POOL_EXHAUSTED` is the **only** error code in the file, 530 occurrences, paired 1:1 at identical timestamps with the 530 503s. No upstream errors, no timeouts, no refused connections.\n\n### Impact window\n\n| | |\n|---|---|\n| **Onset** | 2026-03-14 **02:14:18.972Z** |\n| **End** | Not reached — still failing at 03:59:27.974Z when the log ends |\n| **Duration** | **≥ 1h 45m** |\n| **Failed requests** | 530 × 503 |\n| **Error rate** | ~83% of all requests post-onset (530 failed / 636 total) |\n| **Paged** | 03:21:05Z, `error_rate 5m avg is 71%` — **67 min after onset** |\n\nAffected: `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 failures each, evenly spread across all four upstreams (accounts/billing/catalog/orders, 132–133 each).\n\n`/health` was the sole survivor: 106 requests, all 200, `pool_wait` ~2ms. It evidently bypasses the pool — **which means health checks stayed green through a 83%-error outage.** Flag for follow-up; that's why nothing auto-mitigated.\n\nQueue depth went `waiting=0` → 13 at onset → peaked at **271** by 03:38.\n\n### Roll back\n\n**dep-4471 — gateway — a.novak — 02:12–02:14Z — \"config: connection-per-request for pool isolation\"**\n\nReverting restores `perRequest: false`. If the isolation goal behind that change still needs to ship, it needs a pool sized well above peak concurrency first — peak `waiting` hit 271 against `size=20`, so sizing is off by more than an order of magnitude. Note the same bundle raised `upstreamMs` 2000→2500, which holds connections 25% longer and compounds the exhaustion; revert it together.\n\n**Do not roll back** dep-4472 (billing-svc, 02:41) or dep-4473 (catalog-svc, 03:20) — both shipped *after* the incident was at full rate. dep-4470 (worker, 00:48) is 79 min clear with a clean log in between. Failures spread evenly across unrelated upstreams rules out any service-specific deploy.\n\n### Workers: not involved\n\n`logs/worker.log`, same window: **0 errors, 1,080/1,080 jobs `finished ok`**, throughput flat through 02:14. Worker pool held `size=8 in_use=1 idle=7 waiting=0` on every one of 18 stat lines. Nothing propagated past the gateway.\n\n### Two caveats before you act\n\n1. **This log is node-3 of 3.** I can only speak to one node. Confirm nodes 1 and 2 show the same 02:14 onset — if the config rolled fleet-wide, they will.\n2. **The data is from 2026-03-14; today is 2026-08-27.** The file was last written 8/7. If you're responding to a live page tonight, this is an archived log and you're looking at the wrong file — pull the current one before rolling anything back.\n\n### Unrelated open item (do not close with this incident)\n\nWorker job latency is on a linear ramp: 354ms at 01:00 → 2,170ms at 03:45, **+166ms per 15 min, constant slope, no inflection at 02:14.** Already underway before the log opens. Hits all six job types equally; `db_wait` flat at 5.0ms throughout, so it isn't the database. A pre/post-02:14 split makes this look gateway-related — it isn't. Separate ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "923a16bcb727e812503db1c8a7c3b77e122c4138a8770dc111b7df204e4aa0b1"
+}

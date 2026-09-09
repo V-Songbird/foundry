@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 29,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29510,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24501849999999997,
+  "numTurns": 10,
+  "durationMs": 27801,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1702
+  },
+  "contextTraffic": 160945,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11783,
+  "narrationWords": 37,
+  "finalWords": 172,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was broken:** a single bug in `orderTotal` at `src/pricing.js:39`. It applied the discount correctly, but computed tax off the *pre-discount* amount and added it on:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nThat contradicts the function's own docstring (\"tax what's actually owed\"), and it overcharges tax by `discountPct` of the base rate.\n\n**Fix:**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why the wall of text hid it:** only 3 of 625 cases failed. The order-totals suite is 69 rows, but 66 of them have either a 0% discount or a 0.0 tax rate — with either factor zero, the buggy and correct formulas produce identical results. Only the three rows with *both* non-zero (`12000c/15%/0.0825`, `8650c/20%/0.05`, `33400c/10%/0.2`) could expose it. Everything else in the suite — line totals, discounts, taxes, tiers, refunds, shipping, loyalty, rounding — was passing all along, so there was nothing else to chase.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bb4b4dd5028b22dd351a9219616479d33dd7d3754b32fa9390390c2c826ed5e2"
+}

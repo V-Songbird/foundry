@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33158,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13894939999999997,
+  "numTurns": 16,
+  "durationMs": 31361,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2107
+  },
+  "contextTraffic": 270651,
+  "apiCalls": 8,
+  "toolCalls": 15,
+  "toolResultChars": 8336,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "finalText": "Build's clean now, exit 0.\n\nTwo real bugs, both in the link stage, hidden under the deprecation noise:\n\n- `src/core/options.js` read `options.retries`, but the bumped bundler now hands `retryCount`. Fixed to read `retryCount`.\n- `src/net/retryPolicy.js` threw on `undefined` flags. The new config loader leaves unset flags `undefined` instead of `false`. Fixed to treat `undefined` as disabled.\n\nThe 8 `WARN DEP...` lines left are just deprecation noise from the bump, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6853e642cadc70cfca4e94b21e02f405a49215f0b8f5ff2fe41a69efa18029d"
+}

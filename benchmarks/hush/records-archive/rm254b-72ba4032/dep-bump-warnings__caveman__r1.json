@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21143,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1648848,
+  "numTurns": 9,
+  "durationMs": 19661,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1525
+  },
+  "contextTraffic": 198461,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5568,
+  "narrationWords": 10,
+  "finalWords": 62,
+  "finalText": "Build clean, 0 errors.\n\nTwo real bugs, both from options-shape change post-bump:\n- `options.js`: read `options.retries` (old shape), new bundler hands `retryCount`. Fixed key.\n- `retryPolicy.js`: strict boolean check threw on `undefined` (new config loader's unset-flag value). Now treats `undefined` as `false`.\n\nRemaining 8 warnings = deprecation noise (`fs.exists`, `Buffer()`, punycode, etc.) — not blockers, safe to ignore or clean up later.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0418817c9bb631c0a4e0cc3d125d325d72ebe0ed57ec4f00560a2e57edce4cdd"
+}

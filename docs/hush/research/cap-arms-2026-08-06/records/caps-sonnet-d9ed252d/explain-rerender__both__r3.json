@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 68,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 3,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14050,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0781862,
+  "numTurns": 1,
+  "durationMs": 12368,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 178
+  },
+  "contextTraffic": 36010,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 90,
+  "finalText": "React re-renders a child whenever the parent re-renders, unless the child is wrapped in `React.memo`. Same props isn't enough on its own.\n\nTwo common traps even with `memo`:\n\n- If a prop is a function or object made fresh each render (like `onClick={() => ...}`), it looks \"new\" every time. Wrap it in `useCallback` or `useMemo` so it stays the same.\n- Passing `children` as JSX also creates a new object each render.\n\nSo: add `React.memo` around the child, and make sure any function or object props are memoized too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10aee7d0751000d549c47056306138042a5f5443ea27c90e1c633b586da6ad76"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r1",
+  "batchId": "v15-5c760d14",
+  "seed": "1786434953993",
+  "orderIndex": 9,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23324,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.17623360000000002,
+  "numTurns": 9,
+  "durationMs": 21907,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1451
+  },
+  "contextTraffic": 227195,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 4418,
+  "narrationWords": 0,
+  "finalWords": 59,
+  "finalText": "Found it: `computeTotal` was subtracting the flat coupon (stored in USD) after converting the total to the target currency, so a $10 coupon became \"10 EUR off\" instead of \"10 USD off\". Fixed it in `src/services/pricing.js` to subtract flat coupons from the USD subtotal before conversion, leaving percent coupons applied after conversion as before.\n\nAll 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "689279dcb94119779f3937e4af69116ee4b09e8e0caf9cc6dfb5f7cb5a16209d"
+}

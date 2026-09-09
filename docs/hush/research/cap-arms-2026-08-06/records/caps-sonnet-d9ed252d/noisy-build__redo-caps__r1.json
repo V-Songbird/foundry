@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__redo-caps__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 49,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30438,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1869807,
+  "numTurns": 8,
+  "durationMs": 28869,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1456
+  },
+  "contextTraffic": 229650,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 7649,
+  "narrationWords": 0,
+  "finalWords": 87,
+  "finalText": "Build's clean now — 0 errors, exit code 0.\n\nThe real bug was in `src/core/settings.js`: `resolveConfig` referenced an undefined variable `retries` instead of reading it from the passed-in `env`, so every build crashed at the link stage. I added a `retries: 3` default and changed the line to `maxRetries: env.retries || DEFAULTS.retries`.\n\nThe 3 warnings are still there but harmless — a deprecated `crypto.createCipher` call, an unused export `formatLegacyDate`, and a circular import between `graph.js` and `tracker.js`. Let me know if you want those cleaned up too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "66e509a16c31ef6bbff32257e99473ba96ec894fa44d0517c7c1bb8d98404bf0"
+}

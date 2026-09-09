@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25292,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.1847378,
+  "numTurns": 10,
+  "durationMs": 23973,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1589
+  },
+  "contextTraffic": 235307,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8197,
+  "narrationWords": 12,
+  "finalWords": 78,
+  "finalText": "Builds clean. Exit 0, 0 errors.\n\nTwo real bugs from the bump, both fixed:\n\n1. `src/core/options.js:7` — read `options.retries`, but the bumped bundler now passes `retryCount`. Fixed to read the right key.\n2. `src/net/retryPolicy.js:8` — strict `=== false`/`=== true` check threw on `undefined`, which is what unset flags come back as now. Fixed to just treat anything not `true` as disabled.\n\nThe rest of the noise (DEP01xx/DEP0xx warnings, tree-shaking notes, dedupe lines) is harmless deprecation chatter, left alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "47d6d240d25b45a70729fb9cc248ec9c05e79240154eae4630a125c47a966c62"
+}

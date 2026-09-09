@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__adhd__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 152,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 119328,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.547285,
+  "numTurns": 14,
+  "durationMs": 115182,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7887
+  },
+  "contextTraffic": 342008,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 11781,
+  "narrationWords": 6,
+  "finalWords": 637,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll look at the log file."
+  ],
+  "finalText": "# On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status at handoff: UNRESOLVED.** The log window ends at 03:59:27Z with the gateway still returning 503s and the queue still growing. Assume it is ongoing unless you can confirm otherwise from live metrics.\n\n## Root cause\n\nGateway config generation 119 flipped `gateway.pool.perRequest` from `false` to `true`. With connection-per-request, every in-flight request holds its own pool connection instead of sharing, so the 20-connection pool caps out at 20 concurrent requests. The same change raised `gateway.timeout.upstreamMs` 2000 → 2500, so each request holds its connection ~25% longer, tightening the cap further.\n\nEvery failure is the same error, 530 of them, with no other failure mode in the file:\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n                        (size 20, in_use 20, waiting 13)\n```\n\nThis is gateway-side resource exhaustion, **not** a sick backend. No upstream 5xx, no upstream timeouts. All five routes and all four upstreams fail at equal rates, and `in_use` sits pinned at 20/20 for the entire incident.\n\n## Impact window\n\n**02:14:18Z → 03:59:27Z and continuing — at least 1h 45m.**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:12 | Config reload requested by deploy pipeline, gen 118 → 119 |\n| 02:13:41 | Gen 119 applied, `pool.perRequest: false -> true` |\n| 02:14:14 | First `acquire slow: waited 100ms` |\n| **02:14:18** | **First 503 — impact begins** |\n| 02:15 → | Steady state, 83% of requests failing |\n| 03:21:05 | On-call paged, `error_rate 5m avg is 71%` |\n| 03:59:27 | Last log line, still failing, `waiting=271` |\n\nError rate was 0% for the full hour before onset and 83% in every 15-minute bucket after. Pool queue depth grew monotonically 13 → 271 — this is not self-healing.\n\n**Detection gap: 67 minutes** between first 503 and the page. Worth a separate follow-up on alert thresholds.\n\n## Roll back\n\n```\ndep-4471  gateway  2026-03-14T02:12:00Z–02:14:00Z  a.novak\n          \"config: connection-per-request for pool isolation\"\n```\n\nRevert to config generation 118. First 503 landed 18 seconds after this deploy finished, and the deploy summary is a plain-English restatement of the `pool.perRequest` key change — same event, two sources.\n\nDo not just raise the pool size. That moves the cliff to a higher concurrency without fixing the 1:1 connection-to-request coupling; you would be guessing at a number that holds until traffic grows.\n\n**Ruled out:** `dep-4468` / `dep-4469` / `dep-4470` all finished before 01:00, and the whole first hour is clean. `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both land after the incident is already at steady state and change nothing. `dep-4473` is near-coincident with the 03:21 page, but that page is a threshold alert on an hour-old climbing average, not a new failure.\n\n## Blast radius\n\nGateway only. `worker.log` covers the identical window with zero errors and all 1,079 jobs `finished ok`; its separate 8-connection pool reads `in_use=1 idle=7 waiting=0` in all 18 samples, unchanged across 02:14. Workers need no action for this incident.\n\n## Caveats for whoever picks this up\n\n- The gateway log header says **`node-3 of 3`**. Everything above is one node's view. Confirm the config rolled out fleet-wide and check whether nodes 1 and 2 show the same pattern before sizing customer impact.\n- Separate, pre-existing issue in the workers: job durations ramp linearly 354ms → 2,170ms across the window, ~6x, with `db_wait` flat at 5.0ms throughout. The slope is constant from 01:00, before the gateway deploy, so it is unrelated to the 503s. `dep-4470` (worker, finished 00:55) is the nearest change but the log does not reach back far enough to show a clean baseline. Needs its own ticket.\n- One slow-query warning at 02:36 (`SELECT * FROM orders WHERE status = ?`, unindexed scan) is self-labelled as known issue OPS-2210 and did not move `db_wait`. Not a factor here.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a1fee7cf7f4a79900abe31f49b8298858e1bc1ae9e0ef17caa06e28e99bb692"
+}

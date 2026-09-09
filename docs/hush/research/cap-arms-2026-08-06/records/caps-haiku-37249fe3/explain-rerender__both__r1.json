@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 60,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 11797,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.023679500000000003,
+  "numTurns": 1,
+  "durationMs": 10074,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 741
+  },
+  "contextTraffic": 27057,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 228,
+  "finalText": "React re-renders a child component whenever its parent re-renders, even if the props are identical. That's the default behavior.\n\nOn top of that, if you're creating new objects or functions as props each time the parent renders, React sees those as *different* props (different references), so it would re-render the child anyway.\n\n**Common culprits:**\n\n**The parent is re-rendering.** If the parent component's state or props change, it renders, and all children render with it. The fix is to wrap the child with `React.memo` — it skips the re-render if props haven't changed.\n\n```jsx\nconst Child = React.memo(({ name }) => {\n  return <div>{name}</div>;\n});\n```\n\n**Props are fresh objects each time.** If you pass an object or array created on the fly, it's a new reference every time, so even `React.memo` won't help. Use `useMemo` to keep the same reference:\n\n```jsx\n// Bad — new object every render\n<Child data={{ id: 1, name: \"Alice\" }} />\n\n// Good — same object reference if id/name don't change\nconst data = useMemo(() => ({ id: 1, name: \"Alice\" }), []);\n<Child data={data} />\n```\n\n**Callback props.** Same issue with functions — use `useCallback` to keep the reference:\n\n```jsx\nconst handleClick = useCallback(() => { /* ... */ }, []);\n<Child onClick={handleClick} />\n```\n\nDo you have code you'd like me to look at? That would show which one is happening.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3bda48a78c6620684dafb4752b64febe721d96912fc4715257683a45dae58e3b"
+}

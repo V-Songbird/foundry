@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 18,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37712,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2841365,
+  "numTurns": 11,
+  "durationMs": 36264,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1862
+  },
+  "contextTraffic": 220790,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12504,
+  "narrationWords": 35,
+  "finalWords": 196,
+  "assistantMsgs": 3,
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was actually broken:** 3 of 625 cases, all the same bug in one function — `orderTotal` in `src/pricing.js:39`.\n\nIt applied the discount to the base but computed tax on the *un*discounted base:\n\n```js\nconst tax = roundCents(cents * taxRate);   // <- cents, not discounted\nreturn discounted + tax;\n```\n\nSo the customer was taxed on money they didn't pay. Its own doc comment says \"tax what's actually owed\", and `cases.js:89` expects `round(round(cents * (1 - pct/100)) * (1 + rate))` — both agree the code was wrong, so I fixed the engine, not the test.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why the wall of text hid it:** only rows with *both* a non-zero discount and a non-zero tax can expose the ordering — 66 of the 69 order-total cases have one or the other at zero, so they passed either way. The three that failed are the last three rows in the suite. Overcharge scaled with order size: 148c on $120, 668c on $334.\n\nTo read a red run in future: `node run-tests.js | Select-String 'FAIL|failing'` collapses 717 lines to about a dozen.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "904952a21cf2eb8b47e9912242257f3577a4a314748775276b6644a1524e8ecf"
+}

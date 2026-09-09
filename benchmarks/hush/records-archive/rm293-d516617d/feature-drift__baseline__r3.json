@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 53,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 113910,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6548775,
+  "numTurns": 25,
+  "durationMs": 105531,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6298
+  },
+  "contextTraffic": 654673,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 12894,
+  "narrationWords": 19,
+  "finalWords": 160,
+  "assistantMsgs": 7,
+  "finalText": "Dedup is in, keyed on `event.key` with a `Map` in `createState()` (`src/router.js:41`).\n\n- 99 drops, which is exactly the flap events `events.js` seeds (every 9th, re-firing 2 minutes later on the previous key).\n- I record the timestamp only when something actually went out, so a dropped repeat doesn't extend the 5-minute window — the clock runs from the last real send.\n- The check runs before quiet hours, so a queued notification counts as sent and its repeat is dropped rather than queued again.\n\nTwo judgment calls worth your eye. I read \"in the last 5 minutes\" as inclusive (`<= 5`), so a repeat at exactly 5 minutes is dropped; the seeded flaps are at +2 so this edge doesn't affect the counts either way. And I applied dedup to every priority including critical — 99 drops includes some criticals, which is why `pager` fell from 225 to 200. If critical should always break through, that's a one-line exemption.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4132b7dfee85b58cb0706bf7374567bf6526903b9d14f99471fc1b512a2f1c0e"
+}

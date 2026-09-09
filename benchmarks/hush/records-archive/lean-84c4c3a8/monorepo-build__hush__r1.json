@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38259,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2270544,
+  "numTurns": 10,
+  "durationMs": 36541,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2507
+  },
+  "contextTraffic": 255712,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 10633,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "Found it: `resolveRelease` in `packages/shared/config.js` merged config layers with a shallow `Object.assign`, so any package that only overrode part of `output` or `sourcemap` (like `@acme/api` setting just `format`) lost the sibling keys (`dir`, `entry`) entirely — that's what aborted the bundle stage.\n\nI replaced it with a merge that combines nested `output`/`sourcemap` objects key-by-key instead of overwriting the whole object, layering defaults → package overrides → CLI flags correctly.\n\nBuild now finishes clean (`0 errors`, still the expected 5 lint warnings) and `verify.js` passes, including the deep-layering check with an override the fixture never shipped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "57b05b528949170cb651235f5183fe088cce15a077a20ba6c870b6389c9cb304"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__adhd__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 28,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20093,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.17471129999999999,
+  "numTurns": 11,
+  "durationMs": 18758,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1262
+  },
+  "contextTraffic": 227609,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 11818,
+  "narrationWords": 43,
+  "finalWords": 68,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` in `src/pricing.js:41` — it computed tax on the pre-discount amount instead of the discounted amount, contradicting the spec's own comment (\"discount first, then tax on the discounted amount\"). Most order-total test rows had a zero discount or zero tax, which masked the bug; only 3 rows with both non-zero exposed it. Fixed by taxing `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9115d2f22a25a7f10f0839ca1ef4cc19fdce0f93306d258b6018860b6652f6fa"
+}

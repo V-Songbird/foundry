@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "o5f-9e5a2324",
+  "seed": "1787842333516",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33616,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4360529999999999,
+  "numTurns": 6,
+  "durationMs": 31449,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1145
+  },
+  "contextTraffic": 180456,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 9805,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "finalText": "**Redis died, and everything else fell over behind it.**\n\n1. `02:14:07` — Redis at `10.0.0.12:6379` refused connections. Cache off.\n2. Every read went straight to the store. 173 timeouts followed.\n3. Waiting requests piled up. Past the 500 limit at `02:29:12`.\n4. `02:31:44` — `worker-2` ran out of memory and died.\n5. `02:31:52` — supervisor killed `api`. Service down.\n\n13 reconnect tries, all refused. Start with why Redis went away.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5e50d79404a666110e8066f2826cc6675066a49b882d3e267c0624879f759e00"
+}

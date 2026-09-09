@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__prevnext__r2",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 18,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 103646,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2880268,
+  "numTurns": 14,
+  "durationMs": 102127,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8976
+  },
+  "contextTraffic": 314901,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 31811,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry** to `[CHANGELOG.md](CHANGELOG.md)`.\n\nOut of 380 commits, one real breaking change, one feature, nine fix themes. Rest was deps and refactors, left out.\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook retries with exponential backoff\n- Fixed: null-cursor crashes in pagination, duplicate headers, request-body logging in the database module, doubled trailing slashes, a broken empty-allowlist case, dropped trace ids on retry, wrong histogram units, a timer leak plus unclosed pool on shutdown, and leaky token-parser error messages\n\nWorth a look before you publish: the request-body logging fix and the allowlist fix both sound security-adjacent, you may want a line calling that out explicitly for anyone tracking CVEs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e6184de56a6d61f8a30cbeae97a14d4f63f8f72b54316457b97c0776d8ae1cc9"
+}

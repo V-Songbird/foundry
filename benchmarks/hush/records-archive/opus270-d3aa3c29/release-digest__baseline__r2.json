@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 137068,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.670911,
+  "numTurns": 11,
+  "durationMs": 136049,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9667
+  },
+  "contextTraffic": 348944,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 28616,
+  "narrationWords": 102,
+  "finalWords": 897,
+  "finalText": "Done. Here's what I found.\n\n## The shape of it\n\n380 commits since 4.1.0 (May 2 – Jun 17). By type: 153 chore, 73 refactor, 64 test, 33 ci, 20 docs — **343 with zero user impact**. That leaves 37 `feat`/`fix`/`perf` commits, which collapse to about **nine lines** worth writing down.\n\nThe merged-PR sheet is a strict subset of `commits.log` for anything user-facing, so I worked from the log. Nothing is marked `!` or `BREAKING CHANGE` anywhere — but two things are breaking regardless of how they were labeled.\n\n## Two things labeled `fix:` that are actually breaking\n\n**1. Expired tokens now return 401, not 403** — `1d2bd55`, touches `src/auth/token.js`, `session.js`. Anyone with a client branching on 403 to trigger a refresh will silently stop refreshing. This is the single highest-risk item in the release and it's currently disguised as a bugfix.\n\n**2. Latency histogram units changed** — two commits, `59402bc` (`src/store/cache.js`) and `1f2bc4e` (`src/core/errors.js`), both \"use the right units in the latency histogram.\" Dashboards and alert thresholds built on 4.1 will read wrong after upgrading, with no error to signal it. Note you treated the seconds→ms `timeout` change as Breaking in 4.1.0 — this is the same family of change and deserves the same treatment.\n\n## The one actual feature\n\n`feat(webhooks): retry failed deliveries with exponential backoff` — `395fb48`. It touches `src/webhooks/dispatch.js` **and `src/core/config.js`**, so it almost certainly introduces a config knob. Worth a sentence noting that endpoints which aren't idempotent will now see repeat deliveries where 4.1 dropped them — that's a behavior change for existing users, not just an addition.\n\n## Fixes worth listing\n\nDeduped by theme (several were fixed independently across modules):\n\n- **Null cursor in the paginator** — crash/bad pagination, fixed in `api`, `db`, `queue`, `webhooks` (4 commits)\n- **Empty allowlist mishandled** — `store`, `db`, `jobs` (3 commits)\n- **Trailing slash trimmed twice** — `queue`, `jobs`\n- **Duplicate header emitted** — `core`, `billing`, `http`\n- **Trace id lost across retries** — `api` (3 commits)\n- **HTTP timer not cleared when the socket drops** (`f66d359`) and **pool not closed on shutdown** (`eb874a5`) — both leaks; the first is close kin to the 4.0.3 hang fix\n- **`fix(db): stop logging the whole request body`** (`1b55313`) — this is a log-hygiene/PII item. If request bodies carry anything sensitive, upgrading is how operators stop leaking it into logs, and it deserves to be called out rather than buried.\n- **Token parser error messages tightened** — `core`, `billing`, `queue`. Only matters to anyone string-matching on error text; a one-liner at most.\n\n## Three things you should know before you publish\n\n**Perf has no home in your format.** There are 10 `perf` commits (batched metric writes, skipped JSON round-trips, dropped clones, `perf(api): reuse the parsed schema between requests`). Your template says \"same three headings\" — Breaking/Added/Fixed — so there's nowhere to put them, and none carry benchmark numbers. My recommendation: leave them out rather than adding a heading or making an unquantified \"faster\" claim.\n\n**Three fixes were applied more than once to the same file.** `fix(core): drop the duplicate header` appears 3× (twice in `src/core/errors.js`) and `fix(api): keep the trace id across the retry` appears 3× (twice in `src/api/serialize.js`). Either the first attempt didn't hold or these are duplicate/cherry-picked commits. It's one changelog line either way, but if the earlier fix genuinely didn't take, that's worth a look before cutting.\n\n**I couldn't verify specifics — there's no source tree here**, only `CHANGELOG.md` and `history/`. So I can't tell you the new webhook config option's name, or what the histogram units changed *from* and *to*. Both blanks are marked below and need filling from the code.\n\nAlso: no dependency bump crosses a major version for consumers. The only major is vitest 1→2, which is dev-only, as are esbuild/eslint/prettier/tsx/typescript/husky. Nothing there needs a line. The \"minimum node version\" commits only touch `docs/` and `README.md` — no `engines` change — so the requirement was documented, not raised.\n\n## Draft 4.2.0 section\n\n```markdown\n## 4.2.0 — 2026-08-26\n\n### Breaking\n- An expired token now returns 401 instead of 403. If you refresh\n  credentials on a 403, update that check to 401.\n- The latency histograms report [UNIT] instead of [UNIT]. Dashboards and\n  alert thresholds carried over from 4.1 will need rescaling.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff,\n  configurable via [OPTION]. Endpoints that are not idempotent may now\n  see the same delivery more than once.\n\n### Fixed\n- Paginating past the last page no longer fails on a null cursor.\n- An empty allowlist is now treated as empty rather than as \"allow all\".\n- Request bodies are no longer written to the logs.\n- The HTTP client releases its timer when the socket drops, and closes\n  the pool on shutdown.\n- The trace id is preserved across a retry.\n- URLs with a trailing slash are no longer over-trimmed.\n- Responses no longer carry a duplicate header.\n```\n\nTwo flags on the draft: I used tomorrow's date, and **the empty-allowlist wording is my inference** — \"handle an empty allowlist\" doesn't say which direction it was broken in. If it was fail-open, that's a security fix and belongs in Breaking with more emphasis; if fail-closed, the current wording is wrong. Worth checking `src/store/cache.js` before publishing.\n\nWant me to write this into `CHANGELOG.md`? I left it out of the file deliberately so the `[UNIT]`/`[OPTION]` placeholders can't ship by accident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d49272b9584ae17cb2d7ba3c6e3b61747246770df0e250b65b4ae07462811080"
+}

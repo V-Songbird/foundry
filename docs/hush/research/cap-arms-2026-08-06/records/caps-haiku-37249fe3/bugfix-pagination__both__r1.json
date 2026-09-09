@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-pagination__both__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 14,
+  "task": "bugfix-pagination",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 31484,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0603621,
+  "numTurns": 12,
+  "durationMs": 29629,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1808
+  },
+  "contextTraffic": 237896,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 6723,
+  "narrationWords": 0,
+  "finalWords": 42,
+  "finalText": "The pagination was off by one. The code was treating page numbers as 0-indexed when they should be 1-indexed.\n\nChanged `const start = page * perPage;` to `const start = (page - 1) * perPage;` in paginate.js.\n\nAll 5 tests now pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "566164b11271e6b911808a10a891dfc7ee5adce45aff2c3a04ae0cae74889bcb"
+}

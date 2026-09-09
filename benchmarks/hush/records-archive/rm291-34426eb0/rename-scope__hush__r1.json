@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 41,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39210,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30420549999999996,
+  "numTurns": 16,
+  "durationMs": 37343,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2607
+  },
+  "contextTraffic": 174098,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 13654,
+  "narrationWords": 8,
+  "finalWords": 101,
+  "assistantMsgs": 2,
+  "finalText": "**Big but not uniform.** 1291 hits in 94 files.\n\n| Zone | Hits | Verdict |\n|---|---|---|\n| `services` | 1200 | Safe, mostly |\n| `migrations` | 61 | Do not edit, already applied |\n| `vendor/reporting-sdk` | 20 | Do not edit, regenerated |\n| `docs/openapi.yaml` | 5 | Frozen public contract |\n| `lib` | 5 | Wire side frozen |\n\nFour zones must not change. In [lib/serialize.js:8](lib/serialize.js:8) only the left key may move. The right one is public.\n\nAbout 325 SQL strings in `services` name the real column. Those need a column-rename migration first, or reads break.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fa8cf27940f0c4bc84633d053cf7f95fb0796eed51a36ab8ff9d918344daec18"
+}

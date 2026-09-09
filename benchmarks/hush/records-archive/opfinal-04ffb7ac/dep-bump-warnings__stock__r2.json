@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__stock__r2",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35241,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23946800000000001,
+  "numTurns": 10,
+  "durationMs": 33821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1750
+  },
+  "contextTraffic": 149463,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6587,
+  "narrationWords": 7,
+  "finalWords": 71,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag now `undefined`, not `false` | Treat missing as off |\n\nThe 8 remaining warnings are real noise. They flag old APIs like `Buffer()` and `crypto.createCipher`. Worth clearing before v5, but they do not break the build.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7019db489be5e0504e76da27cf6d341c27c25117970d6e1a41cd58f409f7e70d"
+}

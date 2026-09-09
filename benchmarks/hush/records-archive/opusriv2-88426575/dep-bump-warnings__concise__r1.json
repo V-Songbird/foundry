@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31815,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.240891,
+  "numTurns": 10,
+  "durationMs": 29881,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1845
+  },
+  "contextTraffic": 178539,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6377,
+  "narrationWords": 7,
+  "finalWords": 134,
+  "finalText": "Build passes now (exit 0). Two real bugs from the bump, both in the link stage:\n\n- `src/core/options.js:6` — the bump renamed the options field `retries` → `retryCount`; this call site still read `options.retries`, so it threw on `undefined.toFixed()`. Now reads `retryCount` with a fallback to `retries`.\n- `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` instead of `false`, and the strict boolean check threw on it. Unset now means off (pre-bump default); non-boolean values still throw.\n\nThe remaining 8 warnings are genuine noise — deprecated APIs the bump flagged (`fs.exists`, `Buffer()`, `punycode`, `crypto.createCipher`), plus an unused export and a `src/core/graph.js ↔ src/state/tracker.js` circular import. None break the build. The circular import is the one worth a follow-up since its resolution order is undefined; say the word and I'll dig in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c1a8a620a8674805b14fd03a35abd3560b501239cc23ee2e3521576d4ac2d6ca"
+}

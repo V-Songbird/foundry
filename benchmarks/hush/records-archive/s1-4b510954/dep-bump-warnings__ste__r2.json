@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 34,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30488,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.21484899999999998,
+  "numTurns": 11,
+  "durationMs": 27272,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1950
+  },
+  "contextTraffic": 301553,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 10484,
+  "narrationWords": 50,
+  "finalWords": 111,
+  "finalText": "Build is clean now, exit code 0.\n\nRoot cause: the bundler bump changed the options shape it hands to modules. Two call sites did not update to match.\n\n- `src/core/options.js`: `resolveRetries` read `options.retries`, but the new bundler sends `retryCount`. Fixed it to read `options.retryCount`.\n- `src/net/retryPolicy.js`: `isBackoffEnabled` threw on `undefined`, because the old config loader returned `false` for an unset flag and the new one returns `undefined`. Added a case that treats `undefined` as disabled.\n\nThe rest of the noisy output (`DEP0142`, `DEP0198`, etc., and the `dedupe` lines) is a deprecation warnings from the new bundler version, not related to the failure — those are pending, unrelated migrations, not build breakers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f306b10a22503aef935cbdc1dd1de9c4a79c41c95d7cab115bb677682d14d56a"
+}

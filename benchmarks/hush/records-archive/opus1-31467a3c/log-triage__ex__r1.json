@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ex__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45876,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5700385,
+  "numTurns": 8,
+  "durationMs": 44116,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3018
+  },
+  "contextTraffic": 163815,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 29624,
+  "narrationWords": 6,
+  "finalWords": 109,
+  "finalText": "**Redis died and took prod down with it.**\n\nAt `02:14:07` Redis at `10.0.0.12:6379` refused connections. The cache dropped out and reads went straight to the store. Timeouts began 3 seconds later. The request queue climbed for the next 17 minutes. It passed its own 500 cap at `02:29:12`. Redis never returned across 13 reconnect attempts. At `02:31:44` worker-2 ran out of memory holding the backlog. The supervisor killed the api process group at `02:31:52`.\n\nEverything after `02:14:07` is downstream noise from that one failure. The tally is 188 ERROR, 348 WARN, 2 FATAL over 719 lines.\n\nWorth checking: the reconnect loop retries every 80 seconds flat, with no backoff.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "88dc95600bd536965c2bc1ee9f6b712355457551566bcf8483d2c62b4155fbbc"
+}

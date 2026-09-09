@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 47731,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2120126,
+  "numTurns": 10,
+  "durationMs": 46027,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1728
+  },
+  "contextTraffic": 281825,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 8795,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "finalText": "Build's clean now, exit 0.\n\nTwo real bugs were hiding under the deprecation noise. `resolveRetries` in `src/core/options.js` was still reading `options.retries`, but the bumped bundler now passes `retryCount`. And `isBackoffEnabled` in `src/net/retryPolicy.js` threw whenever a flag was left unset, because the new config loader gives `undefined` instead of `false`.\n\nFixed both: retries now reads `retryCount`, and an unset backoff flag is just treated as disabled. Build now finishes with only the expected 8 deprecation warnings, no errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e81cc46185d1041033f9413eeaef539662ae59598237bfaddc143765e2dfc9c7"
+}

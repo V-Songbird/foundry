@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__oldstyle__r1",
+  "batchId": "ab2-7ddf2162",
+  "seed": "1787387594651",
+  "orderIndex": 6,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 99929,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32299819999999996,
+  "numTurns": 12,
+  "durationMs": 98281,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8337
+  },
+  "contextTraffic": 567996,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 23596,
+  "narrationWords": 0,
+  "finalWords": 104,
+  "finalText": "I wrote the 4.2.0 section into `CHANGELOG.md`. Out of 380 commits, only one feature and about a dozen fixes actually touch what users see. Everything else was dependency bumps, refactors, and test churn.\n\nThe real changes: webhook deliveries now retry with backoff, paginators stop crashing on a null cursor, expired tokens return 401 instead of 403, request bodies stopped getting logged in full, and trace IDs now survive retries. A few smaller ones too — duplicate headers, histogram units, trailing slashes, empty allowlists, a timer leak, clearer parser errors.\n\nNo breaking changes this cycle, so I left that heading out, same as 4.0.3 did.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3ebfdba50fc06ef839d748f7371e211227c13b6f1d60e3711ee6092402c5cc2"
+}

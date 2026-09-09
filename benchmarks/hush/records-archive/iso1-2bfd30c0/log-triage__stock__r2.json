@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12851,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11678460000000002,
+  "numTurns": 4,
+  "durationMs": 11314,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 660
+  },
+  "contextTraffic": 115515,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 130,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\nAt `02:14:07` Redis dropped: `ECONNREFUSED 10.0.0.12:6379`. Cache fell back to direct store reads, causing cache-miss storms and 5s timeouts on every worker.\n\nReconnect attempts (7 through 12, every ~90s) all failed, same Redis host. Request queue depth climbed steadily from 52 to 568, way past the max of 500.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog, restarted, then at `02:31:52` the `api` process went unresponsive and the supervisor killed the whole process group. Service down.\n\nRoot cause: Redis at `10.0.0.12:6379` never came back, and nothing shed load or capped the queue while it was out.\n\nNext: check why Redis died on that host and add a queue-depth circuit breaker so a future Redis outage degrades instead of OOMs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f7cef35e8084b09e3fd13c76189aab25766de38842df8121a3c383779bb2cfc7"
+}

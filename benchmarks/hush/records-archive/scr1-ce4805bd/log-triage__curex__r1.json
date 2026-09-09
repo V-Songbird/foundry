@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__curex__r1",
+  "batchId": "scr1-ce4805bd",
+  "seed": "1787637098368",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "curex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40108,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.34197200000000005,
+  "numTurns": 7,
+  "durationMs": 38354,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2178
+  },
+  "contextTraffic": 227971,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 10930,
+  "narrationWords": 6,
+  "finalWords": 100,
+  "finalText": "**Redis died, and the app followed it down.** Here is the chain.\n\n```\n02:14:07 redis refuses connections\n      → cache off, every read hits the database\n      → requests time out, queue piles up\n02:31:44 worker-2 runs out of memory\n02:31:52 supervisor kills api — service down\n```\n\nRedis lives at `10.0.0.12:6379` and refused every connection. The app retried 13 times over 17 minutes. All 13 were refused, so it never recovered.\n\nThe waiting line hit its 500 limit at 02:29:12 and reached 568.\n\nOne catch. These lines are from July 4, not last night. Your live log may have rotated away.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7af194d7d8fe764f310b2e249cee2f4ae4b63623161964563ea65f57552e04c6"
+}

@@ -1,0 +1,43 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 147,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 164715,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.72708,
+  "numTurns": 16,
+  "durationMs": 161058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11212
+  },
+  "contextTraffic": 429166,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 16007,
+  "narrationWords": 22,
+  "finalWords": 530,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the log file.",
+    "Let me look at worker.log properly rather than lean on the one grep I ran earlier."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status at handoff:** ACTIVE / UNMITIGATED. Log ends 03:59:27Z with the failure still ongoing and no recovery.\n\n### Root cause\n\nDeploy **dep-4471** applied gateway config **generation 119**, which flipped `gateway.pool.perRequest: false -> true` (\"connection-per-request for pool isolation\"). Each request now takes its own connection from a pool that was still sized 20, instead of multiplexing over it. The pool saturated immediately and has never drained.\n\nEvery failure is the same error, 530 of them, 1:1 with the 530 access-log 503s, and it is the *only* error code in the file:\n\n```\nERROR pool req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nSupporting signal: connection churn `4180 opens in the last 5m, baseline is 40` (~100x), and pool waiters growing monotonically `waiting=0` → `132` → `152` → `172` with `idle=0` throughout.\n\n### Impact window\n\n| | |\n|---|---|\n| **First 503** | `2026-03-14T02:14:18.972Z` (38s after gen 119 applied, 19s after deploy finished) |\n| **End** | None — still failing at `03:59:27.974Z`, end of log |\n| **Duration** | 1h 45m and counting |\n| **Failed requests** | 530 observed, steady ~5/min |\n| **Affected** | `/v1/cart`, `/v1/checkout`, `/v1/orders`, `/v1/session`, `/v1/catalog/search`, `/v1/profile` — **100% failure**, zero successful non-health requests after 02:14:18 |\n| **Not affected** | `/health` (106x 200 OK, `pool_wait=2ms`) — does not use a pooled connection |\n| **Backends** | All four (billing/orders/catalog/accounts) hit evenly — gateway-side, not an upstream fault |\n| **Workers** | Unaffected. Pool flat at `size=8 in_use=1 idle=7 waiting=0` all window; 1,080/1,080 jobs OK |\n\n**⚠️ Alerting gap:** health checks stayed green through a total customer-facing outage. Whatever paged on this, it wasn't the 503 rate. Worth a follow-up ticket.\n\n### Roll back\n\n**dep-4471** — gateway, a.novak, 02:12–02:14Z.\n\nRevert config **generation 119 → 118**. The critical key is `gateway.pool.perRequest` back to `false`. Note gen 119 also carried `gateway.timeout.upstreamMs: 2000 -> 2500` (reverts harmlessly with it) and `gateway.log.sampleRate: 1.0 -> 1.0` (no-op).\n\nDo **not** roll back dep-4472 (billing, 02:41) or dep-4473 (catalog, 03:20) — both shipped *after* onset and the 503 rate is flat across both, so neither is implicated.\n\n### Two things to check that this log can't answer\n\n1. **Fleet scope.** This file is `node-3 of 3`. Confirm whether nodes 1 and 2 also took generation 119 — if so, real failure count is roughly 3x the 530 seen here.\n2. **Before re-attempting per-request isolation**, the pool must be sized for it. At 20 connections it cannot support the observed concurrency; that's the whole failure.\n\n### Separate, unrelated — do not conflate\n\n`worker.log` shows job duration ramping linearly, +110ms per 10 min, `327ms → 2197ms` over three hours, no plateau. It **predates this incident** (already climbing at 01:00, 74 min before onset, no inflection at 02:14) and `db_wait` stays pinned at 5.0ms, so it isn't pool or DB contention. Independent issue, needs its own ticket; the rollback won't affect it. Jobs cross 5s in ~4 more hours at current slope. Origin isn't visible — the ramp is already in progress at the first line of the log.\n\nWant this written to a file in the repo, or dropped into an incident ticket?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "56ec6f4c209213d6f0dafd32ade7c8f38c0e409a1604a6bd50c9edad1d3de52b"
+}

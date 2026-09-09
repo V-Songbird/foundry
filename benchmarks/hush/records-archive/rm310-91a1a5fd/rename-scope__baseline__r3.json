@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__baseline__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 45,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 107434,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.552506,
+  "numTurns": 25,
+  "durationMs": 106240,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7297
+  },
+  "contextTraffic": 305979,
+  "apiCalls": 12,
+  "toolCalls": 24,
+  "toolResultChars": 23377,
+  "narrationWords": 11,
+  "finalWords": 558,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this actually is."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files** — every file in the repo except `lib/db.js`, `package.json`, and the vendor README.\n\n| Area | Files | Occurrences |\n|---|---|---|\n| `services/*` (5 services × http/service/repo) | 75 | 1,200 |\n| `migrations/*.sql` | 12 | 61 |\n| `vendor/reporting-sdk/src` | 4 | 20 |\n| `docs/openapi.yaml` | 1 | 5 |\n| `lib/audit.js`, `lib/serialize.js` | 2 | 5 |\n\nThe service code is extremely repetitive — the 25 repo files are byte-identical apart from the entity name, same for services and routes. So the *volume* is large but the *distinct shapes* are few. This is a mechanical change, not a design change.\n\n## Where it must not be renamed\n\n**~237 of the 1,291 occurrences are frozen.** Four hard blockers:\n\n1. **`docs/openapi.yaml` (5)** — `account_id` is a public response field on `Invoice`/`Order` and a public query param on `/v2/invoices`. The spec itself says renaming is a breaking change needing a new dated version.\n\n2. **`lib/serialize.js:8` — the right-hand side of `WIRE`** (`account_id: 'account_id'`). This map *is* the internal→public boundary. The left key must track the DB row; the right value is the frozen wire name. This one line is where the rename is allowed to stop cleanly — a blind replace destroys the distinction and silently renames the public field for every client.\n\n3. **`migrations/*.sql` (61)** — applied in production between Jan and Jun 2025. Editing them renames nothing in a database that already ran them and breaks the `down` steps. A column rename requires a **new** migration, not edits to these.\n\n4. **`vendor/reporting-sdk/src/*` (20)** — generated, vendored at 3.8.1, overwritten wholesale by `npm run vendor:refresh`. Also worth noting: nothing in the repo imports it, so editing it buys nothing and gets reverted on next refresh.\n\n## The trap that will actually bite\n\nTwo of these hide *inside* files that are otherwise fully renameable, so a repo-wide find/replace looks fine and breaks production:\n\n- **125 occurrences are SQL column references** inside the repo files — `WHERE account_id = ?`, `INSERT INTO invoices (account_id, payload)`. The column is still named `account_id` in the live database. Renaming the JS parameter is safe; renaming the string contents is not, unless a new migration lands first and the deploy is ordered against it.\n- **25 occurrences write a JSON key into the `payload` JSONB column** — `JSON.stringify({ ...values, account_id })`. Shorthand property, so renaming the variable silently changes the stored key and splits your data shape between old and new rows.\n\n## One dependency outside this repo\n\nAll 25 route files read `req.session.account_id` (100 sites). Nothing in this tree sets `req.session` — that auth middleware lives elsewhere. Renaming those reads only works if that producer is renamed in the same deploy.\n\n## My read for your sign-off\n\nApprove it **scoped to JS identifiers only** — parameters, destructuring, object keys in internal call payloads, and audit fields. That's roughly 1,050 occurrences and it's genuinely mechanical.\n\nRequire the proposal to explicitly carve out: the OpenAPI spec, the `WIRE` right-hand side, all applied migrations, the vendored SDK, all SQL string literals, and the `payload` JSON key. If the platform team also wants the *database column* renamed, that's a separate, much riskier project — new migration, expand/contract with both columns live, coordinated deploy — and it should not be bundled into a rename PR you sign off today.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8a47b9aa4fcd883529226982d7b085dd7c202614da98c8d9fba7052728815345"
+}

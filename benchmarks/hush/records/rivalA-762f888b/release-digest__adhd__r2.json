@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 68,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 105572,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6076084999999999,
+  "numTurns": 13,
+  "durationMs": 104618,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7068
+  },
+  "contextTraffic": 357436,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 29860,
+  "narrationWords": 40,
+  "finalWords": 443,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory.",
+    "The PR sheet stops at 2026-06-17. Let me read the commit log, which is the fuller record.",
+    "I have the full picture. Let me write the draft into the file."
+  ],
+  "finalText": "Drafted the 4.2.0 section at the top of `CHANGELOG.md`. Here's how I got there and what you should check.\n\n**The shape of the release:** 380 commits, of which 356 are invisible to users — 153 chore (mostly the same dozen dep bumps landed repeatedly), 73 refactor, 64 test, 33 ci, 20 docs. What's left is 1 feat, 26 fix, 10 perf. The fixes collapse further: the same fix was applied module-by-module (the null-cursor paginator guard landed 4 times, the duplicate header 5 times), so 26 fix commits are really 10 user-facing statements.\n\n**Three things I put under Breaking that nobody labeled breaking** — these are your calls to confirm:\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) is committed as a fix, but it changes an observable status code. Any client keying on 403 breaks.\n- `refactor: stop re-exporting the internal error types` — 8 commits across core, db, jobs, auth, billing. Called a refactor, but if those types were reachable from a package entry point, that's a removal from your public surface. I only have file stats, not diffs, so I can't tell whether the re-exports were actually reachable. If they weren't, drop this bullet.\n- `refactor(api): drop the unused v1 export route` (#4152). The author says unused; a removed route is still externally observable.\n\n**One genuine feature:** webhook retry with exponential backoff (#4191). It touched `src/core/config.js` alongside `src/webhooks/dispatch.js`, which suggests it added a config option — worth naming the option in the bullet if it did.\n\n**Worth reading twice:** `fix(db): stop logging the whole request body` — request bodies were going to logs before this. Depending on what flows through them, that may deserve a security note rather than a changelog line. And the latency-histogram unit fix means anyone's existing dashboards were reading wrong.\n\n**Two things I left out and why.** The 10 perf commits (batched metric writes, skipped JSON round-trips, a reused parsed schema) are real user-noticeable speedups, but your template specifies three headings and none of them fit. Say the word and I'll add a Performance section or fold a line into Added. I also dropped the dep bumps entirely — none crossed a major version, and several are duplicate PRs for the same bump.\n\n**Caveat on coverage:** both files end at 2026-06-17, but you're cutting tomorrow, 2026-09-01. If anything merged in the last ten weeks, it isn't in this history and isn't in the draft. I dated the section 2026-09-02; adjust if you're tagging today.\n\nI also generalized the trailing `<!-- 4.2.0 goes here -->` comment to \"the next release,\" since 4.2.0 now sits at the top with the rest of the newest-first ordering.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a691520e5cd0a3686a9d8b93d1b7bcfc3652fca6c1a6d870e2d0cf8b1efae44"
+}

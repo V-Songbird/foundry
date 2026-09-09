@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lark__r2",
+  "batchId": "o5b-c46f1643",
+  "seed": "1787818757484",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lark",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36176,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lark:Lark",
+  "costUsd": 0.3051365,
+  "numTurns": 8,
+  "durationMs": 34255,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1819
+  },
+  "contextTraffic": 203752,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 14383,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "Redis died at 02:14:07 and never came back.\n\n```\n02:14:07 ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n02:31:26 ERROR [api] redis reconnect attempt 12 failed: connect ECONNREFUSED 10.0.0.12:6379\n02:31:44 ERROR [worker-2] JavaScript heap out of memory (request backlog)\n02:31:52 FATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nCache fell back to direct store reads. Then 173 store timeouts at 5000ms. Queue depth climbed 52 to 568, past the 500 cap. Nothing shed load. Death took 17 minutes.\n\nNext: fix Redis at 10.0.0.12, then add a circuit breaker and real load shedding.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60a0682e947833efe3ef7e9184a41417999c4d97f582d906892c841a7924c992"
+}

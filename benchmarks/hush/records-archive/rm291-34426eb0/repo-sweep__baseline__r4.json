@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49456,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3330805,
+  "numTurns": 12,
+  "durationMs": 47656,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2870
+  },
+  "contextTraffic": 234799,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 14561,
+  "narrationWords": 19,
+  "finalWords": 144,
+  "assistantMsgs": 3,
+  "finalText": "Migration finished. 12 files still held 36 `db.query(sql, params)` call sites, all converted to `db.execute({ sql, params })`:\n\n- `packages/accounts/src/repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js`\n- `packages/billing/src/repo/refund.js`, `service/couponService.js`\n- `packages/catalog/src/repo/supplier.js`, `admin/variantAdmin.js`\n- `packages/orders/src/repo/shipment.js`, `service/returnService.js`\n- `packages/support/src/repo/sla.js`, `admin/macroAdmin.js`\n- `packages/analytics/src/repo/cohort.js`\n\nAll files pass `node --check`. There are no tests in the repo to run.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js`** still calls `db.query` twice (lines 9, 13). Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so patching it would be undone and isn't safe. Since `lib/db.js` says the driver's next major drops `query`, this needs an upstream fix or a wrapper at the vendor boundary. Say the word and I'll add one.\n- **`cache.query(...)`** calls (in ~20 repo files) are a different API on the `cache` handle, not the deprecated db method — untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "726079f1e598f8bfeb8770f95853f9dee38f409511f4a0528e2092eb856512cf"
+}

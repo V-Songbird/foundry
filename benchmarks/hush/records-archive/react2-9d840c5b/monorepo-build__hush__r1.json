@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33503,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.220179,
+  "numTurns": 9,
+  "durationMs": 32002,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1732
+  },
+  "contextTraffic": 314770,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 8816,
+  "narrationWords": 43,
+  "finalWords": 79,
+  "finalText": "Fixed. The build fails because `config.js` used a shallow `Object.assign` to merge per-package overrides onto the defaults, so any package overriding `output` or `sourcemap` — `@acme/api`, `@acme/web`, `@acme/cli` — wiped out the sibling keys (`output.dir`, `sourcemap.mode`) it didn't mention, tripping the `EBUNDLE07 config-incomplete` check.\n\nI changed `resolveRelease` in `packages/shared/config.js` to merge `output` and `sourcemap` one level deep instead of replacing them wholesale. The build now exits 0 with 5 warnings, 0 errors, and `verify.js` confirms the config merges correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "833f6f7165e1b3fb4ee37e93f2ddee7cc33c4d26c621945ff60b5ccdb4ac6c38"
+}

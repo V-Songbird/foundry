@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 86,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 67405,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5884123,
+  "numTurns": 17,
+  "durationMs": 61920,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4709
+  },
+  "contextTraffic": 874979,
+  "apiCalls": 15,
+  "toolCalls": 13,
+  "toolResultChars": 56829,
+  "narrationWords": 60,
+  "finalWords": 252,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing as of last log entry (03:59:27.974Z) — not yet recovered.\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 2026-03-14T02:12–02:14Z) — *\"config: connection-per-request for pool isolation\"*. It flipped `gateway.pool.perRequest: false -> true` (config generation 118→119, applied 02:13:41.234Z). Instead of isolating the pool, it exhausted it — connection pool stays fixed at size 20, `in_use` pins at 20/idle 0, and the `waiting` queue climbs monotonically (13 → 74+) with no recovery. Requests to every backend (orders/catalog/billing/accounts-svc) fail equally, confirming it's the shared gateway pool, not a downstream service.\n\n**Impact window:** 2026-03-14T02:14:14.920Z (first slow-acquire WARN) → ongoing through end of log (03:59:27.974Z). First 503 at 02:14:18.972Z, ~38s after the config took effect and ~1m20s after the deploy finished. `ERR_POOL_EXHAUSTED` 503s recur in bursts roughly every request-batch since, non-stop.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window — all 4 job replicas (reindex/email/webhook/settle/cleanup/export) ran clean the entire time, normal `db_wait`, no errors. One unrelated pre-existing WARN (slow query, known issue OPS-2210) at 02:36, not connected to this incident.\n\n**Action: roll back dep-4471** (gateway config gen 119 → 118, reverting `gateway.pool.perRequest` to `false`). No rollback has been logged yet. The other two config keys changed in that same deploy (`gateway.timeout.upstreamMs: 2000->2500`, `sampleRate` unchanged) are not implicated but shipped in the same generation — revert the whole generation unless there's a reason to keep the timeout bump.\n\n**Other deploys in window (ruled out):** dep-4472 (billing-svc, 02:41) and dep-4473 (catalog-svc, 03:20) both started well after the outage began — not the trigger.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7759fdd8d639932da5174e600d4221c0de6022875e52fcf5beaa8e2f9a2a1dfa"
+}

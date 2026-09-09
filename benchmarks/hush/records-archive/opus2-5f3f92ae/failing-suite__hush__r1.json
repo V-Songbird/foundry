@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34640,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.39099399999999995,
+  "numTurns": 10,
+  "durationMs": 33026,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1890
+  },
+  "contextTraffic": 324464,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 13961,
+  "narrationWords": 7,
+  "finalWords": 74,
+  "finalText": "**Green now. 625 tests pass, 0 fail.**\n\nOnly 3 tests were broken. All three came from one line in `src/pricing.js`.\n\nThe whole-order function took the discount off, but then figured the tax from the **full** price. Tax should come off the lower price. Its own comment said so.\n\nMost rows had no discount or no tax, so they hid it. Only three rows had both.\n\n`orderTotal` now taxes the discounted amount. Nothing else changed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a947f43db6056abe7e5d553ca662e6af5bda5f3f65a8163141e96847b2470db"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37065,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.243678,
+  "numTurns": 10,
+  "durationMs": 35447,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2014
+  },
+  "contextTraffic": 148988,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6298,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, exit 0.**\n\nTwo real bugs, both from the bump.\n\n`resolveRetries` read `options.retries`, but the bundler now sends `retryCount`. It threw `TypeError`. Fixed at [src/core/options.js:6](src/core/options.js:6), old shape still works.\n\n`isBackoffEnabled` threw on an unset flag. The new loader gives `undefined`, not `false`. Fixed at [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7), unset means disabled.\n\nThe 8 warnings are hardcoded strings in [build.js:18](build.js:18). No such source files exist.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6b34831f5aebe9579917478f5666f6fd5593de0ec3b6fcda67f50f2b2a13fef0"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 65,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 270518,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.134395,
+  "numTurns": 20,
+  "durationMs": 265373,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 18818
+  },
+  "contextTraffic": 710817,
+  "apiCalls": 20,
+  "toolCalls": 16,
+  "toolResultChars": 18749,
+  "narrationWords": 23,
+  "finalWords": 796,
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**TL;DR:** Roll back **dep-4471** (gateway config). Set `gateway.pool.perRequest` back to `false`. Incident was still active at the end of available logs.\n\n---\n\n### Root cause\n\nDeploy **dep-4471** (gateway, 02:12–02:14Z, a.novak, *\"config: connection-per-request for pool isolation\"*) applied config generation 119 at `02:13:41.234Z`:\n\n```\ngateway.pool.perRequest:    false -> true     ← this one\ngateway.timeout.upstreamMs: 2000  -> 2500\ngateway.log.sampleRate:     1.0   -> 1.0      (no-op)\n```\n\nConnection-per-request against a **fixed pool of 20** means every inbound request demands a fresh upstream connection instead of reusing one. The pool cannot recycle fast enough, saturates, and every subsequent acquire fails:\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n                        (size 20, in_use 20, waiting 13)\n```\n\nConfirming evidence:\n- `ERR_POOL_EXHAUSTED` is the **only** error code in the entire log — all 530 errors.\n- Pool goes from `in_use=10 idle=10 waiting=0` at 02:10 to `in_use=20 idle=0 waiting=12` at 02:15 and never recovers; wait queue reaches 232.\n- `WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — **100× connection churn.**\n- `acquired_total` rises by exactly 1070 per 5-min interval both before *and* after onset. **Traffic never changed.** This was not load.\n\n### Impact window\n\n| | |\n|---|---|\n| **First error** | `02:14:18.972Z` — 37s after config applied, 18s after deploy marked \"finished\" |\n| **Last error** | `03:59:27.974Z` — final line of log, **no recovery observed** |\n| **Confirmed duration** | **1h 45m, still ongoing at end of data** |\n| **Paged** | 03:21:05Z — **67 min detection lag** |\n\nDamage:\n- **530 × 503** responses\n- **212 additional requests hung** with no terminal log line at all (`/v1/checkout`, `/v1/profile`) — these are *not* in the 530 and the real impact is higher than the 503 count suggests\n- **100% failure on every business endpoint**: `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 failures each\n- All four upstreams hit evenly (~133 each) — confirms gateway-side, not upstream\n- **`/health` was the only endpoint still returning 200** for the entire outage. This is why nothing auto-remediated and why the page took an hour. Fix the health check to exercise the pool.\n\n### Roll back\n\n**dep-4471.** Revert `gateway.pool.perRequest` to `false`.\n\nTwo notes before you push:\n1. Reverting all of generation 119 also reverts `upstreamMs` 2500 → 2000. That's probably desirable (2500 was likely added to mask the symptom), but it's a second behavior change — decide deliberately.\n2. **No rollback has happened.** Generation 119 is the only config change in the log; there is no generation 120. If nobody has acted since 03:59, this is still live.\n\nIf the pool-isolation property is genuinely wanted, the fix is `perRequest: true` **with** pool `size` raised well above 20 — not the flag alone.\n\n**Verify after rollback:** `ERR_POOL_EXHAUSTED` stops; pool stats return to `in_use≈10 idle≈10 waiting=0`; connection churn drops toward the 40/5m baseline.\n\n**Ruled out:** dep-4472 (billing, 02:41) and dep-4473 (catalog, 03:20) both landed mid-incident and changed nothing — 50 errors per 10-min bucket before and after each. dep-4470 (worker) left the gateway log clean.\n\n---\n\n### Two open items — do not lose these in handoff\n\n**1. Unexplained wait-queue reset.** The queue climbs 12 → 232 by 03:10:58, then reads 12 again at 03:15:58 and restarts climbing. Nothing in the log accounts for it — no restart, no config event, and it predates dep-4473 by 4 minutes. Either a process is silently recycling or queued waiters are being dropped unlogged. Worth a look once the fire is out.\n\n**2. Separate worker problem — NOT part of this incident.** `worker.log` has zero errors and its pool is flat all night, but job duration climbs linearly **+11ms/min, +660ms/hr**, from 200ms at 01:00 to 2324ms at 03:59. No inflection at 02:14, so it's independent. `db_wait` stays at 0–12ms throughout, so the time is in-process, and all six job types degrade identically — which argues against dep-4470's webhook-specific change and toward a process-wide leak. **At this slope, jobs exceed their ~9.1s spacing early-to-mid afternoon 03-14 and the queue starts backing up.** Every line says `finished ok`, so nothing will page. Restarting the 4 replicas resets the clock; finding what accumulates is the real fix. **File this as its own ticket.**\n\n---\n\n### Caveats on the data\n\n- Log header says **node-3 of 3**. All findings are from one node; deploys.csv records dep-4471 as a single gateway-wide deploy, but if the rollout was staged, other nodes may have flipped at different times. Confirm blast radius across all three.\n- Log ends at 03:59:27Z. Anything after that is unknown.\n- `deploys.csv` has no status or rollback column — `finished_at` means the pipeline exited, not that the deploy was verified healthy.\n\nWant me to save this to a file, or adjust the format for your incident tooling?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac2944929639845e129596edaa411ca187e5ce7cba202cbb0ad6813ceb3f2f65"
+}

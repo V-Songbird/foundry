@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52894,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.38923250000000004,
+  "numTurns": 9,
+  "durationMs": 50604,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2348
+  },
+  "contextTraffic": 282960,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 15303,
+  "narrationWords": 6,
+  "finalWords": 155,
+  "finalText": "Here's the story, in order.\n\n**Redis died first.** At `02:14:07` the app lost Redis and never got it back.\n\n```\nredis down 02:14:07 → cache off → every read hits the store\n  → store overloaded → 5s timeouts → requests pile up\n  → queue 52 → 568 → out of memory → api killed 02:31:52\n```\n\nFour things worth knowing:\n\n1. `connect ECONNREFUSED 10.0.0.12:6379`. Redis refused, so it was down, not slow.\n2. 13 reconnect tries, all failed. They were 80 seconds apart, never backing off.\n3. The queue passed its own cap of 500 at `02:29:12` and kept growing.\n4. Not one request succeeded after `02:14:07`. 173 timeouts in 17 minutes.\n\nThe last two lines:\n\n```\n02:31:44.902Z ERROR [worker-2] JavaScript heap out of memory (request backlog)\n02:31:52.318Z FATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nSo the app didn't break. It just had no cache and no way to shed load.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0d88d9090a8246da4000f10d201f38e04e5d06810188ba056874b7be70a1161b"
+}

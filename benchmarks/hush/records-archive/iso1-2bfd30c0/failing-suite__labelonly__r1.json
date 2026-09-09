@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__labelonly__r1",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 14,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32270,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14999280000000004,
+  "numTurns": 13,
+  "durationMs": 30821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1723
+  },
+  "contextTraffic": 303223,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 12434,
+  "narrationWords": 23,
+  "finalWords": 45,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirms only \"order totals\" suite fails, as expected.",
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted one. Fixing it."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Only 3 of 625 cases caught it, all with both a discount and a tax rate.\n\nFix: tax now computed on `discounted`, not `cents`.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2b7c632ccdd89ce7214a0246ea6765c6282deea0df5569ca71e0bccb18fdb498"
+}

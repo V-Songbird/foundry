@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38741,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6279425000000001,
+  "numTurns": 6,
+  "durationMs": 37526,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2264
+  },
+  "contextTraffic": 178307,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60668,
+  "narrationWords": 6,
+  "finalWords": 524,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "Read the whole file (719 lines). Here's what happened.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Normal. All 200s, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | Cache layer degrades, falls back to direct store reads |\n| 02:14:08 | Cache miss storm begins (`orders:*` keys) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth starts climbing: 52 |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts, **all** ECONNREFUSED |\n| **02:29:12** | Queue depth **502 — crosses the stated max of 500**, and keeps going |\n| 02:31:26 | Last reconnect (#12) fails. Then 18s of silence |\n| **02:31:44.902** | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nTotal: **~17m45s** from first error to service down. Counts: 188 ERROR, 348 WARN, 2 FATAL.\n\n## What actually happened\n\nRedis at `10.0.0.12:6379` went away and the app had no working degraded mode. The chain:\n\n1. Redis dies. Note it's **ECONNREFUSED, not a timeout** — nothing was listening on the port. That's a dead/restarted Redis process (or a moved instance), not a network partition or a slow node.\n2. Every request now goes straight to the backing store. The store can't take full uncached traffic and starts timing out at 5s.\n3. Because requests take 5s instead of failing fast, the inbound queue grows faster than it drains — a textbook cache-stampede death spiral. Queue depth climbs almost perfectly linearly (~3 per 2s) for 17 minutes.\n4. Backlog eats the heap. worker-2 OOMs (exit 134 = SIGABRT), supervisor restarts it into the same storm, then declares api unresponsive and kills the process group.\n\n## Three things worth fixing\n\n**The queue limit isn't enforced.** The logs say `max 500`, but depth sails past it to 568 with no shedding, no 503s, no rejection. That number is decoration. This is the single change that would have prevented the outage — Redis being down should have meant degraded latency and some shed load, not a hard down.\n\n**Reconnect has no backoff and never recovered.** 13 attempts, evenly spaced ~80s apart, flat interval. It's not the cause, but 17 minutes of retrying a refused port means nothing was escalating or failing over. Worth checking whether ioredis retry config was overridden.\n\n**No stampede protection on cache misses.** Every miss for `orders:*` went to the store independently. Request coalescing / single-flight on cache misses would have cut the store load by a large factor.\n\n## One caveat\n\nYou said \"last night,\" but every line in this file is dated **2026-07-04**, and today is 2026-09-01. This log is ~2 months old. Either you're looking at a stale/archived file, log rotation is misconfigured, or last night's incident is in a different file. If last night's event looked similar, this is still a useful reference — but I'd confirm you have the right log before writing the postmortem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68b7af879199b3047e9278b3614c273c0a653d6a9872dbb795462ed83080935e"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 132750,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8197605,
+  "numTurns": 57,
+  "durationMs": 131395,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12960
+  },
+  "contextTraffic": 341957,
+  "apiCalls": 9,
+  "toolCalls": 56,
+  "toolResultChars": 31358,
+  "narrationWords": 35,
+  "finalWords": 222,
+  "assistantMsgs": 5,
+  "finalText": "All JS files parse cleanly. Migration done.\n\n**Migrated — 36 call sites across 12 files** (`db.query(sql, params)` → `db.execute({ sql, params })`):\n\n| Area | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| analytics | `repo/cohort.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\nEach file had the same three shapes (get-by-id, list, update); the transform was purely mechanical and matches the style of the already-migrated files like `packages/accounts/src/repo/user.js:9`.\n\n**Two things I deliberately left alone:**\n\n1. **`vendor/legacy-orm/adapter.js:9,13`** — the only remaining `db.query` calls. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost. Migrating it in place would be reverted by the next vendor bump. If you want these off the deprecated path before the driver's next major drops `query`, the options are to patch upstream, add a patch file to your dependency tooling, or wrap the adapter locally — tell me which and I'll do it.\n\n2. **`cache.query(...)`** — appears in ~20 repo files but is a different object (`lib/cache.js`), unrelated to this migration.\n\nNo test suite or `package.json` exists in the repo, so verification was `node --check` on every file (all pass) plus a repo-wide grep confirming no non-vendor `db.query` remains.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1af640801b4c0f147743b53179fc57e83e671d596510b487edc27ca2ef157286"
+}

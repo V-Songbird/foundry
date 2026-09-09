@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23794,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1268432,
+  "numTurns": 10,
+  "durationMs": 22524,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1712
+  },
+  "contextTraffic": 195308,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 16109,
+  "narrationWords": 43,
+  "finalWords": 108,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Let me run the build first to confirm the failure, then fix both real bugs.",
+    "Confirmed: the deprecation warnings are just noise from the bump, but the link stage fails with a real error. Fixing both real call-site bugs in `options.js` and `retryPolicy.js`."
+  ],
+  "finalText": "Build's clean now — exit 0.\n\nTwo real bugs from the bump, both in the link stage (not the deprecation noise, which is harmless):\n\n- `src/core/options.js` — the new bundler passes options as `{ retryCount }`, but this code still read `options.retries` (now `undefined`), so `.toFixed(0)` threw. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js` — the new config loader leaves unset flags as `undefined` instead of `false`, but the strict boolean check only handled `true`/`false` and threw on `undefined`. Fixed to just check `=== true`.\n\nThe remaining 8 warnings are deprecation noise (`fs.exists`, `Buffer()`, sync loader hooks, etc.) — not build-breaking, just worth cleaning up on your own schedule.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5123392f2cb755cd3e03b39300191c1a13e201b1793df155ab625206f2a70c44"
+}

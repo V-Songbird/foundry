@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 165,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19892,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.16835750000000002,
+  "numTurns": 6,
+  "durationMs": 18802,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1137
+  },
+  "contextTraffic": 85689,
+  "apiCalls": 4,
+  "toolCalls": 5,
+  "toolResultChars": 2408,
+  "narrationWords": 0,
+  "finalWords": 182,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Plan:\n\n**Shape**\n- `src/cli.js` — parse `--json` from argv (position-independent, `report --json` and `--json report`). Unknown flags: error + usage, exit 1. Update `USAGE` to `usage: cli.js report [--json]`.\n- New `toJson(rows)` in `src/format.js` — `JSON.stringify(rows, null, 2)`. Keeps cli.js as pure branch: pick renderer, print, exit 0.\n- `src/report.js` untouched — `buildRows()` already source of truth for both paths.\n\n**One decision to confirm**\n\"Same data\" ambiguous. `buildRows()` return 6 fields (`id, suite, status, ms, owner, slow`); table prints only 4 — `format.js:3-6` say `owner`/`slow` dropped for terminal width, not because irrelevant. So:\n- **A (my pick):** JSON emit full 6-field row. JSON has no width limit, and that comment explicitly point consumers back to `buildRows()` for whole row.\n- **B:** JSON mirror table exactly — 4 fields via `COLUMNS`.\n\nGo A unless you say otherwise. Sort order (slowest first) same both ways.\n\n**Checks after**\n- `node src/cli.js report` byte-identical to before.\n- `node src/cli.js report --json | node -e 'JSON.parse(...)'` parses, array length match row count.\n- No test dir exist, so verify by hand run.\n\nSay go, or pick B.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b37841c3e9a95b5ffd450a304dfdac1438bccdb122e33985223a167661a0d34d"
+}

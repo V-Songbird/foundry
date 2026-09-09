@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30324,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.250201,
+  "numTurns": 7,
+  "durationMs": 28392,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1434
+  },
+  "contextTraffic": 139473,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 11825,
+  "narrationWords": 6,
+  "finalWords": 77,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died at 02:14:07 and never came back.** One root cause, not many.\n\n`connect ECONNREFUSED 10.0.0.12:6379` at [app.log:182](logs/app.log#L182). Cache fell back to direct store reads. That store then buckled: 106 `TimeoutError` at 5000ms. All 7 reconnect tries failed, last at 02:23:26. Queue depth climbed 52 to 367 of 500 and was still rising when the log ends at 02:24:44. Traffic was clean before 02:14.\n\nNext: check why Redis at `10.0.0.12` refused connections. Nothing here says it restarted.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "029fb37e921dad51eaf1f16e6a41af0c4ced2c596f57c485d0ded1d75754ff9c"
+}

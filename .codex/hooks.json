@@ -1,0 +1,35 @@
+{
+  "description": "Foundry development checks shared with Claude; plugin runtime hooks remain separate.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^(Edit|Write|apply_patch)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('node:fs'),path=require('node:path');let dir=process.cwd();for(;;){const file=path.join(dir,'.claude','hooks','run-tests-on-edit.js');if(fs.existsSync(file)){const hook=require(file);if(hook.main)hook.main();break;}const parent=path.dirname(dir);if(parent===dir)throw Error('Foundry hook root not found');dir=parent;}\"",
+            "commandWindows": "node -e \"const fs=require('node:fs'),path=require('node:path');let dir=process.cwd();for(;;){const file=path.join(dir,'.claude','hooks','run-tests-on-edit.js');if(fs.existsSync(file)){const hook=require(file);if(hook.main)hook.main();break;}const parent=path.dirname(dir);if(parent===dir)throw Error('Foundry hook root not found');dir=parent;}\"",
+            "timeout": 100
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('node:fs'),path=require('node:path');let dir=process.cwd();for(;;){const file=path.join(dir,'.claude','hooks','nudge-manifest-curator.js');if(fs.existsSync(file)){const hook=require(file);if(hook.main)hook.main();break;}const parent=path.dirname(dir);if(parent===dir)throw Error('Foundry hook root not found');dir=parent;}\"",
+            "commandWindows": "node -e \"const fs=require('node:fs'),path=require('node:path');let dir=process.cwd();for(;;){const file=path.join(dir,'.claude','hooks','nudge-manifest-curator.js');if(fs.existsSync(file)){const hook=require(file);if(hook.main)hook.main();break;}const parent=path.dirname(dir);if(parent===dir)throw Error('Foundry hook root not found');dir=parent;}\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('node:fs'),path=require('node:path');let dir=process.cwd();for(;;){const file=path.join(dir,'.claude','hooks','check-checkpoint-commits.js');if(fs.existsSync(file)){const hook=require(file);if(hook.main)hook.main();break;}const parent=path.dirname(dir);if(parent===dir)throw Error('Foundry hook root not found');dir=parent;}\"",
+            "commandWindows": "node -e \"const fs=require('node:fs'),path=require('node:path');let dir=process.cwd();for(;;){const file=path.join(dir,'.claude','hooks','check-checkpoint-commits.js');if(fs.existsSync(file)){const hook=require(file);if(hook.main)hook.main();break;}const parent=path.dirname(dir);if(parent===dir)throw Error('Foundry hook root not found');dir=parent;}\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

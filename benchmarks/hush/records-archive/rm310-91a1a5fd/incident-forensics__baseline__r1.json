@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 294840,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.148516,
+  "numTurns": 19,
+  "durationMs": 289452,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 20716
+  },
+  "contextTraffic": 560566,
+  "apiCalls": 18,
+  "toolCalls": 15,
+  "toolResultChars": 24681,
+  "narrationWords": 8,
+  "finalWords": 937,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status at handoff: ACTIVE, not mitigated.** Log ends 03:59:59Z with the error rate still at steady state. Nothing in either log shows a fix, restart, or rollback having been attempted.\n\n---\n\n### TL;DR\n\n`dep-4471` (gateway config change) shipped at 02:14:00Z and exhausted the gateway's connection pool 19 seconds later. All non-health traffic on node-3 has been 503ing since. **Roll back dep-4471.** Health checks bypass the pool, so the load balancer has never ejected the node — it has been serving 100% errors to users while reporting healthy for 1h45m.\n\n---\n\n### Root cause\n\n```\ndep-4471, gateway, 2026-03-14T02:12:00Z → 02:14:00Z, a.novak\n\"config: connection-per-request for pool isolation\"\n```\n\nThe change makes the gateway open a connection per request instead of reusing pooled ones. The pool is fixed at size 20; it pins immediately and never recovers.\n\n**Mechanism, as logged:**\n\n- `pool stats` shows `idle` drop from 10–17 to **0 at 02:15:58Z** and stay at 0 for the remaining 1h44m of the log. Every one of the 530 pool errors reads `size 20, in_use 20` — not a single variation.\n- `2026-03-14T03:02:30.904Z WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — ~100× more socket opens.\n- Load did **not** change: `acquired_total` climbs at a flat 1070 per 5 min before and during the incident. Same request volume, ~100× the connections. That is the deploy's summary text describing itself.\n\n**Every 503 is pool exhaustion, not an upstream fault.** 530 access-log 503s pair 1:1 by request ID with 530 `ERR_POOL_EXHAUSTED` lines — zero unmatched in either direction:\n\n```\n2026-03-14T02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nFailures are spread evenly across all five upstreams and all five endpoints (106 each), which rules out any single sick backend.\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **Last good request** | 02:13:41.234Z (`req-07307 /v1/checkout 200 84ms`) |\n| **Onset** | **02:14:18.972Z** (`req-07401`, first 503) |\n| **Still failing at** | 03:59:27.974Z (log end) |\n| **Duration** | **≥ 1h 45m, ongoing** |\n| **Error rate** | 83% of all requests; **100% of non-health traffic** |\n| **Affected** | `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session` — 106 failures each |\n| **Scope** | node-3 of 3 (see caveats) |\n\nDegradation is monotonic, not flapping: acquire waits 100ms → 890ms, 503 latency 659ms → 961ms, queue depth growing ~4/min. It will not self-heal.\n\n**Two things to escalate in the review:**\n\n1. **`/health` returns 200 with `pool_wait=2ms` for all 106 checks during the outage.** The health check does not exercise the pool, so the LB kept node-3 in rotation while it failed every real request.\n2. **Paged at 03:21:05Z — 67 minutes after onset**, and only on a 5-min average error rate of 71%. The churn warning fired at 03:02:30Z, 19 minutes before the page.\n\n---\n\n### Action\n\n1. **Roll back `dep-4471`.** Only gateway deploy in the window; 19 seconds from deploy completion to first 503 after 74 clean minutes. Expected recovery signal: `idle` > 0 in `pool stats`, `ERR_POOL_EXHAUSTED` stops.\n2. **Check nodes 1 and 2** before declaring resolution — see caveats.\n3. Then: fix the health check to acquire from the pool. This is what turned a node fault into a silent 105-minute outage.\n\n**Ruled out:** `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both ship after onset with no inflection in the logs, and each covers only 1 of 5 evenly-failing upstreams. `dep-4468`/`dep-4469` are from the prior evening.\n\n---\n\n### Unrelated second issue — do not conflate\n\n`worker.log` has **zero errors** and its pool is untouched (`size=8 in_use=1 idle=7 waiting=0`, identical in all 18 samples). Workers did not hit this failure mode.\n\nBut worker job latency ramps 354ms → 2170ms across the window, **with no inflection at 02:14** (+54ms per 5-min bucket, uniform before and after; linear fit slope 1.83 ms/job, max residual 73ms). `db_wait` stays flat at 0–12ms throughout, so the growth is not the DB. This is independent of the gateway and **will survive the rollback.** At +165ms per 15 min it will start tripping job timeouts on its own.\n\nLead hypothesis is `dep-4470` (worker, 00:48–00:55Z, \"retry backoff for webhook jobs\") — it lands just before the log opens and the ramp is already underway at the first line. Counter-evidence: the slowdown is identical (+11.17ms/job) across all six job types, not just `webhook`, so it only fits if the change landed in shared runner code. **Needs the diff to confirm — treat as open, separate ticket.**\n\n---\n\n### Caveats on the evidence\n\n- **Scope is unconfirmed.** `gateway.log` is `node-3 of 3`. I have no data for nodes 1 or 2, and `deploys.csv` doesn't record which nodes dep-4471 reached. The 83% figure is node-3's, not the customer-facing rate.\n- **Timestamps are not monotonic** in either log — 86 out-of-order pairs in gateway, 135 in worker; the seconds field wraps within minute blocks (e.g. `03:38:58.600` → `03:38:02.872`). Minute-level ordering and the onset time are solid; don't compute durations from adjacent lines.\n- **The gateway `waiting` counter resets unexplainably** — climbs to 271, drops to ~12, climbs again (visible at 03:15:58Z, 232 → 12). Not a restart: `acquired_total` keeps climbing straight through and no restart line exists. Use the growth *rate*, not the absolute depth.\n- **`deploys.csv` records no rollbacks or config-flag flips**, so a non-pipeline change at 02:14 would be invisible here. The dep-4471 link is very strong correlation plus a mechanism match, not a diff I've read.\n\nWant me to drop this in a file — say `INCIDENT-2026-03-14.md` — for pasting into the incident channel?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e9fc1356362ac3a6bfc09f96c0bd9ed9fb6b2b0c13abfd3aeea017bb23faa428"
+}

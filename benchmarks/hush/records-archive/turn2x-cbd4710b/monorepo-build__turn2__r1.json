@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__turn2__r1",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 5,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "turn2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 38327,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22211159999999996,
+  "numTurns": 10,
+  "durationMs": 36544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3016
+  },
+  "contextTraffic": 217395,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 10520,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "Found it: `resolveRelease` used a shallow `Object.assign`, so any package override that touched one key inside `output` or `sourcemap` (like `@acme/api`'s `format: 'esm'`) wiped out the sibling keys, including `output.dir` — that's what threw `EBUNDLE07` after the lint pass.\n\nFixed it with a `deepMerge` helper that merges nested objects layer by layer (defaults → package overrides → CLI flags) without mutating the originals. `build.js` and `verify.js` both now finish clean — 0 warnings-related failures, exit 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "288bc47be5b1742b1798baca4551a90b678ba4b119aed7cca15115c591f60647"
+}

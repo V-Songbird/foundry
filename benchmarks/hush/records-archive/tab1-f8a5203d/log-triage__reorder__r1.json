@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__reorder__r1",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "reorder",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16682,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1202124,
+  "numTurns": 4,
+  "durationMs": 14988,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 959
+  },
+  "contextTraffic": 115829,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 119,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full outage.**\n\nAt `02:14:07` `[api]` lost its Redis connection (`ECONNREFUSED 10.0.0.12:6379`) and fell back to direct store reads. That triggered constant cache-miss storms and 5s store timeouts across `api`, `worker-1`, `worker-2`, `scheduler`.\n\nRedis never came back. 12 reconnect attempts, all failed, spanning `02:14` to `02:31:26`. Meanwhile request queue depth climbed steadily from 52 to 568, blowing past the max of 500.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the backlog, then `02:31:45` it restarted with exit code 134. At `02:31:52` the supervisor declared `api` unresponsive and killed the whole process group. Log ends there, no recovery entry.\n\nNext: restore Redis at `10.0.0.12:6379` first, that's the root cause, everything else is downstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0fdba180c3fcf8f19a25578be2f5796daf23200fdcbb09893a9c3ca7e26da493"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32737,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.207402,
+  "numTurns": 12,
+  "durationMs": 31346,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2126
+  },
+  "contextTraffic": 297587,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 11030,
+  "narrationWords": 25,
+  "finalWords": 111,
+  "finalText": "Found it: the failure wasn't in lint (those are just warnings) — it was in the bundle stage. `packages/shared/config.js` merged config layers with `Object.assign`, which is shallow, so any package overriding one key inside `output` or `sourcemap` (e.g. `@acme/api` overriding just `output.format`) silently wiped out the sibling keys (`output.dir`, `output.entry`), leaving `resolveRelease` returning an incomplete config and aborting the build.\n\nFixed by replacing the shallow merge with a recursive `deepMerge` that merges nested plain objects key-by-key across all three layers (defaults → package overrides → CLI flags), while leaving `RELEASE_DEFAULTS` unmutated. `build.js` now exits 0, and `verify.js` (the stricter ground-truth check, including an override case not in the fixtures) also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4950f20b0fe940fc47186fe81db047b8c17334b40598b9d9c2b4b934dd0a19a0"
+}

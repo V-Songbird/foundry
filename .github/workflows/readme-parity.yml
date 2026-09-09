@@ -1,0 +1,31 @@
+name: Coordinate plugin READMEs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  readme-parity:
+    name: Plugin README parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch both platform branches
+        run: |
+          for plugin in foreman hush razor; do
+            git -C "$plugin" fetch origin "+refs/heads/Claude:refs/remotes/origin/Claude" "+refs/heads/Codex:refs/remotes/origin/Codex"
+          done
+      - run: node --test scripts/git-hooks/check-readme-parity.test.js
+      - run: node scripts/git-hooks/check-readme-parity.js --git-pair foreman refs/remotes/origin/Claude refs/remotes/origin/Codex
+      - run: node scripts/git-hooks/check-readme-parity.js --git-pair hush refs/remotes/origin/Claude refs/remotes/origin/Codex
+      - run: node scripts/git-hooks/check-readme-parity.js --git-pair razor refs/remotes/origin/Claude refs/remotes/origin/Codex

@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 90371,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.39620075,
+  "numTurns": 9,
+  "durationMs": 89513,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5980
+  },
+  "contextTraffic": 324859,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 81728,
+  "narrationWords": 15,
+  "finalWords": 379,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll read the history folder and CHANGELOG.md, then sort the user-visible changes from the noise."
+  ],
+  "finalText": "Drafted the 4.2.0 entry into CHANGELOG.md. Here is what I found and what still needs your call.\n\n**Out of 380 commits, 37 change behavior.** The rest are dependency bumps (all patch-level for runtime deps), refactors, test, CI, and docs work. Many subjects repeat across scopes, so the same fix applied in four modules collapses to one line. I wrote the entry in the file's three-heading shape and left no PR numbers, matching 4.1.0.\n\n**Breaking, needs confirmation.** I included two items because omitting a real break is worse than a false alarm. Verify both against the source before you cut:\n\n- The v1 export route was deleted in #4152. The subject calls it unused, but anyone still hitting it will get a 404.\n- Six commits stop re-exporting internal error types from db, core, auth, jobs, and billing. If your entry point exposed them, consumer imports now fail.\n\n**One question I could not answer.** Four docs commits \"note the minimum node version\" and CI moved to Node 22. If the engines field changed, that is a Breaking line. Nothing in the log shows package.json changing for that reason, so I left it out.\n\n**Added.** One feature only: webhook retries with exponential backoff, from #4191. It also touched the config loader, so there is probably a new config option you should name in the notes.\n\n**Fixed.** Ten user-visible items. The ones most likely to surprise someone:\n\n- Expired token now returns 401 rather than 403 (#4223). Clients that branch on 403 will notice. Move it to Breaking if you consider status codes contractual.\n- Latency histogram units corrected (#4185). Existing dashboards will jump.\n- Request body no longer logged at the db layer (#4157). This is also a security fix worth flagging.\n\n**Left out on purpose.** Ten perf commits, including reusing the parsed schema between requests and batching metric writes. They may show up as lower latency but the template has no heading for them. Add a line under Fixed if you want to advertise it.\n\n**The PR sheet is incomplete.** It lists 127 PRs against 380 commits, and misses 17 fix and perf commits that are in the log, including both HTTP client fixes and the histogram fix. Use the commit log as the source of truth, not the sheet.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "539ca3381be1d7cc719a09a79cc27e0407d71fca783724e519fa4ec24eb8c25b"
+}

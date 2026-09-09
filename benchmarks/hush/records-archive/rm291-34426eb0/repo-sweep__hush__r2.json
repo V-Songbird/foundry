@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 34,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 113922,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8023210000000001,
+  "numTurns": 49,
+  "durationMs": 112042,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11223
+  },
+  "contextTraffic": 359766,
+  "apiCalls": 9,
+  "toolCalls": 48,
+  "toolResultChars": 33658,
+  "narrationWords": 6,
+  "finalWords": 60,
+  "assistantMsgs": 2,
+  "finalText": "**Migrated 12 files, 36 call sites, to `db.execute({ sql, params })`.** All of `packages/` now parses clean under `node --check`. No `db.query` left there.\n\nOne left on purpose: [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) has 2 calls. Its header says do not edit, since upgrades overwrite it. That needs an upstream fix or a wrapper.\n\nI left `cache.query` alone. Different object, not part of this.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "40dc0efcfd18e0198f2b67dc080f914d436d897acd8e993e56acb548e3966486"
+}

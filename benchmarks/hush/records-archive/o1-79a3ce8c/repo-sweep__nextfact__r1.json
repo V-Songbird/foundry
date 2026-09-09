@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__nextfact__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 39,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "nextfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 59689,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.502197,
+  "numTurns": 14,
+  "durationMs": 58025,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3965
+  },
+  "contextTraffic": 361878,
+  "apiCalls": 10,
+  "toolCalls": 13,
+  "toolResultChars": 19162,
+  "narrationWords": 9,
+  "finalWords": 57,
+  "finalText": "**Migration finished.** 36 old calls in 12 files now use `db.execute({ sql, params })`.\n\nTwo things I left alone on purpose:\n\n- `cache.query` in the repo files. It takes a cache key, not SQL.\n- `vendor/legacy-orm/adapter.js`. Vendored code gets replaced on upgrade.\n\n`node verify.js` passes: \"OK every db.query call site moved to db.execute, and nothing else moved\".",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a6d2dc9230395b5858101c5e0e72241d61065dd488b405020a651300aa6c872d"
+}

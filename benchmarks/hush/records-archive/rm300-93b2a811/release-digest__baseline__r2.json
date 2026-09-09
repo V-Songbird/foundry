@@ -1,0 +1,45 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 142892,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8728754999999999,
+  "numTurns": 11,
+  "durationMs": 141603,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8488
+  },
+  "contextTraffic": 318589,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 74015,
+  "narrationWords": 42,
+  "finalWords": 879,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet covers through 2026-06-17. Let me read the full commit log.",
+    "Now let me systematically extract the user-facing categories.",
+    "Let me pin down a few more things before I write anything."
+  ],
+  "finalText": "I've gone through all 380 commits and the 127-row PR sheet. Here's the picture.\n\n## The shape of the release\n\n| Type | Commits | User-visible? |\n|---|---|---|\n| chore (mostly deps) | 153 | almost none |\n| refactor | 73 | 3 items, maybe |\n| test | 64 | no |\n| ci | 33 | no |\n| fix | 26 | 11 distinct items |\n| docs | 20 | no |\n| perf | 10 | no measurable claim |\n| feat | 1 | yes |\n\nTwo things distort the raw counts. The dep bumps are heavily duplicated — `pino 9.2.0 → 9.3.1` appears 12 separate times, `zod 3.23.6 → 3.23.8` 10 times — but each package moved exactly one version range across the whole release, so it's 16 dependency changes, not 105. The PR sheet has literal duplicate rows too (#4120/#4121, #4124/#4125, same title same day). Same story on fixes: `fix(api): keep the trace id across the retry` is three commits on the same bug.\n\nNet: **380 commits collapse to about 15 things worth telling a user about.**\n\n## Draft entry\n\n```markdown\n## 4.2.0 — 2026-08-30\n\n### Breaking\n- An expired token now returns 401 instead of 403. Code that branches on 403 to\n  detect expiry needs to move to 401.\n- The internal error types are no longer re-exported from the package root.\n  Import them from their own modules, or match on the error code instead.\n- The v1 export route has been removed.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Paginating past the last page no longer throws on a null cursor. This affected\n  the API, queue, webhook and database paginators.\n- The trace id is now kept across a retry instead of being dropped.\n- Responses no longer carry a duplicated header.\n- The request body is no longer written to the logs.\n- The HTTP client clears its timer when the socket drops, and closes the pool on\n  shutdown.\n- Latency histograms record the correct unit. Existing dashboards and alerts on\n  these metrics will see the values change.\n- An empty allowlist is handled correctly.\n- A trailing slash is trimmed once rather than repeatedly.\n- Token parser errors have clearer messages. The message text changed; assert on\n  the error code, not the string.\n```\n\n## What I left out, deliberately\n\n**All 10 perf commits.** They're real work — `perf(api): reuse the parsed schema between requests` and `perf(core): skip the JSON round-trip on the hot path` are the substantive ones — but no commit carries a number, and \"we made it faster\" with nothing behind it invites the question you can't answer on stage. If you have benchmark data, one line under Added is worth adding.\n\n**The refactor bulk.** `rename the internal Ctx type to RequestCtx` (9 commits), `drop the unused v2 debug helper` (11), `delete the dead feature-flag branch`, `move the config loader under src/config`, `split the router file by resource`. All self-describe as internal or unused. Nobody installing the package sees these.\n\n**Dependency bumps.** Every one is patch or minor. The runtime-facing ones — pino, fastify, pg, knex, ioredis, nanoid, undici, dotenv, zod — carry no major. The only major is `vitest 1.6.0 → 2.0.1`, which along with eslint/prettier/husky/typescript/tsx/esbuild is dev tooling an installer never pulls. (There's no `package.json` in this directory, so runtime-vs-dev is from the package names, not verified.)\n\n## Verify before you publish\n\nFive things I inferred from commit subjects and file stats — the log has no diffs, so I couldn't confirm any of them:\n\n1. **The minimum Node version, and whether it's a breaking change.** Five `docs: note the minimum node version` commits, five `ci: run the suite on node 22`, plus `.nvmrc` pins. That pattern usually means the floor moved, but no commit states the old or new number. If `engines` changed, it's the most impactful line in the release and it's missing from my draft.\n\n2. **Whether the v1 export route was public.** `refactor(api): drop the unused v1 export route` touched `router.js`, `handlers.js` and the tests. \"Unused\" is a claim about internal callers; a versioned route is external surface. If it was reachable by customers, it's the headline breaking change.\n\n3. **Which error types stopped being re-exported.** Eight commits across core, db, billing, auth and jobs. Worth naming them explicitly so people know what to fix.\n\n4. **What `handle an empty allowlist` actually did.** Three commits (db, jobs, store). If an empty allowlist previously permitted everything rather than throwing, that's a fail-open security fix and should be called out as such, not buried in Fixed.\n\n5. **The webhook retry configuration.** The feat touched `src/core/config.js`, so it likely added a knob — backoff base, max attempts, or similar. Worth naming in the entry.\n\nOne more thing: **the history ends 2026-06-17, ten weeks before tomorrow's cut.** If work landed after that date, it isn't in either file and isn't in this draft. Worth regenerating the log against the actual release SHA before you finalize.\n\nI've kept the draft out of `CHANGELOG.md` for now — three of the four Breaking claims rest on inference, and unverified breaking changes are worse than none. Say the word once you've checked those and I'll write it in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fc0c8a6b4f8604c15eebc25ba4600c103821a3ee16534c54bf1113fc28b1cc3d"
+}

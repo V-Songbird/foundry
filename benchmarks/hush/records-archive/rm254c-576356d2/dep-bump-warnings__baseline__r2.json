@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23938,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19357919999999998,
+  "numTurns": 9,
+  "durationMs": 22570,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1896
+  },
+  "contextTraffic": 202434,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15663,
+  "narrationWords": 91,
+  "finalWords": 75,
+  "finalText": "Build's clean now (exit 0, 0 errors). The rest of the screenful was just deprecation/dedupe noise, but two real bugs from the bundler bump were breaking the link stage:\n\n1. `resolveRetries` in `src/core/options.js` was reading `options.retries`, but the new bundler passes `{ retryCount }` — fixed to read `retryCount`.\n2. `isBackoffEnabled` in `src/net/retryPolicy.js` threw on `undefined` flags; the new config loader leaves unset flags as `undefined` instead of `false` — now treats `undefined` as disabled.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "44fc9cdc5b123db7fb47c059f9dacd4fd786903ffa53a506f83f077656a06c35"
+}

@@ -1,0 +1,45 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 15,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 105761,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.40716839999999993,
+  "numTurns": 16,
+  "durationMs": 104544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9540
+  },
+  "contextTraffic": 539816,
+  "apiCalls": 10,
+  "toolCalls": 15,
+  "toolResultChars": 72732,
+  "narrationWords": 83,
+  "finalWords": 238,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll look at the history directory and existing changelog format first.",
+    "I've gone through all 380 commits and cross-referenced the PR sheet. Most of this release is dependency bumps, refactors, and test/CI churn — but there's a real, install-worthy set of changes underneath. Let me check a couple of the more ambiguous fix commits' diffs before writing anything down.",
+    "Now writing the 4.2.0 entry into CHANGELOG.md, following the existing shape.",
+    "The stray placeholder comment at the bottom is now stale — removing it."
+  ],
+  "finalText": "I read all 380 commits and cross-checked against the PR sheet. Out of that, seven things actually matter to someone installing 4.2:\n\n**Breaking**\n- Expired-token requests return `401` now, not `403` — anyone branching on status code needs to update.\n\n**Added**\n- Webhook retries with exponential backoff (previously a failed delivery just... failed).\n\n**Fixed**\n- Null-cursor crashes fixed across four different paginators (API, queue, DB, webhooks) — same bug class, fixed module by module over the release.\n- DB layer was logging full request bodies — now it doesn't (worth flagging, this is a privacy/log-hygiene fix).\n- HTTP client was leaking timers/connections on socket drop or shutdown.\n- Trace IDs were getting dropped on retry — fixed, matters if you rely on request tracing.\n- Trailing-slash double-trim bug in queue/job URLs.\n- Empty-allowlist handling fixed in store/DB/job-scheduler configs.\n- Latency histogram units were wrong for store and core — worth a line for anyone scraping those metrics.\n\nEverything else — the ~300 dependency bumps, the repeated \"collapse the two retry helpers,\" \"drop the unused v2 debug helper,\" \"move the config loader\" refactors, CI tweaks, and test-suite stabilization commits — I left out since none of it changes behavior a consumer would see.\n\nOne thing to flag: I used `2026-08-30` as the release date since you said you're cutting tomorrow — swap that if the actual tag date differs. CHANGELOG.md is updated in place, same three-heading shape as 4.1.0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "459f6dfcf155844a6194d2ce0664224e95b1f17a716707581d21e92de2a068fe"
+}

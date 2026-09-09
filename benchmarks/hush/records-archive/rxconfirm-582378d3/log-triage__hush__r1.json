@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21341,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2070977,
+  "numTurns": 4,
+  "durationMs": 19558,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1009
+  },
+  "contextTraffic": 157341,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 25184,
+  "narrationWords": 0,
+  "finalWords": 203,
+  "finalText": "Everything was normal, then it fell apart. Here's the story.\n\nAt 02:14:07 Redis (10.0.0.12:6379) went down with `ECONNREFUSED`. The app fell back to hitting the database directly, and cache misses started snowballing.\n\nFrom there it spiraled for 17 straight minutes:\n- Every request started timing out at 5000ms because the database couldn't take the direct load.\n- The request queue climbed steadily, from the 50s up past its own limit of 500, without ever shedding load.\n- Redis tried to reconnect roughly every 90 seconds and failed all 12 times, right up to the end.\n\nAt 02:31:44 `worker-2` ran out of memory from the backlog and crashed. Eight seconds later the whole `api` process group was killed as unresponsive, and prod went down.\n\n**Root cause:** Redis dying with nothing to catch the fallback load. The app kept accepting requests it queued forever instead of rejecting them once the queue was full, so the backlog grew until a worker ran out of memory and took the service with it.\n\n**What would stop this next time:** enforce the queue's own 500 cap by shedding requests past it, and add a circuit breaker so repeated Redis failures stop the direct-read fallback instead of hammering the database.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3f395d2c5993f515f3b56f678682f71ddf964f33cff0b532e82d6ad8c73cb9b"
+}

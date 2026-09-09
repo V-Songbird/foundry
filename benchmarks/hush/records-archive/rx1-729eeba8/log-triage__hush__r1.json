@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rx1-729eeba8",
+  "seed": "1786462846047",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22735,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3131549,
+  "numTurns": 3,
+  "durationMs": 21054,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1402
+  },
+  "contextTraffic": 111974,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 183,
+  "finalText": "Redis went down at 02:14:07 (`ECONNREFUSED 10.0.0.12:6379`), and the app never really recovered from that.\n\n**What happened, in order:**\n1. Redis dropped, so the cache layer fell back to hitting the store directly.\n2. That fallback caused steady cache-miss storms and store timeouts, over and over, for the next 17 minutes.\n3. The request queue climbed the whole time — from the 50s up past 570, way over the max of 500.\n4. Redis reconnect attempts kept failing too, roughly every 90 seconds to 2 minutes, for a while — right up to the end.\n5. At 02:31:44, `worker-2` ran out of memory from the backlog and crashed.\n6. Seconds later, the `api` process stopped responding and the supervisor killed the whole service. That's the outage.\n\nSo the root cause is the Redis outage at 02:14, and everything after was the queue backing up until a worker ran out of memory and took the service down with it. Fixing this for real means getting Redis back reliably and adding a backpressure limit so a dead cache can't run the queue past 500 unchecked.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc24a347ed9cd61e51def0eb76992cc7805da2dae78b504f41cd9c8de2311f46"
+}

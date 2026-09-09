@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 58478,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.726104,
+  "numTurns": 10,
+  "durationMs": 57084,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3631
+  },
+  "contextTraffic": 424098,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 73918,
+  "narrationWords": 30,
+  "finalWords": 359,
+  "assistantMsgs": 5,
+  "finalText": "Written into `CHANGELOG.md` above the 4.1.0 entry. Here's what I found and why.\n\n**The shape of the release:** 380 commits — 153 chore (mostly dependency bumps), 73 refactor, 64 test, 33 ci, 20 docs. That's 343 commits with nothing for a user to see. The remaining 37 (1 feat, 26 fix, 10 perf) are where everything real lives, and the fixes dedupe heavily — the same bug was patched across several modules, so 26 fix commits are about 9 distinct user-facing repairs.\n\n**The things worth your attention:**\n\nThe four breaking items are the ones that will bite people, and three of them are labeled as if they aren't breaking:\n\n- **401 vs 403 on expired tokens** (#4223) is filed as a `fix`, but it's a contract change. Anyone branching on the status code breaks silently.\n- **\"stop re-exporting the internal error types\"** appears nine times across auth, billing, core, db, and jobs, all labeled `refactor`. Whether these were genuinely internal depends on whether anyone was importing them — worth a check before you ship, because if they were reachable, this is a hard break with no deprecation.\n- **\"drop the unused v1 export route\"** (#4152) is also a `refactor`. \"Unused\" is a claim about your telemetry, not about your users. Same check applies.\n- **The latency histogram unit fix** (core, store) is correct code but breaks every dashboard and alert threshold built on the old numbers. Operators need to know.\n\n**What I left out and why:** the ten `perf` commits (JSON round-trip skipping, mapper clone removal, metric write batching, schema reuse). The template pins you to three headings, and no perf commit came with a measured number, so I had nothing honest to say. If you have benchmark figures, a \"reuse the parsed schema between requests\" line under Added would be defensible — that one is the most likely to be felt.\n\n**One date to confirm:** I dated the entry 2026-08-28 for tomorrow's cut. But the last commit in `history/` is 2026-06-17, over two months back. Either the log is stale and there's more to digest, or the release sat. If it's the former, re-export and I'll rerun this.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf9aa94269d9d66663511dee8dfdba3805747f7f24dfe28507d7b82bdd2256af"
+}

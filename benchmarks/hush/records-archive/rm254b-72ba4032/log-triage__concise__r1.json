@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14945,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2883097,
+  "numTurns": 3,
+  "durationMs": 13560,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 936
+  },
+  "contextTraffic": 141401,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60177,
+  "narrationWords": 0,
+  "finalWords": 272,
+  "finalText": "## Root cause: Redis outage cascaded into an OOM crash\n\n**02:14:07.113** — Redis at `10.0.0.12:6379` drops (`ECONNREFUSED`). The `api` service logs `cache layer degraded — falling back to direct store reads`.\n\n**02:14:07 → 02:31:26** — With cache gone, every request hits the backing store directly. This triggers a repeating pattern every ~2s, over and over for 17 minutes:\n- `cache miss storm` on rotating `orders:*` keys\n- `TimeoutError: request timed out after 5000ms (store overloaded)` from api/worker-1/worker-2/scheduler in rotation\n- `request queue depth` climbing steadily: 52 → 550+ (max configured is 500 — it blew past its own limit around 02:25:48 and kept climbing)\n- 13 automatic Redis reconnect attempts (every ~2 min), all failing with the same `ECONNREFUSED` — Redis never came back\n\n**02:31:44.902** — `worker-2` hits `JavaScript heap out of memory` — the unbounded request backlog exhausted memory.\n\n**02:31:45.001** — supervisor restarts worker-2 (exit code 134 = SIGABRT from the OOM).\n\n**02:31:52.318** — `api` is unresponsive; supervisor kills the whole process group. **Service down.**\n\n### Summary\nRedis became unreachable (network/host issue at `10.0.0.12:6379`) and never recovered despite 13 reconnect attempts over 17 minutes. The app's cache-miss fallback to the direct store had no circuit breaker or backpressure — requests piled into an ever-growing queue instead of shedding load, eventually exhausting heap memory and taking the whole service down.\n\n### Fixes to consider\n1. Add backpressure/load-shedding when queue depth exceeds threshold instead of letting it grow unbounded.\n2. Circuit-break store calls during a cache outage rather than retrying every request for 17 minutes straight.\n3. Investigate why `10.0.0.12:6379` was unreachable for that long — check Redis host/network, not just app logs.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c9bf7eb424106edafa53ec0c7cab9cc7206277444ba9b1a3ec43375a4e6cc744"
+}

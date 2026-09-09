@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__redo-caps__r1",
+  "batchId": "caps-smoke-1c0a76fd",
+  "seed": "1786009892655",
+  "orderIndex": 1,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 33097,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09166920000000002,
+  "numTurns": 9,
+  "durationMs": 30859,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1700
+  },
+  "contextTraffic": 232722,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 4360,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "Fixed the bug. The `isExpired` function was using `<` instead of `<=`, so tokens weren't being marked as expired at the exact moment their `exp` time arrived — they only got caught after. Changed line 7 to use `<=` so a token expires the moment it reaches its expiration time, as intended.\n\nAll 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a7d5c412601c41b009c06ef5e7f5b0682d3fe1574e9ce307634bf9b15e507d9a"
+}

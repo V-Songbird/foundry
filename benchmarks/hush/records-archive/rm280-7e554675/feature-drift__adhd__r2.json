@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 78,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 105173,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.638412,
+  "numTurns": 25,
+  "durationMs": 96616,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5990
+  },
+  "contextTraffic": 649178,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 11441,
+  "narrationWords": 7,
+  "finalWords": 124,
+  "finalText": "Dedupe is in. `createState()` now returns `{ lastSentByKey: new Map() }`; `route()` checks that map first and returns `[]` for a repeat, then records `event.at` only when the notification actually delivered (so a dropped repeat never extends the window, and each key's clock starts from its last real send).\n\nReplay: 99 dropped — the flap events, which fire 2 minutes after their predecessor. Every channel drops proportionally (`pager` 225→200, `queue` 300→266).\n\nTwo judgment calls worth knowing:\n- The check runs *before* quiet hours, so a queued notification counts as \"sent\" and suppresses same-key repeats during quiet hours too.\n- The window is exclusive: a repeat exactly 5 minutes later goes through. Change `<` to `<=` in `src/router.js:37` if you want 5 minutes itself suppressed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4a4890cc63e001a6971b15e2d21f4258045b8c889625197d96013d8f372a607"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29101,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.122943,
+  "numTurns": 11,
+  "durationMs": 27257,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2084
+  },
+  "contextTraffic": 177405,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 11723,
+  "narrationWords": 0,
+  "finalWords": 129,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big, but mostly mechanical.** 1082 hits across 94 files. Roughly 900+ are internal repo/service code (`services/*`, columns, params) — safe to rename with a normal migration.\n\nFour spots must keep `account_id` exactly:\n\n| Location | Why |\n|---|---|\n| `[docs/openapi.yaml](docs/openapi.yaml)` | public API contract, frozen field name and query param |\n| `[lib/serialize.js:8](lib/serialize.js:8)` | wire-format map, public JSON key clients read |\n| `vendor/reporting-sdk/*` | vendored, overwritten by `npm run vendor:refresh` |\n| `migrations/*.sql` (applied ones, e.g. `[20250624_backfill_account_ids.sql](migrations/20250624_backfill_account_ids.sql)`) | already run in prod, history, editing breaks the down step |\n\n`lib/audit.js` also keys on `account_id` for audit lines — check with platform team before touching, likely same \"frozen history\" rule.\n\nNext: rename internal DB columns and code via a new migration, keep the `WIRE` map and OpenAPI spec untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a143462129e9d19bce6c6393a5378ae5a9b0df30f22886c658e86a873717d6d4"
+}

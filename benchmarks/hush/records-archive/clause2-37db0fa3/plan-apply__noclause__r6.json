@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r6",
+  "batchId": "clause2-37db0fa3",
+  "seed": "1787981563072",
+  "orderIndex": 10,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12800,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0642722,
+  "numTurns": 4,
+  "durationMs": 11268,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 638
+  },
+  "contextTraffic": 76107,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 59,
+  "assistantMsgs": 1,
+  "finalText": "`buildRows()` in `[report.js:11](src/report.js:11)` already gives clean data. `cli.js:8` parses argv and calls `toTable`.\n\nPlan: parse `--json` in `main`, skip `toTable` when set, do `JSON.stringify(buildRows(), null, 2)` instead.\n\nTradeoff: keep it inline in `cli.js` versus a `toJson` helper in `format.js` to match `toTable`. I'd add the helper, for symmetry with the existing formatter.\n\nSay the word and I'll implement it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8ddb252b738c19cdfb3c3ee65b5ab48ebc1956b509829b6bdeb702f6353b8eec"
+}

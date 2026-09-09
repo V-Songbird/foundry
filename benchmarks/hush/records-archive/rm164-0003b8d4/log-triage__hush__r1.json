@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12464,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2993129,
+  "numTurns": 3,
+  "durationMs": 10590,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 528
+  },
+  "contextTraffic": 112684,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 116,
+  "finalText": "Redis went down at 02:14 (`ECONNREFUSED 10.0.0.12:6379`), and every reconnect try after that failed too, all the way to attempt 12 at 02:31.\n\nWith no cache, every request fell through to the database directly. That piled up cache-miss storms and 5-second timeouts, and the request queue grew nonstop, from 52 up to 568, well past its limit of 500.\n\nBy 02:31:44 `worker-2` ran out of memory from the backlog and crashed. Eight seconds later the whole api process stopped responding, and the supervisor killed it. That's the outage.\n\nThe real fix is redis at 10.0.0.12:6379. Nothing in the app itself was broken, it just had no way to survive redis being unreachable for 17 straight minutes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f19d9395f8635fd72fe9ba273a387858f1356d9b1b287d39395ab7f6540f9a13"
+}

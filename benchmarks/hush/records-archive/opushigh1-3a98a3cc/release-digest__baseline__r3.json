@@ -1,0 +1,45 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 28,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 137760,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9904214999999998,
+  "numTurns": 12,
+  "durationMs": 136894,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9526
+  },
+  "contextTraffic": 516169,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 77649,
+  "narrationWords": 55,
+  "finalWords": 659,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet stops at 2026-06-17, but the commit log likely goes further. Let me read it.",
+    "Now let me extract the user-facing categories systematically.",
+    "My type-breakdown regex was too greedy (it matched \"feature-flag\" as `feat`). Let me redo it correctly and cross-check the two sources."
+  ],
+  "finalText": "Went through all 380 commits and the 127-row PR sheet. Here's what I found.\n\n## The signal-to-noise ratio\n\n343 of 380 commits (90%) are invisible to anyone installing this: 153 chore, 73 refactor, 64 test, 33 ci, 20 docs. What's left is **1 feature, 26 fix commits, 10 perf commits** — and the 26 fixes collapse to 11 distinct issues, because the same subject repeats across scopes (`drop the duplicate header` appears 5×, `guard the null cursor in the paginator` 4×).\n\nThe PR sheet is a strict subset of the commit log for user-facing changes (15 distinct vs 32) — I verified nothing user-facing exists in the sheet that isn't in the log. Work from the log; the sheet also has duplicate rows for the same bump on the same day.\n\n## Draft for CHANGELOG.md\n\n```markdown\n## 4.2.0 — 2026-09-08\n\n### Breaking\n- An expired token now returns 401 instead of 403. If you branch on 403 to\n  detect expiry, update that check.\n- The latency histogram now reports in the correct units. Existing dashboards\n  and alert thresholds on that metric will need rescaling.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and closes\n  its pool on shutdown.\n- Paginating past the end no longer throws on a null cursor.\n- Request bodies are no longer written to the database logs.\n- An empty allowlist is treated as empty rather than as \"allow everything\".\n- URLs with a trailing slash are no longer double-trimmed.\n- Responses no longer carry a duplicate header.\n- The trace id survives a retry.\n- Token parser errors say what actually went wrong.\n```\n\n## Three things to decide before you publish\n\n**1. The 401/403 change is breaking, and it's labelled `fix`.** `1d2bd55` changes an HTTP status code consumers branch on. Nothing in the history is marked breaking, so if you go by labels alone this lands as a routine bullet in a minor release. I put it under Breaking above — that's the call I'd make, but it's yours, and it may argue for 5.0 rather than 4.2.\n\n**2. The histogram units fix is breaking for operators, not for code.** `59402bc` and `1f2bc4e` change emitted metric values. Nobody's build fails, but everyone's graphs shift and alerts may fire. I'd rather over-warn here.\n\n**3. I dropped all 10 perf commits.** They're un-quantified micro-optimizations — \"skip the JSON round-trip on the hot path\", \"avoid the extra clone in the mapper\". Your template says to write down only what someone installing this would notice, and without benchmark numbers nobody notices these. If you have measurements for `9f02d92` (reuse the parsed schema between requests), that one is worth a line.\n\n## Two flags that aren't changelog content\n\n**Your history dump is 12 weeks stale.** Both files end 2026-06-17, and you're cutting tomorrow, 2026-09-08. Either there's more work not in this export, or the branch has been frozen since June. Worth confirming before the notes go out — I can only speak to what's in these files.\n\n**Two fixes look like they didn't hold.** `fix(api): keep the trace id across the retry` landed three times (05-22 and 06-01 in `serialize.js`, then 06-13 in `router.js`), and `fix(core): drop the duplicate header` three times (05-09 in `clock.js`, then 06-06 and 06-16 in `errors.js`). Same symptom, same scope, escalating — that pattern usually means the earlier attempts missed the real cause. I'd check both are actually fixed before claiming them.\n\n**One more open question:** \"note the minimum node version\" appears in 5 docs commits and \"run the suite on node 22\" in 6 CI commits, but nothing visibly touches an `engines` field. If the supported Node floor actually moved, that's a fourth Breaking entry. The commit titles alone can't tell me.\n\nWant me to write the entry into `CHANGELOG.md`? I held off because the Breaking-section calls change what version number this should be.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f5fca08167a0d4f4afeca80c5f7741adc6767d5bb814f2ea4443e8d1cafefeb7"
+}

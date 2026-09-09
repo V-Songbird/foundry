@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43266,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2672435,
+  "numTurns": 9,
+  "durationMs": 41749,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2149
+  },
+  "contextTraffic": 171327,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 6950,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died, and the cache-less load crushed the service.**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | Cache miss storm, reads go straight to the store |\n| 02:14:10 | `TimeoutError: request timed out after 5000ms` starts, 173 total |\n| 02:15–02:31 | 13 reconnect attempts, all `ECONNREFUSED` |\n| 02:29:12 | Queue depth passes max, `502 (max 500)` |\n| 02:31:44 | `JavaScript heap out of memory (request backlog)`, worker-2 dies code 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\nRedis at `10.0.0.12:6379` never came back. The log ends at the kill, so no recovery is recorded. One thing to check: the log is dated `2026-07-04`, not last night.\n\nNext: find why Redis at `10.0.0.12` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "42f2392dc5c92f4875425f44bae07d3ded0c044a01ed9f640b510c0b171c900f"
+}

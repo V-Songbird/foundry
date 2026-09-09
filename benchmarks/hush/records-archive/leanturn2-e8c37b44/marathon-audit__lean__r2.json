@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r2",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 33,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 126998,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8040921000000001,
+  "numTurns": 50,
+  "durationMs": 119458,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10370
+  },
+  "contextTraffic": 644654,
+  "apiCalls": 14,
+  "toolCalls": 46,
+  "toolResultChars": 28869,
+  "narrationWords": 0,
+  "finalWords": 127,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json` — that's the exact version `NOTES.md` says the publisher yanked over a prototype-pollution report, with `1.4.3` as the fix. The other three flagged deps check out fine: `pg-lite` and `redis-min` are on the versions NOTES calls current, and `date-fmt` is the noted unmaintained-but-harmless case.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. `src/routes/internal.js` — no auth at all, now reachable from the internet since the VPN came down.\n2. `src/repo/report.js` — SQL injection via string concatenation in `runSavedReport` (not wired to a route yet, but live and ready to ship).\n3. `config/staging.js` — staging DB password committed in plaintext.\n4. `package.json` — `fast-parse` still pinned to the yanked `1.4.2`.\n\nNo service code was touched, just the new `AUDIT.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "496b986a77a48f4d0c4b15635b4804f52a31f01236ab4117f503f13725e67046"
+}

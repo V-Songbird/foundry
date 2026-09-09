@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 157250,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4605214,
+  "numTurns": 14,
+  "durationMs": 156031,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13360
+  },
+  "contextTraffic": 549177,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 70980,
+  "narrationWords": 339,
+  "finalWords": 51,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the history directory and existing changelog format first.",
+    "I went through all 380 commits and the PR sheet. Most of it is exactly what you said — dependency patch bumps, internal renames, and repeated \"drop the unused v2 debug helper\" style refactors across every module. But there's real signal underneath, including one behavior change that's arguably breaking. Here's what I found, filtered down to what a user would notice, with duplicate fixes across modules grouped into single lines:\n\n**Breaking**\n- Expired tokens now return `401` instead of `403` (`1d2bd55`, auth). Anyone whose client code specifically checks for 403 on token expiry needs to update that.\n\n**Added**\n- Webhook deliveries now retry with exponential backoff instead of being dropped after one failed attempt (`395fb48`).\n\n**Fixed** (same underlying bug, fixed module-by-module — I collapsed these into one line each)\n- Request bodies are no longer logged in full on the DB layer — this was leaking potentially sensitive data into logs (`1b55313`).\n- Paginated list endpoints (queue, API, webhooks, DB) no longer crash on a null cursor.\n- Retried requests (HTTP client, billing, core) no longer send a duplicate header.\n- Retrying an API request now keeps the original trace id instead of generating a new one (fixed 3 times in the log — same issue).\n- Trailing slashes on queue and job-scheduler paths were being trimmed twice; now trimmed once.\n- An empty allowlist no longer breaks the store, database, or job scheduler.\n- Latency histograms in the store and core now record correct units.\n- Token-parser error messages (core, billing, queue) are now specific instead of generic.\n- The HTTP client no longer hangs when the server socket drops mid-request.\n- The HTTP client now closes its connection pool on shutdown instead of leaking sockets.\n\nEverything else — the ~150 dependency bumps, the `Ctx`→`RequestCtx` renames, \"move config loader,\" \"collapse retry helpers,\" CI tweaks, node-version pinning, etc. — is internal and I left it out.\n\nI'll drop this into CHANGELOG.md in the same shape as 4.1.0 now."
+  ],
+  "finalText": "CHANGELOG.md now has the 4.2.0 entry ahead of 4.1.0, same shape, placeholder comment removed. One thing worth a judgment call before you ship it: I put the auth 401/403 change under \"Breaking\" rather than \"Fixed\" since it changes an observable status code — worth double-checking that's the call you'd make too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "84755c6e3a56a2c560357beb62922c05ec3f35f58ff4a0ed483dbc1106a718fc"
+}

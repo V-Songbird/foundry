@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29470,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20322019999999996,
+  "numTurns": 10,
+  "durationMs": 28299,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2023
+  },
+  "contextTraffic": 237937,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 15618,
+  "narrationWords": 76,
+  "finalWords": 110,
+  "finalText": "Build's clean now, exit code 0. The rest of the wall of text (DEP0142/198/233/250/267, unused-export, circular-import, etc.) is genuine noise from the bump — those are informational deprecation notices, not failures.\n\nThe two real bugs the bump introduced:\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but `resolveRetries` still read `options.retries` (now `undefined`), so `.toFixed(0)` threw. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only handled explicit `true`/`false` and threw on anything else. Added an `undefined` → `false` case.\n\nBuild now finishes with 0 errors (8 warnings, all pre-existing deprecation noise, `dist/bundle.js` emitted).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2de4fee09dde2d61e5efe2b5069d8c893c07a874ebfd173f276743bef8f23ef0"
+}

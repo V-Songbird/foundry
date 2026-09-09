@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 19,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26865,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20405070000000003,
+  "numTurns": 10,
+  "durationMs": 25542,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1926
+  },
+  "contextTraffic": 240774,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 15658,
+  "narrationWords": 117,
+  "finalWords": 120,
+  "finalText": "Build is clean now — exit code 0, \"0 errors\". The remaining 8 lines are genuine noise (Node deprecation warnings like `DEP0142`/`fs.exists`, `DEP0198`/`Buffer()`, etc., and a couple of unrelated lint-style warnings), not tied to the bump-induced bugs.\n\nThe real problem was two sequential regressions from the bundler bump (fakepack 3.11.2 → 4.2.0), both in the link stage:\n\n1. **`src/core/options.js`** — the new bundler passes retry options as `{ retryCount }`, but `resolveRetries` still read `options.retries` (undefined), throwing on `.toFixed()`. Fixed to read `options.retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only accepted strict `true`/`false` and threw otherwise. Simplified to `flags.backoffEnabled === true`, which treats anything else (including `undefined`) as disabled.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95621604bb2d563aa3a8c0ba6c43472f8739828399ee941fdd0043727a22cbae"
+}

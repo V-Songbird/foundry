@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lean__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18873,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1328796,
+  "numTurns": 4,
+  "durationMs": 17112,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1055
+  },
+  "contextTraffic": 163681,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23304,
+  "narrationWords": 0,
+  "finalWords": 202,
+  "finalText": "Everything ran clean until 02:14:07 on 2026-07-04, then it fell apart.\n\n**Trigger:** Redis at `10.0.0.12:6379` dropped the connection with `ECONNREFUSED`. The app fell back to hitting the store directly instead of the cache.\n\n**Cascade:** That fallback caused a \"cache miss storm,\" which piled load onto the store. The store couldn't keep up, so requests started timing out after 5000ms, over and over, across `api`, `worker-1`, `worker-2`, and `scheduler`.\n\n**Retries failed:** Redis reconnect attempts (0 through at least 12) all failed with the same `ECONNREFUSED`, so the cache never came back.\n\n**Death spiral:** The request queue climbed steadily (478 up past 550, over its max of 500), meaning the backlog kept growing faster than it drained.\n\n**Final blow:** At 02:31:44, `worker-2` hit a JavaScript heap out-of-memory error from the backlog and got restarted, but 8 seconds later the supervisor logged \"api unresponsive, killing process group — service down\" at 02:31:52.\n\n**Bottom line:** Redis went down, the fallback path overwhelmed the database, requests backed up faster than they could clear, and the backlog eventually exhausted memory and took the whole service down. Fixing this needs the Redis host restored and likely a circuit breaker so a cache outage can't cascade into a full crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a0e0e8f47ee89bee07c5bb09716d0059d1f29146cb0323838e974123aa9e0513"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__stock__r1",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19400,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.130372,
+  "numTurns": 5,
+  "durationMs": 17647,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1098
+  },
+  "contextTraffic": 153763,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23471,
+  "narrationWords": 0,
+  "finalWords": 163,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died at 02:14, and the fallback path never recovered — service crashed at 02:31.**\n\nTimeline:\n1. `02:14:07` — Redis connection lost, `ECONNREFUSED 10.0.0.12:6379`. App fell back to direct store reads.\n2. Fallback couldn't keep up: constant `cache miss storm` warnings and `TimeoutError` after 5000ms, non-stop for 17 minutes.\n3. Redis reconnect attempts (7 through 12, every ~90s) all failed the same way — Redis never came back.\n4. Request queue depth climbed steadily, 52 to 568 (max 500), so it was overflowing near the end.\n5. `02:31:44` — `worker-2` hit `JavaScript heap out of memory`.\n6. `02:31:45` — supervisor restarted `worker-2` (exit code 134).\n7. `02:31:52` — `api` went unresponsive, supervisor killed the process group. **Service down.**\n\nRoot cause: Redis at `10.0.0.12:6379` went unreachable and stayed down. The direct-store fallback couldn't absorb load, backlog grew until a worker OOM'd, which took the whole api down.\n\nNext: check why Redis at `10.0.0.12` dropped, and get it (or a failover) back before this repeats.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "15e8f4cf515ca744b9cef555ea76a8c13dfbc74b07a6ceadfc57237b97ce2c29"
+}

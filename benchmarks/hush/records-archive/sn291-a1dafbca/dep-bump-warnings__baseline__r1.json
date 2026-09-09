@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "sn291-a1dafbca",
+  "seed": "1787887694776",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28122,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1330128,
+  "numTurns": 10,
+  "durationMs": 26337,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2039
+  },
+  "contextTraffic": 205968,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 16254,
+  "narrationWords": 96,
+  "finalWords": 82,
+  "assistantMsgs": 2,
+  "finalText": "Build's clean now — exit 0, \"0 errors\". The remaining 8 lines are genuine deprecation warnings (`fs.exists`, `Buffer()`, punycode, etc.), not build-breaking.\n\nThe real problem was two bugs in the link stage that the bundler bump exposed, both now fixed:\n- `src/core/options.js:6` — read `options.retryCount` instead of the old `options.retries` (new bundler passes options in the `{ retryCount }` shape).\n- `src/net/retryPolicy.js:8` — treat `flags.backoffEnabled === undefined` as `false` instead of throwing (new config loader leaves unset flags as `undefined`, not `false`).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c5cac94e9e0c4235bf163c23133c3cfb9a0dd956df23fc785f613c44aa9c91f"
+}

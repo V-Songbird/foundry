@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 105809,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6442114999999999,
+  "numTurns": 22,
+  "durationMs": 104857,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7673
+  },
+  "contextTraffic": 456254,
+  "apiCalls": 13,
+  "toolCalls": 21,
+  "toolResultChars": 22435,
+  "narrationWords": 158,
+  "finalWords": 400,
+  "finalText": "Migration finished.\n\n## What changed\n\n12 files were still on `db.query`, 36 call sites total — 3 in each file (get-by-id, list, update):\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the shape the earlier passes established in the already-migrated siblings. I did this with a bracket-aware codemod rather than a regex, because the update sites pass `[...keys.map((k) => patch[k]), id]` — the nested `patch[k]` breaks naive `\\[...\\]` matching.\n\n## Two things I deliberately did not change\n\n**`cache.query()` is not the same API.** `lib/cache.js` exposes a `query` that takes a cache key, not SQL — the shared name is a coincidence, and `lib/cache.js:3` says so explicitly. It appears in 6 of the files I touched (e.g. `session.js:18`), sitting two lines from a real `db.query`. Left as-is; the codemod asserted on the receiver rather than pattern-matching `.query(`.\n\n**`vendor/legacy-orm/adapter.js` still has 2 `db.query` calls**, and I left them. The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on every upgrade, with local edits silently lost. Migrating it would look done but silently revert on the next vendor bump. Worth flagging: since `lib/db.js:6` notes the driver's next major *drops* `query`, this is a real upgrade blocker that needs handling upstream — bump legacy-orm to a version using the new form, or wrap the adapter. That's a call for you, not something to bury in this sweep. Say the word if you want the wrapper.\n\n## Verification\n\nNo test suite, package.json, or git in this repo, so I wrote a throwaway harness against the fact that `lib/db.js` records the `form` of every call. It required all 75 package modules, invoked all 250 exported functions, and captured 325 db calls: **325 `execute`, 0 `query`**, 0 malformed payloads (every one carries a non-empty `sql` string and an array `params`), no load or call errors. Both scratch scripts lived outside the repo and are deleted.\n\nCaveat on what that proves: it confirms every call site now reaches `execute` with a well-formed payload, since `lib/db.js` is a stub that just records and returns `[]`. It does not exercise a real driver, so nothing here validates the SQL itself against a database.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0e82e8b3b9bc6c6db6be45bbbba642fe61ff3d1d14a251ff179a28495ca196b1"
+}

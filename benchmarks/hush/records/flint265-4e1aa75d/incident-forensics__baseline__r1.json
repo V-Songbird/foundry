@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 44,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 173548,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7685345,
+  "numTurns": 16,
+  "durationMs": 167416,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10952
+  },
+  "contextTraffic": 496175,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 21371,
+  "narrationWords": 8,
+  "finalWords": 938,
+  "assistantMsgs": 5,
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Prepared by:** <email> · **Status at handoff:** ONGOING — errors still firing at the end of available logs (03:59:27Z)\n\n---\n\n### Root cause\n\nDeploy **dep-4471** (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. This makes each in-flight request hold its own connection for the request's full lifetime instead of sharing pooled connections. With `pool size=20`, effective concurrency is now capped at 20 requests; everything beyond that queues and eventually fails to acquire, returning 503.\n\nEvidence chain:\n\n- `02:12:12.820Z INFO config reload requested by deploy pipeline, generation 118 -> 119` — 12s after dep-4471 started\n- `02:13:41.234Z INFO config generation 119 applied: 3 keys changed` → `gateway.pool.perRequest: false -> true`, `gateway.timeout.upstreamMs: 2000 -> 2500`, `gateway.log.sampleRate: 1.0 -> 1.0` (no-op)\n- First symptom 33s later; first 503 at `02:14:18.972Z`\n- Pool state before: `in_use` oscillating 3–11 of 20, `waiting=0`. From the first sample after the apply onward: `in_use=20 idle=0` continuously, wait queue growing ~20 per 5 min, peaking at `waiting=271`\n- All 530 errors are the same code — `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`. Zero upstream 5xx, zero timeouts, zero connection failures. The upstreams were never at fault\n- Traffic never changed: `acquired_total` climbs a constant 1070 per 5-min interval before *and* after the break. This is a cost-per-request regression, not a load spike\n\n### Impact window\n\n| | |\n|---|---|\n| **Start** | 2026-03-14 **02:14:18.972Z** (first 503, `req-07401 /v1/cart -> billing-svc 503 659ms`) |\n| **First warning** | 02:14:14.920Z (`acquire slow: waited 100ms`) — 4s of lead time |\n| **End** | **Not yet recovered.** Last log line 03:59:27.974Z is a 503 |\n| **Duration** | **≥ 1h 45m** and counting |\n| **Volume** | 530 × 503, plus 212 `acquire slow` warnings (degrading 100ms → 890ms) |\n| **Rate** | ~30 in the first 10 min, then a flat 50 per 10 min |\n| **Scope** | Uniform. 106 each on `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`; ~133 against each of the four upstreams |\n\n**Two things to flag to whoever picks this up:**\n\n1. **`/health` never failed** — still returning 200 with `pool_wait=2ms` throughout. Health-check-based alerting and any LB liveness probe read this as green while a supermajority of real traffic 503'd. On-call was not paged until `03:21:05Z` (`WARN ops paged on-call: error_rate 5m avg is 71%`), **67 minutes** after onset. Worth a follow-up ticket independent of the rollback.\n2. **This log is node-3 of 3.** I only have this node's logs. The config change came from the deploy pipeline, so it is almost certainly fleet-wide — assume nodes 1 and 2 are in the same state and verify before declaring the blast radius.\n\n### Roll back\n\n**dep-4471** — gateway, 2026-03-14 02:12:00Z–02:14:00Z, a.novak.\n\nRevert `gateway.pool.perRequest: true -> false`. Fastest path is a config rollback to **generation 118** rather than a full redeploy.\n\nIf you roll back the whole generation you also revert `gateway.timeout.upstreamMs` 2500 → 2000. That's likely fine — it was healthy at 2000 for the entire pre-incident window — but it's a second behavior change, so make it a conscious call. If you want to isolate, push the single key `perRequest: false` and leave the timeout at 2500.\n\n**Verify recovery on:** `pool stats` returning to `waiting=0` with `in_use` well under 20, and `ERR_POOL_EXHAUSTED` stopping. Both appear within a minute if the fix takes — the stats line emits every 5 min.\n\n**Do not roll back** dep-4472 (billing-svc, 02:41) or dep-4473 (catalog-svc, 03:20). Both started *after* 503s were already at steady state, neither moved the error rate, and the even spread across upstreams rules out a single-service cause. dep-4473's cache TTL change (60s → 300s) is live and unrelated — just be aware it's in the current state if you're comparing behavior.\n\n**If the rollback does not fix it,** the next thing to check is whether `pool size=20` is simply undersized for current concurrency — the `perRequest` flag exposed the cap but the cap itself is a static 20 across the whole log. Raising pool size is the mitigation if the flag turns out to be wanted behavior.\n\n### Not part of this incident — separate ticket\n\n`logs/worker.log` shows the workers took **zero** damage: 1080 jobs, 1080 `finished ok`, no errors, and their own pool flat at `size=8 in_use=1 idle=7 waiting=0` for the full window. Nothing propagated.\n\nThey do have their own slow-burn problem, and someone should open a ticket:\n\n- Average job duration climbs linearly ~110ms per 10 min, 327ms at 01:00 → 2197ms at 03:50, across all six job types\n- `db_wait` stays flat at 0–12ms, so it is **not** DB contention — looks like something accumulating in-process\n- It starts before the log window opens and its slope is unchanged across 02:14, so it is definitely not caused by the gateway\n- At the observed rate it crosses 5s around 08:00\n\nThe single `WARN db slow query 1.9s ... unindexed scan, known issue OPS-2210` at 02:36 is a known pre-existing issue, fires once, and is not related.\n\nPossible but unconfirmed link: dep-4470 (worker, 00:48–00:55, \"retry backoff for webhook jobs\") finished ~5 min before this log window starts, so I have no pre-deploy baseline to compare against. If worker logs from before 01:00 are available, that would confirm or clear it.\n\n---\n\n**Sources:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`. All conclusions are from log and deploy-manifest analysis only — I have not read the gateway config or source, so the precise semantics of `gateway.pool.perRequest` are inferred from the deploy summary and the observed pool behavior. Worth a 30-second confirmation from someone who knows the codebase before the rollback goes out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ab3a96f8872c9a9c470ee4a6f84f6debb3098e3a1f397a62212d1b0e676eb7bf"
+}

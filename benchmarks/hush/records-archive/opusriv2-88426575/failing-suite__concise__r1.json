@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__concise__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 18,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29309,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.24226799999999998,
+  "numTurns": 10,
+  "durationMs": 27225,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1272
+  },
+  "contextTraffic": 165687,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12201,
+  "narrationWords": 18,
+  "finalWords": 118,
+  "finalText": "Green: 625/625.\n\nOnly 3 of the 625 cases actually failed, all in `order totals`, all the same defect: `orderTotal` applied the tax rate to the **pre-discount** base (`cents * taxRate`) while the spec — and the function's own docstring — says tax is charged on what the customer actually pays. It stayed hidden because every other row in that suite has either a zero discount or a zero tax; only the three rows with both non-zero exposed it.\n\n`src/pricing.js:39` now reads:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nReusing `applyTax` also keeps the rounding identical to the rest of the engine (round the discounted subtotal, then round after tax), which is what the cases compute.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "df1e34db3dabb40f5422cebde50f7b73ea669c21e21facf0fa15787e0f319d68"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24828,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.18541870000000002,
+  "numTurns": 10,
+  "durationMs": 23491,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1713
+  },
+  "contextTraffic": 234419,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7781,
+  "narrationWords": 26,
+  "finalWords": 94,
+  "finalText": "Build passes clean, 0 errors. The rest are harmless deprecation noise from the bump (Node's DEP0142/198/233/250/267 warnings) — not worth chasing.\n\nTwo real bugs from the bump, both fixed:\n1. `src/core/options.js:6` — read old field name `options.retries` (now `undefined`) instead of the new `options.retryCount`. Fixed to use `retryCount`.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags as `undefined`, but the check only handled `true`/`false` and threw otherwise. Added an `undefined` → `false` (disabled) case.\n\nNext: run your actual test suite if you have one — I only verified the build script exits 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2134841efb953c681e1e6a6a6ccca104fded18467a6670caa0024c3ab83e2861"
+}

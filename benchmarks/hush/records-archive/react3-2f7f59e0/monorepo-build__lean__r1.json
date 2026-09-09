@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__lean__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32695,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2155494,
+  "numTurns": 9,
+  "durationMs": 31029,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1770
+  },
+  "contextTraffic": 313588,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 6968,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "finalText": "Found it and fixed it. The build broke at `packages/shared/config.js:15` — it merged package configs with a shallow `Object.assign`, so any package overriding part of `output` or `sourcemap` (like `@acme/api`, `@acme/web`, `@acme/cli`) lost the rest of that nested object, including `output.dir`.\n\nI replaced it with a one-level-deep merge that keeps sibling keys like `dir` when a layer only overrides `format` or `entry`. Build now finishes clean: `0 errors`, and `verify.js` confirms it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "539dfb53784d7bd6258437f6dfb01f2c4709aa11c7926e24b9a6e3cb71d7a3e0"
+}

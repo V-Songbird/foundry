@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 42393,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.07556700000000001,
+  "numTurns": 13,
+  "durationMs": 40633,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2646
+  },
+  "contextTraffic": 326234,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 16618,
+  "narrationWords": 92,
+  "finalWords": 96,
+  "finalText": "All clean now! The build completes successfully with exit code 0. Here's what I fixed:\n\n**Two API mismatches from the dependency bump:**\n\n1. **`src/core/options.js`** — The new bundler changed the options shape from `retries` to `retryCount`. Updated the function to use the new property name.\n\n2. **`src/net/retryPolicy.js`** — The new config loader leaves unset flags as `undefined` instead of `false`. Added a check to treat `undefined` as `false` for the backoff flag.\n\nThe remaining 8 warnings are just deprecation notices from the bundler's own internal dependencies—nothing that needs fixing in your code. Build's ready to go!",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4ae705db7a2118140d3153ead59c02b3eba85f96b4091f23fd68e4386c5719c4"
+}

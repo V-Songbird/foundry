@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 80024,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2708848,
+  "numTurns": 43,
+  "durationMs": 78429,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10147
+  },
+  "contextTraffic": 266625,
+  "apiCalls": 8,
+  "toolCalls": 42,
+  "toolResultChars": 17611,
+  "narrationWords": 23,
+  "finalWords": 47,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirmed db.query is deprecated in favor of db.execute. Now migrating all application files (excluding the vendored ORM).",
+    "Verifying no remaining app-level `db.query` calls."
+  ],
+  "finalText": "**Migration done.** Moved 11 files (`macroAdmin`, `sla`, `variantAdmin`, `couponService`, `apiKeyAdmin`, `supplier`, `returnService`, `teamService`, `shipment`, `refund`, `session`, `cohort`) from `db.query(sql, params)` to `db.execute({ sql, params })`.\n\nLeft `vendor\\legacy-orm\\adapter.js` untouched — it's marked \"vendored, replaced wholesale on upgrade, do not edit.\"\n\nNext: nothing. All non-vendor call sites are migrated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d98b71589442dc020690ab6f99f9cc2aca611c63ef43e935774d293921fbf31"
+}

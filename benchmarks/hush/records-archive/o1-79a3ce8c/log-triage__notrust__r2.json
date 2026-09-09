@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__notrust__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "notrust",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 82512,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 0.42680599999999996,
+  "numTurns": 9,
+  "durationMs": 81075,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5398
+  },
+  "contextTraffic": 248183,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 10322,
+  "narrationWords": 5,
+  "finalWords": 138,
+  "finalText": "**Redis went down and took the whole service with it.**\n\n```\n02:14:07  redis refuses connections at 10.0.0.12:6379\n02:14:08  cache bypassed, every read goes straight to the store\n02:14:10  store overloads, requests time out after 5000ms\n02:29:12  request queue passes its own 500 limit\n02:31:44  worker-2 dies, JavaScript heap out of memory\n02:31:52  supervisor kills the process group, service down\n```\n\nThe trigger was `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`.\nIt retried 13 times over 16 minutes. Every try failed the same way.\nNo request succeeded after 02:14:03. That is nearly 18 minutes fully down.\n\nWhat made it fatal: the app kept accepting requests it could not serve.\nThe queue blew past its own 500 cap. Then memory ran out.\n\nNext: find why redis stopped listening on `10.0.0.12`. Then make the app\nturn requests away once the queue fills.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bcaf7c8ffd89d152e104dbf1be6607b09d1c87bb0826c2018073941f5b862cb3"
+}

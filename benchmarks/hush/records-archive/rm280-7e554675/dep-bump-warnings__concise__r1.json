@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31103,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2438535,
+  "numTurns": 11,
+  "durationMs": 29311,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1908
+  },
+  "contextTraffic": 180783,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6127,
+  "narrationWords": 6,
+  "finalWords": 126,
+  "finalText": "Build passes (exit 0). Two real bugs from the bump, both hidden behind the warning wall:\n\n1. `src/core/options.js:6` — the bundler renamed `options.retries` → `options.retryCount`; this call site still read `.retries`, so it threw `TypeError: Cannot read properties of undefined`. Now reads `retryCount ?? retries` with an explicit type check.\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags `undefined` instead of `false`; the strict boolean check threw on that. Absent flag now maps to the old default (disabled).\n\nThe remaining 8 warnings are genuine noise but worth queuing separately — notably `W3307 circular-import: src/core/graph.js <-> src/state/tracker.js` (undefined resolution order, a latent bug) and `W1042 crypto.createCipher` in `src/legacy/adapter.js`, which is deprecated and cryptographically unsafe. Those files aren't in this tree, so I left them alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23c9cb59953eb69161f5071b6191cc296a6b59d3d5127f34874ae2d6a31c9f8c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__notrust__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 62,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "notrust",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 233668,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 1.214018,
+  "numTurns": 25,
+  "durationMs": 227994,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 16978
+  },
+  "contextTraffic": 811460,
+  "apiCalls": 21,
+  "toolCalls": 21,
+  "toolResultChars": 24230,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "Handoff is written to `HANDOFF.md`.\n\n**Root cause:** `dep-4471` flipped `gateway.pool.perRequest` to `true`. The gateway stopped reusing connections. The 20-slot pool filled in about 37 seconds.\n\n**Window:** `02:14:18.972Z` to `03:59:27.974Z`, still going at log end. 530 failures. No real request succeeded after onset.\n\n**Roll back:** `dep-4471`, or just flip that one key back to `false`.\n\nTwo things in the doc you may want to raise. `/health` stayed green all night, so the page came 67 minutes late. The worker slowdown is real but separate, and it needs its own ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dfd5653fc833cb5d5eaa573e0a1fc2c6336d3e676953015c6f0c60fbc2b23446"
+}

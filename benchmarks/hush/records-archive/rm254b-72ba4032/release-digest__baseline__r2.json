@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 46,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 186911,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6817394999999999,
+  "numTurns": 19,
+  "durationMs": 185601,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 16699
+  },
+  "contextTraffic": 646899,
+  "apiCalls": 14,
+  "toolCalls": 18,
+  "toolResultChars": 33021,
+  "narrationWords": 198,
+  "finalWords": 215,
+  "finalText": "CHANGELOG.md now has the 4.2.0 section. Summary of how I got there:\n\n- Of 380 commits / 127 merged PRs since 4.1.0, only **11 PRs** were user-observable — everything else was dependency bumps (`chore(deps)`), internal refactors/renames, perf tweaks, tests, CI, and docs.\n- **1 Breaking**: expired tokens now return `401` instead of `403` — flagging this as breaking rather than a plain fix because it's a status code clients may branch on.\n- **1 Added**: automatic exponential-backoff retry for failed webhook deliveries.\n- **8 Fixed**: trailing-slash handling (queue + jobs), full request bodies no longer logged by the DB layer (worth knowing if anyone's compliance-sensitive about logs), empty-allowlist handling, trace id surviving retries, latency histogram units, null-cursor webhook pagination, a duplicate HTTP header, and clearer queue token-parser errors.\n\nOne thing I did *not* second-guess into the notes: several near-identical \"fix\" commits (e.g., three separate `drop the duplicate header` commits, three `keep the trace id across the retry` commits) show up in the raw commit log but never got a matching PR-sheet entry — I treated those as noise/abandoned attempts rather than real shipped fixes, since the PR sheet is the curated record of what actually merged. Worth a sanity check on your end if you want to be sure nothing legitimate got filtered out there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71f1ffcc8fa0553d711ab76b036b616f74ee89d946d7fa9544a404b4bfa42b68"
+}

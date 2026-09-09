@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__secondfact__r2",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28915,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.2184434,
+  "numTurns": 4,
+  "durationMs": 26975,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1809
+  },
+  "contextTraffic": 146613,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 181,
+  "finalText": "Redis died at 02:14:07. That knocked out the cache, so every request fell back to hitting the store directly. The store couldn't keep up, requests started timing out, and the backlog just kept growing from there.\n\nFor the next 17 minutes, api, worker-1, worker-2, and scheduler all logged the same loop over and over. Timeouts, cache miss storms, and a request queue that climbed from 52 all the way past its cap of 500. Redis reconnect attempts kept failing too, roughly every two and a half minutes, so the cache never came back.\n\nAt 02:31:44 worker-2 ran out of memory from the backlog and crashed. The supervisor restarted it, but eight seconds later the api process stopped responding entirely and got killed. That's when the service went down.\n\nSo the real cause was Redis dropping at 02:14, not the crash itself. The crash was just the backlog finally catching up to it 17 minutes later. Worth checking why redis at 10.0.0.12:6379 went unreachable, and maybe adding a queue depth cap so a cache outage can't snowball into an OOM next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aaabfd5a276de815380cf35a4d28ed1058dd262b5468b4d3df1eb75d61f6e06e"
+}

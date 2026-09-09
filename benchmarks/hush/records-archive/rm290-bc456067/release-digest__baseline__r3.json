@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 102899,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6052525,
+  "numTurns": 10,
+  "durationMs": 101500,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6910
+  },
+  "contextTraffic": 309924,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 37501,
+  "narrationWords": 182,
+  "finalWords": 410,
+  "assistantMsgs": 3,
+  "finalText": "Done — the entry is in `CHANGELOG.md:3`, using your three headings in order.\n\n**Judgment calls you should sanity-check:**\n\nThe **401/403 change** (`1d2bd55`) is filed as `fix` in the log, but I put it under Breaking. It changes an API contract, and anyone with a \"403 → give up, 401 → refresh\" branch silently breaks. That matches how 4.1 handled the `timeout` unit change — also arguably a fix, also listed as Breaking.\n\nThe **histogram unit fix** (`1f2bc4e`, `59402bc`) is the same shape: a genuine bug fix that changes numbers people have already built on. I'd rather over-warn there than have someone's alerting go quiet.\n\n**The two parked items** are the ones I need you to resolve, and they're the reason I didn't just publish them:\n\n- Nine commits across auth/billing/core/db/jobs \"stop re-exporting the internal error types.\" If those types were reachable from the package entry point, that's a real import break for consumers, and it's the biggest breaking change in the release. If they were only ever internal plumbing, it's invisible and shouldn't be mentioned at all. The log can't tell me which — check whether they appeared in the public index.\n- `refactor(api): drop the unused v1 export route` (one commit, `src/api/handlers.js`). \"Unused\" in a commit message usually means *we* stopped calling it, which says nothing about external callers. If it was a live HTTP route, removing it is breaking and probably deserves top billing.\n\n**What I deliberately left out:** the nine `perf` commits (JSON round-trip skipped on hot paths, extra clone avoided in mappers, metric writes batched, parsed schema reused across requests). They're real work and plausibly user-noticeable, but there are no benchmark numbers anywhere in the history, and your template says to write down only what someone installing this would notice. \"Some things are faster\" with no measurement isn't that. If you have numbers from the release testing, this is worth a line — the API schema-reuse change (`9f02d92`) is the one most likely to show up in request latency.\n\nI also skipped the ~90 refactors (Ctx→RequestCtx renames, config loader moves, router file splits, dead feature-flag branch deletions) and all the dep/CI/test churn. Happy to dig into any of those if you think one leaked into the public surface.\n\nOne oddity, probably nothing: the last commit on `release/4.2` is dated 2026-06-17, but you're cutting tomorrow. I dated the entry 2026-08-28 for the cut. If there's been work since that isn't in this log, I haven't seen it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e73aff21accfdd4416eb6c33c762b2b481b20d1ad9c72c99d80c31e73845b993"
+}

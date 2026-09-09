@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 85,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 76183,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6575588000000001,
+  "numTurns": 17,
+  "durationMs": 71064,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5252
+  },
+  "contextTraffic": 929146,
+  "apiCalls": 15,
+  "toolCalls": 13,
+  "toolResultChars": 66804,
+  "narrationWords": 75,
+  "finalWords": 250,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z) — needs rollback action.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, 02:12–02:14Z, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` (config generation 118→119, applied 02:13:41.234Z). This exhausts the gateway's DB connection pool (fixed `size=20`) — `in_use` pins at 20/20 within ~2 minutes of the change and never drains, with the `waiting` queue climbing monotonically (13 → 74+ by end of log) instead of resetting. Same deploy also bumped `gateway.timeout.upstreamMs` 2000→2500, consistent with 503 response times creeping from ~660ms toward ~850ms over the incident.\n\n**Impact window:**\n- First symptom (slow acquire warning): `02:14:14.920Z`\n- First 503: `02:14:18.972Z` (`req-07401 /v1/cart -> billing-svc 503 659ms`, `ERR_POOL_EXHAUSTED`)\n- Confirmed saturation via pool stats: `02:15:58.529Z` — `in_use=20 idle=0 waiting=12`\n- Still failing at end of available logs: `03:59:27.974Z` (`waiting=74`) — **not self-recovered**\n- Scope: gateway only. All 8 routes are affected but not evenly — `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` are erroring in the recurring pattern; `/health` and `/v1/profile` are largely still returning 200. `worker.log` shows zero impact — all background jobs (reindex/email/webhook/settle/export/cleanup) ran clean throughout with normal latency, so no downstream worker/queue cleanup is needed.\n\n**Rollback:**\nRoll back **dep-4471** on `gateway` — revert `gateway.pool.perRequest` to `false` (and consider reverting `gateway.timeout.upstreamMs` to 2000). No other deploy in the window is implicated: `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both post-date the onset and target unrelated services.\n\n**Not implicated:** `worker` fleet, `billing-svc`, `catalog-svc`, `accounts-svc` deploys — all clean/unrelated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c6ada1c68d6230359dabbb8ddcc2578fb2dbb8f73cf1576503a1ccd05996de5"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 30995,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.061747899999999994,
+  "numTurns": 11,
+  "durationMs": 29187,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1903
+  },
+  "contextTraffic": 242587,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8704,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "finalText": "Build's clean. Two issues in the link stage from the package bump:\n\n1. **options.js** — the new bundler changed the options shape from `retries` to `retryCount`; updated the call to match.\n2. **retryPolicy.js** — the new config loader leaves unset flags as `undefined` instead of `false`; added a case to treat undefined the same as false.\n\nBoth are fixed. The 8 warnings left are just deprecation noise from dependencies — not worth fixing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dc1a649eb4cc7beaa11127829c065a475e31771393044a30bafc26d952564791"
+}

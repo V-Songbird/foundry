@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 36,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 98914,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5607153,
+  "numTurns": 9,
+  "durationMs": 97613,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8970
+  },
+  "contextTraffic": 401721,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 70717,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "380 commits, ~130 PR. 90%+ dep bumps/refactor/CI/test noise, ignored. Real signal: 1 breaking, 1 feat, 10 fix, all pulled from `fix()`/`feat()` commits cross-checked against `code` label in merged-prs.tsv.\n\n**4.2.0** written into CHANGELOG.md:\n\n- **Breaking:** expired token now `401` not `403` — flag for anyone special-casing status codes.\n- **Added:** webhook retry with exponential backoff.\n- **Fixed:** null-cursor pagination crash (hit queue/api/webhooks/db separately, one fix per module), duplicate response headers (core/billing/http), double-trim trailing slash (queue/jobs), empty-allowlist mishandling (store/db/jobs), HTTP timer leak on socket drop, pool not closed on shutdown, full request body logged (privacy), trace ID dropped on retry, wrong histogram units, vague token-parser errors.\n\nNote: same fix title landed 3x in same module (`fix(api): keep the trace id across the retry` — 05-22, 06-01, 06-13; `fix(core): drop the duplicate header` — 05-09, 06-06, 06-16). Different files each time, so treated as real distinct fixes, collapsed to one bullet each. Worth a sanity check with whoever owns api/core before ship — repeated title pattern could mean the bug kept regressing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "045cc47502923c0c0f5cba74c2d4453a704139eb1ac5d77b1374f149496621a9"
+}

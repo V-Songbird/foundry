@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 45,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 81167,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.44922499999999993,
+  "numTurns": 20,
+  "durationMs": 79279,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4928
+  },
+  "contextTraffic": 285827,
+  "apiCalls": 9,
+  "toolCalls": 19,
+  "toolResultChars": 17681,
+  "narrationWords": 6,
+  "finalWords": 93,
+  "assistantMsgs": 2,
+  "finalText": "**~1291 hits in 94 files. Only ~1075 are safe.**\n\n| Must not rename | Hits | Why |\n|---|---|---|\n| [`docs/openapi.yaml`](docs/openapi.yaml:16) | 5 | Public contract. Frozen field |\n| [`lib/serialize.js`](lib/serialize.js:8) `WIRE` | 1 | Maps to the frozen wire name |\n| [`vendor/reporting-sdk`](vendor/reporting-sdk/src/client.js:8) | 20 | Generated. `vendor:refresh` overwrites it |\n| [`migrations/*.sql`](migrations/20250624_backfill_account_ids.sql:9) | 61 | Applied history. Edits break the down step |\n| SQL strings in `services/*/src/repo` | 125 | Column is still `account_id` |\n\nSign off on the JS identifiers only. A new migration must rename the column first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1ea69f4397f73903c39116eacc6ade1c5f8f929bd1bd386c68344bdb1e6c3abd"
+}

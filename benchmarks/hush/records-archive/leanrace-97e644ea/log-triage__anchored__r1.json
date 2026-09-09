@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__anchored__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16780,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1402698,
+  "numTurns": 5,
+  "durationMs": 14938,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 820
+  },
+  "contextTraffic": 197822,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23498,
+  "narrationWords": 0,
+  "finalWords": 156,
+  "finalText": "Redis died at 02:14:07 UTC, `ECONNREFUSED 10.0.0.12:6379`, and never came back. That triggered a cascading failure over the next 17 minutes:\n\n- The cache layer fell back to direct store reads, causing repeated \"cache miss storm\" warnings.\n- The store got overloaded, so `api`, `worker-1`, `worker-2`, and `scheduler` started timing out after 5000ms.\n- Redis reconnect attempts (logged every ~100 seconds) kept failing, up through attempt 12 at 02:31:26.\n- Request queue depth climbed steadily, from 52 up past 568, way over the max of 500.\n- At 02:31:44 `worker-2` ran out of heap memory from the growing backlog and crashed with exit code 134.\n- At 02:31:52 the supervisor gave up, killed the whole process group, and the service went down.\n\nSo root cause is the Redis host at 10.0.0.12 becoming unreachable at 02:14. Everything after that, from the cache fallback to the final crash at 02:31:52, is a direct chain reaction from that outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5794661e946686baeebb7ac02bff19ad10efb36b4f2a72fc1bf9d8feae659626"
+}

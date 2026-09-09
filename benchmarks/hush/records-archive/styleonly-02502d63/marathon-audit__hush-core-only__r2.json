@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush-core-only__r2",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 34,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush-core-only",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 127551,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6563036,
+  "numTurns": 49,
+  "durationMs": 121006,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9863
+  },
+  "contextTraffic": 838629,
+  "apiCalls": 19,
+  "toolCalls": 45,
+  "toolResultChars": 25170,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "finalText": "`fast-parse` is pinned to 1.4.2, which `NOTES.md` says was yanked over a prototype-pollution report. 1.4.3 is the fix.\n\n`AUDIT.md` is written with all four findings, ranked by severity:\n\n1. `src/routes/internal.js` — no auth check, unauthenticated since the VPN was retired\n2. `config/staging.js` — staging DB password committed in plain text\n3. `src/repo/report.js` — SQL built by string concatenation in `runSavedReport`\n4. `package.json` — `fast-parse` stuck on the yanked 1.4.2\n\nVerify script confirms it: `OK AUDIT.md names all four findings and the service was left alone`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b30358e9991ca3cd9acdedce331bea3bef0315c689e3ff4e34920269272a1e71"
+}

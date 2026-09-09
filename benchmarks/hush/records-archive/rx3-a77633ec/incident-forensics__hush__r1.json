@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rx3-a77633ec",
+  "seed": "1786463572387",
+  "orderIndex": 11,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 63543,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4632668,
+  "numTurns": 16,
+  "durationMs": 56321,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2829
+  },
+  "contextTraffic": 641821,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 47667,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "finalText": "Still ongoing as of the log's last entry (03:59:27) — this hasn't self-resolved.\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (a.novak, gateway, 02:12–02:14 UTC) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. That change makes the gateway grab a fresh DB connection per request instead of reusing a shared one, and the 20-connection pool saturates almost immediately.\n\n**Impact window:** Started 02:14:18 UTC, still ongoing as of the last log line (03:59:27 UTC) — over 1h45m and counting. Every error is `ERR_POOL_EXHAUSTED`, and the `waiting` queue has climbed steadily the whole time (13 → 163+), so it's getting worse, not stabilizing. Workers were unaffected — `worker.log` shows no pool errors, jobs kept finishing normally.\n\n**Rollback target:** `dep-4471` (gateway config gen 119). Revert `gateway.pool.perRequest` back to `false` — that single key is what triggered the exhaustion.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6123a9b6e05a32fd12d7fa7dff528735d9cd92ab74b8b4577e9212c0a0b0060c"
+}

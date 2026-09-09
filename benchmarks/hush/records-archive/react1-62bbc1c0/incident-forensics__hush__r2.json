@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 58989,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.33936209999999994,
+  "numTurns": 13,
+  "durationMs": 52235,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2724
+  },
+  "contextTraffic": 533167,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 9455,
+  "narrationWords": 0,
+  "finalWords": 116,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (a.novak, gateway) shipped a config change flipping `gateway.pool.perRequest` from `false` to `true` and raising `gateway.timeout.upstreamMs` from `2000` to `2500`. Applied as config generation 119 at `2026-03-14T02:13:41.234Z`. This exhausts the connection pool (`size 20, in_use 20`), so requests queue and time out with `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** Started `2026-03-14T02:14:18.972Z` (first 503). Still ongoing as of the last log line, `03:59:27.974Z` — the wait queue has grown from 13 to 74 requests, so it's worsening, not recovering. Gateway-only: `logs/worker.log` shows no errors or slowdowns in this window, since workers don't go through the affected pool.\n\n**Rollback:** `dep-4471` on gateway. Revert `gateway.pool.perRequest` to `false` (and optionally the timeout back to `2000ms`).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2d3d909bfa131af1241e552c3eaf668118b828763e6beb48fa9a5f73863f1906"
+}

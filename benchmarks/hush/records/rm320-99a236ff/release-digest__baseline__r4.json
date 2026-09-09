@@ -1,0 +1,46 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 107249,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.836762,
+  "numTurns": 10,
+  "durationMs": 105833,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7664
+  },
+  "contextTraffic": 372561,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 74162,
+  "narrationWords": 57,
+  "finalWords": 538,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet stops at 2026-06-17 but is 128 rows; the commit log is much bigger. Let me read it.",
+    "Let me extract the user-facing categories systematically.",
+    "Now the refactors — some of these touch public surface.",
+    "I have the full picture. Let me write the 4.2.0 entry."
+  ],
+  "finalText": "Written to `CHANGELOG.md:3`. Here's what I found and how I filtered it.\n\n**The shape of the release:** 380 commits, of which 153 are `chore`, 73 `refactor`, 64 `test`, 33 `ci`, 20 `docs` — 343 commits, ~90%, with zero user-visible effect. The signal is 1 `feat`, 26 `fix`, 10 `perf`.\n\n**Two things worth your attention before you cut:**\n\n1. **The history stops at 2026-06-17.** Both files end there — the commit log and the PR sheet. You're cutting tomorrow, 2026-08-30. That's a ten-week gap. Either the branch genuinely froze in June, or the export is stale and there are commits I can't see. If it's the latter, this entry is incomplete and I'd want to regenerate the log before you ship. The PR sheet is a strict subset of the commit log (127 rows vs 380), so nothing is hiding in it that isn't in the log.\n\n2. **I promoted two items to Breaking that aren't labelled as breaking in the commits.**\n   - `fix(auth): return 401 for an expired token instead of 403` is filed as a fix, but it changes an observable status code. Anyone with a `if (status === 403)` refresh path breaks silently.\n   - `refactor(api): drop the unused v1 export route` is filed as a refactor. \"Unused\" is a claim about your telemetry, not about your users — a removed route is a removed route. Worth a sanity check that nothing external still calls it.\n   - Similarly, `stop re-exporting the internal error types` is spread across eight refactor commits in five modules and reads as internal cleanup, but removing a re-export breaks anyone's import.\n   - The histogram units fix follows the precedent you set in 4.1.0, where the seconds→milliseconds `timeout` change was Breaking. Same shape of break: the code still runs, the numbers just silently mean something different.\n\n**What I left out:** all 10 `perf` commits — \"skip the JSON round-trip on the hot path\", \"reuse the parsed schema between requests\", \"batch the metric writes\", \"avoid the extra clone in the mapper\". None carry measurements, and per your template note (\"only what someone installing this package would notice\"), nobody notices an uninstrumented micro-optimization. If you have benchmark numbers for the parsed-schema reuse or the JSON round-trip, those are the two most likely to be real and I'll add a line. The one I'd flag as borderline is `batch the metric writes` (queue and db) — if metrics now arrive in batches, scrape granularity changes, which someone might notice. Your call.\n\n**Where I inferred rather than knew:** the commit subjects describe the change, not the symptom, so a few lines are reasoned from the diffstat. \"Guard the null cursor\" I wrote as failing on a null cursor; \"close the pool on shutdown\" I wrote as a hang on exit. I also didn't invent a path for the v1 export route since the log only names the file. Worth a skim by whoever wrote those if you want the symptoms precise.\n\nDeduping note: many fixes appear multiple times across modules — the paginator guard in four, the trace id fix three times, the empty allowlist in three. I collapsed each to one line, naming the affected modules only where it helps a reader decide whether it touches them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a1c37103d34bb6b865fd190e5f28bf6c5c64382756d3e3716816f92f782fd097"
+}

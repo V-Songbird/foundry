@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__stock__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 72222,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.27823319999999996,
+  "numTurns": 42,
+  "durationMs": 70432,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10036
+  },
+  "contextTraffic": 248086,
+  "apiCalls": 7,
+  "toolCalls": 41,
+  "toolResultChars": 25281,
+  "narrationWords": 33,
+  "finalWords": 46,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Now I'll migrate all the app-package files (10 files, 3 calls each), leaving the vendor file alone since it's explicitly marked as overwritten on every upgrade.",
+    "Verifying no `db.query` calls remain outside vendor."
+  ],
+  "finalText": "**Migrated 10 files, 30 calls, to `db.execute`.**\n\nFiles: `cohort.js`, `sla.js`, `macroAdmin.js`, `teamService.js`, `session.js`, `apiKeyAdmin.js`, `variantAdmin.js`, `returnService.js`, `supplier.js`, `couponService.js`, `shipment.js`, `refund.js`.\n\nTwo calls remain, in [vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js:9). Left as-is: it's marked \"replaced wholesale on every upgrade, local changes lost.\" Let me know if you want it patched anyway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09558dd20fd91a9b6136dab580fd341b5d5f32b0aecc6ed67717dcc1c37f2522"
+}

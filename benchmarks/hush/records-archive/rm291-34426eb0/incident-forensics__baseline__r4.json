@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 62,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 173597,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.745647,
+  "numTurns": 17,
+  "durationMs": 166899,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11302
+  },
+  "contextTraffic": 472686,
+  "apiCalls": 15,
+  "toolCalls": 13,
+  "toolResultChars": 15906,
+  "narrationWords": 15,
+  "finalWords": 711,
+  "assistantMsgs": 6,
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status at handoff:** unresolved. The log ends at 03:59:27Z still emitting 503s. Assume ongoing unless someone has acted since.\n\n---\n\n### Root cause\n\n`dep-4471` — gateway config change, `connection-per-request for pool isolation`, shipped by a.novak, 02:12→02:14:00Z.\n\nThe change makes each request open its own connection instead of reusing pooled ones. Against a `size=20` pool, that exhausts capacity as soon as concurrency exceeds 20, and connections are never returned. The gateway log shows all three signatures:\n\n- Pool pinned at `size=20 in_use=20 idle=0` from 02:15 through end of log — 105 minutes with zero idle connections.\n- `03:02:30Z WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — 104× normal open rate, the direct fingerprint of per-request connection creation.\n- Every one of the 530 503s is paired with an `ERR_POOL_EXHAUSTED` at the identical millisecond and request id. There is no other error type in the file.\n\nFailures are spread evenly across all five upstreams and all routes, which rules out any single backend — requests die in the gateway's own pool before reaching an upstream.\n\n**Confidence: high on correlation and mechanism.** The caveat: neither log contains the actual config diff, so \"the deployed change did what its summary says\" is inferred from timing plus the churn signature, not verified directly.\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **First bad line** | 02:14:14.920Z — `WARN acquire slow: waited 100ms` (earliest non-INFO line in the file) |\n| **First 503** | 02:14:18.972Z, `req-07401` |\n| **Deploy finished** | 02:14:00Z — **14 seconds before onset** |\n| **Paged** | 03:21:05Z — `error_rate 5m avg is 71%` |\n| **Still failing at** | 03:59:27Z (end of log) |\n| **Duration** | ≥105 min |\n| **Volume** | 530 × 503, ~84% of all requests after onset |\n\nThe 74 minutes before 02:14 are spotless — all 200s, `waiting=0`, `idle=10-17`.\n\n**Two scope limits, both important:**\n\n1. **This log is `node-3 of 3`.** I have no data on nodes 1 and 2. If the config went out fleet-wide, real user impact is ~3× what's above; if it was a canary, node-3 is the whole blast radius. Confirm before writing the customer-facing number.\n2. **67-minute detection gap.** `/health` returned 200 with `pool_wait=2ms` for the entire outage, so the load balancer never pulled the node and health checks never alerted. The page only fired at 03:21 off error rate. That's a monitoring bug in its own right — worth a follow-up ticket.\n\n---\n\n### Roll back\n\n**`dep-4471`.** It is the only gateway deploy in the file and the only change that fits the timing.\n\nRuled out:\n- `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both shipped *after* the incident was already running. Neither changed the 503 rate, and failures stayed evenly distributed rather than concentrating in billing or catalog.\n- `dep-4470` (worker, 00:55) landed 79 min before onset with a clean gateway log across the entire gap.\n- `dep-4468` / `dep-4469` are from the previous evening.\n\nRolling back also serves as the confirmation step — since the config diff isn't in these files, recovery-on-rollback is the fastest proof of causation. Watch `pool stats` for `idle` climbing off zero and the churn rate dropping back toward the 40/5m baseline.\n\n---\n\n### Separate issue — do not conflate\n\n`worker.log` shows an **unrelated** degradation. All 1080 jobs `finished ok`, worker pool idle throughout (`size=8 in_use=1 idle=7 waiting=0`), untouched by the gateway problem. But job duration climbs linearly 327ms → 2197ms over the window (6.7×), **with no inflection at 02:14** — same slope before and after, so it is not caused by this incident.\n\n`db_wait` stays flat at 5ms and all six job types gain the same ~2000ms, so it's process-wide, not DB contention. The ramp is already underway at the first log line, so I can't date its onset from this file. `dep-4470` (worker, \"retry backoff for webhook jobs\", 00:55Z) is the only worker deploy nearby and is a plausible suspect — but the degradation is uniform across job types rather than concentrated in `webhook`, which cuts against it. Pull worker logs from before 00:48 to settle it.\n\nThis one is silent — nothing alerts, every job returns `ok` — and it's getting monotonically worse. Needs its own ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cc41d8f446949e635661b91d353fb8a56942ce90111539091bb7db2d9ef2a4a6"
+}

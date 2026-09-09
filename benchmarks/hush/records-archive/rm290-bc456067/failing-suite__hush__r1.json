@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31122,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20003599999999996,
+  "numTurns": 9,
+  "durationMs": 28696,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1225
+  },
+  "contextTraffic": 199938,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 11511,
+  "narrationWords": 0,
+  "finalWords": 52,
+  "assistantMsgs": 1,
+  "finalText": "**Green. 625 passing, 0 failing.**\n\nOnly 3 cases failed, all in `order totals`. `orderTotal` taxed the full amount, not the discounted one. Rows with a zero discount or zero tax hid it.\n\nFix in [src/pricing.js:39](src/pricing.js:39): tax the discounted total.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nNo next step.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "197659361a038d6f5d5ac269bc947eaf114c402e59cddb0fc9498a572015b38b"
+}

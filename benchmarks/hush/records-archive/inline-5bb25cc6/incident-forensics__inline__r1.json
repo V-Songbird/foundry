@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__inline__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 26,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "inline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69686,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4653226999999999,
+  "numTurns": 17,
+  "durationMs": 62548,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3479
+  },
+  "contextTraffic": 695569,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 18800,
+  "narrationWords": 0,
+  "finalWords": 211,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation,\" shipped 02:12:00–02:14:00 UTC) applied as config generation 119 at `02:13:41Z`. It flipped `gateway.pool.perRequest` from `false` to `true` and raised `gateway.timeout.upstreamMs` from 2000 to 2500. 33 seconds later the connection pool (fixed size 20) started saturating — first slow-acquire warning at `02:14:14Z`, first `503`/`ERR_POOL_EXHAUSTED` at `02:14:18Z`. The `perRequest` setting appears to stop connections from being returned to the pool between requests, so `in_use` pins at 20/20 and the wait queue grows without bound.\n\n**Impact window:** Started `2026-03-14T02:14:18Z`, still active and unrecovered at `2026-03-14T03:59:27Z` (end of available log). Wait-queue depth climbed from 13 to 74 over that span, so it's actively worsening, not stabilizing. Affects gateway-routed traffic only — `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` all throwing intermittent 503s against every backend (billing, orders, catalog, accounts). `/health` checks keep passing, which likely masked it from basic monitoring.\n\n**Not affected:** `worker.log` is clean through the whole window — no 503s, no pool errors, jobs finishing normally. This is isolated to the gateway's own connection pool.\n\n**Roll back:** `dep-4471` — revert `gateway.pool.perRequest` to `false` (and optionally the timeout back to 2000ms, though that one's not implicated in the failure). No other deploy in `deploys.csv` touches the gateway in this window.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "afdf10023b6dff61f6253ab4e38d7c038949b47d1d8f927f4972cf11d5380945"
+}

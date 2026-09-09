@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__parts__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "parts",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25034,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.2040254,
+  "numTurns": 7,
+  "durationMs": 23506,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1417
+  },
+  "contextTraffic": 240800,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 11428,
+  "narrationWords": 0,
+  "finalWords": 160,
+  "finalText": "It started with redis dying at **02:14:07** — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`.\n\nAfter that the app fell back to hitting the database directly, and got hit by a cache miss storm. Every retry to reconnect to redis failed (12 attempts logged), so the fallback traffic never let up. Requests piled into a queue that grew from 52 all the way to 568, each one timing out after 5 seconds.\n\nBy 02:31:44 that backlog was too much and `worker-2` ran out of memory and crashed. Eight seconds later, at 02:31:52, the whole service went down — the supervisor killed the process group because the API had stopped responding.\n\nSo the chain was: redis went unreachable, the fallback path overwhelmed the database with no relief, the queue backed up for 17 straight minutes, and it ended in an out-of-memory crash that took prod down. The real fix is redis itself at `10.0.0.12:6379` — it never came back on its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1aa71d45ecc6d13b49c205f832674e6660ef5c0c019e31f4e3629a092c1b6256"
+}

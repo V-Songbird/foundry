@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33565,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2219078,
+  "numTurns": 9,
+  "durationMs": 32073,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2095
+  },
+  "contextTraffic": 313614,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 6968,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "finalText": "Fixed it. The failure lived in `packages/shared/config.js:15` — it merged config layers with `Object.assign`, which is shallow. Any package overriding one key inside `output` or `sourcemap` (like `@acme/api` setting `output.format`) wiped out the sibling keys (`output.dir`), so the bundle stage hit missing `output.dir` and aborted with `EBUNDLE07`.\n\nI changed the merge to combine `output` and `sourcemap` one level deep instead of replacing them wholesale. Build now exits 0 with 5 warnings, 0 errors, and `verify.js` confirms it's green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9bb34ee3fd8d5d46f2f79ae97ad4f9c620a609210667e951e6a309d5e318a727"
+}

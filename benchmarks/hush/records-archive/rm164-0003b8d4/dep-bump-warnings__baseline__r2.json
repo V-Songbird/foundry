@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24349,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1592655,
+  "numTurns": 10,
+  "durationMs": 22986,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1728
+  },
+  "contextTraffic": 188225,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6983,
+  "narrationWords": 42,
+  "finalWords": 103,
+  "finalText": "Build passes now (exit 0). The rest of the log is genuinely just noise (Node deprecation warnings and lint-style notices from the bump), but two spots were real bugs from the bundler's option-shape change:\n\n- `src/core/options.js:7` — was reading `options.retries`, but the new bundler passes `retryCount`; threw `TypeError` on `undefined.toFixed()`.\n- `src/net/retryPolicy.js:8` — new config loader leaves unset flags as `undefined` instead of `false`, and the strict boolean check threw on anything that wasn't exactly `true`/`false`. Simplified to `=== true`, which correctly treats `undefined` as disabled.\n\nBoth are now fixed and the build completes cleanly (`0 errors`, only the expected deprecation warnings remain).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d755b75be3673bec7d62491ba7721475100bcb0380562f3257906a7bb882d52b"
+}

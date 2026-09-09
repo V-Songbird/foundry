@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__dense-prose__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 111,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 46111,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0792616,
+  "numTurns": 13,
+  "durationMs": 44349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3172
+  },
+  "contextTraffic": 258057,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 14990,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "finalText": "Found the bug. The pricing engine was rounding too early.\n\nWhen applying stacked coupons (a percent discount plus a flat one), the code rounded after each discount in USD, then converted and rounded again. This premature rounding lost precision and caused the cent-off errors, especially with non-USD currencies.\n\nThe fix: apply all discounts without intermediate rounding, convert to the target currency, then round exactly once at the end. This matches the reference implementation the tests expected.\n\nAll 40 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7116014dc43065093b10681e618a78dfd2eb1cdd0927cc80ce8b9d8837bccba8"
+}

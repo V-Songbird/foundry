@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__concise__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36217,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5389109999999999,
+  "numTurns": 6,
+  "durationMs": 35348,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2240
+  },
+  "contextTraffic": 229448,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 60867,
+  "narrationWords": 6,
+  "finalWords": 485,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "## What happened\n\n**Root cause: Redis went away and never came back. Everything else is downstream of that.**\n\nOne caveat first — the log covers **2026-07-04 02:00–02:31 UTC**, not last night. Either this is an old file or the shipped log is stale; worth confirming you're looking at the right rotation before you act on it.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. 200s across `/users`, `/orders`, `/health`; cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **the trigger** (logs/app.log:182) |\n| 02:14:07.114 | App falls back to direct store reads — cache layer degraded (logs/app.log:183) |\n| 02:14:08 | Cache miss storm begins (`orders:1000`+, cycling through ~200 hot keys) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 → 02:31:26 | Queue depth climbs monotonically, ~3 per sample, **52 → 568** |\n| 02:29:12 | Queue crosses its own stated max: **depth 502 (max 500)** — and keeps accepting (logs/app.log:647) |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` (logs/app.log:717) |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Volume:** 188 ERROR, 348 WARN, 2 FATAL. 173 of the errors are the same store timeout; 13 are Redis reconnect failures.\n\n### The failure chain\n\nRedis refuses connections → cache bypassed → every request hits the primary store → store saturates → 5s timeouts → requests pile up in the in-process queue instead of being shed → backlog consumes heap → worker-2 OOMs (SIGABRT/134) → api goes unresponsive → supervisor kills the process group. **~17.5 minutes from Redis loss to total outage.**\n\n### Three problems worth fixing\n\n1. **Redis never recovered.** 13 reconnect attempts (0 through 12), all `ECONNREFUSED` to the same `10.0.0.12:6379`, spaced at a **flat ~80 seconds** — no backoff progression, and more importantly no jitter and no success. The host was down or the endpoint moved; the app just kept knocking. Check whether that IP is still valid (failover/re-IP?) and why nothing paged on the first ECONNREFUSED.\n\n2. **The queue cap is decorative.** Logs say `max 500` but depth sailed past it to 568 with no shedding, no 503s, no circuit breaker. That cap is what should have kept the process alive in a degraded-but-serving state. This is what turned a cache outage into a full outage.\n\n3. **No cache-miss protection.** The miss storm cycles the same ~200 `orders:*` keys repeatedly — a request coalescer / singleflight would have collapsed those into one store read per key instead of stampeding.\n\nI can't check the implementation — the repo here is only `package.json` (`incident-service` 2.4.0, ioredis ^5.4.1) and the log; there's no `src/`. Point me at the source and I'll look at the reconnect config and queue admission logic.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4b6bc08418f72f3ecffefb1325f48c932afb4a20802b30ed61358efaa4cb5abb"
+}

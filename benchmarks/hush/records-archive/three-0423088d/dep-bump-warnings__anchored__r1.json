@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__anchored__r1",
+  "batchId": "three-0423088d",
+  "seed": "1787418273908",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27429,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13873500000000002,
+  "numTurns": 10,
+  "durationMs": 25864,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1716
+  },
+  "contextTraffic": 276246,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7996,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "Build's clean now, exit 0 with 8 warnings and 0 errors.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing option shapes:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed with `undefined.toFixed is not a function`.\n2. `src/net/retryPolicy.js` treated a missing `backoffEnabled` flag as invalid and threw, instead of just defaulting it to disabled like the old loader did.\n\nFixed both, and the build now finishes with `link ok: retry budget resolved to 3` and `link ok: exponential backoff disabled`. The rest was just deprecation warnings baked into the log, harmless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "360da0912032155addf70404e1fcdca4ec93d4a4b1b9c82a51a382ac544bea7d"
+}

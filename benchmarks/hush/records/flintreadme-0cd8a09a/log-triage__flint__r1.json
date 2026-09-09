@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__flint__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30090,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.3760455,
+  "numTurns": 8,
+  "durationMs": 28643,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1852
+  },
+  "contextTraffic": 137703,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 12773,
+  "narrationWords": 6,
+  "finalWords": 128,
+  "assistantMsgs": 2,
+  "finalText": "**Redis died at `02:14:07`, and the app never recovered.**\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Clean. All 200s. |\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08+ | Cache miss storm, then `TimeoutError` on the store |\n| 02:15–02:31 | 13 reconnects, all `ECONNREFUSED` |\n| 02:31:44 | `JavaScript heap out of memory (request backlog)` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nQueue depth climbed from 52 to 568 past a max of 500. Nothing shed load, so the backlog ate the heap. Redis at `10.0.0.12:6379` was never reachable again in this log.\n\nNext: check why that Redis host went down. Then add a queue cap so a cache outage does not kill the app.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "57f10a71de4cd27e4672bbbf9983280f269fdc5dbdf021b4b1794a5b9ec9f176"
+}

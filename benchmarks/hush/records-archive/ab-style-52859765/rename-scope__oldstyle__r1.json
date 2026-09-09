@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__oldstyle__r1",
+  "batchId": "ab-style-52859765",
+  "seed": "1787386633516",
+  "orderIndex": 10,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25367,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1292604,
+  "numTurns": 10,
+  "durationMs": 23790,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1827
+  },
+  "contextTraffic": 201017,
+  "apiCalls": 5,
+  "toolCalls": 9,
+  "toolResultChars": 10421,
+  "narrationWords": 0,
+  "finalWords": 177,
+  "finalText": "I have what I need to sign off on this.\n\nIt's genuinely big: `account_id` shows up in 94 files, across every service (orders, notify, billing, analytics, accounts) plus shared libs and migrations. Internal repo, service, and route code is safe to rename freely.\n\nThree spots must stay `account_id` no matter what:\n\n1. **`docs/openapi.yaml`** — it says so directly: this is the public API contract, and renaming the field breaks every client.\n2. **`lib/serialize.js`** — the `WIRE` map's public side mirrors that same contract, so it can't follow an internal rename.\n3. **All files under `migrations/`** — these already ran in production. Editing an applied migration doesn't rename a live column, and it breaks the down step.\n\nOne more to flag: **`vendor/reporting-sdk/`** is generated and vendored, marked \"do not edit.\" It'll get overwritten on the next `npm run vendor:refresh`, so renaming there is wasted work.\n\nSo the real scope is the service code only, and even then the DB column itself would need a proper migration, not a find-and-replace. Safe to sign off with those four call-outs attached.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a7640eb6b1b4fbb68b2fb7148b4fbb48c873fef3087ee5e3d8b31cac269efd8"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 50,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 59331,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.38636460000000006,
+  "numTurns": 15,
+  "durationMs": 53821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3486
+  },
+  "contextTraffic": 590564,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 25825,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "Still failing at the end of the log (03:59:27Z, `waiting=71` and climbing — `stats` line even showed `waiting=172` at 03:55:58Z). This is unresolved, not recovered.\n\n## On-call handoff — Gateway 503s\n\n**Root cause:** dep-4471 (gateway, a.novak, \"connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`, applied at 02:13:41Z. This exhausts the fixed 20-connection pool under per-request acquisition — pool sits at `size=20, in_use=20` with the `waiting` queue growing unbounded (13 → 71+ and climbing).\n\n**Impact window:** 02:14:18Z start → still ongoing as of last log line (03:59:27Z). Over 1h45m and unresolved. 503s hit `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout` across all backend services (billing/orders/catalog/accounts-svc).\n\n**Scope:** Gateway only. `logs/worker.log` confirmed clean for the same window — workers use a separate pool (size 8), unaffected.\n\n**Rollback:** dep-4471. Revert `gateway.pool.perRequest` to `false` (config generation 118).\n\n**Note:** dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) shipped during the incident but are unrelated — no pool/connection changes in their summaries.\n\nNext: page a.novak or trigger the rollback for dep-4471 now — this is still live.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c090a2b014281171201cd1c5db389f30693cc53ee83e45ba1f520bec4b4271a"
+}

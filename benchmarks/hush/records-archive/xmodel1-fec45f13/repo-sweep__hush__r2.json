@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 42,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 71965,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2788288,
+  "numTurns": 37,
+  "durationMs": 70274,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9862
+  },
+  "contextTraffic": 273204,
+  "apiCalls": 8,
+  "toolCalls": 36,
+  "toolResultChars": 23939,
+  "narrationWords": 17,
+  "finalWords": 52,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Now migrating the 12 application files (excluding the vendored adapter).",
+    "Verifying no `db.query` remains in application code."
+  ],
+  "finalText": "**Migration done.** All 12 app files now use `db.execute({ sql, params })`.\n\n`vendor\\legacy-orm\\adapter.js` still calls `db.query`. Left it, its header says it's replaced wholesale on every vendor upgrade so local edits get silently lost.\n\nNext: migrate that vendor call upstream, or wrap it, since `db.query` will drop in the driver's next major.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e50a2ad09502cf50c78d5a5a3173a463ed9863301f697c45b873e539665b6038"
+}

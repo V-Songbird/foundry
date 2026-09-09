@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 55,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 72526,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5502468,
+  "numTurns": 39,
+  "durationMs": 71228,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9494
+  },
+  "contextTraffic": 305648,
+  "apiCalls": 8,
+  "toolCalls": 38,
+  "toolResultChars": 25682,
+  "narrationWords": 107,
+  "finalWords": 87,
+  "finalText": "All application code is migrated. Only `vendor/legacy-orm/adapter.js` still uses `db.query`, and that file is explicitly marked as a vendored third-party copy that must not be edited (overwritten on every upgrade), so it's correctly left as-is — `db.js` keeps the deprecated `query` method around for that reason.\n\n**Migrated (12 files):** `packages/support/{admin/macroAdmin.js, repo/sla.js}`, `packages/orders/{service/returnService.js, repo/shipment.js}`, `packages/accounts/{service/teamService.js, admin/apiKeyAdmin.js, repo/session.js}`, `packages/billing/{service/couponService.js, repo/refund.js}`, `packages/analytics/repo/cohort.js`, `packages/catalog/{repo/supplier.js, admin/variantAdmin.js}` — all `db.query(sql, params)` calls converted to `db.execute({ sql, params })`.\n\n**Left alone:** `vendor/legacy-orm/adapter.js` (vendored, do-not-edit) and `cache.query` calls (unrelated cache API, not the db client).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc04f57e5360b53c804920757cc058f3221bdd3338a411d02b41b1963ec49e6d"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__turn2__r2",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 7,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "turn2",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 41318,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2431199,
+  "numTurns": 10,
+  "durationMs": 39654,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3099
+  },
+  "contextTraffic": 259374,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 13266,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "Fixed. The bundle stage was crashing because `resolveRelease` merged config layers with a plain `Object.assign`, which replaces a whole nested object (`output`, `sourcemap`) instead of merging its keys — so a package overriding just `output.format` lost `output.dir` entirely.\n\n`packages/shared/config.js:13-24` now merges `output` and `sourcemap` one level deep at each layer (defaults → package overrides → CLI flags), so a partial override only changes the key it names.\n\n`node build.js` exits 0 with 5 warnings, 0 errors, and `node verify.js` — which specifically checks the merge isn't just patched around with hardcoded keys — also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c4f2fdfabe4e1c967181a988da76c3e8b2f4048c3618050d786c8029350f7be"
+}

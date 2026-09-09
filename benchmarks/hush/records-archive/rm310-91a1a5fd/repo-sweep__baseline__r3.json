@@ -1,0 +1,45 @@
+{
+  "key": "repo-sweep__baseline__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 119843,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8756204999999999,
+  "numTurns": 60,
+  "durationMs": 118609,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12611
+  },
+  "contextTraffic": 391901,
+  "apiCalls": 11,
+  "toolCalls": 59,
+  "toolResultChars": 40414,
+  "narrationWords": 41,
+  "finalWords": 192,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by finding the remaining `db.query` call sites.",
+    "Vendor file is explicitly \"do not edit\" (replaced on upgrade), so I'll leave it and flag it. Reading the 12 first-party files.",
+    "Now applying the edits.",
+    "Now verifying and checking for tests."
+  ],
+  "finalText": "Migration done. 12 first-party files, 36 call sites converted from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `src/repo/session.js`, `src/service/teamService.js`, `src/admin/apiKeyAdmin.js` |\n| billing | `src/repo/refund.js`, `src/service/couponService.js` |\n| catalog | `src/repo/supplier.js`, `src/admin/variantAdmin.js` |\n| orders | `src/repo/shipment.js`, `src/service/returnService.js` |\n| support | `src/repo/sla.js`, `src/admin/macroAdmin.js` |\n| analytics | `src/repo/cohort.js` |\n\nEach file had the same three shapes (get-by-id, list, update); I matched the wording and formatting of the already-migrated files like `packages/billing/src/repo/subscription.js`. All 12 pass `node --check`. There are no tests or package.json in the repo, so that's the extent of the verification I could do.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** — the only remaining `db.query` calls. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost. Migrating it would be reverted by the next upgrade, so it needs either an upstream fix or a shim on your side. Worth deciding before the driver's next major drops `query`, since `lib/db.js` says it will.\n- **`cache.query(...)`** in the various `cached*` helpers — that's `lib/cache.js`, a different API, not part of this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "774a39f6cc6a0f1b5b4d4e2c41dd4f999749e725814aae743fa2c1381e2d13d1"
+}

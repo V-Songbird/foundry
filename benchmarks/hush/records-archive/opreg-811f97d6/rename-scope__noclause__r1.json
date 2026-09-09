@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__noclause__r1",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57025,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3833795,
+  "numTurns": 19,
+  "durationMs": 55615,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3514
+  },
+  "contextTraffic": 225064,
+  "apiCalls": 9,
+  "toolCalls": 18,
+  "toolResultChars": 18299,
+  "narrationWords": 5,
+  "finalWords": 113,
+  "assistantMsgs": 2,
+  "finalText": "**Big but shallow: 94 files, ~1290 hits.** Most are one repeated pattern per service.\n\n| Zone | Files | Rename? |\n|---|---|---|\n| `services` | 75 | Yes, locals only |\n| `migrations` | 12 | No |\n| `vendor` | 4 | No |\n| `docs`, `lib` | 3 | No |\n\nFour hard stops:\n\n1. `docs/openapi.yaml` — public field, frozen by contract.\n2. Right side of `WIRE` in [lib/serialize.js:8](lib/serialize.js:8) — that is the wire name.\n3. All 12 migrations ran in production. New migration only.\n4. `vendor/reporting-sdk` — regenerated, edits get wiped.\n\nAlso risky: 125 SQL lines in 25 `repo` files name the real column. A blind replace breaks every query.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cdc8d53817c10a913179149f7678dabeef8a47a7defabcaf374f50ac7dc262a0"
+}

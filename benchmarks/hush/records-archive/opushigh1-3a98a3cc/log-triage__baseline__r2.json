@@ -1,0 +1,45 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 82829,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.493721,
+  "numTurns": 11,
+  "durationMs": 81998,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5870
+  },
+  "contextTraffic": 165096,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 12040,
+  "narrationWords": 65,
+  "finalWords": 720,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll dig into the log file. Let me start by getting a sense of its size and shape.",
+    "719 lines — small enough to examine thoroughly. Let me pull the level distribution and every non-INFO line.",
+    "Clear structure now. Let me examine the onset, the redis reconnect sequence, and the collapse.",
+    "One more detail — when the queue breached its limit, and the reconnect cadence."
+  ],
+  "finalText": "## What happened\n\nA Redis outage triggered a cache-bypass stampede that filled an unbounded in-memory request queue until the workers OOM'd and the supervisor killed the service. Total time from trigger to death: **17 minutes, 45 seconds**.\n\n**First, one thing that doesn't line up:** every line in this file is dated **2026-07-04, 02:00:00–02:31:52Z**. Today is 2026-09-08, so this is not last night's incident — it's ~2 months old. Either the file is stale/rotated, or last night's logs are somewhere else. Everything below describes the July 4th event.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00–02:14:03 | Healthy. 173 requests, all `200`, latency 12–145ms, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` (`logs/app.log:182`) — **the trigger** |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` |\n| 02:14:08.202 | First `cache miss storm` |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — 3s after Redis dropped |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts, all `ECONNREFUSED`. Redis never came back. |\n| **02:29:12.359** | Queue depth breaches its own ceiling: `502 (max 500)` (`logs/app.log:647`) — and keeps accepting |\n| 02:31:44.902 | `worker-2: JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## The causal chain\n\n1. **Redis died.** `ECONNREFUSED` (not a timeout) means nothing was listening on `10.0.0.12:6379` — the Redis process was down or the port was closed, not a flaky network path.\n2. **The fallback had no brakes.** The app degraded to \"direct store reads,\" which is fine in principle, but every cache miss became a backing-store query. The store was overloaded within 3 seconds.\n3. **Nothing shed load.** Requests kept being accepted and queued. Queue depth climbed monotonically 52 → 568, at a steady +3 per sample, straight through the documented `max 500`. That limit was only ever *logged*, never *enforced*.\n4. **The backlog ate the heap.** 173 timeouts × 5s each, all holding memory, until V8 gave up. Exit code 134 = SIGABRT (128+6), consistent with a V8 OOM abort.\n\n## Two things that made it worse\n\n- **No successful request after 02:14:03.** Not one — including `GET /health`. Health checks were stuck behind the same saturated path, so the instance never failed its own health check and was never pulled from rotation. It stayed in the load balancer, absorbing traffic, for the full 17 minutes.\n- **The reconnect loop has no backoff.** Attempts 0–12 are spaced at *exactly* 80 seconds, every time. No exponential backoff, no jitter. That didn't cause this outage, but it's a thundering-herd hazard when Redis does come back and every instance reconnects in lockstep.\n\n## What I'd fix\n\n1. **Enforce the queue cap.** `max 500` should reject with 503, not just log. This alone would have prevented the OOM — the service would have degraded loudly instead of dying.\n2. **Circuit-break the store fallback.** When Redis is down, tripping straight to the backing store converts a cache outage into a database outage. Fail fast or serve stale.\n3. **Make `/health` independent** of the request path so the LB can evict a sick instance.\n4. **Exponential backoff + jitter** on Redis reconnect.\n5. **Alert on queue depth trend**, not just the threshold. The queue crossed 500 at 02:29:12 and the process died at 02:31:52 — a 2m40s window. The *slope* was obvious and linear from 02:14 onward; that's 15 minutes of warning that nobody acted on.\n\n## Caveats\n\n- **I can't tell you why Redis died** — there are no Redis-side logs here, and no deploy/config events in this file. That's the actual root cause and it's outside this log.\n- **The log's regularity is suspicious.** Latencies cycle 12→145 in exact +7 steps and reset; queue depth increments by exactly 3; incident-phase timestamps are 2.026s apart to the millisecond. Real production traffic doesn't look like this. This may be a synthetic or replayed log, so I'd treat the specific numbers as illustrative rather than measured.\n- The log ends at the kill. There's nothing here about whether the restart recovered.\n\nWant me to go looking for the actual recent logs, or dig into anything above in more depth?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "edcb00774a5c1664957e1104bbb9fc040484735ee4894fdc31a4e4369d637fbd"
+}

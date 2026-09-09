@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 152312,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7502470000000001,
+  "numTurns": 23,
+  "durationMs": 146174,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8598
+  },
+  "contextTraffic": 555417,
+  "apiCalls": 20,
+  "toolCalls": 19,
+  "toolResultChars": 17311,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest` to `true` while pool size stayed 20. Each request now pins a connection, so past 20 concurrent, the rest fail.\n\nWindow: `02:14:18.972Z` to log end `03:59:27.974Z`, still failing. 530 of 636 requests got a 503, 83%. The only 200s were `/health`.\n\nOne number I gave earlier was the last line, not the peak. The wait queue topped out at 271.\n\nNext: roll back `dep-4471`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dbdb3ae982cee9ed69ed154aa17145d9bcd1d8d538a9a313528f19fcbde501e6"
+}

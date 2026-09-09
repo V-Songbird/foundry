@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 73563,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4879019999999999,
+  "numTurns": 9,
+  "durationMs": 72626,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4819
+  },
+  "contextTraffic": 212280,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 8903,
+  "narrationWords": 8,
+  "finalWords": 136,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "**Redis died and took the whole service down.**\n\n`10.0.0.12:6379` refused all connections at 02:14:07. Every later error follows from that. 520 of 719 lines are three repeating templates.\n\n| time | event |\n|---|---|\n| 02:14:03 | last `200` served |\n| 02:14:07 | [`redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`](logs/app.log:182) |\n| 02:14:08 | cache miss storm, direct store reads |\n| 02:15:26 | 13 reconnect attempts, all fail, flat 80s apart |\n| 02:29:12 | queue depth `502`, over max `500` |\n| 02:31:44 | [`JavaScript heap out of memory (request backlog)`](logs/app.log:717) |\n| 02:31:52 | [`api unresponsive, killing process group — service down`](logs/app.log:719) |\n\nService was fully down 17m45s. Retries never backed off or shed load. Cache hit ratio was `0.98` seconds before. Redis died abruptly.\n\nNext: find why Redis at `10.0.0.12` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b7d99777be3bcdef558396fc78adae73c836f3677493f4be6b4b7bb985d2c743"
+}

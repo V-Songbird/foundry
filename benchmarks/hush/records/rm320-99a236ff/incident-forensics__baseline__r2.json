@@ -1,0 +1,43 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 59,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 230364,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9124340000000001,
+  "numTurns": 18,
+  "durationMs": 225242,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15783
+  },
+  "contextTraffic": 471100,
+  "apiCalls": 17,
+  "toolCalls": 14,
+  "toolResultChars": 18996,
+  "narrationWords": 25,
+  "finalWords": 695,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by looking at the log file.",
+    "I already pulled it in the last pass — here it is checked properly against the onset."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status: ONGOING.** Still failing at the end of the log (`03:59:27.974Z`). No recovery, no mitigation applied.\n\n---\n\n### Root cause\n\nConfig change `gateway.pool.perRequest: false -> true`, shipped as generation 119 at `02:13:41.234Z`.\n\nThe gateway pool is fixed at 20 connections. With connection-per-request, every inbound request takes its own connection instead of multiplexing, so the pool saturates immediately and the wait queue never drains. The `503`s are the gateway timing out on its own connection acquire — not an upstream failure.\n\nEvery 503 carries a paired pool error on the same request id:\n\n```\n2026-03-14T02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nSupporting evidence:\n- Pool pinned at `size=20 in_use=20 idle=0` in every stats sample after 02:15. Queue depth grows monotonically: 12 → 52 → 112 → **172** by 03:55. Never drains.\n- `WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` at 03:02 — ~100×, the signature of per-request connections.\n- 503 durations cluster at 600–999ms (the acquire timeout), not upstream latency.\n- All 6 routes and all 4 upstreams fail evenly (~26–27 each). Not an upstream problem.\n\n### Impact window\n\n**`02:14:18.972Z` → ongoing.** 1h 45m as of the end of the log.\n\n- 530 × HTTP 503, at a flat ~50 per 10 minutes from 02:20 onward. No self-healing.\n- **100% of production traffic failed.** After 02:14 the only successful responses in the entire log are 106 `/health` checks. Zero real requests succeeded.\n- On-call paged at `03:21:05.282Z` — **67 minutes after onset.** The 71% error rate that triggered the page is diluted by health checks; true user-facing failure rate was 100%.\n\n⚠️ **`/health` never touches the connection pool**, so it returned 200 with `pool_wait=2ms` throughout. This node stayed green to the load balancer for the full outage while serving nothing. Fix the health check to exercise the pool, or this recurs silently.\n\n### Roll back\n\n```\ndep-4471,gateway,2026-03-14T02:12:00Z,2026-03-14T02:14:00Z,a.novak,config: connection-per-request for pool isolation\n```\n\n**Revert config generation 119 → 118.** This is a config rollback, likely faster than redeploying the gateway.\n\nNotes for whoever executes:\n- Generation 119 changed two live keys. `gateway.pool.perRequest: false -> true` is the culprit; `gateway.timeout.upstreamMs: 2000 -> 2500` also shipped in it and made things marginally worse by holding connections longer. A full gen-118 revert takes both back — that's the right call. (`gateway.log.sampleRate` was a no-op, `1.0 -> 1.0`.)\n- **Restarting the pool alone will not fix this.** With `perRequest=true` still set, it re-saturated within 37 seconds last time. Revert the config first.\n\nRuled out — don't chase these:\n- **dep-4472** (billing-svc, 02:41) and **dep-4473** (catalog-svc, 03:20) both ship *after* onset; neither changes the error rate. dep-4473 running at 03:20 is a coincidence with the 03:21 page, which was the alert catching up to a 67-minute-old incident.\n- **dep-4469** (accounts-svc, \"add rate limit to /v1/session\") is the tempting red herring. `/v1/session` returned 200 until 02:14, a rate limit yields 429s on one route, and this is uniform 503s across everything.\n- **Workers are clean.** All 1080 jobs in `worker.log` finished ok; worker DB pool flat at `waiting=0`, 7/8 idle, through the whole outage. No knock-on effects. (Its one `WARN db` is pre-existing OPS-2210.)\n\n### Open items for the next shift\n\n1. **Confirm blast radius.** This log is `node-3 of 3`. If gen-119 went out fleet-wide, nodes 1 and 2 are almost certainly in the same state — verify before declaring scope.\n2. Health check must exercise the connection pool (see above).\n3. Alert on `waiting > 0` sustained on the gateway pool. The queue was climbing steadily from 02:15; the existing error-rate alert took 67 minutes to fire.\n4. Separately and unrelated: worker job durations ramp ~10× (200ms → 2324ms) across the window. Starts before 02:14, no inflection at the config change, `db_wait` flat — so it's not this incident. Worth its own ticket, but confirm against real metrics first; the ramp is oddly linear in the log and may be an artifact.\n\nWant this written out to a file — `INCIDENT.md` or similar — or dropped into a ticket template?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6eb04efcbb6fa77022ef7e870fad8a42b551d655d760ec0f65206a7a51ed3614"
+}

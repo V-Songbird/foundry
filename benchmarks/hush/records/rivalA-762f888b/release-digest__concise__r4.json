@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__concise__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 77,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 60386,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6863639999999999,
+  "numTurns": 9,
+  "durationMs": 59498,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3876
+  },
+  "contextTraffic": 345050,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 71135,
+  "narrationWords": 18,
+  "finalWords": 374,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at what's in the directory.",
+    "Let me extract all the user-visible commit types systematically."
+  ],
+  "finalText": "Drafted the 4.2.0 entry at the top of `CHANGELOG.md`. Here's the reasoning behind what survived the filter.\n\n**Out of ~380 commits, 33 touched user-visible behavior.** The rest is dependency bumps, CI, tests, and renames (`Ctx` → `RequestCtx`, config loader moves, dead-flag deletions) — none of which change anything for an installer.\n\n**The four breaking items are the ones worth your attention**, and three of them are disguised as routine work:\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) is filed as a fix, but it's a contract change. Anyone catching 403 to mean \"expired\" breaks silently.\n- `refactor(api): drop the unused v1 export route` (#4152) — \"unused\" is a claim about your telemetry, not about your users. Removing a route is breaking regardless of the label.\n- **Eight separate commits** across core/db/auth/jobs/billing all say `stop re-exporting the internal error types`. Individually each reads as cleanup; collectively they remove the error types from five public entry points.\n- `use the right units in the latency histogram` (fix in core and store) changes emitted metric values. Nobody's code breaks, but dashboards and alert thresholds silently go wrong — that's worth a heads-up.\n\n**One genuine feature:** webhook retry with exponential backoff (#4191).\n\n**Two things I did not put in the file, for you to decide:**\n\n1. **The perf work has nowhere to go.** Nine perf commits (batched metric writes, skipped JSON round-trips, schema reuse in the API handler). Your template allows three headings only, and none of these change observable behavior. If 4.2 is being pitched partly on speed, you need a fourth heading — I didn't add one unilaterally since the template comment is explicit about the shape.\n\n2. **The minimum Node version is unresolved.** Four commits say `docs: note the minimum node version` and CI moved to Node 22, but nothing in the log touches `engines` in `package.json`. If the floor actually rose, that's a breaking entry I'm missing; if it's docs catching up to an old floor, it's correctly omitted. Worth a check before you ship.\n\nI also used 2026-09-02 for the release date. The last commit in the log is 2026-06-17, so if the branch has moved since this log was generated, there may be changes I haven't seen.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6eaf2f67d238c56955145d9a9c8288a577f6943c4cea0c6a43603df4f1fa7db1"
+}

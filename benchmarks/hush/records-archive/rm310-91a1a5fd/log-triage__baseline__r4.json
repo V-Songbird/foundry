@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 74525,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.35058,
+  "numTurns": 11,
+  "durationMs": 73149,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4902
+  },
+  "contextTraffic": 200133,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 8427,
+  "narrationWords": 6,
+  "finalWords": 684,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "## What happened\n\n**Heads up on the date first:** `logs/app.log` covers **2026-07-04 02:00–02:31 UTC**, not last night (today is 2026-08-29). Either this file is stale/rotated-out, or you're looking at an older incident. Everything below describes that July 4 window.\n\n### One-line summary\nRedis died at 02:14:07. Every read fell through to the primary store, which couldn't take the load; requests started timing out at 5s, queues grew unbounded for 17 minutes, and at 02:31 a worker OOM'd and the supervisor killed the whole process group. Total outage from first error to service down: **17m 45s**, with **zero successful requests** after 02:14:03.\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:13 | Healthy. Cache hit ratio 0.90–0.98, all requests 200. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins (`orders:1000` onward) |\n| **02:14:10** | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52 (max 500), climbing ~30/min |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts, **all** `ECONNREFUSED`. Never recovered. |\n| **02:29:12** | Queue depth **502 — exceeds the 500 max**, no load shedding kicks in |\n| 02:31:24 | Queue depth 568 |\n| **02:31:44.902** | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### Error breakdown (719 lines total)\n- 173 × `TimeoutError ... 5000ms (store overloaded)` — evenly split across all four components (api 43, scheduler 43, worker-1 44, worker-2 43), so this was systemic, not one bad node\n- 174 × `cache miss storm` — 174 **distinct** keys, i.e. straight cache-bypass traffic, not one hot key\n- 173 × `request queue depth` warnings, monotonically rising 52 → 568\n- 14 × Redis connection errors (1 loss + 13 failed reconnects)\n- 2 × FATAL (worker-2 OOM restart, then supervisor kill)\n\n### Root cause\n**Redis at `10.0.0.12:6379` went away and never came back.** `ECONNREFUSED` (not a timeout or reset) means nothing was listening — the Redis process/container was down, not just slow or partitioned. Everything after that is cascade.\n\n### What turned an outage into a total collapse\nThese are the things worth fixing, in priority order:\n\n1. **No fallback capacity planning.** \"Falling back to direct store reads\" at a ~93% hit ratio means the store instantly took ~14x its normal read load. That fallback path is a guaranteed self-DoS.\n2. **No load shedding or circuit breaker.** Queue depth passed its own declared max of 500 at 02:29 and kept accepting work for another 2.5 minutes until the heap blew. The `max 500` is apparently just a warning threshold, not enforced. A breaker on the store after the first burst of 5s timeouts would have failed fast instead of queuing.\n3. **Flat reconnect retry.** The 13 attempts are spaced almost exactly 80s apart with no jitter — that's not the exponential backoff `ioredis` gives you by default, so someone has overridden `retryStrategy`. Over 16 minutes you got 13 tries; worth checking whether Redis actually came back during that window and you just weren't retrying often enough early on.\n4. **Unbounded in-memory backlog.** `code 134` is SIGABRT — V8 heap exhaustion. The request queue has no cap, so backpressure showed up as an OOM instead of as 503s.\n\n### Next steps I'd take\n- Pull the Redis-side logs/metrics for 02:14 on 2026-07-04 — was it OOM-killed, evicted, redeployed? The log tells you *that* it vanished, not *why*.\n- Confirm whether `logs/app.log` is the right file for last night's incident; if prod actually fell over on 2026-08-28, this file has been rotated and you'll want the archived one.\n\nI haven't looked at `src/` (it's not in this directory — only `package.json` and `logs/` are here). If you want, point me at the service source and I can check the actual retry/queue/breaker config against what the logs imply.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a84287a641f774fad42c926f00a8c6e56499b84eefb50580a553cddc785344dd"
+}

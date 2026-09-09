@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r1",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 0,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16408,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09025760000000002,
+  "numTurns": 9,
+  "durationMs": 14537,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 935
+  },
+  "contextTraffic": 159306,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 3243,
+  "narrationWords": 0,
+  "finalWords": 84,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is `refresh.js:15`**, not `tokens.js:6`.\n\n`auth.internal` returns `400 invalid_grant` (revoked refresh token). That's not in `RECOVERABLE`, so [refresh.js:15](src/auth/refresh.js:15) returns `undefined` instead of throwing. `session.js:8` passes that `undefined` into `decode()`, which crashes on `token.split('.')` at [tokens.js:6](src/auth/tokens.js:6).\n\n`tokens.js` is just the symptom: it assumes a valid token, per its own comment. The actual failure to handle is the revoked-grant case in `refresh.js`, which silently swallows it.\n\nNext: decide how a revoked refresh token should surface (likely throw/401) in `refresh.js`, since that's the real fix site.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "464fa77186d434d7b3925e63e5da29a327ab1282bbcf72da9f93de96565ab331"
+}

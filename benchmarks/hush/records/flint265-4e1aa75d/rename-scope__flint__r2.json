@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__flint__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 35,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "flint",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30143,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.298465,
+  "numTurns": 15,
+  "durationMs": 28395,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1886
+  },
+  "contextTraffic": 177064,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 17331,
+  "narrationWords": 5,
+  "finalWords": 115,
+  "assistantMsgs": 2,
+  "finalText": "**Real scope: 75 service files. The rest must not move.**\n\n| Zone | Files | Rename? |\n|---|---|---|\n| `services/*` JS vars | 75 | Yes, safe |\n| `migrations/*.sql` | 12 | No, applied history |\n| `vendor/reporting-sdk` | 4 | No, regenerated |\n| `docs/openapi.yaml` | 1 | No, frozen contract |\n| `lib/serialize.js` | 1 | No, wire name |\n\nThree more traps inside the 75. SQL strings like `WHERE account_id = ?` are column names, not vars. `req.session.account_id` is a session field. `audit()` writes an `account_id` log key.\n\nSo it is a local variable and parameter rename only. Every boundary keeps the old name. Want me to do the safe pass?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc36aec0f18523791133b0da255666114eefb3694ab57d74e43d4ace99aabdd7"
+}

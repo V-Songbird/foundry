@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "opusfinal-c12ec01f",
+  "seed": "1787637691823",
+  "orderIndex": 9,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80331,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7225465000000001,
+  "numTurns": 23,
+  "durationMs": 78872,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5532
+  },
+  "contextTraffic": 513973,
+  "apiCalls": 12,
+  "toolCalls": 22,
+  "toolResultChars": 38186,
+  "narrationWords": 7,
+  "finalWords": 94,
+  "finalText": "**Migration finished.** I moved 36 calls across 12 files to `db.execute({ sql, params })`.\n\nThe files were spread over all six packages. Nothing else in `packages/` or `lib/` still calls the old form.\n\nTwo things I left alone on purpose:\n\n1. `vendor/legacy-orm/adapter.js` has 2 old calls. Its own note says don't edit it. Edits get wiped on the next upgrade.\n2. `cache.query(...)` in 25 files. That takes a cache key, not SQL. Different thing entirely.\n\nEvery file still parses. I ran all 75 modules and watched 300 database calls. None used the old form.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c59966f1aa2d90323b54503fda9b0827bd7f8f78f85b214641bd255f7365eeed"
+}

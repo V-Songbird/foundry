@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 2,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30872,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3528219,
+  "numTurns": 11,
+  "durationMs": 29414,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2210
+  },
+  "contextTraffic": 263514,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15372,
+  "narrationWords": 66,
+  "finalWords": 81,
+  "finalText": "All 625 cases pass and `verify.js` confirms the fix is legitimate (not a spec/runner hack).\n\n**The bug:** `orderTotal` in `src/pricing.js` computed tax on the pre-discount amount instead of the discounted amount — its own doc comment said \"discount first, then tax on discounted amount,\" but the code taxed `cents` instead of `discounted`. Fixed to `applyTax(discounted, taxRate)`. Only the 3 test rows that had both a nonzero discount and nonzero tax exposed it, which is why it was buried in the noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6381946f822e16db0458277e0268f8e0768669d4c8b5ce09ac2c29c7e4b62714"
+}

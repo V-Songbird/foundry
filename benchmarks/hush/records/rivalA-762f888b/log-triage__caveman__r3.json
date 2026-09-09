@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 12,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33629,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5102595000000001,
+  "numTurns": 5,
+  "durationMs": 32612,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2142
+  },
+  "contextTraffic": 138375,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 60582,
+  "narrationWords": 3,
+  "finalWords": 423,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig in."
+  ],
+  "finalText": "Root cause: Redis died, cache-less fallback overloaded store, queue grew unbounded, worker OOM, service killed.\n\n**Note:** log dates `2026-07-04`, not last night. Either old file or clock wrong — check before you chase last night's incident.\n\n## Timeline (all UTC)\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Healthy. 200s only, latency 12–145ms, cache hit ratio 0.90–0.98 |\n| 02:14:07.113 | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm starts |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52 |\n| 02:15:26 – 02:31:26 | 13 reconnect attempts (0–12), every one `ECONNREFUSED`, never recover |\n| 02:29:12 | Queue depth 502 — **passes max 500**, no shed, keeps climbing |\n| 02:31:24 | Queue depth 568 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n17m45s from Redis loss to service down.\n\n## What actually happened\n\n1. Redis at `10.0.0.12:6379` refused connections. ECONNREFUSED = host up, port closed. Redis process dead or restarted, not network partition. **Root cause lives on Redis box, not in this service.** Log has no Redis-side reason.\n2. Fallback read straight from store. No circuit breaker.\n3. Miss storm keys cycle `orders:1000`–`orders:1199` — only 200 distinct keys, repeating. Classic stampede: no single-flight/lock, so every concurrent request for same key hit store separately.\n4. Store saturated, 5000ms timeouts. Queue depth grew ~1.5/s, steady, whole 17 min.\n5. `max 500` was logged but never enforced. Depth passed 500 at 02:29:12, reached 568. Backlog ate heap, worker-2 OOM (exit 134 = SIGABRT), api went unresponsive, supervisor killed group.\n\n## Fixes, ranked\n\n1. **Enforce queue max 500.** Reject with 503 past limit. This alone stops OOM — degrade, not die.\n2. **Circuit breaker on store.** After N timeouts, fail fast instead of piling 5s waits.\n3. **Single-flight on cache miss.** 200 hot keys stampeding = most of store load is duplicate work.\n4. **Reconnect backoff.** Attempts fixed ~80s apart, 13 tries, no jitter, no alert escalation. Minor vs above but fix it.\n5. **Alert on `cache layer degraded`.** 17 minutes of warning existed and nothing paged.\n\nNo deploy or traffic spike in log. Traffic pattern flat before and after — this was pure dependency failure, not load.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed27e07c3276523bbbdf02df40c69c40dd1dcccd6d2bfe10b8894dfa41fdcc89"
+}

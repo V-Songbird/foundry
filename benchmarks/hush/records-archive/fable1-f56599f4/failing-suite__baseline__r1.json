@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 71013,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.46373074999999997,
+  "numTurns": 11,
+  "durationMs": 69942,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2361
+  },
+  "contextTraffic": 169931,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 13001,
+  "narrationWords": 17,
+  "finalWords": 255,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the project layout first, then run the pricing suite and dig into the failures."
+  ],
+  "finalText": "The suite is green: all 625 cases pass and the runner exits 0.\n\n**What was broken.** Only one real bug, hidden in 716 lines of output. All three failures were in the order totals suite, and they were the only rows where both the discount and the tax rate were non-zero. Every other row had a zero discount or zero tax, so the mistake was invisible there.\n\n**The bug.** `orderTotal` in `src/pricing.js:39` applied the discount correctly, but then computed tax on the original pre-discount amount rather than on the discounted amount. The docstring above it already said tax should be charged on what the customer actually pays, so the code contradicted its own comment and the spec in `cases.js`. The overcharge was exactly the tax on the discounted portion, for example 8.25% of a 1800 cent discount came out to the 148 cent delta the runner reported.\n\n**The fix.** The function now passes the discounted amount through `applyTax`, so it reads as discount first, then tax on the result. The change is two lines and reuses the existing helpers rather than duplicating the rounding logic.\n\n**One thing worth knowing.** The coverage table the runner prints is derived from pass counts, not real instrumentation, so it is not a reliable signal for anything. If the wall of text keeps getting in the way, the quickest read on a red run is the block after the line that says how many are failing, near the bottom. It lists each failure with the call, expected, actual, and delta.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4045ae045c9a7a80cf3a4da09d2caf97f88786355d3d517f0ffa8badfb8189d"
+}

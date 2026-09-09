@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62094,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5101622,
+  "numTurns": 14,
+  "durationMs": 55941,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3964
+  },
+  "contextTraffic": 681448,
+  "apiCalls": 12,
+  "toolCalls": 10,
+  "toolResultChars": 55465,
+  "narrationWords": 20,
+  "finalWords": 203,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` → `true` via config reload (generation 118→119). This made every request acquire its own DB connection instead of sharing the pool. The fixed pool (size 20) saturated within ~38s of the config applying, and every request path (`/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`) began failing with:\n\n```\nERROR pool ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting <N>)\n```\n\n`waiting` climbed from 13 to 74+ and response latency from ~660ms to ~850ms+ over the log window, with no self-recovery.\n\n**Impact window:** 2026-03-14T02:14:18.972Z → still ongoing as of the last log entry (03:59:27.974Z) — log doesn't show recovery, so treat as **unresolved/still live** until confirmed otherwise. 548 total 503s recorded, gateway-wide.\n\n**Blast radius:** Gateway only. `worker.log` shows background jobs (email, webhook, settle, export, cleanup, reindex) completing normally throughout, with normal `db_wait` — workers use a separate/unaffected path.\n\n**Action: roll back `dep-4471`** (gateway config gen 119 → 118, or at minimum revert `gateway.pool.perRequest` to `false`). No other deploy in the window is implicated — `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both landed *after* the outage was already underway and are unrelated services.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d581f4958c2eeb0baf8a0686d9995104e432f18c6489bd04b04bcbc6e8f38ec2"
+}

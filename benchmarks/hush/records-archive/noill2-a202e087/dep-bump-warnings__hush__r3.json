@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38677,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.252035,
+  "numTurns": 11,
+  "durationMs": 37018,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2215
+  },
+  "contextTraffic": 149694,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 5877,
+  "narrationWords": 6,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, fall back to old |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is now `undefined` | Treat unset as off |\n\nThe 8 warnings are still there. They are hardcoded strings in [build.js:18](build.js:18). No real code emits them.\n\nNext: say the word and I clear the deprecations in `build.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63451ae01ffda5253a53e459abc8adfc9b24c3d1b7f84c6c7b597a42292fbf89"
+}

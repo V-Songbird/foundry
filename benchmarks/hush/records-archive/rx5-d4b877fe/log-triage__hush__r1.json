@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rx5-d4b877fe",
+  "seed": "1786464273166",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26880,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1938089,
+  "numTurns": 3,
+  "durationMs": 24733,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1551
+  },
+  "contextTraffic": 111385,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 159,
+  "finalText": "Prod died from a Redis outage that snowballed. Here's the chain, in order:\n\n1. Redis at `10.0.0.12:6379` dropped at 02:14:07 with `ECONNREFUSED`. The cache went with it.\n2. Every request fell back to hitting the store directly. Requests began timing out at 5 seconds.\n3. The request queue kept growing past its own limit of 500, all the way to 568.\n4. Redis tried to reconnect for 17 minutes straight. All 12 attempts failed.\n5. At 02:31:44, `worker-2` ran out of memory from the backlog and crashed.\n6. Eight seconds later the api stopped responding, and the whole service was killed.\n\nSo the real cause is Redis at `10.0.0.12:6379` going unreachable and staying that way. The queue limit of 500 was just a number in the log, not an actual cap, since it grew way past it with nothing stopping it.\n\nWorth fixing both: get Redis back up, and make that queue limit actually reject work once it's hit.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b28488d317896c375a10c5be59dd09f07bc7acb95fcfbef375683601f3e62224"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rx1-729eeba8",
+  "seed": "1786462846047",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28725,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3028175,
+  "numTurns": 10,
+  "durationMs": 27390,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1719
+  },
+  "contextTraffic": 234464,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7781,
+  "narrationWords": 43,
+  "finalWords": 95,
+  "finalText": "Build's clean: exit 0, 0 errors. The remaining 8 warnings are deprecation noise (`DEP0142`, `DEP0198`, etc.) from the bumped packages — expected, not bugs.\n\nBoth real bugs are fixed:\n1. `src/core/options.js` — was reading `options.retries` (old shape), now reads `options.retryCount` (new shape) → link stage no longer crashes on `undefined.toFixed()`.\n2. `src/net/retryPolicy.js` — strict boolean check threw on `undefined`; new loader leaves unset flags as `undefined` instead of `false` → simplified to `flags.backoffEnabled === true`.\n\nNext: run your actual test suite if you have one, to confirm nothing else depended on the old `retries`/strict-boolean behavior.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "330955e39ecb40e3d0796e1de91b5cb2a83c19541f3d5f099a77fffd1ff57d72"
+}

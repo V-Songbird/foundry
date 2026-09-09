@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35767,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.247733,
+  "numTurns": 10,
+  "durationMs": 34328,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1757
+  },
+  "contextTraffic": 202671,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7256,
+  "narrationWords": 60,
+  "finalWords": 170,
+  "finalText": "Green: 625 total, 625 passing, 0 failing (exit 0).\n\n**What was broken:** one line. `orderTotal` applied the tax rate to the original amount rather than the discounted one:\n\n```js\nconst tax = roundCents(cents * taxRate);      // before\nconst tax = roundCents(discounted * taxRate); // after\n```\n\nThe other 622 cases passed all along — the wall of text was the verbose reporter printing an `ok` line per case plus a coverage table. The three failures were the last block before the summary, each overshooting by exactly `discount × taxRate` (148c, 87c, 668c), which is the signature of taxing the pre-discount base.\n\nOne note worth flagging: the docstring already said tax goes on \"the amount the customer pays,\" so the code was wrong and the comment was right. If your ledger actually charges tax on the pre-discount base in some jurisdiction, then the *cases* are wrong instead and this fix is backwards — but nothing else in the repo suggests that, so I went with the comment and the expectations agreeing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "785cf1c2aac98242e9168629368c15b0c14248c3ec6cfccbf9577a4d1f2bba93"
+}

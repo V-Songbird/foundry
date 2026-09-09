@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__hush__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 35,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 177955,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7682461,
+  "numTurns": 19,
+  "durationMs": 169381,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15113
+  },
+  "contextTraffic": 773422,
+  "apiCalls": 15,
+  "toolCalls": 14,
+  "toolResultChars": 21224,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "finalText": "Done — dedup now tracks the last time something actually went out on a key, not just the last time it was seen. Before, a dropped repeat would still reset the 5-minute clock, so a burst of flaps close together could get stuck dropping forever. Now a drop doesn't count, so the next real send checks against the last delivery, not the last attempt.\n\n`verify.js` still passes, and the full replay runs clean with no `route()` errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7886ec70ea5d536711471fcb63c0ea4abb07600dcd97246afba565327fe34ff3"
+}

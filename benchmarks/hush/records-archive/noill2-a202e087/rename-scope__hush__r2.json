@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 50,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54688,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3509295,
+  "numTurns": 18,
+  "durationMs": 53144,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3631
+  },
+  "contextTraffic": 171393,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 16668,
+  "narrationWords": 7,
+  "finalWords": 95,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase for `account_id` usage."
+  ],
+  "finalText": "**Big but shallow.** `1082` hits across `94` files.\n\n| area | files | why frozen |\n|---|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml:13) | 1 | public API contract |\n| [lib/serialize.js:8](lib/serialize.js:8) | 1 | `WIRE` values are wire names |\n| [vendor/reporting-sdk](vendor/reporting-sdk/src/client.js:3) | 4 | `npm run vendor:refresh` overwrites |\n| `migrations/*.sql` | 12 | applied history, breaks down step |\n| repo SQL strings | 25 | DB column is still `account_id` |\n\nSafe today: local vars in 75 service files. The `125` SQL lines need a column migration first.\n\nNext: sign off on internal vars only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "70d86f594d0ffe2e1ed9377e03238b30afa156d67d26fe715a2fe5184e839cf7"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__labelonly__r1",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13265,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1169696,
+  "numTurns": 4,
+  "durationMs": 11465,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 676
+  },
+  "contextTraffic": 115588,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis went down at `02:14:07`, and the app never recovered.**\n\nRoot cause: `redis` at `10.0.0.12:6379` dropped with `ECONNREFUSED`. Cache fell back to direct store reads, causing cache miss storms and rising queue depth.\n\nTimeline:\n1. `02:14:07` — redis connection lost, cache degraded.\n2. `02:14` to `02:31` — 12 failed reconnect attempts, steady `TimeoutError`s, queue depth climbing from 52 to 568 (max 500).\n3. `02:31:44` — `worker-2` OOM crash from the backlog.\n4. `02:31:52` — `api` unresponsive, supervisor killed the process group. Service down.\n\nRedis never came back online in this log. Full detail in [b341979e.txt](<path>).\n\nNext: restore the redis instance at `10.0.0.12:6379` and check why it dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "725182df0b64890d7fc366e656c62cc1a774074772ec625b8037361235e4a823"
+}

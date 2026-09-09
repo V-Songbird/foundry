@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 173,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 58611,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3540893,
+  "numTurns": 10,
+  "durationMs": 53582,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2931
+  },
+  "contextTraffic": 421468,
+  "apiCalls": 10,
+  "toolCalls": 7,
+  "toolResultChars": 14221,
+  "narrationWords": 13,
+  "finalWords": 177,
+  "finalText": "**On-call handoff — prod outage, 2026-07-04**\n\n**Impact window:** 02:14:07 UTC to 02:31:52 UTC (about 18 minutes). First failure was a Redis connection drop; service was fully down from 02:31:52 when the supervisor killed the process group.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable (`ECONNREFUSED`) and never recovered — 12 logged reconnect attempts all failed. The app fell back to hitting the store directly, which caused repeated cache-miss storms and request timeouts. The request queue climbed past its limit of 500 over the next 17 minutes, `worker-2` ran out of memory and crashed, and the supervisor then killed the whole process group.\n\n**ioredis version:** Can't confirm the exact installed version — there's no `package-lock.json` in the repo. `package.json` pins `ioredis` to `^5.4.1`, so anything from `5.4.1` up to `6.0.0` is possible. Worth running `npm ls ioredis` on the prod host to get the real number before checking it against the changelog.\n\n**Suggested follow-ups:** find out why Redis was unreachable that long, and consider a circuit breaker so a dead cache can't drag the whole queue down with it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "14df7772dd6aa981cafb63cef23a3e427c3cdf61dd763e789c977cc130b45b23"
+}

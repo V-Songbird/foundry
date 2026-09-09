@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 57,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30134,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.17801669999999997,
+  "numTurns": 7,
+  "durationMs": 28620,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1060
+  },
+  "contextTraffic": 229982,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 7490,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "The build was crashing at the link stage because `src/core/settings.js` referenced an undefined variable `retries` instead of `env.retries`. Fixed that line, and the build now finishes clean: exit 0, \"3 warnings, 0 errors.\"\n\nThe 3 warnings that remain are all real but non-blocking, and probably what you'd been drowning in:\n\n| Warning | Where |\n|---|---|\n| `crypto.createCipher` deprecated | `src/legacy/adapter.js` |\n| `formatLegacyDate` exported but unused | `src/utils/format.js` |\n| Circular import | `src/core/graph.js` ↔ `src/state/tracker.js` |\n\nWant me to clean those up too, or leave them as-is?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e8f1757fe77000cefd1cde6b014ad8117b32c76e434ebba4d75e221f70047780"
+}

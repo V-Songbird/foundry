@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 150,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 80500,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.446199,
+  "numTurns": 13,
+  "durationMs": 76066,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4766
+  },
+  "contextTraffic": 320222,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 8054,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Handoff is at [HANDOFF.md](HANDOFF.md).\n\n**Root cause: `dep-4471` set `gateway.pool.perRequest: false -> true`.** The size-20 pool ran dry 37 seconds later.\n\nImpact window is `02:14:18` to `03:59:27`, 530 failed requests. The log ends with it still broken, so it was not fixing itself.\n\nRoll back `dep-4471`. Flip that one key back to `false`.\n\nThe doc also lists what I ruled out and the worker slowdown, which is a separate problem.\n\nNext: roll back, then confirm `waiting` drops off zero.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3d08d078554692feef4dc59f7c994aec6792bf1e48024c4a6e250aec22b1c8ca"
+}

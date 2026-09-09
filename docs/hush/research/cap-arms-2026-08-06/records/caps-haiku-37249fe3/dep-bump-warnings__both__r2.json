@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 125,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 49336,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08193990000000001,
+  "numTurns": 13,
+  "durationMs": 47674,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2783
+  },
+  "contextTraffic": 346157,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 12041,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "finalText": "Build is clean now. Two real bugs hid under those deprecation warnings:\n\n1. **src/core/options.js** — The new bundler passes `retryCount` instead of `retries`. Changed `options.retries.toFixed(0)` to `options.retryCount.toFixed(0)`.\n\n2. **src/net/retryPolicy.js** — The new config loader returns `undefined` for unset flags instead of `false`. Added a check for `undefined` to default to disabled.\n\nThe deprecation warnings (8 total) are just Node.js notices about old APIs in your dependencies — not actual errors. Build finishes in 44.9s with zero errors now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5590b6ed436e3d0c16562b4749c376362f5387201d924bf1243d5fa617327747"
+}

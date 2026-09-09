@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__turncmp2__r2",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "turncmp2",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 56213,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.29211709999999996,
+  "numTurns": 12,
+  "durationMs": 49875,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2566
+  },
+  "contextTraffic": 452776,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 12072,
+  "narrationWords": 0,
+  "finalWords": 162,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, 02:12–02:14 UTC) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. That made every request claim its own pooled connection instead of sharing one, so the fixed 20-connection pool saturated within seconds of the config applying.\n\n**Impact window:** Started 2026-03-14 02:14:14 UTC, roughly 30s after the deploy finished. Still ongoing as of the last log line, 03:59:27 UTC — no recovery yet, and the wait queue has grown from 13 to 74 over that time. Every error is `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, with `WARN pool ... acquire slow` warnings a few seconds ahead of each burst.\n\n**Scope:** Gateway only. `worker.log` shows workers ran a separate pool and stayed healthy throughout — no correlated errors there.\n\n**Rollback:** Revert `dep-4471` — set `gateway.pool.perRequest` back to `false` (or raise the pool size if per-request isolation needs to stay). No other deploy in that window touches the gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75ef558f43d8479913a42da657178bf6b71359ef33b72ac210acd1be30c8c957"
+}

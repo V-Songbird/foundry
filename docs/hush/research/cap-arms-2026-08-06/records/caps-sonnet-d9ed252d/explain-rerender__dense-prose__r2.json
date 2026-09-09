@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__dense-prose__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 66,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 10031,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0804852,
+  "numTurns": 1,
+  "durationMs": 8213,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 358
+  },
+  "contextTraffic": 35944,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "finalText": "A few usual suspects:\n\n1. **New objects or functions each render.** If you write `<Child onClick={() => ...}} />` or pass `{{ foo: 1 }}` inline, React sees a brand new value every time, even if it looks the same.\n2. **The child isn't wrapped in `memo`.** Without it, a child re-renders whenever its parent does, no matter what props it gets.\n3. **Context changes.** If the child reads from a context, it re-renders whenever that context value changes, even if its own props stay put.\n\nThe fix is usually to wrap the child in `React.memo`, and use `useCallback` or `useMemo` in the parent so the functions and objects you pass down stay the same between renders.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "61ffd5abf1bb9d081e9953e8d9f8c61def2f69e36834b529812ff60c3dc942d2"
+}

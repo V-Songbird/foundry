@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57239,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2802215,
+  "numTurns": 7,
+  "durationMs": 55748,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3521
+  },
+  "contextTraffic": 153162,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 8998,
+  "narrationWords": 8,
+  "finalWords": 553,
+  "finalText": "Here's what the log says. Everything happened in a 32-minute window, `02:00:00Z` → `02:31:52Z` on 2026-07-04.\n\n## Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00 – 02:14 | Normal. 170 requests all `200`, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:03 | **Last successful request in the entire log** (`GET /orders 200 75ms`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue backlog begins: depth 52 |\n| 02:15:26 – 02:31:26 | 13 redis reconnect attempts, all `ECONNREFUSED`, all from `[api]`, ~80s apart. None ever succeed |\n| 02:29:12 | Queue depth crosses its own limit: `502 (max 500)` |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## What actually happened\n\nRedis at `10.0.0.12:6379` went away at 02:14:07 — `ECONNREFUSED`, meaning the port was actively rejecting, so the process was down or the listener gone, not a network black-hole (that would time out instead). Root cause is outside this log; you'll want the Redis host's own logs for 02:14.\n\nThe app didn't fail on that. It degraded to \"direct store reads,\" which is the design working as intended — but the backing store couldn't absorb 100% of read traffic that the cache had been serving at a 0.9–0.98 hit ratio. So roughly 10x the read load hit it directly, and it started timing out **3 seconds later** at 02:14:10.\n\nFrom there it's a textbook queue death spiral. Requests took 5000ms to fail instead of ~75ms to succeed, so arrivals outpaced completions and the backlog grew almost perfectly linearly — ~30 requests/minute, from 52 at 02:14 to 568 at 02:31. The `max 500` threshold was crossed at 02:29:12 and **nothing happened** — no shedding, no rejection, the queue just kept growing past its stated cap. That backlog is what consumed the heap: worker-2 OOM'd at 02:31:44 (exit 134 = SIGABRT, V8's OOM abort), and the supervisor killed the unresponsive api 7 seconds later.\n\nTotal counts: 348 WARN, 188 ERROR, 2 FATAL. The 174 \"cache miss storm\" and 173 \"request queue depth\" warnings are all downstream noise from the one redis failure — there is only **one** originating fault in this file.\n\n## Two things worth flagging\n\n**The reconnect backoff isn't backing off.** All 13 attempts are ~80 seconds apart — fixed interval, no exponential growth. Worth checking your `ioredis` `retryStrategy`; the default is exponential, so this looks like a custom override.\n\n**The queue limit isn't enforced.** `max 500` is logged as a warning label but never acted on. This is the highest-leverage fix: with real shedding at 500, the process survives the redis outage in a degraded-but-alive state instead of OOMing. Right now a dependency being down for 17 minutes is guaranteed to take the whole service with it.\n\nI've only read the log — I haven't looked at `src/` (it isn't in this directory) or the Redis host. Happy to dig into the retry/queue config if you can point me at the source.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95fb06a8dbcc662fdc8a08524e5f36cdf9371a334c73e7c17a71a9b773a2b68f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__redo-caps__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 113,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 45711,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.083518,
+  "numTurns": 13,
+  "durationMs": 44102,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2734
+  },
+  "contextTraffic": 315653,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 16597,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "finalText": "Found it. The engine was rounding after each coupon instead of rounding once at the end.\n\nWhen you stack coupons, the code applied the percent discount and rounded to 2 decimals, then applied the flat discount and rounded again, then converted currency and rounded a third time. Each intermediate rounding introduced small errors that compounded into the cent-or-two mismatches you saw.\n\nThe fix was to remove those intermediate rounds in `engine.js:24` and `engine.js:27`. Now the calculation keeps full precision all the way through, then rounds exactly once at the very end after currency conversion—matching the test's reference implementation. All 40 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3155cf7df2f69a3269ddf665a12675190fef26b5be3dd6488db68bf9f65deb64"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__secondfact__r3",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34607,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.20333430000000002,
+  "numTurns": 10,
+  "durationMs": 32559,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1709
+  },
+  "contextTraffic": 249128,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8209,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "finalText": "Build's clean now, exit 0.\n\nTwo real bugs, both from the bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the link stage.\n2. `src/net/retryPolicy.js` treated a missing flag as invalid instead of off. The new config loader leaves unset flags `undefined` instead of `false`, so it kept throwing.\n\nFixed both. Retry budget resolves to 3, backoff comes back disabled, and the build finishes with 0 errors. The rest really was just noise, deprecation warnings from the bump that don't block anything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9381575c56a7c410a1154f541960c2931e73012d28eb17fd71b428577262b3c4"
+}

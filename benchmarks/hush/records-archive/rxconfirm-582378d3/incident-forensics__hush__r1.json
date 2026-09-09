@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 72589,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.42479330000000004,
+  "numTurns": 18,
+  "durationMs": 65235,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3131
+  },
+  "contextTraffic": 740094,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 22773,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, 02:12–02:14Z) flipped `gateway.pool.perRequest` from `false` to `true`. Config generation 119 applied at 02:13:41Z. The pool maxes out at 20 connections and stopped freeing them, so every request queues behind `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** Started 2026-03-14T02:14:18.972Z (first 503, `req-07401`). Still ongoing as of the last log line, 03:59:27Z. Not self-healing — the wait queue grew from 18 requests to 74 over that stretch.\n\n**Scope:** Gateway only. `logs/worker.log` runs clean through the same window, apart from one unrelated slow-query warning at 02:36 tagged as known issue `OPS-2210`.\n\n**Roll back:** `dep-4471` on gateway. Revert `gateway.pool.perRequest` to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0045b8f7e9c261e22ac1623e5cacd2c43f462cc79fc75182e32bf6965663c4cd"
+}

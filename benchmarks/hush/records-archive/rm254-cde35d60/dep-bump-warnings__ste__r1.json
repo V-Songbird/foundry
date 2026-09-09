@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26394,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1833867,
+  "numTurns": 10,
+  "durationMs": 25013,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1790
+  },
+  "contextTraffic": 254283,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7789,
+  "narrationWords": 15,
+  "finalWords": 137,
+  "finalText": "Build now finishes clean with exit code 0.\n\nRoot cause: the bundler bump changed the shape of what it hands modules — `options.retries` became `options.retryCount`, and unset flags now come back as `undefined` instead of `false`. Two call sites weren't updated for that:\n\n- `src/core/options.js:7` — `resolveRetries` read the old `options.retries` key (now `undefined`, so `.toFixed()` threw). Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:8` — `isBackoffEnabled` only handled explicit `true`/`false` and threw on `undefined`. Added an `undefined` → `false` case to match the new loader's \"unset\" convention.\n\nThe remaining ~8 warnings in the log are genuine deprecation noise from the dependency bump (`fs.exists`, `Buffer()` constructor, sync loader hooks, `punycode`, etc.) plus a couple of lint-style notices (unused export, circular import) — none of those block the build; they're worth cleaning up eventually but weren't the thing breaking things.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1af1ff7084c43b01cdd0afaa6a745144e371406340849bb3a94497e53c8e5f0b"
+}

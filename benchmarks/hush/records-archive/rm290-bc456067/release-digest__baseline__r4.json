@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 87677,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.808017,
+  "numTurns": 10,
+  "durationMs": 86008,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5802
+  },
+  "contextTraffic": 428748,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 74317,
+  "narrationWords": 79,
+  "finalWords": 388,
+  "assistantMsgs": 4,
+  "finalText": "**What's actually in 4.2, out of 380 commits:** one feature, ten distinct bug fixes, and one behavior change that will break people.\n\nEverything else is genuinely invisible to users: 16 dependency bumps (all patch or minor within the same major — nothing you need to mention), ~90 refactors, ~80 test changes, and the CI/chore churn.\n\nThree things worth your attention before you ship:\n\n**The 401/403 change is breaking and it's labeled `fix`.** `1d2bd55` changes expired-token responses from 403 to 401. Anyone who branches on the status code to trigger a token refresh has to change. It came in as a fix, so it would be easy to bury under Fixed — I put it under Breaking.\n\n**The histogram units fix is breaking for anyone monitoring you.** `59402bc`/`1f2bc4e` correct the units in the latency histogram. The code is more correct, but every dashboard and alert threshold built on the old numbers silently changes meaning. Same reasoning — I put it under Breaking rather than Fixed.\n\n**Two entries need a call from you.** I left them commented out in the file with a CONFIRM marker:\n- `56dc828` drops \"the unused v1 export route.\" It touches `src/api/router.js` and `handlers.js` — if that route was ever reachable by a customer, removing it is the biggest breaking change in the release, and \"unused\" only means unused *internally*.\n- Eight commits \"stop re-exporting the internal error types\" across auth, billing, core, db, and jobs. If those types were reachable from the package entry point, anyone catching them by type breaks on upgrade. If they were never exported publicly, both entries are noise — just delete the block.\n\nTwo smaller judgment calls: the repeated fix titles are the same bug fixed module-by-module (null cursor in four paginators, empty allowlist in three, duplicate header in five), so I collapsed each to one line rather than listing them per-module. And I left the ten `perf` commits out entirely — the file's three-heading structure has no place for them, and the messages (\"skip the JSON round-trip,\" \"avoid the extra clone\") carry no measurements, so I'd be inventing the claim. If you want a performance line, `9f02d92` (reuse the parsed schema between requests) is the one most likely to be measurable, but someone should benchmark it before you write a number down.\n\nI dated it 2026-08-28 for tomorrow's cut.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d56e026e165bbe76fdd0385e10aa039014c0d101b9ed44173cd75bd933008159"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__turncmp2__r1",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 25,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "turncmp2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61176,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6233424,
+  "numTurns": 13,
+  "durationMs": 54071,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2994
+  },
+  "contextTraffic": 663556,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 54708,
+  "narrationWords": 0,
+  "finalWords": 190,
+  "finalText": "The log ends at 03:59:27.974Z still mid-incident — errors are ongoing, not resolved. That confirms the impact window is open-ended.\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (a.novak, 02:12–02:14Z) shipped a gateway config change, \"connection-per-request for pool isolation,\" flipping `gateway.pool.perRequest` from `false` to `true`. That change stopped connections being reused from the shared pool. Pool size stayed fixed at 20, but every request now grabs its own connection, so `in_use` pinned at 20 and the wait queue climbed from 13 requests at 02:14 to 172+ by 03:56, with no sign of recovery.\n\n**Impact window:** Started 2026-03-14 02:14:18.972Z, first `503` on `req-07401`. Still ongoing as of the last log line, 03:59:27.974Z — over 1h45m and counting. Every affected request fails with the same pair of log lines: a `503` on the `access` line and `ERR_POOL_EXHAUSTED acquiring connection from pool` on the `pool` line.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window — no errors, no pool exhaustion there. Workers use a separate pool and weren't touched by this deploy.\n\n**Roll back:** `dep-4471` on `gateway` (revert `gateway.pool.perRequest` to `false`). No other deploy in `deploys.csv` lands near the incident start.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "01db965d4eda516091b402986a7b24302349c2638e645480a26aea2c44938d9b"
+}

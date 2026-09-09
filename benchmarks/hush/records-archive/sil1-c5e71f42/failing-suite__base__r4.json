@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__base__r4",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "base",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25295,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1289498,
+  "numTurns": 12,
+  "durationMs": 23482,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1375
+  },
+  "contextTraffic": 229859,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 11907,
+  "narrationWords": 13,
+  "finalWords": 31,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed the bug: `orderTotal` taxes the pre-discount amount instead of the discounted total."
+  ],
+  "finalText": "**Fixed. 625/625 passing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) was taxing the pre-discount amount instead of the discounted total. Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`.\n\nNothing else broken, no next step needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4e260978918d156c6af041d92d59b6cb1a7b819e2029e4bfd5907e547147987b"
+}

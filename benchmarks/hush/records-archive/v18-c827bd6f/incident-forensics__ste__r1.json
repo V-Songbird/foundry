@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 54,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69807,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.5372577,
+  "numTurns": 14,
+  "durationMs": 64596,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4492
+  },
+  "contextTraffic": 786113,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 50587,
+  "narrationWords": 18,
+  "finalWords": 250,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident\n\n**Status:** Active. The gateway did not recover by the end of the available log data.\n\n### Root cause\nDeploy `dep-4471` changed the gateway config setting `gateway.pool.perRequest` from `false` to `true`. This setting change makes the gateway hold one connection per request instead of returning it to the shared pool. The connection pool then filled up and did not drain.\n\n### Impact window\n- **Start:** 2026-03-14T02:14:18.972Z — first `503` error (`req-07401`).\n- **Trigger:** Config reload applied at 02:13:41.234Z (generation 118 to 119), 37 seconds before the first error.\n- **End:** Not resolved. The last log line, at 2026-03-14T03:59:27.974Z, still shows a `503` error. The pool `waiting` count grew from 13 requests to over 70 across the window.\n- **Scope:** Gateway only. `logs/worker.log` covers the same window and shows no errors — workers connect to the database directly and do not use the gateway pool.\n\n### Error signature\n```\nERROR access  req-XXXXX <path> -> <service> 503 <duration>ms\nERROR pool    req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n### Deploy to roll back\nRoll back `dep-4471` (gateway, author a.novak, \"config: connection-per-request for pool isolation\", finished 2026-03-14T02:14:00Z).\n\nIf a rollback is not possible right away, set `gateway.pool.perRequest` back to `false` through config reload instead.\n\n### Other deploys in the window\nNone of these look related. List them only for reference:\n- `dep-4472` (billing-svc, 02:41:00Z) — after the incident started, different service.\n- `dep-4473` (catalog-svc, 03:20:00Z) — after the incident started, different service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "338e2e1f2ce5bbf0cf89025667aeb30fd10319abde86253355af7450f7371c95"
+}

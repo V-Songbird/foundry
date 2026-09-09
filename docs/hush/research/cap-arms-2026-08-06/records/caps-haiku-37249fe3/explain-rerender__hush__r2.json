@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__hush__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 64,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 2,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 10830,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0231035,
+  "numTurns": 1,
+  "durationMs": 8833,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 652
+  },
+  "contextTraffic": 26989,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 200,
+  "finalText": "The parent is re-rendering, which makes all its children re-render too. React does this by default even if the props didn't actually change.\n\nThree common reasons this happens:\n\n**Your parent's state changed.** Even an unrelated state update in the parent will re-render the child. The fix is wrapping the child with `React.memo` so it only re-renders when its props actually differ.\n\n```jsx\nexport const Child = React.memo(({ name, age }) => {\n  return <div>{name}: {age}</div>;\n});\n```\n\n**The props are new objects or functions each time.** If the parent does `<Child items={[1, 2, 3]} />` or `<Child onClick={() => alert('hi')} />`, that's a fresh reference every render, so the child sees \"new\" props. Move these outside the component or wrap them with `useMemo` and `useCallback`.\n\n```jsx\n// Before: new array every render\n<Child items={[1, 2, 3]} />\n\n// After: same array every time\nconst ITEMS = [1, 2, 3];\n<Child items={ITEMS} />\n```\n\n**You're not actually memoizing.** If you did add `React.memo` but the issue persists, check that you're also memoizing any function or object props the parent passes down.\n\nThe simplest fix for most cases is wrapping your child in `React.memo` and making sure its props are stable references.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2762ce0262c6f6b6181896c012266092ff71fde6d831c8414b3a60762abc2333"
+}

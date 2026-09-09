@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 22,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 133176,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6709886,
+  "numTurns": 50,
+  "durationMs": 127930,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11244
+  },
+  "contextTraffic": 872085,
+  "apiCalls": 21,
+  "toolCalls": 46,
+  "toolResultChars": 26581,
+  "narrationWords": 0,
+  "finalWords": 108,
+  "finalText": "`AUDIT.md` is written and verified — all four findings present, service code untouched.\n\nOrdered by severity:\n\n1. **Critical** — `src/routes/internal.js`: `/internal/metrics` and `/internal/flush-cache` have no auth check, left exposed after the 4.0 migration dropped the VPN they used to rely on.\n2. **Critical (dormant)** — `src/repo/report.js`: `runSavedReport` builds SQL by string concatenation with no parameterization; not wired to any route yet, but a landmine for the first endpoint that uses it.\n3. **High** — `config/staging.js`: a real staging DB password committed in plaintext, unlike dev/prod which pull from env vars.\n4. **Medium** — `package.json`: `fast-parse` pinned to `1.4.2`, which was yanked for a prototype-pollution report; fix is `1.4.3`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b3b2ea4b9c03bd6701ff1d7abdf64377d639e43be1d93076fcf70426febe3cf4"
+}

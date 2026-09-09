@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24080,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.183173,
+  "numTurns": 8,
+  "durationMs": 22694,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1533
+  },
+  "contextTraffic": 263520,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 5520,
+  "narrationWords": 37,
+  "finalWords": 80,
+  "finalText": "Builds clean, exit 0.\n\nTwo real bugs from the bump, both were in link-stage config handling:\n1. `src/core/options.js:6` — still read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the right key.\n2. `src/net/retryPolicy.js:7` — treated an unset flag as invalid instead of falsy. New config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` as disabled.\n\nThe remaining 8 warnings are just deprecation noise (`fs.exists`, `Buffer()`, punycode, etc.) — not build-breaking, cosmetic only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d7f2b9efae5cb1414224fdad01bdaeccfc46713058b532f1f4eac02dca6a18ce"
+}

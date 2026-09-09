@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 30,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31233,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.28012099999999995,
+  "numTurns": 9,
+  "durationMs": 29680,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1719
+  },
+  "contextTraffic": 171419,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 18572,
+  "narrationWords": 83,
+  "finalWords": 210,
+  "finalText": "Green: 625 total, 625 passing, 0 failing (exit 0).\n\n**What was broken:** one line in `src/pricing.js:41`. `orderTotal` did:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // tax on the FULL base\nreturn discounted + tax;\n```\n\nIt charged tax on the pre-discount amount, then added it to the discounted subtotal — contradicting the function's own docblock (\"tax what's actually owed\"). The customer is overcharged by `discount × taxRate`, e.g. $6.68 on the 33400c/10%/20% order.\n\n**Fix:**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n**Why the wall of text was mostly noise:** 8 of the 9 suites were fully green. Only `order totals` failed, and only 3 of its 69 rows — the three where discount *and* tax are both non-zero. The other 66 rows zero out one or the other, so `cents * taxRate` and `discounted * taxRate` coincide and the bug stays invisible. The runner prints an `ok` line per case plus a coverage table, so ~620 passing lines buried the 3 real ones.\n\nWorth noting: this is a real money bug, not just a test artifact — if this engine has been billing, past invoices with a simultaneous discount and tax were overcharged. Might be worth checking whether that reached production.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "178dae12f6a84d24e1d90bddd355cb8cbb3b1e56ae7874c4eba4a8bd8b27a451"
+}

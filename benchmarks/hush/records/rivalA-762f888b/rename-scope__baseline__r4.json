@@ -1,0 +1,43 @@
+{
+  "key": "rename-scope__baseline__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 115,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 58693,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3590025,
+  "numTurns": 8,
+  "durationMs": 57835,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3802
+  },
+  "contextTraffic": 198085,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 21832,
+  "narrationWords": 27,
+  "finalWords": 603,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this is.",
+    "Now let me look at the boundary cases — vendor, migrations, public API, and the shared lib."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 101 files** — but it's far less work than that sounds. The service tree is templated: 25 repos, 25 services, 25 route files that are byte-identical apart from the entity name. There are really only **four distinct code shapes** to get right, then the same edit repeats 25×.\n\n| Area | Files | Occurrences |\n|---|---|---|\n| `services/*/src/repo` | 25 | 475 |\n| `services/*/src/service` | 25 | 400 |\n| `services/*/src/http` | 25 | 325 |\n| `migrations/` | 12 | 61 |\n| `vendor/reporting-sdk/` | 5 | 20 |\n| `lib/` | 3 | 5 |\n| `docs/openapi.yaml` | 1 | 5 |\n\n## Where it must NOT be renamed\n\nFour hard stops, all self-documented in the repo:\n\n1. **`docs/openapi.yaml` + the right-hand side of `lib/serialize.js`** — `account_id` is a public wire field and a public query parameter on `/v2/invoices`. The header says renaming one \"is a breaking change for every client and needs a new dated version.\" `serialize.js` is the chokepoint: `WIRE` maps internal key → public key, and the comment states the internal rename \"must not reach this side of the map.\" So `WIRE` becomes `owner_id: 'account_id'` — left side renamed, right side frozen.\n\n2. **`vendor/reporting-sdk/`** (20 occurrences) — vendored generated code, \"Do not edit\"; `npm run vendor:refresh` overwrites it wholesale. `account_id` there is the upstream vendor's request/response contract, not ours. Any local edit is silently reverted on the next refresh.\n\n3. **`migrations/`** (61 occurrences) — all 12 are already applied in production. Editing history doesn't rename anything in a live database and breaks the down steps. A rename needs a *new* migration; the old files stay as-is.\n\n4. **SQL column names inside the service code** (~125 occurrences) — this is the subtle one. Lines like `'SELECT * FROM invoices WHERE account_id = ? AND id = ?'` contain both a JS binding and a DB column reference. Until a migration actually renames the column, the string literals must keep saying `account_id` even as the surrounding variable becomes `owner_id`. A blind find-and-replace breaks every query in the platform.\n\n## The trap worth calling out in your sign-off\n\nAll 25 repo files have:\n\n```js\nparams: [account_id, JSON.stringify({ ...values, account_id })],\n```\n\nThat's ES6 shorthand. Rename the variable and the **key stored in the JSONB payload** silently becomes `owner_id` — no error, no test failure, just new rows whose payload shape disagrees with every row already in production. It has to be written explicitly as `{ ...values, account_id: owner_id }`.\n\nAlso `req.session.account_id` (100 occurrences) reads a field off the session object produced by auth middleware that lives outside this repo. That's an external contract too — renameable only in step with whatever mints the session.\n\n## Recommendation\n\n**Sign off, but scope it to the internal variable names only.** Roughly 1,050 of the 1,291 occurrences are safely renameable; the other ~240 are contract boundaries. Ask for three things before approval:\n\n- Vendor and migrations excluded from the diff entirely (easy to verify — those paths should show zero changes).\n- The `WIRE` map and the JSON.stringify shorthand called out explicitly in the PR description, since both fail silently rather than loudly.\n- A follow-up migration if they actually want the DB column renamed — that's a separate, much riskier change involving a dual-write window, not part of this one.\n\nOne thing I'd flag as a judgment call rather than a hard stop: `lib/audit.js` emits `account_id` into audit lines. Nothing in the repo freezes that, but if anything downstream queries audit logs by field name, it's a soft contract worth a quick check with whoever owns log ingestion.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "715ee5f709013dc21bf2b3d240d3dcf4d0d2daa374746d9d780bff1bb4b6bf8a"
+}

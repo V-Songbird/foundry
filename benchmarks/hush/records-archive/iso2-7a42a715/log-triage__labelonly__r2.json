@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__labelonly__r2",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11648,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1161002,
+  "numTurns": 4,
+  "durationMs": 10067,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 593
+  },
+  "contextTraffic": 115582,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\nAt `02:14:07` `redis` connection dropped with `ECONNREFUSED 10.0.0.12:6379`. API fell back to direct store reads, causing cache miss storms and 5000ms timeouts.\n\nFor 17 minutes, queue depth climbed steadily to 568, well past the max of 500, while `redis` reconnect attempts (7 through 12) kept failing.\n\nAt `02:31:44` `worker-2` hit `JavaScript heap out of memory` from the request backlog. It restarted, but by `02:31:52` the `api` was unresponsive and the `supervisor` killed the whole process group.\n\nRoot cause: `redis` at `10.0.0.12:6379` went unreachable and never recovered.\n\nNext: confirm `redis` host `10.0.0.12` is back up before restarting the service.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "adb8ab19ab1e8f182c6277edec39304bd2270262e89e334666c3e017c207820b"
+}

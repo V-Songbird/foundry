@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 54,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23088,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1767729,
+  "numTurns": 7,
+  "durationMs": 21416,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 986
+  },
+  "contextTraffic": 229821,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 7474,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "finalText": "Build's clean now — 0 errors, exit 0.\n\nThe real bug was in `src/core/settings.js:17`: `maxRetries: retries` referenced a variable that never existed, so every build crashed with `ReferenceError: retries is not defined` at the link stage. Fixed it to read `env.retries`, falling back to `3`.\n\nThe three warnings are unrelated and harmless — a deprecated `crypto.createCipher` call, an unused export, and a circular import — worth cleaning up eventually but not build-breaking.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2c1f0ac027a0fdd67123e23907a746cb58d66f469b9a9607ed651487a3fa11d7"
+}

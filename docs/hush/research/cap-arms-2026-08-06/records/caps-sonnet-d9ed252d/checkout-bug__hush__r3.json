@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 34,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28227,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19929190000000002,
+  "numTurns": 10,
+  "durationMs": 26681,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1652
+  },
+  "contextTraffic": 268768,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 5682,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "Found it: `computeTotal` in `src/services/pricing.js` was converting the subtotal to the target currency first, then subtracting the flat coupon as if it were already in that currency — even though coupons are stored in USD. A $10 coupon on a €90 total was coming off as €10, not €9.\n\nThe fix subtracts the flat coupon in USD before converting, so the discount gets converted along with the rest of the order. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "692b71965762dfa79d8e975f5cd6ee2c9ed482251a1851fdae397e3a1e898def"
+}

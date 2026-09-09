@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__concise__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 143475,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.7274775,
+  "numTurns": 15,
+  "durationMs": 134636,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8761
+  },
+  "contextTraffic": 506473,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 22522,
+  "narrationWords": 5,
+  "finalWords": 130,
+  "finalText": "Written to `HANDOFF.md`.\n\n**Root cause:** `dep-4471` set `gateway.pool.perRequest: false -> true`, exhausting the 20-slot pool. All 530 503s carry a paired `ERR_POOL_EXHAUSTED` at `size 20, in_use 20`; no upstream errors anywhere.\n\n**Impact window:** 02:14:18Z onset → 03:59:27Z end of log, still failing. 530/1228 requests (~43%), all five business paths evenly. `/health` stayed 200 throughout; on-call paged 67 min late.\n\n**Roll back:** `dep-4471` — revert config generation 119 → 118 as a unit (it also carried `upstreamMs 2000→2500`, which compounds the hold time). Verify across all three nodes; this log is node-3 only.\n\nThe doc also flags two things: the logs are dated 2026-03-14 while today is 2026-08-26, so confirm you're on live data first; and the worker latency climb is a separate pre-existing issue (OPS-2210), not part of this incident.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "12da718b6408d2eebf62d1152f511c8d2da3d442b08394f7fcf39443aa94b8cc"
+}

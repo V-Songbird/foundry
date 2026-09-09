@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21901,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0692736,
+  "numTurns": 10,
+  "durationMs": 19891,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1586
+  },
+  "contextTraffic": 115045,
+  "apiCalls": 4,
+  "toolCalls": 9,
+  "toolResultChars": 14423,
+  "narrationWords": 0,
+  "finalWords": 187,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Real size: ~1,082 occurrences across 94 files.** All 4 services (`accounts`, `orders`, `billing`, `notify`, `analytics`) use `account_id` as the scoping param in every repo, service, and route file.\n\nThree places must not be touched:\n\n1. **`docs/openapi.yaml`** and **`lib/serialize.js`** — `account_id` is the public API wire field, explicitly \"frozen by the API contract.\" Renaming breaks every external client.\n2. **`vendor/reporting-sdk/`** (`client.js`, `query.js`, `schema.js`, `export.js`) — vendored/generated, \"Do not edit,\" overwritten on `npm run vendor:refresh`.\n3. **Applied migrations** (`migrations/2025*.sql`) — already run in production; editing them doesn't rename any live column and breaks the `down` step. Any actual rename needs a *new* migration, not edits to history.\n\n`lib/audit.js` also writes `account_id` into audit log lines — worth confirming whether that log format is consumed downstream before renaming.\n\nSo: internal repo/service/route code (the bulk of the 1,082 hits) is safe to rename. The DB column, the public API field, the audit log field, and the vendor SDK are not — full rename needs a column-rename migration plus a translation layer in `serialize.js`/`openapi.yaml`, which is a bigger, separately-scoped change. I'd sign off on renaming internal params/vars only, not today's full scope.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6e5bfce45e00e26046867ca141cfe4907fe01400507588ea3e38421d093ecc88"
+}

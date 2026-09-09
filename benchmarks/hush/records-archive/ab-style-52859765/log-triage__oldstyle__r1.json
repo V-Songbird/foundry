@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__oldstyle__r1",
+  "batchId": "ab-style-52859765",
+  "seed": "1787386633516",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24916,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1280296,
+  "numTurns": 7,
+  "durationMs": 22959,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1442
+  },
+  "contextTraffic": 205549,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 10114,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "finalText": "Redis died first. At 02:15:10 the app started timing out talking to the store, and by 02:15:26 it logged its first failed redis reconnect at `10.0.0.12:6379`, connection refused.\n\nFrom there it never recovered. It kept retrying every ~80 seconds, 13 tries in all, and every try failed the same way. With no cache, every request became a slow store lookup, so the request queue climbed steadily, crossing its limit of 500 at 02:29:12.\n\nThat backlog piled up in memory until worker-2 ran out of it at 02:31:44 and crashed. The supervisor restarted it a second later, but the api process was already stuck and unresponsive, so at 02:31:52 the supervisor killed the whole process group. That's the outage.\n\nRoot cause: Redis at `10.0.0.12:6379` went unreachable around 02:15 and stayed down, and nothing shed load while the app kept retrying and queuing. Getting Redis back up and adding a queue cutoff would prevent a repeat.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b23640ec15f68778bc4b4353713f2e2cfabe983666d2bb582adb52d6dff66f28"
+}

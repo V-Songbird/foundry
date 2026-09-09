@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__noill__r6",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 59,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51072,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.336362,
+  "numTurns": 17,
+  "durationMs": 49043,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3278
+  },
+  "contextTraffic": 167470,
+  "apiCalls": 7,
+  "toolCalls": 16,
+  "toolResultChars": 16349,
+  "narrationWords": 0,
+  "finalWords": 106,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**1291 hits across 94 files.** Most rename fine. Four spots must not.\n\n| Zone | Hits | Rename? |\n|---|---|---|\n| `services` | 1200 in 75 files | Yes, JS names only |\n| `migrations` | 61 in 12 files | No, already applied |\n| `vendor/reporting-sdk` | 20 in 4 files | No, regenerated |\n| `docs/openapi.yaml` | 5 | No, public contract |\n| [lib/serialize.js:8](lib/serialize.js:8) | 1 | No, wire name frozen |\n\nAlso 125 SQL lines in `services/*/src/repo/*.js` name the real column. Those strings stay until a new migration renames the column.\n\nNext: ask for a two-step plan. Rename JS now, column later.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f1d5045945f7e47a75bcc664c18f7294dd52831ecf05b46ed2c0e65cd0d92205"
+}

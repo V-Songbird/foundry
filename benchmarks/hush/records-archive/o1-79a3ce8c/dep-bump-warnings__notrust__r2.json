@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__notrust__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrust",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52552,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 0.3800815,
+  "numTurns": 11,
+  "durationMs": 50810,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3601
+  },
+  "contextTraffic": 278436,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 7746,
+  "narrationWords": 11,
+  "finalWords": 84,
+  "finalText": "**The build is green again.** Exit 0, no errors.\n\nTwo real bugs came from the bump. The first was hiding the second.\n\n1. `src/core/options.js` read `options.retries`. The new shape is `retryCount`.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader gives `undefined`, not `false`.\n\nBoth now accept the old and new shapes.\n\nThe 8 warnings are still printed. They are fixed text inside `build.js`. They name files like `src/legacy/adapter.js` that aren't in your project. There's nothing in your source to fix for those.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3291c4cdc3d1a55edb4f545656b86897174783c71d758bb2f1c8b5798662107e"
+}

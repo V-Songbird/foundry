@@ -1,0 +1,625 @@
+=== C1 dep-slug haiku n16 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 48 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-045055
+  [1/48] dep-slug / ponytail #1  LOC=4 correct=0 safe=1 cost=$0.0340614 installs=0
+  [2/48] dep-slug / ponytail #2  LOC=5 correct=1 safe=1 cost=$0.0344781 installs=0
+  [3/48] dep-slug / ponytail #3  LOC=3 correct=1 safe=1 cost=$0.03798049999999999 installs=0
+  [4/48] dep-slug / ponytail #0  LOC=4 correct=1 safe=1 cost=$0.04478440000000001 installs=0
+  [5/48] dep-slug / ponytail #4  LOC=5 correct=1 safe=1 cost=$0.034387100000000004 installs=0
+  [6/48] dep-slug / ponytail #6  LOC=4 correct=1 safe=1 cost=$0.0359647 installs=0
+  [7/48] dep-slug / ponytail #5  LOC=5 correct=1 safe=1 cost=$0.034303799999999995 installs=0
+  [8/48] dep-slug / ponytail #8  LOC=4 correct=1 safe=1 cost=$0.033516199999999996 installs=0
+  [9/48] dep-slug / ponytail #7  LOC=4 correct=1 safe=1 cost=$0.0402205 installs=0
+  [10/48] dep-slug / ponytail #9  LOC=7 correct=0 safe=1 cost=$0.034544899999999996 installs=0
+  [11/48] dep-slug / ponytail #10  LOC=4 correct=1 safe=1 cost=$0.0383267 installs=0
+  [12/48] dep-slug / ponytail #13  LOC=4 correct=1 safe=1 cost=$0.0343171 installs=0
+  [13/48] dep-slug / ponytail #12  LOC=5 correct=1 safe=1 cost=$0.0374265 installs=0
+  [14/48] dep-slug / ponytail #11  LOC=5 correct=1 safe=1 cost=$0.0421144 installs=0
+  [15/48] dep-slug / ponytail #14  LOC=5 correct=0 safe=1 cost=$0.0353818 installs=0
+  [16/48] dep-slug / ponytail #15  LOC=5 correct=1 safe=1 cost=$0.0331661 installs=0
+  [17/48] dep-slug / razor #0  LOC=6 correct=1 safe=1 cost=$0.0317306 installs=0
+  [18/48] dep-slug / razor #1  LOC=6 correct=1 safe=1 cost=$0.030922200000000004 installs=0
+  [19/48] dep-slug / razor #2  LOC=4 correct=1 safe=1 cost=$0.0334169 installs=0
+  [20/48] dep-slug / razor #4  LOC=3 correct=1 safe=1 cost=$0.032741099999999995 installs=0
+  [21/48] dep-slug / razor #3  LOC=3 correct=1 safe=1 cost=$0.0380819 installs=0
+  [22/48] dep-slug / razor #5  LOC=5 correct=1 safe=1 cost=$0.034488700000000004 installs=0
+  [23/48] dep-slug / razor #6  LOC=4 correct=1 safe=1 cost=$0.031461800000000005 installs=0
+  [24/48] dep-slug / razor #7  LOC=4 correct=1 safe=1 cost=$0.0315772 installs=0
+  [25/48] dep-slug / razor #8  LOC=4 correct=1 safe=1 cost=$0.031784 installs=0
+  [26/48] dep-slug / razor #9  LOC=4 correct=1 safe=1 cost=$0.0319566 installs=0
+  [27/48] dep-slug / razor #10  LOC=4 correct=1 safe=1 cost=$0.033176 installs=0
+  [28/48] dep-slug / razor #11  LOC=5 correct=1 safe=1 cost=$0.030878700000000002 installs=0
+  [29/48] dep-slug / razor #13  LOC=5 correct=1 safe=1 cost=$0.0316306 installs=0
+  [30/48] dep-slug / razor #12  LOC=5 correct=1 safe=1 cost=$0.0312906 installs=0
+  [31/48] dep-slug / razor #14  LOC=6 correct=1 safe=1 cost=$0.0318922 installs=0
+  [32/48] dep-slug / razorv3 #1  LOC=3 correct=1 safe=1 cost=$0.0299585 installs=0
+  [33/48] dep-slug / razorv3 #0  LOC=5 correct=1 safe=1 cost=$0.030600300000000004 installs=0
+  [34/48] dep-slug / razor #15  LOC=5 correct=1 safe=1 cost=$0.0452158 installs=0
+  [35/48] dep-slug / razorv3 #2  LOC=6 correct=0 safe=1 cost=$0.0303277 installs=0
+  [36/48] dep-slug / razorv3 #4  LOC=4 correct=1 safe=1 cost=$0.0306271 installs=0
+  [37/48] dep-slug / razorv3 #3  LOC=5 correct=1 safe=1 cost=$0.0314543 installs=0
+  [38/48] dep-slug / razorv3 #5  LOC=3 correct=1 safe=1 cost=$0.0337265 installs=0
+  [39/48] dep-slug / razorv3 #6  LOC=6 correct=1 safe=1 cost=$0.031042 installs=0
+  [40/48] dep-slug / razorv3 #7  LOC=4 correct=1 safe=1 cost=$0.031273 installs=0
+  [41/48] dep-slug / razorv3 #8  LOC=4 correct=1 safe=1 cost=$0.0309483 installs=0
+  [42/48] dep-slug / razorv3 #9  LOC=4 correct=1 safe=1 cost=$0.0333634 installs=0
+  [43/48] dep-slug / razorv3 #10  LOC=2 correct=1 safe=1 cost=$0.0329775 installs=0
+  [44/48] dep-slug / razorv3 #12  LOC=5 correct=1 safe=1 cost=$0.0316096 installs=0
+  [45/48] dep-slug / razorv3 #11  LOC=6 correct=1 safe=1 cost=$0.0410341 installs=0
+  [46/48] dep-slug / razorv3 #13  LOC=5 correct=0 safe=1 cost=$0.032518399999999996 installs=0
+  [47/48] dep-slug / razorv3 #14  LOC=4 correct=1 safe=1 cost=$0.031127000000000002 installs=0
+  [48/48] dep-slug / razorv3 #15  LOC=6 correct=0 safe=1 cost=$0.0312387 installs=0
+
+=== dep-slug  (haiku, n=16) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  ponytail      0.812    1.0    4.5    1.0     96141   $0.0366    18.1         0
+  razor           1.0    1.0    4.5    1.0     89390   $0.0333    17.2         0
+  razorv3       0.812    1.0    4.5    1.0     84090   $0.0321    16.8         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-045055\results.json + summary.json (48 cells)
+=== C2 dep-toml haiku n16 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 48 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-045500
+  [1/48] dep-toml / ponytail #3  LOC=16 correct=1 safe=1 cost=$0.03952990000000001 installs=0
+  [2/48] dep-toml / ponytail #2  LOC=10 correct=1 safe=1 cost=$0.043715500000000004 installs=0
+  [3/48] dep-toml / ponytail #0  LOC=11 correct=1 safe=1 cost=$0.0480417 installs=0
+  [4/48] dep-toml / ponytail #1  LOC=11 correct=1 safe=1 cost=$0.0610809 installs=0
+  [5/48] dep-toml / ponytail #4  LOC=14 correct=1 safe=1 cost=$0.056440500000000005 installs=0
+  [6/48] dep-toml / ponytail #5  LOC=19 correct=1 safe=0 cost=$0.0644907 installs=0
+  [7/48] dep-toml / ponytail #7  LOC=16 correct=1 safe=1 cost=$0.055806800000000004 installs=0
+  [8/48] dep-toml / ponytail #6  LOC=15 correct=1 safe=1 cost=$0.08813159999999999 installs=0
+  [9/48] dep-toml / ponytail #10  LOC=11 correct=1 safe=1 cost=$0.044328099999999995 installs=0
+  [10/48] dep-toml / ponytail #9  LOC=10 correct=1 safe=1 cost=$0.06360370000000001 installs=0
+  [11/48] dep-toml / ponytail #8  LOC=14 correct=1 safe=0 cost=$0.0826049 installs=0
+  [12/48] dep-toml / ponytail #11  LOC=19 correct=1 safe=0 cost=$0.0675264 installs=0
+  [13/48] dep-toml / ponytail #12  LOC=10 correct=1 safe=1 cost=$0.0499072 installs=0
+  [14/48] dep-toml / ponytail #14  LOC=11 correct=1 safe=1 cost=$0.0524738 installs=0
+  [15/48] dep-toml / ponytail #13  LOC=14 correct=1 safe=0 cost=$0.059893800000000004 installs=0
+  [16/48] dep-toml / razor #0  LOC=16 correct=1 safe=1 cost=$0.041603 installs=0
+  [17/48] dep-toml / ponytail #15  LOC=18 correct=1 safe=0 cost=$0.04924679999999999 installs=0
+  [18/48] dep-toml / razor #1  LOC=13 correct=1 safe=1 cost=$0.0471597 installs=0
+  [19/48] dep-toml / razor #4  LOC=11 correct=1 safe=1 cost=$0.0350277 installs=0
+  [20/48] dep-toml / razor #3  LOC=11 correct=1 safe=1 cost=$0.047190499999999996 installs=0
+  [21/48] dep-toml / razor #5  LOC=15 correct=1 safe=1 cost=$0.04179920000000001 installs=0
+  [22/48] dep-toml / razor #2  LOC=9 correct=1 safe=1 cost=$0.0673722 installs=0
+  [23/48] dep-toml / razor #6  LOC=12 correct=1 safe=1 cost=$0.044412999999999994 installs=0
+  [24/48] dep-toml / razor #8  LOC=12 correct=1 safe=1 cost=$0.0458927 installs=0
+  [25/48] dep-toml / razor #9  LOC=16 correct=1 safe=1 cost=$0.0403011 installs=0
+  [26/48] dep-toml / razor #7  LOC=15 correct=1 safe=1 cost=$0.0563967 installs=0
+  [27/48] dep-toml / razor #10  LOC=10 correct=1 safe=1 cost=$0.0428119 installs=0
+  [28/48] dep-toml / razor #12  LOC=12 correct=1 safe=1 cost=$0.04331960000000001 installs=0
+  [29/48] dep-toml / razor #13  LOC=15 correct=1 safe=1 cost=$0.0483227 installs=0
+  [30/48] dep-toml / razor #11  LOC=15 correct=1 safe=1 cost=$0.0629937 installs=0
+  [31/48] dep-toml / razor #14  LOC=17 correct=1 safe=1 cost=$0.05851010000000001 installs=0
+  [32/48] dep-toml / razor #15  LOC=16 correct=1 safe=1 cost=$0.043398500000000007 installs=0
+  [33/48] dep-toml / razorv3 #1  LOC=11 correct=1 safe=1 cost=$0.04559710000000001 installs=0
+  [34/48] dep-toml / razorv3 #0  LOC=15 correct=1 safe=1 cost=$0.0481626 installs=0
+  [35/48] dep-toml / razorv3 #3  LOC=12 correct=1 safe=1 cost=$0.0401147 installs=0
+  [36/48] dep-toml / razorv3 #2  LOC=14 correct=1 safe=1 cost=$0.05136319999999999 installs=0
+  [37/48] dep-toml / razorv3 #5  LOC=10 correct=1 safe=1 cost=$0.0454636 installs=0
+  [38/48] dep-toml / razorv3 #6  LOC=16 correct=1 safe=1 cost=$0.0419438 installs=0
+  [39/48] dep-toml / razorv3 #4  LOC=15 correct=1 safe=1 cost=$0.057521899999999994 installs=0
+  [40/48] dep-toml / razorv3 #7  LOC=17 correct=1 safe=1 cost=$0.052241100000000006 installs=0
+  [41/48] dep-toml / razorv3 #9  LOC=15 correct=1 safe=1 cost=$0.0429575 installs=0
+  [42/48] dep-toml / razorv3 #8  LOC=14 correct=1 safe=1 cost=$0.0404495 installs=0
+  [43/48] dep-toml / razorv3 #10  LOC=15 correct=1 safe=1 cost=$0.06864400000000001 installs=0
+  [44/48] dep-toml / razorv3 #11  LOC=15 correct=1 safe=1 cost=$0.048458 installs=0
+  [45/48] dep-toml / razorv3 #13  LOC=15 correct=1 safe=1 cost=$0.0541176 installs=0
+  [46/48] dep-toml / razorv3 #12  LOC=10 correct=1 safe=1 cost=$0.046255399999999995 installs=0
+  [47/48] dep-toml / razorv3 #14  LOC=11 correct=1 safe=1 cost=$0.0409778 installs=0
+  [48/48] dep-toml / razorv3 #15  LOC=10 correct=1 safe=1 cost=$0.043842599999999995 installs=0
+
+=== dep-toml  (haiku, n=16) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  ponytail        1.0  0.688   14.0    1.0    221018   $0.0579    36.3         0
+  razor           1.0    1.0   14.0    1.0    160985   $0.0479    31.3         0
+  razorv3         1.0    1.0   14.5    1.0    169025   $0.0480    32.0         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-045500\results.json + summary.json (48 cells)
+=== C3 guards haiku n8 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 80 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-050225
+  [1/80] dep-http-lib / razor #1  LOC=2 correct=1 safe=1 cost=$0.030763 installs=0
+  [2/80] dep-http-lib / razor #0  LOC=2 correct=1 safe=1 cost=$0.0348776 installs=0
+  [3/80] dep-http-lib / razor #3  LOC=2 correct=1 safe=1 cost=$0.03321 installs=0
+  [4/80] dep-http-lib / razor #2  LOC=2 correct=1 safe=1 cost=$0.0373035 installs=0
+  [5/80] dep-http-lib / razor #5  LOC=2 correct=1 safe=1 cost=$0.0402703 installs=0
+  [6/80] dep-http-lib / razor #4  LOC=5 correct=1 safe=1 cost=$0.03785549999999999 installs=0
+  [7/80] dep-http-lib / razor #6  LOC=3 correct=1 safe=1 cost=$0.034219900000000004 installs=0
+  [8/80] dep-http-lib / razor #7  LOC=2 correct=1 safe=1 cost=$0.034609299999999996 installs=0
+  [9/80] dep-http-lib / razorv3 #2  LOC=3 correct=1 safe=1 cost=$0.0349179 installs=0
+  [10/80] dep-http-lib / razorv3 #0  LOC=2 correct=1 safe=1 cost=$0.0364803 installs=0
+  [11/80] dep-http-lib / razorv3 #1  LOC=2 correct=1 safe=1 cost=$0.043614700000000006 installs=0
+  [12/80] dep-http-lib / razorv3 #3  LOC=2 correct=1 safe=1 cost=$0.045519500000000004 installs=0
+  [13/80] dep-http-lib / razorv3 #4  LOC=2 correct=1 safe=1 cost=$0.0305107 installs=0
+  [14/80] dep-http-lib / razorv3 #6  LOC=2 correct=1 safe=1 cost=$0.0299093 installs=0
+  [15/80] dep-http-lib / razorv3 #5  LOC=2 correct=1 safe=1 cost=$0.0347982 installs=0
+  [16/80] dep-http-lib / razorv3 #7  LOC=3 correct=1 safe=1 cost=$0.0336592 installs=0
+  [17/80] dep-dotenv-lib / razor #2  LOC=8 correct=1 safe=1 cost=$0.029509100000000003 installs=0
+  [18/80] dep-dotenv-lib / razor #0  LOC=9 correct=1 safe=1 cost=$0.0413184 installs=0
+  [19/80] dep-dotenv-lib / razor #1  LOC=10 correct=1 safe=1 cost=$0.0451944 installs=0
+  [20/80] dep-dotenv-lib / razor #3  LOC=9 correct=1 safe=1 cost=$0.038421000000000004 installs=0
+  [21/80] dep-dotenv-lib / razor #4  LOC=9 correct=1 safe=1 cost=$0.0409563 installs=0
+  [22/80] dep-dotenv-lib / razor #5  LOC=9 correct=1 safe=1 cost=$0.044617 installs=0
+  [23/80] dep-dotenv-lib / razor #6  LOC=12 correct=1 safe=1 cost=$0.0455076 installs=0
+  [24/80] dep-dotenv-lib / razor #7  LOC=9 correct=1 safe=1 cost=$0.0396749 installs=0
+  [25/80] dep-dotenv-lib / razorv3 #0  LOC=8 correct=1 safe=1 cost=$0.0382626 installs=0
+  [26/80] dep-dotenv-lib / razorv3 #1  LOC=8 correct=1 safe=1 cost=$0.0391052 installs=0
+  [27/80] dep-dotenv-lib / razorv3 #3  LOC=9 correct=1 safe=1 cost=$0.030367599999999998 installs=0
+  [28/80] dep-dotenv-lib / razorv3 #2  LOC=10 correct=1 safe=1 cost=$0.040547400000000004 installs=0
+  [29/80] dep-dotenv-lib / razorv3 #4  LOC=8 correct=1 safe=1 cost=$0.048938800000000005 installs=0
+  [30/80] dep-dotenv-lib / razorv3 #5  LOC=9 correct=1 safe=1 cost=$0.0397633 installs=0
+  [31/80] dep-dotenv-lib / razorv3 #7  LOC=8 correct=1 safe=1 cost=$0.0416085 installs=0
+  [32/80] dep-dotenv-lib / razorv3 #6  LOC=10 correct=1 safe=1 cost=$0.0393516 installs=0
+  [33/80] dep-retry-lib / razor #0  LOC=10 correct=1 safe=1 cost=$0.0413107 installs=0
+  [34/80] dep-retry-lib / razor #1  LOC=12 correct=1 safe=1 cost=$0.035413299999999995 installs=0
+  [35/80] dep-retry-lib / razor #2  LOC=11 correct=1 safe=1 cost=$0.039833299999999995 installs=0
+  [36/80] dep-retry-lib / razor #3  LOC=11 correct=1 safe=1 cost=$0.0361167 installs=0
+  [37/80] dep-retry-lib / razor #4  LOC=9 correct=1 safe=1 cost=$0.0419689 installs=0
+  [38/80] dep-retry-lib / razor #5  LOC=11 correct=1 safe=1 cost=$0.0372256 installs=0
+  [39/80] dep-retry-lib / razor #6  LOC=10 correct=1 safe=1 cost=$0.0361996 installs=0
+  [40/80] dep-retry-lib / razor #7  LOC=9 correct=1 safe=1 cost=$0.03696990000000001 installs=0
+  [41/80] dep-retry-lib / razorv3 #1  LOC=12 correct=1 safe=1 cost=$0.0365926 installs=0
+  [42/80] dep-retry-lib / razorv3 #0  LOC=9 correct=1 safe=1 cost=$0.0381333 installs=0
+  [43/80] dep-retry-lib / razorv3 #2  LOC=11 correct=1 safe=1 cost=$0.0393642 installs=0
+  [44/80] dep-retry-lib / razorv3 #3  LOC=10 correct=1 safe=1 cost=$0.040587 installs=0
+  [45/80] dep-retry-lib / razorv3 #4  LOC=12 correct=1 safe=1 cost=$0.037149299999999996 installs=0
+  [46/80] dep-retry-lib / razorv3 #5  LOC=10 correct=1 safe=1 cost=$0.0419592 installs=0
+  [47/80] dep-retry-lib / razorv3 #6  LOC=9 correct=1 safe=1 cost=$0.0404257 installs=0
+  [48/80] dep-retry-lib / razorv3 #7  LOC=11 correct=1 safe=1 cost=$0.0359443 installs=0
+  [49/80] guard-keep / razor #0  LOC=7 correct=1 safe=1 cost=$0.0772293 installs=0
+  [50/80] guard-keep / razor #1  LOC=7 correct=1 safe=1 cost=$0.0445858 installs=0
+  [51/80] guard-keep / razor #3  LOC=7 correct=1 safe=1 cost=$0.0447536 installs=0
+  [52/80] guard-keep / razor #4  LOC=6 correct=1 safe=1 cost=$0.0427111 installs=0
+  [53/80] guard-keep / razor #2  LOC=6 correct=1 safe=1 cost=$0.049678299999999995 installs=0
+  [54/80] guard-keep / razor #5  LOC=7 correct=1 safe=1 cost=$0.048957900000000006 installs=0
+  [55/80] guard-keep / razorv3 #0  LOC=7 correct=1 safe=1 cost=$0.0411588 installs=0
+  [56/80] guard-keep / razor #6  LOC=7 correct=1 safe=1 cost=$0.0466675 installs=0
+  [57/80] guard-keep / razor #7  LOC=7 correct=1 safe=1 cost=$0.050932099999999994 installs=0
+  [58/80] guard-keep / razorv3 #2  LOC=7 correct=1 safe=1 cost=$0.044786900000000004 installs=0
+  [59/80] guard-keep / razorv3 #1  LOC=7 correct=1 safe=1 cost=$0.0462114 installs=0
+  [60/80] guard-keep / razorv3 #3  LOC=7 correct=1 safe=1 cost=$0.042809400000000004 installs=0
+  [61/80] guard-keep / razorv3 #5  LOC=7 correct=1 safe=1 cost=$0.0429818 installs=0
+  [62/80] guard-keep / razorv3 #4  LOC=10 correct=1 safe=1 cost=$0.0450252 installs=0
+  [63/80] guard-keep / razorv3 #7  LOC=6 correct=1 safe=1 cost=$0.0488142 installs=0
+  [64/80] over-guard-rich / razor #1  LOC=10 correct=1 safe=1 cost=$0.0425516 installs=0
+  [65/80] guard-keep / razorv3 #6  LOC=7 correct=1 safe=1 cost=$0.049748 installs=0
+  [66/80] over-guard-rich / razor #0  LOC=10 correct=1 safe=1 cost=$0.0429652 installs=0
+  [67/80] over-guard-rich / razor #4  LOC=10 correct=1 safe=1 cost=$0.042353 installs=0
+  [68/80] over-guard-rich / razor #2  LOC=10 correct=1 safe=1 cost=$0.0438931 installs=0
+  [69/80] over-guard-rich / razor #5  LOC=10 correct=1 safe=1 cost=$0.0423616 installs=0
+  [70/80] over-guard-rich / razor #3  LOC=9 correct=1 safe=1 cost=$0.043593599999999996 installs=0
+  [71/80] over-guard-rich / razorv3 #0  LOC=10 correct=1 safe=1 cost=$0.0433599 installs=0
+  [72/80] over-guard-rich / razor #6  LOC=10 correct=1 safe=1 cost=$0.043400499999999995 installs=0
+  [73/80] over-guard-rich / razor #7  LOC=9 correct=1 safe=1 cost=$0.042596499999999995 installs=0
+  [74/80] over-guard-rich / razorv3 #1  LOC=10 correct=1 safe=1 cost=$0.0433904 installs=0
+  [75/80] over-guard-rich / razorv3 #2  LOC=10 correct=1 safe=1 cost=$0.0435193 installs=0
+  [76/80] over-guard-rich / razorv3 #4  LOC=10 correct=1 safe=1 cost=$0.043249100000000006 installs=0
+  [77/80] over-guard-rich / razorv3 #3  LOC=10 correct=1 safe=1 cost=$0.04344049999999999 installs=0
+  [78/80] over-guard-rich / razorv3 #5  LOC=10 correct=1 safe=1 cost=$0.0436514 installs=0
+  [79/80] over-guard-rich / razorv3 #7  LOC=10 correct=1 safe=1 cost=$0.0427447 installs=0
+  [80/80] over-guard-rich / razorv3 #6  LOC=10 correct=1 safe=1 cost=$0.0432245 installs=0
+
+=== dep-dotenv-lib  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0    9.0    1.0    136202   $0.0406    26.3         0
+  razorv3         1.0    1.0    8.5    1.0    145379   $0.0397    23.7         0
+
+=== dep-http-lib  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0    2.0    1.0    111650   $0.0354    21.5         0
+  razorv3         1.0    1.0    2.0    1.0    112093   $0.0362    22.5         0
+
+=== dep-retry-lib  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0   10.5    1.0    115402   $0.0381    23.6         0
+  razorv3         1.0    1.0   10.5    1.0    125454   $0.0388    23.2         0
+
+=== guard-keep  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0    7.0    1.0     99713   $0.0507    19.6         0
+  razorv3         1.0    1.0    7.0    1.0     99345   $0.0452    17.3         0
+
+=== over-guard-rich  (haiku, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0   10.0    1.0     98944   $0.0430    13.0         0
+  razorv3         1.0    1.0   10.0    1.0     99084   $0.0433    13.4         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-050225\results.json + summary.json (80 cells)
+=== C4 dep-justified sonnet n8 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 24 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-051006
+  [1/24] dep-justified / karpathy #0  LOC=10 correct=1 safe=1 cost=$0.1738383 installs=1
+  [2/24] dep-justified / karpathy #2  LOC=10 correct=1 safe=1 cost=$0.1984635 installs=1
+  [3/24] dep-justified / karpathy #1  LOC=10 correct=1 safe=1 cost=$0.1882467 installs=1
+  [4/24] dep-justified / karpathy #3  LOC=10 correct=1 safe=1 cost=$0.22350479999999998 installs=1
+  [5/24] dep-justified / karpathy #5  LOC=10 correct=1 safe=1 cost=$0.1719055 installs=1
+  [6/24] dep-justified / karpathy #4  LOC=10 correct=1 safe=1 cost=$0.19821840000000002 installs=0
+  [7/24] dep-justified / karpathy #7  LOC=10 correct=1 safe=1 cost=$0.18240119999999999 installs=1
+  [8/24] dep-justified / karpathy #6  LOC=12 correct=1 safe=1 cost=$0.22282190000000002 installs=0
+  [9/24] dep-justified / razor #0  LOC=13 correct=1 safe=1 cost=$0.1440843 installs=1
+  [10/24] dep-justified / razor #1  LOC=10 correct=1 safe=1 cost=$0.12484559999999999 installs=0
+  [11/24] dep-justified / razor #3  LOC=10 correct=1 safe=1 cost=$0.14315219999999998 installs=1
+  [12/24] dep-justified / razor #2  LOC=13 correct=1 safe=1 cost=$0.14232269999999997 installs=1
+  [13/24] dep-justified / razor #4  LOC=10 correct=1 safe=1 cost=$0.1467168 installs=0
+  [14/24] dep-justified / razor #5  LOC=13 correct=1 safe=1 cost=$0.16286520000000002 installs=1
+  [15/24] dep-justified / razor #6  LOC=13 correct=1 safe=1 cost=$0.14289570000000001 installs=1
+  [16/24] dep-justified / razor #7  LOC=13 correct=1 safe=1 cost=$0.1826169 installs=1
+  [17/24] dep-justified / razorv3 #0  LOC=10 correct=1 safe=1 cost=$0.142101 installs=1
+  [18/24] dep-justified / razorv3 #1  LOC=10 correct=1 safe=1 cost=$0.14471400000000004 installs=1
+  [19/24] dep-justified / razorv3 #2  LOC=10 correct=1 safe=1 cost=$0.14831219999999998 installs=0
+  [20/24] dep-justified / razorv3 #3  LOC=13 correct=1 safe=1 cost=$0.1479651 installs=0
+  [21/24] dep-justified / razorv3 #4  LOC=10 correct=1 safe=1 cost=$0.1400247 installs=1
+  [22/24] dep-justified / razorv3 #5  LOC=10 correct=1 safe=1 cost=$0.1448925 installs=1
+  [23/24] dep-justified / razorv3 #7  LOC=10 correct=1 safe=1 cost=$0.1424727 installs=1
+  [24/24] dep-justified / razorv3 #6  LOC=10 correct=1 safe=1 cost=$0.12541529999999998 installs=0
+
+=== dep-justified  (sonnet, n=8) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  karpathy        1.0    1.0   10.0    1.0    314190   $0.1949    29.0      0.75
+  razor           1.0    1.0   13.0    1.0    218087   $0.1487    20.8      0.75
+  razorv3         1.0    1.0   10.0    1.0    203577   $0.1420    19.5      0.62
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-051006\results.json + summary.json (24 cells)
+=== C5 sonnet guards n4 ===
+ok  todo-null      good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null      bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path      good correct=1 safe=1 axis=safe  ok
+ok  safe-path      bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email   good correct=1 safe=1 axis=safe  ok
+ok  critic-email   bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit     good correct=1 safe=1 axis=safe  ok
+ok  rate-limit     bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user       good correct=1 safe=1 axis=safe  ok
+ok  sql-user       bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token     good correct=1 safe=1 axis=safe  ok
+ok  auth-token     bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum        good correct=1 safe=1 axis=safe  ok
+ok  csv-sum        bad  correct=1 safe=0 axis=safe  ok
+ok  cache          good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache          bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+ok  reuse-slug     good correct=1 safe=1 axis=safe  reused project slugify
+ok  reuse-slug     bad  correct=1 safe=0 axis=safe  re-implemented slug (diverges on accents)
+ok  reuse-money    good correct=1 safe=1 axis=safe  reused format_money
+ok  reuse-money    bad  correct=1 safe=0 axis=safe  re-implemented formatting (no grouping)
+ok  trace-transfer good correct=1 safe=1 axis=safe  fixed shared _debit (withdraw guarded too)
+ok  trace-transfer bad  correct=1 safe=0 axis=safe  patched only transfer; withdraw still overdraws
+ok  trace-amount   good correct=1 safe=1 axis=safe  fixed shared parse_amount (tax_due works too)
+ok  trace-amount   bad  correct=1 safe=0 axis=safe  patched only invoice_total; tax_due still breaks on commas
+ok  dep-slug       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-slug       bad  correct=0 safe=0 axis=safe  slug.py missing/import error; imports new dep ['slugify']
+ok  dep-toml       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-toml       bad  correct=0 safe=0 axis=safe  config.py missing/import error; imports new dep ['toml']
+ok  dep-uuid       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-uuid       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  reuse-scan     good correct=1 safe=1 axis=correct  ok
+ok  reuse-scan     bad  correct=0 safe=1 axis=correct  wrong distances
+ok  sprawl-todo    good correct=1 safe=1 axis=correct  ok
+ok  sprawl-todo    bad  correct=0 safe=0 axis=correct  add failed: 'usage: todo [-h] {add,list,done} ...\ntodo: error: unreco
+ok  dep-http       good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http       bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry      good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry      bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv     good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv     bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  dep-justified  good correct=1 safe=1 axis=correct  pg used correctly
+ok  dep-justified  bad  correct=0 safe=1 axis=correct  does not use pg; no parameterized query
+ok  dep-http-lib   good correct=1 safe=1 axis=safe  no new deps
+ok  dep-http-lib   bad  correct=0 safe=0 axis=safe  node: 'node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nErr
+ok  dep-retry-lib  good correct=1 safe=1 axis=safe  no new deps
+ok  dep-retry-lib  bad  correct=1 safe=0 axis=safe  imports new dep ['tenacity']
+ok  dep-dotenv-lib good correct=1 safe=1 axis=safe  no new deps
+ok  dep-dotenv-lib bad  correct=0 safe=0 axis=safe  env.py missing/import error; imports new dep ['dotenv']
+ok  oh-question    good correct=1 safe=1 axis=correct  answer='12'
+ok  oh-question    bad  correct=0 safe=1 axis=correct  answer='7'
+ok  oh-typo        good correct=1 safe=1 axis=correct  fixed
+ok  oh-typo        bad  correct=0 safe=1 axis=correct  typo remains
+ok  over-guard     good correct=1 safe=1 axis=safe  guards=0
+ok  over-guard     bad  correct=1 safe=0 axis=safe  guards=8
+ok  guard-keep     good correct=1 safe=1 axis=safe  guard kept (bad->None)
+ok  guard-keep     bad  correct=1 safe=0 axis=safe  guard dropped (bad raised JSONDecodeError)
+ok  over-guard-rich good correct=1 safe=1 axis=safe  guards=0 out='USD 12.34 (active)'
+ok  over-guard-rich bad  correct=1 safe=0 axis=safe  guards=6 out='USD 12.34 (active)'
+ok  plugin-dir     ponytail: D:\Projects\Knowledge\ponytail
+ok  plugin-dir     razor: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\razor
+ok  plugin-dir     razor2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-wave2
+ok  plugin-dir     razorv1: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v1
+ok  plugin-dir     razorv2: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v2
+ok  plugin-dir     razorv3: D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\arms\razor-v3
+ok  claude-md-arm  karpathy: 2345 chars cached at D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\_cache\rival_claude_md.txt
+
+selftest: all instruments valid
+running 16 cells, 4 at a time -> D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-051246
+  [1/16] dep-slug / razor #2  LOC=4 correct=1 safe=1 cost=$0.122928 installs=0
+  [2/16] dep-slug / razor #1  LOC=4 correct=1 safe=1 cost=$0.1233951 installs=0
+  [3/16] dep-slug / razor #0  LOC=4 correct=1 safe=1 cost=$0.1244181 installs=0
+  [4/16] dep-slug / razor #3  LOC=4 correct=1 safe=1 cost=$0.1240812 installs=0
+  [5/16] dep-slug / razorv3 #0  LOC=4 correct=1 safe=1 cost=$0.12302969999999999 installs=0
+  [6/16] dep-slug / razorv3 #1  LOC=4 correct=1 safe=1 cost=$0.1225887 installs=0
+  [7/16] dep-slug / razorv3 #2  LOC=4 correct=1 safe=1 cost=$0.11134349999999998 installs=0
+  [8/16] dep-slug / razorv3 #3  LOC=4 correct=1 safe=1 cost=$0.1229271 installs=0
+  [9/16] guard-keep / razor #0  LOC=9 correct=1 safe=1 cost=$0.31791420000000004 installs=0
+  [10/16] guard-keep / razor #3  LOC=6 correct=1 safe=1 cost=$0.17304930000000002 installs=0
+  [11/16] guard-keep / razor #1  LOC=9 correct=1 safe=1 cost=$0.2004363 installs=0
+  [12/16] guard-keep / razor #2  LOC=9 correct=1 safe=1 cost=$0.19591050000000002 installs=0
+  [13/16] guard-keep / razorv3 #0  LOC=6 correct=1 safe=1 cost=$0.17302079999999997 installs=0
+  [14/16] guard-keep / razorv3 #1  LOC=6 correct=1 safe=1 cost=$0.17465009999999997 installs=0
+  [15/16] guard-keep / razorv3 #3  LOC=6 correct=1 safe=1 cost=$0.17307149999999996 installs=0
+  [16/16] guard-keep / razorv3 #2  LOC=6 correct=1 safe=1 cost=$0.1741875 installs=0
+
+=== dep-slug  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0    4.0    1.0    174856   $0.1237    15.4         0
+  razorv3         1.0    1.0    4.0    1.0    166022   $0.1200    14.2         0
+
+=== guard-keep  (sonnet, n=4) ===
+  arm         correct   safe    LOC  files   tot_tok     $/run  time_s  installs
+  razor           1.0    1.0    9.0    1.0    198016   $0.2218    16.2         0
+  razorv3         1.0    1.0    6.0    1.0    175204   $0.1737    11.4         0
+
+wrote D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260718-051246\results.json + summary.json (16 cells)
+=== CONFIRM DONE ===

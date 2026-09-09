@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 19,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 82957,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2814966,
+  "numTurns": 13,
+  "durationMs": 80737,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7111
+  },
+  "contextTraffic": 358965,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 36033,
+  "narrationWords": 0,
+  "finalWords": 113,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nWent through all 380 commits and 128 PRs. Under the dep bumps and refactors, 11 real user-facing changes.\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook retries with exponential backoff\n- Fixed: 9 bugs, spanning header duplication, null-cursor paginator crashes, double-trimmed trailing slashes, empty-allowlist crashes, full request bodies in logs, dropped trace ids on retry, wrong latency-histogram units, and HTTP client hangs/leaks\n\nNo dependency bump crossed a major version, so nothing else there is breaking.\n\nNext: check the wording against how you want to phrase the `401`/`403` breaking change, since that one needs a migration note if any docs reference the old status.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6b3ffc0c2728f8a08914528e64dd4ea9f0faed7f7cb93920431775193711da2"
+}

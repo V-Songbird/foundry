@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rx4-4f2394ae",
+  "seed": "1786463924622",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32511,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20060510000000004,
+  "numTurns": 10,
+  "durationMs": 30863,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1768
+  },
+  "contextTraffic": 245542,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8244,
+  "narrationWords": 9,
+  "finalWords": 96,
+  "finalText": "It's building clean now. Exit code 0, 8 warnings, 0 errors.\n\nTwo real bugs were hiding in that noise, both from the same bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That threw on every build.\n2. `src/net/retryPolicy.js` treated a missing backoff flag as invalid instead of \"off.\" The new config loader leaves unset flags as `undefined` instead of `false`, so it threw too.\n\nFixed both, and the link stage now resolves retries and backoff correctly. Everything else was just deprecation and dedupe chatter from the version bump, safe to ignore.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6e6a570d1a73e70e8c06c96563e8219c492dd42931a62a5a9b094b99bfafef50"
+}

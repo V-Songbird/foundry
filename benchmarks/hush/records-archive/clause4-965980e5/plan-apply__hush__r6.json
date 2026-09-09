@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r6",
+  "batchId": "clause4-965980e5",
+  "seed": "1787982716052",
+  "orderIndex": 5,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14023,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0787182,
+  "numTurns": 7,
+  "durationMs": 12423,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 719
+  },
+  "contextTraffic": 128468,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 2183,
+  "narrationWords": 0,
+  "finalWords": 58,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, not yet applied.**\n\n`buildRows()` in `[report.js](src/report.js)` already returns full rows, `owner` and `slow` included. `toTable()` in `[format.js](src/format.js)` drops those two on purpose, by comment.\n\nSo `--json` should dump `buildRows()` straight through `JSON.stringify`, not go through `toTable`. In `[cli.js](src/cli.js)`, check `argv[1] === '--json'` and branch before calling `toTable`.\n\nNext: implement that branch, unless you want it shaped differently.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "555da23386a09ef480e4cecc14c7c3496591a9aa93acef657cf2f027f41002c8"
+}

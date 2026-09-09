@@ -1,0 +1,46 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 151439,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8609839999999997,
+  "numTurns": 33,
+  "durationMs": 146680,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10766
+  },
+  "contextTraffic": 716275,
+  "apiCalls": 26,
+  "toolCalls": 28,
+  "toolResultChars": 15951,
+  "narrationWords": 52,
+  "finalWords": 214,
+  "assistantMsgs": 10,
+  "narrationTexts": [
+    "I'll start by looking at the project files.",
+    "Now I'll implement the mapping.",
+    "I'll switch the map to channel lists so a priority can fan out.",
+    "Quiet hours span midnight, so I'll compute it as an hour check.",
+    "Dedup needs the scratch state, so I'll put a per-key last-sent map in `createState()`."
+  ],
+  "finalText": "Done. The dedup keys off the state map:\n\n```js\nconst lastSentAt = state.lastSentAt.get(event.key);\nif (lastSentAt !== undefined && event.at - lastSentAt < DEDUP_WINDOW_MINUTES) {\n  return [];\n}\n// ...decide channels...\nstate.lastSentAt.set(event.key, event.at);\n```\n\nThree behaviors worth calling out, all verified:\n\n```\nat=600 a -> [\"email\"]     at=700 c -> [\"email\"]     at=800 d -> [\"pager\"]\nat=602 a -> []            at=702 c -> []            at=802 d -> []\nat=604 a -> []            at=705 c -> [\"email\"]\nat=605 a -> [\"email\"]\nat=603 b -> [\"email\"]     (other keys unaffected)\n```\n\n- The clock only restarts on an actual send — a suppressed repeat doesn't extend the window, so a flapping key still gets through every 5 minutes instead of being silenced forever.\n- Critical dedups like everything else. You said \"if we already sent something with the same key,\" with no priority carve-out; say the word if pages should always go through.\n- Queued (quiet-hours) notifications count as sent, since they did go somewhere.\n- Boundary: a repeat exactly 5 minutes later delivers (`at=605` above) — the window is strictly under 5.\n\nReplay: 0 errors, 99 dropped, which is exactly the flap count `events.js` injects (every 9th event, minus `i=0` which has no predecessor). Pager fell 225 → 200 and queue 300 → 266 as those repeats fell out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ac5e0ddfd5a448e34652d5d336f6d1b1c2d4d309dd396c7fb5a08151d1fa6af"
+}

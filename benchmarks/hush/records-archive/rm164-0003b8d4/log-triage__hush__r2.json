@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14692,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1853457,
+  "numTurns": 3,
+  "durationMs": 12958,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 748
+  },
+  "contextTraffic": 112704,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 139,
+  "finalText": "Redis died at `02:14:07` and never came back. 12 reconnect attempts, all refused, over the next 17 minutes.\n\nOnce redis went down, every `api`, `worker`, and `scheduler` request fell back to hitting the store directly. That caused constant cache miss storms and 5 second timeouts on nearly every request from then on. With nothing draining, the request queue grew non-stop, from 52 up to 568 by `02:31`.\n\nThe backlog finally used up all the memory. `worker-2` hit an out-of-memory crash at `02:31:44`, and the whole service went down 8 seconds later when the supervisor killed the unresponsive api process group.\n\n**Root cause:** redis at `10.0.0.12:6379` refused connections and stayed down. Nothing else recovered from that.\n\nWorth checking why redis was unreachable, and adding a queue depth limit so a stuck redis can't take the whole service down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8976254b3cc52a67d5e2a4f6073ef941804551ff0b1181e61c2b4e1e5dea1880"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rx7-1490c981",
+  "seed": "1786465735558",
+  "orderIndex": 10,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 81589,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.4439427,
+  "numTurns": 18,
+  "durationMs": 75876,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4531
+  },
+  "contextTraffic": 718198,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 25351,
+  "narrationWords": 17,
+  "finalWords": 186,
+  "finalText": "That queue never recovers — it's still climbing (waiting=74) at the very last line of the log, 03:59:27.974Z. This incident is **still active**, not resolved.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** ONGOING (unresolved as of last log entry 03:59:27.974Z)\n\n**Root cause:**\nGateway deploy `dep-4471` (a.novak, 02:12–02:14Z) shipped `gateway.pool.perRequest: false -> true` — switched the connection pool from shared/reused connections to one-per-request. Fixed pool size (20) got exhausted in under a minute.\n\n**Impact window:**\n- Start: 02:14:18.972Z — first `503` / `ERR_POOL_EXHAUSTED`\n- End: none — still failing at 03:59:27.974Z (end of available log), wait queue growing (13 → 74+)\n- Scope: gateway only, all upstreams (billing, orders, catalog, accounts) hit via `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search`\n- Workers confirmed unaffected — separate DB pool, all jobs completing normally throughout\n\n**Error signature:**\n```\nERROR pool req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n**Rollback target:** `dep-4471` (gateway config gen 119) — revert `gateway.pool.perRequest` to `false`.\n\nNext: roll back dep-4471 now, this is live and worsening — want me to check if there's a rollback mechanism referenced anywhere in the repo?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fe7a249063d0dadb3470724d3c95795860b43fd74f352ee81175b23c043e24fd"
+}

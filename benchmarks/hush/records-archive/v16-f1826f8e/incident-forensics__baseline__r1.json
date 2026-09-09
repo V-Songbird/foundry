@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 40,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 75343,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.373986,
+  "numTurns": 15,
+  "durationMs": 69752,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4002
+  },
+  "contextTraffic": 607330,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 21223,
+  "narrationWords": 0,
+  "finalWords": 238,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of end of log (03:59:27Z) — errors were still firing and the wait queue was still climbing (18 → 74 waiters), not self-healing.\n\n**Root cause:**\n`dep-4471` (gateway, a.novak, *\"config: connection-per-request for pool isolation\"*) applied config generation 119 at 02:13:41Z, flipping `gateway.pool.perRequest: false -> true`. This made each request claim its own connection instead of reusing pooled ones, exhausting the fixed size-20 connection pool under normal load. Pool never recovers — `in_use` pins at 20/20 idle=0 and the waiting queue grows continuously.\n\n**Impact window:**\n- **Start:** 2026-03-14 02:14:18.972Z (first `503`, ~37s after dep-4471 finished deploying at 02:14:00Z)\n- **End:** not yet recovered — still erroring at 03:59:27.974Z, the last timestamp in the log\n- **Error signature:** `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, paired with `503` on `access` log lines across `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, `/v1/catalog/search` (health checks unaffected)\n- **Scope:** gateway only. Checked `worker.log` for the same window — all jobs (`email`, `webhook`, `settle`, `export`, `cleanup`, `reindex`) kept completing ok with `db_wait` flat at 0–12ms, no pool exhaustion. The worker fleet uses a separate pool and wasn't touched by this deploy.\n\n**Action: roll back `dep-4471`** (gateway, 02:12:00Z–02:14:00Z) — specifically revert `gateway.pool.perRequest` to `false`. No other deploy is implicated: the prior one (`dep-4470`, worker) finished over an hour earlier at 00:55Z, and the next (`dep-4472`, billing-svc) didn't start until 02:41Z, well after errors began.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9b4673f5c451359ff9f645726887be441f6e8123fc9c746bafd7b9b55a500db5"
+}

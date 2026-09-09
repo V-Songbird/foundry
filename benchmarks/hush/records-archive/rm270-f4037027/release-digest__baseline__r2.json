@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 45,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 147086,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.46502360000000004,
+  "numTurns": 13,
+  "durationMs": 146113,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12871
+  },
+  "contextTraffic": 589353,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 73940,
+  "narrationWords": 190,
+  "finalWords": 216,
+  "finalText": "CHANGELOG.md now has the 4.2.0 entry, in the same three-heading shape as before.\n\nA few things worth flagging as you review before cutting the release:\n\n- **The 401/403 change is a real behavioral break** — I put it under Breaking since existing client error-handling that checks for 403 on expired tokens will now see 401. Worth double-checking with whoever owns auth that this was intentional and not an accidental status-code regression.\n- **The \"empty allowlist\" fix (store/db/jobs)** — the commit log only gives me the diffstat, not the actual diff, so I couldn't confirm which direction the bug went (was it wrongly allowing everything, or wrongly rejecting everything?). I wrote it generically as \"unexpected behavior\" — you may want to tighten that wording if you know the actual impact.\n- I dropped all the perf commits (batched metric writes, avoided clones, skipped JSON round-trips, reused parsed schemas) since they don't change observable behavior — happy to add a Performance section if you want them called out.\n- I noticed several of these \"fixes\" (null-cursor paginator, duplicate headers, empty allowlist, trailing slash, trace-id) were fixed **independently in 3-4 different modules** over the six weeks — same bug class, separate implementations. I merged those into single bullets rather than listing each module's fix as its own line item.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "078bd36c142cf21d90c9df43552354c8bdd552683e5a2439b378ea036824e056"
+}

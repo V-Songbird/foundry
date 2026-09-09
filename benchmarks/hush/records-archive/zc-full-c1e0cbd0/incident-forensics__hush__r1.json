@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "zc-full-c1e0cbd0",
+  "seed": "1787383666221",
+  "orderIndex": 7,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61479,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2711154,
+  "numTurns": 16,
+  "durationMs": 54679,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3260
+  },
+  "contextTraffic": 718671,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 15106,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause.** Deploy `dep-4471` (gateway, a.novak, shipped 02:12–02:14 UTC) flipped the config flag `gateway.pool.perRequest` from `false` to `true`. That made every request grab its own database connection instead of sharing from the pool. The pool only holds 20 connections, so it filled up fast. Every 503 since logs `ERR_POOL_EXHAUSTED`, and the queue of waiting requests has climbed the whole time, from 13 waiting at the start to 74 by the end of the log.\n\n**Impact window.** First 503 at 02:14:18 UTC, 2026-03-14. Still failing at the last line in the log, 03:59:27 UTC. So over an hour and 45 minutes with no recovery. Only the gateway was hit. The worker log stayed clean through the same window, so background jobs kept running fine.\n\n**Rollback.** Revert `dep-4471`. That's the only deploy that touched the gateway around the incident start, and its own summary says \"connection-per-request for pool isolation,\" which lines up exactly with the setting that broke.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e330f36a7c915c308f799d332844e48f5e0c312ce36250bc1832b76c52f32854"
+}

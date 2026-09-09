@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 78108,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7030305,
+  "numTurns": 8,
+  "durationMs": 76603,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5309
+  },
+  "contextTraffic": 302104,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 70360,
+  "narrationWords": 41,
+  "finalWords": 528,
+  "assistantMsgs": 4,
+  "finalText": "Done — draft is in `CHANGELOG.md:3`.\n\n## How it shrinks\n\n380 commits → 33 with a `feat`/`fix`/`perf` prefix → **13 distinct user-facing changes**. Everything else is dependency bumps (~140), refactors, tests, CI, and chores. The dedup matters a lot here: the same bug was fixed module-by-module, so the log makes it look like far more happened than did.\n\n- \"guard the null cursor in the paginator\" — 4 commits (api, db, queue, webhooks) = **one** bug\n- \"drop the duplicate header\" — 5 (core ×3, http, billing) = one bug\n- \"handle an empty allowlist\" — 3 (db, jobs, store) = one bug\n- \"tighten the token parser error message\" — 3, \"keep the trace id across the retry\" — 3, \"trim the trailing slash once\" — 2, \"use the right units in the latency histogram\" — 2\n\n## Judgment calls you should check\n\n**The three items I promoted to Breaking that aren't labelled breaking anywhere.** None of these carry a `!` or a BREAKING marker — I called them from what the change does:\n\n- `fix(auth): return 401 instead of 403` (#4223) is filed as a fix, but any client keying off the status code changes behavior on upgrade.\n- `refactor(api): drop the unused v1 export route` (#4152) says \"unused.\" Refactor label, but it's a route removal. Worth confirming \"unused\" meant telemetry-confirmed and not just \"no internal callers\" — that's the usual way a route removal becomes someone's outage.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits across db, core, auth, billing, jobs. A campaign that deliberate reads as narrowing the public surface, but \"internal\" in the message may mean these were never public. **If they weren't exported from the package root, delete that bullet.** This is the one I'm least sure of.\n\nThe histogram-units fix is a genuine fix, but it silently changes recorded values, so I put it in Breaking with the rescaling note rather than burying it in Fixed.\n\n## What I left out\n\n**The perf work** — 9 commits (skip the JSON round-trip, avoid the extra clone, batch the metric writes, reuse the parsed schema). Your header comment says three headings, and none of these come with numbers, so I couldn't write an honest user-facing line. If you have benchmarks, a single line under Added is easy to add.\n\n**All dependency bumps.** Every runtime dep moved by a patch or minor only — undici 6.19.2→6.19.5, fastify 4.28.0→4.28.1, pg 8.12.0→8.13.0, knex 3.1.0→3.1.2, ioredis 5.4.1→5.4.2, pino 9.2.0→9.3.1, zod 3.23.6→3.23.8, nanoid, dotenv. Nothing an installer would notice. The rest (typescript, vitest, eslint, prettier, esbuild, tsx, husky) are dev-only.\n\n## Two things to verify\n\n1. **Node minimum.** Three separate signals — `docs: note the minimum node version` (×4), `ci: run the suite on node 22`, `chore: pin the node version in .nvmrc` — but I have no diff content, so I can't tell whether `engines` actually moved. If it did, that's a Breaking bullet I'm missing.\n2. **The date.** I used 2026-08-28 for tomorrow's cut, but both history files stop at 2026-06-17. Either the export is two months stale or the release slipped. If commits landed after 6/17, they aren't represented here at all.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e3912010560e0a8750b0b675f345d1b32357553732df96914683e67589e1508c"
+}

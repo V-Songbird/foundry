@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 48,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 124636,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.771717,
+  "numTurns": 30,
+  "durationMs": 118205,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7499
+  },
+  "contextTraffic": 682738,
+  "apiCalls": 27,
+  "toolCalls": 25,
+  "toolResultChars": 15584,
+  "narrationWords": 19,
+  "finalWords": 188,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the project files first.",
+    "The scope is a straight priority→channel mapping, so that's what I'll write."
+  ],
+  "finalText": "Dedupe is in at `src/router.js:38`, checked before the priority/quiet-hours logic. `createState()` now returns `{ lastSentAt: new Map() }`.\n\nReplay: **99 dropped** as repeats (was 0), total deliveries down accordingly — critical pager 225→200, queue 300→266, low email 127→111.\n\nTwo boundary calls I made, both worth a look since the events file exercises them:\n\n- **A queued notification counts as a send.** During quiet hours a non-critical event returns `[CHANNELS.QUEUE]`, which is non-empty, so it starts the 5-minute window and suppresses its own flap. If \"sent\" should mean \"actually delivered to a person\" and queued repeats should each land in the queue, that's a one-line change.\n- **Window is strict `< 5`.** An event exactly 5 minutes after the last send goes through. The synthetic flaps are at +2 so this doesn't affect the current numbers either way.\n\nDedupe is keyed on `key` only, not `key`+priority — so a `low` event suppresses a `critical` repeat of the same key inside the window. That follows what you asked for literally, but it's the one behavior here I'd expect to bite in production; say the word if critical should bypass dedupe.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fa3fe555bcbce42a1c0fbcea90832f88788682407f598caca61f79843aff970"
+}

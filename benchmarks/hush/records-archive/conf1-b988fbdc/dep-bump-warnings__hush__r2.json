@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29384,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11323740000000002,
+  "numTurns": 11,
+  "durationMs": 27589,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1564
+  },
+  "contextTraffic": 192313,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 6319,
+  "narrationWords": 13,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed the crash, matching the code comments exactly. Fixing both call sites now."
+  ],
+  "finalText": "**Build is clean, exit 0.**\n\nThe bump changed the options shape and the config defaults. Two call sites crashed on it.\n\n- [options.js:6](src/core/options.js:6) used `options.retries`, but the bundler now sends `retryCount`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) threw on `undefined` flags instead of treating them as `false`.\n\nBoth fixed. The remaining 8 warnings are deprecation noise from the bump, not bugs.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e426f1584591dfb19d936dc5c624056a20bdc73288d8ea60537252e6dc626c15"
+}

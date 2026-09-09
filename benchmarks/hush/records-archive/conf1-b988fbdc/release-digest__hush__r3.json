@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r3",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 23,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 100624,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2993456,
+  "numTurns": 13,
+  "durationMs": 99084,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8011
+  },
+  "contextTraffic": 406004,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 34973,
+  "narrationWords": 0,
+  "finalWords": 100,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section to [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, one breaking change, one feature, nine real fixes. Rest was deps, refactors, and test churn.\n\n- Breaking: expired tokens now return `401`, not `403`.\n- Added: webhook retries with exponential backoff.\n- Fixed: null-cursor crashes on list endpoints, dropped trace ids on retry, double-trimmed slashes, broken empty allowlists, wrong latency units, vague token errors, a duplicate header, an HTTP client hang plus pool-close-on-shutdown, and full request bodies landing in logs.\n\nNext: have someone from auth confirm the 401 change is meant to ship, since that's the one that breaks callers.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9c38a34fc1fd96185d8c534fe2cf81ba6fb406db71fe61d2480145ec103cfd2c"
+}

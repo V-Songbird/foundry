@@ -1,0 +1,44 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 4,
+  "wallMs": 95760,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.81185,
+  "numTurns": 12,
+  "durationMs": 92297,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5943
+  },
+  "contextTraffic": 326535,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 17437,
+  "narrationWords": 43,
+  "finalWords": 405,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll look at the gateway log and pull out the 503 errors and when they began.",
+    "I'll find deploys.csv and look at entries around 02:12 UTC on 2026-03-14.",
+    "I'll profile worker.log the same way: error types, timing, and whether anything changed around 02:14."
+  ],
+  "finalText": "**On-call handoff: gateway 503 incident, 2026-03-14**\n\n**Status**\nOngoing as of the last log line. Roll back dep-4471 first, then confirm 503s stop.\n\n**Root cause**\nDeploy dep-4471 by a.novak flipped the gateway config key `gateway.pool.perRequest` from false to true. The gateway then opened a fresh upstream connection for every request instead of reusing pooled ones. The 20-slot pool filled within a minute and never drained. Every 503 in the log is paired with an ERR_POOL_EXHAUSTED error on the same request ID. The same deploy raised the upstream timeout from 2000ms to 2500ms, which made each stuck request hold its slot longer. No upstream service failed. The failures are spread evenly across accounts-svc, billing-svc, catalog-svc, and orders-svc, and across all five routes.\n\n**Impact window**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:00 | dep-4471 starts, config reload requested |\n| 02:13:41 | Config generation 119 applied |\n| 02:14:18 | First 503 |\n| 03:02:30 | Connection churn warning, 4180 opens in 5 minutes against a baseline of 40 |\n| 03:21:05 | On-call paged, 5-minute error rate at 71% |\n| 03:59:27 | Last line in log, still failing, pool queue at 172 waiting |\n\nThe log covers node-3 of 3 only. If the config was pushed fleet-wide, assume all three gateway nodes were affected the same way.\n\n**What was not affected**\nWorkers ran clean the whole night. All jobs succeeded, the worker pool never went above 1 of 8 in use, and database wait stayed flat. The other deploys that night, to catalog-svc, accounts-svc, worker, and billing-svc, are unrelated to the 503s.\n\n**Action**\n1. Roll back dep-4471 on the gateway. If a full rollback is not practical, set the per-request pool flag back to false and the upstream timeout back to 2000ms, which restores config generation 118.\n2. Watch the gateway pool stats line. Recovery looks like in_use dropping below 20 and waiting returning to 0.\n3. Confirm 503s stop on all three nodes, not just node-3.\n\n**Separate follow-up, not urgent**\nWorker job durations drifted linearly from about 200ms to about 2200ms between 01:00 and 04:00. The drift began before dep-4471, did not change when the gateway broke, and is not database wait. Jobs still complete. The nearest prior change is dep-4470 to the worker at 00:48, which added retry backoff for webhook jobs. Worth a look during business hours. The 02:36 slow query on the orders table is the known issue in OPS-2210.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d1faf140abfd156468724a350c3033d07fb298592965d5531198a9f3c721fa00"
+}

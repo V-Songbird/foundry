@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27443,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.18891380000000002,
+  "numTurns": 10,
+  "durationMs": 26115,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1808
+  },
+  "contextTraffic": 235883,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8107,
+  "narrationWords": 19,
+  "finalWords": 104,
+  "finalText": "Build is clean. `0 errors`, exit code 0.\n\nBoth real bugs were in the link stage, hidden under ~950 lines of harmless deprecation noise:\n\n1. `src/core/options.js:7` — read `options.retries`, but the bumped bundler now passes `retryCount`. Fixed to read `retryCount`.\n2. `src/net/retryPolicy.js:8` — threw on `undefined` flags instead of treating unset as `false`, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat anything not `true` as disabled.\n\nThe other 8 warnings (Buffer/punycode deprecations, circular import, unused export, etc.) are pre-existing noise, not bump-caused — left alone.\n\nNext: run `node build.js` yourself to see the full clean log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "55f6237ae7d8e3e0c9835a4e6c06dd5d0711c87a5c4acd9bd66ec78e2cd110d4"
+}

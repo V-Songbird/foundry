@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 33,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 104228,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6682275,
+  "numTurns": 20,
+  "durationMs": 97766,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5933
+  },
+  "contextTraffic": 1122458,
+  "apiCalls": 20,
+  "toolCalls": 16,
+  "toolResultChars": 53648,
+  "narrationWords": 69,
+  "finalWords": 239,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved (log ends 2026-03-14T03:59:27Z still in failure state — needs manual rollback)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true` via config generation 119 at `02:13:41.234Z`. This switched the gateway to acquiring a new DB connection per request instead of reusing pooled ones, which drove demand past the fixed pool size of 20 and it never drained. Pool has been pinned at `in_use=20/idle=0` with an ever-growing wait queue ever since.\n\n**Impact window:**\n- **Start:** `2026-03-14T02:14:18.972Z` — first `503`/`ERR_POOL_EXHAUSTED` (~4s after deploy finished, ~33s after config apply)\n- **End:** none — still failing as of last log line (`03:59:27.974Z`), wait queue at 74+ and climbing\n- **Scope:** gateway only — `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/profile` all intermittently 503ing. `/health` unaffected (doesn't touch the pool), so basic health checks won't catch this.\n- **Workers unaffected:** `worker.log` shows zero pool degradation the whole window (`size=8 in_use=1 idle=7 waiting=0` throughout) — background jobs (reindex/email/webhook/settle/export/cleanup) kept processing normally. Workers use a separate pool that this deploy didn't touch.\n\n**Action: roll back `dep-4471`** (gateway, started `02:12:00Z`, finished `02:14:00Z`). Revert `gateway.pool.perRequest` to `false`, or if per-request isolation is a real requirement, ship it alongside a pool size increase above 20 to handle the higher connection demand.\n\n**Note:** `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) both landed after the outage started — unrelated, no need to touch them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0dce0bc383ad3b8c7681a6a1cc6e52da248c645cf1a38b812fd082b7974f0abf"
+}

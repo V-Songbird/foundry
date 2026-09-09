@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 12,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57557,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.39491149999999997,
+  "numTurns": 15,
+  "durationMs": 56309,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3962
+  },
+  "contextTraffic": 190107,
+  "apiCalls": 7,
+  "toolCalls": 14,
+  "toolResultChars": 24061,
+  "narrationWords": 83,
+  "finalWords": 221,
+  "assistantMsgs": 6,
+  "finalText": "Migration finished. 36 call sites across 12 files converted from `db.query(sql, params)` to `db.execute({ sql, params })`, matching the style of the already-migrated files (e.g. `packages/accounts/src/repo/user.js`).\n\n**Files changed:**\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| analytics | `repo/cohort.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\n**Verification:** `db.query` no longer appears anywhere in `packages/`, and `node --check` passes on every `.js` file in the repo. There are no tests in the repo to run.\n\n**Two things I deliberately left alone:**\n\n1. **`vendor/legacy-orm/adapter.js`** still has 2 `db.query` calls. Its header says it's a vendored copy of legacy-orm 2.1.4, \"Do not edit — it is replaced wholesale on every upgrade, and local changes are silently lost.\" Patching it would be reverted by the next upgrade. Since `lib/db.js` notes the driver's next major drops `query` entirely, this is a real blocker worth tracking separately — the fix is upstream in legacy-orm, or wrapping the vendored adapter with a shim that maps positional args onto `execute`. Say the word and I'll add the shim.\n\n2. **`cache.query(...)` calls** (in the `cached*` helpers across ~20 repo files) are untouched — that's `lib/cache.js`, a different object with a single-key-lookup signature, unrelated to this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f5e2a50d4e2978f5cc3662510a5d639e9a25df0e1325dcc243787affeb5ae417"
+}

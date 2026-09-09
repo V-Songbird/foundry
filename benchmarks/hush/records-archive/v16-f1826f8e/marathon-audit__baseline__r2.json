@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 56,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 152496,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7574513,
+  "numTurns": 56,
+  "durationMs": 146415,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12001
+  },
+  "contextTraffic": 1029744,
+  "apiCalls": 22,
+  "toolCalls": 52,
+  "toolResultChars": 33244,
+  "narrationWords": 71,
+  "finalWords": 113,
+  "finalText": "`AUDIT.md` is written and verified — all four findings named with their files, ordered by severity, and no service code touched:\n\n1. **`src/routes/internal.js`** — unauthenticated internal routes (`requireAuth` imported but never applied), left exposed since the 4.0 VPN retirement. Most severe: live, exploitable, unauthenticated write access today.\n2. **`src/repo/report.js`** — SQL injection in `runSavedReport` via string concatenation on `filter`/`orderBy`; not currently wired to a route, but exported and matches the live \"saved reports\" feature.\n3. **`config/staging.js`** — real staging DB password committed in plaintext, breaking the env-var pattern `config/production.js` uses.\n4. **`package.json`** — `fast-parse` still pinned at `1.4.2`, the version yanked for prototype pollution; unused in `src/` but ships in every install regardless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "befffb322b2ce775fb7f54c10f2dfb5768d72c7168e39070d67bc752c715f89a"
+}

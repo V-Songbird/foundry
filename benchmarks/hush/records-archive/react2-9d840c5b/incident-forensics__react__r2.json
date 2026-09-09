@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__react__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 36,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 50508,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28909979999999996,
+  "numTurns": 11,
+  "durationMs": 42956,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2180
+  },
+  "contextTraffic": 438633,
+  "apiCalls": 11,
+  "toolCalls": 7,
+  "toolResultChars": 7006,
+  "narrationWords": 0,
+  "finalWords": 115,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (a.novak, gateway, 2026-03-14 02:12–02:14) shipped a config change flipping `gateway.pool.perRequest` from `false` to `true`. That change exhausts the connection pool (20/20 in use) under normal load, so requests queue and time out with `ERR_POOL_EXHAUSTED`, returned to clients as 503s.\n\n**Impact window:** started 2026-03-14 02:14:18 UTC, still ongoing as of the last log entry at 03:59:27 UTC. Wait queue has climbed steadily from 13 to 74 requests over that time, so it's not self-healing.\n\n**Scope:** gateway only. Workers (`worker.log`) show no errors in this window — jobs finished normally the whole time.\n\n**Action:** roll back `dep-4471` on the gateway. No other deploy in that window touches the pool.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3a0eb3097df06c4ac4c7b7060a691f0ca98d05bb462141289b7843454b8372a1"
+}

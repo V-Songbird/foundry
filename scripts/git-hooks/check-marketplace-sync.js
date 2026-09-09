@@ -97,7 +97,7 @@ function readStagedMarketplaceJson(root) {
 function checkConsistency(root) {
   // --no-abbrev is required: without it git truncates SHAs to 7 chars,
   // which never equals the full 40-char source.sha in marketplace.json.
-  const rawDiff = execSync("git diff --cached --raw --no-abbrev", { cwd: root, encoding: "utf-8" });
+  const rawDiff = execSync("git diff --cached --raw --no-abbrev", { cwd: root, encoding: "utf-8", maxBuffer: 16 * 1024 * 1024 });
   const submoduleChanges = parseStagedSubmoduleChanges(rawDiff);
   if (submoduleChanges.length === 0) return [];
 

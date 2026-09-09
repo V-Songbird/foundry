@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 95779,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8373495,
+  "numTurns": 11,
+  "durationMs": 93742,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6502
+  },
+  "contextTraffic": 432682,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 75892,
+  "narrationWords": 54,
+  "finalWords": 537,
+  "assistantMsgs": 6,
+  "finalText": "Draft is in `CHANGELOG.md:3`. Here's what the digging turned up.\n\n## The signal\n\n380 commits, 37 of them `feat`/`fix`/`perf`, and the rest genuinely is noise. But **three of the user-facing changes are labeled as refactors**, so they don't show up if you filter on commit type:\n\n- `refactor(api): drop the unused v1 export route` (`56dc828`, #4152) — this deletes a route from `src/api/router.js` and `src/api/handlers.js`. \"Unused\" is an internal claim about your own callers; it says nothing about who's calling it from outside. This is the item most likely to break someone.\n- `refactor(*): stop re-exporting the internal error types` — landed separately across auth, billing, core, db, and jobs. Any consumer importing those types from a submodule path breaks. Whether this is truly breaking depends on whether those submodule paths are in your `exports` map — worth a two-minute check before you ship.\n- `refactor(*): delete the dead feature-flag branch` — nine commits across api, billing, core, jobs, queue, store. I left these out of the changelog because I can't tell from the log whether a *user-settable* flag disappeared or just an internal branch. If any of those flags were documented config, setting one is now silently a no-op, which deserves a Breaking bullet.\n\n## Judgment calls I made\n\n**Collapsed re-landed work.** \"keep the trace id across the retry\" appears three times in the log (`be03287`, `2500177`, `0da1ab2`) but once in the PR sheet (#4176); same pattern for \"drop the duplicate header.\" I treated each as one fix, not three.\n\n**Left `perf` out entirely.** Eight perf commits, all internal — reusing a parsed schema, skipping a JSON round-trip, avoiding a clone. Nobody installing the package notices, and your three-heading format gives them no home. One exception: `perf(db|queue): batch the metric writes` changes *when* metrics land, which an operator watching a live dashboard could notice. Add it if your users are operators rather than app developers.\n\n**Left dependencies out.** All 16 bumps are patch or minor. The two majors — esbuild 0.21→0.23, vitest 1.6→2.0 — are build and test tooling, not runtime. Nothing reaches a consumer's tree in a way they'd see.\n\n**Dated it 2026-08-28.** The history stops at 2026-06-17, two months before today. If commits landed after that, they're not in these files.\n\n## One thing you should check before cutting\n\nThere are **thirteen commits about the Node version** — \"note the minimum node version\" ×5, \"run the suite on node 22\" ×5, \"pin the node version in .nvmrc\" ×3. Every one of them touches only docs, `.nvmrc`, CI config, or `tsconfig.json`. **Not one touches the `engines` field in `package.json`.**\n\nSo I can't tell from the history whether the minimum supported Node actually went up. If it did, that's your headline Breaking change and it's currently invisible — buried under `docs:` and `chore:` labels. Check `engines` against the 4.1.0 tag; that's a one-line diff that settles it.\n\nTwo smaller gaps I couldn't resolve from the log alone, both flagged in the draft's wording: what \"handle an empty allowlist\" now *does* (rejects everything vs. allows everything — very different security postures, and the commit touches db, jobs, and store), and which unit the latency histogram moved to. Both need a glance at the diffs to state precisely.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a765e98a3447da6582e33bf73f19527eab00ea9dd70168ccce279fbc38003e34"
+}

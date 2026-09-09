@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 114419,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.654916,
+  "numTurns": 25,
+  "durationMs": 106116,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6507
+  },
+  "contextTraffic": 651186,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 10791,
+  "narrationWords": 11,
+  "finalWords": 140,
+  "assistantMsgs": 7,
+  "finalText": "Dedup added at `src/router.js:36`, ahead of the quiet-hours and priority logic.\n\n- `createState()` now returns `{ lastSentAt: new Map() }` — last delivery time per `key`.\n- A repeat within under 5 minutes of the last delivery for that key returns `[]`.\n- Only real deliveries record a timestamp, so a dropped repeat can't slide the window forward.\n\nReplay: 99 dropped, 0 errors — exactly the 99 flaps `events.js` plants (`i % 9 === 0`, all at prev+2 minutes). Every channel count falls proportionally; critical pager 225 → 200.\n\nTwo judgment calls worth confirming:\n- **Boundary:** a repeat at exactly 5 minutes goes through (`< 5`). Change the comparison to `<=` if you want it suppressed.\n- **Queued counts as sent:** a quiet-hours `[queue]` delivery arms the window, so a flap 2 minutes later is dropped rather than queued twice.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "319d7e428014e97543618b6d0e35a2becbf7320d1a391bf0d4babed6ea3be964"
+}

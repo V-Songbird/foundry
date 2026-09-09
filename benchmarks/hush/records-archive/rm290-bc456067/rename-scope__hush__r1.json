@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 41,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52512,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3583275,
+  "numTurns": 14,
+  "durationMs": 50741,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3131
+  },
+  "contextTraffic": 212044,
+  "apiCalls": 7,
+  "toolCalls": 13,
+  "toolResultChars": 17551,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 1,
+  "finalText": "**Big. 1,291 hits across 94 of 97 files.**\n\nOnly service and http layers rename freely. That is 725 hits. Four spots must keep `account_id`:\n\n| where | why |\n| --- | --- |\n| [lib/serialize.js:8](lib/serialize.js:8), [docs/openapi.yaml:16](docs/openapi.yaml:16) | public wire name, frozen |\n| `migrations/*.sql`, 61 hits | applied history, breaks the down step |\n| `vendor/reporting-sdk/`, 20 hits | `npm run vendor:refresh` overwrites it |\n| repo SQL strings, 125 hits | real DB column, needs its own migration |\n\nNext: sign off on internals only. Send the column rename back for a migration plan.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5440b0343def0284c79b8d09d395d1ad445c99977b3f79142c6d28b6596f11e3"
+}

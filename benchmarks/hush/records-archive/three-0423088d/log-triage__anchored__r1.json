@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__anchored__r1",
+  "batchId": "three-0423088d",
+  "seed": "1787418273908",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27879,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.158717,
+  "numTurns": 6,
+  "durationMs": 25601,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1763
+  },
+  "contextTraffic": 242383,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 22353,
+  "narrationWords": 0,
+  "finalWords": 130,
+  "finalText": "**Redis died, and nothing ever picked up the slack.**\n\nAt 02:14:07 UTC, the app lost its connection to Redis at `10.0.0.12:6379`. It fell back to direct store reads, which triggered a cache miss storm and 5-second request timeouts.\n\nRedis never came back. 12 reconnect attempts failed, roughly every 80 seconds, the last at 02:31:26. Meanwhile the request queue climbed past its 500 limit, hitting 568 by the end.\n\nAt 02:31:44, `worker-2` ran out of memory under the backlog and crashed. The supervisor restarted it, but by 02:31:52 the api process was unresponsive too, so the supervisor killed the whole process group. Service down.\n\nTotal time from Redis dropping to full outage: about 17 minutes 45 seconds. Fix the Redis host at `10.0.0.12` first, since that's what everything else cascaded from.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "84ddb4087e852601977ff7cf5a56135d95d0485613e72787a2c49fe51eaccf04"
+}

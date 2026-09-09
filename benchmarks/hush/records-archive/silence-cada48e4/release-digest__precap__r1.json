@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__precap__r1",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 118298,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3693252,
+  "numTurns": 14,
+  "durationMs": 116753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10079
+  },
+  "contextTraffic": 666001,
+  "apiCalls": 13,
+  "toolCalls": 13,
+  "toolResultChars": 24375,
+  "narrationWords": 16,
+  "finalWords": 171,
+  "finalText": "**`CHANGELOG.md` now has the 4.2.0 entry**, dated tomorrow, 2026-08-26.\n\nOut of 380 commits, almost all were dependency bumps, refactors, or test changes. Two things really matter:\n\n- **Breaking:** an expired token now gets a `401` instead of a `403`. Anyone checking for `403` needs to update.\n- **Added:** failed webhook deliveries now retry on their own, with a growing wait between tries.\n\nThe rest are real bug fixes worth telling people about, so I listed 10 of them under Fixed: crashes on paginated endpoints with a missing cursor, a repeated trailing slash on some URLs, empty allowlists that used to error, a duplicate response header, a trace ID that got lost on retry, wrong units in a latency metric, unclear parser error messages, a timer left open when a socket drops, a connection pool that stayed open on shutdown, and full request bodies that were being logged in the database layer.\n\nI left out anything labeled `chore`, `refactor`, `ci`, `docs`, or `test` since none of those change what a user sees.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e2d4ad937b5c10305bc3ef46f9520860d1ddacb18326e667a6f91c7a2e47f28a"
+}

@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__concise__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 54,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 26917,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.19056950000000003,
+  "numTurns": 7,
+  "durationMs": 25935,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1530
+  },
+  "contextTraffic": 120554,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 5560,
+  "narrationWords": 61,
+  "finalWords": 172,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the suite.",
+    "Only 3 real failures, all in `orderTotal`. Let me look at the source.",
+    "Found it. `orderTotal` computes tax on the **pre-discount** amount, contradicting its own doc comment (\"tax what's actually owed\"). All three expectations match tax-on-discounted:\n\n- 12000 → 15% off = 10200; ×0.0825 = 842 → **11042** ✓"
+  ],
+  "finalText": "Green — 625/625.\n\n**What was broken:** one line in `src/pricing.js:41`. `orderTotal` applied the tax rate to the original `cents` rather than the discounted subtotal, so customers were taxed on money they never paid. The function's own doc comment says tax goes on \"the amount the customer pays,\" so the code just didn't match its stated contract.\n\n```js\n-  const tax = roundCents(cents * taxRate);\n+  const tax = roundCents(discounted * taxRate);\n```\n\nThe 622 passing tests were noise — every failure traced to this single line, and the error scaled with discount size (delta 148 / 87 / 668, each exactly `discount × taxRate`), which is the signature of a base-amount mistake rather than a rounding one.\n\nOne thing worth flagging, unrelated to the fix: the coverage table in the runner lists modules (`src/linetotals.js`, `src/discounts.js`, `src/taxes.js`, …) that don't exist — the real source is just `pricing.js` and `tiers.js`. That table is fabricated output, so I'd not trust those percentages for anything. Left it alone since it wasn't part of the ask.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1c6c579390baa000b18d811cd53c23f0fbada84624506c6c8b94ad42fa6c38fb"
+}

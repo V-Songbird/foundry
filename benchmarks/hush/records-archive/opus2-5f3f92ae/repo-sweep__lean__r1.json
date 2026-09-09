@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__lean__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 72366,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5577660000000001,
+  "numTurns": 26,
+  "durationMs": 70865,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5482
+  },
+  "contextTraffic": 329675,
+  "apiCalls": 9,
+  "toolCalls": 25,
+  "toolResultChars": 28550,
+  "narrationWords": 7,
+  "finalWords": 109,
+  "finalText": "Migrated 36 calls across 12 files to `db.execute({ sql, params })`. All 78 files pass `node --check`. The 25 `cache.query` calls are a different object and were left alone.\n\nI skipped `vendor/legacy-orm/adapter.js`, which still has 2 `db.query` calls. Its header says it is a vendored copy replaced wholesale on upgrade, so edits there get silently lost. Fixing it needs an upstream change or a local wrapper.\n\n| Area | Files changed |\n|---|---|\n| accounts | `apiKeyAdmin.js`, `session.js`, `teamService.js` |\n| analytics | `cohort.js` |\n| billing | `couponService.js`, `refund.js` |\n| catalog | `supplier.js`, `variantAdmin.js` |\n| orders | `returnService.js`, `shipment.js` |\n| support | `sla.js`, `macroAdmin.js` |",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "29b288389ed8bc133b23e51d82599c88421f92ac5d7442ecc383394b883d84da"
+}

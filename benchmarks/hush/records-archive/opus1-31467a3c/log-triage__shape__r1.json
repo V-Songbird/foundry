@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__shape__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "shape",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42226,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5792615,
+  "numTurns": 7,
+  "durationMs": 40340,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2605
+  },
+  "contextTraffic": 168208,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 33416,
+  "narrationWords": 6,
+  "finalWords": 112,
+  "finalText": "**Found it.** Redis at `10.0.0.12:6379` started refusing connections at `02:14:07` and never came back, so every read fell through to the store and requests began timing out at 5000ms. The queue climbed from 52 to 568 against its own max of 500 without shedding anything, `worker-2` ran out of heap at `02:31:44`, and the supervisor killed `api` 8 seconds later.\n\nTwo things made a Redis blip into a 17-minute outage: reconnect retried 13 times at a flat 80-second gap with no backoff and no circuit breaker, and the queue sailed past its 500 limit without rejecting a single request.\n\nOne thing to check — the log is dated `2026-07-04`, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "795d5172b853236011cdff0985bb9d4857452ea09f98dae2b6187292bea59e8e"
+}

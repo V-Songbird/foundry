@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__hush__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 108,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 49739,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08320649999999999,
+  "numTurns": 12,
+  "durationMs": 48177,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3485
+  },
+  "contextTraffic": 280778,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 14884,
+  "narrationWords": 0,
+  "finalWords": 118,
+  "finalText": "All tests pass now. The bug was rounding too early.\n\nThe code was rounding the USD amount after applying each coupon (percent, then flat), but the right contract is to round only once at the very end, in the target currency's decimal places.\n\nWhen you round intermediate values, small losses compound. For example, rounding 17.982 to 17.98 loses 0.002. Multiplied by a 0.78 GBP rate, that becomes 0.0016 GBP — small enough to flip which way the final number rounds. So carts in GBP, CAD, and JPY (currencies with fractional rates) ended up a cent or two off.\n\nThe fix removes the early rounding in `engine.js` and keeps the single rounding pass at the end after currency conversion.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a4b30a36946d1d4e510232fc61e78faa067bf1929f56b8cfb1b6c1a2d59e641b"
+}

@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__cellonly__r2",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "cellonly",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 93092,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.264795,
+  "numTurns": 12,
+  "durationMs": 91679,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8178
+  },
+  "contextTraffic": 260111,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 31158,
+  "narrationWords": 0,
+  "finalWords": 87,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section to [CHANGELOG.md](CHANGELOG.md).**\n\nUnder the noise, 380 commits boil down to one real feature and one real behavior change, plus nine consolidated bug fixes (the same fix often landed in several modules, e.g. null-cursor guard in queue, api, webhooks, and db).\n\nWorth a second look: `fix(auth)` now returns `401` for expired tokens instead of `403`. I put it under Breaking since callers checking for `403` will break, but confirm that's the call you want.\n\nNext: check the entry reads right, then tag the release.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "701639c59db8c14c3138ff312fcc76cb671fe1f58ddd404f6ad7c0fe20ea5f71"
+}

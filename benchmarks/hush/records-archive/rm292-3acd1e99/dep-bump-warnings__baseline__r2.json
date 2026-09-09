@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41284,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.247169,
+  "numTurns": 11,
+  "durationMs": 39966,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2577
+  },
+  "contextTraffic": 152842,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 7219,
+  "narrationWords": 21,
+  "finalWords": 254,
+  "assistantMsgs": 3,
+  "finalText": "Build is green now — exit 0, `0 errors`.\n\n**The two real failures** (they were sequential — fixing the first exposed the second):\n\n1. `src/core/options.js:6` — the bump renamed the options field `retries` → `retryCount`, and this call site wasn't updated, so `options.retries.toFixed(0)` threw `Cannot read properties of undefined`. Now reads either key (`retryCount ?? retries ?? 0`), so old and new callers both work.\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` instead of `false`. The strict boolean check threw on an absent flag. `undefined` now means \"off\"; other non-boolean values still throw, since those are genuine misconfiguration.\n\n**What I did not fix, and why:** the screen of warnings is still there — 8 of them. They're not coming from your source. Every one is a hardcoded string literal in `build.js` (the `DEPRECATIONS` array at line 18, plus the three `W1042`/`W2213`/`W3307` pushes at lines 46–48), emitted on a module counter. They name files like `src/legacy/adapter.js`, `src/legacy/bufferShim.js`, `src/utils/format.js`, `src/core/graph.js` — none of which exist in this tree; the only source files here are the two I edited. So there is nothing to change to silence them from this repo.\n\nIf those warnings are meant to be real in your actual project, the source tree they refer to isn't present here — point me at it and I'll work through the `crypto.createCipher` usage, the `Buffer()` constructor shim, and the `core/graph.js ↔ state/tracker.js` circular import, which is the one I'd treat as more than noise (undefined resolution order can bite at runtime).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fb96bdba94b653a1c89a0c48c6cdc01aa4d455a2ec84b90d48ab817b133760be"
+}

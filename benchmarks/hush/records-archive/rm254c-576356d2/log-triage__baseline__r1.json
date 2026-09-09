@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27533,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3019557,
+  "numTurns": 3,
+  "durationMs": 25958,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2119
+  },
+  "contextTraffic": 139703,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 372,
+  "finalText": "Here's the timeline. Full outage sequence (all times UTC, 2026-07-04):\n\n**02:00 – 02:14:03** — Normal operation. `api`, `worker-1`, `worker-2`, `scheduler` all serving `/users`, `/orders`, `/health` cleanly, cache hit ratio 90-98%.\n\n**02:14:07.113** — Trigger event: `api` loses its Redis connection —\n`ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\nApp immediately falls back to direct store reads (`cache layer degraded`).\n\n**02:14:08 → 02:31:26** — Cascading overload, ~17 minutes:\n- Every request now misses cache (`cache miss storm`) and hits the backing store directly.\n- Store can't keep up → every service (`api`, `worker-1`, `worker-2`, `scheduler`) starts throwing `TimeoutError: request timed out after 5000ms (store overloaded)` roughly every 2 seconds, round-robin across services.\n- `request queue depth` climbs steadily and *never recovers*: 52 at 02:14:12 → crosses the configured max of 500 around 02:29:06 → 568 by 02:31:24. Nothing is draining the backlog.\n- Redis reconnect attempts fire roughly every 80s (attempts 0 through 12) — **all fail** with the same ECONNREFUSED. Redis at 10.0.0.12:6379 never comes back during the whole log window.\n\n**02:31:44.902** — `worker-2` hits `JavaScript heap out of memory (request backlog)` — the unbounded queue growth exhausted memory.\n\n**02:31:45.001** — Supervisor restarts `worker-2` (exit code 134 = SIGABRT from OOM).\n\n**02:31:52.318** — `api` is unresponsive; supervisor kills the whole process group. **Service down.** Log ends here — no recovery is recorded in this file.\n\n## Root cause\nRedis (10.0.0.12:6379) became unreachable. The app's degraded-mode fallback (read-through to the primary store on cache miss) is what actually killed prod — it wasn't just \"slower without cache,\" it drove the backing store into timeout territory, and there's no backpressure/circuit-breaker on the request queue, so it grew unbounded until a worker OOM'd and the supervisor gave up on the whole process group.\n\n## What to check next\n1. Why Redis at 10.0.0.12 went down/unreachable at 02:14:07 (separate infra investigation — nothing in this log explains *that* side).\n2. Add a circuit breaker so `api`/workers shed load or fail fast instead of hammering the store during a cache outage.\n3. Cap/bound the request queue instead of letting it grow past its own configured `max 500` for 15+ minutes.\n4. Confirm current recovery state — this log doesn't show Redis or the service coming back up.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8cfebd06eac26ceabd63c12ff0afa15b7d0c96ccfab86f8c4e266246ff54c691"
+}

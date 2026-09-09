@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 45,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 220840,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8030061000000001,
+  "numTurns": 11,
+  "durationMs": 219473,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 18830
+  },
+  "contextTraffic": 562269,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 71421,
+  "narrationWords": 90,
+  "finalWords": 233,
+  "finalText": "CHANGELOG.md is updated. Out of ~380 commits, here's what actually matters, and why:\n\n**Breaking** — `fix(auth): return 401 for an expired token instead of 403` (2026-06-09). This changes a status code contract; anyone branching on 403 for expired tokens needs to update.\n\n**Added** — `feat(webhooks): retry failed deliveries with exponential backoff` (2026-05-28). A real new behavior, touches `core/config.js` too so it likely exposes a retry-policy option.\n\n**Fixed** (9 items) — I grouped near-duplicate fixes that landed separately across modules rather than listing each one:\n- DB no longer logs full request bodies (privacy-relevant — was logging potentially sensitive data)\n- Null-cursor crashes fixed across four separate paginators (queue, API, webhooks, DB)\n- Double-trimmed trailing slashes causing route mismatches (queue, jobs)\n- Empty allowlist handling (store, DB, jobs)\n- HTTP client timer leak + pool-not-closed-on-shutdown\n- Duplicate header on HTTP client requests\n- Trace ID dropped across retries (API) — this one actually shipped and regressed twice before the final fix, so I only listed it once\n- Wrong units in latency histograms (store, core)\n- Vague error messages on malformed tokens (core, billing, queue)\n\nI skipped pure `perf(...)` commits (batch metric writes, JSON round-trip, extra clones) and one \"drop the unused v1 export route\" refactor — it was already unused, so nobody would notice.\n\nEverything else in the 382 commits was `chore(deps)`, `refactor`, `test`, `ci`, or `docs` — noise for release notes purposes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "11258ceea79bf45ce4b010ec7f06ce04e8763faa9740538a23608673782eb5a3"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 63638,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1855792,
+  "numTurns": 12,
+  "durationMs": 61976,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5382
+  },
+  "contextTraffic": 248628,
+  "apiCalls": 6,
+  "toolCalls": 11,
+  "toolResultChars": 13777,
+  "narrationWords": 0,
+  "finalWords": 75,
+  "finalText": "`account_id` shows up in 94 files. That's not a plain find-and-replace.\n\nThree places have to keep the old name:\n- The database column. Ten migrations create it, and old migrations never change.\n- The public API. `docs/openapi.yaml` and `lib/serialize.js` both mark it frozen for clients.\n- The vendor SDK. `vendor/reporting-sdk` is an outside package, not your code.\n\nSafe today: rename the variable in the five services. Leave the column and the API field as `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "553e92c4193f4635c18db885c49e55685689ed5471f2e3b0a05968df3cacfffd"
+}

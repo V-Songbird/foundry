@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 23,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 69627,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1885959,
+  "numTurns": 12,
+  "durationMs": 63298,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4281
+  },
+  "contextTraffic": 692014,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 89616,
+  "narrationWords": 43,
+  "finalWords": 270,
+  "finalText": "I'll write up the handoff document:\n\n---\n\n## **On-Call Handoff: Gateway Connection Pool Exhaustion**\n\n**Incident Start:** 2026-03-14T02:14:18Z  \n**Duration:** ~45+ minutes (ongoing as of last log entry 03:01Z)\n\n### **Root Cause**\nDeployment **dep-4471** (gateway, authored by a.novak) introduced a connection pool management bug.\n\n- **Change:** \"config: connection-per-request for pool isolation\"  \n- **Effect:** Connections are no longer being released back to the pool after requests complete\n- **Result:** All 20 gateway connections stuck in-use; waiting queue grew unbounded (18 → 48 → 78 → 108 → 138+ queued requests)\n\n### **Impact**\n\n**Gateway (Primary):**\n- All requests returning **HTTP 503** starting at 02:14:18Z\n- Response times inflated from normal 10-200ms to 600-999ms\n- Pool exhaustion visible in error logs: `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`\n- Affected all endpoints: `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/checkout`, `/v1/catalog/search`\n\n**Workers (Secondary):**\n- No pool exhaustion of their own, but job completion times **doubled/tripled** (200-500ms → 1000-1200ms)\n- Jobs still completing successfully, but backed up due to downstream service latency\n- Cascading effect from gateway/backend backup\n\n### **Rollback Action**\n**Rollback dep-4471 (gateway)** by a.novak deployed 2026-03-14T02:12:00Z–02:14:00Z\n\nRevert the \"connection-per-request for pool isolation\" config change. This will restore the previous connection pool behavior.\n\n### **Notes**\n- dep-4472 (billing-svc invoice fix) deployed at 02:41Z during the incident — not the cause, but may have been impacted by gateway issues\n- dep-4473 (catalog-svc cache TTL) deployed at 03:20Z during active incident — not related\n- No errors in worker.log itself; slowdown is purely latency-driven from downstream blockage\n\n---\n\nThat covers the critical info for handoff. Want me to add anything else (escalation path, testing steps, comms template)?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1e678e778c148e4bb73344c66cec4108d9beff65f36987b8603ee3863afe322c"
+}

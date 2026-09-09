@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 43043,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.0803812,
+  "numTurns": 12,
+  "durationMs": 41545,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2874
+  },
+  "contextTraffic": 354640,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 17937,
+  "narrationWords": 94,
+  "finalWords": 103,
+  "finalText": "Perfect! Build is clean now. Here's what I fixed:\n\n**Issue 1 (src/core/options.js):** The new bundler changed the options shape from `retries` → `retryCount`. The code was still accessing the old property name, causing `undefined.toFixed()` to fail.\n\n**Issue 2 (src/net/retryPolicy.js):** The new config loader leaves unset flags as `undefined` instead of `false`, but the code only accepted explicit `true`/`false` values. Added handling for `undefined` → `false`.\n\nThe remaining 8 warnings are deprecation notices from the dependency bump itself (deprecated Node APIs, unused exports, circular imports, etc.)—that's the expected noise from a major version upgrade. Your build is now compiling successfully with exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fc065902cf3eae114f1f88dc26738895adb7cf844b4a44b148ca018d1065e795"
+}

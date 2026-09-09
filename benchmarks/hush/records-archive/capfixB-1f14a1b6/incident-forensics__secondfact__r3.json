@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__secondfact__r3",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 35,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "secondfact",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69702,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.3598613,
+  "numTurns": 18,
+  "durationMs": 62326,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3317
+  },
+  "contextTraffic": 617537,
+  "apiCalls": 16,
+  "toolCalls": 14,
+  "toolResultChars": 11027,
+  "narrationWords": 0,
+  "finalWords": 126,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause.** Deploy `dep-4471` (gateway, a.novak, \"connection-per-request for pool isolation\") shipped 02:12–02:14 UTC. It flipped `gateway.pool.perRequest` from `false` to `true`. That change made every request grab its own DB connection instead of sharing the pool. The pool, sized at 20, ran dry within 33 seconds.\n\n**Impact window.** Started 02:14:18 UTC, first `503`. A slow-acquire warning showed up 4 seconds earlier, at 02:14:14. Still ongoing at the end of the log, 03:59 UTC, with the wait queue climbing from 13 requests to 74. Gateway only. Workers stayed healthy the whole time.\n\n**Roll back.** `dep-4471`. Revert `gateway.pool.perRequest` to `false`.\n\n**Error signature.** `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`, paired with a `503` on the access log line above it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f9c805469a7b71068ec240a41330d74a31d68f0451352107c978babaace88808"
+}

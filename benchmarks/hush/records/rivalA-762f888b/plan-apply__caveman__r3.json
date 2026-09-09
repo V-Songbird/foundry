@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 172,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19864,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.169623,
+  "numTurns": 6,
+  "durationMs": 18715,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1167
+  },
+  "contextTraffic": 86682,
+  "apiCalls": 4,
+  "toolCalls": 5,
+  "toolResultChars": 2316,
+  "narrationWords": 0,
+  "finalWords": 187,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Plan — 3 files, small change:\n\n**1. `src/cli.js`** — parse flag before dispatch. `argv` currently positional-only; add scan for `--json` (and reject unknown `--` args, else typos print table silently). Branch: `process.stdout.write(JSON.stringify(rows, null, 2) + '\\n')` vs `toTable(rows)`. Update `USAGE` to `usage: cli.js report [--json]`.\n\n**2. `src/report.js`** — no change. `buildRows()` already the format-agnostic data layer.\n\n**3. `src/format.js`** — add `toJson(rows)` next to `toTable`, so cli.js stays a dispatcher and both renderers live in one place. Optional, but matches current shape.\n\n**Question that changes the work — \"same data\" is ambiguous here:**\n`buildRows()` returns 6 fields; `toTable` prints only 4 (`COLUMNS` drops `owner` and `slow`, per comment: table too narrow).\n\n- **Same as table** = 4 fields, JSON is exact mirror of what user sees.\n- **Same as `buildRows()`** = 6 fields, includes `owner`/`slow`.\n\nRecommend **6 fields (full rows)**. The drop was a terminal-width call, not a data call; JSON consumers want `slow` and `owner`, and re-deriving them is the reason someone asks for `--json`. Row order (slowest first) stays either way.\n\nSay which you want, then I write it. Default to 6 if you don't care.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1ffb26c8716c83cb5420c6ca4ba1c37d86f89f1d7072b6e25ddba369c242c898"
+}

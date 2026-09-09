@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__stock__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23557,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07805600000000001,
+  "numTurns": 10,
+  "durationMs": 21950,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1563
+  },
+  "contextTraffic": 193435,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7968,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit 0, 0 errors.\n\nTwo real bugs from the bump, both fixed:\n\n1. [`src/core/options.js`](src/core/options.js) — bundler now hands options as `{ retryCount }`, not `{ retries }`. Was calling `.toFixed()` on `undefined`.\n2. [`src/net/retryPolicy.js`](src/net/retryPolicy.js) — new config loader leaves unset flags `undefined` instead of `false`. Strict check threw on that. Now treats `undefined` as disabled.\n\nRest of the noise is just deprecation warnings from the bump, unrelated to these two.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60b391eb446dd024cdd35bdfaffafc35a9a85a01a64ba6ef78578d39b54f0c89"
+}

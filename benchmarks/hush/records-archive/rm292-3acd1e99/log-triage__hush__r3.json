@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35850,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.31565150000000003,
+  "numTurns": 9,
+  "durationMs": 34117,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1498
+  },
+  "contextTraffic": 237851,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 14384,
+  "narrationWords": 0,
+  "finalWords": 106,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died, and the service starved behind it.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | cache falls back to direct store reads |\n| 02:15–02:31 | 13 reconnect tries, all refused |\n| 02:31:44 | `worker-2` dies, `JavaScript heap out of memory` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nEvery read hit the store after the cache fell away. Queue depth climbed from 52 to 568 past the 500 cap. That backlog ate the heap.\n\nRedis at `10.0.0.12:6379` is the thing to fix. Nothing before 02:14 looks wrong.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8758983247a320740bcdf18a206e1f84318ea1fe3143529df7fdbc291eae11ad"
+}

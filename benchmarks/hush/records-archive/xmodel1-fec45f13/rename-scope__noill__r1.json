@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__noill__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 50,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24519,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.1155136,
+  "numTurns": 13,
+  "durationMs": 22752,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1751
+  },
+  "contextTraffic": 146210,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 13701,
+  "narrationWords": 0,
+  "finalWords": 106,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Bigger than a rename, but mostly mechanical.** `account_id` shows up in 1082 places across 94 files.\n\nSafe to rename: the actual service code — `services/orders`, `services/notify`, `services/billing`, `services/analytics`, `services/accounts` (repo/service/http layers, ~90 files).\n\nMust not rename, three spots:\n\n- `vendor/reporting-sdk/*` — third-party vendored code, not ours to edit\n- [docs/openapi.yaml](docs/openapi.yaml:16) and [lib/serialize.js](lib/serialize.js:8) — `account_id` is the frozen public API field name, comments say renaming it breaks every client\n- `migrations/*.sql` — applied migrations are history, editing the DB column name there breaks the down step without renaming anything in prod\n\nNext: tell the platform team it's an internal-only rename. Public contract and vendor SDK stay `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b37a8af7319bb87f16d00fc6e09eb043cfca9c6ad1cf9337525a038ed67c9108"
+}

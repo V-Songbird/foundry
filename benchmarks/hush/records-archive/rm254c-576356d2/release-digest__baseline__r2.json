@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 45,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 121022,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5773134,
+  "numTurns": 9,
+  "durationMs": 119804,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10919
+  },
+  "contextTraffic": 359102,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 70558,
+  "narrationWords": 117,
+  "finalWords": 145,
+  "finalText": "Written to CHANGELOG.md. A couple of calls worth double-checking with the team before you publish:\n\n- **`401` vs `403` for expired tokens** — I called this Breaking since it changes a status code consumers may branch on. If it was already documented as \"reserved for future use\" or similar, it could move down to Fixed instead.\n- A few titles recurred 3+ times across unrelated modules with identical wording (`keep the trace id across the retry` in api x3, `drop the duplicate header` in core x3) — I collapsed each into one line, but if those are actually the *same* bug getting reopened rather than independent fixes in copy-pasted code, that's worth a heads-up to eng rather than a clean changelog line.\n\nEverything else (pino/eslint/vitest/pg/etc. bumps, the retry-helper/config-loader/Ctx-rename refactors, perf tweaks like batching metric writes) I left out as invisible to someone installing the package.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "331df70efdc8b843f74fb8528c01bf770287f3ba49a718b602b952216e3ba095"
+}

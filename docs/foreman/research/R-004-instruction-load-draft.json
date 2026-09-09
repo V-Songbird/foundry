@@ -1,0 +1,28 @@
+{
+  "id": "DRAFT-R-004-instruction-load",
+  "status": "draft — NOT published, NOT committed; needs user go and validate-records.js shaping before it can back any public claim",
+  "date": "2026-07-28",
+  "claim_under_test": "README: a Fast pick 'reads no code, so it costs next to nothing'",
+  "method": "static byte count / 4 (token estimate) over the instruction files each flow is directed to load, measured at foreman d5b6ef9",
+  "flows": {
+    "fast_pick_via_entrance": {
+      "files": {
+        "skills/foreman/SKILL.md": 1265,
+        "skills/roadmap/SKILL.md": 10823,
+        "prompt-template.md": 13409
+      },
+      "est_tokens_before_any_roadmap_read": 25497,
+      "optional_add_on": { "roadmap-schema.md": 14802, "when": "the skill's 'skim it if you need field semantics' invitation is taken" }
+    },
+    "init": { "files": { "skills/init/SKILL.md": 2553 }, "note": "plus roadmap-schema.md on the same invitation" },
+    "survey": { "files": { "skills/survey/SKILL.md": 4239 } },
+    "sprint": { "files": { "skills/sprint/SKILL.md": 2498, "prompt-template.md": 13409 } },
+    "craft_prompt": { "files": { "skills/craft-prompt/SKILL.md": 5388, "prompt-template.md": 13409 } }
+  },
+  "reading": "the plain what's-next path loads ~25k tokens of instructions before ranking a single entry; R-003's 68-vs-567 guardrail-word figure measures only text inside the produced prompt, an order of magnitude below this",
+  "limitations": [
+    "bytes/4 is an estimate, not a tokenizer count",
+    "measures instruction files only — session context, tool results, and the roadmap itself are on top",
+    "says nothing about whether the load pays for itself downstream; that question belongs to the runner harness"
+  ]
+}

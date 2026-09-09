@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 62,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 153134,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.6934330000000001,
+  "numTurns": 19,
+  "durationMs": 146790,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10479
+  },
+  "contextTraffic": 416009,
+  "apiCalls": 13,
+  "toolCalls": 15,
+  "toolResultChars": 13886,
+  "narrationWords": 8,
+  "finalWords": 696,
+  "finalText": "# On-call handoff — gateway 503 incident\n\n**Prepared:** 2026-08-26 by <email>\n**Source data:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n**Status at end of log:** not resolved. The gateway was still failing.\n\n---\n\n## 1. Root cause\n\nA gateway config change set `gateway.pool.perRequest` from `false` to `true`. Each request then took a private connection instead of a shared one. The connection pool holds 20 connections. It cannot serve that pattern. The pool exhausted itself and never recovered.\n\nThe log records the change 37 seconds before the first failure:\n\n```\n2026-03-14T02:13:41.234Z INFO  config    gateway.pool.perRequest: false -> true\n```\n\nThree facts support this cause:\n\n- Every one of the 530 failures carries a paired pool error. There is no other error type in the file.\n- Connection opens rose 100-fold. The log states `4180 opens in the last 5m, baseline is 40`.\n- The pool queue only grew. `waiting` went from 0 to 172 and never fell.\n\n**Confidence: high, but untested.** The correlation is exact. Nobody has tested a rollback. The same deploy also changed `gateway.timeout.upstreamMs` from 2000 to 2500. The pool errors point at `perRequest`, not at the timeout.\n\n**Scope caveat.** This log is node-3 of 3. Check node-1 and node-2 before you assume the blast radius. The config change came from the deploy pipeline, so all three nodes are likely affected.\n\n---\n\n## 2. Impact window\n\n| Item | Value |\n|---|---|\n| First 503 | 2026-03-14T02:14:18.972Z |\n| Last 503 in log | 2026-03-14T03:59:27.974Z |\n| Confirmed duration | 1h 45m, and still open |\n| Peak error rate | 83%, held flat from 02:20 |\n| Total 503s in this log | 530 |\n| On-call paged | 2026-03-14T03:21:05Z |\n| Detection delay | about 67 minutes |\n\nThe log ends while the gateway is still failing. The end time above is the end of the data, not the end of the incident. Find the recovery time from a later log.\n\n**Affected endpoints.** After 02:14, these five returned 503 on every request:\n\n- `/v1/cart`\n- `/v1/catalog/search`\n- `/v1/checkout`\n- `/v1/orders`\n- `/v1/session`\n\n`/health` continued to return 200 for the full window. This is why the error rate stopped at 83% and not 100%. **Health checks did not detect this outage.** Any alarm that watches `/health` stayed green through a total customer-facing failure.\n\n---\n\n## 3. Roll back this deploy\n\n```\ndep-4471   gateway   2026-03-14T02:12:00Z -> 02:14:00Z   a.novak\n           config: connection-per-request for pool isolation\n```\n\nThe deploy finished at 02:14:00Z. The first 503 came 19 seconds later. It is the only gateway deploy in `deploys.csv`.\n\n### Procedure\n\n1. Revert `gateway.pool.perRequest` to `false`.\n2. Apply the revert to node-3 first.\n3. Watch the `pool stats` line for 5 minutes. Confirm that `waiting` returns to 0.\n4. Confirm that 503s stop on `/v1/checkout`.\n5. If node-3 recovers, apply the revert to node-1 and node-2.\n6. If node-3 does not recover, revert `gateway.timeout.upstreamMs` to 2000 as well.\n\nDo not roll back `dep-4472` or `dep-4473`. Both shipped after the failure began. Neither can be the cause.\n\n---\n\n## 4. Open items for the next shift\n\n1. **Two deploys went out into a live outage.** `dep-4472` shipped at 02:46Z and `dep-4473` at 03:25Z, both during an 83% error rate. Find out why the pipeline did not block them.\n2. **`/health` does not test a real dependency.** It passed while every real endpoint failed. Change the health check to acquire a pool connection.\n3. **A separate worker slowdown is open.** See section 5.\n\n---\n\n## 5. Not part of this incident\n\nThe workers did not hit the pool problem. All 1080 jobs in `logs/worker.log` succeeded. The worker pool held `size=8 in_use=1 idle=7 waiting=0` for the whole window.\n\nThe workers do have an unrelated problem. Job duration grew from 200ms to 2324ms across three hours, in a near-linear ramp. The ramp was already in progress at 01:00Z, over an hour before the gateway deploy. `db_wait` stayed flat at 5ms, so the database is not the cause.\n\nTrack this as a separate ticket. The log holds no cause for it. Worker logs from before 00:48Z will show whether `dep-4470` started the ramp.\n\n---\n\nTell me if you want this saved to a file, or reformatted for your incident tracker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fc7b039e6dc2cdf19f531b527029048ea047f616a984eb769ba6187f398d8005"
+}

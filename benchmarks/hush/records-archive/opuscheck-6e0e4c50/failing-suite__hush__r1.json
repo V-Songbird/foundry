@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 8,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27019,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.308492,
+  "numTurns": 10,
+  "durationMs": 24898,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1188
+  },
+  "contextTraffic": 219524,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 15268,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "finalText": "**Green now. 625 tests pass, 0 fail.**\n\nOnly 3 cases were red, all in `order totals`. `orderTotal` took the discount off, then figured tax from the *full* price. So tax was too high.\n\nThe fix in `src/pricing.js` taxes the discounted amount instead:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nRows with no discount or no tax hid it. Only the three with both showed it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "530b3bec6788ca5b2c0009770bbbf8bd5421fe8339eec461019019954ae2b726"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__both__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 115,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 46036,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07715559999999999,
+  "numTurns": 12,
+  "durationMs": 44424,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3443
+  },
+  "contextTraffic": 223221,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 14883,
+  "narrationWords": 0,
+  "finalWords": 135,
+  "finalText": "All 40 tests pass. The bug was intermediate rounding.\n\nThe code was calling `round()` after applying each coupon to the USD amount, which truncated precision before converting to the target currency. When you then multiplied that rounded value by the exchange rate, you could land on the wrong side of a rounding boundary.\n\nFor example, `19.98 * 0.9 = 17.982`. The code rounded this to `17.98`, then converted: `17.98 * 0.78 = 14.0244`, which rounds down to `14.02`. But the reference implementation kept the full precision until the end: `17.982 * 0.78 = 14.02596`, which rounds up to `14.03`.\n\nThe fix is to skip the intermediate rounding and only round once after conversion—that's the contract the tests enforce. Removed the two `round()` calls from `engine.js` lines 24 and 27, so coupons stack on full-precision values.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b23eb8a42bafa159c7274d28876455789318338cde668cccecf5cf9a1c32a919"
+}

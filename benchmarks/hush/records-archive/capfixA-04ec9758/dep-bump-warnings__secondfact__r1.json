@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__secondfact__r1",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 42087,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.2883428,
+  "numTurns": 13,
+  "durationMs": 39521,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2172
+  },
+  "contextTraffic": 477717,
+  "apiCalls": 13,
+  "toolCalls": 12,
+  "toolResultChars": 11307,
+  "narrationWords": 0,
+  "finalWords": 76,
+  "finalText": "Build's clean now, exit 0.\n\nTwo real bugs from the bump, both a mismatched options shape:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That's why it crashed on `undefined.toFixed`.\n2. `src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag. The new config loader leaves it unset as `undefined`, so it threw instead of just treating that as off.\n\nFixed both. The rest was just deprecation noise, so I left it alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5f547fa8efdc2b2c9a01827fae62e2e7f954899a98ba3f8a5526f811c7d4f6d9"
+}

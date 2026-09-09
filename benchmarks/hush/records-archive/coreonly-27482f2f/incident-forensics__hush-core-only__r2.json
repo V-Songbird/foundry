@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush-core-only__r2",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 18,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush-core-only",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65454,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3354987,
+  "numTurns": 11,
+  "durationMs": 58868,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2943
+  },
+  "contextTraffic": 452223,
+  "apiCalls": 11,
+  "toolCalls": 7,
+  "toolResultChars": 20053,
+  "narrationWords": 0,
+  "finalWords": 159,
+  "finalText": "**Gateway 503 on-call handoff**\n\n**Root cause:** `dep-4471` (gateway, a.novak, 02:12–02:14 UTC) — \"config: connection-per-request for pool isolation.\" It flipped `gateway.pool.perRequest` from `false` to `true` (config generation 118 → 119, applied 02:13:41Z). That change exhausted the connection pool (`size 20, in_use 20`) within seconds.\n\n**Impact window:** started 02:14:14Z (first `WARN pool` slow-acquire), first `503` at 02:14:18.972Z, still ongoing as of the last log line at 03:59:27Z. All four backends behind the gateway show the same `503` — `billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc` — confirming it's the gateway's pool, not a backend outage. Workers (`logs/worker.log`) were unaffected the whole time — separate pool, steady at `in_use=1/size=8`, jobs completing normally.\n\n**Error signature:**\n```\nERROR pool req-XXXXX ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n`waiting` climbs steadily (13 → 74+), never draining.\n\n**Roll back:** `dep-4471` on gateway. Two other deploys landed in the window but are unrelated — `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) — leave those alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf500760b5e35c479b7ddf3db7409447f84611f3d23c43297d2b541957d322e7"
+}

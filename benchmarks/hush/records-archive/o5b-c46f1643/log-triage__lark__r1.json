@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lark__r1",
+  "batchId": "o5b-c46f1643",
+  "seed": "1787818757484",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lark",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44905,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lark:Lark",
+  "costUsd": 0.3080945,
+  "numTurns": 8,
+  "durationMs": 42982,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1800
+  },
+  "contextTraffic": 226902,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 13201,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "finalText": "Redis died and took prod with it. One cause, 17 minutes, no recovery.\n\n```\n02:14:07 ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n02:29:12 WARN  [api] request queue depth 502 (max 500)\n02:31:44 ERROR [worker-2] JavaScript heap out of memory (request backlog)\n02:31:52 FATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nCache fell back to direct store reads. Reads timed out at 5000ms. Queues grew from 52 to 568. All 13 Redis reconnects hit ECONNREFUSED on the same host. Fix Redis at 10.0.0.12 first. Then cap the queue so backlog cannot eat the heap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0ab41ec7f85f2d90b54355bd503dcd91045501ee1a2d967afd189a5decd7984d"
+}

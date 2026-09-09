@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 85622,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3537945,
+  "numTurns": 8,
+  "durationMs": 84359,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5758
+  },
+  "contextTraffic": 143534,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 11577,
+  "narrationWords": 6,
+  "finalWords": 815,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log file."
+  ],
+  "finalText": "I dug through all 719 lines. Here's what happened.\n\n## First, a discrepancy worth flagging\n\nThe log covers **2026-07-04, 02:00:00 → 02:31:52 UTC** — about eight weeks ago, not last night. Either `logs/app.log` hasn't been rotated/updated and you're looking at a stale file, or last night's incident is in a different file. Everything below describes the incident that *is* in this file. If last night's outage was a separate event, you'll want to find the current log — but the pattern here is worth reading either way, because the failure mode is one that repeats.\n\n## What happened: Redis died, and the fallback path had no brakes\n\n**Timeline:**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00:00–02:14:03 | Fully healthy. Cache hit ratio 0.90–0.98, all requests 200, latency cycling 12–145ms. |\n| **02:14:07.113** | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | Cache layer degraded — falling back to direct store reads (**1ms later**) |\n| 02:14:08.202 | First `cache miss storm` (1.1s after Redis loss) |\n| 02:14:10.228 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12.254 | Queue depth 52, climbing by 3 every ~6s |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts (0–12), **every one ECONNREFUSED**, fixed ~80s interval |\n| **02:29:12** | Queue depth crosses its own ceiling: 502 (max 500) |\n| 02:31:44.902 | `worker-2: JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | FATAL — worker-2 exited code 134 (SIGABRT), restarting |\n| **02:31:52.318** | FATAL — `api unresponsive, killing process group — service down` |\n\nLog ends there. **No recovery, no successful request after 02:14:03.** Total: 17m45s from Redis loss to service down.\n\n## Root cause\n\nRedis at `10.0.0.12:6379` went away hard. `ECONNREFUSED` is the important detail — that's *nothing listening on the port*, meaning the Redis process was down or the port was closed. A network partition or firewall drop would surface as `ETIMEDOUT`/`EHOSTUNREACH` instead. So this was Redis itself dying, not a network problem between you and it. It never came back during the whole window — 13 consecutive refused reconnects.\n\n## The actual killer: the fallback, not the outage\n\nRedis dying shouldn't take the service down. What did:\n\n1. **The fallback is unprotected.** Cache hit ratio was 0.90–0.98, so ~95% of reads Redis had been absorbing were instantly redirected at the backing store. The store folded immediately — first timeout came 3 seconds after the fallback engaged.\n2. **No cache stampede protection.** 174 `cache miss storm` warnings on sequential keys (`orders:1000`, `1003`, `1006`…). Every concurrent request for the same missing key went to the store independently. No single-flight lock, no request coalescing.\n3. **No circuit breaker.** 173 timeouts, all at the full 5000ms. The app kept dispatching to a store it knew was failing, holding each request open for 5 seconds while it did — that's what filled the heap.\n4. **The queue limit is decorative — this is the amplifier.** `request queue depth N (max 500)` was logged 173 times and depth grew monotonically 52 → 568, sailing straight past 500 with zero shedding. The limit exists as a *log string*, not as enforcement. If it had actually shed load at 500, worker-2 would not have OOM'd.\n5. **Reconnect has no backoff** — a flat 80s interval, attempts 0 through 12. Not the cause here, but it means recovery would be slow-to-random rather than prompt.\n\nThe chain: Redis dies → 95% of reads hit the store → store saturates → 5s timeouts hold requests open → unbounded queue growth → heap exhaustion → worker-2 OOM → supervisor restart → api unresponsive → process group killed.\n\n## What I'd fix, in priority order\n\n1. **Enforce the queue limit.** Return 503 above 500 rather than logging about it. Single highest-leverage change — it directly prevents the OOM.\n2. **Circuit breaker around the store.** After N consecutive timeouts, fail fast instead of burning 5s per request.\n3. **Single-flight on cache misses.** Collapse concurrent requests for the same key into one store read.\n4. **Exponential backoff with jitter on Redis reconnect.**\n5. **Alert on `cache layer degraded`.** You had a 17-minute warning window with an unambiguous signal at the very start of it, and nothing acted on it.\n\n## One caveat on the data\n\nThis log's structure is suspiciously mechanical — the three incident messages rotate through `[api]`/`[worker-1]`/`[worker-2]`/`[scheduler]` in strict round-robin at exactly 2.026s intervals, queue depth increments by exactly 3 every time, and the pre-incident latency is a perfect 12→145ms sawtooth that resets cleanly. Real production traffic is noisier than this. It may be a synthetic or replayed log rather than raw prod output. The failure *sequence* is coherent and the analysis holds, but I wouldn't trust the specific numbers (queue depth 568, exactly 173 timeouts) as literal production measurements.\n\nWant me to check whether there's a more recent log elsewhere on the system for last night's event?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1416aaac7852ff191e0a20c6237f3b5bc95f770e93f5b1a97c0434b5938cd134"
+}

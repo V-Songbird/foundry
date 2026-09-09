@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 157,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 107859,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5701905,
+  "numTurns": 13,
+  "durationMs": 103548,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6860
+  },
+  "contextTraffic": 363928,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 12519,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Written to `INCIDENT-HANDOFF.md`.\n\nKey points:\n- **Root cause:** `gateway.pool.perRequest: false -> true` in config generation 119. Every request takes own connection from 20-slot pool; pool pin `in_use 20` forever, waiter queue 13 climb to 271.\n- **Window:** 02:14:18.972Z start, still failing at log end 03:59:27.974Z. 105 min, unresolved. 530 of 636 requests failed.\n- **Roll back:** `dep-4471` (gateway, a.novak, 02:12–02:14).\n\nTwo things surfaced while writing that you may want to act on before shift end:\n- The 106 \"successes\" in the window are all `/health`. Health checks stayed green through a 100% customer-facing outage — that's why nothing paged.\n- Log header say `node-3 of 3`. All numbers are one node. Check nodes 1 and 2 — config reload almost certainly went fleet-wide.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ea4b3e9c9d3d47ef3533521029914fd42887786313ccf20563b26788b55c1fa3"
+}

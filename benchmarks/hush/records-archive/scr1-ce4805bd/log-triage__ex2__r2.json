@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ex2__r2",
+  "batchId": "scr1-ce4805bd",
+  "seed": "1787637098368",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ex2",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48293,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.39583050000000003,
+  "numTurns": 7,
+  "durationMs": 46615,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3171
+  },
+  "contextTraffic": 162527,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 29319,
+  "narrationWords": 5,
+  "finalWords": 108,
+  "finalText": "**Redis died and took the whole service with it.**\n\nAt `02:14:07` Redis refused connections at `10.0.0.12:6379`.\nThe cache went dark. Every read hit the database directly.\nThree seconds later the first 5-second timeouts started.\nThe request backlog climbed steadily from 52 to 568.\nIt passed the 500 ceiling at `02:29:12`.\nAt `02:31:44` `worker-2` ran out of memory and died.\nAt `02:31:52` the supervisor killed the API. Service down, 17 minutes after Redis went.\n\nRedis never came back. All 13 reconnect attempts failed, 80 seconds apart, with no backoff.\nThe 188 errors are nearly all that one timeout repeating.\n\nOne oddity: every line is dated `2026-07-04`, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "198d92edaa0b5fed611185b60211a0c504304da370ddee218ff17365638b8e20"
+}

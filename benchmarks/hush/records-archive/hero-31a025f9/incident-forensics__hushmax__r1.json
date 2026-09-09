@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hushmax__r1",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 61,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushmax",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 51796,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3217892,
+  "numTurns": 12,
+  "durationMs": 45403,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2404
+  },
+  "contextTraffic": 526263,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 12841,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\"), deployed 02:12–02:14Z. Right after it finished, the connection pool started exhausting: `ERR_POOL_EXHAUSTED` on a pool capped at 20 connections, with the wait queue growing from 13 to 74 over the incident.\n\n**Impact window:** Started 2026-03-14 02:14:18Z, still ongoing as of the last log line at 03:59:27Z. Not yet resolved.\n\n**Scope:** Gateway only. All four backend services show 503s through it (`catalog-svc`, `orders-svc`, `accounts-svc`, `billing-svc`), so it's the shared pool, not one bad service. `logs/worker.log` is clean for this window, just one unrelated known issue (`OPS-2210`).\n\n**Roll back:** `dep-4471` on gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4daebb57fe7c2cfa51f408a2d0aaa6613cb5630ce8068618b30ff854dd79960"
+}

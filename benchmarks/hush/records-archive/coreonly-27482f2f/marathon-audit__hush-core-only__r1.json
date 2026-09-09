@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush-core-only__r1",
+  "batchId": "coreonly-27482f2f",
+  "seed": "1786217137664",
+  "orderIndex": 20,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush-core-only",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 116680,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7621985999999998,
+  "numTurns": 50,
+  "durationMs": 110237,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9074
+  },
+  "contextTraffic": 799073,
+  "apiCalls": 17,
+  "toolCalls": 46,
+  "toolResultChars": 37134,
+  "narrationWords": 24,
+  "finalWords": 92,
+  "finalText": "`package.json` checks out against `NOTES.md` on everything except `fast-parse`, still pinned to the yanked `1.4.2` instead of the fixed `1.4.3` — that's finding four.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. SQL injection in `src/repo/report.js` — filter and sort get pasted into the query unchecked.\n2. No auth on `src/routes/internal.js` — metrics and cache-flush wide open since the VPN was retired.\n3. Plaintext staging password committed in `config/staging.js`.\n4. `fast-parse` pinned to the yanked `1.4.2` in `package.json`.\n\nNothing else in the service was touched — just the new file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a6194b831e53c017d36150984e18fcc7a9f3f7164f6b7875a4350e4e30e6272c"
+}

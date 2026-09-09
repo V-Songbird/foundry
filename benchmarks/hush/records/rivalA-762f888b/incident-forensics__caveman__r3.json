@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 151,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 110551,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.630885,
+  "numTurns": 13,
+  "durationMs": 106350,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7182
+  },
+  "contextTraffic": 377086,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 18755,
+  "narrationWords": 0,
+  "finalWords": 166,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Wrote `HANDOFF.md` in project root.\n\nContents:\n- **Root cause** — `dep-4471` set `gateway.pool.perRequest: false -> true`. No connection reuse, pool stuck at size 20, requests queue and time out. Quoted the config lines, the `ERR_POOL_EXHAUSTED` line, and the 4180-opens/5m churn warning.\n- **Impact window** — 02:14:18.972Z onset, 18s after deploy finished. Last error 03:59:27.974Z. Flagged that log ends mid-incident, so **not recovered** — end time unknown, may still be live. 530 errors, on-call paged 67 min late.\n- **Rollback** — `dep-4471`, config-only, revert to generation 118. Noted it also reverts `upstreamMs` 2500 back to 2000; re-apply separately if wanted. Table rules out other 5 deploys, with a note that dep-4472/4473 landed mid-incident and need revalidation.\n- **Separate issue section** — worker latency drift (8x, +11ms/min, flat `db_wait`, predates log start). Marked explicitly as unrelated and unfixed by the rollback.\n\nTwo things the next on-call needs to decide, both called out in the file: whether the incident is still active, and who takes the worker drift ticket.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c68c2b359c4ce3fe85fc76bdf10096d04e44871eaf5335df276d35a1f431eb43"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__anchor__r1",
+  "batchId": "it2-ae17956b",
+  "seed": "1787878022171",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "anchor",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40175,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-anchor:HushAnchor",
+  "costUsd": 0.2683135,
+  "numTurns": 8,
+  "durationMs": 38004,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2171
+  },
+  "contextTraffic": 161553,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 10059,
+  "narrationWords": 0,
+  "finalWords": 80,
+  "assistantMsgs": 1,
+  "finalText": "**Redis went down and took the service with it.**\n\n`redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` at 02:14:07, [logs/app.log:182](logs/app.log:182). Cache fell back to direct store reads. All 13 reconnect tries failed the same way. Queue depth climbed from 52 to 568, cap 500. 173 timeouts followed. `worker-2` hit `JavaScript heap out of memory` at 02:31:44. Supervisor killed `api` at 02:31:52. The log ends there. No recovery.\n\nCheck the Redis box at `10.0.0.12:6379`. That is the root cause, not the app code.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0034f30558042e4b7618fd4445c5792e21f25835b99c830216cdc1dd285665bc"
+}

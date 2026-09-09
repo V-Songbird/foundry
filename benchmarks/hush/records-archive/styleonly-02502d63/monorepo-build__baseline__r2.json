@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "styleonly-02502d63",
+  "seed": "1786218109130",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39978,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2458929,
+  "numTurns": 10,
+  "durationMs": 38372,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3261
+  },
+  "contextTraffic": 247956,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 20236,
+  "narrationWords": 98,
+  "finalWords": 117,
+  "finalText": "Both pass now.\n\n**Root cause:** `packages/shared/config.js:15` used `Object.assign({}, RELEASE_DEFAULTS, overrides, cliFlags)` — a shallow merge. Since `output` and `sourcemap` are nested objects, any layer that overrode just one nested key (e.g. `@acme/api`'s `output: { format: 'esm' }`) replaced the *entire* `output` object, dropping `dir` and `entry`. That's what tripped the `resolveRelease` sanity check in `build.js` and produced the `EBUNDLE07 config-incomplete` error, well past the lint warnings.\n\n**Fix:** replaced the shallow merge with a recursive `deepMerge` that merges nested plain objects key-by-key across layers (defaults → package overrides → CLI flags) while never mutating the source objects. `build.js` now exits 0, and `verify.js` (which specifically checks the layering rule with an override the fixture never shipped) also passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3e8d105690bb62636c33378cd29c1052dc06e2e097488838a113c1c001e63329"
+}

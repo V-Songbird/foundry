@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 67517,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1983366,
+  "numTurns": 5,
+  "durationMs": 65511,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5947
+  },
+  "contextTraffic": 204858,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23526,
+  "narrationWords": 0,
+  "finalWords": 154,
+  "finalText": "Found it — prod's cache server, Redis, went down and dropped the whole app with it.\n\nRedis (address `10.0.0.12:6379`) lost its connection at 2:14 AM. It never reconnected, despite 12 tries over the next 17 minutes, each failing with \"connection refused.\"\n\nWith no cache, every read had to hit the database directly. It couldn't keep up. Requests started timing out after 5 seconds each, and the line of waiting requests kept growing — past its safe limit of 500, up to 568 by 2:31 AM.\n\nAt 2:31:44 AM one server ran out of memory and crashed. It restarted a second later, but at 2:31:52 AM the whole app gave up and shut down. Total time from first Redis drop to full outage: about 17 minutes 45 seconds.\n\nWorth checking why the Redis box at `10.0.0.12` went down, and adding a request cap so a dead cache can't take the whole app down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "181c8a708fa2339cb9d1fac6978623134a8538a94b5cb4253593648a9baa07d9"
+}

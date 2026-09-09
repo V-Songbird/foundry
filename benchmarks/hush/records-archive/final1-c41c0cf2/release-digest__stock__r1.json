@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84415,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23604379999999997,
+  "numTurns": 10,
+  "durationMs": 82772,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7030
+  },
+  "contextTraffic": 210614,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 30223,
+  "narrationWords": 0,
+  "finalWords": 81,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote 4.2.0 to [CHANGELOG.md](CHANGELOG.md).**\n\nOf 380 commits, 28 were actual behavior changes. Rest was deps, refactors, tests, CI.\n\nOne real feature: webhook retries with backoff. One breaking change: expired tokens now `401` not `403`. Ten fix lines, several hitting the same bug across modules (null-cursor pagination, duplicate headers, dropped trace id).\n\nWorth a second look before you ship: `stop logging the whole request body` in the DB layer, filed under Fixed but it's a data-exposure fix, might deserve its own callout.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f81740843b812ff51958365e8847188890281af111002e5faf82accc4fcc90db"
+}

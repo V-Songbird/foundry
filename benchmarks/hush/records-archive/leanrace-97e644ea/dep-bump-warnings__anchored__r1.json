@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__anchored__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30227,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1573388,
+  "numTurns": 11,
+  "durationMs": 28552,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1976
+  },
+  "contextTraffic": 322700,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 10474,
+  "narrationWords": 0,
+  "finalWords": 112,
+  "finalText": "Builds clean now, exit code 0.\n\nTwo real bugs were hiding under the deprecation noise, both from the bundler bump changing shapes it hands to your code:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That threw on `undefined.toFixed()` and crashed the link stage.\n2. `src/net/retryPolicy.js` required `backoffEnabled` to be strictly `true` or `false`. The new config loader leaves unset flags as `undefined`, which used to come through as `false` — so it threw instead. Now `undefined` is treated as disabled, matching the old behavior.\n\nThe rest is just deprecation warnings (`Buffer()`, `punycode`, sync loader hooks, etc.) — 8 total, none blocking. Build finishes at \"8 warnings, 0 errors.\"",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3ec19e24ccd8aab3fca64c2196f27e9a2a7d01940e651bfda63ab38107066272"
+}

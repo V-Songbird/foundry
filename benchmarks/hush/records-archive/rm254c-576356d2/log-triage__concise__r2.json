@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13610,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.2863797,
+  "numTurns": 3,
+  "durationMs": 12393,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 808
+  },
+  "contextTraffic": 141401,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60177,
+  "narrationWords": 0,
+  "finalWords": 236,
+  "finalText": "## Root cause: Redis outage → cascading overload → OOM crash\n\n**02:14:07** — Redis at `10.0.0.12:6379` dropped (`ECONNREFUSED`). The `api` service caught it and fell back to direct store reads instead of failing fast.\n\n**02:14:07 – 02:31:26** — With cache gone, every request hit the backing store directly, causing:\n- Repeated `TimeoutError` (5000ms, store overloaded) across `api`, `worker-1`, `worker-2`, `scheduler`\n- Steadily climbing request queue depth (52 → 568, capped at 500)\n- Continuous cache-miss storms\n- 12 automatic Redis reconnect attempts (every ~2 min), **all failed** — Redis never came back\n\n**02:31:44** — `worker-2` hit `JavaScript heap out of memory` from the growing request backlog and crashed (exit code 134).\n\n**02:31:52** — `supervisor` declared `api` unresponsive and killed the whole process group. **Service down.** Log ends there — no recovery recorded.\n\n### Bottom line\nRedis went unreachable for 17+ minutes. The cache-fallback path had no circuit breaker or backpressure, so requests piled up against an already-overloaded direct store instead of failing fast, until the queue backlog OOM'd a worker and took the whole service down with it.\n\n### Next steps\n- Confirm why Redis at `10.0.0.12:6379` was unreachable that long (network/host/OOM on the Redis box itself).\n- Add a circuit breaker so `api` sheds load or degrades gracefully instead of retrying into an overloaded store for 17 minutes.\n- Cap the request queue harder / add backpressure so a stuck downstream can't OOM a worker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a2aedefe8448d46480e4c45995b62bce679a7da79acc06d9cf9e86e43f562c37"
+}

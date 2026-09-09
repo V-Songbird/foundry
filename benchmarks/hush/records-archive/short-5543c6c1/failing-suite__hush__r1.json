@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 5,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28171,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1667246,
+  "numTurns": 10,
+  "durationMs": 26721,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1670
+  },
+  "contextTraffic": 403421,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 6447,
+  "narrationWords": 17,
+  "finalWords": 57,
+  "finalText": "**Fixed. All 625 tests pass now.**\n\nThe bug was in `orderTotal` in `src/pricing.js`. It charged tax on the full price, before the discount came off. It should have charged tax on the discounted price, the amount the customer actually pays. I changed line 41 so tax is calculated on the discounted total instead of the original price.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "242fa8da2e11b154ad73e90a551537ae59b1751455afd7f002b59cd4fc3789c2"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r1",
+  "batchId": "caps-cost-32c20381",
+  "seed": "1786009994511",
+  "orderIndex": 15,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 17383,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.032100699999999996,
+  "numTurns": 2,
+  "durationMs": 15782,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 917
+  },
+  "contextTraffic": 56528,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "finalText": "Redis crashed at 02:14:07 and never came back. Without cache, the store got hammered with direct reads. Requests started timing out and piling up in the queue because the store couldn't keep up. The backlog kept growing — queue depth hit 562 when the max is 500 — and after 17 minutes it ran out of memory. Worker process crashed with an OOM error, and when the API tried to recover, the supervisor found it unresponsive and killed the whole service.\n\nThe root problem is Redis going down (connection refused to 10.0.0.12:6379). Check why it stopped and whether it's still not responsive. You'll also want to look at why the store can't handle the load without cache — either the store needs more capacity, or you need circuit breakers or queue-depth limits to prevent the backlog spiral.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c22fe8b1d41d98c26e88c853ba17acd666cf2d0ad168650e5eac4f5c92d325a4"
+}

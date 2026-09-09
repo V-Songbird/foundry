@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 4,
+  "wallMs": 98580,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8259350000000001,
+  "numTurns": 13,
+  "durationMs": 94626,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5977
+  },
+  "contextTraffic": 370087,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 12430,
+  "narrationWords": 0,
+  "finalWords": 60,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`. It set `gateway.pool.perRequest` to `true`. The 20-slot pool pinned at 20 in use. Every request then failed with `ERR_POOL_EXHAUSTED`.\n\nImpact began 02:14:18Z. It was still open at 03:59:27Z. 530 requests failed on node-3. Workers were untouched.\n\nRoll back `dep-4471`. Restore `gateway.pool.perRequest` to `false`.\n\nNext: pull node-1 and node-2 logs to confirm scope.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3adc34b592ae4cc4341c813e7eda5a02728a7018f7102f55b078ca3b3094713a"
+}

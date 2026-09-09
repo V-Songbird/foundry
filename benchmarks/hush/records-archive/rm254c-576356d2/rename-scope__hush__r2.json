@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 68,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 42317,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2314077,
+  "numTurns": 13,
+  "durationMs": 40865,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3076
+  },
+  "contextTraffic": 222689,
+  "apiCalls": 6,
+  "toolCalls": 12,
+  "toolResultChars": 12496,
+  "narrationWords": 0,
+  "finalWords": 200,
+  "finalText": "All internal, called only from services — not exposed via HTTP routes directly, so it's a safe internal rename as long as it stays consistent within `lib/audit.js`.\n\nI have enough to answer now.\n\nThe rename touches 94 files, but it splits cleanly into two piles.\n\nThe big pile is mechanical: every service (`accounts`, `billing`, `orders`, `analytics`, `notify`) has repo/service/route files that thread `account_id` through as a tenant-scoping guard on every query. Same shape everywhere, safe to rename in one pass.\n\nThree places must keep `account_id` exactly as-is:\n\n1. **`docs/openapi.yaml`** — it's the public API contract, marked \"Frozen field name.\" Renaming breaks every client.\n2. **`lib/serialize.js`** — the `WIRE` map's right-hand side is that same public field. The internal key can change, but the outgoing JSON key can't.\n3. **`vendor/reporting-sdk/`** — third-party vendored code with its own `account_id` contract, not yours to rename.\n\nAlso leave the applied migration files alone (`migrations/*.sql` are marked \"history,\" editing them doesn't touch a database that already ran them). A rename needs a new migration, not an edit to old ones.\n\nSo: sign off on the internal rename, but scope it to exclude those four spots, and add a new migration rather than touching old ones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9422bcbb7c5f20dbcfc1275e9dbea1895b32bf90919680351cb001aecd91db88"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 152298,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.0079814999999999,
+  "numTurns": 62,
+  "durationMs": 150855,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14826
+  },
+  "contextTraffic": 487449,
+  "apiCalls": 12,
+  "toolCalls": 61,
+  "toolResultChars": 42282,
+  "narrationWords": 82,
+  "finalWords": 267,
+  "finalText": "Migration complete. All 78 JS files pass `node --check`.\n\n## What changed\n\n12 files were still on `db.query(sql, params)` — 36 call sites, converted to `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `admin/apiKeyAdmin.js`, `service/teamService.js`, `repo/session.js` |\n| analytics | `repo/cohort.js` |\n| billing | `service/couponService.js`, `repo/refund.js` |\n| catalog | `admin/variantAdmin.js`, `repo/supplier.js` |\n| orders | `service/returnService.js`, `repo/shipment.js` |\n| support | `admin/macroAdmin.js`, `repo/sla.js` |\n\nEach file had the same three-call shape (get-by-id / list / update), matching the already-migrated siblings like `support/src/repo/macro.js` line-for-line. Counts confirm the sweep is complete: 225 `db.execute(` call sites = 75 caller files × 3, with the only non-callers being `lib/db.js`, `lib/cache.js`, and the vendor adapter.\n\n## Two things I deliberately left alone\n\n**`vendor/legacy-orm/adapter.js:9,13`** — the last two `db.query` calls in the repo. The file header says:\n\n> Vendored copy of legacy-orm 2.1.4. Do not edit — it is replaced wholesale on every upgrade, and local changes are silently lost.\n\nEditing it would migrate cleanly but get reverted on the next vendor bump, so this needs a real fix rather than a sweep: upstream the change to legacy-orm, wrap the adapter behind a shim that translates positional→object form, or drop the dependency. Worth deciding before the driver's next major actually removes `query`, since these two calls will break at that point. Tell me which route you want and I'll do it.\n\n**25 `cache.query(...)` calls** (line 18 of each `repo/*.js`) — same method name, different object. `lib/cache.js` has its own `query`, unrelated to the db migration, so a naive find-and-replace on `.query(` would have broken all 25.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "285b2ad5267e08cd2eec658468504912e664486cc6a93712d02dece478e64735"
+}

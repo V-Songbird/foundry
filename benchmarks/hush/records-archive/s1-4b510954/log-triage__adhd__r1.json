@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24508,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3106707,
+  "numTurns": 4,
+  "durationMs": 23031,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1759
+  },
+  "contextTraffic": 185571,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60188,
+  "narrationWords": 0,
+  "finalWords": 312,
+  "finalText": "Here's the sequence of events, reconstructed from `logs/app.log`:\n\n**02:00 – 02:14:03** — Normal operation. `api`, `worker-1`, `worker-2`, `scheduler` are all serving requests fine (200s, low latency, healthy cache hit ratios ~90-98%).\n\n**02:14:07** — Root cause: Redis goes down.\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\nWARN  [api] cache layer degraded — falling back to direct store reads\n```\n\n**02:14:08 onward** — Cascade failure. With cache gone, every service hammers the backing store directly:\n- Repeated `cache miss storm` warnings (every ~6s, one per service, cycling through order keys)\n- Repeated `TimeoutError: request timed out after 5000ms (store overloaded)` — the direct-read fallback can't keep up\n- `request queue depth` climbs steadily and continuously from 52 up toward its configured max of 500\n\n**02:15:26 → 02:30:06** — 12 automatic Redis reconnect attempts (`attempt 0` through `attempt 12`, roughly every 2 minutes), **all fail** with the same ECONNREFUSED. Redis never comes back for the rest of the log.\n\n**~02:29:12** — Queue depth blows past its stated max of 500 (hits 502, then keeps climbing to 568) — backpressure/throttling isn't actually stopping intake.\n\n**02:31:44 – 02:31:52** — Terminal collapse:\n```\nERROR [worker-2] JavaScript heap out of memory (request backlog)\nFATAL [supervisor] worker-2 exited with code 134, restarting\nFATAL [supervisor] api unresponsive, killing process group — service down\n```\n\n**Bottom line:** Redis at `10.0.0.12:6379` dropped at 02:14:07 and never recovered despite 12 reconnect attempts over ~17 minutes. The cache fallback to direct store reads overloaded the store, causing a cascading timeout storm across all services. The unbounded request queue (backpressure wasn't actually capping at 500) eventually OOM'd `worker-2`, and the supervisor killed the whole process group at 02:31:52 — that's the outage.\n\n**Next steps worth checking:** why Redis at `10.0.0.12` was unreachable for 17+ minutes (host/network issue vs. Redis crash), and why the queue depth cap of 500 didn't actually shed load once exceeded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e65f3bab922040649170c7697329df8de8b2b915b74a061ad2a95511c391d69e"
+}

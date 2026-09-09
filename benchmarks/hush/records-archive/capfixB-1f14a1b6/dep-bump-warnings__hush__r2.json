@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32600,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2096269,
+  "numTurns": 10,
+  "durationMs": 29446,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1643
+  },
+  "contextTraffic": 280819,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 7776,
+  "narrationWords": 0,
+  "finalWords": 84,
+  "finalText": "Build's clean now. Two real bugs from the bump, both fixed:\n\n1. `resolveRetries` in `src/core/options.js` was still reading `options.retries`, but the new bundler passes `retryCount`. It crashed on `undefined.toFixed()`.\n2. `isBackoffEnabled` in `src/net/retryPolicy.js` threw on `undefined` flags. The new config loader leaves unset flags as `undefined` instead of `false`, so it now just treats anything not `true` as disabled.\n\nRan `node build.js`: exits 0, `8 warnings, 0 errors`. The rest of the noise was just deprecation and dedupe log spam from the bump, harmless.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aa42c467d269ea767085178c45211caa6cc2f13fbd472b34d4f15b4d50579a2a"
+}

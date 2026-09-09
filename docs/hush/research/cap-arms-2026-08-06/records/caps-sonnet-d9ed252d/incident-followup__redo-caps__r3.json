@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 179,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 61373,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.40044269999999993,
+  "numTurns": 13,
+  "durationMs": 56351,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3289
+  },
+  "contextTraffic": 558308,
+  "apiCalls": 13,
+  "toolCalls": 10,
+  "toolResultChars": 13589,
+  "narrationWords": 0,
+  "finalWords": 209,
+  "finalText": "Here's the handoff writeup — pull the full text into your doc as-is:\n\n```\nON-CALL HANDOFF — Prod outage, 2026-07-04\n\nROOT CAUSE\nRedis (10.0.0.12:6379) dropped at 02:14:07 UTC and never came back.\nThe app fell back to hitting the main data store directly for every\nrequest. That store couldn't take the load, requests started timing\nout at 5s each, and the request queue backed up without limit.\n12 reconnect attempts over ~17 minutes all failed with ECONNREFUSED.\nBy 02:31:44 the backlog was large enough to OOM-kill worker-2, and\nthe supervisor killed the whole process group at 02:31:52 once the\napi process stopped responding.\n\nIMPACT WINDOW\n02:14:07 - 02:31:52 UTC (about 17m45s of degraded/down service).\n\nDEPENDENCY VERSION\nNo package-lock.json exists in the repo, so the exact resolved\nioredis version isn't recorded anywhere here. package.json pins\n\"^5.4.1\" (anything 5.4.1 up to but under 6.0.0). Run `npm ls ioredis`\non the actual server to get the real installed version before\nmatching it against changelog fixes.\n\nOPEN QUESTION\nWhy Redis at 10.0.0.12:6379 went down and stayed down for the full\nwindow — not yet established from these logs.\n```\n\nFlagging the version gap again since it's still open: without a lock file or server access, this can't be nailed down further from here.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a03359c3e556dea74b02a28677df8bd7f75ab2408a0b2027032475a7542a80ed"
+}

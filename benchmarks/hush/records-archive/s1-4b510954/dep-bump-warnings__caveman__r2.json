@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 28,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28636,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2179254,
+  "numTurns": 9,
+  "durationMs": 27137,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1769
+  },
+  "contextTraffic": 342033,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 6920,
+  "narrationWords": 45,
+  "finalWords": 60,
+  "finalText": "Build clean now, 0 errors.\n\nTwo real bugs, both from bundler bump:\n- `src/core/options.js`: new bundler sends `retryCount`, code read old `retries` field, undefined.toFixed() crash. Fixed.\n- `src/net/retryPolicy.js`: new config loader leaves unset flag `undefined` instead of `false`, strict check threw. Now treats `undefined` as `false`.\n\nRemaining 8 warnings are deprecation noise (DEP0142, DEP0198, etc) — not blocking, real issue.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "023fbddbcfa58f782fc64727b59ea35c7e7a72b49a9dbfe8cc10ff2017d06aaf"
+}

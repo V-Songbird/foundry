@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__stock__r2",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 60140,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.41192049999999997,
+  "numTurns": 7,
+  "durationMs": 58579,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3244
+  },
+  "contextTraffic": 156327,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 11811,
+  "narrationWords": 6,
+  "finalWords": 92,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log now."
+  ],
+  "finalText": "**`Redis` went down and took prod with it.**\n\n| time | what happened |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | cache off, reads go straight to the store |\n| 02:14:10 | store chokes, `TimeoutError` after 5000ms |\n| 02:29:12 | queue depth passes the 500 cap |\n| 02:31:44 | `worker-2` OOM, exit 134 |\n| 02:31:52 | `api` killed, service down |\n\n13 reconnects fired, 80s apart, all refused. No request succeeded after `02:14:03` in [app.log](logs/app.log).\n\nNext: find why `Redis` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ada500cae6d64d91a4bd731199387d3c9cc91e0dddf442f4c9af87c5830cc228"
+}

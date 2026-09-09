@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ex__r1",
+  "batchId": "opus1-31467a3c",
+  "seed": "1787635912294",
+  "orderIndex": 10,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ex",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 85535,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.758173,
+  "numTurns": 18,
+  "durationMs": 84045,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5696
+  },
+  "contextTraffic": 582610,
+  "apiCalls": 14,
+  "toolCalls": 17,
+  "toolResultChars": 43329,
+  "narrationWords": 7,
+  "finalWords": 122,
+  "finalText": "I read all 380 commits and 127 merged PRs. Roughly 340 were dependency bumps, tests, CI and refactors that nobody installing this would feel. I drafted the 4.2.0 section into `CHANGELOG.md`.\n\nThree things are breaking, and none were labeled as such:\n\n| Change | Hidden under |\n|---|---|\n| `v1` export route removed | `refactor(api): drop the unused v1 export route` |\n| Expired token returns 401, was 403 | `fix(auth): ...` |\n| Internal error types no longer re-exported | 7 `refactor(...)` commits |\n\nTwo things to check before you cut. Nine perf commits exist but none are measured, so I left them out. Five commits say \"note the minimum node version\" but only touch docs, and `package.json` engines never changed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5c833d7e42cc04c1700945b503c4fff3a8eaaee38f0bfcda9c684fd46b4b7d77"
+}

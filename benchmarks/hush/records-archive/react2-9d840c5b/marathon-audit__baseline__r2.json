@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 44,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 157346,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6581819999999999,
+  "numTurns": 31,
+  "durationMs": 151683,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12175
+  },
+  "contextTraffic": 968166,
+  "apiCalls": 22,
+  "toolCalls": 27,
+  "toolResultChars": 25682,
+  "narrationWords": 71,
+  "finalWords": 67,
+  "finalText": "`AUDIT.md` is written at the repo root, ordered critical → medium:\n\n1. **Critical** — `src/routes/internal.js` missing `requireAuth` (internet-reachable, live now)\n2. **Critical** — `src/repo/report.js` SQL injection via string-concatenated query\n3. **High** — `config/staging.js` plaintext DB password committed\n4. **Medium** — `package.json` pinned to yanked `fast-parse@1.4.2`\n\nNo files under `src/` or `package.json` were touched — verified this is a clean read-only audit by running `node verify.js`, which passed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98cdcfe5a891307a5dc70b9717f14a04722baac9d8fe793eb9cd259365b622a5"
+}

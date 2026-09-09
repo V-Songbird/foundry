@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 28,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 104242,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9073879999999999,
+  "numTurns": 12,
+  "durationMs": 102935,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6724
+  },
+  "contextTraffic": 556379,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 75197,
+  "narrationWords": 93,
+  "finalWords": 472,
+  "assistantMsgs": 4,
+  "finalText": "Notes on the calls I made, since several are judgment:\n\n**The three Breaking entries are inferences from commit subjects, not from diffs.** I only have subjects and file stats — no patch content — so verify these three before publishing:\n\n- **401/403** (`1d2bd55`, PR #4223) — safest of the three. Touched `auth/token.js`, `auth/session.js`, and the tests.\n- **Error re-exports** — landed as `refactor(...)` across seven commits in five modules (`2e61589`, `5d4de73`, `d988aed`/`4d83260`, `d7cf97b`, `9b717dc`, `b5cfbc3`/`8639397`). Whether this is breaking depends entirely on whether those modules are public entry points. If they're internal, delete the entry. If they are public, this is the one most likely to break someone silently at import time, and it deserves a migration line naming the new path.\n- **v1 export route** (`56dc828`, PR #4152) — the commit says \"unused,\" but it modified `api/router.js`, `api/handlers.js`, and `test/api.test.js`. \"Unused\" in a refactor commit usually means \"no internal callers,\" which says nothing about external ones. Worth a two-minute check of your access logs.\n\n**Perf has nowhere to go in your format.** Ten perf commits, and two are the kind a user might actually measure: `9f02d92` reuses the parsed schema between requests, and the `skip the JSON round-trip on the hot path` series hits `core`, `store`, and `db`. The rest (extra clone in the mapper, batched metric writes) are unlikely to show up in anyone's numbers. Your template says three headings, so I left all of it out — add a `### Changed` if you want the schema-reuse line.\n\n**Dependencies: nothing to report.** Sixteen distinct packages bumped, every one a patch or minor within the same major. Nine reach users at runtime (pino, dotenv, nanoid, fastify, zod, ioredis, pg, knex, undici); the largest is pg 8.12.0 → 8.13.0. None of it changes your API surface.\n\nTwo things you should know about the source data:\n\nThe **PR sheet is incomplete** — it stops at #4246 / 2026-06-17 and is missing fixes that are in the commit log, including both HTTP client fixes (`f66d359`, `eb874a5`) and several in `core`, `billing`, and `store`. I worked from `commits.log`, which is a strict superset. Don't cross-check against the sheet and conclude I invented entries.\n\nThe log also has **heavy duplication** — pino 9.2.0 → 9.3.1 appears ten times, and PRs #4120/#4121 are the same bump by different authors. More relevant: `fix(core): drop the duplicate header` landed three times (`6043860`, `3312952`, `22aa575`), the last two both touching `core/errors.js`. Either that fix didn't hold the first two times, or the log is double-counting. Worth a glance, but it doesn't change the changelog either way — it's one line to the user regardless.\n\nLast thing: **I dated it 2026-08-29** on \"cutting tomorrow.\" The commits stop 2026-06-17, so there's a ten-week gap I can't account for. If work landed after that on another branch, it isn't in anything I read.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2e485983f84079da2b85ed8a1c181a93d876a33fcc1317b46e1e83ad01b419f2"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__concise__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 64,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 93233,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.516684,
+  "numTurns": 11,
+  "durationMs": 92345,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5599
+  },
+  "contextTraffic": 299685,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 28254,
+  "narrationWords": 9,
+  "finalWords": 613,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land."
+  ],
+  "finalText": "I read all 380 commits and the 127-row PR sheet. Breakdown: 153 `chore`, 73 `refactor`, 64 `test`, 33 `ci`, 26 `fix`, 20 `docs`, 10 `perf`, **1 `feat`**. So your instinct is right — but there's more user-visible surface hiding in the `fix` and `refactor` piles than the labels suggest.\n\nTwo things about the data worth knowing: the log contains literal duplicates (the same `pino 9.2.0 → 9.3.1` bump lands 6 times under different authors, `guard the null cursor in the paginator` lands in 4 different modules), so I deduped by logical change, not by commit. And **nothing in the release is flagged breaking** — no `!:` markers, no `BREAKING CHANGE` footers. I think that's a labeling gap, not the truth; see the judgment calls below.\n\n## Draft 4.2.0\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on the\n  status code to decide whether to refresh will need updating.\n- The internal error types are no longer re-exported from the package root.\n  Import them from their own module, or match on `err.code` instead.\n- The v1 export route is gone. Use the current export endpoint.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Paginators no longer throw on a null cursor.\n- An empty allowlist is now treated as empty instead of as \"allow everything\".\n- The database layer no longer writes the full request body to the log.\n- The HTTP client releases its timer when the socket drops, and closes the pool\n  on shutdown, so the process can exit cleanly.\n- Retries keep the trace id.\n- Duplicate headers are no longer sent on retried requests.\n- URLs with a trailing slash are normalized once, not twice.\n- The latency histogram reports the units it claims to. Recorded values change\n  scale; dashboards and alert thresholds built on it need rechecking.\n- Token parser errors say what actually failed.\n```\n\nI left perf out of the draft — four distinct wins (metric writes batched, JSON round-trip skipped on the hot path, a redundant clone dropped from the mappers, parsed schemas reused across requests), all internal with no API or behavior change. Add a line if you want it, but nobody installing this will notice except as throughput.\n\nAlso nothing for dependencies: all 16 bumps are patch/minor (`fastify 4.28.0→4.28.1`, `pg 8.12→8.13`, `undici 6.19.2→6.19.5`, `zod 3.23.6→3.23.8`, and the rest devDeps). No user-facing consequence.\n\n## Four things I need you to confirm before this ships\n\n1. **The 401/403 change** (`1d2bd55`, PR #4223) — I promoted this to Breaking on my own judgment. It changes what's on the wire for every client with an expiring token. If you disagree it's breaking, it's still a Fixed entry, not silence.\n2. **`stop re-exporting the internal error types`** — 8 commits across core, db, auth, billing, jobs. Whether this breaks anyone depends entirely on whether those types were reachable from the package entry point. If they were only ever internal, drop that Breaking bullet.\n3. **`drop the unused v1 export route`** (`56dc828`) — \"unused\" is the author's claim, and it touches `router.js` and `handlers.js`. Worth a quick check against access logs before you assert nobody called it.\n4. **Minimum Node version** — 5 `docs: note the minimum node version` commits and 6 `ci: run the suite on node 22`, plus `.nvmrc` pins. But I saw no `engines` change in `package.json`. If the floor actually moved to Node 22, that's your loudest breaking change and it's currently documented nowhere but the README.\n\nSay the word and I'll fold the draft into `CHANGELOG.md` above the `4.1.0` section, with whatever you decide on those four.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "54a6c3843280bc7f2149dbda24c6f005667c47f2fb9474ac50683a5dee260329"
+}

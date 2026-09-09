@@ -1,0 +1,40 @@
+{
+  "key": "feature-drift__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 120,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 94293,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.6104715000000001,
+  "numTurns": 22,
+  "durationMs": 88598,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5007
+  },
+  "contextTraffic": 597607,
+  "apiCalls": 22,
+  "toolCalls": 17,
+  "toolResultChars": 10696,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 5,
+  "narrationTexts": [],
+  "finalText": "Dedupe added: `state.lastSentAt` Map keyed by `event.key`, drop if a delivery for that key happened <5 min ago. Only actual deliveries (non-empty channels) update the timestamp, so a dropped repeat doesn't extend the window.\n\nReplay: 99 dropped (the ~1-in-9 flap repeats, +2 min after their parent), 0 errors.\n\nTwo judgment calls: window is strictly `<5` minutes (a repeat exactly 5 min later goes through), and since replay order isn't time-sorted I compare absolute distance, not just forward.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "81d785de648254fdccaedc80856f96d9321a46b276d2e9960c52efd92737380e"
+}

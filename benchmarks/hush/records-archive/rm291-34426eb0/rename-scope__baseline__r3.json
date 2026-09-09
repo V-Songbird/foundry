@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 81958,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.42667350000000004,
+  "numTurns": 19,
+  "durationMs": 80497,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5781
+  },
+  "contextTraffic": 230706,
+  "apiCalls": 8,
+  "toolCalls": 18,
+  "toolResultChars": 17858,
+  "narrationWords": 39,
+  "finalWords": 685,
+  "assistantMsgs": 4,
+  "finalText": "## Size\n\n**1,291 occurrences on 1,082 lines across 94 files.**\n\n| Area | Files | Hits | Renameable? |\n|---|---|---|---|\n| `services/` | 75 | 1,200 | Mostly yes — with caveats below |\n| `migrations/` | 12 | 61 | **No** |\n| `vendor/reporting-sdk/` | 4 | 20 | **No** |\n| `docs/openapi.yaml` | 1 | 5 | **No** |\n| `lib/` | 2 | 5 | Half — this is the seam |\n\nThe 75 service files are highly repetitive: 5 services × (http / service / repo) layers, all the same CRUD shape. The mechanical volume is large but the distinct patterns number about six.\n\n## Must not be renamed\n\n**1. `docs/openapi.yaml` (5)** — `account_id` is a public response field on `Invoice` and `Order` and a public query parameter on `/v2/invoices`. The file states renaming is a breaking change requiring a new dated API version. Every client reads these by name.\n\n**2. `lib/serialize.js:8` — the right-hand side of `WIRE`** — this is the designed boundary:\n\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\n\nThe key (internal row field) can become `owner_id`. The value (wire name) cannot. Getting this one line right is what keeps the other 1,200 edits from reaching customers. If someone runs a global find/replace, both sides flip and the API breaks silently — no test that only checks internal shape will catch it.\n\n**3. `migrations/*.sql` (61 in 12 files)** — every migration is marked applied in production. Editing them renames nothing in a database that already ran them, and it breaks the `down` steps (a `DROP INDEX orders_owner_id_idx` won't match the `orders_account_id_idx` that actually exists). These are history, not source.\n\n**4. `vendor/reporting-sdk/` (20 in 4 files)** — vendored generated code, overwritten wholesale by `npm run vendor:refresh`. Also, `account_id` there is the *upstream vendor's* field name in their request/response bodies — renaming it would break the wire format with their API even if the edit survived. Good news: nothing in `services/` imports the SDK (zero `require` of `vendor/`), so it's fully isolated. Just exclude the directory.\n\n## Traps inside `services/` — where it's not a clean rename\n\nThe 1,200 service hits are not homogeneous:\n\n- **125 sit inside SQL string literals** (`'SELECT * FROM invoices WHERE account_id = ?'`). These are database column identifiers, not JavaScript names. They cannot change until a column-rename migration ships. A find/replace across `.js` files hits these and every query breaks at runtime — not at build time.\n- **50 sit in `JSON.stringify({ ...values, account_id })`** in the repo `insert*` functions. That key gets written into the `payload` JSONB column. Renaming it means new rows carry `owner_id` inside `payload` while every existing row carries `account_id`. No error, no failed query — just a column with two formats and any reader of `payload.account_id` quietly returning undefined for new rows.\n- **200 are `req.session.account_id`.** Whether these can flip depends on how sessions are minted and whether signed sessions are in flight during deploy. Worth one question to the author.\n\nThat leaves roughly 825 occurrences that are genuinely free — local variables, function parameters, and internal object keys.\n\n## What I'd ask for before signing off\n\nThis isn't one PR; it's three, in order:\n\n1. **Internal-only rename** — JS locals, params, internal object keys. Leave SQL strings, the `WIRE` value, `payload` keys, migrations, vendor, and OpenAPI untouched. Reversible, no runtime surface.\n2. **Database column rename** — a new forward migration, plus updating the 125 SQL literals in the same change. Needs its own rollout plan.\n3. **Public API** — only if actually wanted, and only as a new dated version. Probably shouldn't happen at all.\n\nIf the proposal is a single global find/replace, I'd decline it as written — items 2 and 3 have failure modes that don't surface until production traffic.\n\nOne thing I couldn't determine from the repo: `lib/audit.js` stamps `account_id` onto every audit line. If anything downstream (log queries, dashboards, compliance exports) filters on that field name, renaming it breaks those consumers silently. There's no consumer in this repo, so I'd ask the author whether one exists outside it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "27fe29700a309c6a2bf76d248b5fe9c767cdf4ee4cabcc0e50203864c465f3a2"
+}

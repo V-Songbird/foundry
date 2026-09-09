@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 102,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 39226,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0724316,
+  "numTurns": 12,
+  "durationMs": 37379,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2137
+  },
+  "contextTraffic": 281063,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 13454,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "finalText": "Pool is fixed. The leak was in `processOrder` — it acquired connections but didn't wrap the operation in a try-finally, so failed orders never released them. The API handler used the safe wrapper correctly, which is why logs show it handled errors, but the job path didn't. Added the try-finally and all tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f2000f90119bea05e5079f7a95967a05298c47edbf65e005cb547e82df537b65"
+}

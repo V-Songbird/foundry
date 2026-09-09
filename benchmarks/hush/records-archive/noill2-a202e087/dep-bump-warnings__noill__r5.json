@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__noill__r5",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 5,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40812,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.2632605,
+  "numTurns": 10,
+  "durationMs": 39332,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2190
+  },
+  "contextTraffic": 172894,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6347,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** Exit 0, 0 errors.\n\nTwo real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [src/core/options.js:6](src/core/options.js:6) | Read `options.retries`, bundler now sends `retryCount` | Accept both, type-check |\n| [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) | Threw on `undefined` flag | Treat unset as `false` |\n\nThe 8 warnings are hardcoded strings in [build.js:18](build.js:18). They name files like `src/legacy/adapter.js` that do not exist here.\n\nNext: nothing, unless you want that fake warning list trimmed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "db644cdbc1e5d3bbb95effe1dacce1190c2befa7df3d652e1a1bbf4bb5d31657"
+}

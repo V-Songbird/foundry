@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__noclause__r2",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "noclause",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 48661,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22049259999999998,
+  "numTurns": 14,
+  "durationMs": 42472,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2589
+  },
+  "contextTraffic": 457381,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 23773,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 4,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, `a.novak`, `02:12–02:14Z`) shipped config gen 119, flipping `gateway.pool.perRequest: false -> true`. That grabs a new DB connection per request instead of reusing one, and the fixed pool (`size 20`) exhausts fast. Every 503 logs `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** started `02:14:18.972Z`, still ongoing at log's last line (`03:59:27.974Z`). Not self-healed — `waiting` queue is still climbing (74 and rising). Scoped to the gateway only; `worker.log` shows zero errors in the same window.\n\n**Roll back:** `dep-4471`.\n\nNext: revert that deploy and confirm `waiting` drops to 0 in `pool stats` lines.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0ff564244dc5e46e0db275143ec5b233c2caa84d3b34ca51f906bfe363ec0898"
+}

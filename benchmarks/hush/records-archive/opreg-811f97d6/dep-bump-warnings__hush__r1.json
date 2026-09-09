@@ -1,0 +1,39 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33626,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23742549999999998,
+  "numTurns": 10,
+  "durationMs": 32229,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1732
+  },
+  "contextTraffic": 149063,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6266,
+  "narrationWords": 5,
+  "finalWords": 63,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\nThe bundler renamed `retries` to `retryCount`, which threw a `TypeError` in [options.js:6](src/core/options.js:6). The new config loader returns `undefined` for unset flags where the old one returned `false`, which threw in [retryPolicy.js:7](src/net/retryPolicy.js:7). Both now accept either shape.\n\nThe 8 remaining warnings are real deprecations. `crypto.createCipher` in `src/legacy/adapter.js` is the one worth fixing next.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "62b2e3c3890c5e074de6f6de8f43c90d943d194f730e2aa1bc104e156d25b11d"
+}

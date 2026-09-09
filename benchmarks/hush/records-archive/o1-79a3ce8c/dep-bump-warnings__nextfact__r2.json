@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__nextfact__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45439,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.32787250000000007,
+  "numTurns": 10,
+  "durationMs": 42312,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2889
+  },
+  "contextTraffic": 214575,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7524,
+  "narrationWords": 7,
+  "finalWords": 79,
+  "finalText": "**The build passes now.** Two real breaks came from the bump.\n\n1. `src/core/options.js` read `options.retries`. The new bundler sends `retryCount`.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader leaves it `undefined`.\n\nOptions now takes either name. An unset flag means backoff off, same as before.\n\n```\nbuild finished in 44.9s with 8 warnings, 0 errors\n```\n\nThose 8 warnings are noise. `build.js` prints them from a fixed list. The files they name are not in this repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fdb5a7d0e0f3ab6330856fbe81dd4734c1e0345d4c8deb817728431e07eccd9"
+}

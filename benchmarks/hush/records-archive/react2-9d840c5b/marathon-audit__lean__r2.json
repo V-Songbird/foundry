@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 46,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 123108,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7069665999999999,
+  "numTurns": 28,
+  "durationMs": 116883,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7054
+  },
+  "contextTraffic": 1233574,
+  "apiCalls": 28,
+  "toolCalls": 24,
+  "toolResultChars": 18677,
+  "narrationWords": 4,
+  "finalWords": 116,
+  "finalText": "`package.json` pins `fast-parse` at `1.4.2`, and `NOTES.md` confirms that's the exact version the publisher yanked over a prototype-pollution bug — `1.4.3` is the fix, so this one's unpatched.\n\nI've written `AUDIT.md` with all four findings, worst first:\n\n1. **SQL injection** in `src/repo/report.js` — saved-report filters get pasted into the query instead of bound.\n2. **No auth** on `src/routes/internal.js` — metrics dump and cache-flush are open to anyone now that the VPN in front of them is gone.\n3. **Committed password** in `config/staging.js` — a real staging DB credential sitting in plain text.\n4. **Yanked dependency** — `fast-parse@1.4.2` in `package.json`, needs bumping to `1.4.3`.\n\nRan `verify.js` against it — passes. No service files were touched, audit only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31e2e89608c6ddacd2ce916ece214f706e8d0021fbdb7967374d8b1d4a5835aa"
+}

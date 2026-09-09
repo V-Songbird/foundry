@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 65447,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6797015000000001,
+  "numTurns": 18,
+  "durationMs": 64589,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4757
+  },
+  "contextTraffic": 180065,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 18685,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Rename is large, not a find and replace.**\n\n`account_id` sits on 1082 lines. Most are in the five services. Those are safe to rename in one pass.\n\nFour spots must keep the name:\n\n| Where | Why |\n|---|---|\n| [docs/openapi.yaml:16](docs/openapi.yaml:16), [lib/serialize.js:8](lib/serialize.js:8) right side | Public API. Frozen field. |\n| `vendor/reporting-sdk/` | Vendored. `npm run vendor:refresh` overwrites it. |\n| `migrations/*.sql` | Applied history. Add a new `ALTER TABLE` migration. |\n| JSONB `payload`, audit lines, `req.session` | Stored data and auth set that name. |\n\nNext: sign off on code only. Require the new migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4141e2038d12d9e0ee4adfe50556f0e95827763486417468a8b58a2696f2df53"
+}

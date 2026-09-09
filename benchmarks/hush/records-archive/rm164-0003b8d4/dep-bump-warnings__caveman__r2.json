@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29613,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2077515,
+  "numTurns": 12,
+  "durationMs": 28286,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2027
+  },
+  "contextTraffic": 273692,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 8381,
+  "narrationWords": 23,
+  "finalWords": 62,
+  "finalText": "Build clean now, exit 0. Rest of screenful just deprecation noise (DEP0142/0198/0233/0250/0267) from bumped deps — cosmetic, no action needed.\n\nTwo real bugs fixed:\n- `src/core/options.js:6` — `resolveRetries` read `options.retries`, new bundler passes `retryCount`. Threw on undefined.\n- `src/net/retryPolicy.js:7` — `isBackoffEnabled` threw on `undefined` flag. New config loader leaves unset flags as `undefined` instead of `false`. Now treats `undefined` same as `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d9aeb9ac216f44f050b4fa2f8526d366176264f24378e1f0856c1a2e5086db60"
+}

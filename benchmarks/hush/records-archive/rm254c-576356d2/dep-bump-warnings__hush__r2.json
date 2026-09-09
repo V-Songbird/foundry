@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 21,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31318,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.231732,
+  "numTurns": 12,
+  "durationMs": 29831,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1963
+  },
+  "contextTraffic": 294950,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 10310,
+  "narrationWords": 0,
+  "finalWords": 80,
+  "finalText": "Build's clean now. 0 errors, exit code 0.\n\nTwo real bugs from the bump, both in the link stage:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid instead of \"off,\" which would've broken the second build attempt.\n\nFixed both. The rest of the warnings (deprecation notices, unused export, circular import) are just noise from the bump, not build-breaking, so I left those alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d03fd0e98efac9c65d0b8dff8b2cfda830a5cd4d9baa6a63ae836ca0ccc6ba7c"
+}

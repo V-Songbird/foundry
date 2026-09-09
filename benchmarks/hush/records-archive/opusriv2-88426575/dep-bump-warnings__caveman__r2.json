@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44419,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2548,
+  "numTurns": 10,
+  "durationMs": 41349,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2151
+  },
+  "contextTraffic": 163929,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6275,
+  "narrationWords": 13,
+  "finalWords": 124,
+  "finalText": "Build green. Two real bugs, both from bump:\n\n**1. `src/core/options.js:6`** — bundler renamed options key `retries` to `retryCount`. Call site read `options.retries`, undefined, `.toFixed` threw. Now reads `retryCount`, falls back to `retries`, then 0.\n\n**2. `src/net/retryPolicy.js:7`** — new config loader leaves unset flags `undefined` instead of `false`. Strict check threw on `{}`. Now `undefined` means disabled (old default); non-boolean still throws.\n\nSecond bug was hidden behind first — sequential, only shows after fix 1.\n\nRest of screen is noise: 5 `DEP0xxx` deprecations plus 3 lint warnings (`W1042` crypto.createCipher, `W2213` unused-export, `W3307` circular-import) are hardcoded strings in `build.js:18-48`. Files they name (`src/legacy/adapter.js`, `src/utils/format.js`, ...) do not exist in this tree — nothing to fix there. `build finished ... with 8 warnings, 0 errors`, exit 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7cfd268a72cee7a0b7e8b12de9793eba82b9f7a39afdeeba95cada336e22f42d"
+}

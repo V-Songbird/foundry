@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__cap60b__r1",
+  "batchId": "scr3-a576a60d",
+  "seed": "1787637417989",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "cap60b",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51611,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4981789999999999,
+  "numTurns": 11,
+  "durationMs": 49942,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3344
+  },
+  "contextTraffic": 309576,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 28787,
+  "narrationWords": 0,
+  "finalWords": 56,
+  "finalText": "**Redis died and the whole service went down.**\n\n1. `02:14:07` Redis at `10.0.0.12:6379` refused connections. 13 retries failed.\n2. Every read hit the store. Requests timed out at 5s.\n3. Backlog grew 52 to 568. `worker-2` ran out of memory.\n4. `02:31:52` supervisor killed `api`. Service down.\n\nThe log is dated July 4. Not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "45fd22e0eca2a6048da7691bfeae532d8e5d07070debc97f3c087b5f1cb02dac"
+}

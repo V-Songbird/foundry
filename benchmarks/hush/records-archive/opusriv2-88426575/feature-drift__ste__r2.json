@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 52,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 117680,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.718271,
+  "numTurns": 26,
+  "durationMs": 108617,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6459
+  },
+  "contextTraffic": 737502,
+  "apiCalls": 24,
+  "toolCalls": 21,
+  "toolResultChars": 11892,
+  "narrationWords": 7,
+  "finalWords": 151,
+  "finalText": "Deduplication is in. `route()` now records the `at` of the last delivery for each `key` in `state.lastSentByKey`, and drops a repeat that falls inside 5 minutes of it.\n\nReplay results, 0 errors:\n- dropped: 99, which matches the 99 flap events in `events.js` (the same key firing again 2 minutes later)\n- queue fell from 300 to 266, pager from 225 to 200, email from 251 to 223\n- the priority mapping and the quiet-hour rule are unchanged\n\nTwo decisions I made, both easy to flip:\n- Only a real delivery arms the window. A dropped repeat does not extend it, so a burst cannot suppress itself forever.\n- The events do not arrive in `at` order, so I compare the absolute gap. A key 3 minutes *before* the last delivery is also treated as a repeat. If you want strictly forward-in-time suppression, say so and I will drop the `Math.abs`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "227887f4f3fa1ea6332ccb57c65b266e9dafe0b6236804cdb263357dbb3094fc"
+}

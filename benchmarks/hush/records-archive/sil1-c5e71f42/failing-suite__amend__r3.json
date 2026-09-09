@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__amend__r3",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 6,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "amend",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24684,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12835259999999998,
+  "numTurns": 12,
+  "durationMs": 22871,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1280
+  },
+  "contextTraffic": 230381,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12357,
+  "narrationWords": 0,
+  "finalWords": 52,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. Suite is green: 625 passing, 0 failing.**\n\n`orderTotal` in [pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Only rows with both a discount and a tax rate exposed it, which is why most of the suite passed.\n\nChanged `tax = roundCents(cents * taxRate)` to use `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5796f31a5603fd014185d7f83e155eb1955f5c4b1164bfa5c2591d945e1306b6"
+}

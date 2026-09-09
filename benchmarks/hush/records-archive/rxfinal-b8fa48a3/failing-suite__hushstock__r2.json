@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hushstock__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 22,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26648,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2120633,
+  "numTurns": 11,
+  "durationMs": 25021,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1331
+  },
+  "contextTraffic": 255390,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15008,
+  "narrationWords": 0,
+  "finalWords": 64,
+  "finalText": "Found it: `orderTotal` was taxing the price before the discount instead of after. That let the flat `4000c` rows pass since their discount was zero, but hid the bug on any row with both a discount and a tax.\n\nFixed `src/pricing.js` so tax applies to the discounted amount. All 625 cases pass now, and `verify.js` confirms the fix is real, not a rewritten test.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "acc9858fbd3185e29d19f6d64724d467d230aacfb0609fa780bab67460e4288f"
+}

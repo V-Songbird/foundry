@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__stock__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 50077,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21626040000000002,
+  "numTurns": 15,
+  "durationMs": 43432,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2636
+  },
+  "contextTraffic": 460869,
+  "apiCalls": 14,
+  "toolCalls": 11,
+  "toolResultChars": 22142,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "## On-call handoff: gateway 503s\n\n**Root cause**\n`dep-4471` (gateway, `a.novak`, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` in config generation 119, applied `2026-03-14T02:13:41.234Z`. Pool connections stopped being shared across requests, exhausting the fixed pool (`size 20`). Every request now blocks on `ERR_POOL_EXHAUSTED`.\n\n**Impact window**\nStarted `2026-03-14T02:14:18.972Z` (first 503, `req-07401 /v1/cart`). Still ongoing as of the last log line, `2026-03-14T03:59:27.974Z` — not yet self-healed. `waiting` queue has climbed from 13 to 172+ and keeps growing. Gateway-only: `worker.log` shows no errors, jobs completing normally throughout.\n\n**Rollback**\nRoll back `dep-4471` — revert `gateway.pool.perRequest` to `false` (or bump pool size as a stopgap). This is the only gateway deploy in the window; `dep-4472` (billing-svc, `02:41Z`) and `dep-4473` (catalog-svc, `03:20Z`) are unrelated and don't need touching.\n\nNext: revert config gen 119, confirm `waiting` drops to 0 and 503s stop.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c09fbc74e1859de43e66d1aec638ac0481a3429054f66809aeb578a09048309"
+}

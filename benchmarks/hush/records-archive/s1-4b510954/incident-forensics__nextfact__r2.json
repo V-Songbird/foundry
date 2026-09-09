@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__nextfact__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 104,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "nextfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 61273,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.3240317,
+  "numTurns": 12,
+  "durationMs": 54875,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3206
+  },
+  "contextTraffic": 508002,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 10795,
+  "narrationWords": 0,
+  "finalWords": 151,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. That change went live at 02:13:41 UTC. Every request now grabs its own DB connection instead of sharing the pool, so the fixed pool of 20 exhausts almost immediately under normal traffic.\n\n**Impact window:** Started 02:14:14 UTC, first `WARN pool ... acquire slow`, followed 4 seconds later by the first `503`. Still ongoing at the end of the log, 03:59:27 UTC, with the wait queue still climbing, no signs of self-recovery. That's at least 1 hour 45 minutes of impact so far. 548 requests returned 503 in that span, all tagged `ERROR pool ... ERR_POOL_EXHAUSTED`.\n\n**Scope:** Gateway only. Workers are healthy, just one unrelated slow-query warning tied to a known ticket, `OPS-2210`.\n\n**Action:** Roll back `dep-4471` on the gateway. That's the only deploy in the window that touches pool behavior.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "37bc97247f92feec171c1b25609c83fdfdaf67ecdcd42c15fc2fe360e4802143"
+}

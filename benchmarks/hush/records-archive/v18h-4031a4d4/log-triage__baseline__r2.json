@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 16503,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.0742361,
+  "numTurns": 2,
+  "durationMs": 14745,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1070
+  },
+  "contextTraffic": 68849,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 60098,
+  "narrationWords": 10,
+  "finalWords": 226,
+  "finalText": "## Root Cause: Redis Outage Triggered Cascading Failure\n\n**The timeline:**\n\n**02:14:07** — Redis connection dies (`ECONNREFUSED 10.0.0.12:6379`). The cache layer immediately degrades and falls back to direct database reads.\n\n**02:14:08 onwards** — Without caching, the backend data store gets hammered. Every request that would have hit Redis (~90-98% of traffic based on cache hit ratios) now goes directly to the store. The store can't handle the load:\n- Request queues grow from 52 → 500+ across workers\n- Timeouts start cascading every 2 seconds \n- \"Cache miss storms\" appear (all workers requesting the same uncached keys simultaneously)\n\n**Multiple reconnection attempts fail** (lines 224, 265, 306... up to attempt 12 at line 716), so the system never recovers.\n\n**02:31:44** — After ~17 minutes of this, worker-2 runs out of heap memory trying to buffer the massive request backlog (line 717).\n\n**02:31:45** — Service goes down. Worker crashes, supervisor can't recover the process group.\n\n## The Real Problem\n\nThe system had **no circuit breaker or graceful degradation**. When Redis died, instead of rejecting excess traffic or shedding load, it kept accepting and queueing requests until memory exhausted. The 500-request queue limit was breached and never enforced.\n\n**To fix:** Add circuit breaking to reject requests when the store is overloaded (rather than queue them forever), implement timeout/backpressure handling, and possibly make Redis HA or add a fallback cache mechanism.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a0b4075f236c2aefd91fed75deac15a4310716525f27bd0f140a525863d960d"
+}

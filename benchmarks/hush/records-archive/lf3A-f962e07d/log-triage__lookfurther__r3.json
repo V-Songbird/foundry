@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lookfurther__r3",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lookfurther",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 58981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 0.3677655,
+  "numTurns": 10,
+  "durationMs": 57346,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2992
+  },
+  "contextTraffic": 286563,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 8497,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "finalText": "**Redis went down and took everything with it.**\n\nEverything else follows from that one failure.\n\n```\n02:14:07  Redis refuses connections (10.0.0.12:6379)\n02:14:07  cache off, reads go straight to the store\n02:14:08  cache miss storm, store overloaded, 5s timeouts\n02:29:12  queue passes its 500 limit\n02:31:44  worker-2 runs out of memory, exit 134\n02:31:52  api killed, service down\n```\n\nRedis never came back. All 13 reconnect tries were refused.\nThe queue grew from 52 to 568 and never drained.\nThe log ends at the kill. No recovery here.\n\nStart with Redis itself, not the app.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71469612a049ebffc489fccb9739246d0362a85c9d6e6d3b3f524252320c73ac"
+}

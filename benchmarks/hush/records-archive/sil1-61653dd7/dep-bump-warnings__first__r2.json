@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__first__r2",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "first",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35539,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.2568675,
+  "numTurns": 10,
+  "durationMs": 33544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1754
+  },
+  "contextTraffic": 189268,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6344,
+  "narrationWords": 7,
+  "finalWords": 70,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Accept both keys |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat unset as off |\n\nThe other 8 warnings are real deprecations. `Buffer()`, `fs.exists`, `punycode`, and 5 more. They do not break the build. Worth a pass before v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "80ca0529f904223b7d4c4c5c0d9fc0e31ed1ddadbaf190e68c209fa9d5840b67"
+}

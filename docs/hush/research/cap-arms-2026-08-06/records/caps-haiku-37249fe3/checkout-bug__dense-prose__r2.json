@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__dense-prose__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 28,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 39925,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0645513,
+  "numTurns": 10,
+  "durationMs": 38345,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2729
+  },
+  "contextTraffic": 236810,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 5047,
+  "narrationWords": 0,
+  "finalWords": 95,
+  "finalText": "**Fixed the coupon bug.**\n\nThe issue was in how flat coupons were being applied with currency conversion. The code was converting the total first, then subtracting the coupon amount (which is in USD) from the already-converted total—mixing the currencies.\n\nFor a €100 order with a $10 flat coupon, it was doing: (100 × 0.9) - 10 = 80, instead of the correct (100 - 10) × 0.9 = 81.\n\nThe fix applies flat coupons before conversion, not after. Percentage coupons work the same in any currency, so those already were correct. All 5 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "70973e4ea7cb2441eabee97cad47e848bac0803f366ac0b3597e96eef374348c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 31,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 46406,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.370625,
+  "numTurns": 13,
+  "durationMs": 44825,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2798
+  },
+  "contextTraffic": 292781,
+  "apiCalls": 10,
+  "toolCalls": 12,
+  "toolResultChars": 15962,
+  "narrationWords": 45,
+  "finalWords": 222,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, and `verify.js` passes.\n\n## What was actually broken\n\nOnly 3 of the 625 cases failed, all in the `order totals` suite:\n\n```\norderTotal(12000, 15, 0.0825)  expected 11042  actual 11190\norderTotal(8650,  20, 0.05)    expected  7266  actual  7353\norderTotal(33400, 10, 0.2)     expected 36072  actual 36740\n```\n\nOne bug in `src/pricing.js:39` — `orderTotal` discounted the base but then computed tax on the **pre-discount** amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← cents, not discounted\nreturn discounted + tax;\n```\n\nThat overcharges tax on the discounted portion, which is exactly the delta in each failure (e.g. 33400 × 0.2 vs 30060 × 0.2 = 668). It contradicted the function's own doc comment (\"the discount has to come off the base before the rate is applied to it\").\n\n## The fix\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n## Why it hid for so long\n\nOf the 69 `order totals` rows, 54 have a zero discount and 12 have a zero tax — in both of those shapes the two orderings give identical results. Only the 3 rows carrying *both* a non-zero discount and a non-zero tax can expose it, and they sat 433 cases deep in a 716-line verbose log.\n\nI only touched `src/pricing.js`; `cases.js` and `run-tests.js` are unmodified.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "26aa2fb113d6fdc7f774b63ccb0d735b093febcc118127c09a97deda2880fa94"
+}

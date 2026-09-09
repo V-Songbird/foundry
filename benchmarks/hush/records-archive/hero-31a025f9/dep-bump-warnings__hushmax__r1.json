@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushmax__r1",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31627,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2459247,
+  "numTurns": 9,
+  "durationMs": 30205,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1954
+  },
+  "contextTraffic": 364142,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 8195,
+  "narrationWords": 9,
+  "finalWords": 93,
+  "finalText": "Build's green now, 0 errors.\n\nTwo spots hadn't caught up with the bump. `resolveRetries` in `src/core/options.js` was still reading `options.retries`, but the new bundler passes `retryCount` — so it crashed on `undefined.toFixed()`. Fixed by reading the right field.\n\n`isBackoffEnabled` in `src/net/retryPolicy.js` only accepted `true` or `false` and threw on anything else. The new config loader leaves unset flags as `undefined` instead of `false`, which tripped that throw. Now `undefined` is treated as disabled, same as before.\n\nThe other 8 warnings are just deprecation noise from the bump, not bugs — left those alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "070ad466e061e97a434bfffbcf4f80c12c22ef7b5ab2845481f4c47d8b24178f"
+}

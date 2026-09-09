@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__hush__r3",
+  "batchId": "clause-11db33af",
+  "seed": "1787981395171",
+  "orderIndex": 5,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17724,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09366060000000001,
+  "numTurns": 10,
+  "durationMs": 16101,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1163
+  },
+  "contextTraffic": 159848,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 3257,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "finalText": "**Real cause is in `refresh.js`, not `tokens.js`.**\n\nWhen `auth.internal` returns `invalid_grant` (revoked refresh token), `refreshToken` catches it and returns `undefined` instead of throwing.\n\nOpen [refresh.js:15](src/auth/refresh.js:15). The catch swallows non-recoverable errors and returns `undefined` silently.\n\n`resumeSession` then hands that `undefined` straight to `decode`, which crashes at [tokens.js:6](src/auth/tokens.js:6) on `token.split('.')`.\n\nStack trace blames `tokens.js` because that's where the exception fires, but `decode` did nothing wrong. The bug is the silent `undefined` return for unrecoverable auth errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bb4c02c83f4a4e6999f2dcd2c843d7c956d1454def56415ef0ff012bc25ec540"
+}

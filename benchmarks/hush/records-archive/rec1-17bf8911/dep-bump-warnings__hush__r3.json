@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27112,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1107926,
+  "numTurns": 10,
+  "durationMs": 25058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1415
+  },
+  "contextTraffic": 191845,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6370,
+  "narrationWords": 11,
+  "finalWords": 72,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed. Fixing both call sites to match the new options shape."
+  ],
+  "finalText": "**Build's clean, exit 0.**\n\nTwo real bugs behind the noise, both from the bundler bump changing option shapes:\n\n- [src/core/options.js:6](src/core/options.js:6) — `resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Fixed to read `retryCount`.\n- [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) — `isBackoffEnabled` threw on `undefined` flags since the old loader used to send `false`. Simplified to a plain `=== true` check.\n\nThe remaining 8 warnings are just deprecation noise from Node/lockfile changes, not errors.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4e86d252e8de94ffe3cb1aae183e715e01ff7e5f2a12a8a17683add0b041101"
+}

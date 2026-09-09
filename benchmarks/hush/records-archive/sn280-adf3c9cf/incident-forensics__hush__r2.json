@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 48339,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2237586,
+  "numTurns": 14,
+  "durationMs": 40455,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2459
+  },
+  "contextTraffic": 469594,
+  "apiCalls": 12,
+  "toolCalls": 10,
+  "toolResultChars": 26346,
+  "narrationWords": 0,
+  "finalWords": 93,
+  "finalText": "Still failing at log's end, 03:59:27, no recovery.\n\n---\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy dep-4471 (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` false→true at 02:13:41. Pool size stayed 20. Requests now hold a connection per request instead of sharing, pool saturates, `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** Started 02:14:18 UTC. Still ongoing as of last log line, 03:59:27 UTC. Queue depth climbing throughout, 13 waiting at start, 74+ by end. Not self-healing.\n\n**Scope:** Gateway only. Checked worker.log same window, no pool errors, no 503s.\n\n**Rollback:** Revert dep-4471 (gateway.pool.perRequest back to false).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d8acf1a1c2e4ac6b353a29f47d9ee29252dc3ee6c43da2fd3c7aa7de89927de6"
+}

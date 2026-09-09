@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 45,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43511,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.33159350000000004,
+  "numTurns": 18,
+  "durationMs": 41759,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2657
+  },
+  "contextTraffic": 207166,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 16217,
+  "narrationWords": 9,
+  "finalWords": 129,
+  "assistantMsgs": 2,
+  "finalText": "**Big but mostly mechanical: 1082 hits in 94 files.** Four zones must not be renamed.\n\n| Zone | Hits | Why frozen |\n|---|---|---|\n| `migrations/` | 37 | Applied history. Editing breaks the down step. |\n| `vendor/reporting-sdk/` | 12 | Generated. `npm run vendor:refresh` overwrites it. |\n| `docs/openapi.yaml` | 5 | Public contract. Needs a new dated version. |\n| `lib/serialize.js` | 1 | `WIRE` right side is the public key. |\n\nAlso frozen: the SQL column name inside repo query strings, roughly 125 hits across 25 `repo/*.js` files. The DB column stays `account_id` until a migration renames it.\n\nSafe to rename now: about 900 JS identifiers in `services/` plus the field in `[lib/audit.js:8](lib/audit.js:8)`.\n\nAsk them to split it into two PRs: variables first, column later.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "60c44a996071347519b01678bc42a1e561bb64c610229f6b861b5a44a55dfad7"
+}

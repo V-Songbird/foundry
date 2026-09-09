@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rx4-4f2394ae",
+  "seed": "1786463924622",
+  "orderIndex": 11,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 60358,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4750421,
+  "numTurns": 13,
+  "durationMs": 53366,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2857
+  },
+  "contextTraffic": 543185,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 47412,
+  "narrationWords": 0,
+  "finalWords": 191,
+  "finalText": "Errors are still ongoing at the end of the log, 03:59:27, so the incident hadn't recovered as of the last entry. Now I have everything needed for the handoff.\n\n---\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (a.novak, gateway config, 02:12–02:14) flipped `gateway.pool.perRequest` from `false` to `true`. That stopped connections from being shared across requests, and the fixed pool of 20 connections ran dry within a minute of the config taking effect.\n\n**Impact window:** Started 2026-03-14 02:14:18 UTC, 37 seconds after the deploy finished. Still ongoing as of the last log line, 03:59:27 UTC, so this has been running well over an hour with no recovery. Requests fail with `ERR_POOL_EXHAUSTED`, and the `waiting` queue has climbed from 13 to 74+ over that time, so it's getting worse, not better.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window, no errors there, just one unrelated slow-query warning tagged `OPS-2210`.\n\n**Rollback:** Revert `dep-4471` (gateway config: connection-per-request for pool isolation). That's the only change in `deploys.csv` that lines up with the failure, and the timeline is exact — deploy finishes 02:14, config applies 02:13:41 in the gateway log, first pool exhaustion 02:14:18.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d66a752463e3d300798b41efac9a06cbff29ad2804b3d6d9292b5e2d07700756"
+}

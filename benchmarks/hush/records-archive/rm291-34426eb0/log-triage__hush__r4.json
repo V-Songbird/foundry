@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42234,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.297678,
+  "numTurns": 7,
+  "durationMs": 40535,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2090
+  },
+  "contextTraffic": 197316,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 11694,
+  "narrationWords": 6,
+  "finalWords": 112,
+  "assistantMsgs": 2,
+  "finalText": "**`Redis` died and took the app with it.** One cause, one chain.\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | Cache falls back to direct store reads |\n| 02:29:12 | Queue depth passes cap, `502 (max 500)` |\n| 02:31:44 | `worker-2` dies, `JavaScript heap out of memory` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nAll 13 `Redis` reconnects failed. Zero succeeded. No request served after 02:14:03. The 173 `TimeoutError` lines are noise from the same cause.\n\nOne catch. The log is dated `2026-07-04`, not last night. Check if you have a newer file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7198d635299534a0f27a48b055c400c24ae1a841241387866ef71ca650f59ccd"
+}

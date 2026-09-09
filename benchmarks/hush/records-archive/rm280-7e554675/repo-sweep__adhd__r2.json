@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 58,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54785,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.385339,
+  "numTurns": 12,
+  "durationMs": 53170,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3474
+  },
+  "contextTraffic": 225193,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 21411,
+  "narrationWords": 37,
+  "finalWords": 117,
+  "finalText": "All 12 remaining first-party files are migrated; every JS file still parses.\n\n**Migrated (36 call sites, 3 per file):**\n- `packages/accounts/src/repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js`\n- `packages/billing/src/repo/refund.js`, `service/couponService.js`\n- `packages/catalog/src/repo/supplier.js`, `admin/variantAdmin.js`\n- `packages/orders/src/repo/shipment.js`, `service/returnService.js`\n- `packages/analytics/src/repo/cohort.js`\n- `packages/support/src/repo/sla.js`, `admin/macroAdmin.js`\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the shape of already-migrated files like `packages/accounts/src/repo/user.js`.\n\n**Deliberately left alone:**\n- `vendor/legacy-orm/adapter.js` (2 calls) — header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, and local edits are silently lost. That needs an upstream fix or a wrapper, not an in-place edit. Flagging it since `db.query` can't be deleted from `lib/db.js` until it's resolved.\n- `cache.query(...)` calls throughout — that's the cache API, unrelated to this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "460c1e19b4afcec9af233f0c0ac97bfced8a852d5bcc4e86293e5e6fc5c627d2"
+}

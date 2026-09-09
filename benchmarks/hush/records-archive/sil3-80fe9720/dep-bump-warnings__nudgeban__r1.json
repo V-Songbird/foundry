@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__nudgeban__r1",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nudgeban",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36913,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.261567,
+  "numTurns": 10,
+  "durationMs": 34957,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1775
+  },
+  "contextTraffic": 190617,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7333,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "assistantMsgs": 1,
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, fall back to old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is now `undefined`, not `false` | Treat unset as off |\n\nThe 8 warnings left are real deprecations in code the build only names. `fs.exists`, `Buffer()`, `punycode`, `crypto.createCipher`, plus 4 more. Those files are not in this tree. Say the word and I will chase them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6b8b047ff61e07fdbf056aa33409e9e042c99265529fdf9dade970777126905d"
+}

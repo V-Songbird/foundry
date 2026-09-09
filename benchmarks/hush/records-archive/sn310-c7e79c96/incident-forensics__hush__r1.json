@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 47281,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19785360000000002,
+  "numTurns": 13,
+  "durationMs": 40465,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2402
+  },
+  "contextTraffic": 429421,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 16614,
+  "narrationWords": 23,
+  "finalWords": 91,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "Root cause is clear: a config reload right before it, and pool exhaustion after. Checking whether it ever recovers by end of file."
+  ],
+  "finalText": "**On-call handoff, gateway 503s**\n\n- **Root cause:** `dep-4471` (gateway, `a.novak`), deployed `02:12–02:14 UTC`. Flipped `gateway.pool.perRequest` `false -> true`. Pool connections exhausted within seconds of rollout.\n- **Impact window:** `02:14:18 UTC` to at least `03:59:27 UTC` (end of current log, still failing, not recovered). Errors are `ERR_POOL_EXHAUSTED`, pool size 20 fully saturated, backlog grew from 13 to 74 waiting requests.\n- **Scope:** gateway only. `worker.log` shows no errors or `503`s in this window.\n- **Rollback:** revert `dep-4471`, restore `gateway.pool.perRequest` to `false`.\n\nNext: roll back `dep-4471` and confirm `waiting` count drops to 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "48a1505ba561807ce5d1615a0a496bbd44d18ae79d6507ad218a928943b88d69"
+}

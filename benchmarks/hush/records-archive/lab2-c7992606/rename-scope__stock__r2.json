@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__stock__r2",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 34,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25592,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1087312,
+  "numTurns": 10,
+  "durationMs": 23802,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1950
+  },
+  "contextTraffic": 113709,
+  "apiCalls": 4,
+  "toolCalls": 9,
+  "toolResultChars": 12956,
+  "narrationWords": 0,
+  "finalWords": 204,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "This is well-documented in the repo itself, comments spell out every constraint.\n\n**Big: 1082 occurrences across 94 files, but most is safe to rename.**\n\nOff-limits, confirmed in-repo:\n\n| Location | Why frozen |\n|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | Public API contract, `account_id` is a documented field/query param, renaming breaks every client |\n| [lib/serialize.js:8](lib/serialize.js:8) | `WIRE` map ships `account_id` to JSON on purpose, comment says internal renames must not reach this side |\n| `migrations/*.sql` | Already applied in production, editing history doesn't rename a live column and breaks the down step |\n| [vendor/reporting-sdk/](vendor/reporting-sdk/src/schema.js:3) | Vendored/generated, \"Do not edit\", overwritten on next `vendor:refresh`, and it's the wire format to an external reporting service |\n| [lib/audit.js](lib/audit.js:3) | Audit log field, past log lines already carry `account_id` |\n\nEverything else, the actual DB column name and internal service code across `services/*/repo`, `service`, `http`, is fair game, that's the bulk of the 1082 hits. A real rename needs a new migration to rename the DB column plus `serialize.js` and `openapi.yaml` left untouched (or bumped as a new API version if the public name ever changes).\n\nSign-off take: approve renaming the internal column and code, block renaming the public wire field, vendor SDK, and historical migrations/audit records.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "344bdb60f41ce9f8172d61bd556e141ca35e400225cce5142ddd7e90cf179725"
+}

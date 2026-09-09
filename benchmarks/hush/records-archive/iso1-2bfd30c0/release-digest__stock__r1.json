@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r1",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 18,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 79593,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2450686,
+  "numTurns": 14,
+  "durationMs": 78087,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6166
+  },
+  "contextTraffic": 292683,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 31966,
+  "narrationWords": 0,
+  "finalWords": 113,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry** into [CHANGELOG.md](CHANGELOG.md).\n\nOut of 380 commits, almost everything was dep bumps, refactors, and test churn. Real user-facing changes: one breaking change (`401` replaces `403` for expired tokens), one feature (webhook retries with backoff), and nine fixes — null-cursor crashes on paginated endpoints, HTTP client hangs on shutdown, duplicate trailing slash, empty allowlist rejections, a duplicate response header, dropped trace ids on retry, request bodies leaking into logs, wrong latency-histogram units, and vaguer token-parser error text.\n\nWorth a second look: the `401`/`403` change and the request-body logging fix, since those affect client error handling and may touch sensitive data. Let me know if you want either reworded before the cut.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f860ea0011a01ceda5ce399e3f57ebbe40b016872729381d52eb5b0ac574ece1"
+}

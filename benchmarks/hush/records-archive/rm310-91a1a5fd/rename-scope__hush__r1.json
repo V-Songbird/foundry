@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 40,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 95825,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.474983,
+  "numTurns": 22,
+  "durationMs": 94145,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5428
+  },
+  "contextTraffic": 284054,
+  "apiCalls": 11,
+  "toolCalls": 21,
+  "toolResultChars": 16138,
+  "narrationWords": 0,
+  "finalWords": 108,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big, but the risk is narrow: 1291 hits, 94 files.**\n\nFive places must keep `account_id`:\n\n| Where | Hits | Why |\n|---|---|---|\n| `migrations/` | 61 | All 12 already applied in production |\n| [`docs/openapi.yaml`](docs/openapi.yaml:16) | 5 | Public contract, frozen |\n| [`vendor/reporting-sdk/`](vendor/reporting-sdk/README.md:3) | 20 | Generated, `vendor:refresh` overwrites edits |\n| SQL strings in `services/*/repo/` | 125 | DB column is still `account_id` |\n| `payload` JSON key in inserts | 25 | Old rows already use it |\n\n[`lib/serialize.js:8`](lib/serialize.js:8) needs a half rename. The key moves. The value `'account_id'` stays.\n\nThat leaves roughly 1055 safe renames.\n\nNext: ask them for a column-rename migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6b09a2edbac25e10d4dd0d572f5338f86f5f4ecebde461f4c2837bb0b1c03e99"
+}

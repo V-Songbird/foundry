@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "sn291-a1dafbca",
+  "seed": "1787887694776",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24566,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1080048,
+  "numTurns": 10,
+  "durationMs": 22288,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1857
+  },
+  "contextTraffic": 190278,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6687,
+  "narrationWords": 57,
+  "finalWords": 112,
+  "assistantMsgs": 4,
+  "finalText": "Builds clean now (exit 0). The bundler bump changed two contracts that two call sites hadn't caught up with:\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but this still read `options.retries` (undefined), crashing on `.toFixed()`. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but the strict check only handled `true`/`false` and threw on anything else. Fixed to treat `undefined` as disabled (`false`), matching the old loader's behavior.\n\nThe remaining ~950 lines of output are just deprecation/dedupe/progress noise from the bump (DEP0142, DEP0198, etc.) — not errors, and unrelated to the crash, so I left those alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4d81a0321f141d3242a491c2fd718bd1bd108bfcdba450164f6d5e192310eb96"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 90,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 65610,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3679748,
+  "numTurns": 15,
+  "durationMs": 59870,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3788
+  },
+  "contextTraffic": 570187,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 22895,
+  "narrationWords": 0,
+  "finalWords": 193,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (03:59:27Z). Needs rollback.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` via config reload (generation 118→119, applied 02:13:41Z). This caused the fixed-size-20 connection pool to saturate almost immediately — the per-request acquisition mode stopped reusing pooled connections effectively. Requests now queue for a pool slot, time out around 650–850ms, and return 503 (`ERR_POOL_EXHAUSTED`). The `waiting` queue has climbed continuously (13 → 172+) with no sign of self-recovery.\n\n**Impact window:**\n- Deploy shipped: `02:12:00Z – 02:14:00Z`\n- First 503: `02:14:18.972Z`\n- Still failing at last log entry: `03:59:27.974Z` (~1h45m and counting)\n- Scope: gateway only, hitting all four downstream routes round-robin (billing-svc, orders-svc, catalog-svc, accounts-svc). Confirmed via `worker.log` that background jobs (reindex/email/webhook/settle/export/cleanup) were unaffected — separate DB pool, `db_wait` stayed normal throughout.\n\n**Action: roll back `dep-4471`** (gateway config, connection-per-request change). No other deploy is implicated — `dep-4472` (billing-svc, 02:41Z) and `dep-4473` (catalog-svc, 03:20Z) both landed after the incident started and aren't the trigger, though `dep-4472` may be worth a second look afterward since the queue growth visibly steepens after it lands.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "63162f3c22f1baf5c810b6ef92b21bd1f2d3c7b259bcac0df2ece79bf68adae4"
+}

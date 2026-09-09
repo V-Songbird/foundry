@@ -1,0 +1,45 @@
+{
+  "key": "rename-scope__baseline__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 139715,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6510849999999999,
+  "numTurns": 22,
+  "durationMs": 138452,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10349
+  },
+  "contextTraffic": 313563,
+  "apiCalls": 12,
+  "toolCalls": 21,
+  "toolResultChars": 23125,
+  "narrationWords": 56,
+  "finalWords": 651,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll survey the codebase to scope this.",
+    "Let me look at the categories that matter — vendor code, migrations, and the public API surface.",
+    "Now let me trace a full vertical slice to see how the name flows through the layers.",
+    "Let me get exact counts per category and check the remaining lib and vendor files."
+  ],
+  "finalText": "## Scope\n\n**1,291 occurrences of `account_id` across 94 files.** Layout:\n\n| Area | Files | Occurrences |\n|---|---|---|\n| `services/**` (5 services × repo/service/http) | 75 | 1,200 |\n| `migrations/*.sql` | 12 | 61 |\n| `vendor/reporting-sdk/` | 4 | 20 |\n| `docs/openapi.yaml` | 1 | 5 |\n| `lib/` (serialize, audit) | 2 | 5 |\n\nThe services tree is extremely regular — 25 entities (invoice, order, cohort, session, …) each with an identical repo/service/http triplet. That's mechanical churn, not 75 files of independent judgment.\n\n## Where it must not be renamed\n\n**~338 of the 1,291 occurrences are frozen.** Four are hard blockers, and two of them sit *inside* files you'd otherwise rename freely — which is why a blanket find-and-replace is the wrong instrument here.\n\n**1. `vendor/reporting-sdk/` — 20 occurrences.** Generated, vendored copy of 3.8.1; `npm run vendor:refresh` overwrites the directory wholesale. Nothing in `services/` imports it, so it's fully isolated — just exclude the path. No adapter needed.\n\n**2. `migrations/*.sql` — 61 occurrences.** All 12 are applied in production (through 2025-06-24), and each carries a header saying so. Editing them renames nothing in a database that already ran them and breaks the down steps.\n\n**3. `docs/openapi.yaml` + the `WIRE` map in `lib/serialize.js:8` — 7 occurrences.** `account_id` is a documented public field on `Invoice` and `Order` plus a public query parameter. Renaming it is a breaking change needing a new dated API version. Note that `WIRE`'s entry `account_id: 'account_id'` is frozen on *both* sides — the right side is the public wire name, the left side is the DB column that `SELECT *` returns.\n\n**4. The live DB column, which surfaces in two disguises inside the repo layer:**\n\n- **SQL string literals — 125 occurrences.** `WHERE account_id = ?` names the production column. No migration renames it, so these stay.\n- **Persisted JSON keys — 25 occurrences.** This is the one I'd flag hardest. Every repo has `JSON.stringify({ ...values, account_id })` (e.g. `services/billing/src/repo/invoice.js:35`), writing `account_id` as a key into the `payload` JSONB column. Shorthand property syntax makes it look like a plain variable reference, so a rename tool silently turns it into `owner_id` — new rows then disagree with every existing row. It needs an explicit `{ ...values, account_id: owner_id }`, not a rename.\n\n**5. `req.session.account_id` — 100 occurrences in the http layer.** Nothing in this repo populates `req.session`; the shape is owned by auth middleware outside the tree. The read must stay `req.session.account_id` unless that middleware ships in lockstep. Good news on blast radius: if it did get renamed, `undefined` flows into `WHERE account_id = ?`, which matches nothing — so it fails closed with 404s and empty lists, not a cross-account leak.\n\n## One coupling worth deciding today\n\n`lib/audit.js:8` does `{ event, account_id: fields.account_id, ...fields }`. Rename the service layer's field without touching `audit.js` and every audit line gets `account_id: undefined`. The two must move together. Separately, audit field names are a soft contract for any dashboard or SIEM query keyed on `account_id` — worth a check with whoever owns log consumers, though I found no external sink in this tree.\n\n## What I'd sign off on\n\n**~950 occurrences are safely renameable** — internal params, locals, and object keys in the service layer (400), http layer (225), and repo layer (325), plus 75 comment mentions and 100 error-message strings that are cosmetic.\n\nI'd approve it as a **rename of the internal variable vocabulary only**, with `vendor/`, `migrations/`, `docs/openapi.yaml`, and `lib/serialize.js` excluded by path, and two explicit carve-outs inside the repo and http layers (SQL literals + payload keys; session reads). Renaming the *column* and the *public field* are two separate projects — an expand/migrate/contract on the database, and a new dated API version — and neither belongs in this change.\n\nThe check I'd want before merging: confirm `git diff` touches zero lines containing `sql:`, `req.session`, or `JSON.stringify`, and that the four excluded paths are untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2b2519dfd39a2a58f23755d52259e0731757be6f63e9800d1fc7688a56a45577"
+}

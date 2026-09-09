@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 16,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 93387,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.250305,
+  "numTurns": 15,
+  "durationMs": 91800,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8326
+  },
+  "contextTraffic": 248864,
+  "apiCalls": 7,
+  "toolCalls": 14,
+  "toolResultChars": 23566,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry** into [CHANGELOG.md](CHANGELOG.md).\n\nOut of 380 commits, almost everything was dep bumps, renames, and repeated refactors. The real signal:\n\n- **Breaking**: internal error types no longer re-exported from `db`, `core`, `auth`, `jobs`, `billing`\n- **Added**: webhook deliveries now retry with exponential backoff\n- **Fixed**: 11 real bugs — 401 vs 403 on expired tokens, paginator crash on null cursor, duplicate trailing-slash trim, empty allowlist handling, dropped trace id on retry, duplicate headers, leaking connection pool, hanging client timer, wrong latency units, full request bodies in logs, and a token-parser error message that echoed sensitive input\n\nWorth a second look before you publish: the \"tighten the token parser\" fix reads like it may have been masking a real info leak (input echoed in error text) — you may want to confirm with whoever wrote it whether that needs a security note rather than a plain bugfix line.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "72018720fe25bf598ee61798652893169a8979a00869f0c07f3620c38a9bff51"
+}

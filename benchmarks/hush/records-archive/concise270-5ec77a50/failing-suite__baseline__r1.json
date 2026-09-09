@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30327,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26522650000000003,
+  "numTurns": 11,
+  "durationMs": 28544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1773
+  },
+  "contextTraffic": 192112,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 12075,
+  "narrationWords": 8,
+  "finalWords": 192,
+  "finalText": "Green: 625/625 passing, exit 0.\n\n**What was actually broken** — 3 failures out of 625, all in `orderTotal`, all rows where the discount *and* the tax rate were both non-zero:\n\n`src/pricing.js:39` applied the discount correctly but then computed tax off the **pre-discount** base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nSo the customer was taxed on money they never paid — e.g. `orderTotal(12000, 15, 0.0825)` returned 11190 instead of 11042. The function's own doc comment already states the intended rule (\"the discount has to come off the base before the rate is applied\"), so the code was the thing out of step with the spec, not `cases.js`.\n\n**Fix** — tax the discounted amount, reusing the existing helper:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThe other 66 order-total rows passed before and after because each had either a 0% discount or a 0 tax rate, which makes both orderings agree — only the three mixed rows could expose it. Nothing else in the engine needed changing; `tiers.js` and the other eight suites were clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2ef40410e3b90d21741b55ff48f4adee1ead7d4c60a7a21947b973b620d0c70c"
+}

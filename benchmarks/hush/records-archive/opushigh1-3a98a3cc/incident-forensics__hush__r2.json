@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 211042,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.0266925,
+  "numTurns": 24,
+  "durationMs": 207384,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15513
+  },
+  "contextTraffic": 701305,
+  "apiCalls": 23,
+  "toolCalls": 20,
+  "toolResultChars": 12007,
+  "narrationWords": 8,
+  "finalWords": 61,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "Handoff is in [HANDOFF.md](HANDOFF.md).\n\nRoot cause: `dep-4471` flipped `gateway.pool.perRequest` to `true`. Pool size stayed at 20. Every request now pins a connection. Connection opens jumped 104x.\n\n**Impact ran `02:14:18Z` to `03:59:27Z`.** It was still broken at log end. 530 of 636 requests failed. Only `/health` passed.\n\nRoll back `dep-4471`. Also revert `gateway.timeout.upstreamMs` to `2000`.\n\nNext: check nodes 1 and 2 too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8fe81c1999f1fcd6ad84876a5613d26fbda29722e8800da222844134fd94e1d7"
+}

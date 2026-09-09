@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 27,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69897,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5796879,
+  "numTurns": 11,
+  "durationMs": 63067,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3468
+  },
+  "contextTraffic": 549990,
+  "apiCalls": 11,
+  "toolCalls": 7,
+  "toolResultChars": 42303,
+  "narrationWords": 0,
+  "finalWords": 108,
+  "finalText": "**Root cause.** `dep-4471`, a gateway config change by a.novak titled \"connection-per-request for pool isolation,\" shipped 2026-03-14T02:12–02:14Z. Within 15 seconds the pool started handing out all 20 connections and never freeing them — every request after that queued behind `ERR_POOL_EXHAUSTED` and came back as a 503. Workers, billing, and the rest stayed healthy the whole time, so this is a gateway-only pool bug, not a shared backend falling over.\n\n**Impact window.** 2026-03-14T02:14:14Z through at least 03:59:27Z, the end of the current log — still failing when the log cuts off, no sign of self-recovery.\n\n**Rollback.** `dep-4471` (gateway, a.novak, \"connection-per-request for pool isolation\"). That's the only deploy anywhere near onset.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "00966a51dd0f9dd786f100b479ee1a9ecbb197a2f78554f16239f194d1a61f22"
+}

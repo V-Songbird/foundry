@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 126,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 49131,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0697644,
+  "numTurns": 12,
+  "durationMs": 47535,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2376
+  },
+  "contextTraffic": 273755,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 9210,
+  "narrationWords": 0,
+  "finalWords": 86,
+  "finalText": "Build is clean. Fixed two bugs from the package bump:\n\n1. **options.js** — `resolveRetries` was looking for `options.retries`, but the new bundler passes `options.retryCount`. Changed the property name.\n\n2. **retryPolicy.js** — `isBackoffEnabled` threw when the flag was `undefined`, but the new config loader leaves unset flags as `undefined` instead of `false`. Added a check to treat `undefined` the same as `false`.\n\nThe remaining warnings in the output are just deprecation noise from Node itself (old APIs, removed modules) — nothing that needs fixing on your side.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6af95ddc887dafabd520ff03e871c473e48353e21aa72bba6e01df44eec260d3"
+}

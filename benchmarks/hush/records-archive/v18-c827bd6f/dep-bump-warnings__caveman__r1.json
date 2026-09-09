@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22723,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1686879,
+  "numTurns": 9,
+  "durationMs": 21321,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1523
+  },
+  "contextTraffic": 199610,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7730,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "finalText": "Build clean, exit 0. Two real bugs, deprecation noise stays (harmless).\n\n- `src/core/options.js` — `resolveRetries` read `options.retries`, new bundler shape is `retryCount`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js` — `isBackoffEnabled` threw on `undefined` flag (new loader leaves unset flags undefined instead of `false`). Now treats `undefined` as disabled.\n\nRest of warnings (DEP0142/0198/0233/0250/0267, unused-export, circular-import, `crypto.createCipher`) are just log noise from the fake bundler, not blockers — link stage passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "282b1f284ada13da9e2d1f9edae47aee8e389a0a96537fcd130b1029de525277"
+}

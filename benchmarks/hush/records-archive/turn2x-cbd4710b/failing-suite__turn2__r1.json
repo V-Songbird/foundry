@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__turn2__r1",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "turn2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29480,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23264089999999998,
+  "numTurns": 12,
+  "durationMs": 27729,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1498
+  },
+  "contextTraffic": 292301,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 17188,
+  "narrationWords": 0,
+  "finalWords": 61,
+  "finalText": "The bug was in `orderTotal` in `src/pricing.js` — it taxed the original price instead of the discounted one. Tax has to apply after the discount, since that's what the customer actually pays.\n\nChanged one line: `tax` now comes from `discounted * taxRate`, not `cents * taxRate`.\n\nAll 625 cases pass, and `verify.js` confirms the fix is real, not a rewritten test.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7aebd9dc89f9dbc07ea1e039e5685a3954927c59ef9a772c06b884f2fe0d8f06"
+}

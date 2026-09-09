@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 63,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 9572,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0225575,
+  "numTurns": 1,
+  "durationMs": 7789,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 517
+  },
+  "contextTraffic": 27056,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 165,
+  "finalText": "React re-renders a child whenever its parent re-renders, unless you stop it with `React.memo`. Even if the props look the same, you're probably passing new object or function references each time, which React sees as different props.\n\nThree common reasons:\n\n**Parent re-renders.** If the parent component re-renders, the child re-renders too. Wrap the child with `React.memo()` to skip that.\n\n**Object or function props change every render.** If you pass an object literal `{ foo: 'bar' }` or an inline function, it's a brand new object each render — so React thinks the props changed, even if the values are identical. Move these outside the component or memoize them with `useMemo` or `useCallback`.\n\n**Props really did change.** Use React DevTools Profiler to see exactly which props changed. The \"Props\" tab will show you the before and after.\n\nA quick test: add `React.memo(YourChild)` and see if renders stop. If they do, it's a new-reference problem. If they still happen, the parent is re-rendering for an unrelated reason.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f1e4ef1875ae194766b615a302eacaaf55098b9fb87faab0bec0e0ded21280fc"
+}

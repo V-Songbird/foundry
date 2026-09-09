@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__planword__r7",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 18,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "planword",
+  "rep": 7,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 10246,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06355,
+  "numTurns": 4,
+  "durationMs": 8425,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 604
+  },
+  "contextTraffic": 75975,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, not yet applied.**\n\n`buildRows()` in `[report.js](src/report.js)` already returns the plain data — no change needed there.\n\n```js\n// cli.js\nfunction main(argv) {\n  const command = argv[0];\n  if (command !== 'report') {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const json = argv.includes('--json');\n  const rows = buildRows();\n  process.stdout.write(json ? JSON.stringify(rows, null, 2) : toTable(rows));\n  process.stdout.write('\\n');\n  return 0;\n}\n```\n\nUpdate `USAGE` to mention `[--json]`.\n\nSay go and I'll apply it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dcc7e3beb1ced8a59c13e8d3b5f5e5e1ee0eebe730acb6d86dbaa65d18ec6997"
+}

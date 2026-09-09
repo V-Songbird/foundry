@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 36,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 128280,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.912781,
+  "numTurns": 59,
+  "durationMs": 126753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13122
+  },
+  "contextTraffic": 350420,
+  "apiCalls": 9,
+  "toolCalls": 58,
+  "toolResultChars": 43723,
+  "narrationWords": 6,
+  "finalWords": 64,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll search for remaining `db.query` calls."
+  ],
+  "finalText": "**Migrated 12 files, 36 call sites, to `db.execute({ sql, params })`.** All parse clean with `node --check`.\n\nLeft alone: `[vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9)` and `:13`. Its header says do not edit, since upgrades overwrite it. So `db.query` must stay in `lib/db.js` until that vendor drop ships a fix. Also left `cache.query` calls alone. Different object.\n\nNext: ask the vendor for an `execute` build, or wrap the adapter.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b42dd97a7c7ab004b172db4a260e9f75ad6d37996e7e43d9e8350d1dfa0d42c5"
+}

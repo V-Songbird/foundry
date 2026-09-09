@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 111,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34993,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2323903,
+  "numTurns": 11,
+  "durationMs": 33151,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1925
+  },
+  "contextTraffic": 318384,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 9449,
+  "narrationWords": 0,
+  "finalWords": 115,
+  "finalText": "Found it: `src/pricing/engine.js` was rounding to 2 decimals after the percent cut and again after the flat cut, both in USD, before ever converting to the order's currency. The reference (correct) logic rounds once, at the very end, in the target currency's own decimals.\n\nThat double rounding was invisible for USD orders (rate of 1) and for flat-only coupons, but once a percent coupon stacked with a real conversion rate — CAD, JPY, etc. — the early rounding baked in a tiny error that conversion then carried through, landing a cent off.\n\nRemoved the two intermediate `round()` calls so USD math stays exact until the single final rounding step. All 40 tests pass now, 94ms.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "017b85c4915856a1d7a2e2701110e0ee1e870b713d98be7a8c8390a91140790a"
+}

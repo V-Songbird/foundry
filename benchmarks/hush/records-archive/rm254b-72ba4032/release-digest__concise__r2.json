@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 43,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 66396,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.44421120000000003,
+  "numTurns": 8,
+  "durationMs": 64976,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5838
+  },
+  "contextTraffic": 251613,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 70545,
+  "narrationWords": 0,
+  "finalWords": 99,
+  "finalText": "Added the 4.2.0 section to CHANGELOG.md. Out of 380 commits, only 27 were `fix`/`feat` — everything else (deps bumps, refactors, CI/test churn, doc tweaks) is invisible to someone installing the package, so I left it out.\n\nOne thing worth a second look: `fix(auth): return 401 for an expired token instead of 403` — I filed it under Fixed since it's correcting wrong behavior, but any client code branching on `403` for expired tokens will break. You may want to call it out under a `### Breaking` heading instead, or at least flag it to whoever owns the auth client.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d7c9e7e3e59c64c44e800c282742ebcac69bf122028f160144f9a7adde82fa7d"
+}

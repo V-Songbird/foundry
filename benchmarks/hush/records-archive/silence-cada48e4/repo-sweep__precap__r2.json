@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__precap__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "precap",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 74221,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37786479999999995,
+  "numTurns": 37,
+  "durationMs": 72652,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10031
+  },
+  "contextTraffic": 384988,
+  "apiCalls": 8,
+  "toolCalls": 36,
+  "toolResultChars": 25746,
+  "narrationWords": 25,
+  "finalWords": 90,
+  "finalText": "All done. Twelve files were still calling the old `db.query`, and I've switched every one to the new `db.execute({ sql, params })` form: `teamService.js`, `couponService.js`, `supplier.js`, `variantAdmin.js`, `cohort.js`, `macroAdmin.js`, `sla.js`, `apiKeyAdmin.js`, `session.js`, `shipment.js`, `returnService.js`, and `refund.js`.\n\nOne file still calls the old form: `vendor/legacy-orm/adapter.js`. I left it alone on purpose. It's a vendored copy of a third-party library, and its own top comment says local edits get silently wiped on the next upgrade. If that one still needs to move over, it'll need to happen upstream, not in this repo.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "22e19910008aa313a406c76c721599cd384a15d16a42833599b8f21155bdf889"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49939,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2998595,
+  "numTurns": 11,
+  "durationMs": 48534,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3075
+  },
+  "contextTraffic": 232375,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 6488,
+  "narrationWords": 38,
+  "finalWords": 344,
+  "assistantMsgs": 5,
+  "finalText": "Build is green — exit 0, 0 errors.\n\nYou were right that not all of it was noise. Buried under the log were **two real breakages**, and they were sequential, so fixing the first only got you as far as the second:\n\n1. **`src/core/options.js:6`** — the bumped bundler renamed the option `retries` → `retryCount`. This call site never got updated, so `options.retries` was `undefined` and `.toFixed(0)` threw `TypeError: Cannot read properties of undefined`. That was the hard failure aborting the build. It now reads `retryCount` with a fallback to the old `retries`, so pre-bump callers keep working.\n\n2. **`src/net/retryPolicy.js:7`** — the old config loader defaulted unset flags to `false`; the new one leaves them `undefined`. The strict boolean check treated `undefined` as invalid and threw. Unset now means off, matching the pre-bump default.\n\nI kept a type guard in both instead of just defaulting silently — a genuinely wrong-typed value (a string, `NaN`) still throws rather than quietly resolving to `0`/`false`, which is what would make this class of bug hard to spot next time.\n\nTwo things worth flagging:\n\n- **The 8 warnings are still there, and that's expected.** They're deprecation notices (`DEP0142 fs.exists`, `DEP0198 Buffer()`, `punycode`, plus `crypto.createCipher`, an unused export, and a circular import). They don't fail the build, and clearing them is real migration work — separate from getting you unblocked. Say the word and I'll work through them; the `crypto.createCipher` one is the one I'd prioritize, since it's flagged \"remove before v5\" and `createCipher` is genuinely insecure (it derives keys with an unsalted MD5). The circular import between `core/graph.js` and `state/tracker.js` is the second I'd look at — undefined resolution order is a latent bug waiting for an unrelated change to trigger it.\n- **The files those warnings name don't exist in this tree** — no `src/legacy/adapter.js`, no `src/utils/format.js`. Only `options.js` and `retryPolicy.js` are here. So either this is a trimmed-down repo, or `build.js` is emitting a canned log. If it's the latter, the warning text won't change no matter what you fix, and chasing it would waste your time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "601c747344f21b6259f3607e23e2edf044a4c26f24be102139cf4bffdc82b824"
+}

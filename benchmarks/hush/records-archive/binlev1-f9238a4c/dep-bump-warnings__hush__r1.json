@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37036,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24212150000000002,
+  "numTurns": 10,
+  "durationMs": 35294,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1882
+  },
+  "contextTraffic": 149529,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6247,
+  "narrationWords": 7,
+  "finalWords": 72,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed `retryCount` | Accept both names |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined` | Treat unset as off |\n\nThe 8 warnings are real noise. They are `DEP*` deprecation notices from the bumped deps. Fixing them means touching `src/legacy` and dropping `punycode`.\n\nNext: say the word and I clear the deprecations.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "073f2656030ac696be4049267eed10467d937fc641ea4bc874012b1c5c90b278"
+}

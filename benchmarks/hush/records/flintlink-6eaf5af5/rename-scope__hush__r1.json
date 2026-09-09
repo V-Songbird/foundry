@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 9,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56420,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.371585,
+  "numTurns": 21,
+  "durationMs": 54873,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3764
+  },
+  "contextTraffic": 179587,
+  "apiCalls": 7,
+  "toolCalls": 20,
+  "toolResultChars": 18478,
+  "narrationWords": 7,
+  "finalWords": 140,
+  "assistantMsgs": 2,
+  "finalText": "**Big but bounded: 1082 hits in 94 files.** Three zones must not be renamed.\n\n| Zone | Files | Hits | Verdict |\n|---|---|---|---|\n| `services/**` internals | 75 | 1200 lines* | Safe to rename |\n| `migrations/*.sql` | 12 | 61 | Frozen. Already applied in prod |\n| `docs/openapi.yaml` + `lib/serialize.js` | 2 | 6 | Frozen. Public API contract |\n| `vendor/reporting-sdk` | 4 | 20 | Frozen. Overwritten by `vendor:refresh` |\n\n*Of the service hits, 125 sit inside SQL strings in `repo/` files. Those name the real DB column. They only change if a new migration renames the column.\n\n`lib/serialize.js:8` is the wall. `account_id` must stay on the right side of `WIRE`.\n\nSign-off is fine if the diff touches `services/**` only, minus repo SQL. Ask them for the migration plan before agreeing to the column.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cc67913b65d516ae09fdd0b3c267bf2c804547019589bbf0ed359fa2c0138d47"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__react__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 33,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 114967,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6414221999999999,
+  "numTurns": 31,
+  "durationMs": 108868,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8150
+  },
+  "contextTraffic": 833592,
+  "apiCalls": 18,
+  "toolCalls": 27,
+  "toolResultChars": 26369,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json`, and `NOTES.md` says that exact version was yanked by the publisher over a prototype-pollution report — `1.4.3` is the fix, and it was never applied.\n\n`AUDIT.md` is written with all four findings, ranked by severity:\n\n1. **`src/routes/internal.js`** — no auth at all on `/internal/metrics` and `/internal/flush-cache`, left exposed after the VPN in front of them was retired.\n2. **`src/repo/report.js`** — SQL injection in `runSavedReport` via string-concatenated filter and order fields.\n3. **`config/staging.js`** — a real database password committed in plaintext.\n4. **`package.json`** — `fast-parse` still on the yanked `1.4.2`, fix is `1.4.3`.\n\nNo service code was touched — just the new `AUDIT.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "887dbaaa850a21ce2ee8bf87428b894ffe8fc081520e4b7d364a1b8a575518d4"
+}

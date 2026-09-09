@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 27,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31283,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21537679999999998,
+  "numTurns": 10,
+  "durationMs": 27640,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1975
+  },
+  "contextTraffic": 353656,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 7393,
+  "narrationWords": 53,
+  "finalWords": 46,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` (`src/pricing.js:41`): tax was calculated on the pre-discount amount instead of the discounted amount, contradicting the function's own doc comment. Changed `tax = roundCents(cents * taxRate)` to `tax = roundCents(discounted * taxRate)`. Suite is green: 625/625 passing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "54ac8ef2c3993158f6be61725a613c2d22e7ad5f10bde4eddfcb4b5c5417694f"
+}

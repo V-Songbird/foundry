@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "fable-smoke-b89eb41d",
+  "seed": "1788890941069",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 54587,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.65938975,
+  "numTurns": 9,
+  "durationMs": 53369,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1266
+  },
+  "contextTraffic": 151740,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 12158,
+  "narrationWords": 0,
+  "finalWords": 59,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Suite is green.** 625 of 625 pass.\n\nOnly 3 cases failed. All were in `orderTotal`. It taxed the full price. The spec taxes the discounted price. Fixed at [src/pricing.js:40](src/pricing.js:40):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThe other 622 cases hid the bug. They had zero discount or zero tax.\n\nNext: nothing. No other code changed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ef0bf6e92dee53893e9a81606e4d93e31ef2d9ae6279d445483b6745c3cb553b"
+}

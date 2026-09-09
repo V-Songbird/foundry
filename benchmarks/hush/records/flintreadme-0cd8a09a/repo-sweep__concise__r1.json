@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__concise__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 14,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 112029,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.731144,
+  "numTurns": 49,
+  "durationMs": 110698,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11590
+  },
+  "contextTraffic": 319695,
+  "apiCalls": 11,
+  "toolCalls": 48,
+  "toolResultChars": 22496,
+  "narrationWords": 16,
+  "finalWords": 142,
+  "assistantMsgs": 4,
+  "finalText": "Migration complete — 12 files, 36 call sites moved to `db.execute({ sql, params })`:\n\n| Area | Files |\n|---|---|\n| admin | `accounts/apiKeyAdmin.js`, `support/macroAdmin.js`, `catalog/variantAdmin.js` |\n| service | `accounts/teamService.js`, `billing/couponService.js`, `orders/returnService.js` |\n| repo | `accounts/session.js`, `support/sla.js`, `analytics/cohort.js`, `billing/refund.js`, `orders/shipment.js`, `catalog/supplier.js` |\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js` (2 call sites)** — the file's header says it's a vendored copy replaced wholesale on upgrade and that local edits are silently lost. Editing it would break on the next `legacy-orm` bump. It needs either an upstream fix or a wrapper on our side; your call which.\n- **`cache.query(...)`** — that's the cache handle, not `db`, and unrelated to this deprecation.\n\n`lib/db.js` still exports `query` (marked `@deprecated`); it can be deleted once the vendor call sites are resolved. No tests found in the repo, so nothing was run to verify.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4e585c93a9501da7bce40c0a439a4d7efebc1e79b643f9104649f115dcb28726"
+}

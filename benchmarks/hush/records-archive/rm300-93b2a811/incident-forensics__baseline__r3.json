@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__baseline__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 290518,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.227426,
+  "numTurns": 27,
+  "durationMs": 285625,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 20339
+  },
+  "contextTraffic": 644537,
+  "apiCalls": 20,
+  "toolCalls": 23,
+  "toolResultChars": 36620,
+  "narrationWords": 9,
+  "finalWords": 843,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by finding and examining the log file."
+  ],
+  "finalText": "# On-Call Handoff — Gateway 503s\n\n**Status at end of available data: UNRESOLVED.** The log ends 2026-03-14T03:59:27Z with the gateway still failing at 83%. No recovery, no mitigation, and no restart is recorded.\n\n> **Read this first:** `logs/gateway.log` covers **2026-03-14 01:00–03:59 UTC only**, and the file was last written 2026-08-07. If you're picking up a live incident tonight, confirm you're not looking at a stale or rotated file — everything below describes the 03-14 event as recorded.\n\n---\n\n## Root cause\n\nConnection pool exhaustion in the gateway, caused by a config change that switched the pool to connection-per-request without resizing the pool.\n\nConfig generation 119 applied at **02:13:41.234Z**:\n\n```\ngateway.pool.perRequest:    false -> true     <-- the culprit\ngateway.timeout.upstreamMs: 2000  -> 2500     <-- aggravating\ngateway.log.sampleRate:     1.0   -> 1.0      <-- no-op\n```\n\nWith `perRequest: true`, every request holds its own connection instead of multiplexing. Pool size stayed at 20. The moment concurrency exceeded 20, the pool pinned and never recovered. The `upstreamMs` bump made it worse by holding each connection 25% longer before release.\n\nThe evidence is unambiguous — **every one of the 530 503s has a 1:1 paired pool error on the same timestamp and request ID**:\n\n```\n2026-03-14T02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nThere are only two distinct error strings in the entire file. **Zero upstream errors** — no connection-refused, no upstream timeouts, no 500/502/504. Pool telemetry goes from `in_use=3..11 idle=17..9 waiting=0` for 74 clean minutes to `in_use=20 idle=0` at every sample from 02:15 onward, with the wait queue peaking at **271**.\n\n**Not the cause, already ruled out:** upstream services (no upstream errors logged); the database or any shared dependency (`worker.log` shows its own pool flat at `in_use=1 idle=7 waiting=0` throughout); accounts-svc rate limiting from dep-4469 (shipped 2h43m earlier, and `/v1/session` failed 106 times — identical to the other four routes, not disproportionate).\n\n## Impact window\n\n| | |\n|---|---|\n| **Onset** | 2026-03-14T02:14:18.972Z (first 503: `req-07401 /v1/cart`) |\n| **First symptom** | 02:14:14.920Z — `acquire slow: waited 100ms`, 4s of warning |\n| **End of data** | 03:59:27.974Z, still failing |\n| **Duration** | **1h 45m and counting** |\n| **Error rate** | 83% steady state from 02:15 (25 of every 30 requests), flat in every 5-min bucket |\n| **Volume** | 530 failed of 1,228 total requests (43% across the full log) |\n\n**Failing — all customer paths, 106 failures each:** `/v1/cart`, `/v1/catalog/search`, `/v1/checkout`, `/v1/orders`, `/v1/session`.\n\n**Unaffected:** `/health` (180 requests, all 200, `pool_wait=2ms`) and `/v1/profile` (74, all 200, warnings only).\n\n⚠️ **Health checks stayed green for the entire outage.** `/health` returned 200 as recently as 03:59:23, while checkout was failing 83%. It evidently bypasses the connection pool and cannot detect this failure class. Do not trust it during this incident. This is likely why the page came from an error-rate alert at **03:21:05 — 67 minutes after onset** — rather than from health checking.\n\n## Roll back this\n\n**`dep-4471`** — gateway, 02:12:00–02:14:00Z, **a.novak**, *\"config: connection-per-request for pool isolation\"*\n\n**Action: revert gateway config generation 119 → 118.** This is config-only, not a code deploy, so it should be fast to apply and fast to undo. Confirm recovery by watching `pool stats` for `idle` climbing off 0 and `waiting` draining toward 0 — don't use `/health` as your signal.\n\nIf a full revert isn't acceptable because pool isolation was wanted for a reason, the alternative is to keep `perRequest: true` and raise pool size well above peak concurrency — but that needs a load test first, and I would not attempt it mid-incident. Roll back now, redesign later.\n\nTwo deploys shipped *into* the active outage and are unrelated but should be accounted for when you sequence the rollback: `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20). Error rate is flat 83% straight through both, so neither caused nor worsened anything.\n\n## Follow-ups (not tonight)\n\n1. **`/health` doesn't exercise the connection pool.** Highest-value fix here — it's the reason this ran 67 minutes before anyone knew.\n2. **Deploy pipeline doesn't gate on error rate.** Two deploys shipped blind into an 83%-error outage.\n3. **Config-only pushes skip the deploy safeguards.** dep-4471 was the shortest deploy in the file (2 min) and the one that took the site down.\n4. **Separate ticket — worker latency ramp.** Unrelated to this incident but real: job duration climbs linearly **+110ms per 10 minutes**, from 327ms (01:00) to 2,197ms (03:50), 6.7× over three hours. No inflection at 02:14, so it is not fallout from the gateway and the rollback won't fix it. `db_wait` stays flat at 5ms, so the time is in-process, not in queries — smells like a leak or unbounded queue. All 1,080 jobs still succeeded, so nothing is broken yet, but at +11ms/min the trend crosses common job timeouts within hours. Worth checking worker logs before 01:00 / after 04:00 to see whether a restart resets it.\n\nHappy to write this up as a ticket or drop it into a file if you want it somewhere other than this thread.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "145b9bbecc035f3d0c777b96148c6b02165e1c174cace71203e666bc3718ca36"
+}

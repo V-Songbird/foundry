@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__hush__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 31,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29194,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19883290000000003,
+  "numTurns": 10,
+  "durationMs": 27524,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1576
+  },
+  "contextTraffic": 269437,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 5870,
+  "narrationWords": 0,
+  "finalWords": 53,
+  "finalText": "**Fixed the coupon bug.** In `src/services/pricing.js`, flat coupons were being subtracted after converting to the target currency, treating a USD amount as if it were already in EUR (or whatever currency).\n\nNow the coupon amount comes off the USD subtotal first, then the result gets converted. All 5 tests in `tests/pricing.test.js` pass, 79ms.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ceec26c3a550adcaae34a402d8263dd93873c3922abd08c8811c9cd24b79ee65"
+}

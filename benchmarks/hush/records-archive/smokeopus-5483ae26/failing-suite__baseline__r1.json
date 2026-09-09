@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "smokeopus-5483ae26",
+  "seed": "1787067375562",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39472,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.46987599999999996,
+  "numTurns": 12,
+  "durationMs": 38174,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2538
+  },
+  "contextTraffic": 197321,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 15223,
+  "narrationWords": 113,
+  "finalWords": 225,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, and `verify.js` passes too.\n\n**What was actually broken** — one line in `src/pricing.js:41`. `orderTotal` applied the discount correctly but then computed tax off the original `cents` instead of the discounted amount, so it always over-taxed:\n\n| call | expected | was |\n|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 |\n\nThe fix (`src/pricing.js:39-42`):\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nTwo notes worth flagging:\n\n- **The old code only broke on orders with both a discount and a tax.** 66 of the 69 rows in the order-totals suite have one or the other set to zero, where `cents * rate` and `discounted * rate` coincide. If this shipped, the bug would have been invisible in aggregate revenue checks and only shown up on discounted-and-taxed orders — always overcharging the customer.\n- **Reusing `applyTax` rather than inlining the arithmetic** also fixes a rounding discrepancy: the old version rounded the tax separately and added it to a rounded subtotal (two roundings), while the spec rounds once on the final product. `applyTax` already does exactly that.\n\nNo other suite was touched — the remaining 622 cases were passing before and still are.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a6f0b6fad7fd15da071aaabb153d33945d312cb6ead30a34eab555e64104648"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 22,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 184242,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.817688,
+  "numTurns": 17,
+  "durationMs": 176944,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11503
+  },
+  "contextTraffic": 546461,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 10469,
+  "narrationWords": 0,
+  "finalWords": 86,
+  "finalText": "Handoff is written to `handoff-2026-03-14.md`.\n\n**Roll back `dep-4471`**, the gateway config by a.novak. It set `gateway.pool.perRequest` to `true`. The gateway then opened a new connection per request and drained the 20-slot pool.\n\nImpact window is `02:14:18.972Z` to at least `03:59:27.974Z`, still open.\n\nOne correction to what I said earlier. `/v1/profile` was not spared. It logs 106 slow-acquire warnings and no completion at all after 02:13:33. Those requests look like they are hanging, not failing. Real user traffic in the window is 100% failing. Only `/health` passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c33468f731fa8c329e4cdff28a6166e93edf896b5fd5999b9c52fd7840c59f7"
+}

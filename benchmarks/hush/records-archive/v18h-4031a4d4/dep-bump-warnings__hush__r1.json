@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 47223,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07464370000000001,
+  "numTurns": 14,
+  "durationMs": 45729,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2581
+  },
+  "contextTraffic": 308226,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 10748,
+  "narrationWords": 0,
+  "finalWords": 65,
+  "finalText": "Build's green. Found two real issues buried in the warnings:\n\n**options.js** expected `retries` but the new bundler passes `retryCount` — fixed the lookup.\n\n**retryPolicy.js** was too strict on the backoff flag — it treated `undefined` as an error instead of a falsy default. Added a check to return `false` when the flag is unset.\n\nThe deprecation warnings are all noise from the bump, not errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1205e730221f6d68a62ac94fc2a405530a6e056926ce36692db0cc4c11b49ae8"
+}

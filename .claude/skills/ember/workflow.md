@@ -7,7 +7,7 @@ Bash tool already sees it.
 ## 1. Build to scratch
 
 ```
-node docs/launch/mascot/ember-<plugin>.js <scratchpad>/mascot-<plugin>.svg
+node docs/<plugin>/launch/assets/ember-<plugin>.js <scratchpad>/mascot-<plugin>.svg
 ```
 
 The hush script takes no output argument and writes `mascot-hush.svg` beside
@@ -66,6 +66,6 @@ For a PNG of a frame (launch posts), headless Edge works only as
 
 ## 5. Record it
 
-Keep the authoring script under `docs/launch/mascot/` (local). Note the
+Keep the authoring script under `docs/<plugin>/launch/assets/` (local). Note the
 release in the plugin's state memory and, if the character or a rule
-changed, in `docs/adr/0006-readme-mascot-cartoon.md`.
+changed, in `docs/shared/adr/0006-readme-mascot-cartoon.md`.

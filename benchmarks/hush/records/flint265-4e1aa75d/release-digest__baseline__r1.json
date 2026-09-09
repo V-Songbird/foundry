@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 20,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 86982,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.786533,
+  "numTurns": 9,
+  "durationMs": 85577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6208
+  },
+  "contextTraffic": 367540,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 73778,
+  "narrationWords": 49,
+  "finalWords": 504,
+  "assistantMsgs": 5,
+  "finalText": "Drafted into `CHANGELOG.md:20`. Out of 380 commits, about 14 distinct things matter to a user — the rest is the same handful of refactors and bumps repeated across every module.\n\n**How I filtered.** Nearly every `refactor:` subject appears 3–6 times across different modules (`drop the unused v2 debug helper` alone lands 12 times). I collapsed each repeated subject into one line and dropped it entirely if it was internal. Same for the fixes: `guard the null cursor in the paginator` shipped four times in four modules — one line, modules named.\n\n**Three judgment calls worth your review:**\n\n1. **I promoted three \"refactors\" to Breaking.** `stop re-exporting the internal error types` (5 commits), `drop the unused v1 export route`, and the 401/403 change were all labeled `code` or `refactor`, not breaking. But \"internal\" and \"unused\" describe the authors' intent, not what consumers actually import. If you have telemetry showing nobody hit that v1 route or those type imports, downgrade them — I couldn't verify from history alone.\n\n2. **The 401/403 change is the one most likely to bite.** It's a plain bugfix internally, but any caller matching on `403` to detect expiry silently breaks. I put it first.\n\n3. **The histogram units fix changes emitted metric values.** Technically a fix, practically a dashboard-breaker, so I flagged the consequence inline.\n\n**What I deliberately left out:**\n\n- **All nine `perf:` commits** — batched metric writes, skipped JSON round-trips, dropped clones, reused parsed schemas. Real improvements, but your template locks to three headings and none of them fit. If you want them, the honest framing is a single line under Added; I'd need someone to confirm the actual numbers first, since the commits don't quantify anything.\n- **Dev-tooling bumps** (eslint, prettier, vitest, tsx, typescript, esbuild, husky) — invisible to installers.\n- **Runtime dep bumps** — pino, undici, fastify, pg, knex, ioredis, zod, nanoid, dotenv, all patch/minor. Worth a line only if your published dependency ranges shift; the log doesn't show the manifest, so I couldn't tell.\n\n**Two things you should check before cutting:**\n\n- **The minimum Node version.** Several `docs: note the minimum node version` commits landed and CI moved to Node 22, but nothing touched an `engines` field that I can see. If `engines` actually changed, that's a Breaking entry I don't have. If it's docs-only catching up to reality, ignore it.\n- **The date.** I used 2026-08-29 for tomorrow, but the last commit in history is 2026-06-17 — a ten-week gap. Either the log is stale or the branch has been frozen a while; if there are commits after 6/17, I haven't seen them.\n\nOne inconsistency, probably harmless: the PR sheet stops at #4246 on 6/17 and omits several commits in that window — `fix(http): clear the timer when the socket drops`, `fix(http): close the pool on shutdown`, and `perf(api): reuse the parsed schema` have no PR row. I sourced those from the commit log. Also, the sheet has duplicate PRs for identical bumps by different authors (#4120/#4121), which is why the raw counts look inflated.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9935e8aeb6a20b97ad0d7116bb6d1b84f6f879d35d0813082baddb2453045561"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__caveman__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 47,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 98318,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.480913,
+  "numTurns": 19,
+  "durationMs": 96756,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5645
+  },
+  "contextTraffic": 314026,
+  "apiCalls": 10,
+  "toolCalls": 18,
+  "toolResultChars": 15277,
+  "narrationWords": 0,
+  "finalWords": 435,
+  "finalText": "## Size\n\n**1291 occurrences, 94 files** (1082 matching lines). No `accountId`/camelCase variants — one spelling everywhere, so mechanical replace works *where allowed*.\n\n| Zone | Files | Hits |\n|---|---|---|\n| services | 75 | 1200 |\n| migrations | 12 | 61 |\n| vendor/reporting-sdk | 4 | 20 |\n| docs/openapi.yaml | 1 | 5 |\n| lib | 2 | 5 |\n\nServices split by layer: repo 475, service 400, http 325. Inside services: 800 plain code, 175 inside SQL strings, 100 error messages, 75 comments, 50 in `JSON.stringify` payload construction.\n\n## Must NOT be renamed\n\n**1. `docs/openapi.yaml` + right side of `lib/serialize.js:8`** — public wire contract.\n```js\naccount_id: 'account_id',   // public field name — frozen by the API contract\n```\nFile header says frozen; openapi says \"Renaming one is a breaking change for every client and needs a new dated version.\" Response body field and the `/v2/invoices` `account_id` query param stay. 5 + 1 hits.\n\n**2. `migrations/*.sql` (12 files, 61 hits)** — applied in production. Header states it: editing an applied migration renames nothing in a DB that already ran it, and breaks the down step. Column rename needs a NEW forward migration, not edits.\n\n**3. `vendor/reporting-sdk/**` (4 files, 20 hits)** — \"generated. Do not edit.\" `npm run vendor:refresh` overwrites. Side note: no service imports it — dead vendored code, zero blast radius, and zero reason to touch.\n\n**4. SQL column references in repo layer (175 hits)** — `WHERE account_id = ?` is the DB column. Can't change until #2 lands. Param *variables* on the same lines can rename.\n\n## Landmines, not hard blocks\n\n- `services/*/src/repo/*.js` insert path writes the key into JSONB:\n```js\nparams: [account_id, JSON.stringify({ ...values, account_id })],\n```\n  Shorthand key. Rename the variable and stored payload JSON silently changes key to `owner_id` — mixed keys across old/new rows, no migration covers it. 25 sites. Needs explicit `account_id: owner_id`.\n- Rows come from `SELECT *`, so internal row keys **are** column names. `serialize.js` left side must stay `account_id` until the column is renamed. Renaming only JS breaks serialization silently — field disappears from responses.\n- `lib/audit.js` emits `account_id` on every audit line. Log consumers/dashboards outside this repo may key on it. Verify before touching.\n\n## Sign-off recommendation\n\nDon't sign a single change. Safely renameable today: local variables, function params, object keys internal to service/http layers, comments, error strings — ~800 of 1291, mechanical, no consumer visible. Blocked until a real column migration + versioned API: everything above.\n\nIf they claim \"rename everywhere,\" it's a multi-phase migration (add column, dual-write, backfill, new dated API version, deprecate), not a today decision.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7f5effffd14acdf3d2e5364da523310d7c73bd22360b67b35e6910666cab7721"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r3",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 5,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 19304,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.155788,
+  "numTurns": 8,
+  "durationMs": 17540,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 986
+  },
+  "contextTraffic": 77961,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 3066,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: add `--json` in `cli.js`, serialize `buildRows()` straight to JSON.**\n\n```js\nconst USAGE = 'usage: cli.js report [--json]';\n\nfunction main(argv) {\n  const [command, ...flags] = argv;\n  if (command !== 'report' || flags.some((f) => f !== '--json')) {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const rows = buildRows();\n  const out = flags.includes('--json') ? JSON.stringify(rows, null, 2) : toTable(rows);\n  process.stdout.write(out + '\\n');\n  return 0;\n}\n```\n\nOne call for you. The table drops `owner` and `slow` on purpose, per the note in [format.js:3](src/format.js:3). JSON has no width limit, so I would print all six fields.\n\nThat means \"same data\" as `buildRows()`, not as the table. Say the word if you want the four table columns only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b046baa0917f71cc3d58d14ca360c74d53c7c94110f862536c220bc5e6a98712"
+}

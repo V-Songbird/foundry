@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38219,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2611285,
+  "numTurns": 10,
+  "durationMs": 36353,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2109
+  },
+  "contextTraffic": 163367,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 7681,
+  "narrationWords": 6,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Exit code `0`.\n\nTwo real bugs, both from the bump:\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, still accept old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is now `undefined`, not `false` | Treat unset as `false` |\n\nThe other 8 warnings are noise. They point at files like `src/legacy/adapter.js` that this repo does not contain. Nothing to do there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "672d58fbddc90f3b2543d7149a5de41b17caa96abd3a2efc329a97ad8146f6c0"
+}

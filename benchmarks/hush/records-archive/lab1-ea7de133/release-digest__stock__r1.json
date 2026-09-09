@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r1",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 121436,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4000344,
+  "numTurns": 12,
+  "durationMs": 119989,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9682
+  },
+  "contextTraffic": 437385,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 73981,
+  "narrationWords": 0,
+  "finalWords": 112,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry to [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, one real feature and nine fixes stood out from the dependency bumps and refactors:\n\n- **Breaking:** expired tokens now return `401`, not `403`\n- **Added:** failed webhook deliveries retry with exponential backoff\n- **Fixed:** null-cursor crash in pagination (api, queue, db, webhooks), duplicate response header, HTTP client hangs on dropped sockets and shutdown, double-trimmed trailing slash, empty allowlist handling, trace id lost on retry, wrong latency histogram units, full request body in logs\n\nWorth a second look before you publish: the `401`/`403` change is a real breaking change for anyone branching on status code. Everything else is additive or a pure fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f49629b823a2db4df1bb8db2187e248052de4041c9f35c66205b7780c9d9d81e"
+}

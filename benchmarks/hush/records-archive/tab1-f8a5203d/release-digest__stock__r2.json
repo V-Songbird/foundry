@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r2",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 79053,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24258720000000003,
+  "numTurns": 12,
+  "durationMs": 77493,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7118
+  },
+  "contextTraffic": 287776,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 23946,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote a 4.2.0 entry into `CHANGELOG.md`.**\n\nOut of 380 commits and 128 merged PRs, only 11 were user-facing. The rest was dep bumps, refactors, and internal churn.\n\nOne breaking change: auth now returns `401` for an expired token, was `403`. One new feature: webhook deliveries retry with exponential backoff instead of failing once. Eight fixes, the notable ones being the `db` layer no longer logging full request bodies and paginators no longer crashing on a null cursor.\n\nCheck the `401`/`403` change against any docs or SDKs that assert on status code before you ship.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d0054bd632d91fc29a73fb0eb499b52b8148e908e66a6944fb850355dcc220b8"
+}

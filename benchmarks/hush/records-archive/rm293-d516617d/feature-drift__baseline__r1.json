@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 49,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 111340,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6628864999999999,
+  "numTurns": 26,
+  "durationMs": 102563,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6041
+  },
+  "contextTraffic": 683931,
+  "apiCalls": 23,
+  "toolCalls": 21,
+  "toolResultChars": 12822,
+  "narrationWords": 10,
+  "finalWords": 175,
+  "assistantMsgs": 7,
+  "finalText": "Done. Dedup added, keyed on `event.key`, with the last-delivery time tracked in `state`.\n\nReplay confirms: `dropped: 99`, 0 errors. That matches the flaps events.js injects (every 9th event from i=9 on, repeating the previous key 2 minutes later) — every one is now swallowed, and nothing else is.\n\nTwo judgment calls, both easy to flip:\n\n- **Boundary is strict** (`at - lastSent < 5`), so a repeat exactly 5 minutes later still delivers. The flaps are all +2 min, so this doesn't affect the current numbers either way.\n- **Queued counts as sent.** A quiet-hour notification that goes to `queue` records its timestamp, so a flap 2 minutes later is dropped rather than queued twice. If you'd rather dedup only against real deliveries and let the queue collect every copy, that's the `channels.length` check to narrow.\n\nAlso worth noting: dedup is per key regardless of priority, so if a `low` event delivers and the same key escalates to `critical` two minutes later, the critical page is dropped. Say the word if escalations should break through.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0937864d3a164370649c13a365767e7294c084970d7474db2683fa63adbbb173"
+}

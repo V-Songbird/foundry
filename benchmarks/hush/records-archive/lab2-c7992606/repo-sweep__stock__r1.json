@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__stock__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 24,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 79272,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2795514,
+  "numTurns": 37,
+  "durationMs": 77744,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9970
+  },
+  "contextTraffic": 274381,
+  "apiCalls": 8,
+  "toolCalls": 36,
+  "toolResultChars": 23575,
+  "narrationWords": 25,
+  "finalWords": 52,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Now I'll migrate each of the 12 non-vendor files (each has the same 3-call shape).",
+    "Now verifying no `db.query` calls remain outside the vendored file."
+  ],
+  "finalText": "**Migration done.** Moved 12 files from `db.query` to `db.execute({ sql, params })`.\n\nLeft `vendor/legacy-orm/adapter.js` untouched, it's a vendored copy and says local edits get wiped on the next upgrade.\n\nNext step: that vendor adapter still calls the deprecated form, so `db.query` can't be removed from `lib/db.js` until it's upgraded or replaced upstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "38a9b09b09b13428f089a6efe21936e9aa765c4f5c8ee58886255fd3facc1d09"
+}

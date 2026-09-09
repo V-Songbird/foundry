@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__anchored__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "anchored",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 64222,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2093912,
+  "numTurns": 22,
+  "durationMs": 62608,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5936
+  },
+  "contextTraffic": 292992,
+  "apiCalls": 7,
+  "toolCalls": 21,
+  "toolResultChars": 12200,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "All 12 files migrated cleanly. `session.js` also has a `cache.query` call at line 18, but that's the cache module, not `db` — unrelated.\n\nThe only remaining `db.query` is in `vendor\\legacy-orm\\adapter.js`, which is a vendored file marked \"do not edit — replaced wholesale on every upgrade,\" so I left it alone. `db.query` in `lib/db.js` stays too, since that vendor file still depends on it.\n\nMigration's done: 12 files, 36 call sites (`get`, `list`, `update` in each), all now using `db.execute({ sql, params })`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "612c362e8fd0df0a93c38f2ce863f4fb790b531b48c1da5b3460ad511736176a"
+}

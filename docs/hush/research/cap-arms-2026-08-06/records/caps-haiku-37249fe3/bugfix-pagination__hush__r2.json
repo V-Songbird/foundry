@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-pagination__hush__r2",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 17,
+  "task": "bugfix-pagination",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 36043,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06227229999999999,
+  "numTurns": 11,
+  "durationMs": 34137,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2050
+  },
+  "contextTraffic": 238778,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 6588,
+  "narrationWords": 0,
+  "finalWords": 43,
+  "finalText": "The pagination was off-by-one — using `page * perPage` instead of `(page - 1) * perPage`. Since pages are 1-indexed (page 1 is the first), the start position needs to account for that. Fixed it in `paginate.js` and all 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d3dc466e045ccfe7027b3ed7c87de578ac40e36a9a2ef74f3807aa2bb85882df"
+}

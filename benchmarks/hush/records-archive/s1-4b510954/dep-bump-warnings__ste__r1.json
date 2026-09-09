@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31364,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.2147919,
+  "numTurns": 11,
+  "durationMs": 29924,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2237
+  },
+  "contextTraffic": 299890,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8555,
+  "narrationWords": 93,
+  "finalWords": 86,
+  "finalText": "The build now finishes with exit code 0.\n\nTwo real bugs caused the failure, both from the dependency bump:\n\n- `src/core/options.js:6` read `options.retries`, but the new bundler passes `retryCount`. Fixed to read the correct key.\n- `src/net/retryPolicy.js:8` threw when `backoffEnabled` was `undefined`. The new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` the same as `false`.\n\nThe rest of the output (DEP0xxx warnings, dedupe notes, tree-shaking notes) is normal noise from the bumped bundler and does not need a fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a5989a55afb2fd00285b7fe0a9e47526ffef61b9c7b6b6c42db59213841b5961"
+}

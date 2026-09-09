@@ -1,0 +1,40 @@
+{
+  "key": "repo-sweep__hush__r3",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 78946,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2980032,
+  "numTurns": 54,
+  "durationMs": 77425,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11195
+  },
+  "contextTraffic": 250479,
+  "apiCalls": 7,
+  "toolCalls": 53,
+  "toolResultChars": 26547,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Migration done.** Moved all 12 remaining `db.query` call sites to `db.execute({ sql, params })`, 3 calls each.\n\n| Package | File |\n|---|---|\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n| catalog | `admin/variantAdmin.js`, `repo/supplier.js` |\n| billing | `service/couponService.js`, `repo/refund.js` |\n| orders | `service/returnService.js`, `repo/shipment.js` |\n| accounts | `admin/apiKeyAdmin.js`, `service/teamService.js`, `repo/session.js` |\n\nLeft `vendor\\legacy-orm\\adapter.js` untouched, it's marked as replaced wholesale on vendor upgrades and not meant for local edits.\n\nNext: nothing on my end. Flag the vendor adapter to whoever owns that upstream sync if it needs the same fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a515959001a845ddb8abc96ec67f574a774b7aad422f0307a2cc88e01e845d40"
+}

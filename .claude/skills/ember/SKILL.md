@@ -1,6 +1,6 @@
 ---
 name: ember
-description: Draws or fixes an Ember scene — the Foundry mascot's animated SVG at `<plugin>/assets/mascot.svg`, authored by a `docs/launch/mascot/ember-<plugin>.js` script as pure SMIL on a 14 s loop. Use when the user asks to draw, change, or fix a mascot cartoon, an Ember scene, the README animation, or a mascot for a new plugin — e.g. "give X a mascot", "Ember's mouth looks wrong", "make an Ember scene for the launch post". Do NOT use for the data replays (`assets/demo.svg`, drawn by each harness's `runner/demo.js`) or the hero posters — only for Ember.
+description: Draws or fixes an Ember scene — the Foundry mascot's animated SVG at `<plugin>/assets/mascot.svg`, authored by a `docs/<plugin>/launch/assets/ember-<plugin>.js` script as pure SMIL on a 14 s loop. Use when the user asks to draw, change, or fix a mascot cartoon, an Ember scene, the README animation, or a mascot for a new plugin — e.g. "give X a mascot", "Ember's mouth looks wrong", "make an Ember scene for the launch post". Do NOT use for the data replays (`assets/demo.svg`, drawn by each harness's `runner/demo.js`) or the hero posters — only for Ember.
 ---
 
 # Ember
@@ -12,7 +12,7 @@ Anthropic's mascot, never a real animal. The owner approved the character and
 all three scenes on 2026-09-05; after that, a change to a mascot is a new ask,
 not a fix.
 
-The rules come from `docs/adr/0006-readme-mascot-cartoon.md` (local, never
+The rules come from `docs/shared/adr/0006-readme-mascot-cartoon.md` (local, never
 committed). In short: one mascot per README, directly under the `> **TL;DR**`
 block and above the data replay; a feeling, never a fact — no numbers, no
 quoted benchmark output; pure SVG with SMIL, because a GitHub README `<img>`
@@ -22,20 +22,20 @@ runs no script; both themes via `prefers-color-scheme`; no text under 13px.
 
 | Plugin | Scene | Script |
 | --- | --- | --- |
-| hush | chatter bubbles and a log pile, the blue `hush` pill, a paw to the mouth, calm typing, a note in hush's shape | `docs/launch/mascot/ember-hush.js` |
-| razor | a tower of extra boxes, the green `razor` pill, one swipe, the package leaves with a red cross, a YAGNI tag | `docs/launch/mascot/ember-razor.js` |
-| foreman | a paper storm and the persevering face, the green `Foreman` pill, papers gather into one list, three ticks | `docs/launch/mascot/ember-foreman.js` |
+| hush | chatter bubbles and a log pile, the blue `hush` pill, a paw to the mouth, calm typing, a note in hush's shape | `docs/hush/launch/assets/ember-hush.js` |
+| razor | a tower of extra boxes, the green `razor` pill, one swipe, the package leaves with a red cross, a YAGNI tag | `docs/razor/launch/assets/ember-razor.js` |
+| foreman | a paper storm and the persevering face, the green `Foreman` pill, papers gather into one list, three ticks | `docs/foreman/launch/assets/ember-foreman.js` |
 
 Each script writes the SVG; the SVG is the artifact and ships as
 `<plugin>/assets/mascot.svg`. The scripts, the character sheet
-`docs/launch/mascot/concepts.svg`, and this skill are local-only. Nothing a
+`docs/shared/launch/assets/concepts.svg`, and this skill are local-only. Nothing a
 plugin runs depends on them.
 
 ## How to make a scene
 
 1. Read [character.md](character.md) for the body, palette and accents, and
    [animation.md](animation.md) for the timeline, the helpers and the traps.
-2. Copy the closest `docs/launch/mascot/ember-<plugin>.js` to a new script.
+2. Copy the closest `docs/<plugin>/launch/assets/ember-<plugin>.js` to a new script.
    Keep the body block and the helpers; change only the scene around Ember.
    Every scene keeps the same beats on the 14 s clock, so the three read as one
    family.

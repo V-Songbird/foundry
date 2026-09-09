@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__concise__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 110,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54464,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3229345,
+  "numTurns": 8,
+  "durationMs": 53617,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2942
+  },
+  "contextTraffic": 195169,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 19742,
+  "narrationWords": 11,
+  "finalWords": 485,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll survey the codebase to see how big this actually is."
+  ],
+  "finalText": "## Size\n\n**1,291 occurrences across 94 files.** But it's a mechanical, highly repetitive rename — 25 identical entity slices (5 services × ~5 entities each), each with the same repo/service/routes triple:\n\n| Area | Occurrences | Files |\n|---|---|---|\n| `services/**` (repo + service + http) | 1,200 | 75 |\n| `migrations/` | 61 | 12 |\n| `vendor/reporting-sdk/` | 20 | 5 |\n| `lib/` | 5 | 2 |\n| `docs/openapi.yaml` | 5 | 1 |\n\nThe genuinely renameable part is the ~1,075 JS identifiers in `services/**` (params, destructured keys, local vars). That's a one-command codemod plus review. Half a day, not a sprint — *if* the four carve-outs below hold.\n\n## Must NOT be renamed\n\n**1. The public wire field — `lib/serialize.js` + `docs/openapi.yaml`**\n`lib/serialize.js:11` maps internal → public and says the right-hand keys are frozen by the API contract. `openapi.yaml` marks `account_id` as a required response property on `Invoice`/`Order` and as a public query param on `/v2/invoices`, with \"Frozen field name\" in the description. Renaming either side is a breaking change for every client and needs a new dated API version. The rename must stop at the map: `owner_id: 'account_id'`.\n\n**2. The database column — all SQL, including the 125 SQL string literals inside `services/*/src/repo/*.js`**\nOf the 475 repo-file occurrences, 125 are inside `sql:` strings (`WHERE account_id = ?`, `INSERT INTO invoices (account_id, ...)`). Those name a real Postgres column. Rename them in JS and every query breaks at runtime — not at build time, and the `lib/db.js` test double returns `[]` for anything, so tests won't catch it either. Renaming the column needs its own migration (plus the index names, and the FK `REFERENCES accounts (account_id)`).\n\n**3. Applied migrations — all 12 files in `migrations/`**\nEach header says it: applied in production, editing one renames nothing in a DB that already ran it and breaks the down step. These are history. Leave all 61 occurrences.\n\n**4. `vendor/reporting-sdk/` — 20 occurrences in 5 files**\nVendored generated copy of 3.8.1; `npm run vendor:refresh` overwrites the directory wholesale. Edits here are silently reverted on the next refresh. Also, `account_id` in `buildQueryRequest`/`buildSchemaRequest` is the upstream vendor's request field — renaming it would break the wire format to their API regardless.\n\n## What I'd tell the platform team\n\nAsk them which of these three renames they actually mean, because they're separate projects:\n\n- **Internal JS identifiers only** — safe, ~1,075 sites, sign off today. Needs a codemod that skips string literals, and skips `lib/serialize.js`, `migrations/`, `vendor/`.\n- **DB column too** — separate migration + a dual-read/backfill window. Not today.\n- **Public API field** — new dated API version + client migration. Months.\n\nOne thing worth flagging in review: `lib/audit.js:8` writes `account_id` as a literal key into audit records. If anything downstream parses those lines, that key is also a de facto contract — I'd check with whoever owns the audit sink before renaming it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ab3b1a3030f4331c1a3faf6859fb080675caa9337a8511a3c5bd446b91c6f7a8"
+}

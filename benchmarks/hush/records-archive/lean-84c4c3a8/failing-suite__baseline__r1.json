@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 2,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23958,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1793746,
+  "numTurns": 10,
+  "durationMs": 22531,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1632
+  },
+  "contextTraffic": 196074,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15170,
+  "narrationWords": 32,
+  "finalWords": 60,
+  "finalText": "The bug was in `orderTotal` (src/pricing.js:41): tax was calculated on the pre-discount amount instead of the discounted amount, even though the comment above it correctly said tax should apply to \"the amount the customer pays.\" Fixed by computing tax on `discounted` instead of `cents`. All 625 cases now pass, and `verify.js` confirms the fix is real (not a test-neutering hack).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "614440e3ac59197af5c20dd75486e7dd16369f32314c2e1ccff1ef53e3bd2732"
+}

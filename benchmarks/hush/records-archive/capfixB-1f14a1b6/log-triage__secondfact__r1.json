@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__secondfact__r1",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13530,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.3017256,
+  "numTurns": 3,
+  "durationMs": 11714,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 663
+  },
+  "contextTraffic": 112784,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 104,
+  "finalText": "Redis died at 2:14am and never came back. Every reconnect try failed, straight through to attempt 12 at 2:31am.\n\nWithout Redis, every request hit the store directly. Queue depth climbed past its limit of 500, all the way to 568. Requests kept timing out.\n\nAt 2:31:44am `worker-2` ran out of memory from the backlog and crashed. The supervisor restarted it, but eight seconds later the whole API stopped responding and got killed.\n\nRoot cause: Redis at `10.0.0.12:6379` going down with no fallback that could handle the load. Fix Redis first, then look at capping the queue so it fails fast instead of piling up.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b65c8088e52284aab7bcd04488a0c9a70cc9adacd7f139ff8eb68685d12ac510"
+}

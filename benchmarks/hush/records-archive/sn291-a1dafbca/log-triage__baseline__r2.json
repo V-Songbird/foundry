@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "sn291-a1dafbca",
+  "seed": "1787887694776",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27968,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.28963099999999997,
+  "numTurns": 5,
+  "durationMs": 26107,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1556
+  },
+  "contextTraffic": 200129,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60260,
+  "narrationWords": 0,
+  "finalWords": 372,
+  "assistantMsgs": 1,
+  "finalText": "Here's the timeline reconstructed from `logs/app.log`:\n\n**Root cause: Redis went down, and the fallback path couldn't absorb the load.**\n\n- **02:00–02:14** — Normal operation. `api`, `worker-1`, `worker-2`, and `scheduler` are all cycling healthy `GET /users`, `GET /orders`, `GET /health` requests every few seconds, cache hit ratio 90–98%.\n\n- **02:14:07** — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. The app immediately fails over: *\"cache layer degraded — falling back to direct store reads.\"*\n\n- **02:14:08 onward** — With Redis gone, every service starts hitting the backing store directly. This triggers a cascading overload pattern that repeats every ~2 seconds for the next 17 minutes:\n  - `cache miss storm` on sequential `orders:NNNN` keys\n  - `TimeoutError: request timed out after 5000ms (store overloaded)` from whichever service is polling\n  - `request queue depth` climbing steadily (52 → 568, way past the max of 500)\n\n- **Every ~2 minutes**, an automatic Redis reconnect attempt fires and fails (`redis reconnect attempt 0` through **attempt 12** at 02:31:26) — Redis at `10.0.0.12:6379` never came back during this window.\n\n- **02:31:44** — `worker-2` dies: `JavaScript heap out of memory (request backlog)` — the queue backlog finally exhausted memory.\n\n- **02:31:45** — Supervisor restarts `worker-2` (exit code 134 = SIGABRT from the OOM abort).\n\n- **02:31:52** — Fatal: `api unresponsive, killing process group — service down`. This is the actual outage moment — the supervisor gave up and killed the whole process group.\n\n**Summary:** Redis became unreachable at 02:14:07. The app's degraded-mode fallback (hitting the primary store directly on every miss) was not throttled, so request queues grew unbounded for ~17 minutes while Redis stayed down through 12 failed reconnect attempts. That backlog eventually OOM-killed a worker, and shortly after, the API process group was killed as unresponsive — that's the outage.\n\n**To prevent recurrence**, the two gaps worth fixing are: (1) no circuit breaker/backpressure on direct-store reads when the cache is down — it should shed load or serve stale/errors past a queue-depth threshold instead of queuing forever, and (2) Redis had no faster recovery/alerting — 12 reconnect attempts over 17 minutes with no escalation. One data note: the log's timestamps are all `2026-07-04`, not last night — worth confirming this is the right log file/rotation for the incident you're investigating.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b0a856ac9e78a28d67a92247c1e70526a3e21c016a583294448b3b9df5719d29"
+}

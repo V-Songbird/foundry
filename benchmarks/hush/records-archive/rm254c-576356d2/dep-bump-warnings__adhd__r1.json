@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26916,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20274,
+  "numTurns": 10,
+  "durationMs": 25719,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1876
+  },
+  "contextTraffic": 234934,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 16141,
+  "narrationWords": 44,
+  "finalWords": 158,
+  "finalText": "Build's clean now — exits 0. What was actually broken (buried under all the deprecation noise, which is harmless):\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but this still read `options.retries` (undefined), so `.toFixed(0)` threw. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but this had a strict boolean check that threw on anything besides `true`/`false`. Simplified to `flags.backoffEnabled === true`, which treats missing/undefined as disabled (same effective behavior as before, just tolerant of `undefined`).\n\nBoth were link-stage failures, not warnings — the build was actually erroring out (`EBUILD02 link-failed`), just scrolled past a screen of deprecation warnings. The remaining 8 warnings in the output are genuine deprecation notices (Node's `Buffer()`, `fs.exists`, punycode, etc.) plus a couple of real-but-non-blocking issues (unused export, circular import) — none of those block the build, so I left them as-is unless you want those addressed too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b2a591600f0a81c40346cca76f33bf0a55e4aeb69eed3955dc71649669167256"
+}

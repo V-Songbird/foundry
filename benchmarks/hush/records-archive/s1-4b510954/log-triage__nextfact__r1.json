@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__nextfact__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19284,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.1635293,
+  "numTurns": 5,
+  "durationMs": 17502,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 969
+  },
+  "contextTraffic": 159383,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 8894,
+  "narrationWords": 0,
+  "finalWords": 147,
+  "finalText": "Redis went down at 02:14:07, and everything after is the fallout.\n\nHere's the chain:\n\n1. **02:14:07** — `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache layer fell back to hitting the store directly.\n2. That fallback overloaded the store. Cache misses piled up, requests started timing out, and the queue kept growing, worker after worker.\n3. `api` retried the redis connection every ~80 seconds, 12 times, all refused. Redis never came back.\n4. **02:31:44** — `worker-2` ran out of memory from the backlog and crashed.\n5. **02:31:52** — the supervisor gave up and killed the whole process group. That's the outage.\n\nSo the real root cause is redis at `10.0.0.12:6379` going unreachable. Everything else (timeouts, queue growth, the OOM crash) was downstream of losing that cache. Worth checking why redis dropped and maybe adding a circuit breaker so a dead cache doesn't take the store down with it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6a8b0391c0c15b050b5cb8cb276fd4f6ffb138793d9f9cb6c9d612fd49a61d2b"
+}

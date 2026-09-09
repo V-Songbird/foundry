@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 127,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35548,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21522950000000002,
+  "numTurns": 10,
+  "durationMs": 33779,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1887
+  },
+  "contextTraffic": 277111,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8125,
+  "narrationWords": 18,
+  "finalWords": 83,
+  "finalText": "Builds clean now, exit code 0.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing shapes on you.\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `retryCount`. Fixed to read `retryCount`.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as an error, but the new config loader leaves it `undefined` instead of `false`. Now `undefined` is treated as disabled.\n\nRan `node build.js`: finishes in 44.9s with 8 warnings, 0 errors, exit code 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f97ea66be7071b9f1e687f28cec476a8caac32de09e6f3f645d62f4b66d6549d"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__unquote__r1",
+  "batchId": "sil2-377b29e6",
+  "seed": "1787898445241",
+  "orderIndex": 8,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "unquote",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43499,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-unquote:HushUnquote",
+  "costUsd": 0.321212,
+  "numTurns": 16,
+  "durationMs": 41802,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2987
+  },
+  "contextTraffic": 175184,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 14871,
+  "narrationWords": 9,
+  "finalWords": 97,
+  "assistantMsgs": 2,
+  "finalText": "**1082 hits across 94 files.** Only about 820 are safe to rename.\n\n| zone | hits | why not |\n|---|---|---|\n| repo SQL strings | 175 | real DB column names |\n| `migrations/` | 61 | applied history, breaks down steps |\n| `vendor/reporting-sdk` | 20 | generated, `vendor:refresh` overwrites it |\n| `docs/openapi.yaml` | 5 | frozen public contract |\n| `lib/serialize.js:8` | 1 | wire name clients read |\n\nSafe zone is JS locals, params, and object keys. The DB column needs its own migration. Do that first, or leave the SQL alone.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0e1027a5f66b7e1c41013536e509fc27a66a44411a626f1bbf9fe7b80b7f21e7"
+}

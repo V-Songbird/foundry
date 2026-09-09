@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__noill__r1",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 36,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 66981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.4560285,
+  "numTurns": 17,
+  "durationMs": 65433,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3967
+  },
+  "contextTraffic": 266039,
+  "apiCalls": 9,
+  "toolCalls": 16,
+  "toolResultChars": 24357,
+  "narrationWords": 7,
+  "finalWords": 53,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding the remaining callers."
+  ],
+  "finalText": "**Migrated 12 files off `db.query`.** All 33 call sites now use `db.execute({ sql, params })`. `node --check` passes on each.\n\nLeft alone: [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9) and `:13`. Its header says do not edit, since upgrades overwrite it. The `cache.query` calls are a different object and stayed put.\n\nNext: patch `legacy-orm` upstream, or wrap it locally.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "642cfaba41e4b82fb8f9572f212155f639569b1fb472d4f7a7c3dcda028804fa"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__caveman__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 63,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 41927,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1972044,
+  "numTurns": 12,
+  "durationMs": 40322,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3166
+  },
+  "contextTraffic": 170961,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 9828,
+  "narrationWords": 0,
+  "finalWords": 192,
+  "finalText": "**Scope: 94 files hit, but real edit surface smaller.**\n\nInternal call-sites (rename fine): services/accounts, orders, billing, analytics, notify — repo/service/route layers, straightforward var+param rename.\n\n**Must NOT rename:**\n\n1. `docs/openapi.yaml` + `lib/serialize.js` WIRE map — public API contract. Field explicit \"Frozen field name.\" Rename = breaking change for every external client, needs new dated API version, not touch today.\n2. `vendor/reporting-sdk/*` (4 files) — third-party vendored code. Not yours to edit, upstream contract.\n3. `migrations/*.sql` already applied (all except maybe newest) — editing history don't rename real DB column, breaks down-step. Comment in `20250114_create_accounts.sql` says so outright. Need new migration (`ALTER TABLE ... RENAME COLUMN`), not edit old files.\n4. `accounts.account_id` itself — self-referencing FK (`REFERENCES accounts(account_id)`), root/tenant pointer, not \"owner\" semantically. Renaming this one could misrepresent meaning even if platform team assume uniform rename.\n5. `lib/audit.js` — audit line semantics, worth check whether \"account_id\" here means actor context or owner before blind rename; low risk but flag.\n\n**Verdict:** safe to sign off for internal repo/service layer rename. Block scope to exclude vendor SDK, applied migrations, and public API contract (openapi + serialize WIRE) — those need separate deprecation path, not today's PR.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "74c7b1c34224c3432dcabcb99031980adc57ee82b2193d0003a9c8dccd221101"
+}

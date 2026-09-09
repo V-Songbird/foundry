@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r6",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 23,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 6,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30960,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.22608599999999998,
+  "numTurns": 13,
+  "durationMs": 29707,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2223
+  },
+  "contextTraffic": 336110,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 10547,
+  "narrationWords": 66,
+  "finalWords": 103,
+  "finalText": "Build's green now (exit 0). There were two real bugs hiding behind the deprecation-warning noise, both from the bundler's options shape changing:\n\n1. `src/core/options.js` — `resolveRetries` still read `options.retries`, but the bumped bundler now hands `{ retryCount }`. Fixed to read `options.retryCount`.\n2. `src/net/retryPolicy.js` — `isBackoffEnabled` strictly required `true`/`false` and threw on anything else, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` as `false`.\n\nThe remaining 8 warnings are just deprecation noise (`fs.exists`, `Buffer()` constructor, punycode, etc.) — not blocking the build, but worth cleaning up eventually if you want to silence them too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f667f0664c37651098957b19a8f7d6bd584ee5436acac56e38defc6bc9b34f40"
+}

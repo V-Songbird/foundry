@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 141,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 169576,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7982100000000001,
+  "numTurns": 15,
+  "durationMs": 165542,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11165
+  },
+  "contextTraffic": 467349,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 31349,
+  "narrationWords": 5,
+  "finalWords": 795,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll dig into the log."
+  ],
+  "finalText": "Here's the handoff, ready to paste.\n\n---\n\n# On-Call Handoff — Gateway 503s\n\n**Incident window:** 2026-03-14 02:14Z → 03:59Z+ (ongoing at end of log)\n**Severity:** Full customer-facing outage on `/v1/*`\n**Prepared from:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n\n## TL;DR\n\nGateway config change `gateway.pool.perRequest: false -> true` (deploy **dep-4471**) exhausted the gateway's 20-connection pool within 37 seconds of applying. **Roll back dep-4471.** Workers are unaffected — gateway only.\n\n## Root cause\n\nAt 02:13:41.234Z the gateway applied config generation 119 (`gateway.log:611-613`):\n\n```\ngateway.pool.perRequest:   false -> true\ngateway.timeout.upstreamMs: 2000 -> 2500\ngateway.log.sampleRate:     1.0 -> 1.0     (no-op)\n```\n\n`perRequest: true` makes every request take its own connection instead of reusing pooled ones. The pool is `size=20`. It saturated immediately and never recovered.\n\nEvidence:\n\n- **Pool state flipped instantly.** 5-min stats go from `in_use=10 idle=10 waiting=0` (02:10) to `in_use=20 idle=0 waiting=12` (02:15), then stay pegged at `20/0` for the rest of the log. Peak `waiting` reaches 271.\n- **One error type only** — 530 occurrences, all identical in shape:\n  ```\n  ERROR access req-07401 /v1/cart -> billing-svc 503 659ms\n  ERROR pool   req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n  ```\n  No upstream errors, timeouts, or resets anywhere in the file.\n- **Corroborating warning** at 03:02:30Z: `connection churn: 4180 opens in the last 5m, baseline is 40` — ~100×, exactly the signature of per-request connections.\n- **Not an upstream fault.** 503s spread evenly across all four upstreams (catalog 133, accounts 133, orders 132, billing 132) and all five `/v1/*` routes (106 each). A sick backend can't distribute that uniformly.\n\n## Impact window\n\n| | |\n|---|---|\n| **Onset** | 02:14:18.972Z — `req-07401 /v1/cart -> billing-svc 503` |\n| **Paged** | 03:21:05.282Z — `error_rate 5m avg is 71%` |\n| **Detection gap** | **67 minutes** |\n| **Last log entry** | 03:59:27.974Z — still `ERR_POOL_EXHAUSTED`, no recovery |\n| **Duration** | ≥1h 45m |\n\nPost-change traffic: **530 of 637 requests failed (83%)**. Of the 107 that succeeded, 106 were `/health` — so on customer-facing `/v1/*` routes it was **530 of 531, i.e. 99.8% failure**. `/health` kept passing because it doesn't take a pool connection, which is very likely why nothing paged for 67 minutes. Worth a follow-up ticket on health-check design.\n\n## Rollback\n\n**Roll back `dep-4471`** — gateway, a.novak, 02:12:00Z–02:14:00Z, *\"config: connection-per-request for pool isolation.\"*\n\nMinimum safe action: revert `gateway.pool.perRequest` to `false` (config generation 119 → 118).\n\nNotes for whoever executes:\n- Gen 119 also raised `gateway.timeout.upstreamMs` 2000→2500. That change is harmless on its own; a full gen-118 revert takes it with you, which is fine. Reverting only `perRequest` is the smaller-blast-radius option if your tooling allows key-level rollback.\n- **Do not roll back dep-4472 (billing, 02:41Z) or dep-4473 (catalog, 03:20Z).** Both shipped into an already-broken gateway and neither changes the error pattern. dep-4473 lands ~1 min before the page — that adjacency is a red herring if you're working backwards from the pager.\n- dep-4468/4469/4470 all finished between 22:11Z and 00:55Z, well clear; the log is clean through 02:10.\n- If reverting the config doesn't clear it, next check is pool `size=20` versus current traffic — but the pre-02:13 baseline ran comfortably at 3–11 in-use, so sizing was not the problem.\n\n## Not in scope / not affected\n\n**Workers are healthy.** `worker.log`, same window: 1,080 jobs, **all `finished ok`**, zero errors. Its own pool reads `size=8 in_use=1 idle=7 waiting=0` on all 19 samples — identical every time. Throughput flat at 120 jobs per 20-min bucket. Workers hold a separate DB pool and never touch the gateway's HTTP pool.\n\n**Separate pre-existing issue, do not conflate:** worker job durations climb steadily all night, ~200ms → ~2,324ms (6×). It starts at 01:00, 74 min *before* the gateway change, shows no inflection at 02:14, and is uniform across all six job types (602/1262/1922ms per hour, identical for every type). Not caused by this incident and not fixed by the rollback. `db_wait` stays ≤12ms, so it isn't the DB. Also rules out dep-4470's webhook backoff change, which would have hit webhook jobs only. **File separately.** There's also a single WARN at 02:36:22Z, `slow query 1.9s ... known issue OPS-2210` — already tracked.\n\n## Caveats for the next responder\n\n1. **This is one node.** `gateway.log` line 1 reads `node-3 of 3`; `worker.log` reads `4 replicas`. Both files look like single streams. The config generation bump implies fleet-wide, but I could not verify nodes 1–2 from this data. **Confirm before declaring scope.**\n2. **The log ends mid-incident** at 03:59:27Z, still failing. No rollback or recovery is recorded, and `deploys.csv` has no revert rows. Assume it was still broken at capture time unless you have fresher data.\n3. **Date check.** These logs cover **2026-03-14**, not last night. If you're responding to a live page right now, confirm you're reading current files — this capture may be an archive.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "842b73850487fa1b883fbf9b7a3913b25027817b4398dac034b6e76792967d28"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 27,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 36102,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.18158459999999998,
+  "numTurns": 9,
+  "durationMs": 34368,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1533
+  },
+  "contextTraffic": 228477,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 4674,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "finalText": "Found it and fixed it.\n\nThe flat coupon amount is stored in USD, but `pricing.js` was subtracting it *after* converting the subtotal to the checkout currency — so a $10-off coupon was being treated as if it were €10 off, or ¥10 off, whatever the currency happened to be.\n\nThe fix subtracts the flat amount from the USD subtotal first, then converts the result. Percent coupons were already fine, since a percentage doesn't care about currency.\n\nAll 5 tests in `tests/pricing.test.js` pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2c78b3059f32329816b3a887f01349dc320826f4453e9774de65e7588f0afd18"
+}

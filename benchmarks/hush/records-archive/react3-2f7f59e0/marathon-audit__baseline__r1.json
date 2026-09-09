@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 43,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 144792,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6011238,
+  "numTurns": 31,
+  "durationMs": 139185,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10390
+  },
+  "contextTraffic": 921534,
+  "apiCalls": 21,
+  "toolCalls": 27,
+  "toolResultChars": 22848,
+  "narrationWords": 53,
+  "finalWords": 109,
+  "finalText": "`AUDIT.md` is written and verified — all four findings pass the check, and the service tree is untouched (I only ran `node verify.js`, no edits to `src/`, `config/`, or `package.json`).\n\nFindings, most to least severe:\n\n1. **`src/routes/internal.js`** — internal metrics/cache-flush routes have no auth at all (VPN retired, follow-up fix never landed). Critical, live today.\n2. **`src/repo/report.js`** — `runSavedReport()` splices `filter`/`orderBy`/`direction` straight into SQL, unlike the parameterized `summaryFor()` next to it. Critical primitive, currently latent (no caller yet).\n3. **`config/staging.js`** — plaintext staging DB password committed, unlike dev/prod which use env vars. High.\n4. **`package.json`** — `fast-parse` still pinned at the yanked `1.4.2` (prototype pollution); fix is `1.4.3`. Medium.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4dac1212218b22b0055891634306acb23301afbb9baf0317635b3adc3fd9a558"
+}

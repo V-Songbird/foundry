@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__prevnext__r4",
+  "batchId": "next1-279f56e6",
+  "seed": "1787987410607",
+  "orderIndex": 14,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21588,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11968120000000002,
+  "numTurns": 11,
+  "durationMs": 19775,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1140
+  },
+  "contextTraffic": 203353,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 11631,
+  "narrationWords": 30,
+  "finalWords": 29,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed: only `order totals` fails, exactly where tax and discount both are non-zero. The bug's in [src/pricing.js:41](src/pricing.js:41) — tax is computed on the pre-discount `cents` instead of the discounted amount."
+  ],
+  "finalText": "**Fixed. All 625 tests pass.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Changed it to tax `discounted` instead of `cents`.\n\nNothing else needs attention.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3e91fe370529d1b53143183a5c45c015822893778eaf33f0c91c75e446834054"
+}

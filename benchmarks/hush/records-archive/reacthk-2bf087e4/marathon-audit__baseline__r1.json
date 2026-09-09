@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__baseline__r1",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 30,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 160642,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20638470000000003,
+  "numTurns": 47,
+  "durationMs": 154458,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10809
+  },
+  "contextTraffic": 977775,
+  "apiCalls": 28,
+  "toolCalls": 43,
+  "toolResultChars": 26989,
+  "narrationWords": 107,
+  "finalWords": 92,
+  "finalText": "Done. Updated AUDIT.md with complete dependency verification against NOTES.md and reorganized all findings by severity.\n\n**Five total findings:**\n\n**Critical:**\n1. Unauthenticated `/internal/metrics` and `/internal/flush-cache` endpoints (`src/routes/internal.js`)\n2. Hardcoded staging DB password in `config/staging.js` \n3. SQL injection in reporting layer via string concatenation (`src/repo/report.js`)\n\n**High:**\n4. Yanked `fast-parse` 1.4.2 dependency (needs 1.4.3)\n\n**Medium:**\n5. Unmaintained `date-fmt` 0.6.2 (flagged in NOTES as harmless but worth noting)\n\nAll findings point to the correct files, explain the vulnerability, and are ordered by severity. The service code remains untouched — this is a read-only audit as required.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eaee745a45f74d54cafb8e9c415a1cd0889ca0b1dd62ee5d89998b6d16f0841d"
+}

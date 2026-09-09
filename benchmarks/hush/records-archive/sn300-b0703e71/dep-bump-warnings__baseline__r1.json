@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23130,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1281142,
+  "numTurns": 9,
+  "durationMs": 21819,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1790
+  },
+  "contextTraffic": 202039,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 15661,
+  "narrationWords": 47,
+  "finalWords": 102,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Let me run the build to confirm the failure before fixing anything.",
+    "Confirmed — the real failure is buried under the deprecation noise: a `TypeError` in the link stage from `options.retries` being undefined. Both bugs stem from the bundler bump changing option shapes. Fixing both call sites."
+  ],
+  "finalText": "Build now exits clean (0 errors). Two real bugs were hiding under the deprecation-warning noise, both from the bundler bump changing option shapes:\n\n- `src/core/options.js`: `resolveRetries` still read `options.retries`, but the new bundler passes `{ retryCount }` — threw `TypeError` on `undefined.toFixed()`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js`: `isBackoffEnabled` only accepted literal `true`/`false` and threw on anything else, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` as disabled.\n\nThe remaining 8 warnings are just the deprecation/lint noise (`DEP0142`, `DEP0198`, etc.) baked into the build log — not errors, and unrelated to the crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d2a17adea4c021e8cc3c2851e7e4c3ca84d451b6ac9f1ed8b5981a0a5b3ef927"
+}

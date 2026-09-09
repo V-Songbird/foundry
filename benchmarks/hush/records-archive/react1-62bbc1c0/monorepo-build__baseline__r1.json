@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 46126,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2287538,
+  "numTurns": 12,
+  "durationMs": 44880,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2109
+  },
+  "contextTraffic": 366839,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 10844,
+  "narrationWords": 71,
+  "finalWords": 117,
+  "finalText": "`verify.js` also confirms the fix passes.\n\n**Root cause**: `packages/shared/config.js:15` used a shallow `Object.assign` to layer per-package overrides onto `RELEASE_DEFAULTS`. Since packages like `@acme/api` and `@acme/web` override only part of the nested `output` object (e.g. just `format`), the shallow merge replaced the whole `output` object and dropped `dir`/`entry`, which the bundle stage requires — that's what was aborting the build after the (unrelated) lint pass.\n\n**Fix**: added a `mergeLayer` helper that does a one-level-deep merge for object-valued keys (`output`, `sourcemap`) so partial overrides only touch the keys they name, and used it for both the defaults→overrides and overrides→cliFlags layering.\n\nBuild now finishes with exit 0 (\"build finished in 74.3s with 5 warnings, 0 errors\"), and `verify.js` passes too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a9b557f5f6e5da473e2e3183ba651112376ce12130b2a775d3107b0c20737e3b"
+}

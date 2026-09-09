@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 92,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 183121,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.8235785,
+  "numTurns": 19,
+  "durationMs": 175526,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11619
+  },
+  "contextTraffic": 637431,
+  "apiCalls": 18,
+  "toolCalls": 15,
+  "toolResultChars": 22033,
+  "narrationWords": 8,
+  "finalWords": 769,
+  "finalText": "# On-call handoff — gateway 503 outage\n\n**Status at end of evidence: NOT RESOLVED.** The gateway was still failing on the last line of the log. Confirm the current state before you act.\n\n**Date warning.** All evidence is from 2026-03-14. Today is 2026-08-27. The log file `logs/gateway.log` may be an archived copy. If this incident is live now, verify that you are reading current logs.\n\n---\n\n## 1. Root cause\n\nDeploy dep-4471 set `gateway.pool.perRequest` from `false` to `true`. Each request then took its own connection from the pool. The pool size stayed at 20. The pool saturated in under 40 seconds and never recovered.\n\nThe same deploy raised `gateway.timeout.upstreamMs` from 2000 to 2500. Each held connection lasted longer, so the wait queue drained slower. This is a secondary factor, not the cause.\n\nEvidence: all 530 pool errors report `in_use` equal to `size` (20). No upstream error, timeout, or refused connection appears in the log. The pool is the only failure point.\n\n## 2. Impact window\n\n| Marker | Time (UTC) |\n|---|---|\n| Deploy dep-4471 started | 02:12:00 |\n| Config applied | 02:13:41.234 |\n| Last successful customer request | 02:13:41.234 |\n| First 503 | 02:14:18.972 |\n| On-call paged | 03:21:05 |\n| Last line of log, still failing | 03:59:27.974 |\n\n**Customer impact: 02:13:41Z to 03:59:27Z, at least 1 hour 46 minutes.** The outage was still active when the log ends.\n\nImpact detail:\n\n- 530 responses with status 503.\n- 5 routes affected: `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`.\n- All 4 upstreams affected: `orders-svc`, `catalog-svc`, `billing-svc`, `accounts-svc`.\n- Failure rate was flat from the first minute. There was no ramp.\n\n**Detection gap: 67 minutes.** The page fired at 03:21:05, but the failure started at 02:14:18. The cause is the health check. All 106 successful requests after 02:14 were `/health`, each with `pool_wait=2ms`. The health check does not use the connection pool, so the node reported healthy while every customer request failed.\n\n## 3. Roll back this deploy\n\n```\ndep-4471  gateway  2026-03-14T02:12:00Z  a.novak\n\"config: connection-per-request for pool isolation\"\n```\n\nDo the following:\n\n1. Roll the gateway config back from generation 119 to generation 118.\n2. If a full rollback is not possible, set `gateway.pool.perRequest` to `false` as a single-key change.\n3. Confirm that non-health traffic returns status 200 again.\n4. Apply the change to all 3 nodes. See open item 1.\n\nDo not roll back dep-4472 or dep-4473. Both landed after the outage started and neither is a cause.\n\n**Alternative, if the team wants to keep connection-per-request:** raise `gateway.pool.size` well above 20 first, then re-apply the change. Size the pool to peak concurrent requests, not to peak connections. Test this in staging. Do not test it in production during the incident.\n\n## 4. Ruled out\n\n- **The workers.** `logs/worker.log` covers the same window. It holds 0 errors and 1080 jobs, all `finished ok`. The worker pool sat at `in_use=1 idle=7 waiting=0` for all 3 hours.\n- **The database.** Worker `db_wait` held flat at 5ms average and 12ms maximum, before and after 02:14.\n- **The other deploys.** dep-4468, dep-4469 and dep-4470 all finished more than an hour before the failure. dep-4472 (02:41) and dep-4473 (03:20) landed after it started. dep-4473 finished 4 minutes before the page, so it looks guilty on a timeline. It is not.\n\n## 5. Open items for the next on-call\n\n1. **Check node-1 and node-2.** This log is `node-3 of 3`. Confirm that the config reached all 3 nodes, and confirm that all 3 failed.\n2. **Fix the health check.** `/health` must use the connection pool. Without this change, a pool outage stays invisible to the monitor.\n3. **Separate worker issue, not urgent.** Worker job time climbs in a straight line, +110ms per 10 minutes, from 327ms to 2197ms. The ramp is already in progress at 01:00, which is 70 minutes before the deploy. It is unrelated to this outage. `db_wait` never moves, so the cause is not the database. Pull worker logs from before 01:00 to find the start.\n4. **Low priority.** One slow query fired at 02:36: `SELECT * FROM orders WHERE status = ?`, 1.9s, unindexed scan. It is tracked as OPS-2210. It is not related to this outage.\n\n## 6. Evidence quality\n\nOne caveat on the pool numbers. The `waiting` counter reaches 271, then drops to low values such as 14 and climbs again, with no restart or drain message between. It looks like a wrapping or per-worker counter. Trust the trend, which is a growing queue. Do not quote the absolute peak in a postmortem.\n\nEverything else in this handoff comes from exact log lines and from `deploys.csv`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9b5b36c381c94de230fe22f43f9b1fc3df18ddc7dd60d95f22cd8e28a1b5392f"
+}

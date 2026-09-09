@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r5",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 21,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 5,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24759,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1926717,
+  "numTurns": 11,
+  "durationMs": 23422,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1918
+  },
+  "contextTraffic": 255595,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 9765,
+  "narrationWords": 65,
+  "finalWords": 99,
+  "finalText": "Build is clean (exit 0). The screen full of warnings was mostly noise (deprecation notices from the bump), but two real bugs were hiding in the link stage:\n\n- `src/core/options.js:6` — still read `options.retries`, but the bumped bundler now hands options as `{ retryCount }`, so it crashed on `undefined.toFixed()`. Fixed to read `retryCount`.\n- `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` instead of `false`, but the check only handled `true`/`false` and threw on anything else. Fixed to treat `undefined` as disabled.\n\nBuild now finishes with the original 8 (harmless) deprecation warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8a1be4152bced894dc2b6caaba537c94267264fd65ae60b94589549573f313f1"
+}

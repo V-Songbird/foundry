@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 35,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 46127,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.32080849999999994,
+  "numTurns": 11,
+  "durationMs": 44561,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3178
+  },
+  "contextTraffic": 176463,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 15890,
+  "narrationWords": 61,
+  "finalWords": 166,
+  "assistantMsgs": 5,
+  "finalText": "Migration finished. 12 files were still on `db.query`, all now converted to `db.execute({ sql, params })`:\n\n| Area | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| analytics | `repo/cohort.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n\nThat's 34 call sites, matching the shape already used by the earlier passes (e.g. `packages/catalog/src/repo/product.js:9`). No non-JS files (docs, config, tests) referenced the old call.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so editing it would be undone by the next bump. To retire `db.query` from `lib/db.js` entirely, this needs handling upstream or via a shim/wrapper rather than an in-place edit. Worth a decision before you delete the old method.\n- **`cache.query(...)`** calls (in the `cached*` helpers) are untouched — different object, different API.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed41826b3d075028a083cf83e3303da5979554da242f0a90352226f2fa7e0d8a"
+}

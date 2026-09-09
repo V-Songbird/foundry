@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__labelfind__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22255,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10966460000000001,
+  "numTurns": 9,
+  "durationMs": 20476,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1535
+  },
+  "contextTraffic": 167950,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7866,
+  "narrationWords": 0,
+  "finalWords": 53,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is clean now, exit 0.**\n\nTwo real bugs, both from the bundler's new options shape:\n\n- [options.js](src/core/options.js:6) read `options.retries`, but the new bundler sends `retryCount`. Fixed to match.\n- [retryPolicy.js](src/net/retryPolicy.js:7) threw on `undefined` flags instead of treating them as `false`. Fixed.\n\nRest of the warnings were deprecation noise, left alone.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c96f1e42a44ad2fa47818b4b4c069b0cb6a5680b20075b5ee233d65351c10d2d"
+}

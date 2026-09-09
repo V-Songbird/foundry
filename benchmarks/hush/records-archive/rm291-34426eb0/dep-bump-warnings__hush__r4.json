@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32948,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23969900000000002,
+  "numTurns": 10,
+  "durationMs": 31163,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1666
+  },
+  "contextTraffic": 161526,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 6483,
+  "narrationWords": 6,
+  "finalWords": 72,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat `undefined` as `false` |\n\nThe 8 remaining warnings are real deprecations. `fs.exists`, `Buffer()`, `punycode`, and a circular import between `src/core/graph.js` and `src/state/tracker.js`. Say the word and I'll clear those too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "48e37e60790c1b19053916b63f2899f0ec49c2491d4345ffb710df77cbd7852c"
+}

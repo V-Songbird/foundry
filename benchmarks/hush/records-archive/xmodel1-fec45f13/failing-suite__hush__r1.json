@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 15,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27817,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1329738,
+  "numTurns": 12,
+  "durationMs": 26035,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1445
+  },
+  "contextTraffic": 238188,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12805,
+  "narrationWords": 0,
+  "finalWords": 58,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. All 625 tests pass.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the full pre-discount amount instead of the discounted one.\n\n```\ntax = roundCents(cents * taxRate)   // wrong\ntax = roundCents(discounted * taxRate)   // fixed\n```\n\nOnly showed up when both discount and tax were non-zero, which is why 622 of 625 cases passed anyway.\n\nNext: nothing, suite is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cab67455abcce0e1b90366498a592a063947cd1f85c4b9b1e42312dcb2fd3445"
+}

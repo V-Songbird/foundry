@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39139,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2187908,
+  "numTurns": 12,
+  "durationMs": 37822,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2602
+  },
+  "contextTraffic": 298034,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 11616,
+  "narrationWords": 84,
+  "finalWords": 98,
+  "finalText": "Fixed. The 5 lint warnings were always cosmetic (build.js just prints them, exit 0) — the real failure was in `packages/shared/config.js:15`: `resolveRelease` merged layers with a shallow `Object.assign`, so a package overriding one nested key (e.g. `@acme/api` setting `output.format`) blew away its sibling keys (`output.dir`, `output.entry`), tripping the \"no output.dir\" check in `build.js` and aborting with `EBUNDLE07`.\n\nI replaced it with a recursive `deepMerge` that merges nested plain objects key-by-key instead of replacing them wholesale, without mutating `RELEASE_DEFAULTS`. `node build.js` now exits 0, and `node verify.js` confirms the layering rule holds even for overrides the fixture never shipped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2daffab4c227ef57c7b33cf2b56429c5beaf596b9fe20d8aa81478db3b678d45"
+}

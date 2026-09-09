@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11933,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2918954,
+  "numTurns": 3,
+  "durationMs": 10757,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 578
+  },
+  "contextTraffic": 145921,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 134,
+  "finalText": "**02:14:07** Redis died (`ECONNREFUSED 10.0.0.12:6379`), api fell back to direct store reads.\n\n**02:14:07 → 02:31:26** No recovery — 12 reconnect attempts every ~2min, all failed. Store got overloaded, every request started timing out at 5000ms, and the request queue climbed steadily (52 → 568, past the max-500 limit around 02:25:48).\n\n**02:31:44** worker-2 OOM'd from the backlog and crashed (exit 134).\n\n**02:31:52** api stopped responding, supervisor killed the whole process group — that's the outage.\n\nRoot cause: Redis at `10.0.0.12:6379` went down and never came back. Nothing shed load once queue depth blew past its own 500 cap, so the backlog just grew until a worker OOM'd and took the service with it.\n\nNext: check why Redis at 10.0.0.12 went down (host/network issue, OOM on the Redis box itself, etc.) — that's outside this log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6497be8b4afcf6eeea2a2e1e3a7a69601e4dd8201c0cd2af89626c42b3eee62"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r7",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 20,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 7,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 10212,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06327100000000001,
+  "numTurns": 4,
+  "durationMs": 8616,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 560
+  },
+  "contextTraffic": 76046,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 59,
+  "assistantMsgs": 1,
+  "finalText": "`buildRows()` already returns the full data. Plan:\n\n```js\nfunction main(argv) {\n  const command = argv[0];\n  if (command !== 'report') { ... }\n  const json = argv.includes('--json');\n  const rows = buildRows();\n  process.stdout.write(json ? JSON.stringify(rows, null, 2) : toTable(rows));\n  process.stdout.write('\\n');\n  return 0;\n}\n```\n\nNo changes to `report.js`. Update `USAGE` to mention `[--json]`.\n\nNext: implement in [cli.js](src/cli.js:1) if you want it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6900b9efc709f610ba92456e9fcc1b07cda65d04de2712eec666ca6aba4cb82f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 48,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66355,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.3440525,
+  "numTurns": 12,
+  "durationMs": 60261,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4010
+  },
+  "contextTraffic": 508113,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 19731,
+  "narrationWords": 0,
+  "finalWords": 225,
+  "finalText": "## On-Call Handoff — Gateway 503 Incident\n\n**Root cause**\n\nDeploy `dep-4471` (gateway, author a.novak, \"connection-per-request for pool isolation\") changed the setting `gateway.pool.perRequest` from `false` to `true`. The gateway applied this change at `02:13:41.234Z`, as config generation 119. The change made the gateway pool exhaust its 20 connections. The pool did not recover after this point.\n\n**Impact window**\n\nThe first 503 error occurred at `02:14:18.972Z`, 38 seconds after the config change. The log file ends at `03:59:27.974Z`, and 503 errors were still active at that time. The known impact window is at least `02:14:18.972Z` to `03:59:27.974Z` (1 hour 45 minutes), and the incident was not resolved by the end of the log. The log recorded 548 total 503 responses in this window.\n\nThe error affected all four backend services equally (`billing-svc`, `orders-svc`, `catalog-svc`, `accounts-svc`), because the pool itself was the shared bottleneck, not one backend. The worker process was not affected — its separate connection pool stayed idle (`waiting=0`) through the full window.\n\n**Rollback action**\n\n1. Roll back deploy `dep-4471` on the gateway service.\n2. Set `gateway.pool.perRequest` back to `false`.\n3. After rollback, confirm that `ERR_POOL_EXHAUSTED` errors stop in `logs/gateway.log`.\n\n**Note:** deploy `dep-4471` also changed `gateway.timeout.upstreamMs` from `2000` to `2500` in the same generation. This change is not the root cause, but roll it back together with the pool setting to fully restore generation 118 config.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "493fa3c95e2433893ee2f420a4ca3ae3e95baa0f5ce076c995d96275de7a8641"
+}

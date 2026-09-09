@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r4",
+  "batchId": "clause5-84a67d02",
+  "seed": "1787982777257",
+  "orderIndex": 3,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12855,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0642868,
+  "numTurns": 4,
+  "durationMs": 11261,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 627
+  },
+  "contextTraffic": 76217,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 56,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no changes made.**\n\n`buildRows()` in [report.js](src/report.js:11) already returns plain objects. `cli.js` just pipes them through `toTable`.\n\n1. Parse `--json` out of `argv` in [cli.js](src/cli.js:8).\n2. If set, print `JSON.stringify(buildRows(), null, 2)` instead of calling `toTable`.\n3. Update `USAGE` string to mention the flag.\n\nNo changes needed in `report.js` or `format.js`. Want me to apply it?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a40893e73cd626371035377c67a4e7b6516335c580281fcbbd0acf3feda6121"
+}

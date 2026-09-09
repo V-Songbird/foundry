@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__anchor__r1",
+  "batchId": "it2-ae17956b",
+  "seed": "1787878022171",
+  "orderIndex": 5,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "anchor",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 41592,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-anchor:HushAnchor",
+  "costUsd": 0.33835200000000004,
+  "numTurns": 16,
+  "durationMs": 39763,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2644
+  },
+  "contextTraffic": 187341,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 19330,
+  "narrationWords": 5,
+  "finalWords": 121,
+  "assistantMsgs": 2,
+  "finalText": "**Real scope is 94 files and about 1080 lines. Most of it must not be renamed.**\n\n| Area | Files | Rename? |\n|---|---|---|\n| JS locals in `services/**` | 75 | Yes |\n| SQL strings in the same repo files | 75 | No. Column stays `account_id` |\n| `migrations/` | 12 | No. Applied history, breaks the down step |\n| `vendor/reporting-sdk` | 4 | No. `npm run vendor:refresh` overwrites it |\n| `docs/openapi.yaml`, `lib/audit.js` | 2 | No. Frozen public contract |\n\nIn [lib/serialize.js:8](lib/serialize.js:8) only the left key may move. The right key `account_id` is the wire name.\n\nSo the safe rename is local variables alone. Every file it touches also holds a name that must stay.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "495480a2bdd0a8aff0cdf4a7b854dd201531d78146a2c0e000508a8c4f1db78a"
+}

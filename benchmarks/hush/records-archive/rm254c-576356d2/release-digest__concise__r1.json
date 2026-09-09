@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 41,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 102409,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5058804,
+  "numTurns": 9,
+  "durationMs": 101219,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9284
+  },
+  "contextTraffic": 315544,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 70444,
+  "narrationWords": 0,
+  "finalWords": 328,
+  "finalText": "Went through all 380 commits and the PR sheet. Under the dependency bumps and internal refactors, here's what actually changed for users:\n\n**Breaking**\n- Expired auth tokens now return `401` instead of `403` (`1d2bd55`). Anything checking for 403 on expired-token responses needs updating.\n\n**Added**\n- Webhook deliveries that fail are now retried with exponential backoff (`395fb48`).\n\n**Fixed**\n- List/pagination endpoints in the API, DB, queue, and webhooks modules no longer crash on a missing/null cursor (`950bec5`, `9937a08`, `87018e5`, `d40a3a4`).\n- The trace id is no longer dropped when a request is retried — fixed three times over the release (`be03287`, `2500177`, `0da1ab2`), so it kept regressing; confirming it's fixed as of HEAD is worth a look before you write \"fixed\" with confidence.\n- Duplicate response header in core, http, and billing removed (also regressed and re-fixed multiple times: `6043860`, `3312952`, `22aa575`, `49666cd`, `6302ee9`).\n- The http client no longer leaves a dangling timer running after the socket drops (`f66d359`), and the connection pool now closes cleanly on shutdown (`eb874a5`).\n- Request logging in the DB module no longer logs the entire request body (`1b55313`) — worth flagging to users since it could have included sensitive data.\n- Trailing slash handling fixed in queue and job paths (`63751c0`, `4a30eaa`).\n- Empty allowlist handling fixed in store, db, and jobs (`62afbff`, `5f89a20`, `dc8b5d2`).\n- Latency histogram metrics in store and core were reporting the wrong units, now corrected (`59402bc`, `1f2bc4e`).\n\nOne flag: the trace-id and duplicate-header fixes each landed 3 times against the same module, meaning they regressed twice before sticking. I'd sanity-check those two behaviors manually before publishing, since a fix that regressed before could regress again.\n\nWant me to write this into CHANGELOG.md now? If so, what release date should I use — the commit history ends 2026-06-17, but you said you're cutting tomorrow (2026-08-21 per today's date) — there's a ~2 month gap between the two, so let me know which date you want on the entry.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d9848ba9537ee481e3e91b54dd4f40d277706f0efde00bd45e00f90091a00cc6"
+}

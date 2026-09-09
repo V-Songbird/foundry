@@ -1,0 +1,45 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 166445,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9742985,
+  "numTurns": 35,
+  "durationMs": 159675,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10075
+  },
+  "contextTraffic": 863612,
+  "apiCalls": 32,
+  "toolCalls": 30,
+  "toolResultChars": 20078,
+  "narrationWords": 39,
+  "finalWords": 246,
+  "assistantMsgs": 9,
+  "narrationTexts": [
+    "I'll start by looking at the project files.",
+    "The spec is a straight priority→channel mapping, so I'll implement exactly that.",
+    "Let me spot-check the boundaries in the replay output.",
+    "Now `state` comes into play. Let me implement per-key suppression."
+  ],
+  "finalText": "Dedupe is in (`src/router.js:34-42`), backed by `state.lastSentAt` (a Map of key → last delivery minute), now created in `createState()`.\n\nVerified against the replay: exactly 99 events dropped, and that set is byte-for-byte the 99 flaps `events.js` generates (same key, +2 min). No other key pair in the window lands inside 5 minutes. Spot-check: `evt-0017` critical at 271 → pager, `evt-0018` same key at 273 → dropped; `evt-0008` low at 1144 → email, `evt-0009` same key at 1146 → dropped.\n\nTotals: `low email=111 queue=90`, `normal push=112 queue=88`, `high sms=112 email=112 queue=88`, `critical pager=200`. 99 dropped, 0 errors.\n\nThree decisions I made that you may want to overrule:\n\n- **Suppression applies to critical too.** You said \"if we already sent something with the same key\" with no exception, so a repeat page inside 5 minutes is dropped. That's 25 of the 99. Easy to exempt critical if you'd rather always page.\n- **A queued notification counts as \"sent.\"** During quiet hours the queue delivery starts the 5-minute window, so a repeat right after gets dropped rather than queued twice.\n- **A dropped repeat does not extend the window** — the clock runs from the last actual delivery, so a steady flap every 2 minutes gets through once every 6 minutes rather than never.\n\nBoundary, same convention as quiet hours: strictly less than 5 minutes is a repeat; exactly 5 minutes later sends. Nothing in this window sits on that boundary, so it doesn't affect the numbers either way.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "82d28f211306db9759db8b94ebd1f56810c2550a48ca3fb4e401ece22e8d62b7"
+}

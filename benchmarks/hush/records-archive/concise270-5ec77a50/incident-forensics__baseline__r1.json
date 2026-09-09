@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "concise270-5ec77a50",
+  "seed": "1787784100639",
+  "orderIndex": 19,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 228377,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.03772,
+  "numTurns": 18,
+  "durationMs": 222108,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15217
+  },
+  "contextTraffic": 651753,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 30499,
+  "narrationWords": 6,
+  "finalWords": 762,
+  "finalText": "## On-Call Handoff — Gateway 503s, 2026-03-14\n\n**Status:** ONGOING at end of available logs (03:59:27Z). Not yet mitigated.\n**Prepared by:** <email> · **Severity:** high — checkout and cart down for the majority of traffic\n\n---\n\n### Root cause\n\nDeploy **dep-4471** applied gateway config generation 118 → 119, flipping **`gateway.pool.perRequest: false → true`**. The gateway now opens a new upstream connection per request instead of reusing pooled ones. With `pool size 20`, it saturates within seconds and never recovers.\n\nEvery 503 is a pool acquisition failure, not an upstream fault. There are only two distinct error strings in the entire log, paired one-to-one on the same `req-` id:\n\n```\nERROR access  req-N /v1/<path> -> <svc> 503 <600-999>ms\nERROR pool    req-N ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n`in_use` is pinned at **20/20 on all 530 occurrences**. The wait queue grows monotonically, peaking at **271**.\n\nTwo aggravating factors from the same config generation:\n- `gateway.timeout.upstreamMs: 2000 → 2500` — stuck requests hold their slot 25% longer, deepening the queue.\n- Corroborating signal at 03:02:30Z: `connection churn: 4180 opens in the last 5m, baseline is 40` — a **104× increase**, exactly the fingerprint of per-request connections.\n\n(`gateway.log.sampleRate: 1.0 → 1.0` was the third changed key — a no-op, ignore it.)\n\n---\n\n### Impact window\n\n| | |\n|---|---|\n| **Onset** | `2026-03-14T02:14:18.972Z` — first 503, `req-07401` |\n| **Last data** | `2026-03-14T03:59:27.974Z` — still failing |\n| **Duration** | **1h 45m and counting** |\n| **Detection lag** | **1h 06m** — on-call paged 03:21:05Z at 71% 5m error rate |\n\nError rate by window:\n\n| Window | Requests | 503s | Rate |\n|---|---|---|---|\n| 01:00–02:00 | 480 | 0 | 0% |\n| 02:00–02:30 | 208 | 80 | 38% |\n| 02:30–04:00 | 540 | 450 | **83%** |\n\n**Affected:** all five business endpoints — `/v1/checkout`, `/v1/cart`, `/v1/orders`, `/v1/session`, `/v1/catalog/search` — 106 failures each, spread evenly across all four upstreams.\n\n**Unaffected:** `/health` and `/v1/profile` never 503 (this is why the rate plateaus at 83% rather than 100%). **Note the trap: `/health` returns 200 throughout.** Health checks did not and will not catch this.\n\n**Scale caveat:** this log is `node-3 of 3`. The 530 failures are one node's share; true fleet impact is likely **~1,590 failed requests**.\n\n**Workers were not affected** — `worker.log` shows 1,080/1,080 jobs OK, pool flat at `in_use=1, idle=7, waiting=0` throughout. No action needed there.\n\n---\n\n### Rollback\n\n> **Roll back `dep-4471` — revert gateway config generation 119 → 118.**\n> deploy: `dep-4471` · service: `gateway` · author: `a.novak` · shipped 02:12:00–02:14:00Z\n> summary: *\"config: connection-per-request for pool isolation\"*\n\nIf a full config revert isn't available, the single key that matters is **`gateway.pool.perRequest` → `false`**. Reverting `upstreamMs` to `2000` is secondary — it worsens the queue but doesn't cause the exhaustion.\n\n**Confidence: high.** Only gateway deploy of the night, and the chain is second-by-second:\n\n```\n02:12:00Z              dep-4471 started\n02:12:12.820Z  LOG     reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z  LOG     generation 119 applied: gateway.pool.perRequest: false -> true\n02:14:00Z              dep-4471 finished\n02:14:14.920Z  LOG     first \"acquire slow\" warning         (+15s)\n02:14:18.972Z  LOG     first 503 / ERR_POOL_EXHAUSTED       (+19s)\n```\n\nThe other three pre-incident deploys are cleared: dep-4468/4469/4470 all finished ≥1h19m before onset, and the gateway ran clean with 0–3ms `pool_wait` right up to the 02:13:41 config apply.\n\n**Verify recovery by:** `ERR_POOL_EXHAUSTED` count dropping to zero and pool `in_use` falling below 20 — *not* by `/health`, which was green the entire outage.\n\n---\n\n### Follow-ups (not blocking rollback)\n\n1. **Deploys shipped during the outage.** dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) both landed while the gateway was at 83% errors — dep-4473 about a minute before the page fired. Neither is implicated, but there's no deploy freeze wired to the error-rate alarm.\n2. **Alerting gap.** 67 minutes to page on a 38%-then-83% error rate is too slow, and `/health` staying 200 means synthetic checks miss pool exhaustion entirely. Alert on `in_use/size` saturation.\n3. **Unrelated worker latency ramp.** Job durations climb linearly 200ms → 2,324ms across the window, but the ramp is already underway at 01:00 — 73 minutes *before* the config change — with no inflection at 02:14 and flat `db_wait`. Separate investigation, separate start time; dep-4470 is a candidate but unprovable from this log slice. Its mechanical regularity (+31ms/job exactly) may also be an instrumentation artifact — confirm against external metrics first.\n4. `OPS-2210` (unindexed `orders` scan) appeared once at 02:36Z in `worker.log`. Pre-existing, unrelated.\n\n---\n\nI have not modified anything — this is analysis only. Want me to save this as a file (e.g. `INCIDENT-2026-03-14.md`) for the ticket?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c4d42d3fbe8bf21fb49413c9d4912e3dd3390bb7d91a076bf06c98667f929734"
+}

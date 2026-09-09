@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 19,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33058,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21827820000000003,
+  "numTurns": 9,
+  "durationMs": 31230,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1905
+  },
+  "contextTraffic": 313882,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 6958,
+  "narrationWords": 9,
+  "finalWords": 87,
+  "finalText": "Found it: `resolveRelease` in `packages/shared/config.js:13` used `Object.assign` to layer defaults, package overrides, and CLI flags. That's a shallow merge, so any package overriding part of a nested object like `output` (e.g. `@acme/api` setting `output: { format: 'esm' }`) wiped out the rest, including `output.dir` — which is what the bundle stage checked and failed on.\n\nI changed the merge to combine nested objects (`output`, `sourcemap`) key by key instead of replacing them wholesale. The build now runs clean: `74.3s, 5 warnings, 0 errors`, and `verify.js` confirms it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "95842ff7af4ef386c94294a9253724737ab1e34caa9d79fe3777ba69d9d3abc2"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r4",
+  "batchId": "sil2-670d0d47",
+  "seed": "1787986802701",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30824,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1286796,
+  "numTurns": 12,
+  "durationMs": 28932,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1694
+  },
+  "contextTraffic": 205691,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 12100,
+  "narrationWords": 23,
+  "finalWords": 51,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the hypothesis: only the three rows with both a nonzero discount and nonzero tax fail. Fixing `orderTotal` to tax the discounted amount."
+  ],
+  "finalText": "**Suite is green: 625 total, 625 passing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the original `cents` instead of the discounted amount. Only rows with both a nonzero discount and nonzero tax exposed it, which is why most of the suite looked fine.\n\nFixed by taxing `discounted` instead of `cents`. No other bugs found.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "534fc1746839a16f6aa7693c241799f1e8d8641c90a47c2f8d5acdc9a44ce8fa"
+}

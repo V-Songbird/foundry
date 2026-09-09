@@ -1,0 +1,37 @@
+{
+  "key": "explain-rebase__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 81,
+  "task": "explain-rebase",
+  "segment": "coding",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12549,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08610019999999999,
+  "numTurns": 1,
+  "durationMs": 10368,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 732
+  },
+  "contextTraffic": 35945,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 223,
+  "finalText": "Merge and rebase both bring one branch's changes into another, but they leave different footprints in your history.\n\n**Merge** takes your branch and the target branch and stitches them together with a new commit that has two parents. Nothing about either branch's past gets rewritten. You get a true record of what happened, including the fact that the two lines of work were separate for a while. The tradeoff is a messier-looking history, full of \"Merge branch main into feature\" commits.\n\n**Rebase** picks up your branch's commits, sets them aside, and replays them one by one on top of the latest target branch. The result looks like you'd written your work straight on top of the newest code, in a clean straight line. But it's rewriting history — the old commits are gone, replaced by new ones with the same changes but different identities.\n\nThat difference drives the rule of thumb:\n\n- Use rebase on your own local branch, before you've shared it, to tidy it up or catch it up with main.\n- Use merge for bringing finished work into a shared branch like main, or any time others have already pulled the branch you'd be rewriting.\n- Never rebase a branch other people are also working on. It rewrites commits they already have, and their next pull turns into a mess.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf583a92582f9763b30ba49177f02e23913e656e8907a529c1a411fdd046eb9f"
+}

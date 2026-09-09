@@ -18,6 +18,21 @@ const NAV = [
 ].join("\n");
 
 describe("slug", () => {
+  test("matches all pinned github-slugger fixtures including duplicate collisions", () => {
+    const cases = require('./vendor/github-slugger-fixtures.json');
+    const seen = new Set();
+    for (const item of cases) {
+      const base = slug(item.input);let actual = base, suffix = 0;
+      while (seen.has(actual)) actual = `${base}-${++suffix}`;
+      seen.add(actual);
+      assert.equal(actual, item.expected, item.name);
+    }
+  });
+  test("preserves Unicode and the spaces surrounding removed punctuation", () => {
+    assert.equal(slug("Instalación local posterior"), "instalación-local-posterior");
+    assert.equal(slug("Archived entries — .foreman/archive.jsonl"), "archived-entries--foremanarchivejsonl");
+    assert.equal(slug("日本語 中文"), "日本語-中文");
+  });
   test("matches GitHub's rule", () => {
     assert.equal(slug("The fix"), "the-fix");
     assert.equal(slug('Why "flint"'), "why-flint");
@@ -27,6 +42,16 @@ describe("slug", () => {
 });
 
 describe("headingSlugs", () => {
+  test("assigns unique suffixes including collisions with explicitly numbered headings", () => {
+    assert.deepEqual([...headingSlugs("# Section\n# Section\n# Section-1\n# Section\n")],
+      ["section", "section-1", "section-1-1", "section-2"]);
+  });
+  test("handles tilde fences and shorter nested backtick sequences", () => {
+    assert.deepEqual([...headingSlugs("# Real\n~~~~\n# Hidden\n~~~\n# Still hidden\n~~~~\n````\n```\n# Hidden too\n````\n## Visible ###")], ["real", "visible"]);
+  });
+  test("uses the visible text of inline links", () => {
+    assert.deepEqual([...headingSlugs("## [Install](https://example.org) `plugin`")], ["install-plugin"]);
+  });
   test("collects every heading level", () => {
     const s = headingSlugs("# One\n### Two words\n");
     assert.deepEqual([...s].sort(), ["one", "two-words"]);
@@ -61,6 +86,11 @@ describe("navRegion", () => {
 });
 
 describe("checkMarkdown", () => {
+  test("resolves percent-encoded Unicode fragment links", () => {
+    const text = NAV.replaceAll("Install it", "Instalación").replaceAll("install-it", "instalación")
+      .replace('href="#instalación"', 'href="#instalaci%C3%B3n"');
+    assert.deepEqual(checkMarkdown(text, "README.md"), []);
+  });
   test("passes a page with a nav whose links all resolve", () => {
     assert.deepEqual(checkMarkdown(NAV, "README.md"), []);
   });
@@ -99,9 +129,25 @@ describe("checkMarkdown", () => {
 });
 
 describe("main", () => {
+  test("staged validation reads the index even when the working README differs", () => {
+    const fs = require('node:fs'), path = require('node:path'), os = require('node:os'), cp = require('node:child_process');
+    const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'foundry-staged-nav-'));
+    const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+    const git = args => cp.execFileSync('git', args, { cwd: root, env, stdio: 'pipe' });
+    const file = path.join(root, 'README.md');
+    const run = () => cp.spawnSync(process.execPath, [path.join(__dirname, 'check-readme-nav.js'), 'staged'], { cwd: root, env, encoding: 'utf8' });
+    try {
+      git(['init','-q']);
+      fs.writeFileSync(file, NAV.replace('## License', '## Different heading'));git(['add','README.md']);
+      fs.writeFileSync(file, NAV);
+      const bad = run();assert.equal(bad.status, 1);assert.match(bad.stderr, /README.md \(staged\)/);
+      git(['add','README.md']);fs.writeFileSync(file, '## Broken working copy');
+      assert.equal(run().status, 0);
+      fs.unlinkSync(file);git(['add','README.md']);assert.equal(run().status, 0);
+    } finally { fs.rmSync(root, { recursive: true, force: true }); }
+  });
   test("reads its targets from the argv it is given, not process.argv", () => {
-    // The hooks call this after check-reference-names.js has already
-    // rewritten process.argv[2] for its own use. Point process.argv at a real
+    // Callers can have unrelated process arguments. Point process.argv at a real
     // file with no nav, which would fail, and pass a missing file, which is
     // skipped: a 0 proves the parameter won.
     const saved = process.argv.slice();

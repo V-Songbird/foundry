@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__flint__r2",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 28209,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.287479,
+  "numTurns": 9,
+  "durationMs": 26885,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1681
+  },
+  "contextTraffic": 145202,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 16046,
+  "narrationWords": 0,
+  "finalWords": 112,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died at 02:14:07 and the service never recovered.** It went down 17 minutes later.\n\nTimeline:\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | Cache falls back to direct store reads |\n| 02:14:10 | First `TimeoutError` after 5000ms |\n| 02:29:12 | Queue depth passes the 500 max |\n| 02:31:44 | `worker-2` JavaScript heap out of memory |\n| 02:31:52 | `supervisor` kills process group, service down |\n\nRedis never came back. All 13 reconnect attempts got `ECONNREFUSED` on the same host. The 173 timeouts and 174 cache-miss storms are downstream noise, not causes.\n\nNext: check why `10.0.0.12` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2a79434cd12853f9c88c37e2a96745572c158a26e08769e6d3e0f3bec2265592"
+}

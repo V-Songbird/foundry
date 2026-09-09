@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__notrunc__r3",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 23,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 78618,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2230258,
+  "numTurns": 12,
+  "durationMs": 76897,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6646
+  },
+  "contextTraffic": 241447,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 22083,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section** into [CHANGELOG.md](CHANGELOG.md).\n\nOut of 380 commits and 127 merged PRs, almost everything was dep bumps, refactors, and test churn. One real feature and ten real fixes.\n\nAdded: webhook deliveries now retry automatically on failure, with backoff.\n\nFixed: trace id survives retries, null-cursor pagination crash, socket-drop timer leak, connection pool not closing on shutdown, wrong latency histogram units, expired tokens returning 403 instead of 401, a duplicate outgoing header, a doubled trailing slash on retried URLs, empty allowlists blocking everything, request bodies leaking into logs, and a clearer token-parser error message.\n\nNo breaking changes. The node-version and nvmrc commits were just repeated pins, not an actual bump, so I left Breaking out.\n\nNext: check the two log-related fixes with legal or security before publishing, since \"request bodies in logs\" may need a disclosure note.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d940ad52a9e825fb79ba9fe1f325462672232fc6e9561c84f830129dbb38d597"
+}

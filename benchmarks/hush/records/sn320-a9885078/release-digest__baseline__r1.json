@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 104226,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3762404,
+  "numTurns": 11,
+  "durationMs": 102991,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9365
+  },
+  "contextTraffic": 416179,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 70677,
+  "narrationWords": 87,
+  "finalWords": 192,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the history directory and existing CHANGELOG format.",
+    "Now I have the full commit history and PR sheet. Let me scan for the feature/fix commits specifically, since those are the signal buried in the dependency-bump noise.",
+    "Confirmed — 27 `feat`/`fix` commits out of 380, and they cluster into ~9 distinct user-facing changes (many are the same underlying bug fixed in multiple modules — paginator null-cursor crash, duplicate header, etc.). Everything else is dependency bumps, refactors, CI/test churn, or docs. Now updating the changelog."
+  ],
+  "finalText": "CHANGELOG.md now has the 4.2.0 entry. Summary of what I filtered out vs. kept from the 380 commits:\n\n**Kept (9 user-facing items from 27 `feat`/`fix` commits):**\n- **Breaking:** expired tokens now return `401` instead of `403` — a real contract change, same category as 4.1's timeout-units break.\n- **Added:** webhook delivery retries with exponential backoff (the only `feat` in the whole range).\n- **Fixed:** a security-relevant one (full request body no longer logged), plus a cluster of crash/correctness fixes that each recurred across 2-4 services (null-cursor paginator crashes, duplicate header, double-trimmed trailing slash, empty-allowlist handling, dropped trace id on retry, wrong latency-histogram units, unclear token error messages), and an HTTP client leak/shutdown-hang fix.\n\n**Discarded:** ~350 commits — every `chore(deps)` bump, every `refactor`, `test`, `ci`, and `docs` commit, and the `perf` commits (metric-write batching, hot-path JSON skip, etc.) since none of those change observable behavior for someone installing the package.\n\nOne judgment call worth flagging: I put the 401/403 change under Breaking rather than Fixed, since a client matching on 403 to detect expired sessions would break — mirrors how you categorized the 4.1 timeout-units change. Worth a sanity check before you publish.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4e069586c182c443384e90d4930fa6379a3bdd16073da2d2d41f7f95a9f132b1"
+}

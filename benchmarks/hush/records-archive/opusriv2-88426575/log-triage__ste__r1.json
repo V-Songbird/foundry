@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49094,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.7666025,
+  "numTurns": 7,
+  "durationMs": 47381,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2802
+  },
+  "contextTraffic": 290459,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 61562,
+  "narrationWords": 8,
+  "finalWords": 487,
+  "finalText": "## What happened\n\nOne note first: the log is dated **2026-07-04**, not last night. If you expect a file from 2026-08-25 or 2026-08-26, this file is the wrong one, or log rotation did not run.\n\nThe file holds 719 lines. It covers 02:00:00Z to 02:31:52Z. The service ran normally for 14 minutes. Then Redis died, and the service degraded for 17 minutes until the supervisor killed it.\n\n## Root cause\n\nRedis became unreachable at 02:14:07 (`logs/app.log:182`):\n\n```\nERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n```\n\n`ECONNREFUSED` means that the host answered but no process listened on port 6379. The Redis process was down, not the network. Every reconnect attempt failed with the same error.\n\n## The failure chain\n\n1. **02:14:07** — Redis connection lost. The app fell back to direct store reads (`app.log:183`).\n2. **02:14:08** — Cache miss storm started. Every `orders:*` key went to the store. 174 miss-storm lines follow.\n3. **02:14:10** — First `TimeoutError: request timed out after 5000ms (store overloaded)` (`app.log:185`). The store could not carry the full read load.\n4. **02:14:12 onward** — Request queue depth grew from 52 in a straight line, about 3 requests every 6 seconds.\n5. **02:29:12** — Queue depth reached 502 against a stated max of 500 (`app.log:647`). The queue kept growing to 568. No load shedding happened.\n6. **02:31:44** — `worker-2` died: `JavaScript heap out of memory (request backlog)` (`app.log:717`).\n7. **02:31:45** — Supervisor restarted worker-2 after exit code 134 (SIGABRT) (`app.log:718`).\n8. **02:31:52** — Supervisor killed the api process group. Service down (`app.log:719`).\n\nThe log stops there. It records no recovery.\n\n## Numbers\n\n| Item | Count |\n|---|---|\n| ERROR lines | 188 |\n| WARN lines | 348 |\n| FATAL lines | 2 |\n| Store timeouts | 173 |\n| Cache miss storms | 174 |\n| Redis reconnect attempts | 13 (all failed) |\n\nAfter 02:14:07 the log contains zero successful requests. Every `200` response is before that timestamp. The outage was total from the first minute, not gradual.\n\n## Three problems the log exposes\n\n1. **No backoff on reconnect.** The 13 reconnect attempts are exactly 80 seconds apart, from attempt 0 to attempt 12. The interval is fixed. Nothing gave up or escalated.\n2. **The queue limit did nothing.** Depth passed 500 and kept climbing to 568. The `(max 500)` value is a log label, not an enforced limit. This caused the heap exhaustion.\n3. **No circuit breaker.** All traffic went to the store for 17 minutes at full rate. A breaker after the first timeouts would have protected the store and kept the queue small.\n\n## What to check next\n\n- Confirm why Redis at `10.0.0.12:6379` stopped. The app log cannot tell you. Read the Redis host logs for that window.\n- Confirm whether the api process came back. This log ends at the kill.\n- Confirm the log rotation setup, because of the date gap noted above.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31cf0a4f64510b01f79700893dcedc96462281233a6aaa04afab19e5cf176387"
+}

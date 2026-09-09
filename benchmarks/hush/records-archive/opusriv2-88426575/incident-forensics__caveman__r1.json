@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__caveman__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 58,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 162773,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6165590000000001,
+  "numTurns": 18,
+  "durationMs": 154913,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7742
+  },
+  "contextTraffic": 517944,
+  "apiCalls": 18,
+  "toolCalls": 14,
+  "toolResultChars": 5808,
+  "narrationWords": 0,
+  "finalWords": 708,
+  "finalText": "Handoff written in normal prose (goes to other people).\n\n---\n\n# On-Call Handoff — Gateway 503s\n\n**Incident window:** 2026-03-14 02:14–03:59 UTC (log ends 03:59; no recovery observed in the data).\n**Status at handoff:** ongoing, not mitigated.\n**Sources:** `logs/gateway.log` (node-3 of 3), `logs/worker.log`, `deploys.csv`.\n\n## Root cause\n\nGateway deploy `dep-4471` (author a.novak, 02:12:00–02:14:00Z, \"config: connection-per-request for pool isolation\") switched the gateway connection pool to one connection per request without increasing pool size.\n\nThe config reload is logged directly:\n\n```\n02:12:12.820Z INFO config reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO config generation 119 applied: 3 keys changed\n02:13:41.234Z INFO config   gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO config   gateway.timeout.upstreamMs: 2000 -> 2500\n```\n\nPool size stayed at 20. Before the change the pool ran `in_use=3..9 idle=17..11 waiting=0`; after it pinned to `in_use=20 idle=0` with the wait queue growing monotonically (12 up to 271; last stats line at 03:55 shows `waiting=172` and still rising). The companion change `upstreamMs 2000 -> 2500` holds each connection 25% longer and compounds the exhaustion.\n\nEvery failure is the same error, 530 occurrences, each paired 1:1 with a 503:\n\n```\nERROR pool req-17907 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 74)\n```\n\nPlus 213 `WARN pool ... acquire slow: waited 835ms for a connection`.\n\nThis is not an upstream fault. The 503s spread evenly across all four backends — accounts-svc 133, catalog-svc 133, billing-svc 132, orders-svc 132 — which is the signature of the gateway starving locally rather than any one dependency failing.\n\n## Impact window\n\nFirst 503 at `02:14:18.972Z` (`req-07401 /v1/cart -> billing-svc 503 659ms`), 19 seconds after the deploy finished. Clean for the full preceding hour (01:00–02:10, 0 errors in 574 requests).\n\nError rate by 10-minute bucket: 0% through 02:10, then 30/117 in the 02:10 bucket (partial, deploy mid-bucket), then steady at roughly 50/132 — about 38% — from 02:20 to the end of the log at 03:59. On-call was paged at `03:21:05Z`: `error_rate 5m avg is 71%`. The 71% figure is the 5-minute average over `/v1/*` traffic; the 38% figure includes `/health` checks, which continued to succeed.\n\n## Rollback\n\nRoll back `dep-4471`. Revert config generation 119 to 118, or at minimum set `gateway.pool.perRequest` back to `false`. If the pool-isolation goal needs to be preserved, the pool must be resized well above peak concurrency first — at the observed queue depth the current size 20 is off by more than an order of magnitude.\n\nLoop in a.novak; they own the change.\n\nDeploys ruled out: `dep-4472` (billing-svc, 02:41) landed 27 minutes after the error rate was already flat, and the 503s hit all four upstreams equally rather than billing alone. `dep-4473` (catalog-svc, 03:20) produced no change in error rate. `dep-4470` (worker, 00:48) is 80 minutes before onset, inside the clean period.\n\n## Two caveats for the next shift\n\n**Only one of three gateway nodes is in evidence.** The log header reads `node-3 of 3`. Nodes 1 and 2 were not reviewed. Confirm the config generation and error rate on those before or during rollback.\n\n**Workers have a separate, unrelated problem.** All 1080 worker jobs in the window finished OK, zero errors, and the worker DB pool was idle throughout (`size=8 in_use=1 idle=7 waiting=0`, unchanged from 01:00 to 03:50). But job duration ramps linearly across every job type — average 437ms at 01:00 rising to 2087ms at 03:30, a constant +330ms per 30 minutes with `db_wait` flat at 5ms. There is no inflection at 02:14, and the ramp is already underway when the log opens, so it predates the gateway change and is not caused by it. All six job types show the same absolute +2000ms offset, which points at accumulation inside the job runner rather than contention. Nearest prior deploy is `dep-4470` (worker, 00:48, j.tanaka, \"retry backoff for webhook jobs\") — plausible on timing, but the ramp affects all job types, not just webhook, so treat it as a lead and not a conclusion. Worth a separate ticket. Also note the worker runs 4 replicas and only one log was available; check whether the other three show the same slope.\n\n**One data-quality note:** the logs are dated 2026-03-14, not last night (2026-08-26). Either the capture is stale or these are the wrong files. Verify before acting on the rollback.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "32ce11e915d6355bb412cd8025625afb3616a1dbdb3c4cb97cc46324e6232372"
+}

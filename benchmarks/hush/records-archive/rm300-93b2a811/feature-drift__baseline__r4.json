@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 54,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 115800,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6042665,
+  "numTurns": 25,
+  "durationMs": 108953,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6956
+  },
+  "contextTraffic": 523439,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 10773,
+  "narrationWords": 7,
+  "finalWords": 139,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project files first."
+  ],
+  "finalText": "Dedup is in. `route()` now tracks the last delivery time per `key` in `state.lastSentAt` (a Map, created by `createState()`), and returns `[]` if the same key was delivered within 5 minutes.\n\nReplay: 99 dropped, 0 errors — exactly the 99 flaps `events.js` injects (the `i % 9` repeats that re-fire 2 minutes later), so nothing else is being swept up. Every channel drops proportionally: pager 225→200, email 251→223, queue 300→266.\n\nTwo judgment calls baked in:\n- The window measures from the last **delivered** event, not the last seen one. A dropped repeat doesn't extend the suppression, so a steady 2-minute flap alternates through rather than staying silenced forever.\n- No priority exemption — a repeated `critical` inside 5 minutes is dropped too, which is why pager fell to 200. If critical should always page through, that's a one-line change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7c1607599061e7d4f535362c74c09ce6162010b9f84184e2493902e518bebfc"
+}

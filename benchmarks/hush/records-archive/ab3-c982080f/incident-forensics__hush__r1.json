@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 14,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 57554,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2497954,
+  "numTurns": 15,
+  "durationMs": 50249,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3156
+  },
+  "contextTraffic": 602258,
+  "apiCalls": 13,
+  "toolCalls": 11,
+  "toolResultChars": 16632,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` to the gateway, shipped by a.novak, finished at 02:14 last night. It changed one setting, `gateway.pool.perRequest`, from `false` to `true`. That made every request grab its own database connection instead of sharing them. The pool only holds 20 connections, so it filled up fast and locked out new requests.\n\n**Impact window:** Started 02:14:18. Still going as of the last log line, 03:59:27. That's at least 1 hour 45 minutes of 503 errors on the gateway, and it hadn't recovered yet.\n\n**What broke:** `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, and `/v1/catalog/search` all failed with 503s. Each one paired with a pool error, `ERR_POOL_EXHAUSTED`, and the number of requests waiting in line kept climbing, from 13 up to 74 by the end of the log.\n\n**Roll back:** `dep-4471` on the gateway. Nothing else looks involved. I checked `worker.log` for the same stretch and it's clean, no errors, no 503s, so this stayed contained to the gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75dffca19b115995e79d1ccd0858a328b01b4aa916efd189a69a28d6336c5b6c"
+}

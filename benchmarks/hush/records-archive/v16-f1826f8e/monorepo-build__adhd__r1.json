@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__adhd__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27061,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2049522,
+  "numTurns": 8,
+  "durationMs": 25675,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1775
+  },
+  "contextTraffic": 302087,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 7158,
+  "narrationWords": 52,
+  "finalWords": 77,
+  "finalText": "Build is green. `verify.js` confirms it too.\n\nRoot cause: `packages/shared/config.js:15` used `Object.assign` to merge defaults → package overrides → CLI flags. Since `output` and `sourcemap` are nested objects, a shallow merge replaced the whole object instead of merging keys — `@acme/api`'s `output: { format: 'esm' }` override wiped out `output.dir`, so the bundle stage threw and failed the build.\n\nFix: merge `output` and `sourcemap` one level deeper (`packages/shared/config.js:13-21`) so partial overrides only change the keys they name.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1b90615b423b958cf6c741ab05c584a8812bb9635e097db07953bc10dbfff388"
+}

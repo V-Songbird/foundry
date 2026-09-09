@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29349,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2081808,
+  "numTurns": 10,
+  "durationMs": 28000,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1814
+  },
+  "contextTraffic": 349995,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 7783,
+  "narrationWords": 29,
+  "finalWords": 45,
+  "finalText": "All 625 tests pass now.\n\nThe bug was in `orderTotal` in `src/pricing.js:41`: it calculated tax on the pre-discount amount instead of the discounted amount, contradicting its own docstring (\"tax is charged on the amount the customer pays\"). Changed `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "692cbb6a8a66071ee9c1344736d1c7cabf1e230b859d980b4cd2115b25cbcec7"
+}

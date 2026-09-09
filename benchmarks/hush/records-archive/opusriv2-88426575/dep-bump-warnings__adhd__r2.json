@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50148,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.25114549999999997,
+  "numTurns": 10,
+  "durationMs": 48058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2636
+  },
+  "contextTraffic": 153764,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 8405,
+  "narrationWords": 34,
+  "finalWords": 286,
+  "finalText": "Build passes now — exit 0, 0 errors.\n\n**The two real bugs** (both from the bump, sequential — fixing the first exposes the second):\n\n1. `src/core/options.js:6` — the bundler renamed its options field `retries` → `retryCount`. This call site still read `options.retries`, so it was `undefined.toFixed(0)` → `TypeError`, which aborted the link stage. Now reads `retryCount` with a fallback to `retries`, plus a clear type error instead of a cryptic one.\n2. `src/net/retryPolicy.js:7` — the new config loader leaves unset flags as `undefined` where the old one returned `false`. The strict boolean check threw on that. Now an absent flag means off (the old default); a genuinely wrong type still throws.\n\n**On the warnings** — the remaining 8 are noise, and none are fixable from this tree:\n\n- The 5 `DEP0xxx` ones (`fs.exists`, `Buffer()`, sync loader hook, `punycode`, `module.parent`) are Node deprecations surfaced by the newer bundler. Real tech debt, but not build-breaking.\n- `W1042 crypto.createCipher` in `src/legacy/adapter.js` — genuinely worth fixing (`createCipher` is insecure, derives keys from a password with no salt; `createCipheriv` is the replacement) and it's flagged \"remove before v5\".\n- `W2213 unused-export` and `W3307 circular-import` (`src/core/graph.js` ↔ `src/state/tracker.js`) — the circular import one is the more interesting of the two, since undefined resolution order can bite at runtime.\n\nThe catch: the only files that exist here are `build.js`, `src/core/options.js`, and `src/net/retryPolicy.js`. Every file those warnings point at (`src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js`, `src/state/tracker.js`) isn't in this directory, and `build.js` emits those lines as hardcoded strings rather than deriving them from real compilation. So I can't clean them up without the actual sources — I'd only be editing the fake log. Point me at the real tree and I'll take the `createCipher` and circular-import ones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "18d832f7dc8925f78cc5a39082631a626ba82ed32af42f2044c625419077d780"
+}

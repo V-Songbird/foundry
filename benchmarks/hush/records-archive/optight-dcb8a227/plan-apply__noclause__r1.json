@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r1",
+  "batchId": "optight-dcb8a227",
+  "seed": "1787984813545",
+  "orderIndex": 9,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 18213,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.150292,
+  "numTurns": 7,
+  "durationMs": 16604,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 877
+  },
+  "contextTraffic": 76561,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 3062,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, nothing changed yet.**\n\nOne fork matters. `buildRows()` returns six fields. `toTable()` prints four, dropping `owner` and `slow` for width. So \"same data\" splits two ways.\n\nI would emit the full row from `buildRows()`, since JSON has no width limit. Say the word if you want it capped to `COLUMNS`.\n\nThe work:\n\n1. Add `toJson(rows)` to [format.js](src/format.js) as `JSON.stringify(rows, null, 2)`.\n2. Parse `--json` in [cli.js:8](src/cli.js:8), pick the printer, keep sort order.\n3. Update `USAGE` to `report [--json]`.\n4. Run both modes by hand. There are no tests here.\n\nWant me to build it?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9421505f2c0efdc4e1837386644909cedc30ad331726ee0b085c0ee2e3e44ccd"
+}

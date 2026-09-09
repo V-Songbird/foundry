@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "short-5543c6c1",
+  "seed": "1787417654693",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28423,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.15342,
+  "numTurns": 11,
+  "durationMs": 26904,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1734
+  },
+  "contextTraffic": 291315,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 10728,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "It's building clean now, no errors.\n\nTwo real bugs were hiding in that wall of warnings. The bundler bump changed how it hands options to your code, and two spots never got updated:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler sends `options.retryCount`. That crashed the build outright.\n2. `src/net/retryPolicy.js` treated a missing backoff flag as an error. The new config loader leaves it as `undefined` instead of `false`, so this threw too.\n\nI fixed both to match the new shapes. The build now finishes with exit code 0, 8 warnings, 0 errors, all leftover deprecation noise from the bump, nothing broken.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9973b88b43d0770d1b9ff72c8942261d0c7bfdf9f54c5b009a38b5d3b6d73fde"
+}

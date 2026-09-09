@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__precap__r1",
+  "batchId": "sonnetcheck-fa7328e5",
+  "seed": "1787639034320",
+  "orderIndex": 7,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "precap",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 111706,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4581258,
+  "numTurns": 13,
+  "durationMs": 110285,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9516
+  },
+  "contextTraffic": 670005,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 76213,
+  "narrationWords": 0,
+  "finalWords": 189,
+  "finalText": "Done. `CHANGELOG.md` now has a 4.2.0 entry, dated 2026-08-26.\n\nOut of 380 commits, only 27 touched what users actually see. Everything else was dependency bumps, refactors, tests, and CI work.\n\n**One breaking change.** An expired auth token now returns `401` instead of `403`. Anyone checking for the old status code needs to update.\n\n**One new feature.** Failed webhook deliveries now retry automatically, with a growing wait between tries.\n\n**Ten real bug fixes**, most of them the same class of bug showing up in several modules:\n- A crash on a null pagination cursor, fixed in the queue, API, webhooks, and database endpoints.\n- A duplicate header sent on retried requests.\n- A trailing slash in a URL getting trimmed more than once.\n- An empty allowlist causing an error instead of being handled.\n- The trace ID getting lost across retries.\n- Wrong units in the latency histogram.\n- Token-parser error messages leaking internal detail.\n- The HTTP client hanging when a socket dropped, instead of clearing its timer.\n- The HTTP client not closing its connection pool on shutdown.\n- The database client logging the full request body.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5f92dbd80008cf6b0b44edb4fa7fdc63eb6179964098a2b9848c536cc2c6008a"
+}

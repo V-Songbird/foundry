@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 44316,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1919742,
+  "numTurns": 14,
+  "durationMs": 37888,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2247
+  },
+  "contextTraffic": 447542,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 12920,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**On-call handoff drafted below.**\n\n**Root cause:** `dep-4471` (gateway, `a.novak`, `02:12–02:14Z`) shipped config gen 119, flipping `gateway.pool.perRequest: false -> true`. Pool maxed at `in_use=20`, requests queued and timed out with `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** `2026-03-14T02:14:18.972Z` to end of log (`03:59:27.974Z`), still active. Gateway only — `worker.log` shows no errors, jobs completed normally throughout.\n\n**Rollback:** revert `dep-4471`, or set `gateway.pool.perRequest` back to `false`.\n\nNext: hand off, someone executes the rollback.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7b089618626b615527438881a3fa379069fec51f391133733c1c4f82532e0225"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__precap__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 15,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "precap",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 124261,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3326048,
+  "numTurns": 23,
+  "durationMs": 122606,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12106
+  },
+  "contextTraffic": 346571,
+  "apiCalls": 7,
+  "toolCalls": 22,
+  "toolResultChars": 23423,
+  "narrationWords": 0,
+  "finalWords": 161,
+  "finalText": "**`CHANGELOG.md` is updated for 4.2.0.**\n\nOut of 380 commits, only 11 merged PRs actually touch what users see. Everything else was dependency bumps, renames, and internal refactors.\n\nTwo things stand out. First, an expired token now returns `401` instead of `403` — that's a breaking change, since anyone checking for `403` will need to update. Second, webhook deliveries now retry automatically with backoff, which is the one new feature.\n\nThe rest are eight real bug fixes: a database log that was writing out full request bodies, doubled trailing slashes in queue and job URLs, a broken empty allowlist, a trace id that got lost on retry, wrong units in a latency metric, a webhook paginator that broke on a null cursor, a duplicate HTTP header, and a queue error message that used to leak the raw token.\n\nI skipped everything labeled dependencies or internal, and didn't count the module-by-module refactors in `commits.log` — those never made it into a merged PR.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "888aefd963088a32b902f1fa773d69cf24051e2b2e539037510cd0421cb0184f"
+}

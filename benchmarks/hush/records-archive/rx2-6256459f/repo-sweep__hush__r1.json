@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 6,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 88224,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6095191999999999,
+  "numTurns": 44,
+  "durationMs": 86626,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10496
+  },
+  "contextTraffic": 393995,
+  "apiCalls": 10,
+  "toolCalls": 43,
+  "toolResultChars": 25499,
+  "narrationWords": 29,
+  "finalWords": 66,
+  "finalText": "Migration's done. 12 files were still on `db.query` — one repo or service file in each of analytics, orders, billing, support, catalog, and accounts. All switched to `db.execute({ sql, params })`, matching the pattern already used everywhere else.\n\nLeft untouched, on purpose:\n- `cache.query` calls — different object, not part of this migration.\n- `vendor/legacy-orm/adapter.js` — vendored code, not ours to edit.\n\n`node verify.js` passes clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "af45fb851a7dea8a7b25a1116a72ef516c75eebcc7c9a96c5ca06129a56f0809"
+}

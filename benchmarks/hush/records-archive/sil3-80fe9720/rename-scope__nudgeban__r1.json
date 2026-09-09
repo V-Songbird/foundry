@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__nudgeban__r1",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 8,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "nudgeban",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42229,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.2648675,
+  "numTurns": 13,
+  "durationMs": 40443,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2168
+  },
+  "contextTraffic": 140855,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 12408,
+  "narrationWords": 0,
+  "finalWords": 119,
+  "assistantMsgs": 1,
+  "finalText": "**Big, but mostly mechanical.** 1082 hits across 94 files.\n\n| Zone | Files | Rename? |\n|---|---|---|\n| `services/**` JS vars | 75 | Yes |\n| `lib/audit.js` | 1 | Yes |\n| `docs/openapi.yaml` | 1 | No, public contract |\n| `lib/serialize.js` WIRE values | 1 | No, frozen wire name |\n| `vendor/reporting-sdk` | 4 | No, regenerated |\n| `migrations/**` | 12 | No, applied history |\n\nOne more trap. The SQL column stays `account_id` inside repo files. Only a new migration can rename it.\n\nAsk the platform team for two things. A new dated API version, or a serializer that maps `owner_id` back to `account_id`. And a fresh migration, not edits to old ones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7516ee9fb99e6d7c4c465cff9d41c1d2f8ca85f38ef4887bf65645cc9f831e8a"
+}

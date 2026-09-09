@@ -1,0 +1,40 @@
+{
+  "key": "plan-apply__caveman__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 161,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 21640,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.17082,
+  "numTurns": 6,
+  "durationMs": 20521,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1212
+  },
+  "contextTraffic": 85800,
+  "apiCalls": 4,
+  "toolCalls": 5,
+  "toolResultChars": 2531,
+  "narrationWords": 0,
+  "finalWords": 246,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Plan, plus one question that changes the code.\n\n**Ambiguity: \"same data\" mean what?**\n`buildRows()` return 6 fields (`id, suite, status, ms, owner, slow`). Table print only 4 — `format.js` drop `owner` and `slow` on purpose (narrow terminal). So:\n- **A)** JSON = full row, 6 fields. JSON is data export, table is a lossy view. My recommendation — JSON consumer want everything, and comment in `report.js` say every field survive to that point.\n- **B)** JSON = same 4 columns as table, so both output byte-for-byte comparable.\n\nI assume **A** unless you say otherwise.\n\n**Changes**\n1. `src/cli.js` — parse flag. `argv[0] === 'report'`, then scan rest for `--json`. Unknown flags: print usage, exit 1 (today anything after `report` silent ignored). Update `USAGE` to `usage: cli.js report [--json]`.\n2. New `toJson(rows)` in `src/format.js` — `JSON.stringify(rows, null, 2)`. Keep it beside `toTable` so both renderers live in one place; `report.js` stay renderer-agnostic.\n3. Branch in `main`: `const out = flags.json ? toJson(rows) : toTable(rows)`. Single write, same trailing newline, exit 0 both paths.\n\n**Not change**\n- `report.js` — untouched. Sort order (slowest first) carry into JSON array order for free.\n- `COLUMNS` export stay for table only.\n\n**Check after**\n- `node src/cli.js report` output identical to before (diff against saved current output).\n- `node src/cli.js report --json | node -e 'JSON.parse(...)'` parse clean, array length match row count, first element highest `ms`.\n- No test file in repo, no package.json. Want me add tests, or manual verify enough?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3a56a91d408b28da47a6dc6b3325a3fd1f2456c4bdc1f10479d4503fbd008b0"
+}

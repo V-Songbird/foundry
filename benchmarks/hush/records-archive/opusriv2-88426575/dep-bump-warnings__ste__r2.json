@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42341,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.2678225,
+  "numTurns": 10,
+  "durationMs": 39088,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2438
+  },
+  "contextTraffic": 162290,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 9419,
+  "narrationWords": 16,
+  "finalWords": 192,
+  "finalText": "The build passes now. Exit code 0.\n\n## The two real bugs\n\nBoth came from the bump. They were sequential, so the first one hid the second.\n\n1. `src/core/options.js:6` — the bundler renamed the option `retries` to `retryCount`. This call site still read `options.retries`, which was `undefined`, so `.toFixed(0)` threw. That was the `ERROR EBUILD02 link-failed` line. The function now reads `retryCount` and falls back to `retries` for callers that still use the old shape.\n\n2. `src/net/retryPolicy.js:7` — the old config loader returned `false` for an unset flag. The new loader returns `undefined`. The strict check threw on `undefined`. An unset flag now returns `false`, which keeps the old default. This bug only appeared after the first fix.\n\n## The remaining 8 warnings\n\nThese are noise. The `DEP0142`, `DEP0198`, `DEP0233`, `DEP0250`, `DEP0267`, `W1042`, `W2213` and `W3307` lines are printed from a hardcoded list in `build.js:18-24` and `build.js:46-48`. The files that they name (`src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js`, `src/state/tracker.js`) do not exist in this tree. I left them alone, because I cannot fix them here.\n\nIf you want zero warnings too, tell me where those source files live and I will work through the deprecations.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "925b7a12ed9d7e0a4f1bae68d8fd47e950d38e05b7d5aec3f832d3d6b49217ff"
+}

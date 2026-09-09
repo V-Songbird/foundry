@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 10,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37178,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.25511120000000004,
+  "numTurns": 13,
+  "durationMs": 35373,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2315
+  },
+  "contextTraffic": 410160,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 14341,
+  "narrationWords": 152,
+  "finalWords": 106,
+  "finalText": "Fix verified from all angles, including a CLI-level partial `output.dir` override that the fixture never shipped, and confirmation that `RELEASE_DEFAULTS` isn't mutated.\n\n**Root cause:** `resolveRelease` in `packages/shared/config.js` merged config layers with a shallow `Object.assign`. Since `output` and `sourcemap` are nested objects, any package override that named just one nested key (e.g. `@acme/api`'s `output: { format: 'esm' }`) replaced the entire nested object, wiping out `output.dir` — which the bundle stage then flagged as missing.\n\n**Fix:** deep-merge the `output` and `sourcemap` sub-objects at each layer (defaults → package overrides → CLI flags) instead of doing a flat `Object.assign`. Build now runs clean (0 errors) and `verify.js` passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "03b8238b6813a2b9ecc62f35ae1750ccc7642186943c5fce9d59d10415d596a3"
+}

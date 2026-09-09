@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__notrust__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrust",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40121,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 0.30924300000000005,
+  "numTurns": 10,
+  "durationMs": 38506,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2287
+  },
+  "contextTraffic": 212603,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6868,
+  "narrationWords": 7,
+  "finalWords": 90,
+  "finalText": "**The build passes now.** You were right, one of them was real. Two were.\n\nThe bump changed two shapes, and each broke a call site:\n1. Options now arrive as `retryCount`, not `retries`. `src/core/options.js` reads both.\n2. Unset flags now arrive as `undefined`, not `false`. `src/net/retryPolicy.js` treats that as off, like before.\n\nThe first one crashed the link stage. Fixing it uncovered the second.\n\nThe deprecation warnings are pure noise. They're hardcoded strings in `build.js`, and the files they name don't exist here. Nothing in your code can silence them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9e0e7f92083bbe68e417b5a047487fb510f0ffe414e1bfa32a2385528fab59eb"
+}

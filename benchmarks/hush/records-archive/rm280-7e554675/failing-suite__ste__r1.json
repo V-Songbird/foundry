@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 28,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31253,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.277083,
+  "numTurns": 10,
+  "durationMs": 29754,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1580
+  },
+  "contextTraffic": 199293,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12831,
+  "narrationWords": 25,
+  "finalWords": 171,
+  "finalText": "The suite is green: 625 total, 625 passing, exit code 0.\n\n**What was broken**\n\nOnly 3 of 625 cases failed, all in the `orderTotals` suite. The cause was one line in `orderTotal` at `src/pricing.js:41`. The function took the discount off the base, but then computed the tax on the original, undiscounted base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // wrong base\nreturn discounted + tax;\n```\n\nThis contradicts the doc comment above the function and the rule in `cases.js:88`. Both say that tax applies to the discounted amount.\n\nMost rows in the suite use a zero discount or a zero tax. With either value at zero, both formulas give the same number, so those rows passed and hid the bug. Only the 3 rows with a non-zero discount **and** a non-zero tax exposed it.\n\n**The fix**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThe other 8 suites were green before the change and stayed green after it. No test data was modified.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "329c0fedda097b0b7cf651195da38c4aceb233b4e4b27af45226831bcdbb5d08"
+}

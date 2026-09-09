@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__why__r2",
+  "batchId": "why1-9bdca161",
+  "seed": "1788002457000",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "why",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24455,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1731612,
+  "numTurns": 10,
+  "durationMs": 22698,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1571
+  },
+  "contextTraffic": 194023,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8000,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, 0 errors.**\n\nTwo real bugs, both from the bundler's shape change:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler sends `retryCount`. Fixed to read `retryCount`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) threw when a flag was `undefined`, since the new config loader stopped defaulting unset flags to `false`. Now treats `undefined` as disabled, same as `false`.\n\nThe rest of the noise, deprecation notices and dedupe lines, was cosmetic.\n\nNext: nothing, build is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9c74ea2cb1761be57ed6e5a538eece01c9058bce09c752677ef04e1b3bdcfed6"
+}

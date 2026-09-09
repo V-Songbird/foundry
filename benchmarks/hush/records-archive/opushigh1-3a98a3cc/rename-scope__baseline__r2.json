@@ -1,0 +1,50 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 135990,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6423935,
+  "numTurns": 17,
+  "durationMs": 135251,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9891
+  },
+  "contextTraffic": 320029,
+  "apiCalls": 11,
+  "toolCalls": 16,
+  "toolResultChars": 26910,
+  "narrationWords": 149,
+  "finalWords": 669,
+  "assistantMsgs": 10,
+  "narrationTexts": [
+    "I'll start by getting a picture of the codebase.",
+    "A 5-service monorepo with a vendored SDK. Let me map every occurrence.",
+    "Only snake_case — no camelCase variants. Now let me read the actual content rather than trust counts.",
+    "Three constraint zones are already visible. Let me check vendor, docs, and the actual code layers.",
+    "Now the code layers — I need to see where the boundary between internal and public actually falls.",
+    "The repo layer has SQL string literals and a JSONB `payload` write. Let me check uniformity across all files and who consumes the vendor SDK.",
+    "All 75 service files are structurally identical clones. Let me pin down exact per-zone counts and check the table coverage.",
+    "Let me verify the most important risk empirically rather than by reading.",
+    "Confirmed the silent-breakage path. One last precise count — how much of the service-layer work is actually free vs. DB-coupled."
+  ],
+  "finalText": "## Verdict\n\nSign off on the **code** rename, not on \"everywhere.\" Four places must keep `account_id`, and one of them fails silently — it will ship a breaking public API change without a single test going red.\n\n## The size\n\n**1,291 occurrences across 94 of 97 files.** All snake_case — there is zero `accountId`/`accountID` anywhere, so there's no case-variant long tail. Only `lib/db.js`, `package.json`, and the vendor README are clean.\n\nThe 75 service files are byte-identical clones modulo naming (I hash-normalized all of them: 25 repos → 1 shape, 25 services → 1 shape, 25 routes → 1 shape). So the bulk is genuinely mechanical — one codemod, an afternoon.\n\n| Zone | Occurrences | Files | Verdict |\n|---|---|---|---|\n| Service locals, params, comments, error strings | ~1,000 | 75 | **Free** — pure codemod |\n| SQL string literals (`WHERE account_id = ?`) | 125 | 25 | **Locked to a DB migration** |\n| `payload` JSONB writes | 25 | 25 | **Locked to a backfill** |\n| `migrations/` | 61 | 12 | **Do not touch** |\n| `vendor/reporting-sdk/` | 20 | 4 | **Do not touch** |\n| `docs/openapi.yaml` | 5 | 1 | **Do not touch** |\n| `lib/serialize.js` WIRE values | 1 | 1 | **Do not touch** |\n\n## Where it must not be renamed\n\n**1. `lib/serialize.js` — the right-hand side of `WIRE`.** This is the internal→public map, and it's the dangerous one. I ran it:\n\n```\nBEFORE rename      : {\"object\":\"invoice\",\"account_id\":7,...}\nAFTER naive rename : {\"object\":\"invoice\",\"owner_id\":7,...}\n```\n\nA codemod that renames the row key without understanding this map doesn't just drop `account_id` from the response — the function's passthrough loop then emits `owner_id` instead. The public API silently renames its field. No exception, no failing assertion. The correct edit is the **left** key only: `owner_id: 'account_id'`.\n\n**2. `migrations/` (61 occurrences).** These are applied history, dated Jan–Jun 2025. Editing them renames nothing in a database that already ran them, and it breaks every down step. A column rename needs a *new* migration.\n\n**3. `vendor/reporting-sdk/` (20 occurrences).** Marked \"do not edit\"; `npm run vendor:refresh` overwrites it wholesale, so any rename silently reverts on the next dependency bump. It's also an external wire protocol. Worth knowing: **nothing in the codebase imports it** — I checked every require. Renaming it is pure downside for zero benefit.\n\n**4. `docs/openapi.yaml` (5 occurrences).** The public contract, including the `/v2/invoices` query parameter. Renaming is a breaking change for every client and needs a new dated API version.\n\n## The thing that actually makes this big\n\nThe 150 DB-coupled occurrences aren't a rename, they're a schema migration — expand/contract over weeks (add column, dual-write, backfill, cut reads, drop), not an afternoon. Two wrinkles:\n\n- The 25 `payload` writes put `account_id` *inside* the JSONB document. Twenty months of existing rows have that key. Renaming it means new rows and old rows disagree, and no schema change catches it.\n- **The migrations directory doesn't cover the schema.** The repos query 25 tables; only 9 of them have DDL here. The other 16 (`api_keys`, `sessions`, `subscriptions`, `coupons`, `refunds`, `ledgers`, …) are defined somewhere else entirely. The files are also internally inconsistent — `20250609_index_account_scans.sql` actually creates `orders`, and `20250624_backfill_account_ids.sql` creates `invoices`, both duplicating earlier migrations. Nobody can size the database half of this from this repo.\n\n## What I'd ask for before signing\n\nSplit it into two changes and approve only the first today:\n\n1. **Internal-only rename** — the ~1,000 free occurrences, with `lib/serialize.js` hand-edited on the left side only and the 125 SQL literals explicitly excluded. Low risk, reversible, ships this week.\n2. **Column rename** — separate proposal, needs the real schema inventory and an expand/contract plan.\n\nThe one blocking question for the platform team: *is the DB column in scope, or just the code?* If they say \"just the code,\" this is small and I'd sign it. If they mean the column too, the migrations directory can't tell you what you'd be migrating, and that gap needs closing before anyone signs anything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "999db1615a526993eb18a21cb253a5c4c206dc0a043014bb8b69efd1e9d95659"
+}

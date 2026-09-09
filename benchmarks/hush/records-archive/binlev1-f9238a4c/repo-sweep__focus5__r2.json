@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__focus5__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 31,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "focus5",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 127977,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.9473814999999999,
+  "numTurns": 60,
+  "durationMs": 126052,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13080
+  },
+  "contextTraffic": 357328,
+  "apiCalls": 9,
+  "toolCalls": 59,
+  "toolResultChars": 52160,
+  "narrationWords": 4,
+  "finalWords": 69,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching."
+  ],
+  "finalText": "**Migration done: 36 call sites across 12 files now use `db.execute({ sql, params })`.**\n\nFiles touched, 3 sites each: `sla.js`, `refund.js`, `session.js`, `cohort.js`, `supplier.js`, `shipment.js`, plus `couponService.js`, `returnService.js`, `teamService.js`, `macroAdmin.js`, `apiKeyAdmin.js`, `variantAdmin.js`. `node --check` passes on every file. No `db.query` left outside vendor.\n\nTwo sites remain in [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit, since upgrades overwrite it.\n\nNext: pin or patch `legacy-orm` upstream before the driver drops `query`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dfa610134eb8a2154d3bd6317650faf90c299cc269a7f3ab373ac2ec72047981"
+}

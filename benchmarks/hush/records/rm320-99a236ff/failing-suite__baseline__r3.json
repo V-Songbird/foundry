@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34894,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.25532350000000004,
+  "numTurns": 12,
+  "durationMs": 33533,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2028
+  },
+  "contextTraffic": 152222,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 11841,
+  "narrationWords": 43,
+  "finalWords": 182,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the suite.",
+    "Confirmed a single root cause: `orderTotal` computes tax on the **pre-discount** base (`cents * taxRate`) while its own doc comment and the spec say tax applies to the discounted amount. Fixing:"
+  ],
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\n**What was actually broken** — 3 failures out of 625, all in the `order totals` suite, all one bug in `src/pricing.js:39`:\n\n```js\nconst tax = roundCents(cents * taxRate);   // tax on the pre-discount base\nreturn discounted + tax;\n```\n\nThe tax was computed off `cents` (the original amount) instead of the discounted amount, so every order was over-taxed by `discount × taxRate`. The function's own doc comment already stated the correct rule (\"take the discount off, then tax what's actually owed\") — only the code disagreed.\n\n**The fix:**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nWhy only 3 rows caught it: 66 of the 69 order-total cases have either a 0% discount or a 0 tax rate, and with either factor at zero both orderings give the same answer. Only the three rows with both non-zero (`12000/15%/8.25%`, `8650/20%/5%`, `33400/10%/20%`) could expose it — e.g. 11190 vs. the correct 11042.\n\nEverything else in the wall of output was passing noise; `src/tiers.js` and the other eight suites were fine and I didn't touch them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "80b879d8a65f9d571724a7d56d478cedcb001b64605043b292c70cc5c5767f67"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__first__r2",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "first",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49187,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.3167365,
+  "numTurns": 15,
+  "durationMs": 47255,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2939
+  },
+  "contextTraffic": 174257,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 15081,
+  "narrationWords": 5,
+  "finalWords": 95,
+  "assistantMsgs": 2,
+  "finalText": "**About 1,290 hits across 94 files. Four zones must not be renamed.**\n\n| Zone | Hits | Call |\n|---|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | Frozen public contract |\n| [vendor/reporting-sdk](vendor/reporting-sdk/src/client.js) | 20 | Generated, wiped on refresh |\n| [migrations/*.sql](migrations/20250624_backfill_account_ids.sql) | 61 | Applied history, edits break down steps |\n| [lib/serialize.js:8](lib/serialize.js:8) | 1 | Right side is the wire name |\n\nReal scope is `services/**`, about 1,200 hits. SQL strings there name the live DB column. Those need a new migration first, not a find and replace. Ask whether they mean internal only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1170aabc57e1e4bc7b2811c8d9e5cb53b26a85424b3335fe7b4d054190dc06a2"
+}

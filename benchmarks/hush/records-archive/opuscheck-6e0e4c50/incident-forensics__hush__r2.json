@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 23,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 211804,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.0378345000000002,
+  "numTurns": 22,
+  "durationMs": 204266,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12712
+  },
+  "contextTraffic": 751952,
+  "apiCalls": 19,
+  "toolCalls": 18,
+  "toolResultChars": 25917,
+  "narrationWords": 0,
+  "finalWords": 131,
+  "finalText": "**Written to `HANDOFF.md`.** Root cause, impact window, rollback, and follow-ups.\n\nThe short version for whoever picks up the page:\n\n**Roll back `dep-4471`**, the gateway config change by `a.novak`. It flipped `gateway.pool.perRequest` to `true`, which lets each request hold its own connection and drains the 20-connection pool.\n\nBroken from `02:14:18Z`, still broken at the last log line `03:59:27Z`. That is 1h45m and counting.\n\nEvery user request failed. The only 200s in that window were the 180 `/health` checks, which is why nobody was paged until `03:21`.\n\nTwo things in there I flagged rather than concluded. The exact mechanism is inferred from the deploy summary and the timing, not stated in the logs. And the queue counter oddly resets near `03:39` with no restart logged, so it is not a sign of recovery.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5185e430819e2c7fe3bf2728dc40ab8fb23db0abc28734ca8c2282d7178a1ba2"
+}

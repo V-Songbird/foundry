@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "three-0423088d",
+  "seed": "1787418273908",
+  "orderIndex": 16,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35373,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1544384,
+  "numTurns": 12,
+  "durationMs": 33851,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2646
+  },
+  "contextTraffic": 249459,
+  "apiCalls": 6,
+  "toolCalls": 11,
+  "toolResultChars": 12571,
+  "narrationWords": 0,
+  "finalWords": 172,
+  "finalText": "It's big but mostly mechanical: **1,082 places** across **94 files** say `account_id`. Most of that is the five services (orders, notify, billing, analytics, accounts) using it as a normal internal field name, safe to rename.\n\nThree places must keep `account_id` exactly as is:\n\n1. **`vendor/reporting-sdk/`** — a vendored copy of someone else's code. Its own README says don't edit it, changes get wiped on refresh.\n2. **The old migration files** in `migrations/` — these already ran in production. Editing them doesn't rename anything live, and breaks their rollback step. A real rename needs a brand new migration, not edits to old ones.\n3. **The public API** — `docs/openapi.yaml` and `lib/serialize.js` both mark `account_id` as a frozen public field name. It's returned to every API client and used as a query parameter. Renaming it there breaks every caller unless you ship a new dated API version.\n\nSo: sign off on renaming it inside the five services, but block any change to the vendor folder, the old migrations, and the public API field name.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f9ccb4ac2665498ed423ef626ce25a1979b5a1ba171f88de002200e846d94d6e"
+}

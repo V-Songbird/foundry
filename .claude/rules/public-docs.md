@@ -4,18 +4,39 @@ paths:
   - "**/CHANGELOG.md"
 ---
 
-# Public docs: READMEs and CHANGELOGs
+# Public product documentation
 
-These files are read by end users of the plugins. Every line must help a user decide or act — nothing else earns a place.
+README pages explain current availability, purpose, installation, useful actions
+and honest results. CHANGELOG entries state user-visible changes briefly. Keep
+long research narratives, methodology and experimental records in Foundry's
+central documentation, with sources and limitations; keep usage guides and
+plugin-specific decisions with the plugin.
 
-- When writing any line in a `README.md` or `CHANGELOG.md`, state the **user-visible** effect — "Cuts tool-output noise", never "arm C3 scored 0.2 across 200 runs". Never document internal process there — benchmark methodology, run tags, sample sizes, per-rep numbers, A/B setups, transcript quotes, investigation narratives — write that to private memory instead.
-- When adding a `CHANGELOG.md` entry, write it short and user-facing — "Fixed an issue where sidecar digests miscounted lines", "Added…" — a few lines at most. State the effect, never the journey ("After three batches we traced it to…"): no design rationale, no lessons learned, no wording-choice commentary.
-- When editing a `README.md`, describe **current** behavior only. Delete a historical line like "used to leak tokens, now fixed" rather than keeping it as a caveat. Once an issue is resolved, remove every mention from `README.md`; `CHANGELOG.md` is the record of the past.
-- When a release fixes a limitation, delete its caveat from `README.md` in that same release. Never soften "broken on Windows" to "mostly works on Windows" — delete the line outright instead. A caveat stays only while the limitation is real, current, and user-relevant.
-- **Competitor and reference-project names may appear only in a plugin's `README.md`** — that's the marketing surface, and naming a rival to beat it ("beating the giants") is fair game there. Nowhere else: not CHANGELOGs, manifests, code comments, test names and fixtures, branch names, PR text, or **git commit messages** (subject and body), across the root repo and every submodule. Outside a README, contrast with a generic category ("a rival tool", "a public reference") instead. The names live in gitignored private notes (`docs/research/`); a pre-commit + commit-msg hook (`scripts/git-hooks/check-reference-names.js`, blocklist gitignored, fail-open when absent) enforces this mechanically — its staged-change scan skips `README.md` files and, historically, retained benchmark records under `benchmarks/<plugin>/records/`, and it always blocks commit messages. That second exemption is now inert: ADR 0004 (2026-08-11, see `.claude/rules/benchmark-data.md`) forbids committing any record, so no such path can be staged. A third-party tool a plugin itself recommends, detects, or invokes is not a competitor name and is out of this rule entirely — name it wherever the feature needs it (skill text, code, tests, CHANGELOG), because the user has to be able to act on it.
-- **A plugin README is a front page for someone with zero context, and everything technical lives behind a link.** The front page answers only: what is this, what problem does it solve, why would I want it, how do I install it, what can I do with it, and one short honest numbers section. Anything that needs development knowledge — how the mechanism works, every setting and its default, file formats, schemas, the full benchmark tables, internals — moves into its own page under the plugin's `docs/` and is reached from a `## Going deeper` table. Reference material inlined on the front page is the failure mode: it buries the two paragraphs a new reader actually came for. `razor/README.md` and `foreman/README.md` are the reference implementations.
-- **The shared section order, in this order, skipping any a plugin has no content for:** centered hero block (logo, `<h1>`, one-sentence pitch, poster with a descriptive `alt`, italic caption) → badges → a nav line of anchor links → a `> **TL;DR**` blockquote → `---` → `## What is this?` → `## Why you'd want it` → `## How it works` → `## Install` (with the one-line cross-sell to a sibling plugin) → `## What you can do` (a "You want to… / Command" table) → at most one named feature section → `## The numbers` → `## Going deeper` → `## Good to know` → `## License`.
-- **`## The numbers` on the front page is a headline and an honest loss, never a report.** Two or three small two-row tables under bold questions, then a `> [!IMPORTANT]` box naming where the plugin loses and linking to the full page, then one italic line saying numbers move between runs. Batch tags, sample sizes, arm names, per-rep figures and p-values never appear on a README — they belong in `docs/BENCHMARKS.md` at most, and in private notes otherwise.
-- **`docs/` is gitignored by default and each published page is allow-listed by name** in the plugin's own `.gitignore` (`/docs/*` then `!/docs/HOW-IT-WORKS.md` and so on). That lets local research notes share the folder with published pages without ever shipping by accident, and makes publishing a new page a deliberate one-line act.
-- Match the canonical skeleton/voice in `.github/PLUGIN_README_TEMPLATE.md` — warm, plain-spoken, and lightly funny (friendly, not corporate hype). Lead with the answer, keep sentences short, explain any needed term in plain words in the same sentence, and give the concrete number over the abstract claim; the template carries a synthetic voice exemplar to calibrate against. Two non-negotiables: no profanity, and never make the joke at a real project's or person's expense — naming a rival to out-compete it is fine, belittling it is not. razor and hush are the reference implementations.
-- For a callout that needs visual weight (an honest limitation, a non-destructive guarantee, a cost caveat), use GitHub's alert syntax — `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` — instead of an italic aside. Pick the type by actual stakes: NOTE/TIP for helpful context, IMPORTANT for something the user needs to succeed, WARNING/CAUTION for real risk. Don't reach for WARNING or CAUTION to manufacture urgency a NOTE would cover. Use one or two per file, not one per paragraph.
+Each plugin's Claude and Codex README follows the same narrative and section
+order. Use the native readme-parity rule and the current shared template.
+Changes outside its six bounded exceptions belong in both editions together.
+An unavailable edition says so explicitly instead of borrowing installation
+instructions or capabilities from its sibling.
+
+Benchmark tables identify the actual model, setup, metric and denominators.
+Use the same questions and columns in both editions, with each edition's own
+measurements. Keep losses and limitations. An absent result is Not measured;
+unit-test counts and activation checks are not performance comparisons. Put
+long tables and methodology behind links. Source dates and review dates are
+different facts. Never replace model names in inherited evidence.
+
+Write warm, clear, concrete prose. Keep paragraphs short and technical reference
+behind links. Fair comparisons may name their subjects in a README. Never
+belittle a real person or project, and do not use profanity. Elsewhere use the
+applicable research and publication policy rather than applying README style
+rules to an entire investigation.
+
+Use GitHub callouts only when they help a reader make a decision. Keep real,
+current limitations visible; remove resolved caveats from the README when the
+release actually resolves them. CHANGELOG records user-facing changes rather
+than an investigation diary.
+
+Community files retain their canonical template text and necessary
+plugin-specific sections. Run navigation and parity checks and inspect source
+evidence before treating a documentation change as ready. A formatting check
+does not establish runtime or experimental parity.

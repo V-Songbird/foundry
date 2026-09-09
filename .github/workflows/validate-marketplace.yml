@@ -33,5 +33,7 @@ jobs:
       - name: every front page carries a nav whose links all resolve
         run: node scripts/git-hooks/check-readme-nav.js README.md flint/README.md
 
-      - name: the git-hook scripts' own tests must pass
-        run: node --test scripts/git-hooks/*.test.js
+      - name: project maintenance checks must pass
+        run: node --test scripts/git-hooks/*.test.js .claude/hooks/*.test.js
+      - name: maintained edition copies must agree
+        run: node scripts/git-hooks/check-maintenance-copies.js

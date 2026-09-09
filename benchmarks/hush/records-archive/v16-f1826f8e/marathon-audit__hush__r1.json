@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r1",
+  "batchId": "v16-f1826f8e",
+  "seed": "1786435613981",
+  "orderIndex": 54,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 131005,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8407338,
+  "numTurns": 54,
+  "durationMs": 125043,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9939
+  },
+  "contextTraffic": 1103481,
+  "apiCalls": 22,
+  "toolCalls": 50,
+  "toolResultChars": 29265,
+  "narrationWords": 0,
+  "finalWords": 109,
+  "finalText": "`fast-parse` is pinned at `1.4.2` in `package.json` — exactly the version NOTES.md says was yanked for a prototype-pollution report. `1.4.3` is the fix, and it was never bumped. The other three pins (`pg-lite`, `redis-min`, `date-fmt`) match what NOTES.md says is fine.\n\n`AUDIT.md` is written with all four findings, most severe first:\n\n1. `src/routes/internal.js` — no auth on the internal routes, live and reachable now that the VPN is gone.\n2. `src/repo/report.js` — SQL injection via string-built filter and sort in `runSavedReport`.\n3. `config/staging.js` — staging DB password committed in plaintext.\n4. `package.json` — `fast-parse` still on the yanked `1.4.2`.\n\nNo service files were touched — only `AUDIT.md` was added.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "662e22c9fc0c5857fb97ec04147dce222b55c3da9551d53baca9e72ca4f2a65d"
+}

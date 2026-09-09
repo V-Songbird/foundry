@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25497,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2103526,
+  "numTurns": 10,
+  "durationMs": 23979,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1642
+  },
+  "contextTraffic": 270558,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 15702,
+  "narrationWords": 63,
+  "finalWords": 83,
+  "finalText": "Build is clean now (exit 0). Two real bugs from the bundler bump, both in the link stage:\n\n- `src/core/options.js:6` — still read `options.retries`, but the new bundler passes `retryCount`, so it threw on `undefined.toFixed()`.\n- `src/net/retryPolicy.js:8` — the strict boolean check threw when the flag was `undefined` (the new config loader's way of saying \"unset\"); now it treats `undefined` as `false`, same as before.\n\nThe remaining 8 warnings are just the deprecation/lint noise baked into the bundler output — not blocking anything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b92f64c2a07a6b204f4efee2257c824ac1848130244c8bc74ab0afa73a2afbb3"
+}

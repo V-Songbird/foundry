@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 64837,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1926938,
+  "numTurns": 9,
+  "durationMs": 63409,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5811
+  },
+  "contextTraffic": 163360,
+  "apiCalls": 5,
+  "toolCalls": 8,
+  "toolResultChars": 21129,
+  "narrationWords": 0,
+  "finalWords": 107,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits and 128 PRs, 12 fixes and 1 feature actually touch behavior. Everything else was dep bumps, refactors, tests, and CI.\n\nTwo worth double-checking yourself:\n- Auth now returns `401` instead of `403` for expired tokens. That's a status-code contract change, not just a bugfix, so it might belong under `### Breaking`.\n- \"Trace id dropped across a retry\" and \"null cursor in paginator\" each landed three or four times across different modules (`api`, `queue`, `webhooks`, `db`) — same bug class, separate fixes, not duplicates.\n\nNext: decide if the 401/403 change needs a Breaking callout before you ship.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "25d53a70d988e9032cac5fc67f7f15eee95299866c5822cf16e0693279869fcc"
+}

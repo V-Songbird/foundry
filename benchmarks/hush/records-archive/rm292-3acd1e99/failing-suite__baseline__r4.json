@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 23,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34220,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2886075,
+  "numTurns": 11,
+  "durationMs": 32835,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2021
+  },
+  "contextTraffic": 220927,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12232,
+  "narrationWords": 25,
+  "finalWords": 205,
+  "assistantMsgs": 3,
+  "finalText": "Green: 625/625, exit 0.\n\n**What was actually broken:** 3 failures out of 625, all in `orderTotal` (`src/pricing.js:39`). Everything else — discounts, taxes, tiers, refunds, shipping, loyalty, rounding — was already passing; the wall of text was ~700 lines of `ok` lines and a fake coverage table.\n\nThe bug was tax being charged on the pre-discount amount:\n\n```js\nconst tax = roundCents(cents * taxRate);   // cents, not discounted\nreturn discounted + tax;\n```\n\nThat contradicts the function's own docstring (\"tax what's actually owed... the discount has to come off the base before the rate is applied\"). It only shows up when a row has **both** a non-zero discount and a non-zero tax — 66 of the 69 order-total rows have one or the other zeroed, which is why it hid. On `orderTotal(12000, 15, 0.0825)` it overcharged by 148 cents (11190 vs. 11042).\n\nFix: apply tax to the discounted subtotal, reusing the existing helper.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nOne note for you: this changes real billing output — any order with a discount *and* tax now totals lower than before. If historical invoices were generated with the old code, they were overcharged, so it's worth deciding whether that needs reconciling separately.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "321671d18935e7b102f425eea50b11110edd18d34fac79a8596c1e90625eb454"
+}

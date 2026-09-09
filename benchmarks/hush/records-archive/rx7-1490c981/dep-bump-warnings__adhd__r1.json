@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rx7-1490c981",
+  "seed": "1786465735558",
+  "orderIndex": 2,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21493,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.163748,
+  "numTurns": 9,
+  "durationMs": 20143,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1495
+  },
+  "contextTraffic": 197837,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 5800,
+  "narrationWords": 11,
+  "finalWords": 68,
+  "finalText": "Build passes clean, exit 0.\n\nFixed two real bugs the dep bump exposed (the rest was just deprecation-warning noise):\n\n1. `src/core/options.js:6` — bundler now hands `{ retryCount }`, code still read `options.retries` (undefined), crashing on `.toFixed()`.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined` instead of `false`, but the check only handled `true`/`false` explicitly and threw otherwise.\n\nNext: `node build.js` to see the clean run yourself.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dd6c5adf89fdd902d03e0499669bd83f1fd1fd505bd8306630b58e5a51f18c7e"
+}

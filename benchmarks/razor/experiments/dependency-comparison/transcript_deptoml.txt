@@ -1,0 +1,42 @@
+--- ASSISTANT TEXT ---
+I'll read the current config.py file first to understand what's already there.
+--- TOOL_USE Read --- {"file_path": "D:\\Projects\\Personal\\SoftwareDevelopment\\claude-plugins\\.benchmarks\\razor-vs-ponytail\\runs\\20260706-084416\\dep-toml__razor__ha
+--- TOOL_RESULT --- 1	def load_config(path):
+2	    """Load the service config from a TOML file."""
+3	    raise NotImplementedError
+4	
+--- ASSISTANT TEXT ---
+Let me check what dependencies are available in this project.
+--- TOOL_USE Glob --- {"pattern": "**/requirements*.txt"}
+--- TOOL_RESULT --- requirements.txt
+--- TOOL_USE Glob --- {"pattern": "**/setup.py"}
+--- TOOL_RESULT --- No files found
+--- TOOL_USE Glob --- {"pattern": "**/pyproject.toml"}
+--- TOOL_USE Glob --- {"pattern": "**/poetry.lock"}
+--- TOOL_RESULT --- No files found
+--- TOOL_RESULT --- No files found
+--- TOOL_USE Read --- {"file_path": "D:\\Projects\\Personal\\SoftwareDevelopment\\claude-plugins\\.benchmarks\\razor-vs-ponytail\\runs\\20260706-084416\\dep-toml__razor__ha
+--- TOOL_RESULT --- 1	flask==3.0.3
+2	requests==2.32.3
+3	rich==13.7.1
+4	
+--- TOOL_USE Bash --- {"command": "cd \"D:\\Projects\\Personal\\SoftwareDevelopment\\claude-plugins\\.benchmarks\\razor-vs-ponytail\\runs\\20260706-084416\\dep-toml__razor_
+--- TOOL_RESULT --- total 35
+drwxr-xr-x 1 Songbird 197121     0 Jul  6 08:44 .
+drwxr-xr-x 1 Songbird 197121     0 Jul  6 08:44 ..
+drwxr-xr-x 1 Songbird 197121     0 Jul  
+--- TOOL_USE Read --- {"file_path": "D:\\Projects\\Personal\\SoftwareDevelopment\\claude-plugins\\.benchmarks\\razor-vs-ponytail\\runs\\20260706-084416\\dep-toml__razor__ha
+--- TOOL_RESULT --- 1	host = "localhost"
+2	port = 8080
+3	debug = true
+4	
+--- ASSISTANT TEXT ---
+Now I'll implement the function. The config.toml shows the expected structure with host, port, and debug keys. I'll use Python's built-in `tomllib` (available in Python 3.11+) to parse the TOML file.
+--- TOOL_USE Edit --- {"replace_all": false, "file_path": "D:\\Projects\\Personal\\SoftwareDevelopment\\claude-plugins\\.benchmarks\\razor-vs-ponytail\\runs\\20260706-08441
+--- TOOL_RESULT --- The file D:\Projects\Personal\SoftwareDevelopment\claude-plugins\.benchmarks\razor-vs-ponytail\runs\20260706-084416\dep-toml__razor__haiku__0\config.p
+--- ASSISTANT TEXT ---
+Done. The function:
+- Opens the TOML file in binary mode (required by `tomllib`)
+- Parses it and checks for missing required keys
+- Raises `ValueError` with a clear message if any key is missing
+- Returns a dict with the three required keys

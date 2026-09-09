@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 105,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 46899,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08337320000000001,
+  "numTurns": 15,
+  "durationMs": 45419,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2618
+  },
+  "contextTraffic": 350075,
+  "apiCalls": 11,
+  "toolCalls": 14,
+  "toolResultChars": 14114,
+  "narrationWords": 0,
+  "finalWords": 98,
+  "finalText": "All 4 tests pass. The pool leak is fixed.\n\nThe bug was in `processOrder.js`. When an order failed validation and `run()` threw an error, the connection never got released because the `pool.release()` call was unreachable. As bad orders accumulated in production, all 5 connections got stuck and the pool exhausted.\n\nThe fix uses the `withConnection()` helper, which wraps everything in try-finally to guarantee release, just like the API handler does. The old comment about needing the connection held across a retry loop was stale—that loop had been removed but the code wasn't refactored to use the safe wrapper.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6995cf456240ce47971770a7bc138fb1f9b95a7390ade92a8b4ee280854cf9c7"
+}

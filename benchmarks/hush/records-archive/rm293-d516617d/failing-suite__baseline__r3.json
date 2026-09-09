@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31646,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2599835,
+  "numTurns": 10,
+  "durationMs": 30197,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1711
+  },
+  "contextTraffic": 185980,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12341,
+  "narrationWords": 33,
+  "finalWords": 175,
+  "assistantMsgs": 4,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n**What was actually broken:** one bug, in `orderTotal` (`src/pricing.js:39`). It applied the tax to the *pre-discount* amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- `cents`, not `discounted`\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax what's actually owed\") and the spec in `cases.js:89`. Fixed to tax the discounted amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\n**Why the wall of text:** 625 cases all print a line, but only 3 failed — cases 433–435, the only rows in the order-totals suite with *both* a non-zero discount and a non-zero tax. The other 66 rows in that suite have one factor zeroed, which makes the two orderings agree, so they passed and masked the bug. The other 8 suites were clean; no test or spec changes were needed.\n\nTo read a red run in future: `node run-tests.js 2>&1 | Select-String -Pattern '^\\s*(FAIL|\\d+\\))'` gets you the failures without the noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0ce4b28ecbeeba0d7fcf592b83fc4044bb1fb6d49abb64855cd40a1fbd74e6c1"
+}

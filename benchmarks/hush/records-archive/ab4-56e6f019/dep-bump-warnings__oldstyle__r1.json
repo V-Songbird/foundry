@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__oldstyle__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22431,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1318446,
+  "numTurns": 9,
+  "durationMs": 20736,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1715
+  },
+  "contextTraffic": 239849,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 6379,
+  "narrationWords": 0,
+  "finalWords": 80,
+  "finalText": "Build's clean now. Two real bugs were hiding under the noise.\n\n1. `src/core/options.js` still read `options.retries`, but the bumped bundler now hands options as `retryCount`. That crashed the build.\n2. `src/net/retryPolicy.js` treated an unset flag as invalid instead of \"off\". The new config loader leaves it `undefined` instead of `false`, so it threw.\n\nBoth are fixed. The build finishes with exit code 0, \"0 errors\". The other 8 warnings left in the log are just deprecation noise, safe to ignore.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "464c3c980e1b89a825cb86deb62d6bc1fda93280d7c861ded6f6b5ec18d90c11"
+}

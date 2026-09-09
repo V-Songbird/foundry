@@ -1,0 +1,40 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 32,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51575,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.49598,
+  "numTurns": 14,
+  "durationMs": 50029,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2940
+  },
+  "contextTraffic": 309816,
+  "apiCalls": 9,
+  "toolCalls": 13,
+  "toolResultChars": 36787,
+  "narrationWords": 0,
+  "finalWords": 55,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Migrated 36 `db.query` calls across 12 files.** All 12 load clean under `node`.\n\nOne file left alone: [vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9). Its header says do not edit, since upgrades overwrite it. It still has 2 `db.query` calls.\n\n`cache.query` is a different API. Untouched.\n\nNext: raise the `db.query` use with the `legacy-orm` upstream, or wrap the vendor call site.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "99abb6e2ffc82b6d4b5b8254b9f3c1a4ee98a2a74c22a9376f31902ddfaabe73"
+}

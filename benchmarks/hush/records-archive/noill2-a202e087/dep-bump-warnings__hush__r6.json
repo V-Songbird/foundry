@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r6",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37476,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24267899999999998,
+  "numTurns": 10,
+  "durationMs": 35894,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1855
+  },
+  "contextTraffic": 149696,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6340,
+  "narrationWords": 7,
+  "finalWords": 78,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, fall back to old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat `undefined` as off |\n\nThe 8 warnings are still there. They are real deprecations, like `Buffer()` and `punycode`. None break the build.\n\nNext: clear those deprecations if you want a silent log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d76077d7064159f265fe98911651f8b5edd67145eb383da666809a2e2c8e9915"
+}

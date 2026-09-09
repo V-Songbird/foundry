@@ -1,0 +1,42 @@
+{
+  "key": "incident-forensics__concise__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 140,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "concise",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 127861,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6111084999999999,
+  "numTurns": 15,
+  "durationMs": 124267,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8253
+  },
+  "contextTraffic": 386440,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 17576,
+  "narrationWords": 5,
+  "finalWords": 555,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll look at the log."
+  ],
+  "finalText": "## On-call handoff — gateway 503s, 2026-03-14\n\n**Status at handoff: ONGOING.** The log ends at 03:59:27Z with the gateway still failing. Nothing in the log indicates recovery, rollback, or mitigation. Assume it is still broken.\n\n### Root cause\n\nDeploy `dep-4471` flipped `gateway.pool.perRequest` from `false` to `true` without increasing pool size. Each request now takes a dedicated connection instead of multiplexing, so a pool of 20 exhausts immediately under normal traffic. Every 503 is a connection-acquisition failure, not an upstream fault:\n\n```\n02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nConfig generation 119 also raised `gateway.timeout.upstreamMs` 2000 → 2500, which compounds it by holding each connection ~25% longer.\n\nCorroborating: `03:02:30.904Z WARN pool connection churn: 4180 opens in the last 5m, baseline is 40` — a 100x jump, exactly the signature of per-request connections.\n\n### Impact window\n\n| | |\n|---|---|\n| First 503 | **02:14:18.972Z** (`req-07401`) |\n| Last 503 in log | **03:59:27.974Z** (`req-17907`) |\n| Duration | **≥1h 45m, unresolved** |\n| Failed requests | **530 on this node** |\n| Error rate | **71%** (5m avg, per the 03:21:05Z page) |\n\nClean before 02:14 — zero 503s and `waiting=0` from log start at 01:00. Onset was abrupt: config applied 02:13:41.234Z, first slow-acquire warning 02:14:14.920Z, first 503 four seconds later. Pool went from `in_use=10 idle=10 waiting=0` at 02:10 to `idle=0` at 02:15 and never released.\n\nBlast radius is all four backends and all six routes evenly — this is not one sick dependency. **Two things to check before you size the impact:** the log header says `node-3 of 3`, so fleet-wide failures are plausibly ~3x the 530 here; and `/health` kept returning 200 with `pool_wait=2ms` the entire time, so the load balancer never ejected the bad nodes and probably still hasn't.\n\n### Roll back\n\n**`dep-4471`** — gateway, a.novak, 02:12–02:14Z, *\"config: connection-per-request for pool isolation.\"* Revert config generation 119 → 118.\n\nIf a full revert isn't available, `gateway.pool.perRequest: false` alone should stop the bleeding; the timeout bump is secondary. Raising pool size instead is not a fix — per-request connections scale with concurrency, not a fixed ceiling.\n\nRuled out: `dep-4472` (billing 02:41) and `dep-4473` (catalog 03:20) both landed after saturation and changed nothing — error rate held flat across both, and non-deployed services failed at the same rate. `dep-4468/4469/4470` all finished by 00:55, followed by 80 clean minutes.\n\n### Not part of this incident\n\n- **worker.log is clean.** 1,080 jobs, zero failures, pool flat at `size=8 in_use=1 idle=7 waiting=0` across all 18 samples. Don't chase workers.\n- Worker job durations ramp 200ms → 2324ms, but the ramp starts at 01:00 (before the deploy) and is mechanically linear — +31ms per job, 900 times, no inflection at 02:14. `db_wait` stays 0–12ms. Unrelated; I'd guess an instrumentation artifact. Possibly worth a separate look against `dep-4470`.\n- `02:36:22Z WARN db slow query 1.9s ... unindexed scan, known issue OPS-2210` — one occurrence, pre-existing ticket.\n\n### Caveat on the log\n\nTimestamps are locally out of order in places (line 1747 `03:39:55` precedes `03:39:03`), and the `waiting=N` counter resets to ~12 roughly hourly while `idle=0` holds. Neither is recovery. I read both as logging artifacts, but if you need exact per-minute failure counts for a postmortem, validate against metrics rather than this file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "71e564764ce4a4a55a007a7f369e37127de180bea0c50999c919912d21b4a967"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__amend__r6",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "amend",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24396,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12192719999999999,
+  "numTurns": 11,
+  "durationMs": 22651,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1206
+  },
+  "contextTraffic": 204461,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 12303,
+  "narrationWords": 20,
+  "finalWords": 48,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms it: only the 3 rows with both a discount and tax fail. Fixing `orderTotal` to tax the discounted amount."
+  ],
+  "finalText": "**Suite is green: 625 total, 625 passing.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one. Only rows with both a nonzero discount and tax exposed it, so 3 of 625 cases failed.\n\nFixed by taxing `discounted` instead of `cents`. No other suites had issues.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "21b8381ca1ff91482166b9da11fa09c3132b98f6324b1e2552c4dc270120af56"
+}

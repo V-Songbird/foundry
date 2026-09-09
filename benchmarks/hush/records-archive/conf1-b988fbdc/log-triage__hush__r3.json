@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16713,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1221578,
+  "numTurns": 4,
+  "durationMs": 15194,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1005
+  },
+  "contextTraffic": 92215,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 26294,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into a full crash.**\n\n`redis` died at `02:14:07` with `ECONNREFUSED 10.0.0.12:6379`.\nCache fell back to direct store reads.\nThat triggered constant cache miss storms and store timeouts.\n\nQueue depth climbed from 52 to over 560 across 17 minutes.\nReconnect attempts to `redis` failed 12 times straight, roughly every 80s.\nAt `02:31:44`, `worker-2` hit `JavaScript heap out of memory`.\nAt `02:31:52`, the supervisor killed the api process group.\n\nFull detail in [app.log](logs/app.log).\n\nNext: restore `redis` at `10.0.0.12:6379` and add a queue-depth circuit breaker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cfc5a19b83382f950e4e4064d414647bbd8a9591a65a5f1d68266b6c6823bf9c"
+}

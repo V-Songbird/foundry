@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 143,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28973,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.151029,
+  "numTurns": 8,
+  "durationMs": 26954,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1448
+  },
+  "contextTraffic": 148745,
+  "apiCalls": 4,
+  "toolCalls": 7,
+  "toolResultChars": 4286,
+  "narrationWords": 0,
+  "finalWords": 171,
+  "finalText": "This is a small Node HTTP API, five files, no dependencies.\n\n```mermaid\nflowchart LR\n    server[server.js] --> auth[auth.js]\n    server --> routes[routes.js]\n    routes --> cache[cache.js]\n    routes --> store[store.js]\n    cache --> store\n```\n\n- `server.js` — starts the HTTP server, checks the request's token, then hands off to the router.\n- `auth.js` — makes and checks bearer tokens. Each one is a user ID plus an HMAC signature, signed with `AUTH_SECRET`.\n- `routes.js` — a small table mapping method and path to a handler. Reads go through the cache, writes go straight to the store.\n- `cache.js` — a 256-entry LRU cache sitting in front of the store, for repeated reads.\n- `store.js` — the actual data. It's all in memory, and every record expires 15 minutes after it's written.\n\nOne sharp edge worth knowing: the comment in `routes.js` says writes should invalidate the cache, but `POST /orders` never does that. So after someone posts an order, a cached `orders:<id>` read can keep returning the old list until it's bumped out of the LRU.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "406980a3f36638bf68cafd3671b19be3837503d62f3ca8994a62a08708846b1a"
+}

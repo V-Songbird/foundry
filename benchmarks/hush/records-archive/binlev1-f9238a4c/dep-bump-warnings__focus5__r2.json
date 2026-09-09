@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__focus5__r2",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "focus5",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38229,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.24920350000000002,
+  "numTurns": 10,
+  "durationMs": 36566,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2106
+  },
+  "contextTraffic": 149796,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6261,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now.** Two real bugs, both from the bump.\n\n`resolveRetries` read `options.retries`, but the bundler now sends `retryCount`. It takes either shape. See [options.js:6](src/core/options.js:6).\n\n`isBackoffEnabled` threw on unset flags. Unset now means off, the old default. See [retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe 8 warnings are still printed. They are hardcoded in `build.js` and name files that do not exist here.\n\nNext: nothing, unless you want those warning lines cut from `build.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "908834fc69799709fb409977f86b36406131a5fb2a0ab39f372a19d3ac0c24af"
+}

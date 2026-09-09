@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 68163,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3235865,
+  "numTurns": 9,
+  "durationMs": 66191,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3873
+  },
+  "contextTraffic": 228433,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 7703,
+  "narrationWords": 6,
+  "finalWords": 661,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nRedis died, the cache disappeared, and the service ate itself trying to serve everything straight from the store. Full collapse in ~18 minutes.\n\n**Timeline (all `2026-07-04`, log covers 02:00:00 → 02:31:52)**\n\n| Time | Event |\n|---|---|\n| 02:00 – 02:13 | Healthy. ~170 requests, all `200`, 12–145ms, cache hit ratio 0.90–0.98. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First `cache miss storm: key orders:1000` |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth starts climbing — 52 (max 500) |\n| 02:15:26 – 02:31:26 | 13 `redis reconnect attempt N failed`, all ECONNREFUSED to the same IP, ~80s apart. Never once succeeds. |\n| **02:29:12** | Queue depth crosses the limit: 502 (max 500). Keeps rising to 568. |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## Causal chain\n\n1. **Root cause: Redis at `10.0.0.12:6379` went away.** Not a network blackhole — `ECONNREFUSED` means something answered and refused, i.e. the Redis process was down or not listening (crash, OOM-kill, restart, port/bind change). The cause is *not* in this log; you need the Redis host's logs for 02:14.\n2. **The fallback made it worse.** `falling back to direct store reads` is what turned a cache outage into an availability outage. 174 cache-miss-storm warnings on `orders:1000`→`orders:1119` — every miss became a direct store read.\n3. **Store saturated.** 173 `TimeoutError ... 5000ms`, evenly spread across api/worker-1/worker-2/scheduler from 02:14:10 to the end.\n4. **Queues backed up unbounded.** Depth went 52 → 568 against a stated max of 500 — the limit was logged but clearly not *enforced*, so the backlog kept accumulating in memory.\n5. **OOM → cascade.** worker-2 heap-died (exit 134 = SIGABRT, the standard Node OOM abort), supervisor restarted it into the same overloaded store, and 7 seconds later the api was declared unresponsive and the whole process group was killed.\n\n## The damning detail\n\n**No request succeeded after 02:14:03.** The last `200` in the file is `02:14:03.137 GET /orders 200 75ms` — 4 seconds before Redis dropped. From then on there are zero INFO request lines. So the effective outage started at ~02:14:07, not at the 02:31 FATAL. **You were hard-down for ~17.5 minutes before the supervisor noticed**, which is the real gap: health signals kept the process \"alive\" while it served nothing.\n\nAlso note the reconnect loop is a fixed ~80s interval with no jitter and no cap, and it never has a \"give up and shed load\" path — it just retried into the void for 16 minutes while the queue grew.\n\n## What I'd fix\n\n1. **Redis host post-mortem** — that's the actual root cause and it isn't in this file.\n2. **Don't fall back to unlimited direct store reads.** Add a circuit breaker: when the cache is down, shed/429 a fraction of traffic rather than passing 100% through.\n3. **Enforce the queue cap.** `max 500` was decorative — depth reached 568. Reject at the limit instead of buffering into the heap.\n4. **Add request coalescing / single-flight on cache misses.** 174 storm warnings on a narrow key range means many concurrent requests stampeded the same keys.\n5. **Health check must reflect request success**, not process liveness — that's the 17-minute detection gap.\n6. **Exponential backoff with jitter** on Redis reconnect, and alert after N failures rather than looping silently.\n\n## One flag\n\nThe log is dated **2026-07-04**, but today is 2026-08-28 — this is roughly 7 weeks old, not last night. Either `logs/app.log` is a stale/archived copy or rotation isn't writing where you think. Worth checking you're looking at the right file before you act on this.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "26c1a6c52c41abf7902751f7f7c9116281ec93c8911ad2872fe2c825e24b2273"
+}

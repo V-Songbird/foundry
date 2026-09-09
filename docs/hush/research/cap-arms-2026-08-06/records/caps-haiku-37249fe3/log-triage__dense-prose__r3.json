@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 166,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 16307,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0320665,
+  "numTurns": 2,
+  "durationMs": 14526,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 924
+  },
+  "contextTraffic": 56444,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 136,
+  "finalText": "Redis died at 02:14:07 and never came back.\n\nWhen the Redis connection dropped, your cache layer fell back to hitting the store directly. That flooded the store with cache misses, which started timing out at 5 seconds. Requests piled up in the queue (went from 52 to 565+), and the backlog consumed memory faster than it could drain. At 02:31:44—about seventeen minutes in—the Node process ran out of heap space on worker-2. The supervisor tried to restart it, but by then the api was already drowning and unresponsive, so the whole service went down.\n\nThe root: **Redis at 10.0.0.12:6379 never reconnected.** You made 12 reconnect attempts, all failed with `ECONNREFUSED`. Everything else—the cache miss storm, the queue buildup, the OOM—was the cascade.\n\nCheck whether Redis came back online, or if something broke the network to it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1acb5754421de4b5d82847f742d78395f45cb84bb191a73e6b672a866f5b0bad"
+}

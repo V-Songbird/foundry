@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 156,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30752,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1761158,
+  "numTurns": 5,
+  "durationMs": 29012,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1373
+  },
+  "contextTraffic": 195507,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 7994,
+  "narrationWords": 0,
+  "finalWords": 177,
+  "finalText": "Redis died at 02:14:07, and everything after cascaded from that.\n\n**Timeline:**\n1. `02:14:07` — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). The app fell back to hitting the database directly instead of the cache.\n2. That fallback caused a cache-miss storm, and requests started timing out because the store couldn't handle the direct load.\n3. Redis reconnect attempts (0 through 12) kept failing every ~80 seconds, so it never recovered.\n4. The request queue climbed steadily (52 → over 560, past its 500 limit) as timeouts piled up faster than they cleared.\n5. `02:31:44` — `worker-2` ran out of memory holding the backlog and crashed.\n6. `02:31:45` — supervisor restarted it, but the `api` process was already unresponsive, so the whole service went down.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable and never came back, and the app had no real backup plan for that — it just kept hammering the database until memory ran out.\n\n**Next step:** find out why Redis dropped at `10.0.0.12:6379` around `02:14`, and add a limit so request backlog can't grow unbounded next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bbaae3b859e01518e2bf540a6dea7ea8f52bf184513cd3886fa30129f6027339"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 25,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 104126,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.645154,
+  "numTurns": 13,
+  "durationMs": 103262,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6999
+  },
+  "contextTraffic": 386543,
+  "apiCalls": 12,
+  "toolCalls": 12,
+  "toolResultChars": 29487,
+  "narrationWords": 8,
+  "finalWords": 105,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the directory structure."
+  ],
+  "finalText": "**Wrote the 4.2.0 section** into [CHANGELOG.md:3](CHANGELOG.md:3).\n\n380 commits. Only 37 touch behavior. The rest are deps, tests, CI, and refactors.\n\nThree break callers. Expired tokens return `401`, not `403`. The latency histogram units changed, so dashboards shift. The v1 export route is gone.\n\nOne feature: webhook retry with backoff.\n\nNine real fixes, deduped from 26 commits across scopes.\n\nLeft out: 10 `perf` commits, no visible change.\n\nOne call for you. Eight commits `stop re-exporting the internal error types`. They touch only `src/*/*.js`, never an index or `package.json`. So I read it as internal and skipped it.\n\nNext: confirm nobody imported those error types. Then ship.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6dd28d3394f138ee2b6c395445c4b2ee6dcd5c24c3523875efde21411858b785"
+}

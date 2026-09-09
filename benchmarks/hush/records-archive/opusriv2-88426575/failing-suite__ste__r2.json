@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 21,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36586,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.271073,
+  "numTurns": 9,
+  "durationMs": 33672,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1432
+  },
+  "contextTraffic": 173952,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 15840,
+  "narrationWords": 31,
+  "finalWords": 178,
+  "finalText": "The suite is green: 625 total, 625 passing.\n\n**What was broken**\n\nOnly 3 of the 625 cases failed. All 3 were in the `order totals` suite:\n\n- `orderTotal(12000, 15, 0.0825)` gave 11190, expected 11042\n- `orderTotal(8650, 20, 0.05)` gave 7353, expected 7266\n- `orderTotal(33400, 10, 0.2)` gave 36740, expected 36072\n\n**Cause**\n\n`orderTotal` in `src/pricing.js:39` applied the discount correctly, but it computed the tax from the original `cents` instead of the discounted amount. The tax was too high by the tax on the discount.\n\nThe other 66 rows in the same suite have either a zero discount or a zero tax. A zero factor hides the error. Only a row with both values non-zero can expose it.\n\n**Fix**\n\n`src/pricing.js:39` now taxes the discounted amount:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return roundCents(discounted * (1 + taxRate));\n}\n```\n\nThis matches the rule in the function comment and the rule in `cases.js:89`.\n\n**Tip for next time**\n\nThe runner writes about 700 lines. To see only what matters, run:\n\n```powershell\nnode run-tests.js | Select-String 'FAIL|failing'\n```",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4f849f8bd0e8e3ea2a28f2e13de727eb54fb6ba084830d4887933c94dc481c86"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 119306,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8020695,
+  "numTurns": 57,
+  "durationMs": 117834,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12285
+  },
+  "contextTraffic": 352097,
+  "apiCalls": 9,
+  "toolCalls": 56,
+  "toolResultChars": 31269,
+  "narrationWords": 22,
+  "finalWords": 165,
+  "assistantMsgs": 4,
+  "finalText": "Migration finished. All 78 JS files parse cleanly.\n\n**Changed — 12 files, 36 call sites** converted from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n- `packages/accounts/src/repo/session.js`, `src/admin/apiKeyAdmin.js`, `src/service/teamService.js`\n- `packages/billing/src/repo/refund.js`, `src/service/couponService.js`\n- `packages/catalog/src/repo/supplier.js`, `src/admin/variantAdmin.js`\n- `packages/orders/src/repo/shipment.js`, `src/service/returnService.js`\n- `packages/support/src/repo/sla.js`, `src/admin/macroAdmin.js`\n- `packages/analytics/src/repo/cohort.js`\n\n**Deliberately left alone:**\n\n- `vendor/legacy-orm/adapter.js:9,13` — the only remaining `db.query` calls. The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost. Migrating it in place would be reverted by the next upgrade. Since `lib/db.js` notes the driver's next major drops `query` entirely, this needs a real fix rather than an edit here — either an upstream patch, or a shim that wraps `db` for the vendored code. Tell me which you prefer and I'll do it.\n- `cache.query(...)` calls across the repo repos — that's `lib/cache.js`, a different object, not part of this migration.\n\n`lib/db.js` still exports the deprecated `query` method; I left it in place since the vendor file depends on it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "099e9ff0a453fea55c51b1fe21218eadf01ee4da560243c958562d3d7e1469cf"
+}

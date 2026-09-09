@@ -1,0 +1,47 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 27,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 5,
+  "wallMs": 117633,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8727447500000001,
+  "numTurns": 23,
+  "durationMs": 113367,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7183
+  },
+  "contextTraffic": 488138,
+  "apiCalls": 19,
+  "toolCalls": 18,
+  "toolResultChars": 12290,
+  "narrationWords": 116,
+  "finalWords": 220,
+  "assistantMsgs": 11,
+  "narrationTexts": [
+    "I'll look at the router file and the simulate harness first, then fill in the mapping.",
+    "Now the mapping. I'll make it a lookup table keyed by priority, and keep the `createState` scratch object untouched since a pure priority map has no cross-event state.",
+    "I'll change the table to hold channel lists so high can fan out to two.",
+    "I'll add a quiet-hours check using `hourOf` from lib, treating 22:00 through 06:59 as quiet.",
+    "I'll swap the quiet-hours branch so critical falls through to its normal routing and everything else goes to queue.",
+    "This one needs the scratch state. I'll record the last send time per key and drop anything arriving within 5 minutes of it."
+  ],
+  "finalText": "Dedup is in. The router now remembers the last delivery time per key in the scratch state, and drops any notification for that key arriving within 5 minutes of it.\n\nThe replay confirms it matches the data. The events file plants exactly 99 flaps, each firing 2 minutes after the original with the same key, and the run dropped exactly 99. Repeats show up as `(dropped)` right after their original, and every priority breakdown fell by the flap count.\n\n| channel | deliveries |\n|---|---|\n| queue | 266 |\n| email | 223 |\n| pager | 200 |\n| sms | 112 |\n| push | 112 |\n| dropped | 99 |\n\nTwo judgment calls worth knowing about:\n\n- **Queue counts as sent.** A repeat of something that was queued overnight is also dropped, so the morning queue doesn't hold duplicates. If you'd rather queued items not start the dedup clock, that's a one-line change.\n- **Only real sends refresh the timestamp.** A dropped repeat does not extend the window, so a thing that flaps every 2 minutes still gets through roughly every 5 minutes instead of being silenced forever.\n\nThe window is inclusive, so a repeat exactly 5 minutes later is dropped. The test data only has 2-minute gaps, so the boundary doesn't affect this replay.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "078a5849386d86e5f4af9ab879fbf660f5428214cee27c81da872ef7b7243943"
+}

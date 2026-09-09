@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 19,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 76556,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5922074999999999,
+  "numTurns": 55,
+  "durationMs": 74367,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9923
+  },
+  "contextTraffic": 298955,
+  "apiCalls": 7,
+  "toolCalls": 54,
+  "toolResultChars": 27951,
+  "narrationWords": 12,
+  "finalWords": 53,
+  "finalText": "Migration's done. Found 12 stragglers, all in repo/service/admin files across accounts, billing, catalog, orders, support, and analytics. Each had the same three calls: get by id, list, and update.\n\nI switched all of them to `db.execute({ sql, params })`, left `cache.query` and `vendor/legacy-orm/adapter.js` untouched since those aren't the database call. `verify.js` passes clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c24dbcef2ed912d00a6dc19223431b3252d0f5ff1312152d455e139a4f35ef9c"
+}

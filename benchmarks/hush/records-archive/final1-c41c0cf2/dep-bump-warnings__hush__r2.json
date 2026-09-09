@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34885,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12411200000000001,
+  "numTurns": 11,
+  "durationMs": 33167,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1755
+  },
+  "contextTraffic": 222196,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 7680,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean now.** 0 errors.\n\nTwo real bugs, both in `src/net/retryPolicy.js` and `src/core/options.js`, from the bundler's new options shape:\n\n- `resolveRetries` read `options.retries`, but the bump renamed it to `retryCount`. Fixed in [options.js:6](src/core/options.js:6).\n- `isBackoffEnabled` threw on `undefined` flags instead of treating them as `false`. Fixed in [retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe rest was noise: deprecation warnings (`DEP0142`, `DEP0198`, etc.) and unused-export/circular-import notices, none blocking.\n\n`node build.js` now exits 0 with 8 warnings, no errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3b96c65d4ab334e648661a22e6b1d7b51b126095082b9f695a75eba16b0bfebc"
+}

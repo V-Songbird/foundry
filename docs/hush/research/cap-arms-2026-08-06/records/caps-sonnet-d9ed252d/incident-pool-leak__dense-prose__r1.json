@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 97,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35004,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2342642,
+  "numTurns": 11,
+  "durationMs": 32965,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1813
+  },
+  "contextTraffic": 320215,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 11218,
+  "narrationWords": 25,
+  "finalWords": 107,
+  "finalText": "Found it: `src/jobs/processOrder.js` acquired a connection then called `pool.release(conn)` on the line *after* the run — but when an order failed validation, that call threw and the release line never ran. Each failed order permanently ate one connection.\n\nThe logs match exactly: pool in-use climbed 2→5 as `invalid order payload` errors piled up, then `pool exhausted`, then the API and worker both got restarted by the supervisor around 2am.\n\nFixed it to go through the existing `withConnection` helper, which releases in a `finally` regardless of success or failure. All 4 tests pass now (82ms). `src/handlers/api.js` was already safe — it was only the job path that leaked.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0f81cdbcbc708922687a580ba4dec5913d21c24ed0c27ca1c7669b7e7a90b66f"
+}

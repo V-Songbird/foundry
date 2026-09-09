@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34185,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24381500000000003,
+  "numTurns": 10,
+  "durationMs": 32570,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1883
+  },
+  "contextTraffic": 149865,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6426,
+  "narrationWords": 7,
+  "finalWords": 67,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now, exit 0.** Two real bugs, not noise.\n\n`resolveRetries` read `options.retries`, but the bump renamed it `retryCount`. It threw `TypeError`. Fixed in [options.js:9](src/core/options.js:9), old name still works.\n\n`isBackoffEnabled` threw on `undefined`. The new loader leaves unset flags unset. Now `undefined` means off, like before. See [retryPolicy.js:8](src/net/retryPolicy.js:8).\n\nThe 8 warnings left are real deprecations. `crypto.createCipher`, `Buffer()`, `punycode` and more.\n\nNext: clear those deprecated APIs before v5.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d399fd7c9305eb194c86eecd0479b51bf4e22d1ced858682ac2e3906a13c6938"
+}

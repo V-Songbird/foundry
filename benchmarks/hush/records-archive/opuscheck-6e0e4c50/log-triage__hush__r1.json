@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 78464,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.383338,
+  "numTurns": 8,
+  "durationMs": 76503,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4545
+  },
+  "contextTraffic": 207384,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 10484,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "**Redis vanished, and it took the service down with it.**\n\n```\n02:14:07  redis refused        → cache off, every read hits the store\n02:14:10  store overloads      → 5s timeouts begin, queue at 52\n02:15:26  reconnects start     → 13 tries, all refused, one per 80s\n02:29:12  queue passes its 500 cap, nothing sheds load\n02:31:44  worker-2 out of memory, exits 134\n02:31:52  api unresponsive, process group killed, service down\n```\n\n- Everything was healthy until 02:14. Last good request was 02:14:03.\n- Not one request succeeded after that. 173 timeouts, 174 cache misses.\n- The 500 queue cap was never enforced. Depth reached 568.\n- Redis refused connections rather than answering slowly. It was gone.\n- This log is dated 2026-07-04, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a8634e42c6ebd2abf2495ed9b2ae2e37a72054112809b149974c1ca44291f1be"
+}

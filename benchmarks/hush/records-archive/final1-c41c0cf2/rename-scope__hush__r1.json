@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 20,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31425,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.08188240000000001,
+  "numTurns": 12,
+  "durationMs": 29552,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2150
+  },
+  "contextTraffic": 143639,
+  "apiCalls": 5,
+  "toolCalls": 11,
+  "toolResultChars": 13080,
+  "narrationWords": 0,
+  "finalWords": 155,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**~1,080 occurrences across 94 files** — mostly the four service repos (accounts, orders, billing, notify, analytics), each with matching service/repo/route layers.\n\nFour spots must stay `account_id`:\n\n- `docs\\openapi.yaml` — public API contract, fields marked \"Frozen field name,\" renaming breaks every client\n- `lib\\serialize.js:8` — wire-format map, comment says frozen by that same contract\n- `vendor\\reporting-sdk\\src\\*` (schema.js, client.js, query.js, export.js) — vendored/generated, \"Do not edit,\" gets overwritten by `npm run vendor:refresh`\n- `migrations\\*.sql` (10 files) — already applied in production; editing history breaks the down step and renames nothing in real databases\n\n`lib\\audit.js` is a judgment call — it stitches `account_id` from `fields` into log lines, worth confirming with platform team whether stored audit records get parsed by key.\n\nSafe to rename: the 90-odd `services\\*` files (accounts, billing, notify, orders, analytics) — internal-only column usage. Plan: rename internal usages, add a new migration to rename the DB column, keep `serialize.js`/`openapi.yaml` mapping internal `owner_id` → public `account_id`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dd52df9b0caeac0e274259baa89eb430e6b45aae613a218999cf11bd0a009055"
+}

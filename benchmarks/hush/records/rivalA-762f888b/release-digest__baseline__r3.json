@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 72,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83362,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5204179999999999,
+  "numTurns": 11,
+  "durationMs": 82554,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5369
+  },
+  "contextTraffic": 307994,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 29970,
+  "narrationWords": 10,
+  "finalWords": 760,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory."
+  ],
+  "finalText": "Went through all 380 commits and the 127-row PR sheet. Here's the breakdown by type:\n\n| type | commits | user-visible? |\n|---|---|---|\n| chore (mostly deps) | 153 | no |\n| refactor | 73 | **3 subjects are, despite the label** |\n| test | 64 | no |\n| ci | 33 | no |\n| fix | 26 | ~11 distinct subjects |\n| docs | 20 | no |\n| perf | 10 | 4 distinct, no API change |\n| feat | 1 | yes |\n\nThe log is also heavily duplicated — the same subject line lands 3–8 times across different modules (`fix(core|http|billing): drop the duplicate header` is five commits, one bug). And the PR sheet double-counts bumps (pino 9.2.0→9.3.1 appears six times). So the real change count is far smaller than it looks.\n\n## What actually changed for consumers\n\n**Three breaking changes that are hiding under non-breaking labels — this is the important part.**\n\n1. **`fix(auth): return 401 for an expired token instead of 403`** (#4223, `1d2bd55`). Labeled `fix`, but any client branching on 403 to detect expiry breaks silently. Touched `src/auth/token.js` + `session.js`.\n2. **\"stop re-exporting the internal error types\"** — eight `refactor` commits across `core`, `db`, `jobs`, `auth`, `billing` (`2e61589`, `5d4de73`, `d988aed`, `4d83260`, `d7cf97b`, `9b717dc`, `b5cfbc3`, `8639397`). If anyone was importing those error classes from the package root to do `instanceof` checks, those imports are now gone. This is the one most likely to generate issues after release.\n3. **`refactor(api): drop the unused v1 export route`** (#4152, `56dc828`). The author says unused; it touched `handlers.js` and its test. A removed route is a removed route — worth confirming with Omar before you call it non-breaking, but I'd document it either way.\n\n**One genuine feature:** webhook delivery retry with exponential backoff (#4191, `395fb48`). It also touched `src/core/config.js`, so there are probably new config knobs — worth naming them in the notes.\n\n**Fixes worth listing** (deduped across modules):\n\n- Request bodies were being written to logs (`1b55313`) — privacy/security, I'd lead the Fixed section with it\n- HTTP client leaked a timer when the socket dropped (`f66d359`)\n- Connection pool wasn't closed on shutdown (`eb874a5`) — processes not exiting cleanly\n- Paginator crashed on a null cursor / empty page (4 modules)\n- Latency histogram used wrong units (2 modules) — anyone's dashboards were reading wrong\n- Trace id was lost across retries (3 modules)\n- Duplicate header sent on requests (5 modules)\n- Empty allowlist mishandled (3 modules)\n- Double trailing slash in constructed URLs (2 modules)\n\n**Perf** (internal, no API change): JSON round-trip skipped on the hot path, extra clone dropped in the mapper, metric writes batched, parsed schema reused between requests. One summary line is enough; there's no number in the log to quote.\n\n## Draft for CHANGELOG.md\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- An expired token now returns 401 instead of 403. If you branch on 403 to\n  detect expiry, update that check.\n- The internal error types are no longer re-exported from the package root.\n  Import them from their own modules, or match on the error code instead.\n- The v1 export route has been removed. Use the v2 route.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Request bodies are no longer written to the logs.\n- The HTTP client no longer leaks a timer when the socket drops, and it closes\n  the connection pool on shutdown.\n- Paginating past the last page no longer throws on a null cursor.\n- The latency histogram reports the correct units.\n- The trace id survives a retry.\n- Requests no longer carry a duplicated header.\n- An empty allowlist is handled as empty rather than as absent.\n```\n\nTwo things to check before you publish:\n\n- **The v1 route wording** depends on whether it was actually public. If it was internal-only, move it out of Breaking entirely.\n- **Node version.** Several `docs: note the minimum node version` commits, CI moved to node 22, and `.nvmrc` got pinned — but nothing in the log touches an `engines` field in `package.json`. So I did *not* write a \"requires Node 22\" line. If the engines range did change, that's a fourth breaking entry and the most impactful one; the log can't tell me either way.\n\nI left the perf work out of the draft — it's real but there's nothing measurable to state, and your template says only what someone installing would notice. Say the word if you want a line for it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3f885e016a4f5cff20384f9a7962de6ebc10a3a76e14e8b5d9c1759b4b903e3d"
+}

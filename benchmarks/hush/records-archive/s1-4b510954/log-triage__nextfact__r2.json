@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__nextfact__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 12,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24319,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.22260280000000002,
+  "numTurns": 5,
+  "durationMs": 22771,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1281
+  },
+  "contextTraffic": 200554,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23612,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "finalText": "Here's what happened, in order.\n\nRedis died at 2:14am. Every request that needed the cache got refused.\n\nThe app fell back to hitting the store directly. That flooded the store and requests started timing out.\n\nThe request queue was supposed to cap at 500. It never got capped. It grew straight past that, up to 568.\n\nThe app tried to reconnect to redis 12 times over 17 minutes. Every attempt failed the same way.\n\nBy 2:31am the backlog of stuck requests was too big. One worker ran out of memory and crashed.\n\nThe supervisor tried to restart that worker, then gave up and killed everything. Service went down at 2:31:52am.\n\nSo the real culprit is redis going dark. But the queue not actually stopping at its own limit is what turned a redis outage into a full crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f663ffd99330525a6ec26ca3a77c3b0af7a5ec8ea1f37bfafdb72ce5af82559d"
+}

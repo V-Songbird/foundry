@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 13683,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0315907,
+  "numTurns": 2,
+  "durationMs": 12028,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 803
+  },
+  "contextTraffic": 56665,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 134,
+  "finalText": "Redis went down at 02:14:07 and never came back. That triggered a cascade: the cache layer fell back to direct store reads, which created a miss storm that hammered the database. The store got so overloaded that requests started timing out and piling up in queues. Over the next 17 minutes, the backlog grew past the queue limit (562–568 requests vs a max of 500), memory filled up with pending work, and at 02:31:44 the JavaScript heap ran out. Worker-2 crashed, the supervisor tried to restart but the API was already unresponsive, and the whole service came down.\n\nThe immediate fix is to restore the Redis connection to 10.0.0.12:6379. After that's back, check why it went down and whether there's a way to degrade more gracefully — right now losing cache means losing everything.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "14e8f073fa04aa8045a9608035c892a75f611a3212e0b7ec8f7b53996fbaf9e0"
+}

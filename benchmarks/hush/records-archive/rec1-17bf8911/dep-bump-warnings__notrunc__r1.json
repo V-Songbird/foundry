@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__notrunc__r1",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30892,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11721339999999998,
+  "numTurns": 10,
+  "durationMs": 29154,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1692
+  },
+  "contextTraffic": 194025,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7874,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit 0, 8 warnings, 0 errors.\n\nTwo real bugs, both from the bundler bump:\n\n- [src/core/options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler passes `retryCount`. Was throwing on `undefined.toFixed`.\n- [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7) treated an unset `backoffEnabled` as invalid instead of `false`. New config loader leaves it `undefined` when off.\n\nThe rest was deprecation noise (`Buffer()`, `fs.exists`, `punycode`, etc), left as is.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "47c87461c0cc20a796d2033a89e3766c102c07eb11ae053c8087cd587562607f"
+}

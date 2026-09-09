@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 24,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30880,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2533885,
+  "numTurns": 10,
+  "durationMs": 29880,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1946
+  },
+  "contextTraffic": 160048,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6936,
+  "narrationWords": 0,
+  "finalWords": 69,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, exit 0.** Two real bugs, both from the bump.\n\n`resolveRetries` read `options.retries`, but the new bundler passes `retryCount`. Fixed at [src/core/options.js:6](src/core/options.js:6), old key still accepted.\n\n`isBackoffEnabled` threw on `undefined`. The new config loader leaves unset flags undefined, not `false`. Fixed at [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe rest is noise. 8 deprecation warnings, mostly `DEP0142` and `DEP0198` in `src/legacy/`.\n\nNext: clean up those legacy deprecations if you want zero warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83a737edab7169a4b37c45c632532b2d02a63e23c2bfa1625feef1e75513c6f3"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__stock__r2",
+  "batchId": "iso1-2bfd30c0",
+  "seed": "1787991063823",
+  "orderIndex": 15,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29738,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11937099999999999,
+  "numTurns": 10,
+  "durationMs": 27965,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1147
+  },
+  "contextTraffic": 206461,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11264,
+  "narrationWords": 18,
+  "finalWords": 39,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug in `orderTotal` — tax is computed on the pre-discount amount instead of the discounted total."
+  ],
+  "finalText": "**Fixed. Suite is green: `625 total, 625 passing, 0 failing`.**\n\n`orderTotal` in [src/pricing.js:39](src/pricing.js:39) taxed the pre-discount amount instead of the discounted one. Only rows with both a discount and tax exposed it, which most rows hid.\n\nNothing else pending.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc87f45a06add414600555732f51daf962435a7fe1d15769faecb520569e8d1c"
+}

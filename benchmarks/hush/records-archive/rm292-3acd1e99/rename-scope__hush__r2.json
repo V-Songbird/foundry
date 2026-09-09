@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 43,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44671,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3735995,
+  "numTurns": 18,
+  "durationMs": 42827,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2811
+  },
+  "contextTraffic": 226383,
+  "apiCalls": 7,
+  "toolCalls": 17,
+  "toolResultChars": 20373,
+  "narrationWords": 5,
+  "finalWords": 123,
+  "assistantMsgs": 2,
+  "finalText": "**About 1290 hits in 94 files. Roughly 1200 of them, in 75 service files, are safe internal renames.** Four zones must not be renamed.\n\n| Zone | Hits | Why frozen |\n|---|---|---|\n| `docs/openapi.yaml` | 5 | Public contract. Rename needs a new dated version. |\n| `lib/serialize.js` | 5 | `WIRE` values are the public keys. Rename the left side only. |\n| `vendor/reporting-sdk/` | 20 | Generated. `npm run vendor:refresh` overwrites edits. |\n| `migrations/` | 61 | Applied in production. Editing them renames nothing and breaks `down`. |\n\nThe live DB column stays `account_id` until a new migration renames it. So service SQL cannot change in the same step.\n\nMy call: approve the service-layer rename, hold the four zones.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1d0f4a1d0ff4e08a39dd510c1e7d22b2a8bc721fd5cbe7bef45568e8f18c0b35"
+}

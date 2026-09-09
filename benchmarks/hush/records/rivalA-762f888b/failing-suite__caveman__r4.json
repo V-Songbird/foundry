@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 58,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 25153,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.26148699999999997,
+  "numTurns": 10,
+  "durationMs": 23997,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1387
+  },
+  "contextTraffic": 151150,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12022,
+  "narrationWords": 38,
+  "finalWords": 79,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "3 fails, one bug. `orderTotal` compute tax on pre-discount `cents`, not on discounted amount. Rows with both discount and tax nonzero expose it; every other row have one factor zero, so hidden."
+  ],
+  "finalText": "Green: 625 passing, 0 failing, exit 0.\n\nBug was one line in `src/pricing.js:41` — tax computed on original `cents` instead of discounted amount:\n\n```js\nconst tax = roundCents(cents * taxRate);\nreturn discounted + tax;\n```\n\nNow:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nMatches doc comment above function (\"take discount off, then tax what's actually owed\"). Only 3 of 69 order-total rows had both discount and tax nonzero — rest masked it. No other suite touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0dc80fc8aa8955c2e69be0333c71c3234470ce796b35a5bc57a1daaaa9282c1c"
+}

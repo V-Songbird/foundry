@@ -1,0 +1,44 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 84742,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2987234000000001,
+  "numTurns": 45,
+  "durationMs": 83484,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10782
+  },
+  "contextTraffic": 299103,
+  "apiCalls": 9,
+  "toolCalls": 44,
+  "toolResultChars": 30054,
+  "narrationWords": 37,
+  "finalWords": 96,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "Now let's look at each file still using `db.query`.",
+    "Good, `cache.query` is unrelated (different object). Now applying the migration to all 12 files.",
+    "All 12 files migrated. Let's verify no remaining `db.query` calls outside the vendor file."
+  ],
+  "finalText": "Migration finished. All 12 application files (analytics, orders×2, billing×2, support×2, catalog×2, accounts×3) now use `db.execute({ sql, params })` instead of `db.query(sql, params)`.\n\nOne file was intentionally left as-is: `vendor\\legacy-orm\\adapter.js` is explicitly marked \"vendored copy... do not edit — replaced wholesale on every upgrade, local changes are silently lost.\" Migrating `db.query` there wouldn't stick and would violate that comment, so it still calls the deprecated form. If `db.query` needs to be fully removed from `lib/db.js`, this vendor adapter will need to be handled separately (e.g., pinned/patched upstream, or a wrapper shim), since it's the one remaining caller.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cd37f0c0b30fad43d6eecda7e51b624976ba0feb162c5b94ae105708b58f0e50"
+}

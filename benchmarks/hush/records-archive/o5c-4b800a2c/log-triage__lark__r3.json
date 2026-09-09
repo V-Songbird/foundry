@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__lark__r3",
+  "batchId": "o5c-4b800a2c",
+  "seed": "1787818935129",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "lark",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39400,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "lark:Lark",
+  "costUsd": 0.3839655,
+  "numTurns": 7,
+  "durationMs": 37514,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1854
+  },
+  "contextTraffic": 232077,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 27355,
+  "narrationWords": 0,
+  "finalWords": 100,
+  "finalText": "Redis died. Everything else followed.\n\n```\n02:14:03  last good request\n02:14:07  ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\n02:14:08  cache miss storm, all reads hit the store\n02:16:46  redis reconnect attempt 0..12, every one ECONNREFUSED\n02:29:12  WARN [api] request queue depth 502 (max 500)\n02:31:44  ERROR [worker-2] JavaScript heap out of memory (request backlog)\n02:31:45  FATAL [supervisor] worker-2 exited with code 134, restarting\n02:31:52  FATAL [supervisor] api unresponsive, killing process group — service down\n```\n\nCache loss caused 173 store timeouts. Queues grew past the cap. Memory ran out.\n\nOne catch. These logs are dated 2026-07-04, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "370c251d38ce035cad90af929af8fd3cdc805f4bb6758db3e651ea913c3a5290"
+}

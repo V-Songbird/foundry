@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__baseline__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 46,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 106133,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5166169999999999,
+  "numTurns": 22,
+  "durationMs": 104619,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7008
+  },
+  "contextTraffic": 302562,
+  "apiCalls": 10,
+  "toolCalls": 21,
+  "toolResultChars": 20357,
+  "narrationWords": 26,
+  "finalWords": 725,
+  "assistantMsgs": 3,
+  "finalText": "## Size\n\n1,291 occurrences across 94 of the 97 files in the repo. The shape is very regular — 25 entities × 3 layers (repo/service/http) = 75 service files, all near-identical to `invoice.js`/`invoiceService.js`/`invoiceRoutes.js`.\n\n| Area | Occurrences | Files |\n|---|---|---|\n| `services/` | 1,200 | 75 |\n| `migrations/` | 61 | 12 |\n| `vendor/reporting-sdk/` | 20 | 4 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/` | 5 | 2 |\n\nWithin `services/`: ~875 are genuinely internal (local variables, internal function params, object keys passed between our own layers, error strings) plus 75 in comments. That ~950 is the real, safe body of work — mechanical, low-risk, and a machine rename handles it.\n\nThe remaining ~340 must not be renamed. There are no tests in this repo, so nothing will catch a mistake here.\n\n## Where it must not be renamed\n\n**1. `migrations/` — 61 occurrences, 12 files.** These are applied history (dates on every file, `20250114`–`20250624`). Editing them renames nothing in a database that already ran them, and it breaks the `-- down` steps. Untouched. A rename of the actual DB column needs a *new* migration, which nobody has written — and until that exists, points 2 and 3 follow.\n\n**2. SQL string literals in the 25 repo files — 125 occurrences.** e.g. `'SELECT * FROM invoices WHERE account_id = ?'`. `account_id` here is a column name. The JS parameter feeding it can be renamed freely; the text inside the quotes cannot, absent a column migration. This is the single most likely thing a global find-replace breaks, and it fails at runtime, not at load.\n\n**3. `lib/serialize.js` — the `WIRE` map, both sides.** The right-hand side is the public JSON field name, frozen by the API contract. The left-hand side is the *row* key, i.e. the DB column arriving from `SELECT *` — so it's frozen too while the column is. Renaming the left key produces silent breakage: `row.owner_id` is `undefined`, the field is dropped from the response, no error anywhere.\n\n**4. `docs/openapi.yaml` — 5 occurrences.** Public API contract, including a `/v2/invoices?account_id=` query parameter. Renaming is a breaking change requiring a new dated version. Note the spec is self-consistent with the frozen `WIRE` values — leave both.\n\n**5. `vendor/reporting-sdk/` — 20 occurrences, 4 files.** Generated, marked \"Do not edit\", and wholesale overwritten by `npm run vendor:refresh`. `account_id` is the upstream wire format for that vendor's API. Edits here are lost on the next refresh and would break the SDK's requests. (Nothing in `services/` currently imports it, so it's easy to exclude and easy to forget.)\n\n**6. `req.session.account_id` in the 25 http files — 100 read sites.** Nothing in this repo populates `req.session`; the auth middleware that does lives elsewhere. That property name is a cross-repo contract. The local variable can become `owner_id`; the `.account_id` read cannot, until the session issuer ships first.\n\n## Two judgment calls worth naming before you sign\n\n**The `payload` JSONB key — 25 sites.** Every `insert*` does `JSON.stringify({ ...values, account_id })`, writing `account_id` *inside* the payload column. Renaming that key isn't a code change, it's a data-format change: new rows get `owner_id`, every existing row keeps `account_id`, and anything reading the payload has to handle both forever. I'd leave it and do it with the column migration.\n\n**The audit field — `lib/audit.js` plus 25 callers.** `audit()` pins `account_id` as a field name on every audit line. That's a log/record schema with downstream consumers (queries, dashboards, retention tooling) that aren't visible from here. Not strictly frozen, but it should be a deliberate decision with the audit consumers, not a side effect of a find-replace.\n\n## Recommendation\n\nSign off on the internal-only slice: the ~950 occurrences in `services/` outside SQL literals, session reads, and payload keys. That's a big diff but a boring one.\n\nAsk them to explicitly exclude `migrations/`, `vendor/`, `docs/openapi.yaml`, `lib/serialize.js`'s `WIRE` map, all `sql:` string contents, `req.session.account_id`, and the payload/audit field names — and to state that exclusion list in the PR description so the review can check it rather than re-derive it.\n\nThe DB column, the public API field, and the session property are three separate renames, each needing its own migration or coordinated release. If the goal is \"`owner_id` everywhere\" including those, this isn't one PR you can sign today — it's a sequence. Worth confirming which one they're actually asking for.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c10175a663b5278e296ab84a1498a50fc3fe3ae9728379635aff9ccfbadf8e8"
+}

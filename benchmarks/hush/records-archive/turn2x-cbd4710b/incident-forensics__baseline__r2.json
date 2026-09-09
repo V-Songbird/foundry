@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 18,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 80554,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6362876999999999,
+  "numTurns": 13,
+  "durationMs": 75051,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4865
+  },
+  "contextTraffic": 846591,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 76600,
+  "narrationWords": 21,
+  "finalWords": 277,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of end of captured log window (03:59:27Z). Confirm current state before assuming it's fixed.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, 2026-03-14T02:12:00Z–02:14:00Z) shipped a config change: `gateway.pool.perRequest: false -> true` (config gen 118→119, applied 02:13:41.234Z), intended for \"pool isolation.\" Instead it made the gateway acquire a new upstream connection per request rather than reusing pooled ones, saturating the size-20 connection pool. Once `in_use` hit 20, requests began queuing (`waiting`) and timing out with `ERR_POOL_EXHAUSTED`; the queue never drained and grew roughly linearly for the rest of the log (13 waiting at 02:14 → 74+ by 03:59).\n\n**Impact window:**\n- First WARN (slow acquire): `02:14:14.920Z`\n- First 503: `02:14:18.972Z` (req-07401, `/v1/cart` → billing-svc)\n- Still failing at last log entry: `03:59:27.974Z` — **not confirmed resolved**\n- Pattern: recurring ~63s burst hitting `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`; `/health` and one other slot kept getting through each cycle, so it degraded rather than fully outaged.\n- Every 503 pairs 1:1 with an `ERR_POOL_EXHAUSTED pool` line (size 20, in_use 20).\n- Pre-incident pool stats were healthy (`in_use` 3–11/20). No recovery observed.\n\n**Blast radius:**\nGateway only. `worker.log`'s DB pool (separate pool, size 8) stayed flat at `in_use=1, waiting=0` through the entire window — no ERROR lines, no correlation. Confirmed isolated to the gateway's upstream connection pool.\n\n**Rollback:**\nRevert `dep-4471` — restore `gateway.pool.perRequest` to `false` (undo config gen 119, keeping/discarding the other two changed keys, `upstreamMs 2000→2500` and `log.sampleRate`, is a judgment call but they weren't correlated with the failure). No other deploy in `deploys.csv` is implicated — `dep-4470` (worker, finished 00:55Z) is too early, `dep-4472` (billing-svc, started 02:41Z) is ~27min after onset.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "96f265808de0fe688aa8181a0e412e6959e465ba6f5f55239b888ea1cc4d691c"
+}

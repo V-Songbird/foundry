@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fern__r2",
+  "batchId": "o5v-d4d968c8",
+  "seed": "1787819339063",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fern",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38509,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.3245015,
+  "numTurns": 9,
+  "durationMs": 36718,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1868
+  },
+  "contextTraffic": 210565,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 16682,
+  "narrationWords": 0,
+  "finalWords": 84,
+  "finalText": "Redis died and took the service with it.\n\n- 02:14:07 `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Cache off, reads hit the store direct.\n- Cache miss storm plus 173 `TimeoutError` after 5000ms. Queue climbed from 52 to 568.\n- 13 reconnect attempts, all refused. Redis never came back.\n- 02:29:12 queue passed the 500 cap. 02:31:44 worker-2 hit `JavaScript heap out of memory`.\n- 02:31:52 `FATAL [supervisor] api unresponsive, killing process group — service down`.\n\nFix Redis at 10.0.0.12 first. Everything else is downstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "db6ca4823ae65fbd588cf6f7f0f76ff2d0c34eff0b044eccbccf83587c2c4184"
+}

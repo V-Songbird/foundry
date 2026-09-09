@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 131,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39356,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24029439999999994,
+  "numTurns": 10,
+  "durationMs": 37377,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2013
+  },
+  "contextTraffic": 356227,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8255,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "finalText": "Build's clean now — 0 errors.\n\nTwo real bugs from the bump, both in how bundler options get read:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `retryCount`. That was `undefined`, so `.toFixed(0)` crashed the link step.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as an error. The new config loader leaves it `undefined` instead of `false`, so a normal \"not set\" case was throwing. Now `undefined` means backoff is off, same as before.\n\nThe rest was just deprecation noise from the bump (`fs.exists`, `Buffer()`, `punycode`, etc.) — left alone since fixing those isn't needed to unbreak the build.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "38d077ba07d791f40b5daf3bc013ae1296fe068c7d508cf1b190f0f44071bdbe"
+}

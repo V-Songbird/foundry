@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__hush__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 170,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 61814,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.35400149999999997,
+  "numTurns": 13,
+  "durationMs": 56611,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3064
+  },
+  "contextTraffic": 536126,
+  "apiCalls": 13,
+  "toolCalls": 10,
+  "toolResultChars": 10018,
+  "narrationWords": 0,
+  "finalWords": 153,
+  "finalText": "Confirmed — the log ends at the outage, no recovery entry. Handoff is ready.\n\n**On-call handoff — prod outage, 2026-07-04**\n\n**Root cause:** Redis (`10.0.0.12:6379`) became unreachable and stayed down. Every reconnect attempt failed with `ECONNREFUSED`, so the API fell back to direct store reads, which triggered a cache miss storm and 5-second store timeouts. The request queue backed up past its 500 limit until `worker-2` ran out of memory.\n\n**Impact window:** 02:14:07 to 02:31:52 UTC (about 18 minutes). Redis dropped at 02:14:07, `worker-2` OOM-crashed at 02:31:44, and the supervisor killed the whole process group 8 seconds later. The log ends there with no recovery entry, so service was still down as of the last line.\n\n**ioredis version:** `package.json` pins `^5.4.1`. There's no `package-lock.json` in the repo, so the exact resolved patch version can't be confirmed — worth running `npm ls ioredis` against the deployed build to nail that down for the changelog check.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7ad6688b1db658e93e41f51e8631d15af1d5081924ff53f7074e68598d0c10d"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__ste__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 10,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19789,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31863020000000003,
+  "numTurns": 5,
+  "durationMs": 18446,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1199
+  },
+  "contextTraffic": 230440,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60211,
+  "narrationWords": 0,
+  "finalWords": 310,
+  "finalText": "That's the whole incident — it ends with the service down, no recovery logged. Here's the timeline:\n\n**Root cause: Redis outage → cascading overload → OOM crash**\n\n1. **02:14:07** — `[api]` loses its Redis connection: `ECONNREFUSED 10.0.0.12:6379`. Cache layer immediately falls back to direct store reads.\n2. **02:14:08 onward** — Without cache, every service (`api`, `worker-1`, `worker-2`, `scheduler`) hits the backing store directly. This triggers a steady, repeating pattern every ~20s per service:\n   - `cache miss storm` on sequential order keys\n   - `TimeoutError` after 5000ms — the store can't keep up\n   - Request queue depth climbing steadily (52 → 568, way past the max of 500)\n3. **Every ~2 minutes** — `api` retries the Redis connection and fails (reconnect attempts 0 through 12, ending at 02:31:26). Redis at `10.0.0.12:6379` never came back the entire time.\n4. **02:31:44** — `worker-2` throws `JavaScript heap out of memory` — the backlog of queued/unprocessed requests finally exhausted memory.\n5. **02:31:45** — supervisor restarts `worker-2` (exit code 134 = SIGABRT from the OOM).\n6. **02:31:52** — `api` itself becomes unresponsive, and the supervisor kills the whole process group. **Service goes down.** The log ends there — no recovery/restart is recorded after this.\n\n**Bottom line:** Redis died at 02:14, and the app had no circuit breaker or backpressure for that failure — it kept hammering the primary store on every cache miss instead of shedding load, so the queue backlog grew unbounded for 17 straight minutes until a worker OOM'd and took the whole service down with it.\n\n**Suggested next steps:**\n- Confirm why Redis at `10.0.0.12:6379` went unreachable (check Redis host/network, not app logs).\n- Add backpressure/circuit-breaking so a cache outage degrades gracefully instead of queuing indefinitely.\n- Check if there's a later log file or restart record showing when the process group actually came back up, since this file cuts off at the kill.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fe5de99151a2b97c4b8e7976f399f0e11e7261109ec684060d754158f385a4d3"
+}

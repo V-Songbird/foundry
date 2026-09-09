@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__inline__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 6,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "inline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27081,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19465229999999997,
+  "numTurns": 9,
+  "durationMs": 25411,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1717
+  },
+  "contextTraffic": 215609,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 11015,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "finalText": "Build's green now.\n\nThe break was in `packages/shared/config.js`. `resolveRelease` merged config layers with a plain `Object.assign`, which is shallow — so `@acme/api`'s `output: { format: 'esm' }` override wiped out `output.dir` and `output.entry` instead of just changing `format`. That missing `output.dir` is what made the bundle stage throw.\n\nFixed it with a recursive merge that combines nested objects like `output` and `sourcemap` key-by-key instead of replacing them wholesale. `build.js` now exits 0 with the same 5 lint warnings as before, and `verify.js` confirms the layering rule holds correctly, even for overrides the fixture didn't originally test.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "25e07b455c80350a041c7393b2c545ff37d6366fc3f1bb61af751ba7cb4d4073"
+}

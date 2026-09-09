@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51051,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.275092,
+  "numTurns": 8,
+  "durationMs": 49498,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2389
+  },
+  "contextTraffic": 171034,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 7790,
+  "narrationWords": 6,
+  "finalWords": 81,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll dig into the log now."
+  ],
+  "finalText": "**`Redis` went down and took prod with it.**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis` at `10.0.0.12:6379` refused, cache off |\n| 02:14:08 | Cache miss storm, store timeouts begin |\n| 02:29:12 | Queue depth passed max 500 |\n| 02:31:44 | `worker-2` heap out of memory |\n| 02:31:52 | `api` killed, service down |\n\nNo request succeeded after 02:14:03. All 13 reconnects hit `ECONNREFUSED`. See [logs/app.log](logs/app.log).\n\nNext: check why the Redis host refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98a0e7b6b63e3cba045f087c091e01dff465b1c011bb91abf53504db1c63670a"
+}

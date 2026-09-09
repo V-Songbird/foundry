@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45323,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.265524,
+  "numTurns": 9,
+  "durationMs": 43796,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2290
+  },
+  "contextTraffic": 168001,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 6179,
+  "narrationWords": 0,
+  "finalWords": 77,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died and took prod with it.**\n\n`10.0.0.12:6379` refused connections at `02:14:07`. Cache fell back to direct store reads. The store buckled. 173 `TimeoutError: request timed out after 5000ms` followed.\n\nAll 13 reconnect attempts failed over 17 minutes. Queue passed its 500 cap at `02:29:12`. `worker-2` hit `JavaScript heap out of memory` at `02:31:44`, exit code 134. Supervisor killed the process group at `02:31:52`.\n\nLast good response was `02:14:03`, line [logs/app.log:181](logs/app.log:181).\n\nNext: find why `10.0.0.12` went down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a0cc30f9d6a6887ae67d9c40db2787d7c4f7499e69ab110ae7083f5462531494"
+}

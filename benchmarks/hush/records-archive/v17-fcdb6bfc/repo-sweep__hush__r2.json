@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 37,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 100191,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6400011999999999,
+  "numTurns": 55,
+  "durationMs": 98690,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12201
+  },
+  "contextTraffic": 457845,
+  "apiCalls": 10,
+  "toolCalls": 54,
+  "toolResultChars": 29454,
+  "narrationWords": 29,
+  "finalWords": 89,
+  "finalText": "Migration's done. Twelve files still had the old form — one call each in `sla.js`, `macroAdmin.js`, `returnService.js`, `refund.js`, `couponService.js`, `teamService.js`, `apiKeyAdmin.js`, `session.js`, `cohort.js`, `variantAdmin.js`, `supplier.js`, and `shipment.js` — and all three call sites in each (get, list, update) now use `db.execute({ sql, params })`.\n\nI left two spots alone on purpose: `cache.query` calls are a different, unrelated cache API, and `vendor/legacy-orm/adapter.js` is vendored code that gets overwritten on the next upgrade anyway. The verify script confirms it — no `db.query` left in `packages/`, the cache and vendor code untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ebe60406b1ccfaad6d8081029c60d8f90cb07a8e55ea02cffb7145dcf332d3bb"
+}

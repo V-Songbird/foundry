@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 117903,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6921295000000001,
+  "numTurns": 13,
+  "durationMs": 116910,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7936
+  },
+  "contextTraffic": 455495,
+  "apiCalls": 13,
+  "toolCalls": 12,
+  "toolResultChars": 36979,
+  "narrationWords": 9,
+  "finalWords": 818,
+  "finalText": "I read both files end to end. Here's what I found.\n\n## The signal-to-noise picture\n\n380 commits, but only 166 distinct subject lines — the log records the same logical change many times over. `undici 6.19.2 → 6.19.5` appears 5 times; `pino 9.2.0 → 9.3.1` appears 5 times. Every duplicate is the *same version pair*, so it's one bump each, not five.\n\nAlso: **every subject in `merged-prs.tsv` also appears in `commits.log`** (I diffed them — the PR sheet is a strict subset, and it's missing the undici bump entirely). You don't need to reconcile the two files. `commits.log` is the one to trust.\n\nBy type: 153 chore, 73 refactor, 64 test, 33 ci, 20 docs, 26 fix, 10 perf, 1 feat. So 343 of 380 commits have no user-visible surface — *unless they're mislabeled*, which is where the interesting stuff is.\n\n## Draft 4.2.0 entry\n\n```markdown\n## 4.2.0 — 2026-08-26\n\n### Breaking\n- An expired token now returns 401 instead of 403. Code that branches on\n  403 to detect expiry needs to change.\n- The internal error types are no longer re-exported. Importing them from\n  the package root no longer works.\n- The v1 export route has been removed.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and it\n  closes its pool on shutdown, so the process exits cleanly.\n- Request bodies are no longer written to the logs.\n- Paginating past the end of a result set no longer throws on a null cursor.\n- Latency histograms report the correct units.\n- The trace id is kept across a retry.\n- An empty allowlist is handled instead of rejecting everything.\n- URLs with a trailing slash are no longer double-trimmed.\n- Duplicate headers are no longer sent.\n```\n\n## Three things to check before you publish this\n\n**The Breaking section is my read, not the log's.** All three items are labeled `refactor` or `fix` by their authors, and each one is a wire- or import-level change:\n\n- `refactor(api): drop the unused v1 export route` (56dc828) touched `src/api/router.js`, `handlers.js`, and the tests. \"Unused\" means unused *internally* — anyone still calling that route gets a 404. Worth confirming with whoever wrote it that it was never public.\n- `stop re-exporting the internal error types` landed **eight separate times** across core, db, jobs, auth, and billing. Whether this is breaking depends entirely on whether those types were reachable from your package entry point. If consumers do `instanceof` checks on them, this is the biggest break in the release and it's currently filed as cleanup.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55) is the right fix, but it's a behavior change on the wire.\n\n**`delete the dead feature-flag branch` appears 11 times**, across api, store, billing, queue, jobs, and core. If any of those flags were settable by users via env or config, setting them is now silently a no-op — which is worse than an error. I can't tell from subject lines and diffstats whether they were documented. Someone should check.\n\n**The history stops on 2026-06-17.** You're cutting tomorrow, 2026-08-25. If anything landed in those two months, it isn't in either file.\n\n## What I deliberately left out\n\n- **All 16 dependency bumps.** Every one is patch or minor within range. The majors (`vitest 1.6 → 2.0`, `esbuild 0.21 → 0.23`) are dev-only. Nothing here changes what an installer gets at runtime. If your convention is to list runtime deps anyway, the shipping ones are fastify, pg, knex, ioredis, pino, dotenv, nanoid, zod, undici.\n- **All 10 perf commits.** They're real (`reuse the parsed schema between requests`, `skip the JSON round-trip on the hot path`, `batch the metric writes`), but there isn't a single benchmark number anywhere in the history, and your changelog has no perf heading. I'd rather leave them out than write a speed claim you can't back. If you want them in, someone needs to produce a measurement first.\n- **The \"minimum node version\" docs commits.** These appear 5 times, but every one touches only `docs/retries.md`, `docs/quickstart.md`, or `README.md`. The `.nvmrc` and `ci: run the suite on node 22` changes are dev-environment and CI only — `package.json` is never touched except by dep bumps and field-sorting. So there's **no evidence of an `engines` change**, and I didn't write one down. If you actually did raise the floor, that's a Breaking entry and it's invisible in this history.\n\nOne judgment call worth surfacing: `fix(db): stop logging the whole request body` (1b55313) is a privacy fix — request bodies were going into logs. I wrote it as a plain Fixed line, but if those logs were shipped anywhere, it may warrant more prominence than that.\n\nWant me to write the entry into `CHANGELOG.md`? I held off since the Breaking section depends on the three verifications above.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8755c84253bef56ef82bf3c6c8d60b13a72936c5071541cc3d31f69aa4b265ba"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 23,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 95814,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.808806,
+  "numTurns": 11,
+  "durationMs": 94202,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6146
+  },
+  "contextTraffic": 429134,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 75071,
+  "narrationWords": 33,
+  "finalWords": 960,
+  "assistantMsgs": 4,
+  "finalText": "I read all 380 commits and the 127-row PR sheet. Here's what I found.\n\n## The shape of the release\n\n| Type | Commits | User-visible? |\n|---|---:|---|\n| chore (deps, lockfiles, configs) | 153 | no |\n| refactor | 73 | mostly no — see caveats |\n| test | 64 | no |\n| ci | 33 | no |\n| **fix** | **26** | **yes** |\n| docs | 20 | no |\n| **perf** | **10** | **yes** |\n| **feat** | **1** | **yes** |\n\nSo 343 of 380 commits are noise for your readers. Real content is 37 commits, and those collapse further because the same fix landed in several modules independently — e.g. \"guard the null cursor in the paginator\" is four separate commits (queue, api, webhooks, db) that are one bullet to a reader.\n\nThe 16 dependency bumps are each repeated 5–12 times in the log with identical from→to versions, so there are only 16 net version changes. Nine are runtime deps (undici, fastify, pg, knex, ioredis, pino, zod, nanoid, dotenv); seven are dev-only (typescript, eslint, prettier, vitest, tsx, esbuild, husky) and don't belong in user-facing notes at all.\n\n## What actually changed for users\n\n**One new feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (#4191, 395fb48). Note it also touched `src/core/config.js` — that almost certainly means a new config option to tune or disable it, which you'll want to name in the notes.\n\n**Three behavior changes people will feel:**\n\n1. **`fix(auth): return 401 for an expired token instead of 403`** (1d2bd55). This is a response-contract change. Anyone branching on 403 breaks silently. I'd put this under Breaking, not Fixed, regardless of its commit prefix.\n2. **`fix(*): use the right units in the latency histogram`** (store 59402bc, core 1f2bc4e). Emitted metric values change magnitude. Dashboards and alert thresholds built on 4.1 will read wrong after upgrade. Worth calling out explicitly.\n3. **`fix(db): stop logging the whole request body`** (1b55313). A privacy fix — request bodies were going to logs. Users may want to know so they can go purge old logs.\n\n**Genuine bug fixes, deduped from 26 commits to 8 themes:**\n\n- HTTP client leaked a timer when the socket dropped (f66d359) and didn't close the pool on shutdown (eb874a5) — both affect clean process exit.\n- Paginators crashed on a null cursor (queue, api, webhooks, db).\n- Empty allowlist was mishandled (store, db, jobs).\n- Trailing slash was trimmed twice, mangling URLs (queue, jobs).\n- Duplicate header sent on requests (core ×3, billing, http).\n- Trace id was lost across a retry (api ×3) — hurts anyone correlating logs.\n- Token parser error messages tightened (core, billing, queue).\n\n**Performance** (10 commits): batched metric writes, removed a JSON round-trip on the hot path, dropped redundant clones in mappers, and `perf(api): reuse the parsed schema between requests` (9f02d92). Real, but I have no benchmark numbers here — I'd either omit these or state them qualitatively rather than invent a percentage.\n\n## Two things I could not verify, and one gap\n\n**The refactors may hide breaking changes.** These three patterns look internal but touch the export surface, and I can't confirm either way because the repo has only `history/` and `CHANGELOG.md` — there's no source tree to check `index.js` against:\n\n- `refactor(api): drop the unused v1 export route` (56dc828) — removes a route. \"Unused\" per the author, but that's a claim about *your* callers, not your users'.\n- `stop re-exporting the internal error types` — 8 commits (jobs, db ×2, core ×2, auth, billing ×2). If those types were reachable from the package entry point in 4.1, every `import { SomeError }` breaks.\n- `move the config loader under src/config` — 7 commits. Breaks anyone deep-importing the old path.\n\nPlease diff the 4.1 and 4.2 public entry points before you publish. If any of those were exported, they're Breaking entries and this is a major-version conversation, not a 4.2.\n\n**Possible Node version bump.** Four `docs: note the minimum node version` commits plus three `ci: run the suite on node 22`, but nothing touches `engines` in a way the log shows. If the floor moved, that's a Breaking entry.\n\n**The history stops on 2026-06-17.** You're cutting tomorrow, 2026-08-29 — a ten-week gap with no commits. Either the branch has been frozen since June, or this export is stale and there's work missing. Worth confirming before you publish, since anything after 6/17 is invisible to me.\n\n## Draft, in your house shape\n\nAssumes the refactors turn out to be internal. If the export check says otherwise, those move up into Breaking.\n\n```markdown\n## 4.2.0 — 2026-08-29\n\n### Breaking\n- An expired token now returns 401 instead of 403. If you branch on the\n  status code, update it.\n- The latency histogram now reports the correct units. Dashboards and alerts\n  calibrated against 4.1 will need their thresholds rescaled.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- Request bodies are no longer written to the logs.\n- The HTTP client no longer leaks a timer when the socket drops, and it now\n  closes the pool on shutdown.\n- Paginators no longer fail on a null cursor.\n- An empty allowlist is now handled instead of erroring.\n- Trailing slashes are trimmed once, not twice.\n- Requests no longer carry a duplicate header.\n- The trace id survives a retry.\n```\n\nTwo calls for you: whether the perf work earns a mention (your three headings have no home for it — I left it out rather than bend a heading), and whether to name the new webhook config option once you've looked at what `src/core/config.js` gained. I can paste this into `CHANGELOG.md` at the placeholder if you want it in the file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a9c64ab535e82819367105fb8f146cd5fa5b8e6cdbfd647c8d66d079942fe82"
+}

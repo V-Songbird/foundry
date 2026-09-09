@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r3",
+  "batchId": "conf1-b988fbdc",
+  "seed": "1787993399462",
+  "orderIndex": 22,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 155621,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.48306699999999997,
+  "numTurns": 12,
+  "durationMs": 154162,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14050
+  },
+  "contextTraffic": 407559,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 90014,
+  "narrationWords": 0,
+  "finalWords": 93,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nWent through all 380 commits, not just the `merged-prs.tsv` sample. One breaking change, one new feature, nine real fixes survived past the noise.\n\n- Breaking: expired tokens now return `401` not `403`\n- Added: webhook retries with exponential backoff\n- Fixed: socket-drop hangs, pool leaks on shutdown, null-cursor crashes, duplicate header, bad empty-allowlist handling, double-trimmed slashes, full request-body logging, lost trace ids on retry, wrong histogram units, vague token-parser errors\n\nWorth a skim before you ship it, since a few fixes touch security-adjacent behavior (401/403, request-body logging).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "528c231eda6c8c5a88de28d1a754d32a9546e4dacebccb08cae4fdd565f9c9e8"
+}

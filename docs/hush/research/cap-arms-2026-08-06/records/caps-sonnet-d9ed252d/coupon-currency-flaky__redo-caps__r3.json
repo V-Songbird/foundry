@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 117,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 41015,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24191189999999999,
+  "numTurns": 10,
+  "durationMs": 39149,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2381
+  },
+  "contextTraffic": 319592,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 9185,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "finalText": "Found it: `computeTotal` in `src/pricing/engine.js` was rounding to 2 decimal places in USD after each coupon step, then rounding again after currency conversion. That double rounding only shows up once a percent coupon is stacked with a rate whose conversion nudges the pre-rounded cent across a boundary — which is why it looked random and mostly fine.\n\nExample: GBP cart with `SAVE10PCT`, $9.99 × 2. Rounding at $17.98 before converting gives £14.02. Converting the unrounded $17.982 gives £14.03. One cent, only visible after conversion.\n\nFixed by rounding once, at the very end, in the order's own currency — matching the reference the tests were written against. All 40 pricing-matrix tests pass now (was 30/40).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bb54fbf58b8af932b96794156344186ec0514def9eb816bbc8505c8be8ea6441"
+}

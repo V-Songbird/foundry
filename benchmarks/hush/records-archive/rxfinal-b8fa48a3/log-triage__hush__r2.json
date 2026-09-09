@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19514,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1806182,
+  "numTurns": 3,
+  "durationMs": 17921,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 618
+  },
+  "contextTraffic": 111786,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 132,
+  "finalText": "Redis went down at 02:14:07 and never came back. Every reconnect attempt failed, straight through attempt 12 at 02:31:26.\n\nWith Redis gone, the cache fell back to hitting the store directly. That triggered constant cache miss storms and 5-second timeouts on nearly every request.\n\nRequests piled up faster than they could be handled. The queue depth climbed from 52 all the way to 568, over the max of 500, and kept growing.\n\nThat backlog finally broke things. `worker-2` ran out of memory at 02:31:44 and restarted, then the api process stopped responding and the whole service was killed at 02:31:52.\n\nSo it's one root cause: Redis at `10.0.0.12:6379` dropped and stayed down for the rest of the night. Getting Redis back up is the fix, the timeouts and crash were just downstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f2eb746cc3a54466fc3f3299e6a5ec98d9f6efc35521fdcd8f25586d5873fc47"
+}

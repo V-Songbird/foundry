@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "inline-5bb25cc6",
+  "seed": "1786212013567",
+  "orderIndex": 13,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 115250,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6753088000000002,
+  "numTurns": 37,
+  "durationMs": 114027,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10390
+  },
+  "contextTraffic": 1168277,
+  "apiCalls": 28,
+  "toolCalls": 36,
+  "toolResultChars": 23714,
+  "narrationWords": 153,
+  "finalWords": 52,
+  "finalText": "Verifier passes. Migrated all 12 straggler files in `packages/` (analytics, orders, billing, support, catalog, accounts) from `db.query(sql, params)` to `db.execute({ sql, params })`, leaving `cache.query` calls and the vendored `vendor/legacy-orm/adapter.js` untouched. `node verify.js` confirms: no remaining `db.query` sites, all `db.execute` calls carry both `sql`/`params`, and every module still loads and functions correctly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "64baf279687f591da80c353d0a2f2af8a721c5eab7f9c440d173c57227d7f01a"
+}

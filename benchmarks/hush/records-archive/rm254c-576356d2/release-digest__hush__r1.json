@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 36,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 158641,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5578983000000001,
+  "numTurns": 15,
+  "durationMs": 157048,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14094
+  },
+  "contextTraffic": 422138,
+  "apiCalls": 9,
+  "toolCalls": 14,
+  "toolResultChars": 23338,
+  "narrationWords": 0,
+  "finalWords": 118,
+  "finalText": "**CHANGELOG.md now has a 4.2.0 section.** No breaking changes this time.\n\nOne new feature: webhook deliveries that fail now retry themselves with backoff.\n\nTen real fixes made the cut, out of 380 commits. The big ones: expired tokens now correctly return 401, the database stopped logging full request bodies, and four different list endpoints (queue, API, webhooks, database) no longer choke on a null pagination cursor. Smaller ones cover a duplicate header, a double-trimmed trailing slash, an unhandled empty allowlist, trace ids dropping on retry, an HTTP pool leak on shutdown, a stray timer, wrong metric units, and fuzzy token-parse errors.\n\nEverything else — the dependency bumps, renames, and file-splitting — didn't touch behavior, so it's left out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4a749af43892b89079078da0e821e908966019309ba0e6dbe2e7a896971d716b"
+}

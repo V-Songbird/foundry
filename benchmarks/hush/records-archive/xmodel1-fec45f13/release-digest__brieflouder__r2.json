@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__brieflouder__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "brieflouder",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 82500,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "brieflouder:Brieflouder",
+  "costUsd": 0.2363534,
+  "numTurns": 10,
+  "durationMs": 80621,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7157
+  },
+  "contextTraffic": 209910,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 29392,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry into [CHANGELOG.md](CHANGELOG.md).**\n\nWent through all 380 commits and 128 PRs, filtered out the deps/refactor/test/ci noise, kept what a user would actually notice.\n\n- 1 breaking change: expired tokens now return `401`, not `403`\n- 1 addition: webhook deliveries retry with backoff\n- 10 fixes: pagination null-cursor crash, leaking connection pool, dangling timer, double slash-trim, empty allowlist handling, request bodies in logs, wrong histogram units, duplicate header, dropped trace ID, unclear parser errors\n\nNext: confirm the `401` change is intentional and not a regression, since it's the one that could break existing integrations.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fba7d453aa43b2df92a81cb16ede9effd83c5458df382e7071b02b3e4d222f8f"
+}

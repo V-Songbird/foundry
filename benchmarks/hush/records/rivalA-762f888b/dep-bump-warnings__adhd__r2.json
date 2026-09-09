@@ -1,0 +1,43 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 29,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36018,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2373725,
+  "numTurns": 10,
+  "durationMs": 35124,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2598
+  },
+  "contextTraffic": 126142,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 7607,
+  "narrationWords": 33,
+  "finalWords": 265,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project and reproducing the build warnings.",
+    "The build isn't just noisy — it's failing outright (exit 1). Two real bugs from the bump, in sequence. Fixing both."
+  ],
+  "finalText": "Build's green now — exit 0, 0 errors. You were right that it wasn't all noise; there were actually **two** real bugs, and they were sequential, so fixing only the first would have just moved the failure one line down.\n\n**1. `src/core/options.js:6` — options shape mismatch**\nThe bump renamed `retries` → `retryCount`. This call site still read `options.retries`, which was `undefined`, so `.toFixed(0)` threw a `TypeError` and aborted the link stage. Now reads `retryCount` with a fallback to the old `retries` key, so callers on either shape work.\n\n**2. `src/net/retryPolicy.js:7` — strict flag check**\nThe old config loader returned `false` for unset flags; the new one leaves them `undefined`. The strict `=== true/false` check fell through to a `throw`. Now `undefined` maps to `false`, preserving the previous default (backoff off when unset). This one was hidden behind bug #1 — it only surfaces once the retry fix lands.\n\n**What I did not fix:** the 8 remaining warnings. They're all deprecation/lint notices pointing at files like `src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js` — none of which exist in this directory. `build.js` emits them as hardcoded strings, so there's no source to change here:\n\n- 5 Node deprecations (`fs.exists`, `Buffer()`, sync loader hook, `punycode`, `module.parent`)\n- `W1042` `crypto.createCipher` — worth a real look, that one's genuinely insecure and flagged \"remove before v5\"\n- `W2213` unused export, `W3307` circular import between `core/graph` and `state/tracker` — undefined resolution order is a latent bug\n\nIf those files live elsewhere in the real tree, point me at it and I'll work through them — `crypto.createCipher` and the circular import are the two I'd prioritize.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "307ccf36023d4a56310309037aa738d489f6f0b10890b399d2ebaf6fd4cf1614"
+}

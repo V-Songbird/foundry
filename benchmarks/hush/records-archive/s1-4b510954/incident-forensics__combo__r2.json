@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__combo__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 100,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "combo",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 53066,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.3129637,
+  "numTurns": 13,
+  "durationMs": 46345,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2464
+  },
+  "contextTraffic": 541462,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 8762,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 02:12–02:14 UTC), \"config: connection-per-request for pool isolation.\" It flipped `gateway.pool.perRequest` from `false` to `true` and raised `gateway.timeout.upstreamMs` from 2000 to 2500. Minutes later the connection pool maxed out at `size 20, in_use 20`, and every request past that threw `ERR_POOL_EXHAUSTED`, returned as a 503.\n\n**Impact window:** Started 2026-03-14 02:14:18 UTC, right as the deploy finished. Still ongoing as of the last log line, 03:59:27 UTC. 530 requests failed with 503 in that span, and the wait queue kept growing throughout, up to 74 deep.\n\n**Scope:** Gateway only. `worker.log` shows zero errors in the same window, so background jobs were unaffected.\n\n**Rollback:** Revert `dep-4471` on the gateway, back to config generation 118.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "baa6efe76d5e8ceb9d9a18770aef5f7955b37e1a723e00388c04ba421640b0bf"
+}

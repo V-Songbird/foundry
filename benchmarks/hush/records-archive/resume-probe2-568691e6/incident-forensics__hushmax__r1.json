@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hushmax__r1",
+  "batchId": "resume-probe2-568691e6",
+  "seed": "1788904758811",
+  "orderIndex": 0,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushmax",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 4,
+  "wallMs": 97102,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8285409999999999,
+  "numTurns": 15,
+  "durationMs": 92666,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4869
+  },
+  "contextTraffic": 456467,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 16169,
+  "narrationWords": 0,
+  "finalWords": 53,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest=true`.\nThe 20-slot pool filled at once.\n\nImpact window: `02:14:18Z` to `03:59Z`, still open.\n530 of 636 requests returned 503.\nOn-call was paged at `03:21`.\n\nRoll back `dep-4471` on `gateway`.\nLeave `dep-4472` and `dep-4473` alone.\n\nNext: roll back, then watch for `waiting=0` in pool stats.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e577e8ac4069c36b2b5ad0883f8c814655abb67b6c9e3fb528a2b8df6e4f6a9c"
+}

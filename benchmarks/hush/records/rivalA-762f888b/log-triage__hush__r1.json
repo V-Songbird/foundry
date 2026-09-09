@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34107,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.351821,
+  "numTurns": 7,
+  "durationMs": 32755,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1871
+  },
+  "contextTraffic": 165701,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 27185,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died and nothing else recovered.**\n\n`redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` at `02:14:07` in [logs/app.log:182](logs/app.log#L182). Cache fell back to direct store reads.\n\nThen 5000ms `TimeoutError` and cache miss storms, non stop. Queue depth grew 52 to 568, past `max 500`.\n\nAll 13 reconnect tries failed, last at `02:31:26`.\n\n`worker-2` hit `JavaScript heap out of memory`, exit 134. `api` was killed at `02:31:52` — service down.\n\n188 errors, 348 warns, 17 minutes.\n\nNext: check why `10.0.0.12:6379` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2e913b2d120d62fa55df86eecce135fe68063656b4d0355059f699b395e6d710"
+}

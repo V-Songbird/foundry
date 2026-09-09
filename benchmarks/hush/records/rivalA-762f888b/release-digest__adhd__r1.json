@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__adhd__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 63,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 83732,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8009750000000001,
+  "numTurns": 11,
+  "durationMs": 82836,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5389
+  },
+  "contextTraffic": 462520,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 72082,
+  "narrationWords": 93,
+  "finalWords": 336,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory.",
+    "I've read all 380 commits and the PR sheet. Here's the signal.\n\n**The noise:** 114 dependency bumps (many merged 2–3× by different people — pino alone landed 9 times), 73 refactors, 64 test commits, 39 chores, 33 CI, 20 docs. That's ~347 of 380 commits with nothing for a user to notice.\n\n**The catch:** two of the things that matter are filed as `refactor`, so they'd be invisible if you filtered by `feat|fix|perf`.\n\nHere's the draft, written into the file in your shape:"
+  ],
+  "finalText": "Five things to check before you ship it:\n\n1. **The two `refactor` commits I promoted to Breaking.** `refactor(api): drop the unused v1 export route` (#4152, 56dc828) removes a route, and `stop re-exporting the internal error types` landed 8 times across core/db/jobs/auth/billing (2e61589, 5d4de73, d7cf97b, b5cfbc3, …). \"Unused\" and \"internal\" are the author's view from inside the repo — if either was reachable by an installed consumer, they're breaking changes and 4.2 should probably be 5.0. If they genuinely weren't public, delete both lines.\n\n2. **401-vs-403 and the histogram units** are filed as `fix` (1d2bd55, 59402bc, 1f2bc4e). They're real fixes, but each changes an observable value someone may have built on, which is why I put them under Breaking rather than Fixed. Move them down if you'd rather not imply a major.\n\n3. **The webhook retry feature touched `src/core/config.js`** (395fb48), which suggests it added a config option — backoff base, max attempts, something. I can't name it from the log. If there's a knob, the Added line should name it.\n\n4. **Node version.** `docs: note the minimum node version` (5 times), `ci: run the suite on node 22`, and `chore: pin the node version in .nvmrc` all landed. If the *supported floor* actually moved, that's a Breaking line I can't confirm from commit subjects alone — the docs commits read like documenting an existing minimum, not raising one.\n\n5. **Runtime deps that reach users:** fastify 4.28.0→4.28.1, pg 8.12→8.13, knex 3.1.0→3.1.2, ioredis 5.4.1→5.4.2, undici 6.19.2→6.19.5, zod 3.23.6→3.23.8, pino 9.2→9.3.1, nanoid 5.0.7→5.0.8, dotenv 16.4.5→16.4.7. All patch/minor, so I left them out per your \"only what someone installing would notice\" rule. The rest (eslint, vitest, prettier, typescript, tsx, esbuild, husky) are dev-only and definitely don't belong.\n\nI also dropped the 10 `perf` commits — batched metric writes, skipped JSON round-trips, avoided clones, a reused parsed schema (9f02d92). None come with a number, and an unquantified \"faster\" line isn't something an installer can notice. If someone benchmarked the hot-path or schema-reuse work, that's worth one line under Added with the figure.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59a8c7b36c4ddb4dec98ad281bdf3d371bfb82d98a8a92f17a5ec0b66c42bd34"
+}

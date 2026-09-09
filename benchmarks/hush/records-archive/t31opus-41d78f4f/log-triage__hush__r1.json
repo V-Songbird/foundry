@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "t31opus-41d78f4f",
+  "seed": "1787068393443",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70289,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37972550000000005,
+  "numTurns": 9,
+  "durationMs": 68264,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3763
+  },
+  "contextTraffic": 260341,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 7740,
+  "narrationWords": 0,
+  "finalWords": 87,
+  "finalText": "**Redis died, and everything downstream fell over.**\n\n1. `02:14:07` Redis refused connections at `10.0.0.12:6379`.\n2. The cache dropped to fallback. Every read hit the store.\n3. The store timed out at 5000ms. Queues started filling.\n4. `02:29:12` queue depth passed its 500 cap.\n5. `02:31:44` worker-2 ran out of heap memory.\n6. `02:31:52` the api was killed. Service down.\n\nRedis never came back. All 13 reconnect tries were refused.\nNo request succeeded after `02:14:03`, so it was a full outage.\nStart by finding why Redis stopped listening.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2f114396e2f970baf2658fc666551cb5ff33d98ecf44f08c4bce9db80c9102cd"
+}

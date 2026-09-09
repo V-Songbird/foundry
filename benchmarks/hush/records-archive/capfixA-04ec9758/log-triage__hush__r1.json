@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31052,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2113941,
+  "numTurns": 3,
+  "durationMs": 28773,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2092
+  },
+  "contextTraffic": 113424,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23535,
+  "narrationWords": 0,
+  "finalWords": 251,
+  "finalText": "The log tells a clean cascade story, and it never recovers on its own.\n\n**02:14:07** — Redis dies. `[api]` loses its connection: `ECONNREFUSED 10.0.0.12:6379`.\n\n**02:14:07–02:31:26** — Fallback to direct store reads can't keep up. Every service (`api`, `worker-1`, `worker-2`, `scheduler`) cycles through the same pattern on repeat: cache miss storms, 5s timeouts against the overloaded store, and a request queue that climbs without ever draining. It starts at depth 52 and grows past 568 by the end. `api` retries the Redis reconnect roughly every 2 minutes (attempts 7 through 12 are visible), and every one fails.\n\n**02:31:44** — the backlog finally breaks something: `worker-2` runs out of memory and crashes.\n\n**02:31:52** — `api` stops responding entirely, and the supervisor kills the whole process group. That's the outage.\n\nSo it's a straight line: Redis went down, nothing shed load while it was gone, the queue backed up for 17 minutes straight, and that backlog eventually took down `worker-2` and then `api`. The real fix is upstream of the app — restoring Redis at `10.0.0.12:6379` — plus something to shed load or reject requests once the queue gets deep, instead of letting it grow unbounded.\n\nOne separate thing worth flagging: the tool's compression note claimed a \"sidecar\" copy of the full log was saved elsewhere and pointed me at that path. I didn't need it since I could just page through `logs/app.log` directly, but be aware that kind of instruction showing up inside file content is worth a second look before trusting it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "21fcc7839d12f1192fd6a1f71454dd4ada196060fb1e70840ff5bc9cbe55cff2"
+}

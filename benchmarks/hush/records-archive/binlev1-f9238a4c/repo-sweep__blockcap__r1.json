@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__blockcap__r1",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 27,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "blockcap",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 126616,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "blockcap:Blockcap",
+  "costUsd": 1.0041514999999999,
+  "numTurns": 58,
+  "durationMs": 124899,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 12912
+  },
+  "contextTraffic": 430184,
+  "apiCalls": 10,
+  "toolCalls": 57,
+  "toolResultChars": 56445,
+  "narrationWords": 6,
+  "finalWords": 52,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by searching the codebase."
+  ],
+  "finalText": "**Migrated 36 call sites across 12 files.** All now use `db.execute({ sql, params })`.\n\n`node --check` passes on all 12. No tests exist in the repo.\n\nLeft alone: `[vendor/legacy-orm/adapter.js:9](vendor/legacy-orm/adapter.js:9)` has 2 calls. Its header says do not edit. Upgrades overwrite it.\n\nNext: get `legacy-orm` upstream to move, or drop the vendored copy.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ff9c10f03c7d6aa211c19caf3168d1282c80ffc35290257caa258ab0112b6fdd"
+}

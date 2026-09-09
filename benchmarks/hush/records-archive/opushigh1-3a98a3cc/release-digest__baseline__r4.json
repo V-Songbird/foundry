@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__baseline__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 31,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 115231,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8571755000000001,
+  "numTurns": 10,
+  "durationMs": 114476,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8074
+  },
+  "contextTraffic": 408336,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 76082,
+  "narrationWords": 9,
+  "finalWords": 746,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land."
+  ],
+  "finalText": "380 commits, and the signal is thin: 1 feat, 26 fix, 10 perf. Everything else is 153 chores, 73 refactors, 64 tests, 33 CI, 20 docs. Here's what survived, plus a few things buried in the refactors that I think do belong in the notes.\n\n## Draft 4.2.0\n\n```markdown\n## 4.2.0 — 2026-09-09\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on 403\n  to trigger a re-auth will need to look at 401 too.\n- The v1 export route is gone. Use the current export endpoint.\n- The internal error types are no longer re-exported from the package. Match on\n  the error code instead of importing the class.\n- The latency histograms report the units they claim to. Existing dashboards and\n  alert thresholds on those metrics will read differently after upgrading.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff, configurable\n  through the loader.\n\n### Fixed\n- Paginating to the end no longer breaks on a null cursor. This affected the\n  API, db, queue and webhook paginators.\n- An empty allowlist is now handled as empty rather than falling through.\n- The HTTP client clears its timer when the socket drops and closes its pool on\n  shutdown, so a process no longer hangs on exit.\n- Request bodies are no longer written to the logs.\n- A duplicate header is no longer sent on outbound requests.\n- A trailing slash is trimmed once, not twice.\n- The trace id now survives a retry.\n- Token parse failures carry a clearer message. The text changed — assert on the\n  error code if you were matching the string.\n- Less work on the hot path: batched metric writes, no JSON round-trip, fewer\n  clones in the mappers, and the parsed schema is reused across requests.\n```\n\n## Things I pulled out of the \"refactor\" pile\n\nThese are labelled as internal cleanup but change what a consumer sees. I put them under Breaking above — worth a second opinion before you publish:\n\n- **`refactor(api): drop the unused v1 export route`** (56dc828, #4152) — it touches `router.js`, `handlers.js` and the tests. \"Unused\" is the author's assertion; a removed route is a removed route.\n- **`refactor(*): stop re-exporting the internal error types`** — eight commits across core, db, jobs, auth and billing. If any of those classes were reachable from the package entry point, imports break silently.\n- **`fix(*): use the right units in the latency histogram`** — same shape as your 4.1 `timeout` seconds→ms entry: the values change, nothing errors.\n\n## Verify before you publish\n\n1. **Minimum Node version.** Five `docs: note the minimum node version` commits, plus `ci: run the suite on node 22` and two `.nvmrc` pins. That pattern usually means the floor moved. If it did, it's the first line of Breaking — the log doesn't record the number.\n2. **Ten × `delete the dead feature-flag branch`.** Confirm none of those flags were documented or settable.\n3. **Seven × `move the config loader under src/config`.** Only matters if anyone deep-imports `src/…` paths.\n4. **Five × `docs: correct the default port`.** No source change accompanies them, so I read it as the docs being wrong rather than the default changing — worth confirming.\n\n## What I left out\n\nAll 153 chores. The dependency bumps are patch or minor with no majors — runtime deps were fastify 4.28.0→4.28.1, pg 8.12.0→8.13.0, knex 3.1.0→3.1.2, ioredis 5.4.1→5.4.2, pino 9.2.0→9.3.1, zod 3.23.6→3.23.8, undici 6.19.2→6.19.5, dotenv, nanoid; the rest (eslint, vitest, typescript, esbuild, tsx, prettier, husky) are dev-only. Nothing an installer would notice, and 4.1 didn't list them either. Tests, CI and docs-only commits are out for the same reason.\n\n## Two caveats about the source files\n\n**Don't write these notes from `merged-prs.tsv`.** It carries 15 feat/fix/perf rows against 33 in the commit log — it's missing both HTTP shutdown fixes, the api/db/core paginator guards, `stop logging the whole request body`, and several perf items.\n\n**Neither file is reliable for attribution or counts.** They disagree on authorship for the same change (the v1 route removal is Omar Haddad in the log and Ana Ruiz in the sheet; the webhook retry feature is Ana Ruiz vs Lena Fischer), and both contain duplicate rows for identical subjects — `fix(core): drop the duplicate header` appears three times under three different authors. So \"380 commits since 4.1\" overstates the distinct work considerably; I counted roughly 13 user-facing changes.\n\nWant me to write the draft into `CHANGELOG.md` above the 4.1 section?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "491afb8e4b244ebf193cd1a2942478ba34ef5c183378a5d071bc526232f92bef"
+}

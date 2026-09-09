@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__unquote__r4",
+  "batchId": "sil2-377b29e6",
+  "seed": "1787898445241",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "unquote",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34763,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-unquote:HushUnquote",
+  "costUsd": 0.263798,
+  "numTurns": 13,
+  "durationMs": 33087,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2223
+  },
+  "contextTraffic": 140764,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 12073,
+  "narrationWords": 8,
+  "finalWords": 109,
+  "assistantMsgs": 2,
+  "finalText": "**Big but shallow: ~1080 hits in 94 files, and most are mechanical.** 75 files under `services` are the same repo/service/route trio repeated per entity.\n\nFour zones must not be renamed:\n\n| Zone | Why |\n|---|---|\n| [`lib/serialize.js:8`](lib/serialize.js:8) | `WIRE` right side is the public JSON key |\n| [`docs/openapi.yaml:16`](docs/openapi.yaml:16) | Frozen contract. Needs a new dated version |\n| `vendor/reporting-sdk` 4 files | Generated. `npm run vendor:refresh` overwrites |\n| `migrations` 12 files | Already applied. Editing breaks the down step |\n\nRename the internal side only. Add a new migration if you want the column renamed. Sign off on the `services` and `lib/audit.js` sweep. Hold the rest.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c7201190b9528cbbcd2045c96082f1c014ea59407c4cbc3c6d92ddbb1cbf5e5b"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "capfixB-1f14a1b6",
+  "seed": "1787120586579",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17495,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3100673,
+  "numTurns": 3,
+  "durationMs": 15344,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 990
+  },
+  "contextTraffic": 113279,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 24788,
+  "narrationWords": 0,
+  "finalWords": 148,
+  "finalText": "Redis died at 02:14:07, and the app never recovered from it.\n\n**What broke.** Redis at `10.0.0.12:6379` refused connections. The app fell back to hitting the database directly, which is much slower.\n\n**What that triggered.** Cache misses stormed, requests started timing out after 5 seconds, and the request queue grew nonstop from 52 to 568, way past its limit of 500. Redis reconnect attempts kept failing every 20 seconds for over 17 minutes.\n\n**How it ended.** At 02:31:44, `worker-2` ran out of memory from the backlog and crashed. It came back up, but 8 seconds later the whole API stopped responding and got killed. Service went down at 02:31:52.\n\nSo the real culprit is Redis going unreachable. Everything after that was the app slowly drowning without it. Worth checking why `10.0.0.12` stopped answering, and maybe capping the queue harder so it fails fast instead of piling up next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "162a57f409e7b6565c272de8350335ceefa56bdb03bd414f52bc77a2f614f6c9"
+}

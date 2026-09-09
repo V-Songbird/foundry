@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 66,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76982,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.37504399999999993,
+  "numTurns": 18,
+  "durationMs": 75203,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3784
+  },
+  "contextTraffic": 239428,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 14029,
+  "narrationWords": 6,
+  "finalWords": 68,
+  "finalText": "Big, but mostly mechanical. 1082 lines across 94 files.\n\nDo not rename:\n\n```\ndocs/openapi.yaml            5   public API contract, frozen\nlib/serialize.js WIRE value  1   public JSON key\nmigrations/*.sql            61   12 already applied in prod\nservices/*/repo/*.js SQL   125   real column name, needs a migration\nvendor/reporting-sdk        20   generated, vendor:refresh overwrites\n```\n\nThat leaves roughly 1130 plain JS identifiers, safe to rename.\n\nOne catch. `insertOrder` writes `account_id` into the stored `payload` JSON.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d2c8f1da12ec81aeacf314183ce003576dc821a2f9cb1780059763b4654315c7"
+}

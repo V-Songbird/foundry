@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 52,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22257,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10241800000000001,
+  "numTurns": 9,
+  "durationMs": 20294,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1578
+  },
+  "contextTraffic": 113302,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 11684,
+  "narrationWords": 0,
+  "finalWords": 164,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Bigger than it sounds, and three spots must stay `account_id`.**\n\n`account_id` shows up in 1082 places across 94 files. Most are the app's own repo/service/route layers (accounts, orders, billing, notify, analytics) doing tenant scoping — mechanical, renameable.\n\nDo not rename in:\n\n| Location | Reason |\n|---|---|\n| `vendor/reporting-sdk/*` | Vendored, generated. Header says local edits get overwritten by `npm run vendor:refresh`. |\n| `migrations/*.sql` (all applied ones) | Already run in prod. Editing them doesn't rename a live column and breaks the `down` step. A rename needs a *new* migration. |\n| `lib/serialize.js` `WIRE.account_id` | Public API field, documented in `docs/openapi.yaml`, read by name by every client. Comment marks it frozen. |\n\n`docs/openapi.yaml` also exposes `account_id` as a public field name and query param — renaming it is a breaking API change, separate decision from the internal rename.\n\nNext: sign off on the internal rename in services code, but carve out vendor, applied migrations, and the public wire contract as out of scope.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0c2a247672bc94b8d2af417f68242ff714b701c3ca4ae35dfe049f21a0f38d3b"
+}

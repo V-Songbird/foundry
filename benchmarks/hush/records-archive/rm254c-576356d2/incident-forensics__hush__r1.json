@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 89,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 54686,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3253835,
+  "numTurns": 13,
+  "durationMs": 48057,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2586
+  },
+  "contextTraffic": 515009,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 14128,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause.** Deploy `dep-4471` to the gateway, by a.novak, changed `gateway.pool.perRequest` from `false` to `true`. Config landed at 02:13:41 UTC. Connections stopped freeing up right after.\n\n**Impact window.** Started 02:14:19 UTC. Still active as of the last log line, 03:59:27 UTC. Not yet resolved.\n\n**What broke.** Connection pool maxed out at 20, all in use. The wait queue kept growing, from 13 waiting at the first error to 74 by the end of the log. Every `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/orders`, and `/v1/catalog/search` request was failing with 503 `ERR_POOL_EXHAUSTED`. `/health` kept returning 200 the whole time, so the process itself was fine, just starved for connections.\n\n**Blast radius.** Gateway only. Checked `worker.log` for the same window, all jobs ran clean.\n\n**Action.** Roll back `dep-4471`, generation 119, on the gateway. That reverts `gateway.pool.perRequest` to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "23ed2cb115eb971b18409c02d9cdf85e2f9c57fb5f5529a91372aaf2a7a07b6a"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r4",
+  "batchId": "noill2-a202e087",
+  "seed": "1788039179332",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 37168,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.246214,
+  "numTurns": 10,
+  "durationMs": 35647,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1948
+  },
+  "contextTraffic": 149950,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6373,
+  "narrationWords": 7,
+  "finalWords": 70,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**The build passes now.** Two real bugs hid in the warning wall, not one.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read both keys |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag now `undefined`, threw | Unset means off |\n\nThe other 8 warnings are just deprecation noise. They name files like `src/legacy/adapter.js` that do not exist here.\n\nNext: nothing. Build exits 0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e9b0d1cb239de4b402fead146d5db6996619c4433c6f068e8107ea7fa7a7859a"
+}

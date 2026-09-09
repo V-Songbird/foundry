@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__unquote__r2",
+  "batchId": "sil2-377b29e6",
+  "seed": "1787898445241",
+  "orderIndex": 9,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "unquote",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34510,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-unquote:HushUnquote",
+  "costUsd": 0.27049449999999997,
+  "numTurns": 14,
+  "durationMs": 32577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2093
+  },
+  "contextTraffic": 142863,
+  "apiCalls": 5,
+  "toolCalls": 13,
+  "toolResultChars": 14404,
+  "narrationWords": 8,
+  "finalWords": 94,
+  "assistantMsgs": 2,
+  "finalText": "**1082 hits in 94 files. Most are safe; four places are not.**\n\n| Do not touch | Why |\n|---|---|\n| [`docs/openapi.yaml`](docs/openapi.yaml:16) | Public contract. Rename needs a new dated version. |\n| [`lib/serialize.js:8`](lib/serialize.js:8) | `WIRE` right-hand value is the wire name. |\n| [`vendor/reporting-sdk`](vendor/reporting-sdk/src/client.js:8) | Generated. `npm run vendor:refresh` wipes edits. |\n| 12 applied `migrations/` | History. Editing breaks the down step. |\n\nSafe to rename: 75 files in `services/` plus [`lib/audit.js`](lib/audit.js:8). But SQL strings like `WHERE account_id = ?` name the DB column. That needs a new migration, not a find-replace.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "65c7875a753e5523c56f6918092c8f3c4905687a7c34a1785c400e163a07b157"
+}

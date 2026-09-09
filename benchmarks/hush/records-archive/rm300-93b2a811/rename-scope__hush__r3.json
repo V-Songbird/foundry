@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 45,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 58174,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4113985,
+  "numTurns": 21,
+  "durationMs": 56607,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4116
+  },
+  "contextTraffic": 228506,
+  "apiCalls": 9,
+  "toolCalls": 20,
+  "toolResultChars": 20162,
+  "narrationWords": 0,
+  "finalWords": 85,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Big but shallow. 1082 hits, 94 files.** Most is service internals.\n\nFour places must keep `account_id`:\n\n| Where | Hits | Why |\n|---|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | 5 | frozen public contract |\n| [migrations/](migrations) | 37 | applied history, breaks down steps |\n| [vendor/reporting-sdk](vendor/reporting-sdk/src/client.js) | 12 | generated, do not edit |\n| SQL strings in `repo/*.js` | 125 | live DB column |\n\n[lib/serialize.js:8](lib/serialize.js:8) maps internal to wire. Rename the key, not the value.\n\nNext: sign off with those four carved out.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c4a8ef11c87264e14068c84b1c6beb5fa9e7c7eb37acdaf922ee03fb505c30a"
+}

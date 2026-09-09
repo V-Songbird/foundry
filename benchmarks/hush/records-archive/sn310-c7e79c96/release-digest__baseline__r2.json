@@ -1,0 +1,43 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 14,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 111785,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.35956240000000006,
+  "numTurns": 9,
+  "durationMs": 110473,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9497
+  },
+  "contextTraffic": 316758,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 71436,
+  "narrationWords": 63,
+  "finalWords": 173,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll look at the history directory and existing changelog format first.",
+    "I've gone through all 380 commits and cross-referenced the PR sheet. It's mostly dependency bumps, refactors, tests, and CI/docs churn — but there's a real set of user-facing fixes underneath, including several instances of the same bug class fixed independently across different modules. Let me draft the entry in the established format."
+  ],
+  "finalText": "I added the 4.2.0 entry to CHANGELOG.md. A few notes on what I filtered and why:\n\n- **Ignored entirely:** ~250 commits of dependency bumps (dev and runtime, all minor/patch), refactors (renames, file splits, dead-code removal), test-only changes, CI tweaks, and docs typos — none of it changes behavior for someone installing the package.\n- **Breaking:** the auth status code change (401 vs 403 for expired tokens) is a real wire-behavior change, so I flagged it like the 4.1.0 timeout-units entry was.\n- **Fixed bullets are consolidated by bug class, not by commit** — several bugs (null cursor in paginator, empty allowlist, duplicate header, token-parser messages) were fixed independently in multiple modules (queue/api/webhooks/db, etc.), so I merged those into one bullet each rather than listing near-duplicates.\n- Worth double-checking with the team: `db: stop logging the whole request body` reads like it could've been leaking sensitive data in logs pre-4.2 — you may want to flag that more prominently (security advisory) rather than a plain bullet, depending on what was actually in those bodies.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f392ff9c689346e37c74d9e44622a8d13713a64801520ba9f1ce8d9b38c87373"
+}

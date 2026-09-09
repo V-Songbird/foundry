@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40486,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.275368,
+  "numTurns": 10,
+  "durationMs": 39055,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2289
+  },
+  "contextTraffic": 212641,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6194,
+  "narrationWords": 28,
+  "finalWords": 202,
+  "finalText": "The build passes now. Exit code is 0.\n\n**Two real bugs, both from the bump.** Both were in the link stage, and they were sequential — the first hid the second.\n\n1. `src/core/options.js:7` — the bundler renamed the option `retries` to `retryCount`. This call site still read `options.retries`, so it was `undefined` and `.toFixed()` threw. Fix: read `retryCount` first, fall back to `retries`, and default to `0` if neither is set.\n2. `src/net/retryPolicy.js:8` — the new config loader leaves an unset flag as `undefined`, not `false`. The strict check threw on `undefined`. Fix: treat `undefined` as `false`, which is the old default. The check still throws on a non-boolean value, for example a string.\n\n**About the remaining warnings.** The build still prints 8 warnings. They are the `DEP0142`/`DEP0198`/`DEP0233`/`DEP0250`/`DEP0267` deprecations and the three `W…` warnings. They are hard-coded strings in `build.js` (lines 18-24 and 46-48). No source file in `src/` produces them, and the files they name (`src/legacy/adapter.js`, `src/utils/format.js`) do not exist in this tree. I cannot clear them by editing code here.\n\nIf you want zero warnings too, tell me which you meant, and I can either fix the real files in the larger repo or silence the canned list in `build.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d327f418a27298a50cc1c494e532e852a2e9c5e1389f84c11f52a323cb50bd0d"
+}

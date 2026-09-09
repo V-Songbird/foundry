@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushmax__r4",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 18,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 4,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26821,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.23464590000000002,
+  "numTurns": 10,
+  "durationMs": 25382,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1869
+  },
+  "contextTraffic": 324069,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 8152,
+  "narrationWords": 16,
+  "finalWords": 68,
+  "finalText": "It builds clean now, exit code 0.\n\nTwo real bugs were hiding under the noise, both from the bundler bump. In `src/core/options.js`, `resolveRetries` still read `options.retries`, but the new bundler passes `retryCount`. In `src/net/retryPolicy.js`, `isBackoffEnabled` threw on `undefined`, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed both.\n\nThe rest really was just noise. Deprecation warnings from Node internals, nothing to act on.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "34569ef6153cbc47677b9e1c6fa6c6f499d45f29700bb223ebf99e2a4b0584d4"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 55,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66352,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5327233999999998,
+  "numTurns": 14,
+  "durationMs": 60598,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4277
+  },
+  "contextTraffic": 780535,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 52712,
+  "narrationWords": 20,
+  "finalWords": 207,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing at time of log capture (last entry 03:59:27Z still failing) — needs active rollback, not just monitoring.\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") flipped `gateway.pool.perRequest: false -> true` via config generation 119, applied 02:13:41.234Z. This causes each request to claim its own dedicated DB connection instead of sharing the pool, saturating the fixed pool of 20 connections under normal traffic. Every failure since is `ERR_POOL_EXHAUSTED (size 20, in_use 20, waiting N)` → 503, with `waiting` climbing continuously (13 at onset → 74+ by end of log) and no self-recovery.\n\n**Impact window:**\n- **Start:** 2026-03-14 02:14:18.972Z (first 503, ~37s after config gen 119 applied)\n- **End:** not yet resolved — still failing and degrading at 03:59:27Z (end of captured log)\n- Gateway-only impact: `worker.log` for the same window shows no errors, no 503s, normal job completion times — worker pool is unaffected, confirming this is scoped to the gateway's request-per-connection pool, not a shared DB/infra issue.\n\n**Action — roll back:**\n**`dep-4471`** (gateway, started 2026-03-14T02:12:00Z, finished 02:14:00Z) — revert `gateway.pool.perRequest` to `false` (config gen 119 → 118). No other deploy in the window is implicated; next deploy (`dep-4472`, billing-svc) doesn't start until 02:41:00Z, well after onset.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b27bb1d3c1a24b87976f33d4a3a96e81e0fcfc1fb6c48fa0b84c204598df4377"
+}

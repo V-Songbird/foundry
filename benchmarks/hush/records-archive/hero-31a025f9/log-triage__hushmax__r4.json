@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushmax__r4",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 4,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29913,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.35487290000000005,
+  "numTurns": 6,
+  "durationMs": 28480,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1742
+  },
+  "contextTraffic": 283193,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 56102,
+  "narrationWords": 0,
+  "finalWords": 197,
+  "finalText": "Redis died, and everything downstream fell like dominoes until the service went down.\n\n**Timeline:**\n1. `02:14:07` — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). Cache fell back to direct store reads.\n2. Store reads couldn't keep up. Timeouts and cache-miss storms started immediately and never stopped.\n3. Redis reconnect attempts kept firing every ~2 minutes (attempts 0 through 12) and failing every time. Redis never came back.\n4. Without the cache, the request queue climbed steadily, from depth 52 at 02:14 to over 500 by 02:29, past its own max.\n5. At `02:31:44`, worker-2 ran out of memory holding the backlog and crashed.\n6. The supervisor restarted it, but 7 seconds later the api process stopped responding entirely and the supervisor killed the whole process group. Service down at `02:31:52`.\n\nSo the root cause is the Redis box at `10.0.0.12` going unreachable. Everything else, the timeouts, the queue buildup, the OOM crash, was the app slowly drowning without its cache for 17 straight minutes with no circuit breaker to shed load.\n\nWorth checking why Redis dropped and didn't come back, and whether the app should shed load or fail fast instead of queuing forever when the cache is down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e020378ee59cc911adb7fc75f8fa8673c3b0a54d0433e912472952ecc6165b0d"
+}

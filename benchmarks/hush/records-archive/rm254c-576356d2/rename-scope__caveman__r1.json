@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__caveman__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 64,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39195,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2085852,
+  "numTurns": 13,
+  "durationMs": 37913,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3160
+  },
+  "contextTraffic": 206538,
+  "apiCalls": 6,
+  "toolCalls": 12,
+  "toolResultChars": 10730,
+  "narrationWords": 0,
+  "finalWords": 232,
+  "finalText": "Scope: 94 files hit `account_id`. Breakdown:\n\n**Safe to rename (bulk, ~75 files):** internal vars/params/repo calls across accounts, billing, orders, analytics, notify services. Straightforward find/replace + tests.\n\n**Must NOT rename:**\n\n1. **`vendor\\reporting-sdk\\src\\*`** (4 files) — vendored third-party package. Not yours to touch.\n2. **`migrations\\*.sql`** (13 files, already applied) — history. `20250114_create_accounts.sql` even says it outright: editing an applied migration renames nothing in prod DB, breaks the down step. Column rename needs a *new* forward migration (`ALTER TABLE ... RENAME COLUMN`), not edits to old ones.\n3. **`accounts` table DB column `account_id`** — self-referencing FK (`accounts.account_id REFERENCES accounts(account_id)`) plus index. Real schema change, needs migration + backfill, not text substitution.\n4. **`lib\\serialize.js`** — `WIRE` map right-hand side. Comment says it straight: public API field, frozen by contract, documented in `docs\\openapi.yaml`, external clients read by name.\n5. **`docs\\openapi.yaml`** — public API schema (`account_id` in request/response, required fields). Same wire contract as above.\n6. **`lib\\audit.js`** — audit log field key. Renaming changes shape of every future audit line; if old audit lines get read/compared anywhere (compliance), mixed old/new key names bite. Confirm nobody parses `account_id` out of stored audit history before touching.\n\nBottom line: rename is mechanical for internal service code, but DB column + public API field + audit log key need a real migration plan, not a blanket rename. Vendor SDK is off-limits entirely. Sign off with that carve-out, not a blanket \"rename everywhere.\"",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d78eeee14b73d9578e881fc253960d79084c7d489964436634f921f5cf2f1e43"
+}

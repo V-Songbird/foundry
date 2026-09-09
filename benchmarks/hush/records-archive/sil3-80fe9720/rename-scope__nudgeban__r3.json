@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__nudgeban__r3",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 10,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "nudgeban",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49939,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.3497925,
+  "numTurns": 15,
+  "durationMs": 48107,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3082
+  },
+  "contextTraffic": 190659,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 19284,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "assistantMsgs": 1,
+  "finalText": "**1082 hits, 94 files. Four zones must stay `account_id`.**\n\n| zone | hits | why |\n|---|---|---|\n| [`docs/openapi.yaml`](docs/openapi.yaml:16) | 5 | public field, frozen |\n| [`lib/serialize.js`](lib/serialize.js:8) | 1 | wire key clients read |\n| [`migrations/`](migrations/20250624_backfill_account_ids.sql:9) | 61 | applied history, real column |\n| [`vendor/reporting-sdk/`](vendor/reporting-sdk/src/query.js:8) | 20 | regenerated, edits lost |\n\nSQL strings in services name the column. 250 of 1200 service hits are SQL. Those need a DB rename first. The other 950 are locals and params. Those rename safely.\n\nNext: ask for a column migration plan.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0ac06eba5d637ca9dbcb83f3c2aa6a6bed0dc350d67ec8c53379d3f48a0c8733"
+}

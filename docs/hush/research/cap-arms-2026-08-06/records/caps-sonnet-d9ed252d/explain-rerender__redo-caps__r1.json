@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__redo-caps__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 63,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "qa",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17100,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0790392,
+  "numTurns": 1,
+  "durationMs": 15162,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 248
+  },
+  "contextTraffic": 35978,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 128,
+  "finalText": "Because \"same props\" almost never means the same objects.\n\nA few common causes:\n\n- **The parent re-renders and passes a new object, array, or function each time.** Even if it looks identical, `{}`, `[]`, and `() => {}` build a brand-new value every render. React checks by reference, not by looking inside, so it counts as a change.\n- **The child isn't wrapped in `React.memo`.** Without that, a child re-renders whenever its parent does, no matter what the props are.\n- **Context changes.** If the child reads from a Context, any update to that context re-renders it, props aside.\n\nFastest fix: wrap the child in `React.memo`, and wrap any function or object props in `useCallback` or `useMemo` in the parent so they keep the same reference across renders.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "977ee72c833fc9296844239711e6c7bdefdb39cf87dcd9a6c82ff7fe84bf5eb9"
+}

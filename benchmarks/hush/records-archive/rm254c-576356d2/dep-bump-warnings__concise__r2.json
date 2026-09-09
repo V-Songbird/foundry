@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__concise__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 23,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21271,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.16515300000000002,
+  "numTurns": 10,
+  "durationMs": 19962,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1621
+  },
+  "contextTraffic": 193124,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 7744,
+  "narrationWords": 33,
+  "finalWords": 80,
+  "finalText": "Builds clean now: 0 errors. The 8 remaining lines are genuine deprecation noise from the bumped deps (`fs.exists`, `Buffer()`, sync loader hooks, `punycode`, `module.parent`), not bugs — nothing to fix there.\n\nThe real breakage was two call sites the bundler bump silently broke:\n- `src/core/options.js:6` — read `options.retries` but the new bundler passes `retryCount`; threw on `undefined.toFixed()`.\n- `src/net/retryPolicy.js:8` — treated an unset `backoffEnabled` as invalid instead of `false`, since the new config loader leaves it `undefined` rather than `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "236d26f65df5d138607785f3ed46667dc068c00b31ea4dffebd7a6029ad1af88"
+}

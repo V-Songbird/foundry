@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27585,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.193325,
+  "numTurns": 10,
+  "durationMs": 25690,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1520
+  },
+  "contextTraffic": 161961,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 12685,
+  "narrationWords": 102,
+  "finalWords": 132,
+  "assistantMsgs": 4,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\nThe fix — one line in `src/pricing.js:39`:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nTax now applies to the discounted amount, which matches the spec in `cases.js:89` and the function's own doc comment. Nothing else in the suite was actually broken — the other 622 cases were passing all along, just drowned in the verbose output.\n\nOne note worth flagging: the old code over-charged tax on every order that had both a discount and a nonzero tax rate. If this engine has been billing real orders, those charges were too high (e.g. the 33400c / 10% / 20% row: 42345c charged vs 36072c owed). Might be worth checking whether any of that reached production.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6388a9c0478973eccd4d34182829a97d57c1ed26465e07a47022c3dc98b9483f"
+}

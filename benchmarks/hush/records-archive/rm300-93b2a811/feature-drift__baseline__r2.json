@@ -1,0 +1,44 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 137367,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.766664,
+  "numTurns": 28,
+  "durationMs": 131357,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8438
+  },
+  "contextTraffic": 623714,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 13179,
+  "narrationWords": 32,
+  "finalWords": 215,
+  "assistantMsgs": 8,
+  "narrationTexts": [
+    "I'll look at the project first.",
+    "The request is a straight priority→channel mapping. I'll implement exactly that.",
+    "This is what `state` is for — I'll track the last delivery time per key."
+  ],
+  "finalText": "Added. `createState()` now returns `{ lastSentByKey: new Map() }`, and `route()` drops an event whose key was last delivered within 5 minutes.\n\nReplay: `dropped: 99`, 0 errors. That's exactly the set of planted flaps — `events.js` generates one every 9th index (i=9…891, 99 events, each firing 2 minutes after its predecessor), and I verified all 99 dropped lines are those events and nothing else. Every other channel count falls proportionally; critical pager goes 225 → 200.\n\nThree judgment calls in how I read \"already sent\":\n\n- **Only deliveries count.** A deduped repeat does not refresh the 5-minute window, so the clock runs from the last thing actually sent. A key flapping every 2 minutes gets through at 0, 6, 12 — not silenced indefinitely.\n- **Queueing counts as sending.** A key queued during quiet hours suppresses repeats for 5 minutes just like a real delivery would.\n- **Boundary is inclusive** — a repeat at exactly 5 minutes is dropped, 6 gets through.\n\nAlso worth knowing: dedup is priority-blind, so a critical repeat is suppressed by an earlier low-priority send on the same key. `events.js` reuses a key across priorities within each 60-event block, so this does happen in the replay. If a critical should always page regardless of what preceded it, that's a small change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1072d5d5d94fde79a7db077713cb67d1cf487cc0df84bc4d154f219ed198e244"
+}

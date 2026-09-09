@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 17,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 25986,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2064535,
+  "numTurns": 9,
+  "durationMs": 24186,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1380
+  },
+  "contextTraffic": 151366,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 6592,
+  "narrationWords": 17,
+  "finalWords": 150,
+  "assistantMsgs": 3,
+  "finalText": "Green — 625 passing, 0 failing.\n\n**What was broken:** exactly 3 failures out of 625, all in the `order totals` suite, all one bug in `src/pricing.js:41`.\n\n`orderTotal` applied the discount correctly but then computed tax off the *undiscounted* base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← wrong operand\n```\n\nThis contradicted the function's own doc comment (\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied\"). Customers were being over-taxed on the discounted portion — e.g. `orderTotal(12000, 15, 0.0825)` returned 11190 instead of 11042.\n\n**Fix:** one line — tax `discounted` rather than `cents`. All three expected values reconcile exactly (12000 → 10200 → +842 = 11042, etc.), so the test expectations were right and the implementation was wrong, not the other way around.\n\nNothing else in the suite needed touching.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "407a3d32d93565224c4dce5449c62765357d6032bb8c2b4cdcd819aba5116a93"
+}

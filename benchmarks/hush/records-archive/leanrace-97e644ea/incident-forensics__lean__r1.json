@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__lean__r1",
+  "batchId": "leanrace-97e644ea",
+  "seed": "1787419340060",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 52943,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.24691700000000003,
+  "numTurns": 16,
+  "durationMs": 46114,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2742
+  },
+  "contextTraffic": 650229,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 17162,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, author a.novak, \"connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. That made every request grab its own DB connection instead of reusing the pool, so the pool (size 20) maxed out and stopped releasing.\n\n**Impact window:** Started 2026-03-14 02:14:18Z (19s after the deploy finished at 02:14:00Z). Still ongoing as of the last log line, 03:59:27Z. Error is `ERR_POOL_EXHAUSTED`, 530 occurrences, same message each time, `waiting` queue climbing (13 → 74+) with no recovery.\n\n**Scope:** Gateway only. `worker.log` for the same window shows jobs finishing normally, only one unrelated pre-existing `WARN` (slow query, OPS-2210).\n\n**Action:** Roll back `dep-4471` — revert `gateway.pool.perRequest` to `false`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "65f8bdd4489d2c425e21c8106d494c03d7c205566c44c789db74d71a21891fd3"
+}

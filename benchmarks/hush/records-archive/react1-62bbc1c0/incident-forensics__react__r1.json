@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__react__r1",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 25,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 53172,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.35717640000000006,
+  "numTurns": 13,
+  "durationMs": 46845,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2398
+  },
+  "contextTraffic": 547782,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 13675,
+  "narrationWords": 0,
+  "finalWords": 165,
+  "finalText": "Still ongoing as of the last log line, 03:59:27 UTC, and getting worse — the waiting queue has grown from 13 to 74.\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"connection-per-request for pool isolation\") applied config generation 119 at 02:13:41 UTC, flipping `gateway.pool.perRequest` from `false` to `true`. This stopped connections from being shared across requests, and the pool (fixed size 20) exhausted within 40 seconds.\n\n**Impact window:** Started 02:14:18 UTC, still active and worsening as of 03:59:27 UTC (last log entry). Wait queue has grown from 13 to 74 requests. Every route sharing the pool is affected — cart, session, catalog search, orders, checkout — across all four backend services.\n\n**Not affected:** Worker jobs (`logs/worker.log`) — separate DB connections, untouched by this change.\n\n**Rollback:** Revert `dep-4471` on gateway — set `gateway.pool.perRequest` back to `false` (generation 118 config). No other deploy in the window is implicated; `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) came after the incident started and aren't the cause.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "59c4caa00df78f8d4230566136b1f1c1c04a18b1e64c499997a47df3ea00386e"
+}

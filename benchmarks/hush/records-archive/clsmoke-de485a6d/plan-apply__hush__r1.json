@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r1",
+  "batchId": "clsmoke-de485a6d",
+  "seed": "1787981345773",
+  "orderIndex": 0,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 9029,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.119949,
+  "numTurns": 4,
+  "durationMs": 7495,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 518
+  },
+  "contextTraffic": 75956,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "finalText": "**Plan: edit `src/cli.js` only.**\n\n```js\nconst USAGE = 'usage: cli.js report [--json]';\n\nfunction main(argv) {\n  const command = argv[0];\n  if (command !== 'report') {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const rows = buildRows();\n  if (argv.includes('--json')) {\n    process.stdout.write(JSON.stringify(rows) + '\\n');\n  } else {\n    process.stdout.write(toTable(rows) + '\\n');\n  }\n  return 0;\n}\n```\n\n`buildRows()` already returns the full data, so `report.js` stays untouched.\n\nSay the word and I'll apply it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6bbd9679878316eaa992e00bd49f263170c0bc5c10cc512eb7e35f421b9ecdd3"
+}

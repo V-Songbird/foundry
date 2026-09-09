@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 105676,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.640335,
+  "numTurns": 20,
+  "durationMs": 104546,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7713
+  },
+  "contextTraffic": 435225,
+  "apiCalls": 12,
+  "toolCalls": 19,
+  "toolResultChars": 16481,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "finalText": "**Big but mostly mechanical.** 1291 spots across 94 files. About 1078 rename safely.\n\nFive places must keep `account_id`:\n\n| Keep as-is | Why |\n| --- | --- |\n| `docs/openapi.yaml` | public field, breaks clients |\n| `lib/serialize.js` | feeds that public field |\n| `migrations/*.sql` | already ran in production |\n| `vendor/reporting-sdk/` | regenerated, edits lost |\n| 125 SQL lines in repos | column name, needs a migration |",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "099848bb76af1dd9a593714e385c083fe5343120b750a25e3d359aa63f4f2461"
+}

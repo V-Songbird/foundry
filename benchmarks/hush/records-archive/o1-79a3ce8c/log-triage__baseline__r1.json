@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 77579,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.555373,
+  "numTurns": 7,
+  "durationMs": 74175,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4811
+  },
+  "contextTraffic": 203762,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 15605,
+  "narrationWords": 6,
+  "finalWords": 728,
+  "finalText": "## What the log shows\n\nFirst, a flag: **every line in `logs/app.log` is timestamped `2026-07-04`, 02:00–02:31 UTC.** Today is 2026-08-19, so this file is about six weeks old — it is not last night's outage. Either the log rotated and this is a stale copy, or the incident you're thinking of is in a different file. Everything below describes the July 4 event that *is* in this file.\n\n### Timeline (all times UTC, 2026-07-04)\n\n| Time | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Healthy. 173 × `200` responses, cache hit ratio 0.90–0.98, cron ticks fine. |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | App fails open: `cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First `cache miss storm` |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — 3s after Redis died |\n| 02:15:26 | First reconnect attempt (`attempt 0`), then 12 more, all refused |\n| 02:29:12 | Request queue crosses its limit: `depth 502 (max 500)` |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### What actually happened\n\nRedis at `10.0.0.12:6379` went away and never came back. `ECONNREFUSED` (not a timeout) means the port was actively refusing connections — the Redis process was down or the port was closed, not a network partition or a slow server. All 13 reconnect attempts over the next 16 minutes got the same refusal.\n\nThe outage is a **cache-stampede cascade**, and the app's own fallback is what killed it. On losing Redis it fell back to direct store reads instead of shedding load. Every request that would have been a 90–98% cache hit became a backing-store query, the store saturated within seconds, and 5-second timeouts started. Because timed-out requests were retained rather than dropped, the queue grew monotonically — +3 per sample, 52 at 02:14:12 up to 568 at 02:31:24 — until worker-2 exhausted the V8 heap holding the backlog. Exit code 134 is SIGABRT, the standard signature of a Node OOM abort. Seven seconds after that, the supervisor gave up on `api` and killed the process group.\n\nNote the traffic blackout: **the last successful response is at 02:14:03**, one line before the Redis error. There are zero `200`s in the remaining 17m49s. This wasn't gradual degradation with partial availability — the service was effectively down from the moment the cache disappeared, and it took 17 minutes for the supervisor to formally declare it.\n\n### Two things worth fixing\n\n**The retry cadence has no backoff and no jitter.** The gaps between reconnect attempts are 80.3, 79.5, 80.3, 80.3, 79.5… — flat 80 seconds. Combined with the 79-second delay before the *first* attempt, if Redis had recovered at 02:16:00 the app wouldn't have noticed until 02:17:26. For a dependency this critical you want sub-second initial retries ramping up, not a fixed 80s poll.\n\n**Only `[api]` logs reconnect attempts.** `worker-1`, `worker-2`, and `scheduler` all report cache misses and timeouts but never a single reconnect. Either they share the api's client, or they silently stopped trying to recover — worth checking which.\n\nThe real remediation is the fallback policy: on cache loss, the service needs a circuit breaker and load shedding (bounded queue that rejects with 503 when full, request coalescing on hot keys) rather than passing full traffic to the backing store. The queue's `max 500` was logged as a warning threshold but never actually enforced — depth sailed past it to 568 with no backpressure.\n\n### Caveats\n\nThe repo contains only `package.json` and this log — no `src/`, so I couldn't verify the retry config or fallback logic against the code; the `ioredis ^5.4.1` dependency is consistent with what the log shows. The log also starts abruptly at exactly 02:00:00.000 with no preceding context, so I can't tell you whether a deploy, config push, or Redis maintenance window triggered the failure — nothing in the file references one. Redis's own logs from 02:13–02:14 would settle that.\n\nOne oddity: response times in the healthy period cycle 12→145ms and reset, repeatedly, across all four components in lockstep. That's not organic traffic shape, so I wouldn't read anything into pre-incident latency.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8501f06771d6776fe675832fde832d8c9f4e97e5b3970e5b9538aa4f4e5ffc84"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 13,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 180936,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5208956,
+  "numTurns": 17,
+  "durationMs": 179551,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 16127
+  },
+  "contextTraffic": 617969,
+  "apiCalls": 10,
+  "toolCalls": 16,
+  "toolResultChars": 76872,
+  "narrationWords": 123,
+  "finalWords": 268,
+  "finalText": "I've added the 4.2.0 entry to `CHANGELOG.md`. Summary of what I found and why:\n\n**The trick in this history:** `commits.log` (380 commits) is full of near-duplicate fix attempts scattered across modules — e.g. \"guard the null cursor in the paginator\" appears in queue, api, webhooks, *and* db commits, but only the webhooks one actually shows up in `merged-prs.tsv`. Same pattern for the duplicate-header fix, the empty-allowlist fix, the token-parser error message, and the latency-units fix — each has 2-3 module variants in the raw log but only one merged PR. I used the PR sheet as the source of truth and ignored the rest as abandoned/exploratory commits.\n\n**What made the cut (11 PRs out of 128):**\n\n- **Breaking:** expired tokens now return 401 instead of 403 — anyone branching on the status code needs to update.\n- **Added:** webhook deliveries now retry with exponential backoff instead of dropping.\n- **Fixed (8):** trailing-slash double-trim on queue/job URLs, db logging full request bodies (privacy-relevant), jobs breaking on an empty allowlist, trace IDs getting lost on API retries, store latency metrics in wrong units, webhook pagination crash on null cursor, duplicate HTTP header, and vague queue token-parser errors.\n\nEverything else — ~90 dependency bumps, retry-helper consolidations, file splits, internal renames, CI/test churn, and a handful of perf tweaks too vague to quantify — I left out per the \"only what someone installing would notice\" rule.\n\nOne judgment call worth flagging: I classified the 401/403 change as Breaking rather than Fixed, since it's a bug fix on paper but a wire-contract change in practice. Worth a quick sanity check before you publish.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b3172a47cbb69d2fc1c7c0092a35a12873ef42181bccf95a9eadb2348a33b5d7"
+}

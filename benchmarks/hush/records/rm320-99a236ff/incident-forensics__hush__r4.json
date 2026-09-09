@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r4",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 62,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 127071,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.586401,
+  "numTurns": 15,
+  "durationMs": 120844,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7736
+  },
+  "contextTraffic": 360224,
+  "apiCalls": 14,
+  "toolCalls": 11,
+  "toolResultChars": 11599,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Handoff written to [HANDOFF.md](HANDOFF.md).\n\n**Root cause: `dep-4471` set `gateway.pool.perRequest` to `true`.** Each request now grabs its own connection. The pool of 20 cannot keep up.\n\nImpact ran `02:14:18Z` to at least `03:59:27Z`. 530 of 636 requests failed, an 83% error rate. Five paths hit, checkout among them. `/health` stayed 200 the whole time, so the outage hid from health checks.\n\nNext: roll back `dep-4471`, or flip that one key to `false` and reload.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ebea1563736ff62031ebdffcc9f1f4b85b66fdf0b78b7e4e2b45684f2251ea62"
+}

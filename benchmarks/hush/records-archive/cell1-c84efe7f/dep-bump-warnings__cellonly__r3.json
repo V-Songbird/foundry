@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__cellonly__r3",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "cellonly",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30559,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1165882,
+  "numTurns": 10,
+  "durationMs": 28874,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1642
+  },
+  "contextTraffic": 194070,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7880,
+  "narrationWords": 0,
+  "finalWords": 73,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is clean.** Exit 0, 0 errors.\n\nTwo real bugs from the bump, both fixed:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the new bundler passes `retryCount`. Threw `TypeError` on `undefined.toFixed`.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) treated unset `backoffEnabled` as invalid instead of `false`, since the new config loader leaves it `undefined` instead of `false`.\n\nThe rest was deprecation noise from the bumped packages, not errors. Build now finishes with 8 warnings, 0 errors.\n\nNext: nothing. Build succeeds.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "33d9c310954889f177cb02958d8361d81200933f4dfe97919b88cd829afcba33"
+}

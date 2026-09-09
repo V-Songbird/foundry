@@ -1,0 +1,39 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 17,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 69019,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.26530960000000003,
+  "numTurns": 42,
+  "durationMs": 67486,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9713
+  },
+  "contextTraffic": 240232,
+  "apiCalls": 7,
+  "toolCalls": 41,
+  "toolResultChars": 21498,
+  "narrationWords": 17,
+  "finalWords": 65,
+  "assistantMsgs": 2,
+  "finalText": "**Migration done.** Switched all 12 remaining `db.query` call sites to `db.execute({ sql, params })`, across `analytics`, `orders`, `billing`, `support`, `catalog`, and `accounts`.\n\nOne spot left on `db.query`: `vendor/legacy-orm/adapter.js`. Left it alone — its header says it's vendored and gets overwritten wholesale on every upgrade, so local edits would just get lost.\n\nNote: `cache.query` calls in several repo files are a different API and weren't touched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "79c4c8e81764aca340b52635f9b4e0825c8743a4655bae8a25fe0d2e1b65c1d2"
+}

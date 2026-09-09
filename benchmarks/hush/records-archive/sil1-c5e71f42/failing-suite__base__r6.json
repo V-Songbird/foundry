@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__base__r6",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 15,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "base",
+  "rep": 6,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29864,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.133734,
+  "numTurns": 13,
+  "durationMs": 28089,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1555
+  },
+  "contextTraffic": 238453,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 12237,
+  "narrationWords": 7,
+  "finalWords": 36,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed the bug, only `orderTotal` is broken."
+  ],
+  "finalText": "**Fixed. All 625 tests pass now.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one.\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nThat was the only broken function. Nothing else to do.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b349e210a68b8ff7716a3b949ab0d4e6f37d7da73647ad62a6bad81bc37046ae"
+}

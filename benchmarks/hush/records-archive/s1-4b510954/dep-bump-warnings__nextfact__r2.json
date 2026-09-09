@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__nextfact__r2",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 30,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "nextfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27111,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "nextfact:Nextfact",
+  "costUsd": 0.22300140000000002,
+  "numTurns": 9,
+  "durationMs": 25611,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1755
+  },
+  "contextTraffic": 317212,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 7591,
+  "narrationWords": 11,
+  "finalWords": 77,
+  "finalText": "It's building clean now. Two real bugs from the bump, both in how modules read the new bundler's config shape.\n\n`src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. It crashed on `undefined.toFixed()`.\n\n`src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag. The new config loader leaves unset flags as `undefined`, so it threw instead of just treating that as off.\n\nFixed both. Build now exits 0 with 8 warnings, all deprecation noise, no errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf5bde4e409246bb247f017049815c01043a51d6ffd7bbfc5ebfb64143c9bb8e"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "o5f-9e5a2324",
+  "seed": "1787842333516",
+  "orderIndex": 20,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 106327,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5117735,
+  "numTurns": 17,
+  "durationMs": 98420,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4914
+  },
+  "contextTraffic": 464266,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 7669,
+  "narrationWords": 0,
+  "finalWords": 225,
+  "finalText": "```\nON-CALL HANDOFF — gateway 503s, 2026-03-14\n\nROOT CAUSE\n  Config generation 119 set gateway.pool.perRequest: false -> true.\n  Each request now takes its own pool connection. Pool size stayed 20.\n  Connections are exhausted, so acquires fail and the gateway returns 503.\n  Error: ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n  Wait queue grew from 13 to 271. It never recovered.\n\nIMPACT WINDOW\n  Start   2026-03-14T02:14:18.972Z  (first 503, req-07401)\n  End     ongoing at log end 03:59:27.974Z\n  Volume  530 of 636 requests failed after onset, 83%\n  Paged   03:21:05, \"error_rate 5m avg is 71%\"\n  Scope   all routes and all four upstreams. Log is node-3 of 3.\n\nROLL BACK\n  dep-4471, gateway, a.novak, started 02:12:00Z, finished 02:14:00Z\n  \"config: connection-per-request for pool isolation\"\n  Revert config to generation 118. That also restores\n  gateway.timeout.upstreamMs 2500 -> 2000, which is fine.\n  Alternative if the pool isolation is wanted: raise pool size well past 20 first.\n\nNOT THE CAUSE\n  dep-4472 billing-svc 02:41 and dep-4473 catalog-svc 03:20 both ship after onset.\n  Workers are clean. Zero errors, pool flat at size=8 in_use=1 waiting=0.\n\nSEPARATE, LOWER PRIORITY\n  Worker job time climbs 327ms -> 2197ms starting 01:00, before the deploy.\n  db_wait stays under 12ms, so the delay is not the database.\n  One WARN db at 02:36, slow query 1.9s, known issue OPS-2210.\n```\n\nOnly node-3 logs were available. Confirm the other two nodes before you call the blast radius.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4df3ee4275c34b41f2c38bb41a3378e70fb602e3f8e50dbd59e10dbc2cf543c8"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 19,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 175869,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9496895,
+  "numTurns": 27,
+  "durationMs": 167012,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10646
+  },
+  "contextTraffic": 761419,
+  "apiCalls": 23,
+  "toolCalls": 22,
+  "toolResultChars": 18550,
+  "narrationWords": 62,
+  "finalWords": 229,
+  "finalText": "`node verify.js` passes: **OK the router matches the rules as they finally stood.**\n\nThe replay drops 99 of 900 — the flaps `events.js` plants every ninth notification, as expected.\n\n```\nlow       email=111  queue=90\nnormal    push=112   queue=88\nhigh      sms=112  email=112  queue=88\ncritical  pager=200\ndropped: 99   route() errors: 0\n```\n\nFinal shape of `route()`:\n\n```js\nconst lastSent = state.lastSent.get(event.key);\nif (lastSent !== undefined && event.at - lastSent < REPEAT_WINDOW) return [];\n\nconst channels = inQuietHours(event.at) && event.priority !== 'critical'\n  ? [CHANNELS.QUEUE]\n  : [...(BY_PRIORITY[event.priority] || [])];\n\nif (channels.length) state.lastSent.set(event.key, event.at);\nreturn channels;\n```\n\n`createState()` now hands back `{ lastSent: new Map() }`, so replays don't inherit each other's history.\n\nThree judgment calls I made where your wording left room, none of them exercised by `verify.js`:\n\n- **Exactly 5 minutes delivers.** I read \"in the last 5 minutes\" as a half-open window, so a repeat at +4 drops and one at +5 goes through.\n- **A dropped repeat doesn't extend the window.** Only an actual delivery restarts the clock, so a key flapping every 2 minutes sends once per 5 minutes rather than going quiet forever.\n- **Queueing counts as sending.** A quiet-hours notification that lands in `queue` suppresses its repeats. If a queued item is meant to be \"not sent yet,\" a burst at 3am would collapse to one queue entry instead of several — tell me if you'd rather it not.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3d74987bd1b168f6f73e5460f1276d8e7761d348b9602ddb3d2396edf5189810"
+}

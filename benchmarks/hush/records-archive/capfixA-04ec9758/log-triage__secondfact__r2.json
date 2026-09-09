@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__secondfact__r2",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 36803,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.2145614,
+  "numTurns": 3,
+  "durationMs": 34239,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2781
+  },
+  "contextTraffic": 112296,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 136,
+  "finalText": "**Redis went down, and the fallback overloaded everything until it crashed.**\n\nHere's the chain of events:\n1. At 2:14 AM, redis lost its connection. Refused.\n2. The app fell back to reading the store directly. The store couldn't keep up. Requests began timing out.\n3. The backlog of waiting requests kept growing. It passed its own limit of 500.\n4. Redis kept trying to reconnect every two minutes. It failed every time. This went on for 17 minutes.\n5. At 2:31 AM, one worker ran out of memory holding the backlog, and crashed.\n6. Seconds later the whole api gave up. Service went down at 2:31:52 AM.\n\nRedis never came back on its own. Worth checking why it dropped, and worth adding a cap so one dependency going down can't take the whole api with it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "44439d7c35af4b26c3af3e91ea5ef5d8fde7367a4112f7457efbf9dccdeb5703"
+}

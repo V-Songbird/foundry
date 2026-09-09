@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44709,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4379645,
+  "numTurns": 10,
+  "durationMs": 43206,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2515
+  },
+  "contextTraffic": 216527,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 31507,
+  "narrationWords": 6,
+  "finalWords": 80,
+  "finalText": "**Redis went down and took prod with it.**\n\n1. `02:14:07` Redis at `10.0.0.12:6379` refused the connection.\n2. The app fell back to reading the store directly.\n3. Cache misses flooded it. Requests started timing out at 5000ms.\n4. 13 reconnect tries over 17 minutes. All refused.\n5. `02:29:12` the request queue passed its 500 limit.\n6. `02:31:44` worker-2 ran out of memory.\n7. `02:31:52` the supervisor killed the api. Service down.\n\nRedis never came back. Everything else followed from that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d5650afa57074f6ea87f9fccb6e56aad092f8955e18f914b02ada30e9e28c7a9"
+}

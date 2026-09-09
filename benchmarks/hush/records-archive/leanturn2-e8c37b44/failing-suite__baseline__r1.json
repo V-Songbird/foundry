@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27876,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.17831930000000001,
+  "numTurns": 11,
+  "durationMs": 26472,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1695
+  },
+  "contextTraffic": 195427,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 14520,
+  "narrationWords": 54,
+  "finalWords": 100,
+  "finalText": "All 625 cases pass and `verify.js` confirms the fix is legitimate.\n\nThe bug: `orderTotal()` in `src/pricing.js` was computing tax on the pre-discount amount instead of the discounted amount, even though its own comment said tax should apply to \"what's actually owed.\" Fixed by taxing the discounted total instead:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nThis only showed up in rows where both a discount and a tax were non-zero, which is why most of the suite looked fine and only a handful of cases in \"order totals\" were actually failing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c49a7018b1ac6bb0492cfb3ca136b1a04d6abffde4866ade16d3cd4bb353d71b"
+}

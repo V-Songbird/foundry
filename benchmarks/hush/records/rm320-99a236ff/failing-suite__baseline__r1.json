@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33564,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2517775,
+  "numTurns": 12,
+  "durationMs": 32272,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1917
+  },
+  "contextTraffic": 152048,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 11876,
+  "narrationWords": 27,
+  "finalWords": 154,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the suite.",
+    "The wall of text hides exactly one real bug — 3 failures, all in `orderTotal`."
+  ],
+  "finalText": "Green: 625/625, exit 0.\n\n**What was broken:** `src/pricing.js:39` `orderTotal` applied the discount to the base, but then computed tax on the *undiscounted* base and added it on:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxed the pre-discount amount\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax what's actually owed\") and the spec in `cases.js:89`. It overcharges by `discount × taxRate` on every order.\n\n**Fix:** tax the discounted amount — `return applyTax(discounted, taxRate);`\n\n**Why only 3 of 625 cases caught it:** the order-totals suite is 66 rows with either a zero discount or a zero tax, where both formulas agree. Only the three rows with *both* non-zero (`cases.js:80-82`) could expose it, e.g. `orderTotal(33400, 10, 0.2)` returned 36740 instead of 36072 — $6.68 over on a single order.\n\nEverything else — tiers, refunds, shipping, rounding, loyalty — was already correct; no other files changed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "051eb50386630a4acb5ea7c5d7ede0b399cc4c31c480e3aafbc6a18376b32e80"
+}

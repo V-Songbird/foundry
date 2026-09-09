@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 47,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 179449,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6387896,
+  "numTurns": 18,
+  "durationMs": 178254,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 15795
+  },
+  "contextTraffic": 1005239,
+  "apiCalls": 14,
+  "toolCalls": 16,
+  "toolResultChars": 85121,
+  "narrationWords": 193,
+  "finalWords": 159,
+  "finalText": "CHANGELOG.md now has the 4.2.0 entry. Summary of what I found sifting through 380 commits and the PR sheet:\n\n- No breaking changes.\n- **1 new feature**: webhook retries with exponential backoff.\n- **11 real fixes**, after deduping — the same handful of bugs (null-cursor pagination crash, duplicate header, empty-allowlist handling, trace ID lost on retry, wrong histogram units, weak token-parser error message) each got fixed independently in several modules (API, queue, webhooks, database, etc.) over the six weeks, so I collapsed each into one bullet rather than listing 27 near-identical entries.\n- Worth flagging separately: the database fix for logging the full request body is a log-hygiene/privacy-relevant one — you may want to call that out to security if it isn't already on their radar.\n\nEverything else (~350 commits) was dependency bumps, internal refactors (renames, retry-helper consolidation, dead-code removal), and test/CI churn — nothing a package consumer would notice, so it's left out per the file's own guidance.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e2322a6d2e5e570b88d06d4a2f24d2f94dbe978f82afe5358cf63174c5b4be63"
+}

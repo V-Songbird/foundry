@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 203787,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9964105,
+  "numTurns": 17,
+  "durationMs": 197473,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13196
+  },
+  "contextTraffic": 642167,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 35314,
+  "narrationWords": 6,
+  "finalWords": 720,
+  "assistantMsgs": 5,
+  "finalText": "# On-Call Handoff — Gateway 503 Incident\n\n**Prepared by:** <email>\n**Source data:** `logs/gateway.log` (node-3 of 3), `logs/worker.log`, `deploys.csv`\n\n> **Read this first:** the log timestamps are **2026-03-14**, not last night. Either this is an archived copy or the file is stale. Confirm against live telemetry before treating any of this as an active page. Everything below is what the files say.\n\n---\n\n## Root cause\n\nDeploy **dep-4471** flipped `gateway.pool.perRequest` from `false` to `true`. Every request now takes its own connection instead of sharing, against a pool that is still hard-capped at **20**. Under normal traffic that exhausts the pool immediately and permanently.\n\nThe gateway's own config log records the change and names the deploy pipeline as the requester:\n\n```\n02:12:12.820Z INFO config  reload requested by deploy pipeline, generation 118 -> 119\n02:13:41.234Z INFO config  generation 119 applied: 3 keys changed\n02:13:41.234Z INFO config    gateway.pool.perRequest: false -> true\n02:13:41.234Z INFO config    gateway.timeout.upstreamMs: 2000 -> 2500\n```\n\nCorroborating evidence:\n\n- **`connection churn: 4180 opens in the last 5m, baseline is 40`** — ~100x, exactly what per-request connections predict.\n- All 530 pool errors read `size 20, in_use 20`. Pinned at capacity, never grows, never drains.\n- `/health` kept returning 200 in 80–170ms at `pool_wait=2ms` throughout — the upstreams were fine, only the pool path was broken.\n- 503s spread evenly across all four upstreams (26–27 each). No single downstream implicated.\n\n**Aggravating factor, not the cause:** the same config bumped `upstreamMs` 2000 → 2500, so each request holds its connection 25% longer, draining the queue slower.\n\n## Impact window\n\n| | |\n|---|---|\n| **Config applied** | 02:13:41.234Z |\n| **First symptom** | 02:14:14.920Z (`acquire slow` warning) — 33s after config |\n| **First 503** | 02:14:18.972Z, `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| **On-call paged** | 03:21:05.282Z — `error_rate 5m avg is 71%` (67 min after onset) |\n| **End of log** | 03:59:27Z — **still erroring, no recovery observed** |\n| **Duration** | ≥ 1h 45m, open at end of file |\n\n**Severity:** 530 × 503 responses, 212 slow-acquire warnings. Error rate peaked at **71%** by the log's own metric. Queue depth grew monotonically 0 → **271** waiters; 503 latency crept 659ms → 999ms as requests sat out the acquire timeout.\n\nCustomer-facing paths hit: `/v1/checkout`, `/v1/cart`, `/v1/orders`, `/v1/session`, `/v1/catalog/search`. **Checkout was affected** — treat as revenue-impacting.\n\n## Action: roll back dep-4471\n\n```\ndep-4471, gateway, 2026-03-14T02:12:00Z–02:14:00Z, a.novak,\n\"config: connection-per-request for pool isolation\"\n```\n\nRevert config generation **119 → 118**. If a full rollback is awkward, the single key that matters is `gateway.pool.perRequest → false`; reverting `upstreamMs` to 2000 is a secondary cleanup.\n\n**Loop in a.novak** — the change was labelled \"for pool isolation,\" so there was a real goal behind it. Pool isolation with a per-request model needs the pool sized for peak concurrency, not left at 20. That's the follow-up design conversation, not tonight's fix.\n\n**Ruled out:** dep-4468/4469/4470 all finished 3–5h before onset, with the pool clean at `in_use=10, idle=10, waiting=0` as late as 02:10:58. dep-4472 (02:41) and dep-4473 (03:20) both started *after* 503s were already flowing.\n\n## Verification after rollback\n\n1. `pool stats` returns to `idle > 0, waiting=0`.\n2. `connection churn` warnings stop.\n3. `ERR_POOL_EXHAUSTED` count goes to zero.\n\n## Open items for the next shift\n\n1. **Check nodes 1 and 2.** This log is node-3 only. If all three show 02:14 onset, that confirms config propagation and means full-fleet impact. If only node-3, the rollback story changes.\n2. **Separate issue — worker latency leak.** Not related to this incident and not urgent, but don't lose it: worker jobs degraded 354ms → 2170ms (6x) over the window. The ramp is linear with *no* inflection at 02:14, predates the log, and is identical across all six job types (every type averages 1262ms) — signature of a resource leak scaling with cumulative jobs processed, not anything gateway-related. `db_wait` stayed at 0–12ms, so it isn't DB contention. Workers had **zero** errors and their own pool (`size=8`) sat at `waiting=0` all night. On current slope they'd start missing the 10s job cadence in roughly 12h. Possible link to dep-4470 (worker deploy, 00:55) but the evidence is weak — a webhook-specific change wouldn't slow reindex and export identically. Needs pre-01:00 worker logs. **File separately.**\n3. **Alerting gap.** 67 minutes from first 503 to page, at a 71% error rate. Worth a threshold review.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6649afaf2a12aa9d9a8dd0827c4f5aff8a82a2cbb869cb665acb0527abfc110b"
+}

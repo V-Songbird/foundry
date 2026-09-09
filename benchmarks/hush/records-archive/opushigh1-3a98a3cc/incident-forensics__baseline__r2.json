@@ -1,0 +1,43 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 59,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 189827,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.802551,
+  "numTurns": 16,
+  "durationMs": 186659,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13543
+  },
+  "contextTraffic": 439599,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 14504,
+  "narrationWords": 20,
+  "finalWords": 817,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by looking at the log file.",
+    "Let me actually analyze it properly — earlier I only sampled head/tail."
+  ],
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Incident:** Gateway-wide 503s, node-3 of 3\n**Source data:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n**Status at end of log:** ONGOING, unmitigated\n\n> ⚠️ **Read this first:** the log window is **2026-03-14 01:00–03:59 UTC** — roughly six months before today (2026-09-08). This is an archived capture, not last night's data. If you are responding to 503s *right now*, confirm you're looking at live logs before acting on the rollback below. If last night's symptoms match this signature, the analysis still applies.\n\n---\n\n### Root cause\n\n**`gateway.pool.perRequest` flipped `false → true`, converting the gateway's 20-connection pool into a hard cap of 20 concurrent requests.**\n\nConfig generation 118 → 119 was applied at `02:13:41Z` with three keys changed:\n\n```\ngateway.pool.perRequest:    false -> true     ← root cause\ngateway.timeout.upstreamMs: 2000  -> 2500     ← aggravating factor\ngateway.log.sampleRate:     1.0   -> 1.0      ← no-op\n```\n\nWith per-request connections, every in-flight request holds its own connection instead of multiplexing. At the observed load (~20 req/min, ~700ms upstream latency), demand permanently exceeds the ceiling. The `upstreamMs` bump in the same generation holds each connection 25% longer, compounding it rather than relieving it.\n\nEvery one of the 530 503s is paired 1:1 — same timestamp, same request ID, verified by diffing both request-ID sets with zero orphans — with:\n\n```\nERROR pool req-NNNNN ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n**This is not an upstream outage.** Failures are spread evenly across all 5 routes and all 4 upstreams (26–27 each) — the signature of a shared local resource, not a sick dependency. Confirmed by `worker.log`: workers hitting the same database show `db_wait` flat at 5.0ms mean / 9ms max throughout, pool at `in_use=1 idle=7 waiting=0`, and 1080/1080 jobs succeeding. Shared infrastructure is healthy.\n\n---\n\n### Impact window\n\n**Onset `02:14:18.972Z` → end of log `03:59:27.974Z` — 1h45m, no recovery.**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:00 | dep-4471 starts |\n| 02:12:12 | Config reload requested by deploy pipeline, gen 118 → 119 |\n| 02:13:41 | Generation 119 applied |\n| 02:14:00 | dep-4471 finishes |\n| 02:14:14.9 | First `WARN pool ... acquire slow: waited 100ms` |\n| **02:14:18.9** | **First 503** — `req-07401 /v1/cart -> billing-svc 503 659ms` |\n| 02:15:58 | Pool saturates: `in_use=20 idle=0 waiting=12` |\n| 03:21:05 | On-call paged: `error_rate 5m avg is 71%` |\n| 03:59:27 | Log ends, still failing |\n\n**Error rate:** 0% flat through 02:10 → 44% (partial bucket) → **83% sustained from 02:20 through end of log.**\n\n**Blast radius:** all five routes (`/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/orders`, `/v1/catalog/search`) and all four upstreams. Checkout and cart are affected, so this is revenue-impacting. 503s burn **600–999ms** (median 789ms) before failing — clients pay the full acquire timeout. 213 `acquire slow` warnings, waits growing 100ms → 890ms and still at ~885ms in the final minutes.\n\n---\n\n### Roll back\n\n**`dep-4471` — gateway — 02:12–02:14Z — a.novak — \"config: connection-per-request for pool isolation\"**\n\nRevert `gateway.pool.perRequest` to `false`. Recommend reverting the whole of generation 119 back to 118 rather than cherry-picking, since the `upstreamMs` change is a contributing factor and the third key is a no-op.\n\nIf per-request isolation is genuinely wanted, **do not re-apply without first raising `gateway.pool.size` well above peak concurrency.** 20 is nowhere near sufficient under that mode.\n\n**Do not roll back anything else.** The other five deploys are cleared:\n\n- dep-4468 (catalog-svc), dep-4469 (accounts-svc), dep-4470 (worker) all finished 1h19m–4h10m *before* onset, with a flat 0% error rate across that entire span.\n- dep-4472 (billing-svc, 02:41) and dep-4473 (catalog-svc, 03:20) shipped *after* onset; error rate was already pinned at 83% before each and unchanged after.\n\n---\n\n### Follow-ups (not blocking mitigation)\n\n1. **Separate worker issue, still open.** Worker job duration ramps linearly 327ms → 2197ms (6.7x) across the window. It is **not** related to this incident: the ramp starts at 01:00, 74 minutes before onset, and runs straight through 02:14 at a constant +110ms/10min with no inflection. Uniform across all six job types; `db_wait` flat, so the time is accumulating in-process — shape suggests a leak. Nearest suspect is **dep-4470** (worker, retry backoff, finished 00:55, five minutes before the log opens already mid-ramp), but the window doesn't reach back far enough to confirm. **Pull worker logs from before 00:48Z to settle it.** Throughput is unaffected so far, but the trend has no observed ceiling.\n2. **Alerting is too slow.** Paged at 67 minutes post-onset, at 71% error rate. A threshold on `pool.waiting > 0` or on `acquire slow` warnings would have fired at ~02:14.\n3. **No error-budget gate on deploys.** dep-4472 and dep-4473 both shipped into an active incident running >70% errors.\n4. **`WARN db` at 02:36:22** — `slow query 1.9s: SELECT * FROM orders WHERE status = ? — unindexed scan, known issue OPS-2210`. Single occurrence, already ticketed, unrelated. Noted only so the next responder doesn't chase it.\n\nWant me to save this to a file in the repo?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "238e804cef4cc7849622e44d3759747070d44257cd0c96f1b2e3feec1a406c5f"
+}

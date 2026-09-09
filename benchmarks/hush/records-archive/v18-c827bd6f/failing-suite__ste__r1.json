@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__ste__r1",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 22,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20920,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.18109530000000001,
+  "numTurns": 10,
+  "durationMs": 19636,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1339
+  },
+  "contextTraffic": 206620,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 14785,
+  "narrationWords": 27,
+  "finalWords": 72,
+  "finalText": "All 625 cases pass and `verify.js` confirms the fix is genuine.\n\nThe bug was in `orderTotal` in `src/pricing.js`: it calculated tax on the pre-discount amount instead of the discounted amount. Only the \"order totals\" cases with both a nonzero discount and a nonzero tax exposed this, which is why most of the wall of text was passing noise. Changed the tax calculation to use `discounted * taxRate` instead of `cents * taxRate`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dddde2e9310809def15f792219ea93b683007a5cb7063a09e8d7a9da872f3d75"
+}

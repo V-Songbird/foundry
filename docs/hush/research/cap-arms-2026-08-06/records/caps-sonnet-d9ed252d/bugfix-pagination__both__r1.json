@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-pagination__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 14,
+  "task": "bugfix-pagination",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20463,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.15998779999999999,
+  "numTurns": 7,
+  "durationMs": 18179,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 831
+  },
+  "contextTraffic": 224311,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 2417,
+  "narrationWords": 13,
+  "finalWords": 30,
+  "finalText": "`paginate.js` was treating page numbers as 0-indexed, so page 1 skipped the first batch entirely. Changed the start offset to `(page - 1) * perPage`. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c9419c8d30d903a848d606cb26fb30013b4c889388bdbc136118ec3cdb06e02"
+}

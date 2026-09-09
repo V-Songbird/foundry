@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "resume-probe-11b73ce9",
+  "seed": "1788904576836",
+  "orderIndex": 0,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 4,
+  "wallMs": 137038,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 1.0749944999999999,
+  "numTurns": 15,
+  "durationMs": 132636,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5451
+  },
+  "contextTraffic": 383537,
+  "apiCalls": 13,
+  "toolCalls": 11,
+  "toolResultChars": 15476,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [handoff.md](handoff.md).**\n\nRoot cause: `dep-4471` set `gateway.pool.perRequest` to `true`. Pool of 20 hit `ERR_POOL_EXHAUSTED`. Impact window: `02:14:18Z` to at least `03:59:27Z`. 530 requests failed. Roll back `dep-4471`.\n\n```\n02:12:00  dep-4471 starts, config reload\n02:13:41  gen 119 applied\n02:14:18  first 503\n03:21:05  on-call paged, error rate 71%\n03:59:27  last logged 503, still failing\n```\n\nNext: roll back on all 3 gateway nodes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "884e1ac3cffc93a2fb54f5d5f0b8a2794fc9c477b76092a4f5d1bcf8708be576"
+}

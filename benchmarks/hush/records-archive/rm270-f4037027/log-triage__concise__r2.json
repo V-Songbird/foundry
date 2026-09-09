@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 17815,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20240260000000002,
+  "numTurns": 4,
+  "durationMs": 16955,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1114
+  },
+  "contextTraffic": 187493,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60359,
+  "narrationWords": 10,
+  "finalWords": 305,
+  "finalText": "Here's the timeline of the outage (note: log timestamps are July 4, not last night, but the sequence is clear):\n\n**02:00 – 02:14 — Healthy.** Normal traffic across `api`, `worker-1`, `worker-2`, `scheduler` (health checks, `/users`, `/orders`), cache hit ratio 90–98%.\n\n**02:14:07 — Trigger.** Redis goes down: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` (line 182). The `api` service immediately falls back to direct store reads (cache layer degraded).\n\n**02:14:07 – 02:31:26 — Cascading overload (~17 min).** With Redis gone, every request bypasses cache and hits the backing store directly:\n- Repeating pattern every ~2s across all services: `TimeoutError: request timed out after 5000ms (store overloaded)`, `cache miss storm` on sequential `orders:*` keys, and steadily climbing `request queue depth` (52 → 568, against a max of 500 — so the queue was over its limit for the last ~10+ minutes).\n- Redis reconnect attempts fire roughly every 2 minutes and all fail (attempts 0 through 12, lines 224–716), so cache never recovers.\n\n**02:31:44 — Death spiral.** `worker-2` hits `JavaScript heap out of memory (request backlog)` — the ballooning queue exhausted memory. Supervisor restarts it (line 718), but 8 seconds later:\n\n**02:31:52 — Outage.** `api unresponsive, killing process group — service down` (line 719). Log ends there.\n\n**Root cause:** Redis (10.0.0.12:6379) became unreachable, which knocked out caching. Every request then fell through to the store, which couldn't handle full direct load — timeouts snowballed, request queues backed up unbounded (no shedding/backpressure), memory exhausted on worker-2, and the API process group was ultimately killed.\n\n**Follow-ups worth doing:**\n1. Find out why Redis died (separate infra/redis logs, not in this file).\n2. Add backpressure/queue caps and load-shedding so a cache outage degrades gracefully instead of OOM-killing the process.\n3. Cap or back off the reconnect retries, and alert on `cache layer degraded` immediately rather than only on the fatal crash.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0f91b7fe79e37ea8b0bbc661666f0b670c2f7686312155fa1b3b06f1561fcdbf"
+}

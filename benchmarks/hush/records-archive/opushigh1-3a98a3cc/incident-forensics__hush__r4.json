@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r4",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 4,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 198753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.908069,
+  "numTurns": 19,
+  "durationMs": 195020,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14189
+  },
+  "contextTraffic": 565101,
+  "apiCalls": 19,
+  "toolCalls": 15,
+  "toolResultChars": 12017,
+  "narrationWords": 0,
+  "finalWords": 42,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Handoff written: [HANDOFF-2026-03-14-gateway-503.md](HANDOFF-2026-03-14-gateway-503.md)\n\nRoot cause: `dep-4471` set `connection-per-request`. The pool stays `size=20` and drains.\n\nWindow: `02:14:18Z` to `03:59:27Z`. **Still broken.**\n\n530 503s. Only `/health` returns 200.\n\nRoll back `dep-4471`. Leave `dep-4472` and `dep-4473` alone.\n\nNext: roll back, then watch `/v1` for 200s.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0c7d3c9b25e6c94dacb7136e0d8956bff7fa9c6df5eddad1d6b26b9ee0aca231"
+}

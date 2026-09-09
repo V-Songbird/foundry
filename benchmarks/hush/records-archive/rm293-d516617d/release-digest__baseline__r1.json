@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 75340,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.735734,
+  "numTurns": 9,
+  "durationMs": 73468,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4917
+  },
+  "contextTraffic": 364322,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 72401,
+  "narrationWords": 38,
+  "finalWords": 384,
+  "assistantMsgs": 4,
+  "finalText": "**How the 380 commits break down:** ~150 dependency bumps, ~90 tests, ~80 refactors, ~30 chore/CI, ~15 docs. That leaves 37 commits that touch behavior, and those collapse into the 15 lines above — most of the fixes are the same fix landed separately in four or five modules (null cursor in `api`/`db`/`queue`/`webhooks`, empty allowlist in `store`/`db`/`jobs`, duplicate header in `core`/`billing`/`http`), so I merged them rather than listing each.\n\n**Three things to check before you publish:**\n\n1. **The history stops on 2026-06-17.** You're cutting on the 29th of August — that's ten weeks unaccounted for. Either the branch genuinely froze in June or this export is stale. If it's stale, everything above is a partial release note.\n\n2. **The two removals I put under Breaking were labelled otherwise by their authors.** `refactor(api): drop the unused v1 export route` and the eight `stop re-exporting the internal error types` commits are all typed as refactors, meaning the team considered that surface private. If it really was private, demote both to a footnote. If anything outside this repo imported it, \"unused\" was wrong and Breaking is right. Worth one grep across your consumers — it's the difference between a minor and a major bump.\n\n3. **Two fixes I couldn't characterize from the log alone:**\n   - `handle an empty allowlist` — I wrote \"no longer errors,\" but the commit could equally mean an empty allowlist previously fell open and now denies everything. That's a security-relevant distinction and you should read the diff before shipping the sentence.\n   - `use the right units in the latency histogram` — I noted that recorded values shift, since anyone alerting on those metrics will see thresholds move. Confirm the direction.\n\n**What I deliberately left out:** the 16 dependency bumps are all patch or minor with no visible surface (`pg`, `undici`, `fastify`, `pino`, `knex`, `ioredis` on the runtime side; the rest dev-only) — nothing there for an installer to notice. And the ten `perf` commits: your template has three headings and no performance section, and none of the commits carry a measurement, so a \"faster!\" line would be an unbacked claim. `perf(api): reuse the parsed schema between requests` is the only one plausibly measurable at the request level — if you have a benchmark for it, that one could justify a line of its own.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "156abd4616d8d91422c5d13962ff78797ab1277a636e70513392caa742f6af0f"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35946,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1266846,
+  "numTurns": 11,
+  "durationMs": 34544,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1787
+  },
+  "contextTraffic": 223909,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 8256,
+  "narrationWords": 12,
+  "finalWords": 68,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Fix `options.js` to read `retryCount`, and default `isBackoffEnabled` to `false` when unset."
+  ],
+  "finalText": "**Build is clean now.** Exit 0, `0 errors`.\n\nThe bump changed two shapes and two call sites weren't updated:\n\n- [options.js](src/core/options.js) read `options.retries`, but the new bundler sends `retryCount`. Threw on `.toFixed` since it was `undefined`.\n- [retryPolicy.js](src/net/retryPolicy.js) treated unset `backoffEnabled` as invalid instead of `false`, since the new loader leaves it `undefined` instead of `false`.\n\nFixed both. The rest was deprecation noise, safe to leave.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "49de832a3c94cde97697d9cbddf14f8e8ab2d45b0095e02a33d45724305d11ff"
+}

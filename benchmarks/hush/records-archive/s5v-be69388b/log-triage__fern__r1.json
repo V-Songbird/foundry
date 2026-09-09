@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__fern__r1",
+  "batchId": "s5v-be69388b",
+  "seed": "1787820296138",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "fern",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14006,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "fern:Fern",
+  "costUsd": 0.198612,
+  "numTurns": 4,
+  "durationMs": 11680,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 579
+  },
+  "contextTraffic": 137454,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23547,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "finalText": "Redis died at 02:14:07 (`ECONNREFUSED 10.0.0.12:6379`). Reconnects kept failing every 80s, 12 attempts total.\n\nWithout cache, every request hit the store directly. Queue depth climbed from 52 to 568, well past the max of 500, and timeouts piled up nonstop.\n\nBy 02:31:44 worker-2 ran out of heap from the backlog and crashed. At 02:31:52 the api became unresponsive and the supervisor killed the whole process group.\n\nRoot cause: Redis at 10.0.0.12:6379 went down and never came back. Fix is restoring Redis and adding backpressure so a cache outage can't OOM a worker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ebaa8fcc787186751e535f12bd0672255a532ac423e3ead7e917d83e2fecc36e"
+}

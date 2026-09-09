@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 33,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 51565,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3640165,
+  "numTurns": 13,
+  "durationMs": 50181,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3461
+  },
+  "contextTraffic": 239039,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 16499,
+  "narrationWords": 10,
+  "finalWords": 164,
+  "assistantMsgs": 3,
+  "finalText": "Migration finished. 12 files were still on `db.query` (36 call sites), all now on `db.execute({ sql, params })`:\n\n- `packages/accounts`: `admin/apiKeyAdmin.js`, `service/teamService.js`, `repo/session.js`\n- `packages/billing`: `service/couponService.js`, `repo/refund.js`\n- `packages/catalog`: `admin/variantAdmin.js`, `repo/supplier.js`\n- `packages/orders`: `service/returnService.js`, `repo/shipment.js`\n- `packages/support`: `admin/macroAdmin.js`, `repo/sla.js`\n- `packages/analytics`: `repo/cohort.js`\n\nAll 12 pass `node --check`. The transform matched the shape already used by the previously-migrated files (e.g. `packages/analytics/src/repo/pageview.js`), including the dynamic `UPDATE ... SET` cases where the SQL is a concatenation.\n\nTwo things I deliberately left alone:\n\n1. **`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so patching it in place would be undone. Since `lib/db.js` says the driver's next major drops `query()`, this needs a real fix: an upstream/vendor bump, or a shim wrapping the vendored module. Tell me which you'd prefer and I'll do it.\n2. **`cache.query(...)`** in the repo files — that's the cache API, unrelated to the db handle, so it stays.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0d6bac06bf6c22972b32f3f167f3fc23708be38f17424e71ab3f05c1557b5f7b"
+}

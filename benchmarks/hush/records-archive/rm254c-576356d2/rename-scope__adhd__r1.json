@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__adhd__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 63,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 41315,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2172402,
+  "numTurns": 15,
+  "durationMs": 39958,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3421
+  },
+  "contextTraffic": 175179,
+  "apiCalls": 5,
+  "toolCalls": 14,
+  "toolResultChars": 21601,
+  "narrationWords": 0,
+  "finalWords": 351,
+  "finalText": "Ran the numbers and traced how the field is actually used. Here's the real picture.\n\n**Size:** 1,082 occurrences across 94 files. It's consistently used as a tenant-scoping column everywhere in `services/*` — same semantics throughout (no mixed meanings to untangle), so the application-code portion is mechanical.\n\n**Where it must NOT be renamed:**\n\n1. **`docs/openapi.yaml` + `lib/serialize.js`** — `account_id` is the public API wire field, explicitly documented as \"frozen field name... Renaming one is a breaking change for every client.\" `serialize.js` even has a comment saying an internal rename must not reach this side of the map. If you rename the DB/internal field, this WIRE mapping needs to keep translating to `account_id` on the outside (or you version a new API).\n\n2. **`vendor/reporting-sdk/**`** (client.js, query.js, schema.js, export.js, README) — vendored third-party SDK, explicitly \"Do not edit... overwritten by `npm run vendor:refresh`.\" Any rename here gets silently reverted on the next vendor refresh. If this SDK's request/response shape uses `account_id`, that's an external contract you translate at your boundary, not a name you own.\n\n3. **The 17 `migrations/*.sql` files** — these are already applied in production; several literally say \"Applied migrations are history: editing one does not rename anything in a database that already ran it, and it breaks the down step.\" Editing them is a no-op at best, broken rollback at worst. An actual rename needs a **new** migration (`ALTER TABLE ... RENAME COLUMN`), and since this is a hot, heavily-referenced column (FK'd from `accounts`, indexed everywhere), you'll want the standard expand/contract approach — add `owner_id`, dual-write, backfill, cut reads over, drop `account_id` — not a single blocking rename.\n\n**What's actually safe to rename today:** the internal parameter names, local variables, SQL predicates inside `services/*` and `lib/audit.js`, so long as the WIRE mapping keeps the public JSON key as `account_id`.\n\n**My sign-off recommendation:** approve renaming the internal/application-layer usage, but block on (a) the DB column rename needing its own expand/contract migration plan, and (b) explicit confirmation the public API field name is staying `account_id` — that's a separate, much bigger decision (new API version) that shouldn't ride along with an internal cleanup.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "740821859420788a0f2f4fe94f4e1cedef3a5a6091bf842d8a12fd9fc213f1ab"
+}

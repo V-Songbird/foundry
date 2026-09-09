@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 53,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 63203,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.45427550000000005,
+  "numTurns": 15,
+  "durationMs": 61827,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4167
+  },
+  "contextTraffic": 266991,
+  "apiCalls": 8,
+  "toolCalls": 14,
+  "toolResultChars": 28568,
+  "narrationWords": 57,
+  "finalWords": 201,
+  "finalText": "Migration finished.\n\n**Migrated — 36 call sites across 12 files** (`db.query(sql, params)` → `db.execute({ sql, params })`):\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nAll files pass `node --check`. Both forms return the same shape (`lib/db.js:13,18`), so no call-site handling needed to change.\n\n**Two things I deliberately left alone:**\n\n1. **`vendor/legacy-orm/adapter.js:9,13`** still calls `db.query`. The file's header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost — so patching it there would be undone by the next vendor bump. That's the last remaining `db.query` consumer in the repo, and since `lib/db.js` warns the driver's next major drops `query`, it'll break when that lands. The real fixes are upstream in legacy-orm, or a local wrapper/shim that adapts `execute` for the vendored code. Your call which — flagging it rather than editing a file that says not to.\n\n2. **`cache.query(key)`** (18 sites) is an unrelated API on the cache handle — it takes a cache key, not SQL (`lib/cache.js:3`). Untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "40d3f46aed713bc26a89e04de7d79d7ffbf9ee14408c8bd93f66f8aa9f48b101"
+}

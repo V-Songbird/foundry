@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 0,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31691,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1338456,
+  "numTurns": 12,
+  "durationMs": 30139,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2028
+  },
+  "contextTraffic": 228372,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 10016,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now**, exit 0.\n\nTwo real bugs, both from the bundler bump:\n\n- `[options.js:6](src/core/options.js:6)` still read `options.retries`, but the new bundler passes `retryCount`. Fixed to use `retryCount`.\n- `[retryPolicy.js:7](src/net/retryPolicy.js:7)` threw on `undefined` flags. The new config loader leaves unset flags as `undefined` instead of `false`, so I made `undefined` resolve to disabled.\n\nThe rest of the noise, `DEP0142`/`DEP0198`/etc, punycode, circular-import, unused-export, is just deprecation chatter from the bump, not build-breaking. Build finishes with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "888fb6925df9f0aef868d43699fe0ba4cbeca8e2ffde43b883535bfc5fea79d7"
+}

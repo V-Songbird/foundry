@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 14,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27089,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2041413,
+  "numTurns": 9,
+  "durationMs": 25660,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1964
+  },
+  "contextTraffic": 239936,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 15655,
+  "narrationWords": 59,
+  "finalWords": 144,
+  "finalText": "Build now finishes clean with exit code 0. There were two real bugs hiding under the deprecation-warning noise, both from the bundler bump changing the shape of data handed to your code:\n\n1. **`src/core/options.js`** — the bumped bundler now passes options as `{ retryCount }` instead of `{ retries }`, but this call site still read `options.retries` (undefined), so `.toFixed()` threw. Fixed to read `options.retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only accepted explicit `true`/`false` and threw on anything else. Simplified it to `flags.backoffEnabled === true`, so unset/undefined now correctly resolves to disabled instead of erroring.\n\nThe rest of the ~950-line output (DEP0142/DEP0198/DEP0233/DEP0250/DEP0267 warnings, unused-export, circular-import, deprecated-crypto notices) is genuine upstream/Node deprecation noise — not something a code change here fixes — and the build now reports it as 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "24404965fb89b013a1cea32c17cc1ed9f421e7be433a3955c97f305e34063e15"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "ab-style-52859765",
+  "seed": "1787386633516",
+  "orderIndex": 11,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 33547,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.161638,
+  "numTurns": 15,
+  "durationMs": 31990,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2518
+  },
+  "contextTraffic": 253838,
+  "apiCalls": 6,
+  "toolCalls": 14,
+  "toolResultChars": 15652,
+  "narrationWords": 0,
+  "finalWords": 200,
+  "finalText": "Everything's checked. Here's where things stand.\n\n`account_id` shows up in 94 files, but it's basically one repeated pattern across four services (`accounts`, `orders`, `billing`, `notify`, `analytics`) — each has a repo file, a service file, and an http route file per resource, all passing `account_id` straight through as a scoping parameter. Renaming that part is mechanical, not risky.\n\nFour spots must not be touched:\n\n1. **`docs/openapi.yaml`** and **`lib/serialize.js`** — `account_id` is the public API field name. `serialize.js` even says so in a comment: it's frozen, clients read it by that name.\n2. **All 11 files in `migrations/`** — these already ran in production (dated Jan–June 2025). Editing history doesn't rename a live column, and it'd break each migration's `down` step.\n3. **`vendor/reporting-sdk/`** — vendored third-party code. Its README says local edits get wiped by `npm run vendor:refresh`.\n4. **`lib/audit.js`** — audit log lines are a compliance record keyed on `account_id`. Past entries would stay `account_id` forever, so a rename here creates a silent split.\n\nSo: safe to rename internal variables, function params, and repo/service code freely. Not safe to rename the database column, the public API field, vendored code, or anything already written to the audit log or migration history.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "aee9dcdc32912d93f9800184d348b2aaf7cb8cef5a25ade19da8b3fa567fc0a2"
+}

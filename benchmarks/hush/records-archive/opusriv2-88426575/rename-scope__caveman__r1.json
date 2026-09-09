@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__caveman__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 41,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 65940,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.39340649999999994,
+  "numTurns": 16,
+  "durationMs": 64175,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4184
+  },
+  "contextTraffic": 214758,
+  "apiCalls": 7,
+  "toolCalls": 15,
+  "toolResultChars": 18758,
+  "narrationWords": 0,
+  "finalWords": 572,
+  "finalText": "## Size\n\n1082 occurrences, 94 files. Splits into four zones, only one is safe:\n\n| Zone | Occurrences | Files | Rename? |\n|---|---|---|---|\n| `services/**` (repo/service/http) | 1025 | 75 | Yes — internal |\n| `migrations/*.sql` | 37 | 12 | **No** |\n| `vendor/reporting-sdk/src/` | 12 | 4 | **No** |\n| `docs/openapi.yaml` | 5 | 1 | **No** |\n| `lib/serialize.js`, `lib/audit.js` | 3 | 2 | Half — see below |\n\nServices part is mechanical and repetitive: every repo file 17 hits, every service file 15, every route file 9. Same five functions per entity, 25 entities. Low risk per file.\n\n## Must NOT rename\n\n**1. `docs/openapi.yaml` (5)** — public contract. File says renaming a field is breaking for every client and needs a new dated version. `account_id` is a response field on Invoice/Order and a query param on `/v2/invoices`.\n\n**2. `lib/serialize.js:8` — the wire map.** Most dangerous line in the repo:\n```js\nconst WIRE = { account_id: 'account_id', ... };  // key=internal, value=public\n```\nCorrect end state is `owner_id: 'account_id'` — key renamed, value frozen. A global find/replace produces `owner_id: 'owner_id'` and silently renames the public field on every response with no error anywhere. Worse: `serialize` passes through unmapped row keys (lines 18-19), so if internal becomes `owner_id` and the WIRE key is *not* updated, `owner_id` leaks into public JSON as an extra field. Both failure directions are silent.\n\n**3. `vendor/reporting-sdk/src/` (12, 4 files)** — generated, header says \"Do not edit\", `npm run vendor:refresh` overwrites. Also `account_id` there is the *remote* service's wire field, not ours. Any adaptation belongs in a wrapper on our side.\n\n**4. `migrations/*.sql` (37, 12 files)** — applied in production (dates through 2025-06-24). Editing history renames nothing in a DB that already ran it and breaks the down steps. A column rename needs a *new* migration with `ALTER TABLE ... RENAME COLUMN`.\n\n## Trap in the \"safe\" zone\n\nIn `services/**/repo/*.js`, `account_id` is both a JS identifier and a literal SQL column name in the same line:\n```js\nsql: 'SELECT * FROM orders WHERE account_id = ? AND id = ?',\nparams: [account_id, id],\n```\nJS params can rename freely. The string `account_id` inside SQL cannot — not until the rename migration is applied. So repo files need a two-phase rename, not one pass.\n\nAlso `insertOrder` writes `account_id` into the `payload` JSONB (`order.js:35`). Renaming that key changes the persisted shape for new rows only, splitting readers across old and new rows. Needs a backfill or dual-read, or leave the payload key alone.\n\n`lib/audit.js:8` puts `account_id` on every audit line. Internal, but check downstream log/SIEM queries before renaming — the field is grep-able by name outside this repo.\n\n## Sign-off recommendation\n\nDon't approve as a single global rename. Approve if scoped as:\n\n1. `services/**` JS identifiers and object keys only — SQL string literals and `payload` keys untouched.\n2. `lib/serialize.js` WIRE key changed to `owner_id`, value stays `'account_id'`, with a test asserting the serialized output still has `account_id`.\n3. `docs/openapi.yaml`, `vendor/`, `migrations/` explicitly out of scope.\n4. DB column rename as a separate later migration + its own repo pass, if wanted at all.\n\nThe blocker to ask about before signing: is the DB column itself in scope? If yes, this is a multi-week phased migration, not a today decision. If no (JS-only), it's a large but low-risk diff — and item 2 is the only line that needs a human reviewing it carefully.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "31da4995173ffffe148438d9802d1a192d86637c78fe85d3adff75e877b4d030"
+}

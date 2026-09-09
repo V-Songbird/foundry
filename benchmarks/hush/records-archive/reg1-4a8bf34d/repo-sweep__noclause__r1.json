@@ -1,0 +1,39 @@
+{
+  "key": "repo-sweep__noclause__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 16,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 87837,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30858820000000003,
+  "numTurns": 55,
+  "durationMs": 86299,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11409
+  },
+  "contextTraffic": 281880,
+  "apiCalls": 8,
+  "toolCalls": 54,
+  "toolResultChars": 26998,
+  "narrationWords": 0,
+  "finalWords": 61,
+  "assistantMsgs": 1,
+  "finalText": "**Migrated the last 12 holdouts** to `db.execute({ sql, params })`.\n\nFiles: `returnService.js`, `macroAdmin.js`, `teamService.js`, `couponService.js`, `refund.js`, `variantAdmin.js`, `sla.js`, `cohort.js`, `session.js`, `apiKeyAdmin.js`, `supplier.js`, `shipment.js`.\n\nOnly `db.query` left is in [vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js:9), which is marked \"vendored, replaced wholesale on every upgrade, do not edit\" — left it alone.\n\nNext: that vendor adapter will need its own fix once `query` is actually dropped from `lib/db.js`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5786888b4225ae274428c036198b9b9b0e7643f3d02b4261048f583763e79234"
+}

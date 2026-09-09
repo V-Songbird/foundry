@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 166,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21010,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20224799999999998,
+  "numTurns": 4,
+  "durationMs": 19260,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1032
+  },
+  "contextTraffic": 160334,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23486,
+  "narrationWords": 0,
+  "finalWords": 191,
+  "finalText": "Redis died at 02:14:07 (`connect ECONNREFUSED 10.0.0.12:6379`), and everything after that was the app slowly drowning because of it.\n\n**What happened:**\n1. The cache fell back to hitting the store directly, which it couldn't handle — steady stream of `TimeoutError` and cache-miss storms from `api`, `worker-1`, `worker-2`, and `scheduler`, every ~2 seconds for the next 17 minutes.\n2. The request queue climbed the whole time — from 52 up past 568 (max was 500) — because nothing was draining fast enough.\n3. Redis reconnect attempts fired roughly every 100 seconds (attempts 7 through 12 are in the log) and every single one failed the same way.\n4. At 02:31:44, `worker-2` ran out of memory from the growing backlog and crashed.\n5. The supervisor restarted it, but eight seconds later the whole `api` process stopped responding and the service went down.\n\nSo the root cause is the Redis box at `10.0.0.12` going unreachable — everything else (timeouts, queue backup, the eventual crash) was downstream of that one failure. The log ends at the \"service down\" line, so there's no recovery recorded yet — worth checking whether Redis itself needed a manual restart.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d2a808646aa4a62e4dc2ca75471e1d48ea3263d40bbe5d7d4722b53cef309ae2"
+}

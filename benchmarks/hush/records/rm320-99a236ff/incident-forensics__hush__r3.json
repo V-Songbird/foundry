@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 146631,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6184945000000001,
+  "numTurns": 16,
+  "durationMs": 140385,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8660
+  },
+  "contextTraffic": 383855,
+  "apiCalls": 15,
+  "toolCalls": 12,
+  "toolResultChars": 9578,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `gateway.pool.perRequest` flipped to `true` in config gen 119. The pool is still `size=20`, so it starves. Impact ran `02:14:18Z` to `03:59:27Z`, still failing at log end. That is 530 503s, 83.3% of requests in the window. Roll back `dep-4471`.\n\nTwo notes in the file: `/health` stays 200, and this is `node-3 of 3`.\n\nNext: check nodes 1 and 2 for the same pool error.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "98b2548e24917fe984982c53614c124d3709913641902afc67f4346e59be4708"
+}

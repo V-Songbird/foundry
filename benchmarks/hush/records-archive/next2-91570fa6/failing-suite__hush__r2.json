@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 10,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29523,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.123486,
+  "numTurns": 10,
+  "durationMs": 27702,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1303
+  },
+  "contextTraffic": 208539,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11978,
+  "narrationWords": 25,
+  "finalWords": 49,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed: only the 3 rows with both a discount and a tax fail, in `orderTotal`. It taxes the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**All 625 tests pass now.**\n\n`orderTotal` in [src/pricing.js:39](src/pricing.js:39) taxed the pre-discount amount. Tax should apply after the discount.\n\nFixed it to tax the discounted total. The 3 failures were rows where both a discount and a tax were non-zero, which is why most of the suite looked green already.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5407d6b0f9718d5d74e4071a4175f207e41b76ea679631da03ab58bf1e12acd4"
+}

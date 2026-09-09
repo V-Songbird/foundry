@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r3",
+  "batchId": "clause5-84a67d02",
+  "seed": "1787982777257",
+  "orderIndex": 2,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 9981,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0628538,
+  "numTurns": 4,
+  "durationMs": 8340,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 515
+  },
+  "contextTraffic": 76077,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "finalText": "**Plan for `--json`:**\n\n1. Parse `argv` in `main` for a `--json` flag alongside `report`.\n2. In `format.js`, add a `toJson(rows)` that does `JSON.stringify(rows, null, 2)`.\n3. In `cli.js`, pick `toJson` or `toTable` based on the flag, same `buildRows()` call either way.\n4. Update `USAGE` to mention the flag.\n\nNo changes to `buildRows()` in [report.js](src/report.js) since it already returns plain row objects. Say the word and I'll implement it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ce476c8f6c9bd4d7f231072ed3c723164ec76624404ca3a42c673f590a3c7d73"
+}

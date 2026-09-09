@@ -1,0 +1,39 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 22,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21781,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0978376,
+  "numTurns": 9,
+  "durationMs": 20139,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1788
+  },
+  "contextTraffic": 110325,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 7654,
+  "narrationWords": 0,
+  "finalWords": 176,
+  "assistantMsgs": 1,
+  "finalText": "**94 files touch `account_id`** across 5 services, 12 migrations, `lib/`, `docs/openapi.yaml`, and a vendor SDK.\n\nThree places it must not be renamed:\n\n- `lib/serialize.js:8` — explicitly frozen, it's the public wire field documented in `docs/openapi.yaml`. Renaming the internal DB column is fine, but the outbound JSON key must stay `account_id`.\n- `vendor/reporting-sdk/src/*` — third-party vendored code (client.js, schema.js, export.js, query.js), not yours to rename.\n- `migrations/*.sql` — already applied in production per their own headers. Editing them doesn't rename anything live and breaks the down step. A rename needs a new forward migration, not edits to history.\n\nAlso flag `lib/audit.js:8` — audit lines key on `account_id` for the historical record, worth confirming with platform whether old audit entries need to stay queryable under that name.\n\nSo: this is a real multi-service migration (DB column + all internal repo/service code), not a find-replace. Safe to sign off on the internal rename, but the public API contract and vendor SDK stay `account_id` forever, and it needs an additive DB migration plus a backfill, not an edit to `20250114_create_accounts.sql`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7f95bf880754e078898d85f35bd34f6fd90560471df3cfc71d8c5adac26103f4"
+}

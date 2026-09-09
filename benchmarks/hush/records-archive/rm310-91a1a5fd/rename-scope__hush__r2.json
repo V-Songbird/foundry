@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 76513,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.42833099999999996,
+  "numTurns": 19,
+  "durationMs": 74942,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5269
+  },
+  "contextTraffic": 203086,
+  "apiCalls": 8,
+  "toolCalls": 18,
+  "toolResultChars": 20481,
+  "narrationWords": 4,
+  "finalWords": 117,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring."
+  ],
+  "finalText": "**1,291 matches across 94 files. Only the `services/**` tree is safe to rename.**\n\n| Area | Hits | Rename? |\n|---|---|---|\n| `services/**` JS names | 1,200 | Yes, mechanical |\n| SQL strings in `services/**/repo` | 125 of those | Only with a new migration |\n| [migrations/*.sql](migrations/20250624_backfill_account_ids.sql:9) | 61 | No, applied history |\n| [vendor/reporting-sdk](vendor/reporting-sdk/src/client.js:3) | 20 | No, regenerated |\n| [docs/openapi.yaml](docs/openapi.yaml:16) | 5 | No, frozen public field |\n| [lib/serialize.js:8](lib/serialize.js:8) wire value | 1 | No, breaks clients |\n\nThe 125 SQL strings name a real DB column.\n\n25 repos also write `account_id` into the JSONB `payload`. Old rows keep the old key.\n\nNext: sign off scoped to `services/**` names only.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2eb57c0506a51f316496b7e65c5369f2d72cd14249ab71768b8c89ec72ee3f76"
+}

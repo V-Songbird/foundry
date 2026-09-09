@@ -1,0 +1,37 @@
+{
+  "key": "noisy-build__hush__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 48,
+  "task": "noisy-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 33103,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0641747,
+  "numTurns": 10,
+  "durationMs": 31414,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1899
+  },
+  "contextTraffic": 267466,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 8659,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "finalText": "The real error was buried on line 17 of `src/core/settings.js` — it referenced a bare `retries` variable that didn't exist. The build was trying to pass `retries: 3` in the config object, but the code wasn't reading it from the environment parameter.\n\nFixed it to `env.retries || 1`, following the same pattern as the `cacheSize` field just above it. The build now runs clean with 3 warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c5aa47b95f4e89a301b3d350413a0f59601c38b3935ca07d7c1131bdd1d3dffc"
+}

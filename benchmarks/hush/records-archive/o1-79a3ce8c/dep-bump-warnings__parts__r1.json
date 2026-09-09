@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__parts__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "parts",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45447,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "parts:Parts",
+  "costUsd": 0.30866449999999995,
+  "numTurns": 10,
+  "durationMs": 43862,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2146
+  },
+  "contextTraffic": 212899,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7557,
+  "narrationWords": 9,
+  "finalWords": 77,
+  "finalText": "**The build passes now.** Two real bugs hid in the warning noise.\n\n1. `src/core/options.js` read `options.retries`. The bump renamed it `retryCount`. It now takes either name.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader gives `undefined`, not `false`. Unset now means off, like before.\n\nThe other 8 warnings are all deprecation notices. They point at files like `src/legacy/adapter.js`, which this project doesn't have. They come from the bumped packages, so nothing here can silence them.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1f40a5a405702b9b221edbe7f925513e11285ca4b047f6e838832d3c6bbca308"
+}

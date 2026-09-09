@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__caveman__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 66,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 52764,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.3800115,
+  "numTurns": 8,
+  "durationMs": 51783,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3389
+  },
+  "contextTraffic": 188198,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 23800,
+  "narrationWords": 0,
+  "finalWords": 449,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "380 commits since 4.1. Only **9 things** installer notice. Rest is 39 dependency PRs, 42 internal, tests, CI.\n\nWarning — three of these are behavior changes users may depend on, mark Breaking not Fixed:\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) — clients branching on 403 break.\n- `fix(store|core): use the right units in the latency histogram` — emitted metric units change. Dashboards and alert thresholds break silently.\n- `refactor(api): drop the unused v1 export route` (#4152) — labeled refactor, but touch `src/api/router.js` + `handlers.js` + tests. Public route gone. \"Unused\" = unused by *us*.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits across core/db/auth/billing/jobs. Import surface shrink. Anyone doing `import { SomeError } from 'pkg'` break.\n\nDraft:\n\n```markdown\n## 4.2.0 — 2026-09-02\n\n### Breaking\n- An expired token now returns 401 instead of 403.\n- Latency histograms now report in the documented unit. Dashboards and alerts\n  built on the old values need rescaling.\n- The `/v1/export` route is gone. Use the v2 equivalent.\n- Internal error types are no longer re-exported from the package root. Catch\n  by error code instead.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- A request body is no longer written to the logs on a database error.\n- A trace id now survives a retry.\n- Paginating past the last page no longer throws on a null cursor.\n- An empty allowlist is now treated as \"allow nothing\", not \"allow everything\".\n- The HTTP client closes its pool on shutdown and clears its timer when the\n  socket drops.\n- A duplicate header is no longer sent.\n- A trailing slash is trimmed once, not twice.\n- Token parser errors say what actually failed.\n```\n\nVerify before ship:\n1. Empty allowlist — 3 commits (`db`, `jobs`, `store`), none say which way semantics flipped. My wording is a guess. Read `src/store/cache.js`. If it flipped to deny, that is Breaking, not Fixed.\n2. Node minimum — 5 `docs: note the minimum node version` commits (README, quickstart, retries.md) plus `ci: run the suite on node 22`. No `package.json` engines change in log. Either docs drifted or bump never landed in the manifest. Check `engines`; if raised, it goes under Breaking.\n3. `/v1/export` — confirm no external consumer before calling it Breaking vs omitting.\n\nDropped on purpose: 8 perf commits (JSON round-trip, metric batching, mapper clone). No user-facing contract change, no numbers in log to quote. Add back only if you have benchmark figures.\n\nLog itself is noisy — same subject repeats up to 12x across different days and authors (`bump pino 9.2.0 to 9.3.1` x12). Treat counts as unreliable; I deduped by subject.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7143f22b9743d2694608b521c59659eded63d8aa2742812989d7a77b5d7afc24"
+}

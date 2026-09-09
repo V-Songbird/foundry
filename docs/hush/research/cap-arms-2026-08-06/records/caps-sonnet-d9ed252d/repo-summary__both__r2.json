@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__both__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 138,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "both",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23047,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16804049999999998,
+  "numTurns": 13,
+  "durationMs": 21414,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1490
+  },
+  "contextTraffic": 187030,
+  "apiCalls": 5,
+  "toolCalls": 12,
+  "toolResultChars": 4912,
+  "narrationWords": 0,
+  "finalWords": 183,
+  "finalText": "It's a small Node HTTP service, five files, no dependencies. Here's how a request flows.\n\n```mermaid\nflowchart LR\n  A[server.js] -->|checks Bearer token| B[auth.js]\n  A -->|passes user + req| C[routes.js]\n  C -->|reads| D[cache.js]\n  D -->|misses fall through to| E[store.js]\n  C -->|writes go straight to| E\n```\n\n- **`server.js`** — the entry point. Starts an HTTP server, checks every request's token, then hands it off.\n- **`auth.js`** — checks Bearer tokens shaped `<userId>.<signature>`, signed with HMAC-SHA256 from `AUTH_SECRET`.\n- **`routes.js`** — a small table mapping `METHOD /path` to a handler. Three routes exist: get a user, list orders, add an order.\n- **`cache.js`** — a 256-entry LRU sitting in front of reads. No expiry of its own.\n- **`store.js`** — the actual data, kept in memory, each record expiring 15 minutes after it's last written. Nothing here yet persists to disk, so a restart wipes everything.\n\nOne thing worth knowing early: writes (`POST /orders`) go straight to the store and don't touch the cache, so a cached `orders:<id>` list can go stale until it falls out of the LRU or the 15-minute TTL clears it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8ade5da1779811b37b4ba9a013e3c47073483d65850cf0a5bc9c6372781c65f7"
+}

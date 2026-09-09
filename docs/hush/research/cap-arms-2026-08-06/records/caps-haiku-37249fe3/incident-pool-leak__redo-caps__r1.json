@@ -1,0 +1,37 @@
+{
+  "key": "incident-pool-leak__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 98,
+  "task": "incident-pool-leak",
+  "segment": "debugging",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 38195,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0720828,
+  "numTurns": 12,
+  "durationMs": 36590,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2561
+  },
+  "contextTraffic": 253387,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 13354,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "finalText": "```javascript\n// Before: connection was never released if run() threw\nasync function processOrder(pool, order, run) {\n  const conn = pool.acquire();\n  const result = await run(conn, order);\n  pool.release(conn);\n  return result;\n}\n\n// After: connection is always released in finally block\nasync function processOrder(pool, order, run) {\n  const conn = pool.acquire();\n  try {\n    const result = await run(conn, order);\n    return result;\n  } finally {\n    pool.release(conn);\n  }\n}\n```\n\nThe leak happened because `processOrder` acquired a connection but didn't wrap it in try/finally. When order validation failed (throwing an error), the release never ran. Each failed order consumed a connection forever. Within hours, all 5 connections in the pool were stuck in-use, and the service crashed with timeouts.\n\nAll four tests pass now — orders that fail validation still release their connections, concurrent failures don't leak, and healthy orders work fine.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "74752cacfadb8378f9c61f1319a572a2cacb3752f89e50580eb484b62e7ec645"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 24,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 113794,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.760478,
+  "numTurns": 58,
+  "durationMs": 112291,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11820
+  },
+  "contextTraffic": 296372,
+  "apiCalls": 8,
+  "toolCalls": 57,
+  "toolResultChars": 31277,
+  "narrationWords": 24,
+  "finalWords": 211,
+  "assistantMsgs": 4,
+  "finalText": "Migration finished. 12 files were still on `db.query`, 3 call sites each (36 total), all converted to `db.execute({ sql, params })` matching the pattern used in the already-migrated files:\n\n| Package | Files |\n|---|---|\n| accounts | `src/repo/session.js`, `src/admin/apiKeyAdmin.js`, `src/service/teamService.js` |\n| analytics | `src/repo/cohort.js` |\n| billing | `src/repo/refund.js`, `src/service/couponService.js` |\n| catalog | `src/repo/supplier.js`, `src/admin/variantAdmin.js` |\n| orders | `src/repo/shipment.js`, `src/service/returnService.js` |\n| support | `src/repo/sla.js`, `src/admin/macroAdmin.js` |\n\nAll 12 pass `node --check`. No non-JS references to `db.query` exist (no docs/tests in the repo).\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** — still calls `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost. Patching it there wouldn't survive. Since `lib/db.js` says the driver's next major drops `query` entirely, this needs a real fix: either upgrade legacy-orm to a version on the new API, or wrap the adapter at the call boundary. Worth tracking separately — I didn't want to make an edit that looks done but gets reverted on the next vendor bump.\n- **`cache.query(...)`** in the repo files — that's the cache handle, unrelated to the db migration.\n\n`lib/db.js` still exports the deprecated `query` method; it can be removed once the vendor adapter is resolved.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0663c04a2e0739bdc77be30eb4bc72a8775f016035f189acaba338efce1ff915"
+}

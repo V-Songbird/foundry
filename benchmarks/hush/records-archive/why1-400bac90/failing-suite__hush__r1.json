@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 7,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25952,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1283872,
+  "numTurns": 12,
+  "durationMs": 24084,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1304
+  },
+  "contextTraffic": 230627,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12025,
+  "narrationWords": 13,
+  "finalWords": 59,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted amount."
+  ],
+  "finalText": "**Fixed. All 625 tests pass.**\n\n`orderTotal` in [pricing.js:39](src/pricing.js:39) taxed the pre-discount amount instead of the discounted one. Only 3 of 625 cases caught it, since most rows had a zero discount or zero tax.\n\nChanged it to tax the discounted total:\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\nNext: nothing, suite is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f8270d2fec65dd5a432bd7447418b6a031ac075b90ef31151212d450ceea3e1c"
+}

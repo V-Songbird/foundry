@@ -10,7 +10,7 @@
 
 const fs = require("fs");
 
-const WATCHED_TOOLS = new Set(["Edit", "Write"]);
+const { editPaths } = require("./edit-paths");
 
 function readInput() {
   let raw;
@@ -34,10 +34,9 @@ function isManifestFile(filePath) {
 
 function main() {
   const data = readInput();
-  if (!WATCHED_TOOLS.has(data.tool_name)) return;
-
-  const filePath = data.tool_input?.file_path;
-  if (!isManifestFile(filePath)) return;
+  const paths = editPaths(data).filter(isManifestFile);
+  if (!paths.length) return;
+  const filePath = paths.join(", ");
 
   const payload = {
     hookSpecificOutput: {

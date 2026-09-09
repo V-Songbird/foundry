@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__oldstyle__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 15,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 52733,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22687939999999995,
+  "numTurns": 14,
+  "durationMs": 45765,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2794
+  },
+  "contextTraffic": 542517,
+  "apiCalls": 12,
+  "toolCalls": 10,
+  "toolResultChars": 14506,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "finalText": "**On-call handoff: gateway 503s**\n\n**Root cause.** Deploy `dep-4471` (gateway, by a.novak, 02:12–02:14Z) flipped `gateway.pool.perRequest` from `false` to `true`. That change landed as config generation 119 at 02:13:41Z. Connections started queuing within half a minute, and the pool has been stuck at its cap of 20 ever since. Every 503 in the log carries the same line: `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`. The waiting count kept climbing the whole window, from 13 near the start to over 70 by the last log lines.\n\n**Impact window.** Started 2026-03-14 02:14:18Z, first 503. Still ongoing as of the last log line, 03:59:27Z. Not a blip, a steady worsening backlog.\n\n**Scope.** Gateway only. `worker.log` covers the same window and shows no 503s, no pool errors, jobs finishing normally throughout.\n\n**Rollback.** Revert `dep-4471`, restoring `gateway.pool.perRequest` to `false`. No other deploy in that window touches the gateway or its pool.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e44fcc5ab0dec66a04b1c1c742688565a667f91b113f2c0d31ba36d6937191f0"
+}

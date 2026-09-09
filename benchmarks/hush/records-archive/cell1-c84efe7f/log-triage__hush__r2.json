@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16882,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1202592,
+  "numTurns": 4,
+  "durationMs": 15191,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 968
+  },
+  "contextTraffic": 115885,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 150,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis lost connection, and the outage cascaded until the process group died.**\n\nAt `2026-07-04T02:14:07Z` Redis dropped (`ECONNREFUSED 10.0.0.12:6379`). The app fell back to direct store reads, which couldn't keep up.\n\nFor the next 17 minutes, `worker-1`, `worker-2`, `scheduler`, and `api` all logged repeating `TimeoutError` after `5000ms`, steady cache miss storms, and a growing request queue, from 52 up to 568 against a max of 500. Redis reconnect attempts fired every ~80s and failed all 12 times.\n\nAt `2026-07-04T02:31:44Z` `worker-2` hit `JavaScript heap out of memory` from the backlog and was restarted by the supervisor. Eight seconds later, `2026-07-04T02:31:52Z`, `api` went unresponsive and the supervisor killed the whole process group. See [logs/app.log:717](logs/app.log:717) through [logs/app.log:719](logs/app.log:719).\n\nRoot cause: Redis (`10.0.0.12:6379`) went unreachable and never came back, and nothing shed load while the queue climbed.\n\nNext: check why Redis at `10.0.0.12` went down and add a circuit breaker so queue depth can't grow unbounded.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5b0da0d37a1946b5e2f10855f1a5227070961fb286318257c884427e78af19eb"
+}

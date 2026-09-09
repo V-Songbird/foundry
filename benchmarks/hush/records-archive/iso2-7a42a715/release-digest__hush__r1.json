@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 71956,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2455262,
+  "numTurns": 15,
+  "durationMs": 70464,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6355
+  },
+  "contextTraffic": 330058,
+  "apiCalls": 9,
+  "toolCalls": 14,
+  "toolResultChars": 25735,
+  "narrationWords": 17,
+  "finalWords": 124,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "No breaking changes this cycle. Now I'll write the 4.2.0 entry into CHANGELOG.md above the placeholder comment."
+  ],
+  "finalText": "**4.2.0 written to [CHANGELOG.md](CHANGELOG.md).**\n\nWent through all 380 commits and 128 PRs. No `Breaking` section, no major dep bumps this cycle.\n\nOne `Added`: webhook retries now use exponential backoff instead of dropping failed deliveries.\n\nNine `Fixed` items, deduped from repeat fixes across modules (queue, api, webhooks, db, etc.) into one line each — null cursor crashes in pagination, duplicate response headers, double-trimmed trailing slashes, empty allowlist handling, lost trace ids on retry, timer leak plus pool-close on HTTP shutdown, clearer token-parser errors, and 401 instead of 403 for expired tokens. Worth flagging: request bodies are no longer logged in full, a privacy fix I put first under `Fixed`.\n\nNext: check the 401-vs-403 change doesn't need a `Breaking` callout for any client relying on 403.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b60a4cc59194e0eb49a059ba8a6f87cd687edf2f19ce1dc78d16d2199abb0093"
+}

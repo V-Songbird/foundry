@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__hush__r3",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 20753,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.105967,
+  "numTurns": 9,
+  "durationMs": 19058,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1275
+  },
+  "contextTraffic": 167421,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7854,
+  "narrationWords": 0,
+  "finalWords": 67,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, 0 errors.**\n\nTwo real bugs, not noise, both from the bundler bump.\n\n- [options.js:7](src/core/options.js:7) read `options.retries`, but the new bundler passes `retryCount`. Fixed to read `retryCount`.\n- [retryPolicy.js:8](src/net/retryPolicy.js:8) threw on `undefined` flags. New config loader leaves unset flags `undefined` instead of `false`. Fixed to treat `undefined` as disabled.\n\nRest of the ~950-line output is deprecation and dedupe noise, unrelated.\n\nNext: nothing, build finished clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "897226c202b886c42787de1e8a66b1f7965e5f7f8a16369716c0c83ef724f204"
+}

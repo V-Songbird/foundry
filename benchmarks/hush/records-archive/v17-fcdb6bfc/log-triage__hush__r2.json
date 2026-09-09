@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 9,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18170,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.13410139999999998,
+  "numTurns": 3,
+  "durationMs": 16727,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 675
+  },
+  "contextTraffic": 114848,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 7334,
+  "narrationWords": 0,
+  "finalWords": 134,
+  "finalText": "Everything points to the same chain, from cache misses at 02:21 to the crash at 02:31.\n\nRedis died first, at 10.0.0.12:6379 — every service kept retrying and failing to reconnect, 12 attempts by the end. With no cache, every request fell through to the store, which couldn't keep up, so calls started timing out at 5000ms. Requests piled up behind those timeouts: the queue climbed from 283 near the start past 500 (its max) up to 568 by 02:31. worker-2 ran out of memory holding that backlog, crashed, and got auto-restarted — but the api process was already stuck and unresponsive, so the supervisor killed the whole process group at 02:31:52. That's the outage.\n\nRoot cause: **Redis at 10.0.0.12:6379 going down.** Everything else — timeouts, backlog, the OOM crash — was downstream of that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1a17698bcf9c496c5e68654c5e297269d9554394415f647e9b78fd66e9f6c45a"
+}

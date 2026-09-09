@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__adhd__r1",
+  "batchId": "rx5-d4b877fe",
+  "seed": "1786464273166",
+  "orderIndex": 10,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 55624,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3258036,
+  "numTurns": 15,
+  "durationMs": 49833,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3035
+  },
+  "contextTraffic": 535067,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 14792,
+  "narrationWords": 31,
+  "finalWords": 181,
+  "finalText": "Still ongoing at end of log (03:59:27.974Z) — never recovered within the captured window.\n\n---\n\n## On-Call Handoff — Gateway 503s\n\n**Status:** ONGOING (unresolved as of last log entry, 03:59:27Z)\n\n**Impact window:** 2026-03-14 02:14:18Z → still active at 03:59:27Z (log ends there, not confirmed recovered)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"connection-per-request for pool isolation\") applied config generation 119 at 02:13:41Z, flipping `gateway.pool.perRequest: false → true`. This made every request grab its own DB connection instead of sharing the pool. Fixed pool size (20) exhausted within ~30s. First slow-acquire warning at 02:14:14Z, first 503 at 02:14:18Z. Errors are `ERR_POOL_EXHAUSTED` — `waiting` queue climbed from 13 to 74+ over the window, i.e. still degrading, not stabilizing.\n\n**Scope:** Gateway only. Checked `worker.log` for the same window — workers unaffected, no pool exhaustion, jobs completing normally (only unrelated finding: pre-existing slow-query warning, known issue OPS-2210).\n\n**Rollback target:** `dep-4471` — revert `gateway.pool.perRequest` to `false` (and optionally `gateway.timeout.upstreamMs` back to 2000, changed in the same push).\n\nNext: roll back dep-4471 now — this is the single change that caused it and it hasn't self-recovered in ~1h45m.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c71ee7949f504c8902aef5af5aabccc9fab58306616727cc00a033a24597542"
+}

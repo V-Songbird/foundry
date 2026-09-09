@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33014,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.26625550000000003,
+  "numTurns": 10,
+  "durationMs": 32081,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2205
+  },
+  "contextTraffic": 161070,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7439,
+  "narrationWords": 7,
+  "finalWords": 75,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now, exit 0.** Two real bugs, not noise.\n\n`resolveRetries` read `options.retries`, but the bump renamed it `retryCount`. It threw `Cannot read properties of undefined (reading 'toFixed')`. Fixed at [src/core/options.js:6](src/core/options.js:6), old name still works.\n\n`isBackoffEnabled` threw on unset flags. The new loader gives `undefined`, not `false`. Unset now means off. See [src/net/retryPolicy.js:7](src/net/retryPolicy.js:7).\n\nThe other 8 warnings are real deprecations in `src/legacy`. No file exists for them here.\n\nNext: port `src/legacy` off `Buffer()` and `crypto.createCipher`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1bbbd316cedfbf99effdf28d073665711c03fd5b6d0bb41112f41f5fe0a96636"
+}

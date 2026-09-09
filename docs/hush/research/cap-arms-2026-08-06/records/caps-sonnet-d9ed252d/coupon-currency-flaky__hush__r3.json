@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__hush__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 118,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 45078,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.255916,
+  "numTurns": 12,
+  "durationMs": 43262,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2348
+  },
+  "contextTraffic": 362373,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 9655,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "finalText": "**Found it.** `engine.js` was rounding the USD total to 2 decimals after the percent coupon, and again after the flat coupon, before converting to the order's currency. That mid-calculation rounding lost fractions of a cent that only showed up once converted — hitting GBP, CAD, and JPY carts, always when a percent coupon (`SAVE10PCT`) was stacked.\n\nFixed by letting the discount math run in full precision and rounding only once, at the very end, in the target currency's own decimal places — same as finance's own reference calculation.\n\nTests: 40 pass, 0 fail, 0.1s (was 10 failing, all involving a percent coupon).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "66091c0071168365ed7bbc8e132d1039ea219fa488f08f6ed8621c4253682bff"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 31,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66369,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3611658,
+  "numTurns": 16,
+  "durationMs": 59990,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3747
+  },
+  "contextTraffic": 706889,
+  "apiCalls": 16,
+  "toolCalls": 12,
+  "toolResultChars": 60344,
+  "narrationWords": 0,
+  "finalWords": 103,
+  "assistantMsgs": 4,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** `ERR_POOL_EXHAUSTED`. Connection pool fixed at `size 20`, all in use, wait queue growing unbounded (13 waiting at start, 172 by `03:55:58Z`). Matches deploy `dep-4471` (gateway, `a.novak`): *\"config: connection-per-request for pool isolation\"*, finished `2026-03-14T02:14:00Z` — first 503 followed 19s later.\n\n**Impact window:** `2026-03-14T02:14:18.972Z` → still ongoing at end of available log data (`2026-03-14T03:59:27.974Z`), no recovery seen. Gateway only — `worker.log` shows no errors in this window, jobs completing normally.\n\n**Rollback:** `dep-4471` on `gateway`.\n\nSince the log cuts off mid-incident, confirm current prod status before handing off — can't tell from this file whether it self-resolved after `03:59`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "edfcaebe6747676063cb6144b0e404b2a306d9f427c5e6d2cdbcf5c03aa3be52"
+}

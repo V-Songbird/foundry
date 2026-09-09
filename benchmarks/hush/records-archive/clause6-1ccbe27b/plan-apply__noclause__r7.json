@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r7",
+  "batchId": "clause6-1ccbe27b",
+  "seed": "1787982843315",
+  "orderIndex": 19,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 7,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 11976,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07289559999999999,
+  "numTurns": 6,
+  "durationMs": 10325,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 715
+  },
+  "contextTraffic": 102721,
+  "apiCalls": 4,
+  "toolCalls": 5,
+  "toolResultChars": 2132,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, no changes made.**\n\n`buildRows()` in [report.js](src/report.js) already gives full data, `owner` and `slow` included. `toTable` in [format.js](src/format.js) drops those two on purpose.\n\n1. Parse `--json` in [cli.js](src/cli.js) alongside the `report` command.\n2. If set, print `JSON.stringify(buildRows(), null, 2)` instead of `toTable(...)`.\n3. Skip touching `format.js` — JSON output should keep all fields, not match the table's trimmed columns.\n\nNo tests exist yet, so I'd add one for the JSON path.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "463fb632b7c3c7ef3661f08ff0ef7efca53c85e4ac73865728c8760994abc5ed"
+}

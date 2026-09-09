@@ -1,0 +1,37 @@
+{
+  "key": "bugfix-expiry__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 8,
+  "task": "bugfix-expiry",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 25974,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.05396569999999999,
+  "numTurns": 8,
+  "durationMs": 24112,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1400
+  },
+  "contextTraffic": 229730,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 3955,
+  "narrationWords": 0,
+  "finalWords": 32,
+  "finalText": "The bug was in `isExpired()`. It used `token.exp < nowSeconds` instead of `<=`, so tokens expiring exactly now weren't being rejected. Changed line 7 to use `<=` and all 5 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "56c8dd79ce9dd27bdadda1a648b14708abe462e1976ea800f14310ff3649954c"
+}

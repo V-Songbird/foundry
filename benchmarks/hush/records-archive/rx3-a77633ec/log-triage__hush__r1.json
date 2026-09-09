@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rx3-a77633ec",
+  "seed": "1786463572387",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24147,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2071791,
+  "numTurns": 5,
+  "durationMs": 21294,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 799
+  },
+  "contextTraffic": 188270,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 23574,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "Redis died at 02:14:07 and never came back — 12 reconnect attempts, all refused, over the next 17 minutes. With no cache, every request fell through to the store, timeouts piled up, and the queue climbed from 52 to over 570 (way past its limit of 500).\n\nAt 02:31:44 worker-2 ran out of memory under the backlog and got restarted, and 8 seconds later the api process stopped responding and the supervisor killed the whole process group. That's the outage.\n\n**Root cause:** Redis at `10.0.0.12:6379` went unreachable and stayed that way — nothing in the log shows it recovering.\n\n**Fix:** get Redis back up, and consider a circuit breaker so a dead cache doesn't let the request queue grow unbounded next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6499ba11d2b3971dc4eef5e9f195b633d771722e695028b8d0ce982500167405"
+}

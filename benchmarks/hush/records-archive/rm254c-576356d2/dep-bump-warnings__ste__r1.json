@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34436,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2534356,
+  "numTurns": 12,
+  "durationMs": 33041,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2370
+  },
+  "contextTraffic": 354723,
+  "apiCalls": 10,
+  "toolCalls": 11,
+  "toolResultChars": 16922,
+  "narrationWords": 87,
+  "finalWords": 116,
+  "finalText": "Build is green now (exit 0, 0 errors). The remaining 8 warnings are all genuine deprecation noise from the bump (`DEP0142`, `DEP0198`, `DEP0233`, etc., plus a couple of dead-code/circular-import notices) — not build blockers.\n\nTwo real regressions from the bump were hiding in that noise, both in the link stage:\n\n1. **`src/core/options.js`** — the bumped bundler now passes options as `{ retryCount }`, but `resolveRetries` still read `options.retries` (undefined), crashing on `.toFixed()`. Fixed to read `retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only accepted strict `true`/`false` and threw otherwise. Added an `undefined` → `false` case so it degrades the same way the old loader did.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c5411935c465b0ab4f7ba47c94849e577a241792dd11b5ed2805a376d0274734"
+}

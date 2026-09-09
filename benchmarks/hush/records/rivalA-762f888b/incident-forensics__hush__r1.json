@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 143,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 86905,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5727725,
+  "numTurns": 17,
+  "durationMs": 82442,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5200
+  },
+  "contextTraffic": 476832,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 14495,
+  "narrationWords": 0,
+  "finalWords": 61,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause: `gateway.pool.perRequest: false -> true` in config generation 119. The size-20 pool saturates and never drains. `waiting` climbs 13 to 74.\n\nImpact: `02:14:18Z` to `03:59:27Z`, still open at log end. 530 503s. Paged at `03:21`.\n\nRoll back `dep-4471`, gateway, by `a.novak`.\n\nNext: revert, then file a ticket on `/health` staying 200 through a 71% error rate.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "47dbee4eba19b95d9c75c06122224a0f40f10592461854c2e79b6a38bf4eda52"
+}

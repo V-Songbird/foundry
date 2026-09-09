@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opusfinal-c12ec01f",
+  "seed": "1787637691823",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 49581,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.376383,
+  "numTurns": 9,
+  "durationMs": 47843,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3352
+  },
+  "contextTraffic": 199504,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 14654,
+  "narrationWords": 6,
+  "finalWords": 86,
+  "finalText": "**Redis went down. Everything else fell over after it.**\n\nOne note: the log is dated July 4, not last night.\n\n1. `02:14:07` Redis at `10.0.0.12:6379` refused all connections.\n2. The cache gave up and read the store directly.\n3. Requests began timing out after 5 seconds. 173 did.\n4. The waiting queue grew from 52 to 568. The cap is 500.\n5. `02:31:44` worker-2 ran out of memory.\n6. `02:31:52` the api stopped responding and was killed.\n\nRedis never came back. All 13 retries were refused.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8f3f67a296529c9a7a2b8c9d8aa58f8ba8b49e6a34ba9f38577e3e89ccd3b213"
+}

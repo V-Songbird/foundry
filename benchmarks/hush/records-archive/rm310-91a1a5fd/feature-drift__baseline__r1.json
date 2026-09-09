@@ -1,0 +1,45 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 48,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 152146,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.7814395,
+  "numTurns": 31,
+  "durationMs": 145699,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8753
+  },
+  "contextTraffic": 711010,
+  "apiCalls": 28,
+  "toolCalls": 26,
+  "toolResultChars": 14821,
+  "narrationWords": 37,
+  "finalWords": 227,
+  "assistantMsgs": 9,
+  "narrationTexts": [
+    "I'll look at the project files first.",
+    "The spec is a plain priority→channel mapping, so that's what I'll write.",
+    "Quiet hours need the `hourOf` helper from `lib.js`.",
+    "This one needs the scratch `state` the harness threads through."
+  ],
+  "finalText": "Dedupe is in, using the `state` scratch object.\n\nHow it works in `src/router.js`:\n- `state.lastSentAt` is a `Map` of key → `at` of the last delivery, created by `createState()` (and lazily if a caller hands over a bare `{}`).\n- The check runs first, ahead of quiet hours: if the same `key` was delivered within `DEDUPE_WINDOW = 5` minutes, return `[]`.\n- Only a non-empty result records a timestamp, so a dropped repeat doesn't extend the window — three flaps 2 minutes apart still measure from the one real send.\n\nReplay: 0 errors, 99 drops. That's exactly the flap count `events.js` generates (one every ninth event, minus `i=0`, which has no predecessor), so every dedupe drop is a genuine repeat and nothing else got caught. Verified against the raw rows — `evt-0287 quota-warning → queue` at t=1, then `evt-0288`, same key at t=3, dropped; same shape for the `disk-usage` pairs. Deliveries fall accordingly: pager 225→200, queue 300→266, sms/push 124→112.\n\nTwo readings I settled without asking:\n- \"In the last 5 minutes\" is inclusive — a repeat exactly 5 minutes later is dropped. Change `<= DEDUPE_WINDOW` to `<` if you want that one through.\n- A queued notification counts as \"sent\" for dedupe purposes, so a quiet-hours repeat doesn't get queued twice. If the queue should instead dedupe on drain, that's a different design and worth a word.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "eeb8bc3f4260a3564edf928e964a80b028910a56bdc620fe815d8dfda499e149"
+}

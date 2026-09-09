@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r3",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24571,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1933783,
+  "numTurns": 11,
+  "durationMs": 23257,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1907
+  },
+  "contextTraffic": 256016,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 10366,
+  "narrationWords": 42,
+  "finalWords": 119,
+  "finalText": "Builds clean now — exit 0, 0 errors. The link stage was failing on two real bugs from the bundler bump (fakepack 3.11.2 → 4.2.0), buried under a wall of deprecation-warning noise:\n\n1. **`src/core/options.js`** — the new bundler passes options as `{ retryCount }`, but `resolveRetries` still read `options.retries` (now `undefined`), so `.toFixed(0)` threw. Fixed to read `options.retryCount`.\n2. **`src/net/retryPolicy.js`** — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` had no case for `undefined` and threw. Now treats `undefined` as `false` (disabled), matching old loader behavior.\n\nThe remaining 8 warnings are just deprecation/lint noise (DEP0142/0198/0233/0250/0267 plus the 3 `W*` warnings) unrelated to build failure — left as-is since they don't block the build.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6f03809d93a41097e65d4cac6edb43f7004f919e1a0f9fd6fd12db8a57a84be"
+}

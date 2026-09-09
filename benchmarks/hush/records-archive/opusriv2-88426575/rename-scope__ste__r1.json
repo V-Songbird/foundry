@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__ste__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 40,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 53326,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.32385949999999997,
+  "numTurns": 16,
+  "durationMs": 51761,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3581
+  },
+  "contextTraffic": 171394,
+  "apiCalls": 6,
+  "toolCalls": 15,
+  "toolResultChars": 14503,
+  "narrationWords": 15,
+  "finalWords": 432,
+  "finalText": "## Size\n\nThe string `account_id` appears about 1,290 times, on about 1,080 lines, in 94 files.\n\nThe count divides into these groups:\n\n- `services/` — 1,200 occurrences in 75 files. This is the real work.\n- `migrations/` — 61 occurrences in 12 files.\n- `vendor/reporting-sdk/` — 20 occurrences in 4 files.\n- `lib/` — 5 occurrences in 2 files.\n- `docs/openapi.yaml` — 5 occurrences in 1 file.\n\nThe work in `services/` is mechanical. Each service follows one shape: `http/*Routes.js`, `service/*Service.js`, and `repo/*.js`. The name is a local variable, a parameter, and an object key. A rename there is safe.\n\n## Where it must not be renamed\n\nFour places are off limits. Each one is marked in the code itself.\n\n**1. The public API contract.** `docs/openapi.yaml` names `account_id` in the `Invoice` and `Order` schemas and in the `/v2/invoices` query parameter. The file states that a rename is a breaking change and needs a new dated version.\n\n**2. The wire side of the serializer.** In `lib/serialize.js:8`, the map entry is `account_id: 'account_id'`. The key on the left is internal. The value on the right is the public field name. Rename the key only. The string `'account_id'` must stay.\n\n**3. Applied migrations.** All 12 files in `migrations/` ran in production. The header of each file says that editing an applied migration renames nothing and breaks the down step. To rename the real database column, add a new migration.\n\n**4. The vendored SDK.** The 4 files under `vendor/reporting-sdk/src/` are generated. `npm run vendor:refresh` overwrites any local edit. No service imports this SDK today, so leaving it alone costs nothing.\n\n## The trap in the service layer\n\n250 lines under `services/` hold `account_id` inside SQL strings, for example `services/billing/src/repo/invoice.js:10`:\n\n```js\nsql: 'SELECT * FROM invoices WHERE account_id = ? AND id = ?',\n```\n\nThat `account_id` is the database column, not a JavaScript name. A blind find-and-replace across `services/` hits these strings and every query fails at runtime. Rename the column first with a new migration, or leave the SQL text alone.\n\nOne more caution: `lib/audit.js:8` writes `account_id` as a field on every audit line. That field name is a log schema. Confirm with whoever queries the audit log before you change it.\n\n## What I recommend for sign-off\n\nThe change is large but low risk, on two conditions:\n\n1. The rename is limited to JavaScript identifiers under `services/`.\n2. `docs/openapi.yaml`, `lib/serialize.js` line 8, `migrations/`, and `vendor/` are excluded.\n\nAsk for the diff split into two commits: the service rename, and any database column migration. If the diff touches the four protected areas, do not sign off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "519ac89f3bc132f2255f34c093be2a4bb2731186fda4e1782996677acba3faf9"
+}

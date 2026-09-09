@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43803,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4127935,
+  "numTurns": 11,
+  "durationMs": 42033,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2161
+  },
+  "contextTraffic": 164685,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15105,
+  "narrationWords": 0,
+  "finalWords": 96,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis died at 02:14:07, and the service bled out over 18 minutes.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:10 | Cache bypassed. Store timeouts start. |\n| 02:29:12 | Queue depth 502 passes max 500 |\n| 02:31:44 | `worker-2` OOM, then `api` killed. Service down. |\n\nRedis never came back. All 13 reconnect tries got `ECONNREFUSED`, the last at [app.log:716](logs/app.log:716).\n\nCause is Redis, not your code. 173 timeouts and 174 cache-miss lines are all downstream noise.\n\nNext: check why Redis at `10.0.0.12:6379` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d9b7387bbcaecc1a302578cfbc0e077fe007e279a7d259059b531b16c0601386"
+}

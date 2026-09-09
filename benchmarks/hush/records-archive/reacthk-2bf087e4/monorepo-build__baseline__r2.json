@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r2",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 36464,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.0686824,
+  "numTurns": 9,
+  "durationMs": 35013,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2705
+  },
+  "contextTraffic": 240069,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 17460,
+  "narrationWords": 122,
+  "finalWords": 104,
+  "finalText": "Perfect! The build is now passing. The issue was in `packages/shared/config.js` where the config merge was using `Object.assign()`, which does a shallow merge. \n\nWhen packages like `@acme/api` specified partial overrides like `{ output: { format: 'esm' } }`, the shallow merge completely replaced the entire `output` object, losing the `dir` key that the build validation checked for.\n\nThe fix implements a proper deep merge that:\n1. Preserves nested object keys from the defaults\n2. Allows partial overrides to change only their specified keys\n3. Properly layers defaults → package overrides → CLI flags\n\nThe build now completes successfully with 5 warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c2af8e56e217b3645362af369a24fdaee93ab5115ecf57f8cc4d4e5c958b2ab2"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__react__r2",
+  "batchId": "react2-9d840c5b",
+  "seed": "1786430656258",
+  "orderIndex": 47,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 134001,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6973784,
+  "numTurns": 36,
+  "durationMs": 127435,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9356
+  },
+  "contextTraffic": 941996,
+  "apiCalls": 20,
+  "toolCalls": 32,
+  "toolResultChars": 28308,
+  "narrationWords": 20,
+  "finalWords": 111,
+  "finalText": "`AUDIT.md` is written, four findings ranked worst first, nothing in the service touched.\n\n1. **Critical — `src/routes/internal.js`**: never calls `requireAuth`, so `/internal/metrics` and `/internal/flush-cache` are open to the internet since the VPN was retired.\n2. **Critical — `src/repo/report.js`**: `runSavedReport` pastes `filter`, `orderBy`, and `limit` straight into the SQL string — real SQL injection, though no route calls it yet.\n3. **High — `config/staging.js`**: a live-looking database password, `St4ging-Pg-2024!weakish`, committed in plain text.\n4. **High — `package.json`**: `fast-parse` still pinned at `1.4.2`, the version `NOTES.md` says was yanked for prototype pollution.\n\nChecked the other three watched dependencies too — `pg-lite`, `redis-min`, and `date-fmt` are all fine as declared, no action needed there.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53e0096e252c67164241c2506f2903d89e55ffd8863db236e665a8181d0ced8a"
+}

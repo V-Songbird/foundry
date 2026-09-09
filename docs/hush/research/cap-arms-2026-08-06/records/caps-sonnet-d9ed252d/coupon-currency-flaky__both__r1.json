@@ -1,0 +1,37 @@
+{
+  "key": "coupon-currency-flaky__both__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 110,
+  "task": "coupon-currency-flaky",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 40849,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2592927,
+  "numTurns": 12,
+  "durationMs": 39113,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2155
+  },
+  "contextTraffic": 365839,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 11130,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "finalText": "**Found it: `engine.js` was rounding twice.**\n\nIt rounded the USD total to 2 decimals after the percent discount, and again after the flat discount, before ever converting to the order's currency. The correct total only rounds once, at the very end, in the target currency's own decimal places.\n\nThat double-rounding only showed up when a percent coupon was in play, on currencies whose rate doesn't happen to preserve 2-decimal rounding — GBP, CAD, and JPY. USD and EUR always passed, which is why it looked random. All 40 tests pass now after removing the two intermediate roundings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "363762bc344c5e6f2b4c1e5667a7af1838bcc351dcb389473582ab539854f0f4"
+}

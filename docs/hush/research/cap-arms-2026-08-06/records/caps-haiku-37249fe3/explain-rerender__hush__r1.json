@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__hush__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 62,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 13018,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.023783500000000003,
+  "numTurns": 1,
+  "durationMs": 11251,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 789
+  },
+  "contextTraffic": 26989,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 169,
+  "finalText": "Most likely, the **parent is re-rendering**, so the child re-renders too — even with the same props, that's React's default behavior.\n\nThree usual culprits:\n\n**The parent's state changed.** When the parent re-renders for any reason, each child re-renders. The child doesn't check if its props actually changed — it just renders.\n\n**Your props have new references each time.** If you're passing objects or functions created inline (like `prop={{ key: value }}` or `onChange={() => ...}`), they get a fresh reference on every render, so React thinks the prop changed, and the child re-renders.\n\n**You need `React.memo`.** Wrap the child to skip re-renders when props don't actually change:\n\n```jsx\nexport const Child = React.memo(({ name, value }) => {\n  return <div>{name}: {value}</div>;\n});\n```\n\nIf you're still seeing re-renders with `React.memo`, the parent is probably passing new object or function references. Fix that by moving them outside the render, or wrapping callbacks with `useCallback` and objects with `useMemo`.\n\nWhat does your parent code look like — what state is changing?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b2ce860e05232cc71c67678065a8a598db0d1ff23c9d410eb8d9520996b9f306"
+}

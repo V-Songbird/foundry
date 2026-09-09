@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r1",
+  "batchId": "reacthk-2bf087e4",
+  "seed": "1786433360150",
+  "orderIndex": 24,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 4,
+  "wallMs": 68360,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1780487,
+  "numTurns": 12,
+  "durationMs": 62396,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3920
+  },
+  "contextTraffic": 682492,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 79869,
+  "narrationWords": 95,
+  "finalWords": 58,
+  "finalText": "Done. I've written the handoff to `HANDOFF.md` with:\n\n- **Root cause**: dep-4471's \"connection-per-request for pool isolation\" config broke connection lifecycle—they're not being returned to the pool\n- **Impact**: 02:14:18Z through at least 03:01, all HTTP endpoints returning 503\n- **Rollback target**: dep-4471 (gateway deployment by a.novak)\n\nThe handoff notes that workers were unaffected, so no other rollbacks needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8e5dd06ed9c89915a7b5beef54d58faec24a23e54ee96fa44b31523ccb3e5b9d"
+}

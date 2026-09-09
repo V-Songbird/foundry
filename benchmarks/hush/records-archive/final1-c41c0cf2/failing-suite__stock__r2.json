@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__stock__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28925,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1234758,
+  "numTurns": 10,
+  "durationMs": 27303,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1525
+  },
+  "contextTraffic": 202810,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11551,
+  "narrationWords": 0,
+  "finalWords": 43,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed. All 625 tests pass.**\n\n`orderTotal` in [src/pricing.js:41](src/pricing.js:41) taxed the pre-discount amount instead of the discounted one.\n\nChanged `roundCents(cents * taxRate)` to `roundCents(discounted * taxRate)`, matching the file's own comment that tax applies after the discount.\n\nNo other bugs found. Suite is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7ac3a0647c595a237c4c5f36dcb3efeaff207b58c08a558e9ce08919c303bc0c"
+}

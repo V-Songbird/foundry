@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 69,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 119050,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.670874,
+  "numTurns": 14,
+  "durationMs": 118201,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7943
+  },
+  "contextTraffic": 419798,
+  "apiCalls": 14,
+  "toolCalls": 13,
+  "toolResultChars": 31416,
+  "narrationWords": 10,
+  "finalWords": 832,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at what's in the working directory."
+  ],
+  "finalText": "I read all 380 commits in `commits.log` and diffed the PR sheet against it — the sheet is a strict subset (87 unique titles vs 166 in the log), so the log is the only source you need. I've dropped a draft 4.2.0 section into `CHANGELOG.md` above 4.1.0. Here's the reasoning.\n\n## The noise ratio\n\n| type | commits | user-facing? |\n|---|---|---|\n| chore | 153 | no |\n| refactor | 73 | mostly no — 3 exceptions below |\n| test | 64 | no |\n| ci | 33 | no |\n| fix | 26 | yes |\n| docs | 20 | no |\n| perf | 10 | yes, but unquantified |\n| feat | 1 | yes |\n\n37 commits carry user-visible change, and they collapse to about 13 distinct behaviors — the same fix lands repeatedly across modules (the null-cursor paginator guard appears four times: queue, api, webhooks, db; the duplicate-header fix five times). Those are one changelog line each, not four.\n\n## What actually matters\n\n**One feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48). It touches `src/core/config.js` (+28 lines), which means it almost certainly added config options for retry count and base delay. Grab the actual option names from the source or `docs/retries.md` and name them in the notes — \"exponential backoff\" without a knob to turn is not actionable.\n\n**One genuine breaking change hiding in a `fix:`.** `fix(auth): return 401 for an expired token instead of 403` (1d2bd55). Anyone who branches on the status code to decide whether to refresh a token breaks silently. It's labeled a fix, so it would sail past a changelog written by scanning prefixes.\n\n**One privacy fix.** `fix(db): stop logging the whole request body` (1b55313). Anyone on an affected version has been writing request bodies to their logs. Depending on what your users put in those bodies, that may warrant more than a changelog line.\n\n**One metrics fix with downstream blast radius.** `fix(store|core): use the right units in the latency histogram` (59402bc, 1f2bc4e). Existing dashboards and alert thresholds are calibrated against wrong values and will misfire after upgrade. Worth saying so explicitly.\n\n## Three things I flagged rather than decided\n\nI left `VERIFY` comments in the draft on these — they're judgment calls I can't make from commit titles and diffstats alone, without source access:\n\n1. **`refactor(*): stop re-exporting the internal error types`** — 8 commits across auth, billing, core, db, jobs. If those types were reachable from the package entry point, this is a breaking change to your public surface dressed as a refactor. If they were only internal-to-internal, it's nothing. There's no `src/index.js` in the touched-file list, so I couldn't confirm the entry point either way.\n\n2. **`refactor(api): drop the unused v1 export route`** (56dc828) — \"unused\" is the author's claim, and it touches `router.js`, `handlers.js` (+50 lines) and tests. A code search can't see external HTTP callers. Check access logs before you accept \"unused.\"\n\n3. **`fix(*): tighten the token parser error message`** (3 commits) — message text changed, codes didn't. Only breaks people string-matching on messages. I included it as a low-severity breaking note; drop it if you think that's over-cautious.\n\nThere's a fourth I deliberately left out of the file: `refactor(*): rename the internal Ctx type to RequestCtx` (4 commits). Labeled internal, but if it surfaces in your `.d.ts`, TypeScript consumers see it. Lower confidence than the three above, so I didn't write a line for it.\n\n## What I left out and why\n\n**Dependencies** — 121 `package.json` touches, and every bump is patch or minor within the same major: pino 9.2.0→9.3.1, pg 8.12.0→8.13.0, knex 3.1.0→3.1.2, ioredis 5.4.1→5.4.2, zod 3.23.6→3.23.8, fastify 4.28.0→4.28.1, nanoid, dotenv. The rest (eslint, vitest, prettier, esbuild, typescript, tsx, husky) are dev-only. Nothing an installer notices.\n\n**Node version** — this one is a trap. There are ~15 commits across `ci: run the suite on node 22`, `chore: pin the node version in .nvmrc`, and `docs: note the minimum node version`. That *looks* like a raised minimum, but no commit touches an `engines` field — it's all CI config, `.nvmrc`, and docs describing an existing requirement. **If you did actually raise the floor to Node 22, that's a breaking change and it's missing from my draft.** Worth thirty seconds in `package.json` to confirm, because this is exactly the kind of thing that generates upgrade issues.\n\n**Perf** — 10 commits (batched metric writes, skipped JSON round-trips, avoided clones, cached parsed schemas) with no benchmarks in any commit message. I wrote no perf line at all rather than an unfalsifiable \"improved performance.\" If someone has numbers, that's a real line; otherwise it isn't.\n\nOne data-quality note, irrelevant to the notes themselves: the PR sheet and the commit log disagree on authorship for several changes (the webhooks feature is Lena Fischer in the sheet, Ana Ruiz in the log), and the sheet lists exact-duplicate rows under different PR numbers and authors. If you credit contributors in the release post, use the log.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9dc0d5561ed51e111c455fe11339236b68e98eba458f2a9ea7567df769f260ba"
+}

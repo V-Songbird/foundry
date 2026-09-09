@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__react__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 54616,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28042320000000004,
+  "numTurns": 10,
+  "durationMs": 48555,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2469
+  },
+  "contextTraffic": 399839,
+  "apiCalls": 10,
+  "toolCalls": 6,
+  "toolResultChars": 7206,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "finalText": "Here's the handoff, ready to paste:\n\n---\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** deploy `dep-4471` (a.novak, gateway, 2026-03-14 02:12–02:14Z) flipped `gateway.pool.perRequest` from `false` to `true`. That made every request grab its own DB connection instead of sharing one, and the pool's fixed size of 20 couldn't keep up. Every 503 since then pairs with `ERR_POOL_EXHAUSTED`, pool pinned at `in_use 20/20` with a `waiting` count that kept climbing (up to 74 by the last log line).\n\n**Impact window:** started 2026-03-14 02:14:18Z, four minutes after the config reload landed. Still ongoing as of the last log entry at 03:59:27Z — it never self-recovered.\n\n**Scope:** gateway only. Checked `logs/worker.log` for the same window — no errors, no 503s, no pool exhaustion. Only unrelated item is one slow-query warning tagged as known issue `OPS-2210`.\n\n**Action:** roll back `dep-4471` on the gateway (revert `gateway.pool.perRequest` to `false`). No other deploy in `deploys.csv` needs touching.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6c8b9ea648187edd43d5af08e860688e5e6720ed175c7c8e70426f25a6009a37"
+}

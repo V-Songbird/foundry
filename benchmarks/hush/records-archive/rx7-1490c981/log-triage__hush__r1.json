@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "rx7-1490c981",
+  "seed": "1786465735558",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18770,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20037169999999999,
+  "numTurns": 4,
+  "durationMs": 16781,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 880
+  },
+  "contextTraffic": 152068,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 24319,
+  "narrationWords": 0,
+  "finalWords": 200,
+  "finalText": "Here's the story of last night, start to finish.\n\nAt 02:14:07 the Redis connection dropped (`ECONNREFUSED 10.0.0.12:6379`). The app fell back to hitting the main data store directly for every request.\n\nThat fallback couldn't keep up. From there it was a slow bleed for 17 minutes:\n\n- Cache misses kept piling up on the `orders:*` keys.\n- The store started timing out on requests (5 second timeouts, repeating every few seconds).\n- The request queue climbed steadily, from around 50 up to over 560, way past its limit of 500.\n- Redis reconnect attempts kept failing, all 12 of them, roughly every 90 seconds to 2 minutes, right up to 02:31:26.\n\nAt 02:31:44 a worker ran out of memory from the backed-up requests and crashed. The supervisor restarted it, but 7 seconds later the main service gave up too and killed everything. That's the outage.\n\nSo the root cause was the Redis box at `10.0.0.12` going unreachable. Everything after that, the timeouts, the queue growth, the crash, was the app slowly drowning without its cache. Fixing this for good means either making Redis more reliable, or having the app shed load instead of queuing forever when the store is struggling.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ce84964dba382141cf5dc93f7e721d4fe1bf08f9c43225e4bfbdd2e7ced6c537"
+}

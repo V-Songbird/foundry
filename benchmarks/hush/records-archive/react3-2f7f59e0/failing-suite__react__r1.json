@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__react__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 2,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28123,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21294929999999998,
+  "numTurns": 9,
+  "durationMs": 26365,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1916
+  },
+  "contextTraffic": 241276,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 13455,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "finalText": "**Fixed — all 625 tests pass now.**\n\n`orderTotal` in `src/pricing.js` was computing tax on the pre-discount amount instead of the discounted one, even though the comment above it said tax should apply after the discount. Fixed it to charge tax on the discounted total:\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return roundCents(discounted * (1 + taxRate));\n}\n```\n\nOnly rows with both a discount and a tax rate ever exposed the bug, which is why most cases passed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b516ccaab30fde61afbc1740fcd26a0501f1e8c03b3791c873617f66fe173ec5"
+}

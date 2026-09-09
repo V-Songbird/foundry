@@ -1,0 +1,45 @@
+{
+  "key": "repo-sweep__adhd__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 97,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62626,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.36673150000000004,
+  "numTurns": 14,
+  "durationMs": 61679,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4381
+  },
+  "contextTraffic": 199097,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 14369,
+  "narrationWords": 83,
+  "finalWords": 276,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by finding what's still using the old API.",
+    "Let me look at the db API and compare a migrated file against an unmigrated one.",
+    "`cache.query` is an unrelated cache-key API (per `lib/cache.js`), and `vendor/legacy-orm` is marked do-not-edit — both stay. That leaves 12 files with real `db.query` calls. I'll transform them with a balanced-paren scanner rather than a regex, since the params argument contains nested parens/brackets.",
+    "Now let me verify: no `db.query` left in `packages`, `cache.query` untouched, and everything still parses."
+  ],
+  "finalText": "Migration is done and verified.\n\n**Changed — 36 call sites across 12 files**, all now `db.execute({ sql, params })`:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `admin/apiKeyAdmin.js`, `service/teamService.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nVerification: no `db.query` remains under `packages/`, every file passes `node --check`, and a runtime smoke test through the real `lib/db.js` shows the calls arriving as `form: 'execute'` with SQL and params intact — including the `[...keys.map((k) => patch[k]), id]` spread in the update paths, which is why I used a balanced-paren scanner instead of a regex.\n\n**Two things I deliberately did not touch:**\n\n- **`cache.query(...)` — 25 call sites.** These look like the old API in a grep, but `lib/cache.js` documents `query` there as taking a cache key, not SQL; it's an unrelated object that happens to share the method name. Rewriting them would have broken the read-through cache in every repo file.\n- **`vendor/legacy-orm/adapter.js` — 2 call sites.** The only real `db.query` calls left in the tree. The file header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost, so a fix here would evaporate at the next bump.\n\nThat vendor file is the one loose end: since `lib/db.js` says the driver's next major drops `query`, legacy-orm will break at that point regardless. The durable fixes are upgrading legacy-orm to a version on `execute`, or wrapping it at the boundary — worth deciding before the driver upgrade lands, but it's a different change than this migration.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4113824f631e83de3c29c85041da1da55d5f8bd9bd5ce0fd8a37cb111509ff01"
+}

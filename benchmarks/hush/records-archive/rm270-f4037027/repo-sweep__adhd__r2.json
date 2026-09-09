@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__adhd__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 59,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 52958,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.21923400000000004,
+  "numTurns": 25,
+  "durationMs": 51746,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5527
+  },
+  "contextTraffic": 371372,
+  "apiCalls": 9,
+  "toolCalls": 24,
+  "toolResultChars": 17382,
+  "narrationWords": 19,
+  "finalWords": 80,
+  "finalText": "All 11 application files migrated to `db.execute({ sql, params })` and confirmed to load without syntax errors.\n\n`vendor/legacy-orm/adapter.js` still calls `db.query` twice — left untouched since the file header says it's a vendored copy replaced wholesale on every upgrade and \"do not edit.\" `db.query` in `lib/db.js` stays in place since `vendor` depends on it; removing it would break the vendored adapter. Flagging this: if you want the migration fully complete, the fix belongs upstream in legacy-orm's own repo, not here.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "415246390ba97d2812f7b40f1530a314677bb11e63bf372ac7d3d979b3786572"
+}

@@ -1,0 +1,47 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 136951,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9792185000000001,
+  "numTurns": 12,
+  "durationMs": 135692,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9840
+  },
+  "contextTraffic": 497082,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 74847,
+  "narrationWords": 87,
+  "finalWords": 490,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet only covers through 2026-06-17. Let me read the commit log.",
+    "Now let me systematically extract the user-facing commits.",
+    "Let me cross-check the two sources against each other — the PR sheet has 127 rows vs 380 commits, so I want to know if either has user-facing items the other lacks.",
+    "I have what I need. Here's the entry, written into `CHANGELOG.md` in the existing shape:",
+    "One bullet overstated what the log supports — fixing it:"
+  ],
+  "finalText": "Done. Out of 380 commits, **37 touch user-visible behavior** — one feature, 26 fixes, 10 perf. The other 343 (153 chore, 73 refactor, 64 test, 33 ci, 20 docs) are invisible to anyone installing the package.\n\n**Two things worth knowing before you ship:**\n\n**1. Don't write the notes from the PR sheet.** It's a subset of the commit log — 17 user-facing changes are missing from it, including the two best fixes in the release (`fix(http): clear the timer when the socket drops` and `fix(http): close the pool on shutdown`, both connection/process-leak bugs). The commit log is the superset; I worked from that.\n\n**2. Nothing is marked breaking, but four things are.** No `!:` or `BREAKING CHANGE` anywhere in the history, so a mechanical read produces an empty Breaking section. These were all typed as `fix` or `refactor`:\n\n- **401 vs 403 on expired tokens** — typed `fix`, but it's a contract change for anyone branching on status.\n- **Latency histogram units** — typed `fix`. Silently invalidates existing dashboards and alert thresholds; nothing errors, the numbers just quietly change.\n- **`drop the unused v1 export route`** — typed `refactor`. \"Unused\" is the author's view of internal traffic; from outside the package a removed route is removed.\n- **`stop re-exporting the internal error types`** (5 modules) — typed `refactor`. Only breaking if those were reachable from the package root. **Worth a 2-minute check against the entry point** — if they weren't public, drop that bullet.\n\n**Three judgment calls I made, easy to reverse:**\n\n- **Collapsed duplicates.** The same fix lands repeatedly under different scopes — `guard the null cursor` appears in api/db/queue/webhooks, `drop the duplicate header` in core (×3)/http/billing. I wrote one bullet per symptom rather than per commit. Same for deps: pino 9.2.0→9.3.1 appears 12 times with identical from/to. Net effect is one version change per dep, all patch/minor, so I left dep bumps out entirely — say the word and I'll add a one-line \"updated runtime dependencies\" note.\n- **Perf under Added.** 4.1.0 only uses Breaking/Added/Fixed and your comment says keep the three, so the perf work is one bullet there. I didn't quote numbers — the log has none.\n- **Two bullets are thinner than I'd like.** \"An empty allowlist is handled instead of erroring\" and the trailing-slash one are as far as the subject lines go; I don't know which way the behavior now falls. Whoever wrote them can improve each in a sentence.\n\n**One gap:** history ends 2026-06-17 and you're cutting 2026-08-30. If anything landed in those ten weeks, it isn't in either file. Also, the repeated `docs: note the minimum node version` (×5), `pin the node version in .nvmrc` (×3), and CI moving to node 22 (×6) look like the supported Node floor actually moved — but nothing states an old→new version, so I couldn't write it. If it did move, that's a fifth Breaking bullet and the most likely one to generate install failures.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c62dfb77e9a05ca17b7d02b9f43d687d93dbe16b3f2a4803a6ff551ed0416b95"
+}

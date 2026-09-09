@@ -1,0 +1,39 @@
+{
+  "key": "crash-origin__noclause__r4",
+  "batchId": "misfire-330036d3",
+  "seed": "1787983580159",
+  "orderIndex": 7,
+  "task": "crash-origin",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16888,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.09131520000000001,
+  "numTurns": 10,
+  "durationMs": 15109,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1022
+  },
+  "contextTraffic": 159294,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 3257,
+  "narrationWords": 0,
+  "finalWords": 91,
+  "assistantMsgs": 1,
+  "finalText": "**Real bug is `refresh.js`, not `tokens.js`.**\n\n`auth.internal` returns 400 `invalid_grant` (refresh token revoked). In [refresh.js:14-16](src/auth/refresh.js:14), that code isn't in `RECOVERABLE`, so `refreshToken` swallows the error and returns `undefined` instead of throwing.\n\nThat `undefined` flows into [session.js:8](src/session.js:8) as `token`, and `decode()` in [tokens.js:6](src/auth/tokens.js:6) crashes trying to `.split('.')` on it. Stack trace blames `tokens.js` because that's where the `undefined` finally gets used, but the actual fault is `refresh.js` silently eating an unrecoverable auth error instead of rejecting.\n\nNext: decide how `refresh.js` should signal \"not retryable\" (throw vs. return a sentinel the caller checks).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "907267b837b024abad891e8f339d7cab4392b0c4da665f74bf03c764cb7bfea8"
+}

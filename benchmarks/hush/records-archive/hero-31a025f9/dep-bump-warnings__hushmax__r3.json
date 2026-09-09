@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushmax__r3",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25975,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2215728,
+  "numTurns": 10,
+  "durationMs": 24525,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1862
+  },
+  "contextTraffic": 282741,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8265,
+  "narrationWords": 0,
+  "finalWords": 89,
+  "finalText": "Build's clean now. Exit code 0, `link ok` on both retry budget and backoff.\n\nTwo real bugs hid under the noise, both from the bundler bump:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler hands options as `retryCount`. That crashed the link step outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid. The old config loader used to send `false`; the new one sends `undefined`. Fixed it to treat both as disabled.\n\nThe rest really was noise, deprecation notices from the bump with no code to fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c31e3969ee59f3b11bd89e5f5cef206420e8ad3565cf9acac1fec43d445951e7"
+}

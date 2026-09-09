@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__secondfact__r2",
+  "batchId": "capfixA-04ec9758",
+  "seed": "1787082873870",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "secondfact",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35905,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "secondfact:Secondfact",
+  "costUsd": 0.2314694,
+  "numTurns": 10,
+  "durationMs": 33256,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1705
+  },
+  "contextTraffic": 351386,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 8075,
+  "narrationWords": 11,
+  "finalWords": 79,
+  "finalText": "Fixed. Two real bugs from the bump were hiding under all that deprecation noise.\n\n`src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That crashed the whole build.\n\n`src/net/retryPolicy.js` only accepted `true` or `false` for the backoff flag. The new config loader leaves it `undefined` when unset, so it threw. Now `undefined` is treated as `false`, same as before.\n\nBuild passes clean now. Exit code 0, 8 warnings, 0 errors, all just the deprecation noise from the bump.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4f386c7cae8ca161821b3f4a444b3ef22bad8531dff191fadec88cea581f1d26"
+}

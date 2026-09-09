@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__hush__r4",
+  "batchId": "opclause-417a2d13",
+  "seed": "1787983796732",
+  "orderIndex": 6,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 18367,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.14894899999999997,
+  "numTurns": 7,
+  "durationMs": 16185,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 934
+  },
+  "contextTraffic": 77133,
+  "apiCalls": 4,
+  "toolCalls": 6,
+  "toolResultChars": 2198,
+  "narrationWords": 0,
+  "finalWords": 126,
+  "assistantMsgs": 1,
+  "finalText": "Plan, no edits made.\n\n**JSON prints `buildRows()` straight, so it carries `owner` and `slow` too.** The table drops those two on purpose. `format.js:3` says anything needing whole rows goes back to `buildRows()`, not the table. So \"same data\" means the same rows, not the same four columns.\n\n```js\n// src/cli.js\nconst USAGE = 'usage: cli.js report [--json]';\n\nfunction main(argv) {\n  if (argv[0] !== 'report') { process.stderr.write(USAGE + '\\n'); return 1; }\n  const rest = argv.slice(1);\n  const json = rest.includes('--json');\n  if (rest.some((a) => a !== '--json')) { process.stderr.write(USAGE + '\\n'); return 1; }\n  const rows = buildRows();\n  process.stdout.write((json ? JSON.stringify(rows, null, 2) : toTable(rows)) + '\\n');\n  return 0;\n}\n```\n\n`format.js` and `report.js` stay untouched. Sort order holds in both. Say the word and I write it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d153cfb6ca1878e57836acfe3389fd5da379d491cfb8dbd35b9d56ef1e031291"
+}

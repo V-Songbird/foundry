@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__nudgeban__r2",
+  "batchId": "sil3-80fe9720",
+  "seed": "1787898695273",
+  "orderIndex": 9,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "nudgeban",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33910,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush-nudgeban:HushNudgeBan",
+  "costUsd": 0.3179805,
+  "numTurns": 17,
+  "durationMs": 32089,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2275
+  },
+  "contextTraffic": 155946,
+  "apiCalls": 5,
+  "toolCalls": 16,
+  "toolResultChars": 20047,
+  "narrationWords": 0,
+  "finalWords": 101,
+  "assistantMsgs": 1,
+  "finalText": "**Big but mostly mechanical.** `account_id` hits 1082 times in 94 files. About 1027 of those are internal service code. Safe to rename.\n\nFour zones must not be renamed.\n\n| Zone | Files | Why |\n|---|---|---|\n| `docs/openapi.yaml` | 1 | Public contract. Fields marked frozen. |\n| `lib/serialize.js` WIRE values | 1 | Right side is the public wire name. |\n| `migrations/*.sql` | 12 | Already applied. Editing breaks the down step. |\n| `vendor/reporting-sdk/` | 4 | `npm run vendor:refresh` overwrites edits. |\n\nNext: get the platform team to confirm they will use a new migration, not edits.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b6e9a14f18f4faaaffc9d34bec8871b9bd34fd28942941737d5f026be29841e1"
+}

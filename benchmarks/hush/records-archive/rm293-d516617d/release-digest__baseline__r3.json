@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 70484,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.712598,
+  "numTurns": 9,
+  "durationMs": 69128,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4569
+  },
+  "contextTraffic": 360977,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 71349,
+  "narrationWords": 21,
+  "finalWords": 501,
+  "assistantMsgs": 3,
+  "finalText": "Draft is in `CHANGELOG.md:3`. Here's what I found and how I decided.\n\n**The shape of the range:** 380 commits — 153 chore, 73 refactor, 64 test, 33 ci, 20 docs. That's 343 with nothing for a user in them. The actual signal is 26 fixes, 10 perf, and 1 feature, and after collapsing the ones that are the same fix applied across modules it's about a dozen distinct items.\n\n**The thing worth your attention:** four user-visible changes are hiding under `refactor:` and `fix:` prefixes, so they wouldn't show up in any conventional-commit-driven generator.\n\n- `refactor: stop re-exporting the internal error types` — 8 commits across core, db, auth, jobs, billing. Removing re-exports is a public API removal, not a refactor. Anyone importing those breaks on upgrade.\n- `refactor(api): drop the unused v1 export route` (56dc828) — \"unused\" is a claim about your telemetry, not about your users. It touches `src/api/router.js` and `handlers.js`, so it's a route that no longer answers.\n- `fix(auth): return 401 for an expired token instead of 403` (1d2bd55) — correct, but any client branching on 403 changes behavior.\n- `fix(core|store): use the right units in the latency histogram` — recorded values change magnitude. Your 4.1 entry put the seconds→milliseconds `timeout` change under Breaking, so I followed that precedent and put these there too.\n\nI collapsed repeated subjects into one line each — \"guard the null cursor in the paginator\" landed in api, db, queue, and webhooks separately, but it's one symptom to a user. Same for the empty-allowlist and duplicate-header fixes.\n\n**Left out deliberately:** all dependency bumps. The runtime ones (pg, knex, ioredis, pino, zod, undici, fastify, nanoid, dotenv) are all patch or minor with no API change, and the rest are dev-only. Per the note in the file, nobody installing this notices them. Say the word if you want a \"Dependencies\" section anyway.\n\n**Three things I need from you:**\n\n1. **`fix(db): stop logging the whole request body` (1b55313).** I wrote this as a plain fix, but if bodies contain credentials or PII this is a disclosure issue and needs a security callout — possibly an advisory rather than a changelog line. You know what flows through those endpoints; I don't.\n2. **Minimum Node version.** Five `docs: note the minimum node version` commits and four `ci: run the suite on node 22`, but docs and CI only — no `engines` change is visible in the history. If the floor actually moved, that's a Breaking entry and I can't confirm it from what's here.\n3. **Perf.** Ten commits (JSON round-trip skipped on hot paths, extra clone dropped in mappers, metric writes batched, parsed schema reused). I left them out because the log has no numbers and \"we made it faster\" with no figure isn't worth a user's time. If you have benchmarks, they'd make a good Added or Performance line.\n\nI dated it 2026-08-29 for tomorrow's cut, but note the last commit in the history is 2026-06-17 — if there's been work since, this file doesn't cover it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f67abfbe4181060e745a5d72f5d259b8fb23a8b373c6f50175562327699cb589"
+}

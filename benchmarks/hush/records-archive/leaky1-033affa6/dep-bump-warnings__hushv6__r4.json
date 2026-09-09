@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushv6__r4",
+  "batchId": "leaky1-033affa6",
+  "seed": "1787817689918",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushv6",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 34709,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2863899999999999,
+  "numTurns": 10,
+  "durationMs": 32776,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1600
+  },
+  "contextTraffic": 208505,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6563,
+  "narrationWords": 0,
+  "finalWords": 51,
+  "finalText": "**Build passes now.** The stop was two real bugs, not the warnings.\n\n1. `src/core/options.js` read `options.retries`. The bump renamed it `retryCount`. It now takes either.\n2. `src/net/retryPolicy.js` threw on an unset flag. Unset now means off, like before.\n\nThe 8 warnings are just printed text in `build.js`. No such files exist.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b9e5950ed9265ee68014d2c4baf9b5f0dbcc717b65cec76c7b3ad13811993d50"
+}

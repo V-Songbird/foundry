@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__combo__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 26,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 26583,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.33677349999999995,
+  "numTurns": 11,
+  "durationMs": 24899,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1466
+  },
+  "contextTraffic": 234276,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 16581,
+  "narrationWords": 0,
+  "finalWords": 58,
+  "finalText": "**Fixed. All 625 tests pass.**\n\nOnly 3 cases were really broken, all in `orderTotal`. It took the discount off the price, but then figured the tax from the full price. So customers got taxed on money they never paid.\n\nNow the tax is worked out from the discounted amount, in `src/pricing.js:39`. The other 622 tests passed all along.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b188f56b69f204de36d812b9e921c072412e0023dad4c018f9a0ee05495b81d2"
+}

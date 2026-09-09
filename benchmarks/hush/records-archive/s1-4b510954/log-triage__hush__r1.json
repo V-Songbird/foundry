@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21999,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1928841,
+  "numTurns": 7,
+  "durationMs": 20284,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1221
+  },
+  "contextTraffic": 205061,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 12219,
+  "narrationWords": 0,
+  "finalWords": 116,
+  "finalText": "Good, everything runs clean until 02:14:07. That's the trigger point.\n\nRedis died at 02:14:07 — `connect ECONNREFUSED 10.0.0.12:6379`. The app fell back to reading the store directly, but that store couldn't handle the load. Queue depth and cache misses climbed steadily for 17 minutes, with redis retrying and failing every reconnect attempt.\n\nBy 02:31:26 it gave up for good, `worker-2` ran out of memory from the backlog, and the supervisor killed the whole process group at 02:31:52. Service down.\n\nSo root cause: Redis at `10.0.0.12:6379` went unreachable, and the direct-store fallback couldn't absorb the traffic. Restarting Redis is the fix; a circuit breaker or load-shedding on the fallback path would stop the same thing happening again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "24b67d4fc91293d09450a1d917397f40e3639204971bffb45997448442514a68"
+}

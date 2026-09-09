@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 34,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 72583,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4256222,
+  "numTurns": 12,
+  "durationMs": 65922,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4325
+  },
+  "contextTraffic": 503221,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 17362,
+  "narrationWords": 0,
+  "finalWords": 138,
+  "finalText": "**Gateway on-call handoff — 2026-03-14 pool exhaustion**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, \"connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. Each request began claiming its own DB connection instead of sharing the pool, exhausting the pool of 20.\n\n**Impact window:** 02:14:18 UTC to at least 03:59:27 UTC (end of available log, still failing). Started 4 minutes after `dep-4471` finished deploying at 02:14. Every failure is `ERR_POOL_EXHAUSTED`, 503s on `/v1/checkout`, `/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`. The wait queue grew the whole time, from 13 queued requests early on to 74 by the last log line, with failing-request latency climbing from ~660ms to ~850ms.\n\n**Rollback:** `dep-4471`. Revert `gateway.pool.perRequest` to `false`.\n\n**Scope:** Gateway only. `worker.log` for the same window shows no errors, no 503s, no pool issues, just one unrelated slow-query warning at 02:36 tied to known issue `OPS-2210`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "567a7fbe768870ec957e8a54b5bc432ae445af8493280f04d9f5251449e6f9ec"
+}

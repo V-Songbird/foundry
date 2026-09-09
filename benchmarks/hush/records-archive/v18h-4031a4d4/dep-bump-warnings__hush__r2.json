@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "v18h-4031a4d4",
+  "seed": "1786469667454",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 37904,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.06166750000000001,
+  "numTurns": 12,
+  "durationMs": 36381,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2068
+  },
+  "contextTraffic": 220138,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 9821,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "finalText": "Build's clean now. Two bugs hid under the deprecation warnings:\n\n1. **`src/core/options.js`**: The function was reading `options.retries`, but the new bundler passes `retryCount` instead. Fixed to use the right name.\n\n2. **`src/net/retryPolicy.js`**: The strict flag check threw on `undefined`, but the new config loader leaves unset flags as `undefined` instead of `false`. Fixed to treat `undefined` as `false`.\n\nBoth issues are in the link stage now, and the build finishes clean with 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c50c82bf4fc5c5a1205fe0da8295ea7366ba086fc1259d93fd2d34630cc1c4e"
+}

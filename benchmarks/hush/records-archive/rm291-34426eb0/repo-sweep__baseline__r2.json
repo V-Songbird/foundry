@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__baseline__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 35,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44926,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.31459349999999997,
+  "numTurns": 11,
+  "durationMs": 43542,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2716
+  },
+  "contextTraffic": 204642,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15086,
+  "narrationWords": 6,
+  "finalWords": 147,
+  "assistantMsgs": 2,
+  "finalText": "Migration finished. 12 files still on `db.query` — 36 call sites — now use `db.execute({ sql, params })`:\n\n- `packages/accounts/src/repo/session.js`, `src/service/teamService.js`, `src/admin/apiKeyAdmin.js`\n- `packages/billing/src/repo/refund.js`, `src/service/couponService.js`\n- `packages/catalog/src/repo/supplier.js`, `src/admin/variantAdmin.js`\n- `packages/orders/src/repo/shipment.js`, `src/service/returnService.js`\n- `packages/support/src/repo/sla.js`, `src/admin/macroAdmin.js`\n- `packages/analytics/src/repo/cohort.js`\n\nThe rewrite matches the shape already used by the migrated files (e.g. `invoice.js`). All package files pass `node --check`.\n\nTwo things I deliberately left alone:\n\n1. **`vendor/legacy-orm/adapter.js`** still has two `db.query` calls. Its header says the vendored copy is replaced wholesale on upgrade and local edits are silently lost, so patching it there would be undone. Since `db.query` is slated for removal in the driver's next major, this needs a real fix — upstream patch, a pinned fork, or a small local wrapper around the adapter. Your call; say the word and I'll do it anyway.\n2. **`cache.query(...)`** in the `cached*` helpers is the cache client, a different API — untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5692cef6454bfef666418428da3e84f43fa2d9053d3c1b8ffc0f95ce5763222b"
+}

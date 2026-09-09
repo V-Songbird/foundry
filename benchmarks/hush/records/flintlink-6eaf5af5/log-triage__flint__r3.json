@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__flint__r3",
+  "batchId": "flintlink-6eaf5af5",
+  "seed": "1787936805467",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 24758,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.2266285,
+  "numTurns": 6,
+  "durationMs": 23378,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1206
+  },
+  "contextTraffic": 129331,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 10017,
+  "narrationWords": 6,
+  "finalWords": 127,
+  "assistantMsgs": 2,
+  "finalText": "**Redis went down and took prod with it.** One cause, not many.\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00–02:14 | Healthy. Cache hit ratio 0.90 to 0.98 |\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14–02:31 | Cache off. Direct store reads. 173 `TimeoutError` at 5000ms |\n| 02:15–02:31 | 13 reconnect tries, all refused. Never recovered |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nQueue depth climbed steady from 52 to 568 against a max of 500. The timeouts and cache miss storms are all downstream noise.\n\nNext: check why Redis at `10.0.0.12:6379` died. Reconnect backoff capped near 80s and gave up too calmly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b5abd40d36fbe442cc4d710c79b1b70fb4f4b2ca8da56a8d2abe69b536460685"
+}

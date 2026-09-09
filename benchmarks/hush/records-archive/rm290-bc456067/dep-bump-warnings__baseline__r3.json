@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r3",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 13,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 36728,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.23196949999999994,
+  "numTurns": 11,
+  "durationMs": 33415,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2206
+  },
+  "contextTraffic": 151899,
+  "apiCalls": 6,
+  "toolCalls": 10,
+  "toolResultChars": 6402,
+  "narrationWords": 24,
+  "finalWords": 229,
+  "assistantMsgs": 3,
+  "finalText": "Build is green (exit 0). You were right that not all of it was noise — the bump exposed two real bugs at the link stage, hidden in ~950 lines of deprecation output:\n\n1. **`src/core/options.js:6`** — the bundler now hands options as `{ retryCount }`, but this call site still read `options.retries`, so it threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`. This was the hard error aborting the build. Now reads `retryCount` with a fallback to `retries` for unmigrated callers.\n\n2. **`src/net/retryPolicy.js:7`** — the new config loader leaves unset flags as `undefined` instead of `false`, and the strict boolean check threw on that. Now treats `undefined` as disabled, matching the old loader's default. This one was sequential behind bug 1, so it wouldn't have shown up until the first was fixed.\n\nThe remaining 8 warnings are genuine noise from the bump — deprecations in the dependencies plus three project-level lint warnings (`crypto.createCipher` in `src/legacy/adapter.js`, an unused export in `src/utils/format.js`, and a circular import between `src/core/graph.js` and `src/state/tracker.js`). Those don't fail the build. The circular import is worth a look at some point since its resolution order is undefined, but the files it names don't exist in this tree — only `src/core/options.js` and `src/net/retryPolicy.js` are real here, so I left them alone. Say the word if you want me to chase those down in the actual source tree.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "53a285f92e9eac66edfa62161f0d4699e12b845ce7edca7a2a5a7b0daca4ad6e"
+}

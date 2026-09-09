@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__says__r4",
+  "batchId": "it6a-6e7860b7",
+  "seed": "1787885368504",
+  "orderIndex": 3,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "says",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 109063,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush-says:HushSays",
+  "costUsd": 0.4969305,
+  "numTurns": 13,
+  "durationMs": 100916,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5797
+  },
+  "contextTraffic": 373099,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 6976,
+  "narrationWords": 0,
+  "finalWords": 63,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471`, which set `gateway.pool.perRequest: false -> true` at `02:13:41`. Each request then took its own connection from a pool of 20. Window runs `02:14:18Z` to `03:59:27Z`, 530 of 1228 requests failed. Roll back `dep-4471`.\n\nTwo things the doc flags. The log is `node-3 of 3`. It ends with 503s still firing, so check live status first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cb90e3669b85545b0d1c60dbc8e7e5bc2c1371b73eebfdb0661ff0d6581f456a"
+}

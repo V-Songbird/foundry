@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 25,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39247,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.313244,
+  "numTurns": 11,
+  "durationMs": 35842,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2511
+  },
+  "contextTraffic": 206255,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 15977,
+  "narrationWords": 95,
+  "finalWords": 303,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, runner exits 0 and `verify.js` passes.\n\n## What was actually broken\n\nOne bug, one line. `orderTotal` in `src/pricing.js:39` applied tax to the **original** amount instead of the discounted one:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← tax on the pre-discount base\nreturn discounted + tax;\n```\n\nThe function's own doc comment states the intended rule (\"the discount has to come off the base before the rate is applied to it\"), so the code contradicted its contract. Fixed by taxing the discounted subtotal:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n## Why it looked bigger than it was\n\nOf 625 cases only 3 failed, all in `order totals`, and they were the only rows where *both* the discount and the tax rate were non-zero. Every other order row has one of the two set to zero, which makes the two orderings arithmetically identical — the bug hides on 66 of 69 rows.\n\nThe failing rows and their deltas, all overcharging by tax-on-the-discount:\n\n| call | expected | was | delta |\n|---|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 | +148 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 | +87 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 | +668 |\n\nWorth noting since it's a money path: this was a live overcharge, not a rounding nit — customers were charged tax on discount amounts they never paid. The other eight suites (discounts, taxes, tiers, refunds, shipping, loyalty, rounding, line totals) were passing before and after; I changed nothing in `cases.js` or `run-tests.js`.\n\nFor future runs, `node run-tests.js | grep FAIL` cuts the wall of text down to just the failing lines, and the detail block is the last section before the summary.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a54982fbce211e5f910b1fe83fea9c2772710706fea8ae698189a2a40e5e8be5"
+}

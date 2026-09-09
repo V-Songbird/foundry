@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 60,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 56768,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21353099999999997,
+  "numTurns": 11,
+  "durationMs": 55522,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4546
+  },
+  "contextTraffic": 164630,
+  "apiCalls": 5,
+  "toolCalls": 10,
+  "toolResultChars": 15762,
+  "narrationWords": 17,
+  "finalWords": 393,
+  "finalText": "Scope check on `account_id` → `owner_id`: **1,082 occurrences across 94 files** ripgrep-wide. But the raw count overstates the actual work, and there are several places that must not be touched — for different, load-bearing reasons.\n\n**Hard no-touch zones:**\n\n1. **`docs/openapi.yaml`** — explicitly documented as the public API contract; `account_id` is called out as a \"frozen field\" (schema property *and* query param). Renaming it is a breaking change for every external client and requires a new dated API version, not a rename.\n2. **`lib/serialize.js`** — the `WIRE` map's right-hand side (`account_id: 'account_id'`) is the public JSON key clients read by name. Comment is explicit: an internal rename must not cross into this side of the map.\n3. **`vendor/reporting-sdk/**`** (4 files, 12 occurrences) — vendored/generated third-party SDK, marked \"Do not edit\" and overwritten by `npm run vendor:refresh`. Not yours to rename.\n4. **`migrations/*.sql`** (11 files) — every one carries \"Applied in production on [date]\"; editing history doesn't rename a live column and breaks the down-step. The actual DB column is `account_id`, referenced via FK from `accounts.account_id` into invoices, orders, payments, line_items, shipments, pageviews, funnels, emails, digests, etc. Renaming the real column means a *new* coordinated migration (add column, backfill, dual-write, cutover, drop old — across ~9 tables), not a find/replace.\n5. **`lib/audit.js`** — not marked frozen like the others, but audit trails are typically an external/compliance contract too. I'd get an explicit sign-off from whoever owns audit before touching it, not assume it's safe.\n\n**What's actually renameable today:** the ~80 service files under `services/{accounts,billing,notify,orders,analytics}` (~1,000 of the 1,082 hits) — function params and local variables in routes/services/repos. But there's a catch: the SQL strings in those repo files (e.g. `WHERE account_id = ?`) must keep referencing the real column name, since that column isn't moving. So a same-day rename there is cosmetic only — you'd end up with a variable named `owner_id` bound to a SQL param and DB column still called `account_id`, which is arguably more confusing, not less.\n\n**Bottom line for sign-off:** \"rename everywhere\" as stated isn't a safe scope for today. It's really two different asks bundled together — a trivial internal variable rename (low value on its own) vs. a genuine multi-table DB column migration plus a public API version bump (multi-week, needs its own plan). I'd push back and ask the platform team which one they actually mean before approving.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b1bac24b8caa17d65b44fd7fb1d81d467f2847769ad2e6e4529a25f68768789f"
+}

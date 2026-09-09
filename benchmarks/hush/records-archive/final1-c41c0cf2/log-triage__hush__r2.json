@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15188,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11273539999999999,
+  "numTurns": 3,
+  "durationMs": 13134,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 762
+  },
+  "contextTraffic": 90421,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23460,
+  "narrationWords": 0,
+  "finalWords": 139,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into an OOM crash.**\n\nTimeline:\n1. `02:14:07` Redis dropped: `connect ECONNREFUSED 10.0.0.12:6379`\n2. `[api]` fell back to direct store reads, triggering cache miss storms and 5000ms timeouts on `worker-1`, `worker-2`, `scheduler`\n3. Reconnect attempts every ~80s (7 through 12) all failed against the same `10.0.0.12:6379`\n4. Request queue depth climbed from 52 to 568, way past the max of 500\n5. `02:31:44` `worker-2` hit `JavaScript heap out of memory` and exited (code 134)\n6. `02:31:52` `[supervisor]` killed the api process group — service down\n\nRoot cause is Redis at `10.0.0.12:6379` going unreachable for 17+ minutes with no successful reconnect. The backlog from queued/retried requests exhausted `worker-2`'s heap and took the whole service down.\n\nNext: check why Redis at that host was unreachable, and add a queue depth circuit breaker so backlog can't OOM a worker again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "35260b57ce09cbac9e0546fc370b306c4588843f7fabdb64fa34c0630476f354"
+}

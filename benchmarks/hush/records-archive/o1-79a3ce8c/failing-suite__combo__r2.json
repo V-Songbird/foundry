@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__combo__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 33,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "combo",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27281,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 0.34013799999999994,
+  "numTurns": 11,
+  "durationMs": 25757,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1597
+  },
+  "contextTraffic": 229306,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 17216,
+  "narrationWords": 7,
+  "finalWords": 87,
+  "finalText": "**Fixed. All 625 tests pass.**\n\nOnly 3 cases were really broken, all in `orderTotal`. It took the discount off, then charged tax on the *full* price. So the customer paid tax on money they never spent.\n\nNow it taxes the discounted amount, which is what the comment above it already said.\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nOnly rows with both a discount and a tax could show this. Most rows had one or the other, so it hid for a long time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92815319f30698e92ed07655ec28f7e58373d2503393c1314de0782fe2d81397"
+}

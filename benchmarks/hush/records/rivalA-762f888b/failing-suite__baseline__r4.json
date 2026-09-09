@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 59,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29645,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2576215,
+  "numTurns": 10,
+  "durationMs": 28698,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1957
+  },
+  "contextTraffic": 156121,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 12275,
+  "narrationWords": 112,
+  "finalWords": 164,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project.",
+    "Let me run it and filter to just the failures.",
+    "3 real failures out of 625, all in one function — `orderTotal`. The rest of the wall is passing noise.\n\n**The bug:** `src/pricing.js:41` computes tax on the pre-discount base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <-- `cents`, not `discounted`\n```\n\nThis contradicts the function's own doc comment (\"Tax is charged on the amount the customer pays\") and the spec in `cases.js:89`. It only surfaces when *both* discount and tax are non-zero — the 66 rows with a zero on either side pass regardless, which is why it survived."
+  ],
+  "finalText": "Green: 625 total, 625 passing, exit 0.\n\n**What I changed** (`src/pricing.js:39-42`):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn roundCents(discounted * (1 + taxRate));\n```\n\nTwo notes on the fix:\n- I applied the tax rate to the whole discounted amount and rounded once, rather than `discounted + roundCents(discounted * taxRate)`. Both are \"tax the discounted amount,\" but they differ by a cent on some inputs due to double rounding; the single-round form is what the spec in `cases.js:89` encodes.\n- The other eight suites were never broken. If the runner's per-case output is a problem generally, it has no quiet/reporter flag — worth adding one, but I left it alone since you asked for green.\n\nOne thing to flag for whoever owns this: the pre-discount tax was arguably a deliberate (if wrong) revenue behavior, not a typo — it consistently overcharges. If any invoices were issued under the old math, the totals were high by tax × discount. Worth a check before this ships.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9c0cc9a16d56c85535daf4e81554466544b32c89d8495ce1e8cacf3b7d8e9501"
+}

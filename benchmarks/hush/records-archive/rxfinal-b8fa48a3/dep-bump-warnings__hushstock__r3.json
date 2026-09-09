@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushstock__r3",
+  "batchId": "rxfinal-b8fa48a3",
+  "seed": "1786466028185",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushstock",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39686,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.34689380000000003,
+  "numTurns": 11,
+  "durationMs": 38135,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2048
+  },
+  "contextTraffic": 306568,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 49022,
+  "narrationWords": 13,
+  "finalWords": 126,
+  "finalText": "The build passes now — link stage completes and exits clean (0 errors).\n\nTwo real bugs were hiding in the deprecation noise, both from the bundler bump changing how it hands off config:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes `retryCount`. That was throwing on `undefined.toFixed()` and aborting the build outright.\n2. `src/net/retryPolicy.js` treated an unset backoff flag as invalid and threw. The old loader used to send `false` for \"off\"; the new one just leaves it `undefined`. Fixed it to treat `undefined` the same as `false`.\n\nRetry budget now resolves to 3 and backoff correctly reports disabled. The 8 remaining `WARN DEP0*` lines are genuine deprecation noise from the dependency bump itself, not bugs — build finishes in 44.9s with 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36a0265ea15d475edfa9cd308767e8db5feb6e18ee4da2bb02e307c1e01870fd"
+}

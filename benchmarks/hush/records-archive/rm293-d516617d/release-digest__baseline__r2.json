@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r2",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 26,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 116358,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6303709999999999,
+  "numTurns": 13,
+  "durationMs": 114899,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7787
+  },
+  "contextTraffic": 373940,
+  "apiCalls": 11,
+  "toolCalls": 12,
+  "toolResultChars": 28229,
+  "narrationWords": 55,
+  "finalWords": 573,
+  "assistantMsgs": 4,
+  "finalText": "## What actually changed\n\nOf 380 commits: 153 chore, 73 refactor, 64 test, 33 ci, 20 docs — that's 88% with zero user-visible surface. The real content is **1 feature, 11 distinct fixes, and 3 things you'll want to call breaking.**\n\nThe fix and refactor subjects repeat across scopes (e.g. \"guard the null cursor in the paginator\" lands 4 times in queue, api, webhooks, db). I collapsed those into one line each — a user experiences one behavior change, not four.\n\n## Three judgment calls I made\n\n**1. I promoted three items to Breaking that aren't marked breaking.** No commit carries a `!` or `BREAKING CHANGE` footer, so a marker-based read of this log yields an empty Breaking section. But:\n\n- `fix(auth): return 401 for an expired token instead of 403` is filed as a fix and is one, but it changes a status code on a public endpoint. Anyone with error handling keyed to 403 breaks silently.\n- `refactor(*): stop re-exporting the internal error types` — 8 commits across core, db, auth, jobs, billing. \"Internal\" is the maintainers' view; if those symbols were reachable from a package entry point, removing them breaks imports. **This is the one I'd most want you to verify** — check whether the removed exports were in the published surface. If they only ever moved between `src/` files, delete that bullet.\n- `refactor(api): drop the unused v1 export route` (#4152 / 56dc828) touched `router.js`, `handlers.js`, and `test/api.test.js`. \"Unused\" per the author, but you can't observe a caller's usage from inside the repo. If you have route telemetry, confirm before shipping this as a silent removal.\n\n**2. I dropped all 10 perf commits.** Your template is fixed at three headings, and the perf work is generic micro-optimization (skip a JSON round-trip, avoid a clone, batch metric writes) with no measured numbers attached. Nothing an installer would notice. If you have benchmark figures, say the word and I'll add a heading.\n\n**3. I called out the histogram fix as a data discontinuity.** `use the right units in the latency histogram` means previously recorded values were wrong. Anyone with dashboards or alert thresholds on that metric sees a step change on upgrade. That's worth more than a one-liner if you have users alerting on it.\n\nAlso worth knowing: `fix(db): stop logging the whole request body` is a privacy fix — request bodies were going to logs. If those logs went anywhere retained or shared, that may need handling beyond a changelog line.\n\n## Two things to check before you publish\n\n**The history stops on 2026-06-17.** Both files end there — that's about ten weeks before tomorrow's cut. Either the branch genuinely froze in June, or the export was taken then and there's unseen work. If commits landed after 6/17, this digest is incomplete and I can redo it against a fresh log.\n\n**Minimum Node version may have moved.** Five `docs: note the minimum node version` commits, three `.nvmrc` pins, and a `ci: run the suite on node 22` all point at a bump — but every one touches docs or CI, never a `package.json` engines field. I didn't add it, because asserting a version I can't see would be a bad install-time surprise. Check `engines`; if it changed, that's a fourth Breaking bullet.\n\nDependency bumps are all patch/minor (pino, zod, fastify, pg, knex, dotenv, ioredis, nanoid, undici at runtime; the rest dev-only). Nothing there reaches a user, so nothing is listed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "378485e61c5f79e47aeedfbc25adb7f6f3bc5b4ce8cb0f225afa64dfaceca0bd"
+}

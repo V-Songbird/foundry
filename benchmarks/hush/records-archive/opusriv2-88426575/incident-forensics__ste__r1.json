@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 141212,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.6377645000000001,
+  "numTurns": 13,
+  "durationMs": 135039,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8658
+  },
+  "contextTraffic": 409003,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 16326,
+  "narrationWords": 8,
+  "finalWords": 709,
+  "finalText": "# On-call handoff: gateway 503 incident\n\n**Prepared by:** <email>\n**Sources:** `logs/gateway.log`, `logs/worker.log`, `deploys.csv`\n**Status at handoff:** Not resolved. The log ends while the errors continue.\n\n---\n\n## 1. Root cause\n\nDeploy dep-4471 changed one gateway config key:\n\n```\ngateway.pool.perRequest: false -> true\n```\n\nThis flag makes the gateway open a new upstream connection for each request. The gateway no longer reuses pooled connections. The pool size stayed at 20. Under normal traffic the pool ran out in about 37 seconds, and it never recovered.\n\nEvidence:\n\n- All 530 of the 503 responses carry a matching `ERR_POOL_EXHAUSTED` line with the same request ID.\n- No 503 in the file has any other cause.\n- Connection opens rose from a baseline of 40 per 5 minutes to 4180 per 5 minutes.\n- Pool state before the change: `in_use` 3-11, `waiting=0`. After the change: `in_use=20 idle=0`, `waiting` up to 232.\n\nThe error line looks like this:\n\n```\n2026-03-14T02:14:18.972Z ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\n2026-03-14T02:14:18.972Z ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\n```\n\nThe same deploy raised `gateway.timeout.upstreamMs` from 2000 to 2500. That key is not the cause. Failed requests return in 650-850ms, under both values.\n\n---\n\n## 2. Impact window\n\n| Time (UTC) | Event |\n|---|---|\n| 02:12:00 | dep-4471 starts |\n| 02:13:41 | Config generation 119 applied |\n| **02:14:18** | **First 503** |\n| 03:02:30 | Pool warns about connection churn |\n| 03:21:05 | On-call paged, error rate 71% |\n| **03:59:27** | **Last 503 in the file. Errors continue.** |\n\nDuration: 1 hour 45 minutes and counting.\n\nFailure rate: 83% after 02:15 (525 of 630 requests). All five customer paths failed, including `/v1/checkout` and `/v1/cart`. Every upstream returned 503, so no single backend is at fault.\n\nScope: this log is `node-3 of 3`. Assume all three nodes are affected until you confirm otherwise.\n\n---\n\n## 3. Roll back this deploy\n\n```\ndep-4471  gateway  2026-03-14T02:12:00Z  a.novak\n\"config: connection-per-request for pool isolation\"\n```\n\n**Do not roll back dep-4472 or dep-4473.** Both shipped after the 503s began. Neither can be the cause. dep-4473 started one minute before the page, which looks related but is not. The error rate was already flat at 71% for the five minutes before that page.\n\n### Steps\n\n1. Revert `gateway.pool.perRequest` to `false`.\n2. Apply the change to all three nodes.\n3. Confirm in the gateway log that `waiting` returns to 0.\n4. Confirm that `pool_wait` returns to 0-3ms.\n5. Confirm that new 503 lines stop.\n\nPrefer the revert over a pool size increase. To size the pool for one connection per request, you need the peak concurrency number. This log does not contain it.\n\n---\n\n## 4. Open items for the next shift\n\n1. **Confirm the incident date.** `gateway.log` and `deploys.csv` both say 2026-03-14. That is about five months before today, 2026-08-26. The file was last written on 2026-08-07. Either these are archived copies, or the host clock is wrong. Resolve this before you write the postmortem.\n2. **Check the other two nodes.** This analysis covers node-3 only.\n3. **Ask a.novak what \"pool isolation\" was meant to fix.** The revert removes that fix. The original need remains.\n4. **Open a separate ticket for the workers.** See below.\n\n---\n\n## 5. Separate issue: worker slowdown\n\nThe workers did not fail. All 1080 jobs finished ok. The worker database pool stayed idle at `size=8 in_use=1 waiting=0` for the whole window.\n\nBut job duration rose from 200ms to 2324ms, a 7x increase in three hours. The rise is steady, about 110ms every 10 minutes. It is already in progress in the first line of the log, 74 minutes before the gateway change. `db_wait` stayed at 0-12ms, so the jobs are not waiting on the pool.\n\nThis is a different problem. The gateway rollback will not fix it. dep-4470 shipped \"retry backoff for webhook jobs\" to the worker at 00:48, five minutes before the log starts, so it is a candidate. To test that, pull worker logs from before 00:48.\n\nOne related warning appears at 02:36:\n\n```\nWARN db slow query 1.9s: SELECT * FROM orders WHERE status = ? — unindexed scan, known issue OPS-2210\n```\n\nDo not close the worker ticket when the gateway rollback lands.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "83a2344dcc9066bc4dd8e93f240011c2186ee135d03e902cf282a3791a84e1f3"
+}

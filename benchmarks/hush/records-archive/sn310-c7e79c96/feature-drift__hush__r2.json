@@ -1,0 +1,45 @@
+{
+  "key": "feature-drift__hush__r2",
+  "batchId": "sn310-c7e79c96",
+  "seed": "1788055943053",
+  "orderIndex": 27,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 87709,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3621872,
+  "numTurns": 30,
+  "durationMs": 78796,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5730
+  },
+  "contextTraffic": 937799,
+  "apiCalls": 26,
+  "toolCalls": 25,
+  "toolResultChars": 26089,
+  "narrationWords": 58,
+  "finalWords": 53,
+  "assistantMsgs": 9,
+  "narrationTexts": [
+    "Simple mapping, no state needed. Implementing it now.",
+    "Confirms hour 00 drops normal, routes critical to `push`; hour 18 unaffected, still `pager`. Checking tail totals.",
+    "Confirms hour 00 sends normal/low/high to `queue`, critical still `pager`; hour 18 unaffected. Checking tail totals.",
+    "Flap repeats (`evt-0288`, `evt-0666`, `evt-0054`) now dropped, 2 minutes after the original. Checking tail for dropped count."
+  ],
+  "finalText": "**Done.** [src/router.js:16](src/router.js:16) now tracks last-sent time per `key` in state and drops repeats within 5 minutes, only counting notifications that actually got delivered.\n\nReplay confirms it: the ~2-minute flap repeats now show `(dropped)`, and total dropped went from 0 to 99, matching the ~100 flap events built into events.js.\n\nNext: nothing more requested.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "13f37cc6819d72f47d2b9740f015ec7db31251ed4f1013719e195b96b8d29818"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 36,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 85176,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.787972,
+  "numTurns": 10,
+  "durationMs": 83101,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5452
+  },
+  "contextTraffic": 425610,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 73918,
+  "narrationWords": 25,
+  "finalWords": 495,
+  "finalText": "Drafted into `CHANGELOG.md:3`. Here's what I found and how I got there.\n\n**The shape of the history:** 380 commits, and by type — 153 chore, 73 refactor, 64 test, 33 ci, 20 docs. That's 343 commits with zero user-visible effect. The actual signal is **1 feat, 26 fixes, 10 perf**. The merged-PR sheet is a subset of the same commits (it stops at #4246 / 2026-06-17), so it added nothing the log didn't already have — I cross-checked every feat/fix/perf in it against the log.\n\n**Collapsing the duplicates matters here.** The same fix title lands in three or four modules — \"guard the null cursor in the paginator\" appears in api, db, queue *and* webhooks; \"duplicate header\" in core, http, billing. Those are separate commits but one thing a user notices, so 26 fixes became 10 lines.\n\nThree judgment calls worth your attention:\n\n1. **The 401/403 change is breaking** and nobody labelled it as such — it's a plain `fix(auth):`. Anyone branching on the status code to trigger a token refresh breaks silently. I put it under Breaking.\n\n2. **Two more may be breaking**, and I did *not* decide for you — they're a VERIFY comment block in the file. Dropping the \"unused\" v1 export route is only safe if it was genuinely unreachable; \"unused\" in a commit message usually means \"we don't call it,\" not \"no installer calls it.\" Same for the internal error types that stopped being re-exported across five modules — if those names were importable, that's a compile break for TS consumers. Both need a check against the published surface before you ship.\n\n3. **The latency histogram units fix is user-visible in an unusual way** — it's a bugfix, but it silently changes recorded values, so anyone with a dashboard on that metric will see a step change on upgrade. I called that out in the bullet rather than burying it.\n\n**What I left out, deliberately:** all 10 perf commits. Your template has three headings and no Performance section, and not one of the perf commits carries a measurement — \"skip the JSON round-trip on the hot path,\" \"avoid the extra clone in the mapper.\" Unquantified perf claims in release notes are noise at best. If you want them, the honest version is a single line like \"Assorted performance improvements to request serialization and the database layer,\" which I'd rather you approve than assume.\n\nAlso skipped: the dependency bumps. All runtime deps (undici, pg, knex, ioredis, fastify, zod, pino, nanoid, dotenv) moved by patch or minor only — nothing an installer notices.\n\nOne loose end I couldn't resolve from the log: there are four `docs: note the minimum node version` commits plus CI moving to Node 22 and `.nvmrc` pins. That pattern usually accompanies a minimum-Node bump, but I saw no unambiguous `engines` change — the `package.json` edits in those commits are indistinguishable from the field-sorting churn. Worth a look at `package.json`; if the floor did move, that's a Breaking bullet.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "af44079b8e95164a59b517337b29dac603edaf278962a58e27cd9e65a958a3e2"
+}

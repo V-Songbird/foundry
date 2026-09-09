@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__amend__r1",
+  "batchId": "sil1-c5e71f42",
+  "seed": "1787986592159",
+  "orderIndex": 1,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "amend",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26382,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1219664,
+  "numTurns": 10,
+  "durationMs": 24654,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1345
+  },
+  "contextTraffic": 203401,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11432,
+  "narrationWords": 15,
+  "finalWords": 38,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed 3 failures, all in `orderTotal`, matching the tax-ordering bug I spotted. Fixing it now."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:39](src/pricing.js:39). It taxed the pre-discount amount instead of the discounted total.\n\nFixed it to tax the discounted amount, via `applyTax(discounted, taxRate)`.\n\nNothing else needs attention.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dddbb762d76329114274e441ff896346469e6b5e1b50f22491856b77cef1dfe6"
+}

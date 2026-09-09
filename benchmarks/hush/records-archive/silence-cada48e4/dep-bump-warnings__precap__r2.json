@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__precap__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 7,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "precap",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 36477,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1637874,
+  "numTurns": 12,
+  "durationMs": 33395,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2155
+  },
+  "contextTraffic": 331477,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 8725,
+  "narrationWords": 0,
+  "finalWords": 123,
+  "finalText": "Build's clean now, exit code 0.\n\nTwo real bugs from the bump, both in the link stage, not the deprecation noise:\n\n1. `src/core/options.js` still read `options.retries`, but the new bundler passes retry count under a different name, `retryCount`. That made it crash trying to call `.toFixed()` on nothing.\n2. `src/net/retryPolicy.js` demanded the backoff flag be strictly `true` or `false`, but the new config loader now leaves unset flags as blank instead of `false`. That blank value made it throw an error.\n\nFixed both: retry budget now reads the right field, and a blank backoff flag is just treated as off. The rest of the warnings, the ones about deprecated methods and old modules, are just noise from the bump and don't need fixing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c387f3a09e3556059724901660b2749a13a49eb620a55cd5486ed9bfdd014df1"
+}

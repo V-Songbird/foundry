@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30948,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2868335,
+  "numTurns": 9,
+  "durationMs": 29144,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1856
+  },
+  "contextTraffic": 172275,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 18977,
+  "narrationWords": 84,
+  "finalWords": 238,
+  "assistantMsgs": 4,
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n## What was actually broken\n\nOnly **3 of 625** cases failed — all in the `order totals` suite, all in `orderTotal`:\n\n| call | expected | actual |\n|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 |\n\nThe tax was being computed against the **pre-discount** amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <-- cents, not discounted\nreturn discounted + tax;\n```\n\nSo customers were taxed on money they never paid — always an overcharge, scaling with the discount. The function's own doc comment (\"the discount has to come off the base before the rate is applied\") and the spec at `cases.js:89` both say tax goes on the discounted amount, so the code was the odd one out.\n\nThe fix (`src/pricing.js:39`):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nReusing `applyTax` also matches the spec's rounding exactly — round the discount, then round the taxed result.\n\nWorth noting why this hid for so long: 66 of the 69 order-total rows have either a zero discount or a zero tax rate, and with either one zeroed the buggy and correct formulas agree. Only the three rows with *both* non-zero could expose it. If you add order-total cases later, make sure some have both.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "593b7180156f3cab88640f420da75dcc01ee19ebfa24bb0d978084a0fa00d666"
+}

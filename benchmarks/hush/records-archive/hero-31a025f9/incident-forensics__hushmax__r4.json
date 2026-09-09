@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hushmax__r4",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 66,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hushmax",
+  "rep": 4,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 49388,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3331385,
+  "numTurns": 12,
+  "durationMs": 43103,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2398
+  },
+  "contextTraffic": 536578,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 15494,
+  "narrationWords": 0,
+  "finalWords": 102,
+  "finalText": "**Gateway 503 outage — on-call handoff**\n\n**Root cause:** `dep-4471` (gateway, deployed by a.novak, `02:12:00Z`–`02:14:00Z`) shipped config generation 119, flipping `gateway.pool.perRequest` from `false` to `true`. Each request started grabbing its own connection instead of sharing the pool. The pool (size 20) saturated within 30 seconds.\n\n**Impact window:** `02:14:18.972Z` (first `ERR_POOL_EXHAUSTED` 503) through at least `03:59:27.974Z`, the last line in the log. Still ongoing when the log ends. Waiting queue grew from 13 to over 70 requests over that span. Affected routes: `/v1/cart`, `/v1/session`, `/v1/checkout`, `/v1/catalog/search`, `/v1/orders`.\n\n**Not affected:** worker fleet. `worker.log` shows every job finishing ok across the same window.\n\n**Rollback:** revert `dep-4471`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16663f9ca8555e6371858763d1e8f0c55b703592145462fc514f332fef29cb52"
+}

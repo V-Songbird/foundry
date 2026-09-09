@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__hush__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 11,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 39300,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2530632,
+  "numTurns": 9,
+  "durationMs": 37744,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2152
+  },
+  "contextTraffic": 363143,
+  "apiCalls": 9,
+  "toolCalls": 8,
+  "toolResultChars": 13565,
+  "narrationWords": 9,
+  "finalWords": 74,
+  "finalText": "Fixed. The build was failing in the bundle stage because `packages/shared/config.js` used `Object.assign` to merge configs, which replaces `output` and `sourcemap` wholesale instead of merging their keys — so a package overriding just `output.format` lost `output.dir` entirely, tripping the \"no output.dir\" error.\n\nI changed `resolveRelease` to merge `output` and `sourcemap` per-key across defaults, package overrides, and CLI flags, without touching the originals. `build.js` now finishes clean with 5 warnings, 0 errors, and `verify.js` passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "77bd8790c025ba0ca91bd605b32e49306518ded62787b06568b7a317cb545c47"
+}

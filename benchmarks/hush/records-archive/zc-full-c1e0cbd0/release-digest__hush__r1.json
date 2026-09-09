@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "zc-full-c1e0cbd0",
+  "seed": "1787383666221",
+  "orderIndex": 3,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 72708,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.248506,
+  "numTurns": 12,
+  "durationMs": 70908,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5820
+  },
+  "contextTraffic": 404007,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 19726,
+  "narrationWords": 0,
+  "finalWords": 145,
+  "finalText": "I wrote the 4.2.0 entry into `CHANGELOG.md`, dated tomorrow, 2026-08-23.\n\nUnder all the dependency bumps and renames, ten things actually touch people using this:\n\n- **Breaking:** an expired token now gets `401 Unauthorized`, not `403 Forbidden`.\n- **Added:** failed webhook deliveries now retry automatically, with backoff.\n- **Fixed:** nine bugs, including one worth flagging on its own. The database log used to write out the full request body, which could hold sensitive data. That's stopped now.\n\nA few of these bugs (null pagination cursors, duplicate headers, trailing slashes) showed up and got fixed in several endpoints separately over the release. I folded each into one bullet rather than listing every module.\n\nOne thing to check with the team: the 401 change touches the API contract, so I flagged it as Breaking like `4.1.0` did for the timeout change. Worth a second look before it ships.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d5a3fa0efb4cea7f09acdd255501929c95bb3c370da23fe7ac94d1ee61e52eef"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34580,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3278467,
+  "numTurns": 5,
+  "durationMs": 33089,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2529
+  },
+  "contextTraffic": 197944,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60260,
+  "narrationWords": 0,
+  "finalWords": 379,
+  "finalText": "Found it. Here's the timeline reconstructed from `logs/app.log` (719 lines, note: the log itself is dated **2026-07-04**, not last night by today's date — worth flagging in case you're looking at a stale/rotated file):\n\n**02:00 – 02:14:03** — Normal operation. `api`, `worker-1`, `worker-2`, `scheduler` all serving 200s, cache hit ratio 90–98%.\n\n**02:14:07.113** — First failure: `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Redis at that address became unreachable.\n\n**02:14:07.114** — App correctly falls back: `cache layer degraded — falling back to direct store reads`.\n\n**02:14:08 onward** — Cascading overload begins. With Redis gone, every request hits the backing store directly. Within seconds: `cache miss storm` warnings, then `TimeoutError: request timed out after 5000ms (store overloaded)` from api/worker-1/worker-2/scheduler on a steady ~2s cadence — the store couldn't handle direct-read traffic at that volume.\n\n**02:14:07 → 02:31:26** — Redis reconnect attempts (0 through 12, roughly every ~2.5 min) **all fail** with the same `ECONNREFUSED` — Redis never came back during this window.\n\n**~02:14 → 02:31** — `request queue depth` climbs continuously and unbounded: 52 → 100 → 250 → 400 → **exceeds the configured max of 500 by 02:29:12** → keeps growing to 568 right before the crash. Nothing in the log shows load-shedding or backpressure kicking in once the max was breached.\n\n**02:31:44.902** — `[worker-2] JavaScript heap out of memory (request backlog)` — the unbounded, un-drained request queue exhausted worker-2's heap.\n\n**02:31:45.001** — Supervisor restarts worker-2.\n\n**02:31:52.318** — `[supervisor] api unresponsive, killing process group — service down` — full outage, ~7 seconds after the restart attempt.\n\n## Root cause\nRedis at `10.0.0.12:6379` dropped at 02:14:07 and never recovered (12 failed reconnect attempts over ~17 minutes). The app's cache-miss fallback to direct store reads is what actually took the service down: it overloaded the backing store, timeouts cascaded across every component, and the request queue had no enforced cap or circuit breaker — it grew past its own configured max (500) unchecked until worker-2 OOM'd, which triggered the supervisor to kill the whole process group.\n\n**Fix priorities:** (1) find out why Redis at `10.0.0.12` went down/unreachable, (2) enforce the queue-depth max with actual backpressure/load-shedding instead of just logging a warning past it, (3) add a circuit breaker around the direct-store fallback so a cache outage doesn't turn into a store outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a516c05a840bed632d406a9861c17ff348470b8606e363bedf0cd5ec51957749"
+}

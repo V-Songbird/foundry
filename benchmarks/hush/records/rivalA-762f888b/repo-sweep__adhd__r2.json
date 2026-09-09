@@ -1,0 +1,46 @@
+{
+  "key": "repo-sweep__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 85,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56199,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3308255,
+  "numTurns": 12,
+  "durationMs": 55242,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3434
+  },
+  "contextTraffic": 196200,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 13745,
+  "narrationWords": 58,
+  "finalWords": 206,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look for remaining `db.query` usages.",
+    "Let me see the established pattern from an already-migrated file vs. a stale one.",
+    "Vendor code is marked do-not-edit; I'll leave that and flag it. Migrating the 12 project files:",
+    "Now verifying nothing was missed or mangled:",
+    "Let me syntax-check every touched file and confirm the calls actually reach `execute` at runtime:"
+  ],
+  "finalText": "Migration finished. 12 files converted, 32 call sites:\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\nEach `db.query(sql, params)` became `db.execute({ sql, params })`, matching the shape already used in the migrated files (e.g. `accounts/src/repo/user.js`). No test suite exists, so I verified by `node --check` on every file under `packages/` and by running a migrated module against the `lib/db.js` call recorder — all calls land on `execute` with SQL and params intact, including the dynamic `UPDATE ... SET` builder whose spread params survived unchanged.\n\nTwo things I deliberately did not change:\n\n- **`vendor/legacy-orm/adapter.js:9,13`** still uses `db.query`. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost. Since `lib/db.js` notes the driver's next major drops `query`, this will break on that upgrade — the fix belongs upstream or in a wrapper, not in the vendored file. Flagging it rather than editing; say the word if you'd like a shim.\n- **`cache.query(...)`** across ~20 repo files is a different API on the cache handle, untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "68b029f268e544b50cfce602301e4d336327fbb6b91e8614947ab1168cd21af1"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__adhd__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 16,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 27573,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.1993577,
+  "numTurns": 10,
+  "durationMs": 26218,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1706
+  },
+  "contextTraffic": 297742,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 5932,
+  "narrationWords": 13,
+  "finalWords": 79,
+  "finalText": "Build's clean now: 0 errors.\n\nTwo real bugs, both from the bundler's new options shape:\n1. `src/core/options.js` — read `options.retries` (old key), bundler now sends `retryCount`. Fixed.\n2. `src/net/retryPolicy.js` — threw on `undefined` flags instead of treating unset as disabled. Fixed to default to `false`.\n\nThe rest was harmless deprecation/dedupe noise from the version bump — left alone since it's not breaking anything.\n\nNext: run your real test suite to confirm nothing else relied on the old `retries` key.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5857126730c410bb96dfeddfd7e0845406102c590043c6651939d35e31a25b36"
+}

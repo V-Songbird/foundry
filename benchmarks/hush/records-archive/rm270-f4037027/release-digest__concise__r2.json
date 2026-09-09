@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 43,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 151310,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4401486,
+  "numTurns": 13,
+  "durationMs": 150347,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13364
+  },
+  "contextTraffic": 554258,
+  "apiCalls": 9,
+  "toolCalls": 12,
+  "toolResultChars": 72093,
+  "narrationWords": 39,
+  "finalWords": 444,
+  "finalText": "I went through all 380 commits and the PR sheet, filtered out the noise (dependency bumps, refactors, CI/test/doc-only changes — that's the bulk of it), and pulled out everything that actually changes behavior for someone using the package. A few of these bugs got fixed repeatedly across different modules (same underlying pattern in core/http/api/db/queue/jobs/store/billing/webhooks/auth), so I consolidated those into single bullets rather than listing each module's commit separately.\n\nHere's the entry, matching your CHANGELOG format:\n\n```markdown\n## 4.2.0 — 2026-08-26\n\n### Breaking\n- Expired tokens now return `401` instead of `403`.\n\n### Added\n- Webhook deliveries are automatically retried with exponential backoff on failure.\n\n### Fixed\n- Retrying a request no longer drops the trace id, so retried calls stay linked\n  in tracing.\n- Paginating with a null cursor no longer throws — affected the queue, API,\n  webhooks, and database list endpoints.\n- The HTTP client no longer leaves a timer running when the socket drops\n  mid-request.\n- The HTTP client now closes its connection pool on shutdown instead of\n  leaking connections.\n- The database client no longer logs the full request body.\n- A duplicate header was no longer sent by the core, HTTP, and billing\n  clients.\n- The latency histogram in the store and core now reports the correct units.\n- An empty allow-list is now handled correctly in the store, database, and\n  job scheduler.\n- The queue and job path normalization no longer double-trims a trailing\n  slash.\n- Token-parsing error messages are clearer (core, billing, queue).\n```\n\nNotes on judgment calls:\n\n- **401 vs 403 for expired tokens** — I put this under Breaking rather than Fixed. It's technically a bug fix, but anyone branching on status code will see different behavior, same spirit as your 4.1 `timeout` units entry.\n- **\"Stop logging the whole request body\"** — worth calling out since it was leaking full request bodies (potentially sensitive data) into logs before.\n- Left out repeated `perf(...)` commits (batching metric writes, skipping JSON round-trips, avoiding clones) — internal speedups with no reported numbers, not something an installer would notice.\n- Left out the Node-version/`.nvmrc`/CI churn — I couldn't find an actual `engines` bump in what's available (no diffs, only commit stats), just repeated CI/doc commits, so I didn't want to assert a minimum-version change I can't confirm.\n- The merged-PR sheet only has explicit rows for 11 of these 26 fix commits — the rest are still real, verified commits in `commits.log`, just not individually tracked as separate PR rows (likely folded into other PRs). I used the commit log as the source of truth.\n\nWant me to drop this straight into CHANGELOG.md above the `4.2.0 goes here` marker?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9898f4b52a2e2241a484dc3195989e829494190e57605fdb26183a80bd0f9ca3"
+}

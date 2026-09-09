@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__bare__r2",
+  "batchId": "why1-400bac90",
+  "seed": "1788021858971",
+  "orderIndex": 3,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "bare",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22271,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.10853159999999999,
+  "numTurns": 9,
+  "durationMs": 20560,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1454
+  },
+  "contextTraffic": 167892,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 7851,
+  "narrationWords": 0,
+  "finalWords": 50,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build is clean.** Exit 0, `0 errors`.\n\nTwo real bugs from the bump, both fixed:\n\n- [options.js:6](src/core/options.js:6) read `options.retries`, but the bundler now sends `retryCount`. Threw on `undefined.toFixed`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) treated unset `backoffEnabled` as invalid instead of `false`. Threw on missing flags.\n\nThe rest was deprecation noise, unchanged.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0adcc101b0cefd4a788282489c42e089372ef1a8d5fdc64567e60262fc412d0c"
+}

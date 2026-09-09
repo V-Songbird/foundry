@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 39,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 240497,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8267316,
+  "numTurns": 13,
+  "durationMs": 239191,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 21109
+  },
+  "contextTraffic": 483378,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 70925,
+  "narrationWords": 89,
+  "finalWords": 276,
+  "finalText": "CHANGELOG.md now has the 4.2.0 section (I used 2026-06-18, the day after the last commit in the log — swap it for tomorrow's actual cut date). A few notes on how I got there and where I drew the line:\n\n**What's real from ~380 commits:** almost everything is `chore(deps)`, `refactor`, `test`, `ci`, `docs` — genuine noise. I pulled every `fix(` and `feat(` commit (27 total) and found something worth flagging: several bugs were fixed, then silently reintroduced by a later refactor touching the same file, then fixed again — e.g. \"drop the duplicate header\" in `core` was fixed on 5/9, 6/6, *and* 6/16. I reported those once each, based on the final state as of the last commit, not three times.\n\n**What I included and why:**\n- **Breaking:** expired tokens now `401` not `403` — real status-code change, will break anyone branching on 403.\n- **Added:** webhook retry with backoff — the one unambiguous feature in the whole set.\n- **Fixed:** duplicate header, null-cursor pagination crash (hit 4 different endpoints independently), dropped trace ID on retry, unclear token-parse errors, full request bodies in logs (privacy-relevant), and two HTTP client resource leaks.\n\n**What I left out, deliberately:** a few other repeated bug fixes — \"handle an empty allowlist\" (store/db/jobs) and \"trim the trailing slash once\" (queue/jobs) — and a latency-histogram units fix (store/core). I don't have the actual source, only commit messages and diffstat, so I can't tell if the allowlist bug is a real security-relevant behavior change or purely internal plumbing. Worth a 5-minute look at those specific commits before you sign off — I didn't want to guess at severity for something like an allowlist.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "df70a7824908b71fe57c1a5aaf53eb4e39d5c190771886d60b8f31dc584ee637"
+}

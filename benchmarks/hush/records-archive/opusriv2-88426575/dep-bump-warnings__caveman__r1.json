@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__caveman__r1",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 9,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44940,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.276955,
+  "numTurns": 10,
+  "durationMs": 40492,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2344
+  },
+  "contextTraffic": 192681,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6501,
+  "narrationWords": 13,
+  "finalWords": 147,
+  "finalText": "Build green. Exit 0, 0 errors.\n\nTwo real bugs, both from bump — sequential, second only shows after first fixed:\n\n1. `src/core/options.js:6` — bundler renamed options key `retries` to `retryCount`. Call site never updated, `options.retries.toFixed(0)` threw `TypeError: Cannot read properties of undefined (reading 'toFixed')`. Now reads `retryCount` with `retries` fallback, default 0.\n2. `src/net/retryPolicy.js:7` — new config loader leaves unset flags `undefined`, old one returned `false`. Strict check threw on absent flag. Now `undefined` = disabled, matching old default. Non-boolean values still throw.\n\nWarnings: still 8, unchanged. Not fixable from source — build.js hardcodes them (lines 18-24, 46-48) and emits them unconditionally every run. Files they name (`src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js`) do not exist in this tree. Cosmetic log padding, not real diagnostics.\n\nOne worth eye anyway if real code lands later: `W1042 crypto.createCipher` — that API derive key insecurely, no IV. Replace with `crypto.createCipheriv` when adapter real.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dd92a5589844675ca4ffc4077c7dfd8b406c8091960155e4ee0e7627d71f365a"
+}

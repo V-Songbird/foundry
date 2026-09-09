@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21059,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3176598,
+  "numTurns": 5,
+  "durationMs": 19518,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1302
+  },
+  "contextTraffic": 229382,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60211,
+  "narrationWords": 0,
+  "finalWords": 328,
+  "finalText": "## What happened\n\n**Root cause: Redis died at 02:14:07, and nothing ever reconnected.**\n\nTimeline:\n\n1. **02:14:07.113** — `[api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`. Redis at `10.0.0.12:6379` went down (host, not just a slow query — connection refused).\n2. **02:14:07 – 02:31:26** — App fell back to direct DB reads with no circuit breaker. This triggered a classic cascading failure:\n   - Constant \"cache miss storm\" warnings as every request bypassed cache\n   - The backing store got overloaded, and `api`, `worker-1`, `worker-2`, and `scheduler` all started throwing `TimeoutError: request timed out after 5000ms (store overloaded)` on a steady ~2s cadence\n   - Request queue depth climbed **linearly and never recovered**: 52 → 500 (its stated max, ~02:15:48) → kept climbing past the max anyway, reaching **568** by 02:31:24\n   - Redis reconnect attempts fired roughly every 2 minutes (attempts 0 through 12, 02:15:26 → 02:31:26) and **every single one failed** with the same ECONNREFUSED — Redis never came back\n3. **02:31:44.902** — `worker-2` hit `JavaScript heap out of memory (request backlog)` — the unbounded queue finally exhausted memory.\n4. **02:31:45.001** — supervisor restarted worker-2 (exit code 134 = SIGABRT from the OOM abort).\n5. **02:31:52.318** — supervisor declared `api unresponsive` and **killed the whole process group — service down**.\n\n**Bottom line:** a Redis node became unreachable and stayed unreachable for 17+ minutes. The app's fallback-to-store path had no backpressure/circuit breaker, so the request queue grew unbounded instead of shedding load, which eventually OOM'd a worker and took the whole service down with it.\n\n**For the postmortem, worth checking:**\n- Why Redis at 10.0.0.12:6379 was unreachable for 17 minutes (network partition vs. process crash vs. host down) — nothing in this log indicates cause, only symptom.\n- Add a circuit breaker / load-shedding on cache-miss fallback so a dependency outage degrades gracefully instead of OOMing.\n- Queue depth alerting should have fired well before it blew past its own stated max of 500 (it kept growing to 568 with no apparent enforcement).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7c57dbf9102c88f5a162a8b1aa511e41ec073eb8ea489e7e8912bf8a16ae2183"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__both__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 35,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23860,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.16632509999999998,
+  "numTurns": 8,
+  "durationMs": 22096,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1368
+  },
+  "contextTraffic": 190977,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 4559,
+  "narrationWords": 0,
+  "finalWords": 71,
+  "finalText": "Found it and fixed it. `computeTotal` in `pricing.js` was converting USD to the target currency first, then subtracting the flat coupon amount as if it were already in that currency — but flat coupons are always stored in USD.\n\nNow the coupon is subtracted from the USD subtotal before conversion, so a $10 coupon actually takes $10 off, not 10 units of whatever currency the customer picked.\n\nAll 5 tests pass.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "73b1a28fd1bf924ba1a5ae5f1db0ab40df2fce8bf8d5c3ed74da5c6c474c5c4b"
+}

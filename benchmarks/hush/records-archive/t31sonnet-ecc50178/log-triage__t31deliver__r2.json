@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__t31deliver__r2",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "t31deliver",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29810,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1712357,
+  "numTurns": 4,
+  "durationMs": 27577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1964
+  },
+  "contextTraffic": 147830,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23459,
+  "narrationWords": 0,
+  "finalWords": 147,
+  "finalText": "Found it. Your cache database (Redis, at 10.0.0.12) dropped offline at **2:14 AM** and never came back — twelve reconnect tries over the next 17 minutes, every single one refused.\n\nWith the cache gone, every request that used to hit it fell back to your main data store instead. That store couldn't keep up. Requests started timing out, and the backlog of unfinished work just kept growing — never once shrinking, all the way from 2:14 to 2:31.\n\nBy **2:31:44 AM** one of the workers ran out of memory from that backlog and crashed. Eight seconds later, the whole service went down with it.\n\nSo the story is simple: Redis died, nothing routed around it, and the growing backlog eventually choked the server out. Worth checking first why that Redis box went dark at 2:14 — that's your real starting point, everything after is just the fallout.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c93b982e223f1b7e27c18fe4f1651412f4d9bb8e8e2a60f6b003af12f4ac354a"
+}

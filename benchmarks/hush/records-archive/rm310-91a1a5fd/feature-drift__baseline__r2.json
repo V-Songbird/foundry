@@ -1,0 +1,44 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 51,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 137599,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6890645000000001,
+  "numTurns": 27,
+  "durationMs": 131068,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8136
+  },
+  "contextTraffic": 592712,
+  "apiCalls": 24,
+  "toolCalls": 22,
+  "toolResultChars": 12225,
+  "narrationWords": 40,
+  "finalWords": 168,
+  "assistantMsgs": 8,
+  "narrationTexts": [
+    "I'll look at the project files first.",
+    "The request is a straightforward priority→channel mapping, so that's what I'll implement.",
+    "The doc comment drifted above the table in my first edit; I'll put it back on `route()` while adding quiet hours."
+  ],
+  "finalText": "Dedup is in. `createState()` now holds a `key -> last delivered at` map, and `route()` drops an event whose key was delivered within the last 5 minutes.\n\nReplay:\n- **99 dropped**, which is exactly the number of flaps `events.js` generates (every 9th event, repeating the previous key 2 minutes later). Every other notification still routes.\n- Spot-checks show both halves of a flap pair: `evt-0773 critical → pager`, then `evt-0774` 2 minutes later `→ (dropped)`; same for a `low` pair.\n- Channel counts fall proportionally across the board; 0 errors.\n\nTwo decisions I made, both easy to flip:\n- **The window is measured from the last delivery, not the last event** — a suppressed repeat doesn't extend the quiet period, so a steady 2-minute flap gets through once every ~6 minutes rather than being silenced forever.\n- **Dedup applies to critical too**, since you didn't carve out an exception. Queued notifications count as \"sent\" for this purpose. If critical should page on every repeat, that's a one-line exemption.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ed28e365fae8051ac96b2097f1bd5f7f81215571ab8156f4b56b690e538df792"
+}

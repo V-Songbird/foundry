@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 3,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22574,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.18394190000000002,
+  "numTurns": 10,
+  "durationMs": 21222,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1540
+  },
+  "contextTraffic": 220399,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 14864,
+  "narrationWords": 34,
+  "finalWords": 49,
+  "finalText": "All 625 cases pass and `verify.js` confirms it.\n\nThe bug: `orderTotal` in `src/pricing.js` computed tax on the pre-discount amount (`cents * taxRate`) instead of taxing the discounted total, and added two independently-rounded numbers instead of rounding once at the end. Fixed by taxing the already-discounted, already-rounded amount: `applyTax(discounted, taxRate)`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ca7096ecfd889f0bd55ee188b2fa229ba53a069b126b7f21c094f3474a59f4e0"
+}

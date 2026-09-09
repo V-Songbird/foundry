@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r4",
+  "batchId": "next2-91570fa6",
+  "seed": "1787987980282",
+  "orderIndex": 22,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 88030,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3485926,
+  "numTurns": 10,
+  "durationMs": 86515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7877
+  },
+  "contextTraffic": 308506,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 73645,
+  "narrationWords": 15,
+  "finalWords": 79,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Now I have lines 1-300 without compression. Let me get the remaining middle section (301-633)."
+  ],
+  "finalText": "**Wrote the 4.2.0 entry.** [CHANGELOG.md:3](CHANGELOG.md:3)\n\nOut of 380 commits, one real feature and a batch of fixes:\n\n- Breaking: expired tokens now return `401`, not `403`\n- Added: webhook retries with exponential backoff\n- Fixed: request-body over-logging, null-cursor crashes on four paginated endpoints, empty-allowlist handling, duplicate headers, dropped trace IDs on retry, wrong histogram units, trailing-slash bugs, and an HTTP client timer/pool leak\n\nWorth a second look before you publish: the `401`/`403` change breaks any client that special-cased 403.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a9da2413032ac9252d4ff1fd6943e5d96e2273dce7d4ad61bd79da66b29bcbd8"
+}

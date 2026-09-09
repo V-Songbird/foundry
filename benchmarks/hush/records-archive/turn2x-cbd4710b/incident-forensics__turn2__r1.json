@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__turn2__r1",
+  "batchId": "turn2x-cbd4710b",
+  "seed": "1786213525492",
+  "orderIndex": 16,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "turn2",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 85127,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6558830999999999,
+  "numTurns": 15,
+  "durationMs": 78626,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4261
+  },
+  "contextTraffic": 764404,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 43378,
+  "narrationWords": 0,
+  "finalWords": 114,
+  "finalText": "**On-Call Handoff — Gateway 503s**\n\n**Root cause:** `dep-4471` (gateway, a.novak, 02:12–02:14 UTC) — *\"config: connection-per-request for pool isolation.\"* It's the only deploy touching gateway pool config, and the first pool warning fired 14 seconds after it finished.\n\n**Impact window:** Started 2026-03-14T02:14:14Z, still ongoing at the end of the log (03:59:27Z). Pool has been pinned at `size 20, in_use 20` the whole time, with the `waiting` queue growing past 70. Every route is affected except `/health`, so the gateway process itself is up — it's just starved for pool connections.\n\n**Scope:** Gateway only. Worker pool held steady at `size=8, waiting=0` throughout — jobs kept completing normally, no exhaustion there.\n\n**Action:** Roll back `dep-4471` on gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2a7b6fbf899127c9d7e5269e5be246ca28379601809ad8440f16d3932d402573"
+}

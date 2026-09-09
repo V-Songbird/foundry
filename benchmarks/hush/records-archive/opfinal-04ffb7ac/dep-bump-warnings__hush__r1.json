@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38918,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.25180250000000004,
+  "numTurns": 10,
+  "durationMs": 37410,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2168
+  },
+  "contextTraffic": 149974,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6380,
+  "narrationWords": 6,
+  "finalWords": 82,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "**Build passes now.** Exit `0`, two real bugs fixed.\n\n`resolveRetries` read `options.retries`, but the bump renamed it `retryCount`. It threw on `undefined.toFixed`. Now it reads the new name, falls back to the old. See [src/core/options.js:9](src/core/options.js:9).\n\n`isBackoffEnabled` threw on unset flags. The new loader leaves them `undefined`, not `false`. Unset now means off. See [src/net/retryPolicy.js:8](src/net/retryPolicy.js:8).\n\nThe 8 warnings are real noise. They come from the fake bundler, not your source.\n\nNext: clear the `DEP0198` `Buffer()` and `crypto.createCipher` uses if you want zero warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5463037637a3eddc798963dfc995ab86af52be5cf118656306e56a80d85b09bd"
+}

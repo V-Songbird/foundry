@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "zerocontext-smoke-334d3823",
+  "seed": "1787382000518",
+  "orderIndex": 2,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 30033,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24266419999999997,
+  "numTurns": 11,
+  "durationMs": 27321,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1662
+  },
+  "contextTraffic": 299454,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 11920,
+  "narrationWords": 72,
+  "finalWords": 52,
+  "finalText": "All 625 tests pass now. The bug: `orderTotal` in `src/pricing.js:41` was computing tax on the pre-discount amount instead of the discounted amount, so it only failed on the 3 test rows where both discount and tax were non-zero (the suite comment even called this out). Fixed by taxing `discounted` instead of `cents`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e082fcb35a55a775d154bbe718a2d3c7572c191ee329865325aa75453c396b6f"
+}

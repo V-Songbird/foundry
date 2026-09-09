@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__baseline__r2",
+  "batchId": "opus270-d3aa3c29",
+  "seed": "1787671517799",
+  "orderIndex": 23,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 107496,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6226039999999999,
+  "numTurns": 13,
+  "durationMs": 106564,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6954
+  },
+  "contextTraffic": 437296,
+  "apiCalls": 13,
+  "toolCalls": 12,
+  "toolResultChars": 30871,
+  "narrationWords": 37,
+  "finalWords": 728,
+  "finalText": "## Size: smaller than the number suggests\n\n**1,291 occurrences across 96 files** — but 93% of that is one template repeated 25 times.\n\n| Zone | Hits | Files | Nature |\n|---|---:|---:|---|\n| `services/*/src/repo` | 475 | 25 | Identical modulo entity name |\n| `services/*/src/service` | 400 | 25 | Identical modulo entity name |\n| `services/*/src/http` | 325 | 25 | Identical modulo entity name |\n| `lib/audit.js` | 3 | 1 | Judgment call |\n| `lib/serialize.js` | 2 | 1 | **Half frozen** |\n| `docs/openapi.yaml` | 5 | 1 | **Frozen** |\n| `migrations/*.sql` | 61 | 12 | **Frozen** |\n| `vendor/reporting-sdk` | 20 | 4 | **Frozen** |\n\nI diffed the entity stacks against each other: `services/billing/src/repo/invoice.js` and `services/orders/src/repo/order.js` are byte-identical apart from the entity name. The 1,200 service-layer hits are a scripted find-and-replace plus a skim. That part is an afternoon.\n\nThe sign-off risk is entirely in the other 91.\n\n## Four places it must not be renamed\n\n**1. `docs/openapi.yaml` (5)** — `account_id` is a public response field on `Invoice` and `Order` and a public query param on `/v2/invoices`. The file says renaming one is a breaking change requiring a new dated version. Out of scope for a refactor.\n\n**2. `lib/serialize.js:8` — the right-hand side of `WIRE`** — this is the one that will bite you. The map is `account_id: 'account_id'`; the left key is the internal row name, the right value is the public wire name. The rename must change the left key only:\n\n```js\nowner_id: 'account_id',   // internal owner_id -> public account_id\n```\n\n**And here is the trap: doing nothing to this file also breaks the API, silently.** `serialize` has a passthrough loop (`lib/serialize.js:18-20`) that copies any key not in `WIRE` straight to the output. If the row key becomes `owner_id` and `WIRE` is untouched, the mapped lookup misses, the passthrough fires, and public JSON starts emitting `owner_id`. No error, no test failure in this repo — the contract just changes in production. A grep-and-replace across `services/` that never opens `serialize.js` produces exactly this.\n\n**3. `migrations/*.sql` (61 across 12 files)** — all applied in production. Editing them renames nothing in a database that already ran them and breaks the `down` steps. A column rename needs a *new* forward migration.\n\n**4. `vendor/reporting-sdk` (20 across 4 files)** — vendored generated copy of 3.8.1, overwritten wholesale by `npm run vendor:refresh`. Edits are erased on next refresh. Separately, `account_id` there is the upstream vendor's own request/response format, so renaming it would break the integration even if it survived. Nothing in the repo imports it today — only `package.json:7` references it — so it's dead weight, but leave it alone.\n\n## Before you sign off: ask what \"rename\" means here\n\nThe proposal is ambiguous in a way that changes the size by an order of magnitude, and I'd get this pinned down today:\n\n- **JS identifiers only** — rename variables and object keys, keep the DB column as `account_id` (alias in SQL). Contained to this repo, no coordination, low risk.\n- **DB column too** — 125 of the service hits are inside `sql:` strings referencing the actual column. That needs a new migration, an expand/contract deploy across all five services, and index rebuilds on every table. Different project, different sign-off.\n\nThree more things worth raising, none blocking:\n\n- **JSONB payload (25 files).** Each `insert*` writes `JSON.stringify({ ...values, account_id })` into the `payload` column. Renaming that key makes new rows structurally inconsistent with every existing row and needs a backfill. It's not wire-visible (`serialize` skips `payload`), but anything querying payload JSON is affected.\n- **`req.session.account_id` (100 reads).** The session object is produced by auth middleware that isn't in this repo. If the read side is renamed without the producer, `owner_id` is `undefined` — writes fail loudly on the `is required` guard, but reads quietly run `WHERE account_id = undefined`. That's the tenancy-scoping path, so it deserves explicit confirmation that the middleware ships in the same change.\n- **`lib/audit.js` (3).** Not marked frozen, but it's effectively a log schema. If any dashboard, alert, or SIEM rule keys on the `account_id` field, renaming it breaks them silently and outside this codebase.\n\n**My read:** approvable as an identifier-only rename, provided `lib/serialize.js` is updated in the same commit and the session middleware is confirmed. If it's a schema rename, it shouldn't go through as a refactor sign-off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6730268ab6f3cb5c20c436532ab27bc5df7058f25048666240e47112c5f78bad"
+}

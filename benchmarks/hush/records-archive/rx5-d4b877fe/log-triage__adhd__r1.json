@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rx5-d4b877fe",
+  "seed": "1786464273166",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 16762,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2945654,
+  "numTurns": 3,
+  "durationMs": 15262,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 750
+  },
+  "contextTraffic": 145917,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 11,
+  "finalWords": 183,
+  "finalText": "Found it — full timeline, no recovery in the log.\n\n**Root cause: Redis died, and nobody stopped hammering it.**\n\n1. **02:14:07** — Redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). API falls back to direct DB reads.\n2. **02:14:07 → 02:31:26** — cache-miss storms + store timeouts loop every ~2s for **17 minutes straight**. Redis reconnect attempts fail 12 times in a row (auto-retry every ~2 min, never succeeds).\n3. **02:20:48** — request queue depth crosses 500 (its own max) and keeps climbing anyway — nothing was actually enforcing that cap.\n4. **02:29:06** — queue depth passes 499, keeps growing to 568.\n5. **02:31:44** — `worker-2` OOMs (`JavaScript heap out of memory`) from the backlog.\n6. **02:31:45** — supervisor restarts worker-2 (exit code 134).\n7. **02:31:52** — `api` itself goes unresponsive, supervisor kills the whole process group. **Service down.** Log ends here — no recovery recorded.\n\n**Chain:** Redis outage → no circuit breaker on the fallback path → unbounded request queue → worker OOM → cascading full outage.\n\nNext: check whether `10.0.0.12:6379` (the redis host) is actually back up right now — that's your restart blocker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "21a62885fefdd242125f394d876928951fcd4f4ae5de82a945bf250e51e43071"
+}

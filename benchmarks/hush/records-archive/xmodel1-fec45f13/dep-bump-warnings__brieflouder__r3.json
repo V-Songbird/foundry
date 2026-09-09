@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__brieflouder__r3",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "brieflouder",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23732,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "brieflouder:Brieflouder",
+  "costUsd": 0.11509899999999998,
+  "numTurns": 10,
+  "durationMs": 21951,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1543
+  },
+  "contextTraffic": 194114,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7607,
+  "narrationWords": 0,
+  "finalWords": 72,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build passes now, exit 0.**\n\nTwo real bugs, both in link-stage call sites the bundler bump broke:\n\n- [`options.js`](src/core/options.js) read `options.retries`, but the new bundler passes `retryCount`. Threw on `undefined.toFixed`.\n- [`retryPolicy.js`](src/net/retryPolicy.js) threw on any non-boolean flag. The new config loader leaves unset flags `undefined` instead of `false`. Now it just checks `=== true`.\n\nThe rest of the \"warnings\" were deprecation noise and progress logs, not errors.\n\nNext: nothing. Build is clean.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dfd17da1b228016cf5ec9273b80428a5438199e3aa9e09ec32316a413ca82bcf"
+}

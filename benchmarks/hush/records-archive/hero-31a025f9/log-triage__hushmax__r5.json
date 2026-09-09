@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hushmax__r5",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 9,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 5,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18868,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20834640000000001,
+  "numTurns": 4,
+  "durationMs": 17369,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1028
+  },
+  "contextTraffic": 163366,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23614,
+  "narrationWords": 0,
+  "finalWords": 171,
+  "finalText": "Redis went down at 02:14:07 and dragged everything else with it.\n\n**Timeline**\n1. `02:14:07` — redis connection lost (`ECONNREFUSED 10.0.0.12:6379`). Cache switched to direct store reads.\n2. Store reads couldn't keep up. Cache misses piled up, then every service (api, worker-1, worker-2, scheduler) started timing out after 5 seconds.\n3. Redis reconnect attempts kept failing, roughly every 90 seconds, for over 12 tries. Redis never came back.\n4. Request queues grew the whole time. They started around 50 and hit 568 by the end, way past the max of 500.\n5. `02:31:44` — worker-2 ran out of memory, holding the backlog of stuck requests.\n6. `02:31:45` — worker-2 crashed and restarted.\n7. `02:31:52` — api stopped responding, and the supervisor killed the whole process group. That's the outage.\n\nSo the real cause is the redis box at `10.0.0.12` going unreachable. Everything after that, timeouts, growing queues, the memory crash, was downstream of that one failure. Fixing redis (or adding a real fallback that doesn't hammer the store) is the actual fix.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c76005ce34189631cd6ddf4d484050c902f8b223b7a4a4d2cd16d04b74efc341"
+}

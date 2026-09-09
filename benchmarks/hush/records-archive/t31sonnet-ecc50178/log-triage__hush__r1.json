@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 25159,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2458583,
+  "numTurns": 7,
+  "durationMs": 23167,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1344
+  },
+  "contextTraffic": 233071,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 27005,
+  "narrationWords": 0,
+  "finalWords": 163,
+  "finalText": "Redis died at 2:14am, and everything downstream fell apart from there.\n\nAt 02:14:07 the app lost its connection to Redis (`ECONNREFUSED` on `10.0.0.12:6379`). It fell back to hitting the database directly, which it couldn't keep up with. Every request started timing out after 5 seconds, and the backlog of waiting requests kept growing.\n\nFor the next 17 minutes it tried to reconnect to Redis every couple minutes and failed each time, 12 attempts in a row, while the request queue climbed past 500 and worker memory filled up. At 02:31:44 worker-2 ran out of memory and crashed. Eight seconds later the whole API stopped responding and the supervisor killed it, at 02:31:52.\n\nSo the trigger was Redis going down. The crash itself was caused by requests piling up faster than they could drain once caching was gone. Worth checking why `10.0.0.12:6379` was unreachable, and adding a queue limit or circuit breaker so a dead cache can't take the whole API down next time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c6d37bbf8e33d5b017cd5fe14ae7441ed90fe961e758cfc95213ad245004ed66"
+}

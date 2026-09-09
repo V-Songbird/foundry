@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r2",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 44,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 81337,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.26946499999999995,
+  "numTurns": 13,
+  "durationMs": 80258,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6989
+  },
+  "contextTraffic": 391780,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 22856,
+  "narrationWords": 0,
+  "finalWords": 92,
+  "finalText": "I went through all 380 commits and 127 merged PRs since 4.1. Most really was noise: dependency bumps, refactors, test fixes. I found one new feature and eleven real bug fixes, and added them to `CHANGELOG.md` under a new 4.2.0 section.\n\nThe big one: webhook deliveries now retry with backoff instead of dying after one try. Worth calling out to users: expired tokens now correctly return 401 instead of 403, and request bodies are no longer written to the logs in full (that one's a privacy fix). No breaking changes this time.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b340b280ac9664662ccba0aee8356c61856fa9943e0c8b12ba4ee4d616b7660f"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28008,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1988868,
+  "numTurns": 10,
+  "durationMs": 26130,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1609
+  },
+  "contextTraffic": 245383,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7920,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "finalText": "Build's clean now, exit 0.\n\nTwo real bugs were hiding under the deprecation noise, both from the bundler bump changing shapes:\n\n1. `src/core/options.js` read `options.retries`, but the new bundler hands `retryCount`. That crashed the link stage outright.\n2. `src/net/retryPolicy.js` threw on any non-boolean `backoffEnabled`, but the new config loader leaves unset flags as `undefined` instead of `false`. Now `undefined` is treated as disabled, same as before.\n\nThe rest was just deprecation and dedupe chatter, harmless. Build finishes with 8 warnings, 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "168554e1b34ac6c3d68024d4259a90fbb0c4eb047afb13fe49fe12d2dc67f084"
+}

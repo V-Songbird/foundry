@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__redo-caps__r2",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 162,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32677,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.19667149999999997,
+  "numTurns": 5,
+  "durationMs": 30990,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1624
+  },
+  "contextTraffic": 202513,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 12279,
+  "narrationWords": 0,
+  "finalWords": 227,
+  "finalText": "Redis died with no warning at all — one instant the app was healthy, the next it lost the connection cold. That's the whole story.\n\n**What happened, in order:**\n1. `02:14:07` — Redis connection refused (`ECONNREFUSED 10.0.0.12:6379`), with zero lead-up warnings beforehand.\n2. The app fell back to hitting the store directly, which it wasn't built to handle at scale — cache miss storms and store timeouts started immediately and never stopped.\n3. Over the next ~17 minutes, the request queue climbed steadily from 52 to 568 (way past the max of 500), while the app kept retrying Redis and failing every time.\n4. `02:31:26` — the 12th reconnect attempt failed, same as all the ones before it.\n5. `02:31:44` — `worker-2` ran out of heap memory, almost certainly from the backlog of queued requests piling up with nowhere to go.\n6. `02:31:45` — supervisor restarted `worker-2`, but it was too late.\n7. `02:31:52` — `api` stopped responding entirely, and the supervisor killed the whole process group. That's the outage.\n\n**Root cause:** Redis at `10.0.0.12:6379` went down and never came back. Everything after is a slow-motion consequence — no cache, direct-store overload, growing backlog, and eventually an out-of-memory crash that took the whole service down.\n\n**Next step:** check why Redis itself dropped (host, network, or Redis process) — that's the actual failure, not anything in this app.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d088891e3d5a1d6be018bed0d2d2f802f9f5a1ae80c00a4414ea1ea482a63495"
+}

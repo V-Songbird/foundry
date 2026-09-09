@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "t31sonnet-ecc50178",
+  "seed": "1787069058061",
+  "orderIndex": 22,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 53646,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.32363660000000005,
+  "numTurns": 13,
+  "durationMs": 45515,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2383
+  },
+  "contextTraffic": 506093,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 16030,
+  "narrationWords": 0,
+  "finalWords": 157,
+  "finalText": "Still ongoing at the end of the log, 03:59:27Z, with the wait queue climbing to 74. Here's the handoff.\n\n**On-call handoff: gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway, a.novak, 02:12–02:14Z) flipped `gateway.pool.perRequest` from `false` to `true`. That made every request grab its own DB connection instead of sharing one, and the fixed 20-slot pool filled up and stayed full.\n\n**Impact window:** Started 2026-03-14T02:14:18Z, roughly 33 seconds after the config applied. Still active as of the last log line, 03:59:27Z, with the wait queue growing from 13 to 74 requests. Only the gateway was hit. `worker.log` shows no related errors in this window.\n\n**Errors seen:** Every failing request logs `ERROR access ... 503`, paired with `ERROR pool ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`. Pool stats confirm it: `in_use=20 idle=0`.\n\n**Rollback:** Roll back `dep-4471` on the gateway, or flip `gateway.pool.perRequest` back to `false`. That's the only deploy in the window that touches gateway pooling.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0cae6b94ea1b8db3d8c61d72507441e848e8be9eb1cfe8958b0b345b15f85292"
+}

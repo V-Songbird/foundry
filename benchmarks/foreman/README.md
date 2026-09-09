@@ -1,5 +1,10 @@
 # Reproduce foreman's benchmarks
 
+Retained execution evidence is available in [datasets](datasets/README.md);
+structured records are directly versioned under `records/`.
+
+This suite now owns its record-schema validator in validation/ and its tests in tests/. Historical craft and handoff studies live in experiments/. See [all benchmark suites](../README.md).
+
 Curious whether a structured handoff prompt actually buys anything? This is the actual harness — run it yourself.
 
 It drives **real headless Claude Code sessions** (`claude -p`) on the same three fixed bug-fix tasks, asking for the same job four different ways. The four: the one-line ask a vibe coder types, the paragraph a competent dev writes by hand, the generic role/context/task/format template the prompt guides recommend, and a Foreman handoff built from [`prompt-template.md`](../../foreman/prompt-template.md). Cost and token counts come straight out of the API's own usage blocks. Correctness is checked mechanically — tests must pass AND the session must respect the task's stated constraints, verified by hash comparison against the pristine fixture. A fix that "works" by editing the frozen file scores as a *failure*, not a win.
@@ -364,9 +369,10 @@ words of fixed guardrail text against the reinforced profile's 567, 12% of it,
 499 words saved on every standard handoff.** That is a static computation over
 `prompt-template.md`, not a model trial.
 
-Run output stays local — `results/` and `records/` are gitignored. `results/` is
-your own local run output. The harness in this repo is the published way to
-regenerate any number a README states.
+Raw `results/` folders remain local working copies; retained historical outputs
+are published in [datasets](datasets/README.md). Records are directly versioned.
+The harness provides the method for reproducing a measurement; a new run is
+separate evidence and does not replace the original record.
 
 ## What's measured
 

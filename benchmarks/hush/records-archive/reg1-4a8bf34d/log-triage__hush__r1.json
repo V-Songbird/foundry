@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "reg1-4a8bf34d",
+  "seed": "1787982986540",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14902,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11875,
+  "numTurns": 4,
+  "durationMs": 13158,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 813
+  },
+  "contextTraffic": 115728,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23472,
+  "narrationWords": 0,
+  "finalWords": 143,
+  "assistantMsgs": 1,
+  "finalText": "**Redis outage cascaded into a full crash.**\n\nTimeline, 2026-07-04:\n1. `02:14:07` — Redis connection lost, `ECONNREFUSED 10.0.0.12:6379`. Cache falls back to direct store reads.\n2. `02:14–02:31` — Reconnect attempts fail 12 times in a row, roughly every 90s. Meanwhile cache miss storms, store timeouts, and request queue depth climb steadily, from 52 up to 568 (past the max of 500).\n3. `02:31:44` — `worker-2` hits `JavaScript heap out of memory`.\n4. `02:31:45` — `worker-2` crashes, exit code 134, supervisor restarts it.\n5. `02:31:52` — `api` goes unresponsive, supervisor kills the process group. Service down.\n\nRoot cause is the Redis box at `10.0.0.12` going unreachable. Everything else, from `worker-2`'s OOM to the final `api` kill, was downstream backlog once the queue couldn't drain.\n\nNext: check why `10.0.0.12:6379` dropped, and consider a queue depth cap or backpressure so a Redis outage doesn't OOM workers again.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "11131d12c734ccdbe91c31d75d8c181ae65f6c904ae03cdbc8b05546183474af"
+}

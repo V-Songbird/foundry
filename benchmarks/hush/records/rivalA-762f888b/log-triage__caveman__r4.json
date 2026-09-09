@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__caveman__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 17,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27974,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.4926915,
+  "numTurns": 5,
+  "durationMs": 26813,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1444
+  },
+  "contextTraffic": 138348,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 60577,
+  "narrationWords": 0,
+  "finalWords": 367,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "Redis died, cache fell away, store got hammered, queue grew unbounded, workers OOM'd. Classic cascade.\n\n**Timeline (all UTC, 2026-07-04)**\n- `02:00–02:14:03` — healthy. All 200s, cache hit ratio 0.90–0.98.\n- `02:14:07.113` — trigger: `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`\n- `02:14:07.114` — `cache layer degraded — falling back to direct store reads`\n- `02:14:08` on — cache miss storm on `orders:*` keys, every read hits store.\n- `02:14:10` — first `TimeoutError: request timed out after 5000ms (store overloaded)`. Continues nonstop for 17 min.\n- `02:14:12` — queue depth 52. Climbs ~3 per tick, never drains.\n- `02:15:26` – `02:31:26` — 13 redis reconnect attempts (0–12), all ECONNREFUSED. **Fixed ~80s interval, no backoff, and it never recovered.**\n- `02:29:12` — queue depth 502, crosses `max 500`. Logged as WARN only — no backpressure, no shed. Keeps growing to 568.\n- `02:31:44.902` — `ERROR [worker-2] JavaScript heap out of memory (request backlog)`\n- `02:31:45.001` — `FATAL [supervisor] worker-2 exited with code 134, restarting`\n- `02:31:52.318` — `FATAL [supervisor] api unresponsive, killing process group — service down`\n\n**Root cause:** Redis at `10.0.0.12:6379` refused connections and stayed down 17+ min. Not a slow node — ECONNREFUSED = nothing listening. Redis process dead or box gone.\n\n**What turned outage into crash (3 app bugs):**\n1. No circuit breaker on cache-miss path. Every miss became direct store read. Store saturated in 3 seconds.\n2. Queue max 500 not enforced. Depth 502→568 only warned. Unbounded backlog = heap growth = OOM code 134.\n3. Reconnect had no exponential backoff or cap — same interval, 13 tries, no alert escalation.\n\n**Fixes, priority order:**\n1. Enforce queue cap — reject with 503 above 500, not warn.\n2. Circuit breaker on store: after N timeouts, fail fast instead of queuing.\n3. Serve stale cache / degrade `/orders` rather than fall to direct reads.\n4. Redis HA (sentinel or cluster), backoff on reconnect.\n5. Why Redis died is not in this log — check Redis host logs / infra events at 02:14:07.\n\nOne flag: log is dated **2026-07-04**, not last night (2026-09-01). Either this is an old log, or the crash you saw is a different one — worth confirming you're looking at the right file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bd133194a5e49f5eb13fb5f3c7fea2068581427fc290ed7dbb90194f7628dc75"
+}

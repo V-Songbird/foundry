@@ -1,0 +1,42 @@
+{
+  "key": "plan-apply__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 167,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29923,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.167735,
+  "numTurns": 7,
+  "durationMs": 28760,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1706
+  },
+  "contextTraffic": 95743,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 3211,
+  "narrationWords": 15,
+  "finalWords": 391,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the code first so the plan is grounded in what's actually there."
+  ],
+  "finalText": "Read all four files (63 lines of source). Here's how I'd do it.\n\n## What's there\n\n- `report.js:buildRows()` — reads `data/runs.json`, maps each run to `{id, suite, status, ms, owner, slow}`, sorts slowest-first. This is the data.\n- `format.js:toTable(rows)` — renders only `['id','suite','status','ms']`. Its comment is explicit that dropping `owner`/`slow` is a display decision, and that \"anything that needs the whole row has to go back to `buildRows()`.\"\n- `cli.js` — 18 lines: dispatch on `argv[0] === 'report'`, else usage + exit 1.\n\n## The plan\n\n**1. Parse the flag in `cli.js`.** Accept `report --json` (and I'd accept the flag in either position, since there are no other args to conflict with). Anything that isn't `report` or a recognized flag still prints `USAGE` and returns 1 — right now an unknown trailing arg is silently ignored, and I'd rather it not be, but tell me if you'd prefer I leave that alone.\n\n**2. Branch on output, not on data.** `buildRows()` is called once regardless; only the renderer differs:\n```js\nconst rows = buildRows();\nprocess.stdout.write((json ? toJson(rows) : toTable(rows)) + '\\n');\n```\n\n**3. Put `toJson` in `format.js`, next to `toTable`.** That's where rendering lives, and it keeps `report.js` free of any printing concern. `JSON.stringify(rows, null, 2)` — pretty-printed, since a human is running a CLI. Say the word if you want it compact for piping instead.\n\n**4. Update `USAGE`** to `usage: cli.js report [--json]`.\n\n## The one decision I want from you\n\n\"Same data\" is ambiguous here, because the table already isn't the full data. Two readings:\n\n- **Full rows** — all six fields including `owner` and `slow`. This is what I'd default to: `buildRows()` is described as the complete record, `format.js` frames the two omissions as a width constraint of the terminal specifically, and a JSON consumer that can't see `owner` has to re-read the file to get it.\n- **Table parity** — pick the four `COLUMNS` fields so the JSON is a literal transcription of the table.\n\nI'll go with full rows unless you say otherwise. Worth noting the second is trivially reachable from the first (`--json` plus a field filter later), while the reverse means a breaking change.\n\nNo tests exist, so I'd verify by running both modes and eyeballing that the JSON parses and the table is byte-identical to today's output. Want me to proceed on that basis?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c22558fa0ca544877d92c28fd234c06d376e6aa267e24274dfce1681621b9037"
+}

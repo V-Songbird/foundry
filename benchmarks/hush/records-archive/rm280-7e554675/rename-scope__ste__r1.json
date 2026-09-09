@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__ste__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 62,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 56362,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.37334849999999997,
+  "numTurns": 18,
+  "durationMs": 54979,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3905
+  },
+  "contextTraffic": 236428,
+  "apiCalls": 8,
+  "toolCalls": 17,
+  "toolResultChars": 15334,
+  "narrationWords": 13,
+  "finalWords": 542,
+  "finalText": "## Size\n\nThe name `account_id` occurs **1082 times in 94 files**.\n\n| Area | Occurrences | Files |\n| --- | --- | --- |\n| `services/billing` | 288 | 15 |\n| `services/accounts` | 288 | 15 |\n| `services/orders` | 240 | 15 |\n| `services/analytics` | 192 | 15 |\n| `services/notify` | 192 | 15 |\n| `migrations/*.sql` | 59 | 12 |\n| `vendor/reporting-sdk` | 20 | 4 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/audit.js`, `lib/serialize.js` | 5 | 2 |\n\nInside the 75 service files, about 950 occurrences are plain JavaScript names. About 250 are column names inside SQL strings. The two groups look identical to a text search, but they are not the same thing.\n\n## Where it must not be renamed\n\nFour areas are off limits.\n\n**1. The public API contract.** `docs/openapi.yaml` states that every field named there is frozen. `account_id` is a required response field on `Invoice` and `Order`, and a public query parameter on `/v2/invoices`. A rename here breaks every client and needs a new dated API version.\n\n**2. The right side of the wire map.** In `lib/serialize.js:8`, the entry `account_id: 'account_id'` maps an internal key to a public key. The left side can become `owner_id`. The right side is the public name and must stay. The file says so at `lib/serialize.js:3-5`.\n\n**3. Vendored SDK code.** The four files under `vendor/reporting-sdk/src/` are generated. `vendor/reporting-sdk/src/client.js:3-4` says that local edits are overwritten by `npm run vendor:refresh`. The SDK also sends `account_id` to a remote reporting service, so the name is that vendor's contract, not yours.\n\n**4. Applied migrations.** All 12 files in `migrations/` are marked as applied in production. Editing one renames nothing in a database that already ran it, and it breaks the `down` step. See `migrations/20250624_backfill_account_ids.sql:3-4`.\n\n## The database column\n\nThis is the part that decides the true cost. The SQL in the repo layer selects a real column: `WHERE account_id = ?` in `services/billing/src/repo/invoice.js:10`. That column is named `account_id` in production.\n\nYou can rename the JavaScript variables today. You cannot rename the column with a text edit. To change the column, someone must write a new migration and run an expand-and-contract sequence:\n\n1. Add the `owner_id` column.\n2. Backfill it, and keep both columns in sync.\n3. Move the reads.\n4. Move the writes.\n5. Drop `account_id`.\n\nNothing in the current plan appears to cover this.\n\n## One more risk\n\n`services/billing/src/http/invoiceRoutes.js:10` reads `req.session.account_id`. The session object is built by an auth layer that is not in this repository. If that layer stays on `account_id`, the routes must keep reading the old name.\n\n## What I recommend\n\nDo not sign off on \"rename everywhere\". Sign off on a narrower scope:\n\n- Rename internal variables, parameters, and object keys in `services/**` — about 950 occurrences.\n- Keep the SQL column name until a real migration lands — about 250 occurrences.\n- Freeze `docs/openapi.yaml`, the right side of `WIRE`, `vendor/`, and `migrations/`.\n- Confirm the session field name with the owner of the auth layer before you merge.\n\nAlso check `lib/audit.js:8`. The audit line writes an `account_id` field. If a log pipeline or dashboard queries that field, it is a consumer contract too, and I cannot verify it from this repository.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8baa228af21c774eed6ae8c2b9dc139c37d82e8cf86163e0df109ba18f83d1ac"
+}

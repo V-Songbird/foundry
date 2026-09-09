@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 1,
+  "wallMs": 27438,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.56944475,
+  "numTurns": 7,
+  "durationMs": 26438,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1172
+  },
+  "contextTraffic": 136666,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 27887,
+  "narrationWords": 0,
+  "finalWords": 82,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis went down and took prod with it.**\n\nRoot cause is at [app.log:182](logs/app.log:182). Redis at `10.0.0.12:6379` refused connects. All 13 reconnects failed over 17 minutes. Cache fell back to direct store reads. The store then overloaded with `TimeoutError` on every request.\n\nQueue depth passed max 500 at 02:29. Then `worker-2` died of `JavaScript heap out of memory`. Supervisor killed `api` at 02:31:52. See [app.log:719](logs/app.log:719).\n\nNext: check why Redis stopped at 02:14 UTC. Also cap the queue so backlog can't blow the heap.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09d7a07433a37e565052d6f9bb57facb7539921e3fdd6c28874d202f0d89046c"
+}

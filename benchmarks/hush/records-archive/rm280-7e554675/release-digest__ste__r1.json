@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 39,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80933,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.6218165,
+  "numTurns": 7,
+  "durationMs": 79582,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5252
+  },
+  "contextTraffic": 204788,
+  "apiCalls": 5,
+  "toolCalls": 6,
+  "toolResultChars": 68144,
+  "narrationWords": 9,
+  "finalWords": 644,
+  "finalText": "I read `CHANGELOG.md`, all 380 commits in `history/commits.log`, and the 127 rows in `history/merged-prs.tsv`.\n\n## What the numbers look like\n\n| Group | Commits | User-visible |\n|---|---|---|\n| `chore(deps)` bumps | 132 | 1 line |\n| `test`, `ci`, `chore`, `docs` | 148 | no |\n| `refactor` | 65 | 8 (see below) |\n| `fix` | 25 | yes |\n| `perf` | 10 | speed only |\n| `feat` | 1 | yes |\n\n## What actually changed for a user\n\n**Four items break existing code.**\n\n1. `refactor(api): drop the unused v1 export route` (56dc828, #4152). A route disappeared. \"Unused\" is the author's judgement, not the user's.\n2. Five modules stopped re-exporting the internal error types: `auth` (d7cf97b), `billing` (b5cfbc3, 8639397), `core` (d988aed, 4d83260), `db` (5d4de73, 9b717dc), `jobs` (2e61589). Any import of those types from those paths fails.\n3. `fix(auth): return 401 for an expired token instead of 403` (1d2bd55, #4223). Client error handling that branches on the status code changes behavior.\n4. `fix(core|store): use the right units in the latency histogram` (1f2bc4e, 59a26ac, #4185). Emitted metric values change. Dashboards and alerts read wrong numbers after the upgrade.\n\n**One new feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (395fb48, #4191).\n\n**The rest of the fixes** collapse into nine themes. The same bug got fixed in several modules, so 25 commits become nine lines.\n\n## Draft for `CHANGELOG.md`\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- The `v1` export route is removed from the API.\n- The `auth`, `billing`, `core`, `db`, and `jobs` modules no longer re-export\n  the internal error types. Imports of those types from those modules fail.\n- An expired token now returns 401. It returned 403 before.\n- The latency histogram now reports the correct units. Update your dashboards\n  and your alert thresholds before you upgrade.\n\n### Added\n- Webhook delivery now retries a failed delivery with exponential backoff.\n\n### Fixed\n- The database layer no longer writes the full request body to the log.\n- The paginator no longer fails on a null cursor in the API, the database,\n  the queue, and the webhook dispatcher.\n- An empty allowlist no longer causes an error in the database, the jobs\n  runner, and the store.\n- The HTTP client clears its timer when the socket drops.\n- The HTTP client closes the pool on shutdown.\n- Duplicate headers no longer appear in HTTP, core, and billing responses.\n- The trace id survives a retry.\n- A trailing slash is trimmed one time, not twice.\n- The token parser error message is more exact.\n```\n\n## Two things I could not settle from `history/`\n\n1. **Minimum Node version.** Five `docs: note the minimum node version` commits, plus `ci: run the suite on node 22` and `chore: pin the node version in .nvmrc`. No commit shows an `engines` change in `package.json`. If the floor moved, that is a fifth Breaking item. Please check `package.json`.\n2. **A webhook config option.** The feature commit touched `src/core/config.js` next to `src/webhooks/dispatch.js`. That pattern usually means a new option for the retry count or the backoff cap. The log does not name it. If the option exists, it belongs under Added.\n\n## What I left out on purpose\n\n- 132 dependency bumps. All 16 distinct packages moved by a patch or a minor version: `pino`, `fastify`, `zod`, `ioredis`, `pg`, `knex`, `undici`, `nanoid`, `dotenv`, and seven build-time or test-time tools. No major version. Nothing for a user to act on. Add one line if your team wants it recorded.\n- 10 `perf` commits. Your template has three headings and no place for them. The largest is `perf(api): reuse the parsed schema between requests` (9f02d92). Tell me if you want a Performance heading, and I will add the section.\n- 148 test, CI, lint-config, and documentation commits.\n\nSay the word and I will write the draft into `CHANGELOG.md`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cf6886c2d88ec6eddf66911fd113fded25e5d73c2d14bab2b75c9a1b37524deb"
+}

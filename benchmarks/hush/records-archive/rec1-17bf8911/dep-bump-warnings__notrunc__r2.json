@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__notrunc__r2",
+  "batchId": "rec1-17bf8911",
+  "seed": "1787991543265",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "notrunc",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32601,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1352284,
+  "numTurns": 12,
+  "durationMs": 31141,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1940
+  },
+  "contextTraffic": 255837,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 8214,
+  "narrationWords": 10,
+  "finalWords": 74,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Fix both real bugs, then run the build to confirm."
+  ],
+  "finalText": "**Build is clean.** Exit code 0, 0 errors.\n\nTwo real bugs, both from the bump, both fixed:\n\n- [`src/core/options.js:6`](src/core/options.js:6) — new bundler passes `retryCount`, code still read `options.retries`. Changed it to `options.retryCount`.\n- [`src/net/retryPolicy.js:7`](src/net/retryPolicy.js:7) — new config loader leaves unset flags `undefined`, but the check only handled `true`/`false` and threw otherwise. Added an `undefined` case, defaulting backoff to disabled.\n\nThe rest were plain deprecation noise from the new `fakepack` version, left alone.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "36fb205a02ffd274f9b5aa4ee3b964f42ddf50a7d14d924548808f48695af926"
+}

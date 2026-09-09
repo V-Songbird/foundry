@@ -1,0 +1,44 @@
+{
+  "key": "incident-forensics__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 149,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 160173,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.678074,
+  "numTurns": 17,
+  "durationMs": 156213,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10086
+  },
+  "contextTraffic": 443213,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 13008,
+  "narrationWords": 62,
+  "finalWords": 685,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "I'll start by looking at the log file.",
+    "I did a quick pass on this earlier; let me look at it properly since it's the actual question now.",
+    "All 1080 jobs finished ok and the pool is flat — but the durations caught my eye: 200ms at the start of the log versus 2300ms at the end. Let me check that trend."
+  ],
+  "finalText": "All 106 successes after onset were `/health`. **Every single customer request failed** — the real error rate is 100%, not the 71% the pager reported (that figure counts health checks in the denominator).\n\n---\n\n# On-Call Handoff — Gateway 503s\n\n**Status: ONGOING / NOT MITIGATED.** Log ends 03:59:27Z with the fault still active and worsening.\n\n## Root cause\n\nDeploy **dep-4471** (gateway, a.novak) applied config generation 119 at 02:13:41Z, flipping:\n\n```\ngateway.pool.perRequest:    false -> true\ngateway.timeout.upstreamMs: 2000  -> 2500\n```\n\n`perRequest: true` gives every request its own connection instead of multiplexing, so a 20-connection pool now caps the gateway at 20 concurrent requests. It saturated in 37 seconds and never recovered. The `upstreamMs` bump compounds it — connections are held 25% longer, draining the pool faster.\n\nCorroborating signal at 03:02: `connection churn: 4180 opens in the last 5m, baseline is 40` — a **104x** increase, exactly the per-request signature.\n\nEvery failure is the same single error, one per request, same millisecond:\n\n```\nERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\nERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool\n                        (size 20, in_use 20, waiting 13)\n```\n\n`ERR_POOL_EXHAUSTED` is the **only** distinct error message in the file. These are not upstream failures — the gateway never obtained a connection to send the request.\n\n## Impact window\n\n| | |\n|---|---|\n| **First 503** | 2026-03-14T**02:14:18.972Z** |\n| **Still failing at** | 03:59:27.974Z (end of log) |\n| **Duration** | **1h 45m and counting** |\n| **Failed requests** | 530 |\n| **Customer success rate** | **0%** |\n\nBefore onset: 592 requests, all 200. After onset: 530 requests, all 503 — plus 106 `/health` checks, which is the entire set of successes.\n\nSteady at 50 failures per 10 minutes from 02:20 onward, and the pool's `waiting` queue climbs monotonically 13 → **74**. It is not stabilizing. All four upstreams and all five `/v1/*` routes are hit evenly (~26–27 each); nothing is service-specific.\n\n## Roll back\n\n**Revert dep-4471 / config generation 119 → 118.**\n\nMinimum viable fix is `gateway.pool.perRequest` back to `false`. Also revert `upstreamMs` to 2000 unless it's wanted independently. Expect recovery within ~1 reload cycle (119 took 89s to apply).\n\n⚠️ **Do not re-ship per-request pooling without raising the pool size first.** A pool of 20 cannot carry this traffic in that mode — that's the whole failure. Size it from observed concurrency, not from the current 20.\n\nNot the cause, don't chase: dep-4472 (billing, 02:41) and dep-4473 (catalog, 03:20) both shipped *after* failures were already steady, and neither changed the rate. dep-4473 lands 5 min before the page purely by coincidence of alert lag.\n\n## Two gaps that let this run 105 minutes\n\n1. **`/health` doesn't touch the pool.** 106/106 health checks returned 200 throughout, so the load balancer saw a healthy node while 100% of real traffic failed — no rotation, no automatic mitigation. Health checks need to exercise the connection pool.\n2. **Alerting lag: 67 minutes.** First 503 at 02:14:18, page at 03:21:05 (`error_rate 5m avg is 71%`). The threshold sat above the ramp. Note the 71% is diluted by health checks — an alert on customer traffic alone would have fired at ~100% almost immediately.\n\nAlso: the deploy pipeline marked dep-4471 finished at 02:14:00, **18 seconds before the first 503**. It reported green while the damage was already landing.\n\n## Separate issue — not part of this incident\n\n`worker.log` is clean w.r.t. the outage: 1080/1080 jobs `finished ok`, zero pool errors, worker pool flat at `size=8 in_use=1 waiting=0` across all 18 samples including mid-outage.\n\nBut job durations ramp **+110ms per 10 minutes, perfectly linearly** — 327ms at 01:00 → 2197ms at 03:50, a 6.7x slowdown uniform across all four job types. It starts ~74 min *before* the gateway incident with no inflection at onset, and `db_wait` holds at exactly 5.0ms, so it's neither gateway-related nor connection contention. Likely tied to the one WARN: `slow query 1.9s: SELECT * FROM orders WHERE status = ? — unindexed scan, known issue OPS-2210`.\n\nNothing is failing yet, but at that slope it will. File against OPS-2210 and check a longer window to see whether the ramp resets.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "da599688568a22e331137fce0af385dfe9f5529e58f533bda999acc86c7cc6ee"
+}

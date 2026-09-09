@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "opuscheck-6e0e4c50",
+  "seed": "1787067448103",
+  "orderIndex": 17,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 170053,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 1.0311155,
+  "numTurns": 33,
+  "durationMs": 161983,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9842
+  },
+  "contextTraffic": 955860,
+  "apiCalls": 29,
+  "toolCalls": 28,
+  "toolResultChars": 20318,
+  "narrationWords": 8,
+  "finalWords": 190,
+  "finalText": "Dedup is in, and the verifier is green:\n\n```\nOK the router matches the rules as they finally stood\nexit=0\n```\n\nThe replay shows the flaps collapsing — a key that just went out is dropped two minutes later, at every priority and in the queue path too:\n\n```\n    10 00  evt-0710  high      disk-usage  -> queue\n    12 00  evt-0711  high      disk-usage  -> (dropped)\n\ndropped: 99   route() errors: 0\n```\n\nThat's the ~1-in-9 repeat pattern `events.js` builds, all suppressed.\n\nTwo judgment calls I made, both easy to flip:\n\n- **The window is measured from the last *send*, not the last event.** A dropped repeat doesn't extend the quiet period, so a key flapping every 2 minutes delivers roughly every 6 rather than never.\n- **Exactly 5 minutes later delivers** — the check is `< 5`, so 5 minutes is outside the window.\n\n`createState()` now returns `{ lastSent: new Map() }`, and the verifier's fresh-state check confirms replays don't inherit each other's history. All four rules as they now stand: priority mapping (high fans out to sms + email), quiet hours 22:00–07:00 queueing with critical still paging, and the five-minute repeat drop.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "09d523fbfe43bca806bde96c4e6188dd52ea1fcc351e87000b7a7b269a09ad5f"
+}

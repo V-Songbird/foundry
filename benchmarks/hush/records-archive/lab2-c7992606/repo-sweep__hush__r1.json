@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "lab2-c7992606",
+  "seed": "1787990248601",
+  "orderIndex": 26,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 79351,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3060036,
+  "numTurns": 55,
+  "durationMs": 77782,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11174
+  },
+  "contextTraffic": 283969,
+  "apiCalls": 8,
+  "toolCalls": 54,
+  "toolResultChars": 26837,
+  "narrationWords": 21,
+  "finalWords": 46,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirmed. Now migrating each non-vendor file's `db.query(sql, params)` calls to `db.execute({ sql, params })`.",
+    "Verifying no `db.query` calls remain outside vendor."
+  ],
+  "finalText": "**Migration done.**\n\nMoved 11 files, 33 calls, from `db.query(sql, params)` to `db.execute({ sql, params })`:\n[sla.js](packages/support/src/repo/sla.js), `couponService.js`, `macroAdmin.js`, `teamService.js`, `session.js`, `variantAdmin.js`, `supplier.js`, `apiKeyAdmin.js`, `returnService.js`, `refund.js`, `cohort.js`, `shipment.js`.\n\nLeft `vendor/legacy-orm/adapter.js` alone. Its header says it's overwritten wholesale on every upgrade, so edits there don't survive.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c09f23e7a8a5d2d494b38cb97b2b65a786c9a99e4352367abc9b24ab87cfdaf9"
+}

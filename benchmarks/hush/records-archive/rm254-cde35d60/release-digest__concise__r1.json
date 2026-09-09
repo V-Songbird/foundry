@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r1",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 38,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 117091,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5776535,
+  "numTurns": 10,
+  "durationMs": 115502,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10121
+  },
+  "contextTraffic": 391892,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 71477,
+  "narrationWords": 52,
+  "finalWords": 199,
+  "finalText": "Added the 4.2.0 entry to `CHANGELOG.md`. Highlights:\n\n- **Breaking**: expired tokens now return 401 instead of 403 (`fix(auth)`, PR #4223) — worth flagging loudly since it'll break status-code checks.\n- **Added**: webhook retries with exponential backoff (`feat(webhooks)`, PR #4191) — the only actual feature in the release.\n- **Fixed**: a real cluster of bugs — null-cursor crashes across four different paginators (queue/api/webhooks/db), duplicate headers on some responses, doubled trailing slashes, empty-allowlist crashes, trace IDs dropped on retry, an HTTP socket-timer/pool leak, and a request-body-logging issue in the DB layer worth calling out for anyone concerned about sensitive data in logs.\n\nEverything else — ~350 commits of dependency bumps, `refactor(...)`, CI tweaks, and test-only changes — I left out since none of it is visible to someone installing the package. One thing worth a gut-check on your end: several of those \"Fixed\" items (null cursor, duplicate header, trailing slash, empty allowlist) have the *identical* commit message repeated across 2-4 unrelated modules on different days — that's either coincidence or the same bug template getting copy-pasted through the codebase. I wrote it up as-is from the commit messages, but you may want to sanity-check with whoever filed those PRs before publishing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6dfb58cc57b93520cdf5ab5b46c556af39f904e926e3375b5d3c9d968781b1ca"
+}

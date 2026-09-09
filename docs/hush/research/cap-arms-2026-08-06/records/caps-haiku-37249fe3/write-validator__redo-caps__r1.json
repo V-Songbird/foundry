@@ -1,0 +1,37 @@
+{
+  "key": "write-validator__redo-caps__r1",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 86,
+  "task": "write-validator",
+  "segment": "coding",
+  "arm": "redo-caps",
+  "rep": 1,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 8708,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0224155,
+  "numTurns": 1,
+  "durationMs": 6846,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 499
+  },
+  "contextTraffic": 27043,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 97,
+  "finalText": "```python\nimport re\n\ndef validate_email(email: str) -> bool:\n    \"\"\"Validate an email address using a regex pattern.\"\"\"\n    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\n    return re.match(pattern, email) is not None\n```\n\nFor more robust validation, use the `email-validator` library:\n\n```python\nfrom email_validator import validate_email, EmailNotValidError\n\ndef validate_email(email: str) -> bool:\n    \"\"\"Validate an email address using the email-validator library.\"\"\"\n    try:\n        validate_email(email)\n        return True\n    except EmailNotValidError:\n        return False\n```\n\nThe regex version is lightweight and works for most cases. The `email-validator` library is stricter—it checks DNS records and follows RFC standards more closely. Pick the regex one for simplicity, the library one for correctness.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0b94b3995a60b74dc2c0287eed1d5cd43a646d4e5bd55c9439aac408aa66c475"
+}

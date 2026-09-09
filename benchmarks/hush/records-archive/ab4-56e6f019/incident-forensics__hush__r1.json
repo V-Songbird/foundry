@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 14,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 60319,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.33273620000000004,
+  "numTurns": 14,
+  "durationMs": 53493,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3187
+  },
+  "contextTraffic": 768793,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 40317,
+  "narrationWords": 0,
+  "finalWords": 196,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` to the gateway, shipped by a.novak from 2:12 AM to 2:14 AM on March 14th 2026. Its summary: \"config: connection-per-request for pool isolation.\" Right after it finished, the gateway stopped returning database connections to its pool. The pool holds 20 connections, and they filled up and stayed full, so every new request had to wait in line. The error tag in the logs is `ERR_POOL_EXHAUSTED`.\n\n**Impact window:** Started 2:14:14 AM on March 14th, with the first slow-connection warning. The first real failure hit four seconds later, at 2:14:18 AM, a `/v1/cart` request returned `503` after 659 milliseconds. Failures have not stopped since. The log's last line is timestamped 3:59:27 AM, still failing, with 74 requests stuck waiting for a connection. This is at least 1 hour 45 minutes of ongoing impact, and it has not recovered on its own.\n\n**Scope:** Gateway only. The background workers (`worker.log`) kept running clean the whole time, no pool exhaustion there. Whatever broke is isolated to the gateway's own connection handling.\n\n**Action:** Roll back `dep-4471` on the gateway. That is the only deploy that lines up with the start of the failures.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8b96fa0d1e0393d4748b86a5768a5789a82b25cc266ef96c245266f6736c1c3e"
+}

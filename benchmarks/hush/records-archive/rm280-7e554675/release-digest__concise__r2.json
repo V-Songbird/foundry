@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__concise__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 47,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 78771,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.7474115,
+  "numTurns": 9,
+  "durationMs": 77466,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5110
+  },
+  "contextTraffic": 368442,
+  "apiCalls": 8,
+  "toolCalls": 8,
+  "toolResultChars": 72198,
+  "narrationWords": 39,
+  "finalWords": 442,
+  "finalText": "Draft entry is in `CHANGELOG.md:20`. 380 commits collapse to about 13 lines.\n\n**How the 380 break down:** 153 chore (mostly the 16 dep bumps, each merged 2–6 times), 73 refactor, 64 test, 33 ci, 20 docs — all invisible to users. That leaves 26 `fix`, 10 `perf`, 1 `feat`. The fixes dedupe hard: the same bug class was patched module by module, so \"guard the null cursor in the paginator\" is four commits (api, db, queue, webhooks), \"handle an empty allowlist\" three, \"drop the duplicate header\" three. One line each.\n\n**The one real feature** is webhook retry with backoff (`395fb48`).\n\n**Four things I put under Breaking that weren't labeled breaking** — this is the part worth your attention:\n\n- `fix(auth): return 401 for an expired token instead of 403` (`1d2bd55`). Labeled a fix, but it's a contract change for anyone matching on the status code.\n- `refactor(*): stop re-exporting the internal error types` — 9 commits across auth, billing, core, db, jobs. Labeled refactor, but removing a re-export is a removal from the public surface *if* those types were reachable from the entry point. **I can't verify that from here** — the directory has only `history/` and `CHANGELOG.md`, no source tree. Check whether `src/index` re-exported them in 4.1; if it didn't, delete that bullet.\n- `refactor(api): drop the unused v1 export route` (`56dc828`). \"Unused\" is the author's read of internal telemetry, not a guarantee about your users. Worth a second look before shipping it silently.\n- `fix(store|core): use the right units in the latency histogram`. Correct fix, but every existing dashboard and alert threshold reads the old magnitude. Users notice this the morning after upgrading.\n\n**Deliberately omitted:** all 10 perf commits (clone avoidance, JSON round-trip skips, schema reuse, metric batching). No behavior change, and your file's own rule is \"only what someone installing this package would notice.\" Say the word if you'd rather list them — `perf(db|queue): batch the metric writes` is the only one with an observable side effect, since it changes when metrics appear.\n\n**Two flags:**\n\nThe history ends **2026-06-17**, ten weeks before tomorrow's cut. Either the export is stale or there's unlogged work — if the latter, these notes are missing it.\n\nThe dep bumps are all patch/minor and none carry a stated CVE, so I left them out. `vitest 1.6.0 → 2.0.1` is the only major, and it's dev-only. Separately, `docs: note the minimum node version` (5×) and `ci: run the suite on node 22` (6×) may mean you dropped an older Node — a docs note and a CI matrix change can't tell me whether `engines` moved. If it did, that's a Breaking bullet I haven't written.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "47a09d7d6fed9cc95257d1ea9036b064940bf40e62b5b51f5dc4960bbc69e114"
+}

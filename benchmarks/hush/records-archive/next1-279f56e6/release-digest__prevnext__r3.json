@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__prevnext__r3",
+  "batchId": "next1-279f56e6",
+  "seed": "1787987410607",
+  "orderIndex": 21,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "prevnext",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 103649,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2857518,
+  "numTurns": 14,
+  "durationMs": 102212,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8655
+  },
+  "contextTraffic": 311254,
+  "apiCalls": 8,
+  "toolCalls": 13,
+  "toolResultChars": 33435,
+  "narrationWords": 0,
+  "finalWords": 120,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote 4.2.0 to `[CHANGELOG.md](CHANGELOG.md)`.** Went through all 380 commits and the PR sheet, filtering out the deps bumps, refactors, and test/CI churn.\n\nReal user-facing changes:\n- **Breaking:** expired tokens now return `401`, not `403`\n- **Added:** webhook deliveries retry with exponential backoff on failure\n- **Fixed:** 8 bugs — pagination crashes on a missing cursor (queue, API, webhooks, DB), a duplicate response header, double-trimmed trailing slashes, empty allowlists breaking requests, lost trace IDs on retry, wrong histogram units, request bodies leaking into logs, and an HTTP client timer/pool cleanup bug\n\nWorth a look before you ship: the `401`/`403` change is the one thing that could break someone's client code, so it's flagged Breaking same as the `timeout` change in 4.1.0.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2aaeec1df247251d6efaf0a07ca885b63064b462a8706dcb7fa3c18024668676"
+}

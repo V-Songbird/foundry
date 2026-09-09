@@ -1,0 +1,37 @@
+{
+  "key": "feature-drift__combo__r2",
+  "batchId": "o1-79a3ce8c",
+  "seed": "1787151737789",
+  "orderIndex": 58,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "combo",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 169201,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "combo:Combo",
+  "costUsd": 1.0655445,
+  "numTurns": 30,
+  "durationMs": 162130,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10791
+  },
+  "contextTraffic": 1021632,
+  "apiCalls": 26,
+  "toolCalls": 25,
+  "toolResultChars": 18380,
+  "narrationWords": 6,
+  "finalWords": 92,
+  "finalText": "**Done.** A repeat of the same `key` within 5 minutes now drops.\n\nOnly a notification we actually sent starts the window. Drops don't slide it forward, so a flapping alert settles into one delivery every 5 minutes.\n\n```\n600 dup first   -> push\n602 dup +2min   -> (dropped)\n604 other key   -> push\n605 dup +5min   -> push\n```\n\nQueued notifications count as sent, so quiet-hour repeats drop too.\n\nThe replay drops 99 of 900 now. No errors.\n\n`node verify.js` also passes: `OK the router matches the rules as they finally stood`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1d2bf2a1402ecd46f4a4e72912c68279a82748fd00ca03e1efcd7270f24a327f"
+}

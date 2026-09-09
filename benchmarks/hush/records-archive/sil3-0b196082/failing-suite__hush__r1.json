@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "sil3-0b196082",
+  "seed": "1787986994570",
+  "orderIndex": 0,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26060,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1206122,
+  "numTurns": 11,
+  "durationMs": 24084,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1181
+  },
+  "contextTraffic": 203640,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 11819,
+  "narrationWords": 13,
+  "finalWords": 44,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount `cents` instead of the discounted amount."
+  ],
+  "finalText": "**Fixed. All 625 tests pass.**\n\n`orderTotal` in [src/pricing.js:39-43](src/pricing.js:39) taxed the original `cents` instead of the discounted amount, despite its own comment saying tax belongs on what the customer pays. Changed `tax` to use `discounted * taxRate`.\n\nNothing else was broken. No further action needed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "360f52dffe0b20ffbff27580f1773a845b6de6e67d60275c2377f5826521f694"
+}

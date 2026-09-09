@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44215,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2901585,
+  "numTurns": 9,
+  "durationMs": 42821,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2675
+  },
+  "contextTraffic": 135061,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 13044,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "assistantMsgs": 1,
+  "finalText": "**`Redis` died at 02:14 and took the whole service down.**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:08 | cache miss storm, every read hits the store |\n| 02:14:10 | store overloads, 5s `TimeoutError` floods start |\n| 02:15:26 → 02:31:26 | 13 reconnect tries, all refused |\n| 02:31:24 | queue depth 568, cap 500 |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nOnset is [logs/app.log:182](logs/app.log:182). Last good request was 02:14:03.\n\nNext: find why `10.0.0.12:6379` refused. Reconnect never backed off or shed load. Heads up, the log is dated 2026-07-04, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c11a454b0b3dc9a63ac4bb8c9ac7717e3779e63d12be1dc2f253d778076d41d2"
+}

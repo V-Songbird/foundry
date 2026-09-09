@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__precap__r2",
+  "batchId": "silence-cada48e4",
+  "seed": "1787639623227",
+  "orderIndex": 30,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "precap",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 69098,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2919622,
+  "numTurns": 17,
+  "durationMs": 62849,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4030
+  },
+  "contextTraffic": 775381,
+  "apiCalls": 17,
+  "toolCalls": 13,
+  "toolResultChars": 14404,
+  "narrationWords": 0,
+  "finalWords": 173,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause.** Deploy `dep-4471` to the gateway, shipped by a.novak from 2:12 AM to 2:14 AM on March 14, 2026. Title: \"config: connection-per-request for pool isolation.\" It changed two settings: `gateway.pool.perRequest` flipped from `false` to `true`, and `gateway.timeout.upstreamMs` went from 2000 to 2500. That change exhausted the connection pool, which holds 20 slots. Every 503 since then logs the same error, `ERR_POOL_EXHAUSTED`, all 20 slots in use and requests queued waiting.\n\n**Impact window.** First 503 hit at 2:14:18 AM, 33 seconds after the deploy landed. Still ongoing at 3:59:27 AM, the last entry in the log, with 74 requests queued and waiting at that point. Over that stretch, 548 requests failed with a 503. Every route was hit: cart, session, catalog search, orders, checkout. Health checks kept returning 200 the whole time, so the gateway process itself never went down, it just couldn't get connections.\n\n**Scope.** Gateway only. `worker.log` covers the same window and shows zero errors, every job finished OK.\n\n**Rollback.** Roll back `dep-4471` on the gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a48d824df62f6338c1121f8d73f9a28258c805430a19d518198d434f98a914c4"
+}

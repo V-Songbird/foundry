@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 48231,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.54401,
+  "numTurns": 6,
+  "durationMs": 46805,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3108
+  },
+  "contextTraffic": 201087,
+  "apiCalls": 5,
+  "toolCalls": 5,
+  "toolResultChars": 60980,
+  "narrationWords": 6,
+  "finalWords": 747,
+  "finalText": "## What happened\n\n**One-line version:** Redis went away at 02:14:07, the cache never came back, every request fell through to the primary store, the store couldn't take it, request backlogs grew unbounded for 17 minutes until worker-2 OOM'd and the supervisor killed the API. Redis is the root cause; the *outage* is a missing-backpressure bug.\n\n### Timeline (all times UTC, log is dated 2026-07-04)\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Totally healthy. 170 requests, all `200`, latency 12–145ms, cache hit ratio 0.90–0.98 (`app.log:1-181`) |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` (`:182`) |\n| 02:14:07.114 | `cache layer degraded — falling back to direct store reads` (`:183`) — the fallback is what kills you |\n| 02:14:08 | Cache miss storm begins, first key `orders:1000` (`:184`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` (`:185`) |\n| 02:14:12 | Queue depth first logged at 52/500 (`:186`) |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts (0–12), **every single one ECONNREFUSED**, same host/port |\n| 02:29:12 | Queue depth **502** — crosses the stated max of 500 (`:647`) |\n| 02:31:26 | Last reconnect attempt (#12) fails; queue depth 568 (`:714-716`) |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` (`:717`) |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (`:718`) |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` (`:719`) |\n\nVolume: 188 ERROR + 2 FATAL + 348 WARN, all inside a 17½-minute window. Spread evenly across `api` (57), `worker-1` (44), `worker-2` (44), `scheduler` (43) — no single bad node, it's environmental.\n\n### The four things actually worth fixing\n\n**1. Redis at 10.0.0.12:6379 refused every connection for 17+ minutes.** `ECONNREFUSED` is not a network partition or a timeout — something was listening and said no, or nothing was listening at all. That's a dead/restarted Redis process, or the instance moved and DNS/config still points at the old IP. Start your post-mortem on the Redis host, not the app.\n\n**2. The reconnect loop has no exponential backoff.** Attempts land at 02:15:26, 02:16:46, 02:18:06, 02:19:26 … exactly **80 seconds apart, all 13 of them**. A proper `ioredis` `retryStrategy` would be widening the gap. Fixed-interval retry means that when Redis *does* come back you get a thundering herd, and meanwhile you're paying full-latency connect attempts against a dead host during your worst moment.\n\n**3. `max 500` on the queue is a label, not a limit.** Depth climbs by exactly 3 per sample and sails straight through 500 → 502 → 568 with no shed, no 503, no circuit breaker. Every one of those queued requests holds a heap-allocated context, which is precisely what the OOM message names: `JavaScript heap out of memory (request backlog)`. If the queue had actually capped at 500 and shed the overflow, worker-2 survives and the API stays up degraded instead of dying.\n\n**4. The cache-miss fallback has no circuit breaker.** The miss keys cycle through `orders:1000`–`orders:1199` and then wrap around and repeat (`orders:1000` at `:184`, again at `:390`, again at `:596`). It's a bounded 200-key hot set being re-fetched from the store over and over, each fetch timing out at 5000ms, forever. Once you see N consecutive store timeouts you should trip open and fail fast, not keep queueing retries for the same 200 keys.\n\n### Recommended order of work\n\n1. Circuit-break the store fallback (highest leverage — stops the death spiral at the source)\n2. Enforce the 500 queue cap with real load-shedding → 503\n3. Exponential backoff + jitter on the `ioredis` `retryStrategy`\n4. Alert on `cache hit ratio` dropping / `redis connection lost`, and on queue depth > ~60% of max — you had a **7-minute head start** between the Redis drop and the queue crossing 100, and nothing paged\n\n### One flag\n\nThe log timestamps are **2026-07-04**, but today is 2026-08-27. This isn't last night's incident — it's a file from about seven weeks ago. Either you're looking at a stale/rotated `app.log`, or last night's logs went somewhere else. Worth checking which before you act on this, because if prod fell over again last night, the actual evidence is in a different file. Everything above is a sound analysis of the 2026-07-04 outage; whether it's the *same* failure as last night's is unconfirmed. If the pattern does repeat, that makes fixes 1–3 considerably more urgent — it means this is recurring, not a one-off Redis blip.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7425f92593ce14d3302a28c0101aee3fb9f573d7d06b3fb9e0fb1eac0b179472"
+}

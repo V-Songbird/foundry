@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 24199,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.159306,
+  "numTurns": 5,
+  "durationMs": 23075,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1301
+  },
+  "contextTraffic": 211436,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 32034,
+  "narrationWords": 18,
+  "finalWords": 249,
+  "finalText": "Root cause found. No recovery entry after — log ends at kill. Full picture done, no need read middle 500 lines (repeat pattern confirmed).\n\n**What happened (2026-07-04, starting 02:14:07 UTC):**\n\n1. **Trigger:** Redis died — `connect ECONNREFUSED 10.0.0.12:6379`. api lost cache layer, fell back to direct store reads.\n2. **Cascade:** Cache miss storm hit. Every read now slammed store directly, causing `TimeoutError: request timed out after 5000ms (store overloaded)` on api/worker-1/worker-2/scheduler, repeating every few seconds.\n3. **Backpressure failed:** request queue depth climbed steady (52 → 500+ → past 560), never drained. Redis reconnect retries (0 through 12, spaced ~2min apart) all failed same ECONNREFUSED — Redis never came back.\n4. **Death spiral (02:31:26 - 02:31:52):**\n   - `02:31:44` worker-2: `JavaScript heap out of memory (request backlog)` — unbounded queue ate all memory.\n   - `02:31:45` supervisor: worker-2 exited code 134 (SIGABRT), restart attempted.\n   - `02:31:52` supervisor: `api unresponsive, killing process group — service down`.\n\nLog ends there, no recovery line — matches \"prod fell over.\"\n\n**Root cause:** Redis instance at 10.0.0.12:6379 went unreachable. No circuit breaker on store fallback path — direct reads had no queue cap/backpressure, so queue depth grew unbounded until worker OOM'd and took whole process group down with it.\n\n**Fix direction:** get Redis back up first, then add: queue depth hard cap (shed load past max instead of let unbounded growth), circuit breaker on cache-miss fallback to protect store, backoff cap on reconnect attempts already fine (2min spacing) but reconnect logic did nothing to relieve pressure meantime.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "50c54a87eabfdab78103dd2be86cc5d567f771c646ccd6b620077cdec8f08309"
+}

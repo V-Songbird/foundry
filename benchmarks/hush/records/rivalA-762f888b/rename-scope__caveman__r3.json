@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__caveman__r3",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 114,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "caveman",
+  "rep": 3,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 57552,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.418957,
+  "numTurns": 8,
+  "durationMs": 56608,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3534
+  },
+  "contextTraffic": 229580,
+  "apiCalls": 8,
+  "toolCalls": 7,
+  "toolResultChars": 27230,
+  "narrationWords": 5,
+  "finalWords": 488,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I look at code first."
+  ],
+  "finalText": "## Size\n\n**1291 occurrences, 94 files.** Not a one-day sed.\n\n| Zone | occurrences | files |\n|---|---|---|\n| `services/**` (25 entities × repo/service/http) | 1200 | 75 |\n| `migrations/*.sql` | 61 | 12 |\n| `vendor/reporting-sdk` | 20 | 4 |\n| `docs/openapi.yaml` | 5 | 1 |\n| `lib/` | 5 | 2 |\n\nServices perfectly uniform: every entity has same 5 repo functions, same 4 service functions, same 4 route handlers. Mechanical part is genuinely mechanical.\n\n## Must NOT rename\n\n**1. DB column names — 125 occurrences inside SQL string literals in `services/**/repo/*.js`.**\n`'SELECT * FROM invoices WHERE account_id = ?'` — that `account_id` is a Postgres column. Rename the JS parameter all you want; the string must stay `account_id` unless a real `ALTER TABLE ... RENAME COLUMN` ships first. A blind find-replace renames both and every query 42703-errors at runtime, not at build.\n\n**2. `migrations/*.sql` — 61 occurrences, all 12 files.**\nHeader on each says it: applied in production (2025-01-14 through 2025-06-24). Editing applied migration renames nothing in a live DB and breaks the `down` step. Leave whole directory alone. Filenames too (`20250624_backfill_account_ids.sql`).\n\n**3. `vendor/reporting-sdk/` — 20 occurrences, 4 files.**\nGenerated vendored copy of 3.8.1. `npm run vendor:refresh` overwrites it. `account_id` there is the upstream vendor's wire field anyway — rename breaks their API.\n\n**4. `docs/openapi.yaml` + right side of `WIRE` in `lib/serialize.js` — public API contract.**\n5 occurrences in openapi, 1 in serialize. `account_id` is response field and query parameter on `/v2/invoices`. Breaking change for every client; needs new dated API version. In `lib/serialize.js:9`:\n\n```js\naccount_id: 'account_id',   // left = internal, right = public — frozen\n```\n\nIf the internal rename lands, this line becomes `owner_id: 'account_id'`. Left key changes, right value never. That single line is what keeps the rename from leaking to clients — flag it as required reviewer attention.\n\n## Judgment calls\n\n- **`JSON.stringify({ ...values, account_id })` — 50 occurrences** in `insert*` functions. Key gets written into the JSONB `payload` column. Renaming it makes new rows disagree with every existing row. Either keep the key or ship a data backfill.\n- **`lib/audit.js:9`** — `account_id` is a field name in emitted audit lines. If any log pipeline, SIEM, or dashboard queries that field, renaming breaks it silently. Ask the platform team who consumes audit output.\n- **`req.session.account_id` — 100 occurrences.** Session object shape. Safe only if session issuer is in this repo; it isn't visible here. Verify.\n\n## Verdict for signoff\n\nSafe scope: ~965 occurrences — JS local variables, function parameters, and object property names in `services/**`, plus left-hand key in `WIRE`.\n\nFrozen: 211 occurrences — migrations (61), vendor (20), openapi (5), SQL literals (125). Plus the 50 payload keys and audit field pending answers above.\n\nDon't sign a blanket \"everywhere.\" Sign it scoped to `services/**` JS identifiers with migrations, vendor, docs, and SQL strings explicitly excluded, and require the diff to show `lib/serialize.js` still emitting `'account_id'` on the wire.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6320ac78a396212ca1ac3d0544b1dd6b3565acffc5478512c21d520a078849d3"
+}

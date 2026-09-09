@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 38,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 115212,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9400525,
+  "numTurns": 12,
+  "durationMs": 113815,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7706
+  },
+  "contextTraffic": 556458,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 76157,
+  "narrationWords": 56,
+  "finalWords": 507,
+  "finalText": "Done — the entry is in `CHANGELOG.md:20`. Here's what I found and the calls I made.\n\n## The shape of the release\n\n380 commits, of which **37** are `feat`/`fix`/`perf`. The rest is 153 `chore`, 73 `refactor`, 64 `test`, 33 `ci`, 20 `docs`. The merged-PR sheet is a strict subset of the commit log — it's missing 17 user-facing commits, including `fix(http): close the pool on shutdown` and `fix(db): guard the null cursor in the paginator`. **Don't write the notes off the PR sheet.**\n\nMost repeated messages are the same fix applied across modules — \"guard the null cursor in the paginator\" lands in api, db, queue, and webhooks; \"drop the duplicate header\" in five places. I collapsed those into one user-facing line each rather than listing them per-module.\n\n## The thing to look at first\n\n**`fix(auth): return 401 for an expired token instead of 403`** is filed as a fix but it's a breaking change. Anyone branching on 403 to detect an expired session silently stops detecting it. I put it under Breaking.\n\nTwo more breaking changes are hiding under `refactor:`:\n\n- **`stop re-exporting the internal error types`** (8 commits across auth, billing, core, db, jobs) — that's a removal from the public export surface. Anyone `instanceof`-checking those breaks at import.\n- **`drop the unused v1 export route`** — the author says \"unused,\" but that's a route removal. It touched `router.js`, `handlers.js`, and the tests, so it was really wired up.\n\n## What I left out, and why\n\n**All 10 `perf` commits.** Your template is fixed at three headings, and perf fits none of them honestly. Substantively they're micro-optimizations — \"avoid the extra clone in the mapper,\" \"skip the JSON round-trip on the hot path\" — with no benchmark numbers anywhere in the history, so there's no claim a user would notice. The one I'd reconsider is `perf(api): reuse the parsed schema between requests`. Say the word and I'll add a Performance section.\n\nAlso out: 13× \"drop the unused v2 debug helper,\" 10× \"delete the dead feature-flag branch,\" the `Ctx`→`RequestCtx` rename (explicitly internal, and now unreachable anyway given the re-export removal), and every dep bump — all patch/minor.\n\n## Three things to verify before you cut\n\n1. **Minimum Node version.** Five `ci: run the suite on node 22`, four `docs: note the minimum node version`, three `.nvmrc` pins — but no `engines` bump in any commit's diffstat. If `engines` actually moved, that's a Breaking line I haven't written. There's no `package.json` here so I couldn't check.\n2. **`refactor(*): pull the request id out of the logger context`** (db, http, queue, store). Reads either as \"removed it from the log line\" or \"hoisted it into its own field.\" The first is a breaking change for anyone parsing your logs; the second is invisible. I left it out rather than guess wrong — worth 30 seconds with the diff.\n3. **The date.** I used 2026-08-28 for tomorrow's cut, but the history ends 2026-06-17. If that ten-week gap means there are commits not in this log, the digest is incomplete.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7b42d6e04050aea66b80c4a21ef6a1df0c293ec15ecdaffe9540ecb0b3f677d"
+}

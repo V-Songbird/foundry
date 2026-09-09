@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__hush__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 60,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 109373,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5565959999999999,
+  "numTurns": 19,
+  "durationMs": 100962,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5650
+  },
+  "contextTraffic": 478018,
+  "apiCalls": 16,
+  "toolCalls": 15,
+  "toolResultChars": 8440,
+  "narrationWords": 5,
+  "finalWords": 72,
+  "assistantMsgs": 5,
+  "finalText": "**Handoff written to [HANDOFF.md](HANDOFF.md).**\n\nRoot cause is `dep-4471` flipping `gateway.pool.perRequest` to `true`. Roll that back. Config only, so a revert is enough.\n\nWindow ran `02:14:18Z` to `03:59:27Z` and never recovered. 530 failures out of 636 requests, an 83% error rate. Five endpoints hit, `/health` untouched, so checks stayed green.\n\nTwo gaps I flagged in the doc. Only node-3 of 3 was in the logs. The dates read March 14, not last night.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "74210186a12b829c19f908024b4069ba8a4834ae6e59942c6a6051a0b3a02234"
+}

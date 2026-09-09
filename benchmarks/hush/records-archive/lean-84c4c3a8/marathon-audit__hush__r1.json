@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__hush__r1",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 32,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 146413,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.8909269999999999,
+  "numTurns": 51,
+  "durationMs": 139976,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11171
+  },
+  "contextTraffic": 934634,
+  "apiCalls": 19,
+  "toolCalls": 47,
+  "toolResultChars": 34916,
+  "narrationWords": 0,
+  "finalWords": 121,
+  "finalText": "The dependency check confirmed just one mismatch: `fast-parse` is pinned to 1.4.2, the version `NOTES.md` says was yanked for prototype pollution — 1.4.3 is the fix. `date-fmt` and `redis-min` both match what the notes say is fine as-is.\n\n`AUDIT.md` is written with all four findings, worst first:\n\n1. **`src/routes/internal.js`** — no auth on the internal routes, live and internet-reachable since the VPN was retired.\n2. **`src/repo/report.js`** — SQL built by string-pasting in `runSavedReport`, though nothing currently calls it over HTTP.\n3. **`config/staging.js`** — a real database password committed in plain text.\n4. **`package.json`** — `fast-parse` stuck on the yanked 1.4.2.\n\nNo service files were touched — verify script confirms the tree matches the read-only checks and the write-up names all four.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "976f03c44d7ab86643a20a2ece26bf4a845d43ee582b99185cfbc7e9f1279fc1"
+}

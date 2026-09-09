@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r1",
+  "batchId": "sn292-b17b38c4",
+  "seed": "1787900636317",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37819,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.217026,
+  "numTurns": 11,
+  "durationMs": 36032,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1846
+  },
+  "contextTraffic": 289892,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 46745,
+  "narrationWords": 11,
+  "finalWords": 83,
+  "assistantMsgs": 2,
+  "finalText": "**Build's clean now.** Exit 0, 8 warnings, 0 errors.\n\nTwo real bugs, both from the bundler's new options shape:\n\n1. `[options.js:7](src/core/options.js:7)` read `options.retries`, but the new shape sends `retryCount` — threw on `undefined.toFixed`.\n2. `[retryPolicy.js:8](src/net/retryPolicy.js:8)` treated an unset flag as invalid, but the new config loader leaves it `undefined` instead of `false`.\n\nFixed both. Remaining warnings are just noise: 5 `DEP0xxx` deprecations plus 3 style-level ones (`unused-export`, `circular-import`, one `crypto.createCipher` flagged for removal before v5). Worth a follow-up ticket, not a build blocker.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c8441783824a6dbecf6bee574b5d30a706f4d8b33bd7f76177020f385c7f3679"
+}

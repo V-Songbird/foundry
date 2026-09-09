@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 22,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23863,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.1734732,
+  "numTurns": 10,
+  "durationMs": 22577,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1521
+  },
+  "contextTraffic": 250154,
+  "apiCalls": 8,
+  "toolCalls": 9,
+  "toolResultChars": 6528,
+  "narrationWords": 36,
+  "finalWords": 101,
+  "finalText": "Build is clean now (exit 0, 0 errors). The remaining 8 warnings are just the bundler's own deprecation noise (Node API deprecations, unused exports, circular imports) — nothing actionable.\n\nThe two real bugs behind the link failure, both from the option-shape change in the new bundler:\n\n- `src/core/options.js:7` — was reading `options.retries`, but the bumped bundler now hands options as `{ retryCount }`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:8-10` — the new config loader leaves unset flags as `undefined` instead of `false`, but the strict check only handled `true`/`false` and threw otherwise. Now treats `undefined` the same as `false` (backoff disabled).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bf2f2a353990dccb1a46359ed2a1e0ba0a7fe34888ada6ee1bd39e669e1361b3"
+}

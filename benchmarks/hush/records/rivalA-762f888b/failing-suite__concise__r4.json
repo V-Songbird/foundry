@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__concise__r4",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 57,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 4,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27344,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2275735,
+  "numTurns": 7,
+  "durationMs": 26362,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1512
+  },
+  "contextTraffic": 150632,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 10670,
+  "narrationWords": 38,
+  "finalWords": 141,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project.",
+    "3 real failures, all in `orderTotal`. Let me look at the code.",
+    "The doc comment says tax goes on the discounted amount, but the code taxes the pre-discount base. One-line fix:"
+  ],
+  "finalText": "Green: 625/625 passing.\n\n**What was broken:** only 3 of the 625 cases actually failed, all in `orderTotal` (`src/pricing.js:40`). The rest of the wall of text was passing-case noise.\n\nThe function applied the discount, then computed tax on the *original* `cents` instead of the discounted amount — contradicting its own docstring (\"Tax is charged on the amount the customer pays\"). So every order with both a nonzero discount and nonzero tax rate was overcharged by `discount × taxRate`. The 66 passing cases in that suite all had either 0% off or 0 tax, which is why it slipped through.\n\n```js\nconst tax = roundCents(discounted * taxRate);  // was: cents * taxRate\n```\n\nWorth noting this was a live overcharge bug, not just a test discrepancy — e.g. a 33400c order at 10% off with 20% tax was billing 36740 instead of 36072.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "27e92928b6dd84f5b486411c808a85b359130fa995667fa634a51fa2b94d59dd"
+}

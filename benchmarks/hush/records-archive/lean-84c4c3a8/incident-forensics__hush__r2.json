@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r2",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 29,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66481,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.41862089999999996,
+  "numTurns": 13,
+  "durationMs": 59728,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3501
+  },
+  "contextTraffic": 532470,
+  "apiCalls": 13,
+  "toolCalls": 9,
+  "toolResultChars": 16293,
+  "narrationWords": 0,
+  "finalWords": 43,
+  "finalText": "Wrote it to `incident-handoff.md`.\n\nRoot cause: `dep-4471` (a.novak, gateway) flipped `pool.perRequest` to `true`, which saturated the 20-slot connection pool and never let it recover. Impact ran 02:14 to at least 03:59 on 2026-03-14, gateway only, workers untouched. Roll back `dep-4471` to fix it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8965180959d577352876a9fdec8250eb6aeeb89da7f58547d63e9c7abd61d66c"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 39,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 54764,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.436984,
+  "numTurns": 16,
+  "durationMs": 53055,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2745
+  },
+  "contextTraffic": 311375,
+  "apiCalls": 9,
+  "toolCalls": 15,
+  "toolResultChars": 24856,
+  "narrationWords": 8,
+  "finalWords": 66,
+  "assistantMsgs": 2,
+  "finalText": "**Migrated 36 `db.query` calls to `db.execute({ sql, params })` across 12 files.**\n\nEvery JS file parses clean. No test runner or `package.json` exists, so that is the only check I could run.\n\nI left `vendor/legacy-orm/adapter.js` alone. Its header says do not edit, since upgrades overwrite it. Its 2 calls are the last `db.query` users. Ask the vendor to ship the new form, or wrap the adapter.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "75b69833233f0f9763614c6e9250baf590fecada47d260801583dbaaa349e9d4"
+}

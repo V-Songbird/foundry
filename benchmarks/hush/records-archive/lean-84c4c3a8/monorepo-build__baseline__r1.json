@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 7,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35379,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.20713529999999997,
+  "numTurns": 10,
+  "durationMs": 33971,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2268
+  },
+  "contextTraffic": 288287,
+  "apiCalls": 9,
+  "toolCalls": 9,
+  "toolResultChars": 10950,
+  "narrationWords": 151,
+  "finalWords": 93,
+  "finalText": "Fixed. The build was failing because `resolveRelease` in `packages/shared/config.js:15` used a shallow `Object.assign` to layer defaults → per-package overrides → CLI flags — so any override that touched a nested object (e.g. `@acme/api`'s `output: { format: 'esm' }`) clobbered the whole `output` object instead of merging into it, dropping `output.dir`/`sourcemap.mode` and aborting the bundle stage.\n\nI replaced it with a real recursive `deepMerge` that only merges plain objects (arrays/primitives still overwrite normally), without mutating `RELEASE_DEFAULTS`. `node build.js` now exits 0 with 5 warnings/0 errors, and `node verify.js` (the repo's ground-truth check) passes too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "37e182061175cf3a820cee7516d71df4ee604ba1a159a05444b395768577a6c4"
+}

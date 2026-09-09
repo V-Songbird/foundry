@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__concise__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 44,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62166,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.369872,
+  "numTurns": 19,
+  "durationMs": 60695,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4118
+  },
+  "contextTraffic": 203358,
+  "apiCalls": 7,
+  "toolCalls": 18,
+  "toolResultChars": 18027,
+  "narrationWords": 5,
+  "finalWords": 446,
+  "finalText": "## Size\n\n**1082 occurrences across 94 files** — but it's one repeated pattern, not 94 distinct problems. Every service follows an identical repo/service/routes triple:\n\n| Layer | Files | Occurrences each |\n|---|---|---|\n| `services/*/src/repo/*.js` | 25 | 17 |\n| `services/*/src/service/*.js` | 25 | 15 |\n| `services/*/src/http/*Routes.js` | 25 | 9 |\n| `migrations/*.sql` | 12 | ~3 |\n| `vendor/reporting-sdk/src/*.js` | 4 | 3 |\n| `lib/`, `docs/openapi.yaml` | 3 | 1–5 |\n\nThe 75 service files are mechanically identical (compare `services/billing/src/repo/invoice.js` to `services/analytics/src/repo/cohort.js` — same five functions, different table name). A single careful sed plus review of one file per layer covers ~900 of the occurrences. There are **no tests** in the repo, so nothing catches a mistake.\n\n## Must NOT be renamed\n\nFour hard stops:\n\n1. **`docs/openapi.yaml` + the right-hand side of `WIRE` in `lib/serialize.js:8`** — that map is the internal→public boundary and the comment says so explicitly. `account_id` is a frozen public response field *and* a public query parameter on `/v2/invoices`. Renaming either side of the wire map is a breaking API change requiring a new dated version.\n2. **`vendor/reporting-sdk/src/*.js`** (12 occurrences) — generated, overwritten by `npm run vendor:refresh`. Edits silently vanish on next refresh. Also this SDK isn't imported anywhere in the repo, so touching it buys nothing.\n3. **`migrations/*.sql`** (all 12) — already applied in production. Editing history renames nothing in a live DB and breaks the `down` steps.\n4. **SQL column identifiers inside the repo files** — ~125 occurrences like `WHERE account_id = ?` and `INSERT INTO invoices (account_id, payload)`. These are *database column names*, not variables. They only change if you write a new `ALTER TABLE ... RENAME COLUMN` migration. Same for `row[internal]` in `serialize.js` — the lookup key must match the actual column.\n\nAlso note `insertInvoice` writes `account_id` into the JSONB `payload` (`repo/invoice.js:35`). Renaming that key changes stored data shape for new rows only, leaving old rows inconsistent — needs a backfill or should be left alone.\n\n## Recommendation\n\nApprovable as a **JS-identifier-only rename**: function parameters, destructured object properties, and local variables across the 75 service files, plus `lib/audit.js`. That's the ~900 occurrences and it's genuinely low-risk despite the scary number.\n\nAsk them to confirm the diff touches zero lines inside SQL string literals, zero lines in `vendor/`, `migrations/`, `docs/`, and leaves `WIRE`'s values alone. If they want the DB column and public field renamed too, that's a separate multi-quarter project (new migration + API version + client migration), not today's sign-off.\n\nOne unrelated thing I noticed: `migrations/20250114_create_accounts.sql:9` has `accounts.account_id REFERENCES accounts (account_id)` — a self-referencing FK on the accounts table itself. Pre-existing and out of scope here, but may be worth a look separately.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "0d2593d869567e04db6b17281fd676a93091a646e9babd13b3318d05b937bc7b"
+}

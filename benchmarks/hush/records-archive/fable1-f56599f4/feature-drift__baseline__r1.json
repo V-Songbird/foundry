@@ -1,0 +1,47 @@
+{
+  "key": "feature-drift__baseline__r1",
+  "batchId": "fable1-f56599f4",
+  "seed": "1788891066139",
+  "orderIndex": 25,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "claude-fable-5-1",
+  "turnsRun": 5,
+  "wallMs": 135043,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9998395,
+  "numTurns": 23,
+  "durationMs": 130588,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 8377
+  },
+  "contextTraffic": 623224,
+  "apiCalls": 23,
+  "toolCalls": 18,
+  "toolResultChars": 13257,
+  "narrationWords": 95,
+  "finalWords": 214,
+  "assistantMsgs": 11,
+  "narrationTexts": [
+    "I'll look at the router stub and the replay harness first, then fill in route().",
+    "The harness only reports what route() did, so I'll implement the four-priority mapping and run it to confirm.",
+    "I'll change the high mapping so the table holds channel lists, then re-run the harness.",
+    "I'll add a quiet-hours check using hourOf from lib.js, then re-run the harness.",
+    "I'll rework the quiet-hours branch so non-critical goes to queue and critical is unchanged.",
+    "I'll track the last delivery time per key in the shared state and drop repeats inside the window, then re-run."
+  ],
+  "finalText": "Done. Repeats are now dropped. The router records the last delivery time per key in the shared state, and a notification with the same key arriving within 5 minutes of that returns an empty array.\n\n**Decisions I made:**\n- **A repeat does not extend the window.** Only actual deliveries update the timestamp, so a flapping subject can send again 5 minutes after its last real delivery, not 5 minutes after its last drop.\n- **Queued deliveries count as sent.** A quiet-hours event on the queue channel suppresses repeats the same way an email or page would.\n- **The window is inclusive.** A gap of exactly 5 minutes still counts as a repeat.\n- **Priority is ignored for dedup.** A critical event with the same key as something sent 2 minutes ago is dropped, as you specified. If you want escalations to bypass the check, that is a one-line change.\n\n**Harness results:**\n\n| metric | value |\n|---|---|\n| dropped | 99 |\n| errors | 0 |\n| pager | 200 |\n| queue | 266 |\n\nThe 99 drops match the flap count built into events.js, which repeats every ninth event 2 minutes after the previous one. I also cross-checked every decision against an independent replay of the rule and found no mismatches.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f0623a2d34f730dc823f3e97dc2d1f672967a92f1677c28ba2cec5747ecc3105"
+}

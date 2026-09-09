@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "o5c-4b800a2c",
+  "seed": "1787818935129",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35068,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2678335,
+  "numTurns": 6,
+  "durationMs": 32763,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1314
+  },
+  "contextTraffic": 177519,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 7862,
+  "narrationWords": 0,
+  "finalWords": 59,
+  "finalText": "**Redis died, and everything else fell after it.**\n\n1. `02:14:07` — `Redis` refused connections at `10.0.0.12:6379`. Cache off.\n2. Every read hit the store. 173 timeouts followed.\n3. Work piled up. Queue hit 568, over the 500 cap.\n4. 13 reconnect tries, all refused.\n5. `02:31:52` — `worker-2` ran out of memory. Supervisor killed `api`. Down 17 minutes in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7fca855c32b3a23662c89cb435a3e20325893d625c3b7efc81c1b6e70c2bbac7"
+}

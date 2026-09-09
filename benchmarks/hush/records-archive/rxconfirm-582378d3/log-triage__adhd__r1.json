@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rxconfirm-582378d3",
+  "seed": "1786464568411",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12452,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.2937827,
+  "numTurns": 3,
+  "durationMs": 11071,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 709
+  },
+  "contextTraffic": 145909,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 182,
+  "finalText": "Root cause found. Timeline of what happened last night (2026-07-04, UTC):\n\n1. **02:14:07** — Redis at `10.0.0.12:6379` dropped: `ECONNREFUSED`. API fell back to direct store reads.\n2. **02:14:07–02:31:26** — Cache degraded, cascading timeouts (`store overloaded`, 5000ms) and rising request queue depth every cycle (52 → 568, blew past the max-500 limit around 02:25:48).\n3. Redis reconnect attempts failed 12 times in a row (02:15:26 through 02:31:26), roughly every 2 minutes — it never came back.\n4. **02:31:44** — `worker-2` ran out of memory (`JavaScript heap out of memory`) from the backlog piling up.\n5. **02:31:45** — supervisor restarted worker-2 (exit code 134).\n6. **02:31:52** — `api` became unresponsive, supervisor killed the whole process group. **Service down.**\n\n**Root cause:** Redis instance at `10.0.0.12:6379` went unreachable. App had no circuit breaker / backpressure — it kept queuing requests against an overloaded direct-store fallback instead of shedding load, until memory exhausted and the process group died.\n\nNext: check why Redis at `10.0.0.12:6379` went down (host metrics/other logs on that box) — want me to grep for anything else in this log referencing that host first?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8ebf9432b17684e539d51097fa9093ef9f9d7d106228f4471e871a84ddd686e2"
+}

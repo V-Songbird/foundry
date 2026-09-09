@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__flint__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 8,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "flint",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 29400,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "Hush",
+  "costUsd": 0.255104,
+  "numTurns": 10,
+  "durationMs": 27498,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1591
+  },
+  "contextTraffic": 191659,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6592,
+  "narrationWords": 6,
+  "finalWords": 62,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** The bump broke two call sites.\n\n| File | Break | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat `undefined` as off |\n\nThe other 8 warnings are real deprecations, not errors. Worth a pass at some point: `Buffer()`, `fs.exists`, `crypto.createCipher`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fc54b6d141c200892ecebbc2bb47a88332214ae6ef23a9b37e610098e23b85f2"
+}

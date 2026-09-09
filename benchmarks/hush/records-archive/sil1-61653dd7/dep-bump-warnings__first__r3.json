@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__first__r3",
+  "batchId": "sil1-61653dd7",
+  "seed": "1787896012490",
+  "orderIndex": 5,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "first",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35747,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush-first:HushFirst",
+  "costUsd": 0.25851999999999997,
+  "numTurns": 10,
+  "durationMs": 34121,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1858
+  },
+  "contextTraffic": 189151,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6388,
+  "narrationWords": 7,
+  "finalWords": 76,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now, exit 0.** Two real bugs, both from the bump.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js#L6) | `retries` renamed to `retryCount` | Take either key |\n| [retryPolicy.js:7](src/net/retryPolicy.js#L7) | Unset flag is `undefined`, not `false` | Treat as off |\n\nThe other 8 lines are true deprecation warnings. `Buffer()`, `fs.exists`, `crypto.createCipher`, and 5 more. They are noise for now, but `crypto.createCipher` breaks at v5.\n\nWant me to clear those next?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "30fb29c8920c74f809e7c1656e58277b817edb58b63451c2a138e312a9d9bf41"
+}

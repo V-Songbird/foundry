@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r2",
+  "batchId": "v17-fcdb6bfc",
+  "seed": "1786437406817",
+  "orderIndex": 15,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32179,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.21645319999999998,
+  "numTurns": 11,
+  "durationMs": 30884,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1920
+  },
+  "contextTraffic": 334699,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 9094,
+  "narrationWords": 63,
+  "finalWords": 103,
+  "finalText": "The build passes now, exit code 0.\n\nTwo real bugs caused the crash, both from the bundler's new options shape:\n\n- `src/core/options.js:7` still read `options.retries`. The new bundler sends `retryCount`. Fixed to read `options.retryCount`.\n- `src/net/retryPolicy.js:8` only accepted `true` or `false` for `backoffEnabled` and threw on anything else. The new config loader leaves unset flags as `undefined`, so the function threw instead of defaulting. Fixed to treat `undefined` as `false`.\n\nThe rest of the console output (`DEP0142`, `DEP0198`, etc., and the 380 dedupe lines) is normal deprecation noise from the dependency bump, not build-breaking. Build now finishes with 8 warnings and 0 errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "044d28be0f991499d0a3a3b7180d37954a5a28e54239e0de25f51980db503037"
+}

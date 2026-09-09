@@ -1,0 +1,44 @@
+{
+  "key": "failing-suite__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 16,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42490,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.283248,
+  "numTurns": 12,
+  "durationMs": 41329,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2490
+  },
+  "contextTraffic": 176137,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12497,
+  "narrationWords": 87,
+  "finalWords": 299,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by looking at the project layout and running the suite.",
+    "The suite is 625 cases; only 3 fail, all in `order totals`. Let me see the detail:",
+    "Confirmed: `orderTotal` computes tax on the **pre-discount** base (`cents * taxRate`) instead of on the discounted amount — which contradicts its own doc comment. The overcharge is exactly `discount × taxRate` (e.g. 1800c × 8.25% = 148c). Only rows with both a non-zero discount *and* non-zero tax expose it, which is why just 3 of 625 cases fail."
+  ],
+  "finalText": "Green: **625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOne bug, in `src/pricing.js:39` (`orderTotal`):\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed the pre-discount base\nreturn discounted + tax;\n```\n\nIt discounted correctly but then charged tax on the **original** amount rather than the discounted one — contradicting the function's own doc comment (\"Tax is charged on the amount the customer pays\"). The fix is one line:\n\n```js\nreturn applyTax(discounted, taxRate);\n```\n\n## Why the wall of text was mostly noise\n\n3 of 625 cases failed, all in `order totals`. The other 8 suites were clean, and even within `order totals` 66 of 69 rows passed — because they have either a zero discount *or* a zero tax. The error term is exactly `discount × taxRate`, so it vanishes unless **both** are non-zero. Only three rows in `cases.js:80-82` have both, and those were the three failures:\n\n| call | expected | actual | over |\n|---|---|---|---|\n| `orderTotal(12000, 15, 0.0825)` | 11042 | 11190 | +148 |\n| `orderTotal(8650, 20, 0.05)` | 7266 | 7353 | +87 |\n| `orderTotal(33400, 10, 0.2)` | 36072 | 36740 | +668 |\n\nEvery delta matches `round(discount × rate)` precisely, which is what pinned the cause before touching the code.\n\nTwo notes worth flagging: this was a real customer-overcharge bug, not a test artifact — the tests encoded the rule correctly and the engine disagreed. And the coverage of this path is thin; the ordering mistake survived because only 3 rows in the whole suite discriminate between \"tax before discount\" and \"tax after\". If you want, I can add a few more both-non-zero rows so a regression here fails loudly rather than in three lines out of a thousand.\n\nI changed only `src/pricing.js`; `cases.js`, `run-tests.js`, and `src/tiers.js` are untouched.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "474a0491070ff62815653de1d8115afeab90cc7f3e2947171a56f76403585588"
+}

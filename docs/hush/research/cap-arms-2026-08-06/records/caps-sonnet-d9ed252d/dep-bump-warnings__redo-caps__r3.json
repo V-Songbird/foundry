@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__redo-caps__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 129,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "redo-caps",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 31059,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.21596720000000003,
+  "numTurns": 10,
+  "durationMs": 29354,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1936
+  },
+  "contextTraffic": 277424,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 8353,
+  "narrationWords": 0,
+  "finalWords": 105,
+  "finalText": "Build's clean now, 0 errors.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump changing shapes:\n\n1. `src/core/options.js` read `options.retries`, but the new bundler passes `retryCount`. That crashed the link step outright.\n2. `src/net/retryPolicy.js` threw when a flag was `undefined` instead of `false` — the new config loader stopped setting unset flags to `false` explicitly.\n\nFixed both: `resolveRetries` now reads `retryCount`, and `isBackoffEnabled` treats anything but `true` as disabled instead of throwing.\n\n`node build.js` now exits 0 — retry budget resolves to 3, backoff correctly reports disabled, and the rest is just the expected deprecation warnings from the bump.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "286637e5f5c3d1b49f18405bb4ff895c65f653469d723b75a4fb67ab00fa0885"
+}

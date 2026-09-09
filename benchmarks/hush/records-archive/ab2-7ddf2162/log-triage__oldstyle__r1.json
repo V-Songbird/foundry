@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__oldstyle__r1",
+  "batchId": "ab2-7ddf2162",
+  "seed": "1787387594651",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "oldstyle",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 21703,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1083608,
+  "numTurns": 5,
+  "durationMs": 19793,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1140
+  },
+  "contextTraffic": 159602,
+  "apiCalls": 4,
+  "toolCalls": 4,
+  "toolResultChars": 7140,
+  "narrationWords": 0,
+  "finalWords": 182,
+  "finalText": "Redis died at 02:14:07, and everything after that was the slow fall.\n\nHere's the chain:\n\n1. **02:14:07** — Redis at `10.0.0.12:6379` went unreachable. `[api]` lost its connection and fell back to reading straight from the store.\n2. Without cache, every request became a store hit. That triggered nonstop \"cache miss storm\" warnings and slow requests.\n3. Redis reconnect attempts kept failing, every 80 seconds, all the way to attempt 12. Redis never came back.\n4. With no cache, requests piled up. Queue depth climbed from near-empty past 500, then past 560.\n5. The overloaded store started timing out (5s timeouts) on `api`, `worker-1`, `worker-2`, and `scheduler` alike.\n6. **02:31:44** — `worker-2` ran out of memory holding the backlog and crashed.\n7. **02:31:52** — `api` stopped responding entirely, and the whole service went down.\n\nSo the root cause is Redis dying and never reconnecting. Everything else, the timeouts, the queue buildup, the crash, was the app slowly drowning without its cache.\n\nWorth checking why `10.0.0.12:6379` went dark, since the app itself looks like it behaved reasonably until the cache was gone for good.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "4c0d34c8d46d223e3491e23b7d71f5cbd08749bb713b6f9bd214c23cbf419a10"
+}

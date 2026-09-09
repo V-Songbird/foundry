@@ -1,0 +1,42 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40102,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.257006,
+  "numTurns": 8,
+  "durationMs": 38239,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1780
+  },
+  "contextTraffic": 134654,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 11253,
+  "narrationWords": 8,
+  "finalWords": 101,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the log file."
+  ],
+  "finalText": "**Redis died, and the service ate itself trying to cope.**\n\n| Time (UTC) | Event |\n| --- | --- |\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | Cache falls back to direct store reads |\n| 02:29:12 | Queue depth passes the 500 max |\n| 02:31:44 | `worker-2` dies of heap exhaustion |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nRedis never came back. All 13 reconnect tries failed at [logs/app.log:224](logs/app.log:224) onward.\n\nRetries fired every 80s flat. No backoff, no circuit breaker.\n\nNext: check why `10.0.0.12:6379` refused connections.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f8bc0fd32e99ff70abab640f7faf27823ed2df9ee4a418ea59aa5cfc1c862833"
+}

@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__concise__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 67,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 65643,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6831695,
+  "numTurns": 9,
+  "durationMs": 64826,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4618
+  },
+  "contextTraffic": 274845,
+  "apiCalls": 7,
+  "toolCalls": 8,
+  "toolResultChars": 72281,
+  "narrationWords": 60,
+  "finalWords": 405,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by getting oriented in the repo.",
+    "The PR sheet stops at 2026-06-17. Let me read the full commit log.",
+    "I read all 380 commits and the 127-PR sheet. Here's the split: **~340 of them change nothing for users** (dependency bumps, CI, tests, renames, dead-code deletion). About 35 do. Below is the draft, written into `CHANGELOG.md` in your shape."
+  ],
+  "finalText": "Written to `CHANGELOG.md:3`.\n\n**One deviation you should decide on:** the template says \"same three headings, same order,\" but I added a fourth, **Performance**. Four perf commits are genuinely user-visible (batched metric writes, no JSON round-trip on the hot path, no redundant clone in the mappers, reused parsed schemas) and they aren't bug fixes. Say the word and I'll fold them into Fixed or cut them entirely.\n\n**How I got there:**\n\n- **The whole release has one feature.** `feat(webhooks): retry failed deliveries with exponential backoff` (#4191) is the only `feat` in 380 commits.\n- **Three things are breaking but nobody labeled them.** None of these carry a breaking marker; they're all filed as `fix` or `refactor`:\n  - `fix(auth): return 401 for an expired token instead of 403` (#4223) is a wire-visible status code change.\n  - \"stop re-exporting the internal error types\" landed **seven times** across core, db, auth, jobs, and billing. Individually it reads like cleanup; collectively it removes types from your public surface.\n  - \"drop the unused v1 export route\" (#4152) — \"unused\" per the author, but a removed route is removed for everyone.\n- **The histogram units fix is breaking in effect.** `use the right units in the latency histogram` (store, core) is correct as a fix, but anyone with a dashboard on those metrics sees numbers move. I put it under Breaking; move it to Fixed if you'd rather.\n- **I collapsed duplicates.** The same fix often landed in 2–4 modules — null cursor in the paginator four times, empty allowlist three, duplicate header three, trailing slash twice. Users experience one bug each, so each is one line.\n- **The dependency bumps produce no line.** Every runtime bump (fastify, pg, knex, ioredis, undici, pino, zod, nanoid, dotenv) is patch or minor, and each landed 2–6 times redundantly. Nothing an installer would notice.\n\n**Two things I couldn't resolve from the history — worth checking before you cut:**\n\n1. **Minimum Node version.** \"docs: note the minimum node version\" appears six times, alongside `ci: run the suite on node 22` and `.nvmrc` pinning. That pattern usually accompanies an `engines` bump, which would be your biggest breaking change — but the commit titles never state a number and the log has no diffs. Check `package.json` `engines`; if it moved, that belongs at the top of Breaking.\n2. **The history stops at 2026-06-17,** both files. If anything merged in the ten weeks since, it isn't in this draft.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f65bd497e8cd7f8182e391697520833ea68c5b39ebf21ec6da775949e5da7af6"
+}

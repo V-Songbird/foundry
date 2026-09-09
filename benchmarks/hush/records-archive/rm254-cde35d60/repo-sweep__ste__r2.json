@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__ste__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 58,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 81928,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6595947999999999,
+  "numTurns": 45,
+  "durationMs": 80496,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10414
+  },
+  "contextTraffic": 460804,
+  "apiCalls": 12,
+  "toolCalls": 44,
+  "toolResultChars": 28948,
+  "narrationWords": 60,
+  "finalWords": 59,
+  "finalText": "Migration complete and verified. Fixed the 12 stragglers still on `db.query` (analytics/cohort, support/sla, support/macroAdmin, orders/shipment, orders/returnService, catalog/supplier, catalog/variantAdmin, billing/couponService, billing/refund, accounts/teamService, accounts/session, accounts/apiKeyAdmin) to use `db.execute({ sql, params })`, matching the style already established in `ticket.js`. Left `vendor/legacy-orm/adapter.js` untouched (vendored, gets overwritten on upgrade) and left `cache.query` calls alone since those are an unrelated cache API. `verify.js` now passes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7896b846ff038a8808364362396d1d09302c1b1d079bc52355e63c80ae661b7c"
+}

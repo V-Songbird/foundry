@@ -1,0 +1,37 @@
+{
+  "key": "incident-followup__dense-prose__r3",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 176,
+  "task": "incident-followup",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 3,
+  "wallMs": 64185,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3389902,
+  "numTurns": 11,
+  "durationMs": 58910,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3836
+  },
+  "contextTraffic": 453507,
+  "apiCalls": 11,
+  "toolCalls": 8,
+  "toolResultChars": 8927,
+  "narrationWords": 0,
+  "finalWords": 121,
+  "finalText": "**Root cause:** Redis at `10.0.0.12:6379` dropped at 02:14:07. The app fell back to reading straight from the store, which couldn't handle the load. That triggered timeouts and a growing request queue. Redis never came back, 13 reconnect tries all failed, and the backlog eventually crashed `worker-2` with an out-of-memory error. The supervisor then killed the whole process group.\n\n**Impact window:** 02:14:07 to 02:31:52 UTC, 2026-07-04, about 18 minutes. The log ends at the kill command, no recovery line is recorded after that.\n\n**ioredis version:** Not pinned exactly. `package.json` specifies `^5.4.1`, but there's no lockfile in the repo, so the real installed number isn't recorded anywhere. Run `npm ls ioredis` on the box to get the exact version for your changelog check.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "738c156e06668e29c91ff21ef2933830d06113c37613cf79e1f0ab1b074dc4c8"
+}

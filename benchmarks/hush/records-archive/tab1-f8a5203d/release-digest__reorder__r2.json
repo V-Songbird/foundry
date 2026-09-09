@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__reorder__r2",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "reorder",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 114496,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4091334,
+  "numTurns": 11,
+  "durationMs": 112952,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9814
+  },
+  "contextTraffic": 385902,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 83955,
+  "narrationWords": 0,
+  "finalWords": 94,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 section into [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, one real breaking change and one feature stood out: expired tokens now return `401` instead of `403`, and webhook deliveries retry with exponential backoff.\n\nEight fixes made the cut, all crash or correctness bugs users would hit: null-cursor pagination crashes (API, queue, DB, webhooks), a hanging HTTP client, dropped trace ids on retry, full request bodies in DB logs, wrong latency-histogram units, a duplicate header, double-trimmed trailing slashes, and empty-allowlist failures.\n\nNext: check the `401`/`403` change against any client SDKs that key off `403`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "54f1de3c4057e69dfcc057e62d23393816d387299147f987f09338cffe9d5729"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 6,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 45277,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26087150000000003,
+  "numTurns": 10,
+  "durationMs": 43389,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2594
+  },
+  "contextTraffic": 178684,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7340,
+  "narrationWords": 23,
+  "finalWords": 299,
+  "assistantMsgs": 3,
+  "finalText": "The build now succeeds (exit 0). Two of the messages were real, and they were sequential — fixing the first only exposed the second.\n\n**1. `src/core/options.js:6` — hard failure, not a warning.** The bump renamed the option `retries` → `retryCount`, but this call site still read `options.retries`, so it was `undefined` and `.toFixed(0)` threw `TypeError`. That's what was aborting the build (`ERROR EBUILD02 link-failed`). Now reads `retryCount` with a fallback to `retries` for any pre-bump callers, and throws a clear `TypeError` if neither is a finite number instead of a cryptic property error.\n\n**2. `src/net/retryPolicy.js:7` — the same bump, second symptom.** The old config loader returned `false` for unset flags; the new one leaves them `undefined`, which fell through the strict `=== false` / `=== true` checks straight into the `throw`. Unset now resolves to `false`, matching the previous default (backoff disabled). A non-boolean, non-absent value still throws, since that's a genuine config error rather than an absent flag.\n\nWorth noting: this changes runtime behavior, not just noise. Backoff is now reported as **disabled** when the flag is unset. That matches pre-bump behavior, but if you intended the new loader's `undefined` to mean \"on\", flip the default in `isBackoffEnabled` — one line.\n\nOn the rest of the screen: the 8 remaining warnings are genuinely noise from the bundler's own log and aren't fixable here. The five `DEP0142/0198/0233/0250/0267` messages plus `W1042`, `W2213`, `W3307` are hardcoded strings printed by `build.js` itself (lines 18-24, 46-48) and reference files — `src/legacy/adapter.js`, `src/utils/format.js`, `src/core/graph.js` — that don't exist in this tree. `src/` contains only the two files I fixed. So \"0 errors\" is as clean as the log gets without editing the bundler's own output; if those paths exist in the real project, point me at it and I'll work through the deprecations properly.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "454307649ad5c10a7af5b658fcd135d2cc7a6f43def36839a90ede14dcb2b938"
+}

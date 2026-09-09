@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "sn280-adf3c9cf",
+  "seed": "1787864013128",
+  "orderIndex": 28,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 58348,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.30088420000000005,
+  "numTurns": 14,
+  "durationMs": 50559,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2919
+  },
+  "contextTraffic": 676716,
+  "apiCalls": 14,
+  "toolCalls": 10,
+  "toolResultChars": 41053,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause:** dep-4471 (gateway, a.novak, \"config: connection-per-request for pool isolation\"), deployed 02:12–02:14Z. Pool cap stuck at 20 connections after rollout, queue backs up and never drains.\n\n**Impact window:** started 02:14:14Z (first slow-acquire warning), first 503 at 02:14:18.972Z. Still active at 03:59:27Z, the last line in logs/gateway.log. Waiting-queue depth climbed from 13 to 74+ over that span, no recovery seen.\n\n**Scope:** gateway only. logs/worker.log shows workers healthy throughout, one unrelated slow-query warning (known issue OPS-2210).\n\n**Action:** roll back dep-4471.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ef7c0307bf789bbb5aad4917420dfcc9c4b1b2e5b0da4ba6a441be7f48dc5a2"
+}

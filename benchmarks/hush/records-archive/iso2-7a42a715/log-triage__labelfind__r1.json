@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__labelfind__r1",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "labelfind",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14123,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.113618,
+  "numTurns": 3,
+  "durationMs": 12479,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 925
+  },
+  "contextTraffic": 90187,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 74,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage cascaded into an OOM crash.**\n\n`redis` died at `02:14:07` with `ECONNREFUSED 10.0.0.12:6379`. Reads fell back to direct store hits. Store overloaded, causing repeating timeouts and cache miss storms. Queue depth climbed from 52 to 568, past the 500 max. Twelve `redis` reconnect attempts failed over 17 minutes. At `02:31:44` `worker-2` hit heap OOM. Supervisor killed the process group at `02:31:52`, service down.\n\nNext: check why `redis` at `10.0.0.12` stayed unreachable that long.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b82084bc768c3731a42cdb3e04f8f2e851114ccb8dfb32e6553d85ec3bff6099"
+}

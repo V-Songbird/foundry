@@ -1,0 +1,40 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 3,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 15240,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11858419999999997,
+  "numTurns": 4,
+  "durationMs": 13690,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 801
+  },
+  "contextTraffic": 115778,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 23467,
+  "narrationWords": 0,
+  "finalWords": 165,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Redis outage triggered a cascading failure that took prod down.**\n\nAt `02:14:07` `redis` connection was refused at `10.0.0.12:6379`. The app fell back to direct store reads, and that store couldn't handle the load.\n\nFrom there it never recovered:\n\n1. Cache miss storms hit the backing store repeatedly.\n2. Every request queue (`api`, `worker-1`, `worker-2`, `scheduler`) climbed from ~50 toward the 500 cap.\n3. Reconnect attempts to redis failed every ~80s, 12 times straight, all `ECONNREFUSED`.\n4. Queue depth passed 500 around `02:29`, still growing.\n5. At `02:31:44` `worker-2` hit `JavaScript heap out of memory` and crashed (exit 134).\n6. At `02:31:52` the supervisor killed the whole process group: `api unresponsive, killing process group — service down`.\n\nRoot cause: `redis` at `10.0.0.12:6379` went unreachable and never came back for the whole 17-minute window, and there was no backpressure or circuit breaker on the store fallback.\n\nNext: check why `redis` at `10.0.0.12` was down and add a circuit breaker so queue overflow fails fast instead of OOMing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b8b98c558caf4b459d763e4ff7e974658106af387f01d73fdef6fcebdc5a7d4e"
+}

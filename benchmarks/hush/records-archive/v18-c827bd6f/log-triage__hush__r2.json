@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18950,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.18709979999999998,
+  "numTurns": 3,
+  "durationMs": 17338,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1028
+  },
+  "contextTraffic": 111825,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 149,
+  "finalText": "Found it. Redis died and everything downstream fell like dominoes.\n\n**Timeline (2026-07-04, all times UTC):**\n1. `02:14:07` — Redis connection lost. `ECONNREFUSED 10.0.0.12:6379`.\n2. The app fell back to direct store reads. That triggered cache miss storms.\n3. Requests started timing out after 5 seconds. The store was overloaded.\n4. The request queue grew nonstop, from 52 up past its max of 500.\n5. Redis reconnect attempts kept failing, every 100 seconds, 12 tries total.\n6. `02:31:44` — worker-2 ran out of memory from the backlog.\n7. `02:31:52` — the whole api process got killed. Service went down.\n\nRedis never came back before the crash. That's the root cause. Everything else, the cache storms, the timeouts, the queue backup, was the app straining to cope without it, until the backlog ate all the memory.\n\n**Next step worth checking:** why Redis at `10.0.0.12:6379` was unreachable for over 17 minutes straight.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "353b67ec1b47fb2beb4e2b227f2f1e35703028a22470e8717369256f8a551b1e"
+}

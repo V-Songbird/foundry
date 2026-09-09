@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rx5-d4b877fe",
+  "seed": "1786464273166",
+  "orderIndex": 11,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 52079,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.305736,
+  "numTurns": 13,
+  "durationMs": 45315,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2331
+  },
+  "contextTraffic": 456233,
+  "apiCalls": 12,
+  "toolCalls": 9,
+  "toolResultChars": 17489,
+  "narrationWords": 0,
+  "finalWords": 173,
+  "finalText": "Still ongoing, log ends at 03:59:27 with the same errors and the waiting queue still climbing. That's what the handoff needs to say. Here's the writeup:\n\n**On-call handoff — gateway 503s**\n\n**Root cause:** Deploy `dep-4471` (gateway config, author a.novak, \"connection-per-request for pool isolation\") flipped `gateway.pool.perRequest` from `false` to `true`. Applied as config generation 119 at 02:13:41 UTC. The pool stayed capped at size 20, and with a connection now claimed per request instead of shared, it saturated almost immediately.\n\n**Impact window:** Started 2026-03-14 02:14:18 UTC, first `ERR_POOL_EXHAUSTED` / 503 on `req-07401`. Still ongoing as of the last log line, 03:59:27 UTC. The waiting queue has grown the whole time, from 13 waiters at the start to 172+ now, so it's getting worse, not stabilizing.\n\n**Scope:** Gateway only. All five backends behind it (`orders-svc`, `accounts-svc`, `catalog-svc`, `billing-svc`) are healthy. The worker fleet is untouched, pool calm the whole window, jobs finishing normally.\n\n**Rollback target:** `dep-4471`. Revert `gateway.pool.perRequest` to `false` (or roll the whole deploy back). No other deploy in that window touches the gateway.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10289736ced2acde87a5840e61589aeca19d777437fccfbb73ef346b434e2f99"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__lean__r1",
+  "batchId": "opus2-5f3f92ae",
+  "seed": "1787636386376",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 33510,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.314798,
+  "numTurns": 11,
+  "durationMs": 31733,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1814
+  },
+  "contextTraffic": 243568,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 12327,
+  "narrationWords": 7,
+  "finalWords": 105,
+  "finalText": "Green. `625 total, 625 passing, 0 failing`.\n\nThree cases failed, all in `order totals`. The bug was in `orderTotal` in `src/pricing.js`. It took the discount off the price correctly. But it then figured the tax from the original price, not the discounted one. So customers were taxed on money they never paid.\n\nOnly rows with both a discount and a tax could expose this. Every other row had one of the two set to zero.\n\n```js\nfunction orderTotal(cents, discountPct, taxRate) {\n  const discounted = applyDiscount(cents, discountPct);\n  return applyTax(discounted, taxRate);\n}\n```\n\nThe function's own comment already described this behavior. The code just didn't match it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "88aaef733002ffb50fdf42d682177352c4448c7ed9af58d95006b1e1e210cb85"
+}

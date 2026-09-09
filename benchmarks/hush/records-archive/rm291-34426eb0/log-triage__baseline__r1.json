@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 44324,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.5617755,
+  "numTurns": 7,
+  "durationMs": 42752,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2867
+  },
+  "contextTraffic": 227317,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 62770,
+  "narrationWords": 6,
+  "finalWords": 616,
+  "assistantMsgs": 2,
+  "finalText": "## What happened\n\nRedis died, the service fell back to hitting the datastore directly, the store couldn't take the load, request queues grew unbounded until a worker OOM'd and the API went unresponsive. Total time from first error to service down: **~17.5 minutes**.\n\n### Timeline\n\n| Time (UTC) | Event | Line |\n|---|---|---|\n| 02:00–02:14 | Fully healthy. All 200s, cache hit ratio 0.90–0.98, cron ticks fine. | 1–181 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **the trigger** | 182 |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` | 183 |\n| 02:14:08 | First `cache miss storm: key orders:*` — every request now goes to the store | 184 |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` | 185 |\n| 02:14:12 | Queue depth 52 (of max 500), climbing ~3 per event from here on | 186 |\n| 02:15:26 → 02:31:26 | 13 `redis reconnect attempt 0..12 failed`, all ECONNREFUSED to the same host. **Every 80s exactly** — no backoff, no jitter, and never once succeeded. Redis was down for the entire incident. | 224–716 |\n| **02:29:12** | Queue depth **502 — exceeds the stated max of 500**, and nothing sheds load. It keeps climbing past the cap to 568. | 647 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` | 717 |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (134 = SIGABRT, the OOM) | 718 |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` | 719 |\n\n### Volume\n719 lines: 173 INFO, 348 WARN, 188 ERROR, 2 FATAL, 8 DEBUG. The ~700 error/warn lines are just three messages repeating in a fixed round-robin across `api`/`worker-1`/`worker-2`/`scheduler` — 173 timeouts, 174 cache-miss-storms, 173 queue-depth warnings. Noise, not four separate problems.\n\n### Root cause vs. what made it fatal\n\n**Root cause:** Redis at `10.0.0.12:6379` refused connections at 02:14:07 and stayed refusing for the full 17 minutes. ECONNREFUSED (not a timeout) means the port was closed — process dead or restarted, not a network partition or a slow box.\n\n**What turned an outage of the cache into an outage of the service** — three things in your code, and these are the actual fixes:\n\n1. **No load shedding.** The `max 500` in the queue-depth warning is apparently advisory only. Depth sailed past it to 568 with no 503s. That backlog is what OOM'd worker-2 — the log says so directly: `heap out of memory (request backlog)`.\n2. **No circuit breaker on the store.** Once cache went cold, 100% of traffic hit the datastore and every request burned a full 5s timeout before failing. Requests arrived faster than they drained; the queue could only grow.\n3. **Reconnect loop has no backoff.** Fixed 80s interval, 13 identical attempts. It didn't cause the outage, but it means nothing was adapting — and it's worth checking whether that 80s gap delayed recovery once Redis actually came back.\n\n### Two things to check that the log can't tell you\n\n- **This log is dated 2026-07-04, but today is 2026-08-27.** Either you're looking at a log from ~8 weeks ago, or the file wasn't rotated and you're reading an older incident. Worth confirming before you brief anyone — if last night's outage was a repeat, that changes the priority.\n- **The log ends at 02:31:52 with the process group killed.** There's no recovery, no Redis coming back, no restart. Whatever brought prod back isn't in this file — check the supervisor/systemd journal or the Redis host's own logs for why the port closed at 02:14:07.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "33c4f55023d9f00baf8d082597214b89f29616cfa583f6b076f161b5ac07e62d"
+}

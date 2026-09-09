@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__cap40__r1",
+  "batchId": "scr2-a8fb037c",
+  "seed": "1787637246895",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "cap40",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 64884,
+  "check": {
+    "pass": false,
+    "score": 0.3333333333333333,
+    "detail": "1/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4367955,
+  "numTurns": 7,
+  "durationMs": 63175,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3705
+  },
+  "contextTraffic": 207935,
+  "apiCalls": 6,
+  "toolCalls": 6,
+  "toolResultChars": 25380,
+  "narrationWords": 0,
+  "finalWords": 42,
+  "finalText": "**Redis died and took prod down.**\n\n1. `02:14:07` UTC, July 4. Redis stopped answering.\n2. Cache gone. Every read hit the store.\n3. Requests timed out. The queue passed its 500 cap.\n4. A worker ran out of memory. Prod died `02:31:52`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bd5247c52adc0c86d8f010abf9a3a9777f550bebcfc96b1145048bc1cf5b0bca"
+}

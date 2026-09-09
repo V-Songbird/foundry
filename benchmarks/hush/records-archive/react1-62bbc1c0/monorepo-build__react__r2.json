@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__react__r2",
+  "batchId": "react1-62bbc1c0",
+  "seed": "1786429581003",
+  "orderIndex": 9,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 46467,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28654549999999995,
+  "numTurns": 12,
+  "durationMs": 44937,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3073
+  },
+  "contextTraffic": 474895,
+  "apiCalls": 12,
+  "toolCalls": 11,
+  "toolResultChars": 5688,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "finalText": "Found it: `resolveRelease` in `packages/shared/config.js` merged config layers with `Object.assign`, which is shallow. Any package overriding part of `output` or `sourcemap` (like `@acme/api` setting just `format`) lost the rest of that object, including `output.dir` — which the bundler requires and throws on.\n\nI changed it to a proper deep merge that preserves untouched nested keys. The build now finishes clean: 0 errors, still the same 5 known warnings.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "075ba5404b85ccb488925e5ac4c6dfd842938b990e5fe46535c2fdf90902aeac"
+}

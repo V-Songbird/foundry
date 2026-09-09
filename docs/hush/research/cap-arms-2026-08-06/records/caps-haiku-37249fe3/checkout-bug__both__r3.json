@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 35,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "both",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 47053,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.07524200000000002,
+  "numTurns": 11,
+  "durationMs": 45263,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2704
+  },
+  "contextTraffic": 328668,
+  "apiCalls": 11,
+  "toolCalls": 10,
+  "toolResultChars": 6734,
+  "narrationWords": 0,
+  "finalWords": 80,
+  "finalText": "Root cause was in `pricing.js`: flat coupons (stored in USD) were subtracted *after* currency conversion, so the discount was being applied in the wrong currency. \n\nFor example, $10 off a $100 EUR order was calculating as `(100 × 0.9) - 10 = 80` when it should be `(100 - 10) × 0.9 = 81`.\n\nFixed by subtracting the flat coupon from the USD subtotal before converting. Percentage coupons were already correct since percentages are currency-agnostic. All 5 tests pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b4647979c4c3cda86b8f598f846fe89aed8bb1a42e228958253e5a6705cec83d"
+}

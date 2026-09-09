@@ -1,0 +1,40 @@
+{
+  "key": "failing-suite__noill__r1",
+  "batchId": "xmodel1-fec45f13",
+  "seed": "1788041000170",
+  "orderIndex": 12,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "noill",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22005,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "noill:Noill",
+  "costUsd": 0.1194862,
+  "numTurns": 10,
+  "durationMs": 20026,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1189
+  },
+  "contextTraffic": 202847,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11859,
+  "narrationWords": 0,
+  "finalWords": 54,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Fixed.** 3 of 625 cases were failing, all in `orderTotal`.\n\n`orderTotal` was taxing the pre-discount amount instead of the discounted one, contradicting its own comment (\"tax the amount the customer pays\"). Fixed in [src/pricing.js:41](src/pricing.js:41) to tax `discounted` instead of `cents`.\n\nSuite now reports `625 total, 625 passing, 0 failing`.\n\nNext: nothing, suite is green.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e39daa9c77dd9ee8dc070ce63c4eab84f00d29a558fc296fce1e11235bb47299"
+}

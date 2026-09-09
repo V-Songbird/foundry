@@ -1,0 +1,40 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "sn300-b0703e71",
+  "seed": "1787997445063",
+  "orderIndex": 21,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 26901,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1038344,
+  "numTurns": 9,
+  "durationMs": 25367,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1745
+  },
+  "contextTraffic": 113573,
+  "apiCalls": 4,
+  "toolCalls": 8,
+  "toolResultChars": 11574,
+  "narrationWords": 0,
+  "finalWords": 151,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Don't sign off yet — this touches the public API contract.**\n\nScope: 1,082 occurrences across 94 files. Most (~1,000+) are internal service code in `accounts`, `billing`, `orders`, `notify`, `analytics` — mechanical renames, safe.\n\nThree places must not change:\n\n| Location | Why |\n|---|---|\n| [lib/serialize.js:8](lib/serialize.js:8) | Wire-format map, comment says internal rename must not reach public JSON keys |\n| [docs/openapi.yaml](docs/openapi.yaml:19) | `account_id` marked \"Frozen field name,\" a rename breaks every client |\n| [vendor/reporting-sdk](vendor/reporting-sdk/src/client.js:3) | Vendored/generated, \"Do not edit,\" gets overwritten by `npm run vendor:refresh` |\n\nOld SQL migration files (9 of them) should also stay untouched. A rename needs a new migration, not edits to history.\n\nNet: safe to approve an *internal* rename of the DB column and service code. Block any rename that reaches `serialize.js`'s output map or the OpenAPI spec.\n\nNext: confirm with platform team the rename stops at the internal/wire boundary, not the public field.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "35cbd1c6fc901c5bf81436fd03c6b9ed22b308d60d95e6a814c62929e305895a"
+}

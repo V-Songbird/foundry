@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "sn291-a1dafbca",
+  "seed": "1787887694776",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 19100,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2866266,
+  "numTurns": 4,
+  "durationMs": 17267,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1263
+  },
+  "contextTraffic": 202163,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60369,
+  "narrationWords": 0,
+  "finalWords": 332,
+  "assistantMsgs": 1,
+  "finalText": "## What happened\n\n**02:14:07** — Redis went down: `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` (line 182). The app fell back to direct store reads (bypassing cache), which the backing store wasn't sized to handle.\n\n**02:14:07 → 02:31:26** (~17 minutes) — Cascading overload, repeating in a tight cycle every ~20s across `api`, `worker-1`, `worker-2`, `scheduler`:\n- Cache miss storms hitting the DB directly for `orders:*` keys\n- `TimeoutError: request timed out after 5000ms (store overloaded)`\n- Request queue depth climbing steadily and linearly: 52 → 550+ (vs. max 500 — it blew through its own configured limit around 02:25:48 and kept climbing)\n- 13 redis reconnect attempts (every ~2 min: `attempt 0` through `attempt 12`), all failing with the same `ECONNREFUSED` on `10.0.0.12:6379` — Redis never came back on its own\n\n**02:31:44** — `worker-2` died: `JavaScript heap out of memory (request backlog)` — the growing unbounded request queue exhausted heap.\n\n**02:31:45** — Supervisor tried to restart `worker-2` (exit code 134 = SIGABRT).\n\n**02:31:52** — `api` itself became unresponsive and the supervisor killed the whole process group. **Service down.** Log ends there — no recovery recorded.\n\n## Root cause chain\n1. Redis (10.0.0.12:6379) became unreachable — connection refused, not a timeout, suggesting Redis process/host was down or network-partitioned, not just slow.\n2. The cache-fallback path (direct store reads) had no circuit breaker or backpressure — it kept hammering the overloaded backing store instead of shedding load.\n3. Queue depth grew unbounded past its own configured max (500), instead of rejecting/shedding excess requests.\n4. That unbounded backlog exhausted `worker-2`'s heap, which cascaded into the whole `api` service being killed.\n\n## What I'd check next\n- Why Redis at 10.0.0.12:6379 dropped at 02:14:07 (host/infra logs, not in this app.log)\n- Why reconnect attempts were spaced ~2 min apart with no backoff cap/circuit breaker, and why the queue was allowed to exceed its own max instead of shedding load\n- Whether Redis has since recovered and the service was manually restarted (nothing after line 719 confirms recovery)",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ab311006809824cf39cbd7bd5b8638a4956bc1c40cd7c570c2152514458607d4"
+}

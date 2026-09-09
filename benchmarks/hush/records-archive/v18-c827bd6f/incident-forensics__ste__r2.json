@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__ste__r2",
+  "batchId": "v18-c827bd6f",
+  "seed": "1786468472317",
+  "orderIndex": 56,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 68891,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "simple-english:simple-english",
+  "costUsd": 0.5811579,
+  "numTurns": 15,
+  "durationMs": 63138,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4298
+  },
+  "contextTraffic": 885775,
+  "apiCalls": 15,
+  "toolCalls": 11,
+  "toolResultChars": 56225,
+  "narrationWords": 64,
+  "finalWords": 264,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing at the end of the log window (last entry `2026-03-14T03:59:27.974Z`). The error queue is still growing.\n\n**Root cause:**\nDeploy `dep-4471` (service: gateway, author: a.novak) changed the config key `gateway.pool.perRequest` from `false` to `true`. This forces one database connection per request instead of a shared connection. The pool has a fixed size of 20. Demand exceeds supply, so the pool fills up and does not drain.\n\n**Impact window:**\n- Deploy `dep-4471` ran from `02:12:00Z` to `02:14:00Z`.\n- Config generation 119 applied at `02:13:41.234Z`.\n- First `503` occurred at `02:14:18.972Z`, on request `req-07401`.\n- As of `03:59:27.974Z` (last log entry), the gateway is still returning `503` errors. The wait queue grew from 13 to 74 requests over that period.\n- Total confirmed impact so far: at least 1 hour 45 minutes.\n\n**Error signature:**\nEach failed request pairs two log lines at the same timestamp:\n```\nERROR access <req-id> <path> -> <upstream> 503 <latency>ms\nERROR pool   <req-id> ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)\n```\n\n**Scope:**\nOnly the gateway is affected. `logs/worker.log` shows normal job completions through the same window, with no pool errors. The worker fleet uses a separate connection pool that `dep-4471` did not touch.\n\n**Rollback target:**\nRoll back `dep-4471` on the gateway service. This reverts `gateway.pool.perRequest` to `false`.\n\n**Ruled out:**\n- `dep-4470` (worker, 00:48Z) — too early, different service, no errors in worker log.\n- `dep-4472` (billing-svc, 02:41Z) — started 27 minutes after the first 503, not the trigger.\n- `dep-4473` (catalog-svc, 03:20Z) — over an hour after onset, not the trigger.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "804d92634192679983b94cc5bf698c601627968d0e0963ebaaa04432518dba88"
+}

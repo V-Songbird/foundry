@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42678,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.5469275,
+  "numTurns": 6,
+  "durationMs": 40324,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2474
+  },
+  "contextTraffic": 226941,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 60662,
+  "narrationWords": 8,
+  "finalWords": 569,
+  "finalText": "## What happened\n\nRedis died, and the app had no working defense against it. Full cascade in ~17.5 minutes.\n\n**Timeline (all 2026-07-04 UTC):**\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Healthy. All 200s, cache hit ratio 0.90–0.98 |\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` — Redis at .12 refusing connections |\n| 02:14:07 | App falls back to direct store reads |\n| 02:14:08 | Cache miss storm begins on `orders:*` keys |\n| 02:14:10 | First `TimeoutError` — store overloaded, 5000ms |\n| 02:14:12 | Queue depth 52, climbing |\n| 02:29:12 | Queue depth **502** — exceeds stated max of 500 |\n| 02:31:26 | Reconnect attempt 12 fails (last one) |\n| 02:31:44 | `worker-2` OOM: JavaScript heap out of memory (request backlog) |\n| 02:31:45 | Supervisor restarts worker-2 (exit 134 = SIGABRT) |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\n**Totals:** 188 ERROR, 348 WARN, 2 FATAL, 173 timeouts, 13 failed reconnects. Zero successful requests after 02:14:07.\n\n## The three real bugs\n\n**1. Redis never came back and never gave up.** All 13 reconnect attempts hit the same `ECONNREFUSED`. The intervals are 02:14:07, 02:15:26, 02:16:46, 02:18:06 … — a flat **80 seconds apart, every time**. That's not exponential backoff; it's a fixed retry that would have run forever. The connection was refused, not timed out, which means Redis was down or the port was closed — not a network blip.\n\n**2. The fallback is what killed you, not Redis.** Losing cache shouldn't take down the service. But the fallback sends every miss straight to the store with no circuit breaker and no request coalescing — so 1200 hot `orders:*` keys stampeded the backing store, which then timed out at 5s, which made requests pile up. Redis going down was survivable; the unbounded fallback was not.\n\n**3. The queue limit is decorative.** The log says `(max 500)` on every line, but depth sailed past it: 502 → 526 → 568 at the end. Nothing shed load, nothing rejected, nothing applied backpressure. Depth grew perfectly linearly (+3 per sample, ~0.5/sec) from 52 to 568 with no drain whatsoever — meaning nothing was completing at all after the store went over. That unbounded backlog is literally what OOM'd worker-2 (\"request backlog\" is in the error message).\n\n## Fix order\n\n1. **Why is Redis at 10.0.0.12:6379 refusing connections?** The logs can't tell you — check Redis's own logs / the host. Everything else is downstream. If it OOM'd or the host rebooted, that's your true root cause.\n2. **Enforce the 500 cap** — reject with 503 above it. This alone converts \"service down\" into \"degraded service.\" Highest value change.\n3. **Circuit breaker + single-flight on the store fallback** so a cache outage can't stampede it.\n4. **Exponential backoff with jitter** on reconnect, plus an alert after N failures.\n\n## One thing to check\n\nThe log timestamps are **2026-07-04**, and the file was last modified 2026-08-11 — but you said this was last night (2026-08-26). This file is about seven weeks stale, so either it's an archived copy of an earlier incident or log rotation isn't writing where you think. If prod really did fall over last night, **these aren't those logs** — worth confirming before you act on the timeline above. That said, the failure mode described here is real and worth fixing regardless of which night it happened.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "239046129d55137b2b68173cc7f6be56e09771f537b2c13e33200c6fb772a6fe"
+}

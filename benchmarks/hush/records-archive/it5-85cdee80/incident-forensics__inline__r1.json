@@ -1,0 +1,38 @@
+{
+  "key": "incident-forensics__inline__r1",
+  "batchId": "it5-85cdee80",
+  "seed": "1787878882648",
+  "orderIndex": 2,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "inline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 107872,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush-inline:HushInline",
+  "costUsd": 0.641713,
+  "numTurns": 22,
+  "durationMs": 99613,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5338
+  },
+  "contextTraffic": 651841,
+  "apiCalls": 22,
+  "toolCalls": 18,
+  "toolResultChars": 9376,
+  "narrationWords": 0,
+  "finalWords": 83,
+  "assistantMsgs": 4,
+  "finalText": "**Handoff is written to [HANDOFF.md](HANDOFF.md).** It covers root cause, impact window, and the rollback.\n\nRoot cause is `gateway.pool.perRequest: false -> true` from `dep-4471`. Impact runs `02:14:18` to `03:59:27` and is still open. Roll back `dep-4471`.\n\nTwo things I added that you did not ask for. All 180 `/health` requests returned 200 through the outage, which is why the page came 67 minutes late. And `gateway.log` is node-3 of 3, so the 530 count is one node.\n\nNext: flip the key back and reload.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c263efaf98b8c8c32483e12407bfe7e886ad7564b37f3fd6fec81c8e22faf839"
+}

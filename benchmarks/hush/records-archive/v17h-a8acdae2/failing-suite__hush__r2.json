@@ -1,0 +1,37 @@
+{
+  "key": "failing-suite__hush__r2",
+  "batchId": "v17h-a8acdae2",
+  "seed": "1786438732942",
+  "orderIndex": 11,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 32054,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0568115,
+  "numTurns": 8,
+  "durationMs": 30592,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1909
+  },
+  "contextTraffic": 206973,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 7807,
+  "narrationWords": 0,
+  "finalWords": 49,
+  "finalText": "The bug was in `orderTotal()` at line 41. Tax was being calculated on the original price instead of the discounted price. Changed `const tax = roundCents(cents * taxRate);` to `const tax = roundCents(discounted * taxRate);` so tax applies to what the customer actually pays. All 625 tests green now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7007b5ae5cd087b134e37208dd655ba0b714b79a950a0947786166ce15da8350"
+}

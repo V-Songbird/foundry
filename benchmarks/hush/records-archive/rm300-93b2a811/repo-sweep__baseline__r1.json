@@ -1,0 +1,46 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 33,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 147402,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.977166,
+  "numTurns": 63,
+  "durationMs": 146232,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 14928
+  },
+  "contextTraffic": 413137,
+  "apiCalls": 12,
+  "toolCalls": 62,
+  "toolResultChars": 41327,
+  "narrationWords": 54,
+  "finalWords": 190,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll start by exploring the repo structure and finding remaining `db.query` usages.",
+    "Now I'll migrate the 12 non-vendor files. Reading them first:",
+    "Now applying the edits — 3 call sites per file across 12 files.",
+    "Now the six service/admin files:",
+    "Now verifying — remaining `db.query` sites, and a syntax check on every changed file:"
+  ],
+  "finalText": "Migration finished. 12 files, 36 call sites converted from `db.query(sql, params)` to `db.execute({ sql, params })`:\n\n**Repo layer** (6): `orders/repo/shipment.js`, `analytics/repo/cohort.js`, `support/repo/sla.js`, `catalog/repo/supplier.js`, `billing/repo/refund.js`, `accounts/repo/session.js`\n\n**Service layer** (3): `orders/service/returnService.js`, `accounts/service/teamService.js`, `billing/service/couponService.js`\n\n**Admin layer** (3): `accounts/admin/apiKeyAdmin.js`, `support/admin/macroAdmin.js`, `catalog/admin/variantAdmin.js`\n\nVerification: `node --check` passes on all 12, and a smoke run that requires every module under `packages/` and invokes each exported function records 325 `execute` calls and 0 `query` calls against the shared handle.\n\nTwo things I deliberately left alone:\n\n- **`vendor/legacy-orm/adapter.js`** still has 2 `db.query` calls. Its header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade with local edits silently lost — so patching it here would be reverted and wouldn't survive. Since `lib/db.js` notes the driver's next major drops `query`, this is a real remaining exposure: it needs an upstream fix or a wrapper at the `require` boundary, not an in-place edit. Flagging it rather than deciding for you.\n- **`cache.query(key)`** — 25 call sites in the repo files. Despite the matching name it's the read-through cache in `lib/cache.js`, takes a cache key not SQL, and is unrelated to the db handle. Untouched, count unchanged at 25.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7fc10f34799d1c50cb006bdf1511313fff1b6c176838ad955f26ce55975af754"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 5,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29204,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2134066,
+  "numTurns": 4,
+  "durationMs": 28305,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2189
+  },
+  "contextTraffic": 187623,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60358,
+  "narrationWords": 0,
+  "finalWords": 368,
+  "finalText": "Here's the timeline reconstructed from `logs/app.log` (719 lines, all from **2026-07-04**, not \"last night\" per today's date of 2026-08-25 — worth double-checking you pointed me at the right log file).\n\n**Root cause: Redis outage → unbounded queue growth → OOM crash**\n\n| Time (UTC) | Event |\n|---|---|\n| 02:14:07.113 | `[api] redis connection lost: ECONNREFUSED 10.0.0.12:6379` — first failure |\n| 02:14:07.114 | App falls back to \"direct store reads\" (bypassing cache) |\n| 02:14:08+ | Cache miss storms + `TimeoutError: request timed out after 5000ms (store overloaded)` begin cycling every ~2s across api/worker-1/worker-2/scheduler |\n| 02:15:26 – 02:31:26 | 12 redis reconnect attempts (attempts 0–12), **all fail** with the same ECONNREFUSED, roughly every 100s |\n| 02:14:12 → 02:31:24 | `request queue depth` climbs steadily and monotonically: 52 → 568, blowing past the stated `max 500` around 02:29:06 (depth 499→502) with **no evidence of load-shedding** once the cap was hit |\n| 02:31:44.902 | `[worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | Supervisor restarts worker-2 (exit code 134 = SIGABRT/OOM kill) |\n| 02:31:52.318 | `[supervisor] api unresponsive, killing process group — service down` |\n| (log ends) | No recovery/restart entries after this — the log simply stops here |\n\n**What actually happened:** Redis at `10.0.0.12:6379` became unreachable at 02:14:07. Instead of failing fast or shedding load, the app fell back to hitting the primary store directly for every request. The store couldn't keep up, so requests started timing out at 5s and piling into an in-memory queue. That queue grew unboundedly for **17+ minutes** straight — the \"max 500\" label on the queue-depth log line appears to be informational only, since depth sailed past 500 with no rejection/shedding. Combined with the store being hammered on every cache miss (miss storms every ~2s) and redis reconnects failing every ~100s, worker-2 eventually exhausted its heap holding the backlog, and the whole process group was killed at 02:31:52.\n\n**Bottom line:** this was a cascading failure triggered by a single dependency (Redis) going down, made fatal by the lack of backpressure/circuit-breaking on the direct-store fallback path — the queue should have started rejecting or shedding requests well before 500, not silently grown to 568+.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "92ff6ea0812ba363fb7113c746a835d6348bf14b38d93099515aedb2466b1565"
+}

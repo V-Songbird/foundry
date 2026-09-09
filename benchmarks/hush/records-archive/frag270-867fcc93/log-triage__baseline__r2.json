@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 75925,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.41313500000000003,
+  "numTurns": 8,
+  "durationMs": 74479,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4837
+  },
+  "contextTraffic": 202216,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 20363,
+  "narrationWords": 18,
+  "finalWords": 602,
+  "finalText": "## What happened\n\n**Redis died, the cache fell away, and the store got flattened by the resulting miss storm. The service never recovered and the supervisor killed it 18 minutes later.**\n\nFull window in the file: `02:00:00` → `02:31:52` on **2026-07-04** (~32 min).\n\n### Timeline\n\n| Time (UTC) | Event |\n|---|---|\n| 02:00 – 02:14:03 | Healthy. All `200`s, cache hit ratio 0.90–0.98, cron ticks fine. **No warning signs at all.** |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` ← **root cause** |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | First `cache miss storm: key orders:1000` — every read now goes to the store |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — 3 seconds after Redis dropped |\n| 02:14:12 | Queue depth warnings begin at 52 |\n| 02:15:26 – 02:31:26 | 13 reconnect attempts, **all** `ECONNREFUSED`. Redis never came back. |\n| 02:29:12 | Queue depth crosses the 500 cap (`502`) and keeps climbing |\n| 02:31:44 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| 02:31:52 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n### The numbers\n\n- 719 lines: 348 WARN, 188 ERROR, 173 INFO, 8 DEBUG, 2 FATAL\n- **Zero successful requests after 02:14:07.** The last `200` was at `02:14:03.137Z`. This was a total outage from the moment Redis dropped, not a partial degradation.\n- Timeouts ran at a flat **10/min for 17 straight minutes** — completely saturated, no recovery attempt succeeded.\n- Queue depth grew linearly 52 → 568 (~+30/min), overflowed its 500 cap at 02:29:12, and OOM'd worker-2 two minutes later.\n\n### Reading of it\n\n`ECONNREFUSED` (not a timeout or reset) means Redis at `10.0.0.12:6379` was actively refusing connections — the process was down or not listening, not just slow or partitioned. That's the thing to investigate first: what happened to that Redis box at 02:14:07.\n\nEverything after is one deterministic cascade: cache gone → 100% of reads hit the store → store overloads → 5s timeouts → requests pile up in the queue → queue outgrows its bound → heap exhausted → supervisor kills the process group. The app had no protection at any step.\n\n### Three things that turned a dependency failure into a full outage\n\n1. **The cache fallback has no circuit breaker.** \"Falling back to direct store reads\" sent 100% of traffic to a store sized for ~10% of it. A breaker or request shedding at the cache-miss layer would have kept the service partially up.\n2. **The queue cap of 500 isn't enforced.** It logs `depth 568 (max 500)` — it warns past the max but keeps accepting. That unbounded backlog is what caused the OOM. It should reject/shed at the limit.\n3. **Reconnect uses a fixed ~80s interval, not exponential backoff** (measured: 79.3s, 80.3s, 79.5s… dead flat). Not what caused the outage here, but if Redis had come back at 02:16:00 you'd have waited up to 80s to notice.\n\n### Two caveats\n\n- **This log is from 2026-07-04, not last night** (today is 2026-08-26) — about seven weeks old. If prod fell over last night, this is a different, earlier incident and you're looking at the wrong file or a stale rotation.\n- **The log starts at exactly `02:00:00.000`**, so it's a rotated segment. Whatever happened to Redis itself won't be in here — you'll need the Redis-side logs from around 02:14 to find the actual trigger.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fa2b525aac78c26da6214bda50df6e44c10dc9de63aa0f37f1dfdc19a601c8f3"
+}

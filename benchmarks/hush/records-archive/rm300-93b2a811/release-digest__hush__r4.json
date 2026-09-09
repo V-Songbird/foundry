@@ -1,0 +1,42 @@
+{
+  "key": "release-digest__hush__r4",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 30,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 73929,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4963725,
+  "numTurns": 10,
+  "durationMs": 72483,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5178
+  },
+  "contextTraffic": 196869,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 32716,
+  "narrationWords": 8,
+  "finalWords": 147,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the repository structure."
+  ],
+  "finalText": "**Drafted 4.2.0 in [CHANGELOG.md:20](CHANGELOG.md:20).** Of 380 commits, 27 matter to users.\n\nThe big theme is error handling. Four breaking items:\n\n| Change | Impact |\n|---|---|\n| Expired token returns 401, was 403 | Clients keyed on 403 break |\n| Internal error types no longer re-exported | 8 commits across 5 modules |\n| Error message text changed | 11 tests moved off messages onto codes |\n| v1 export route removed | Callers get a 404 |\n\nOne `feat`: webhook retries with backoff. Twelve real bug fixes, including request bodies leaking into logs.\n\nTwo things for you. Ten `perf` commits are real latency wins but your shape has no heading for them. And 14 commits touch Node 22 in CI, `.nvmrc` and docs. Check if `engines` moved. That is a breaking line I could not confirm.\n\nNext: confirm the Node minimum, then decide on perf.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e4648d39b01505bb6dfac8a2b45aa6e500ce9267b748f8660f4b4ba8980f56e6"
+}

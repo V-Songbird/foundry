@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 6,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43545,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4916385,
+  "numTurns": 8,
+  "durationMs": 42095,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2574
+  },
+  "contextTraffic": 258186,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 45884,
+  "narrationWords": 8,
+  "finalWords": 497,
+  "finalText": "## What happened: Redis outage → cache stampede → OOM → service down\n\nSingle root cause with a clean causal chain. Timeline (all `2026-07-04`, UTC):\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Fully healthy. Only INFO/DEBUG: 200s on `/users`, `/orders`, `/health`, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | **`ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379`** — the trigger (`app.log:182`) |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins (`key orders:1000`, then walking the whole `orders:1000–1199` keyspace repeatedly) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — backing store can't absorb full read traffic |\n| 02:14:12 → 02:31:24 | Queue depth climbs monotonically and *never* recovers: 52 → 568, +3 every ~2s |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts (0–12), every ~80s, **all fail with the same ECONNREFUSED**. Redis never came back |\n| **02:29:12** | Queue depth crosses the 500 max (`502`) — past the backpressure limit, still no shedding (`app.log:647`) |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` (134 = SIGABRT, V8 OOM abort) |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Total outage: ~17m45s from Redis drop to service down.** 188 ERROR + 348 WARN lines, all downstream of the one Redis failure.\n\n### The mechanism\nRedis at `10.0.0.12:6379` went away (connection *refused*, not timed out — the process was down or the port closed, not a network partition). The app degraded to direct store reads as designed, but with 0% cache absorption the backing store was instantly overloaded. Requests then took 5s to time out instead of ~100ms, so arrivals outpaced completions and the in-memory queue grew unboundedly. `worker-2` OOM'd on the retained backlog, and the supervisor killed the whole group when `api` stopped responding.\n\n### What's worth fixing\n1. **Redis never recovered and nothing escalated.** 13 identical ECONNREFUSED failures over 16 minutes, fixed ~80s interval, no alert visible in the log. The real incident was recoverable at 02:14 — check why Redis died and why nobody was paged.\n2. **The `max 500` queue limit isn't enforced.** Depth sailed to 568 and kept growing; it's logged as a threshold but never sheds load. This is the direct cause of the OOM — add real backpressure (503 above the limit).\n3. **No circuit breaker on the store.** Every request kept burning a 5s timeout against an already-overloaded store, which sustained the overload. Fail fast once timeouts spike.\n4. **Cache-miss stampede is unbounded.** Missing keys cycle `orders:1000–1199` repeatedly with no request coalescing/single-flight, so N concurrent misses on the same key become N store reads.\n\nWorth confirming: the log gives no evidence of *why* Redis refused connections (no memory/eviction/failover signal here) — that answer is in Redis's own logs or the infra events around 02:14:07.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "10b0a74a5a1acd1ef4e5a782722bc02518823018c19b54dd7544a2a26e9d32c2"
+}

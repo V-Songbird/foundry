@@ -1,0 +1,45 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 18,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 39959,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.306345,
+  "numTurns": 10,
+  "durationMs": 39234,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2337
+  },
+  "contextTraffic": 220787,
+  "apiCalls": 10,
+  "toolCalls": 9,
+  "toolResultChars": 13846,
+  "narrationWords": 90,
+  "finalWords": 307,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the project layout.",
+    "Let me read the source and test files.",
+    "Now let me run the suite, filtering to just the failure summary rather than the full wall of text.",
+    "Clear picture: **3 failures out of 625**, all in the `order totals` suite, all on the three rows that have *both* a non-zero discount and a non-zero tax. Everything else is green.\n\nThe bug is in `orderTotal` — it discounts the base, but then computes tax on the **undiscounted** `cents`, contradicting its own doc comment:"
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit code 0.\n\n## What was actually broken\n\nOne bug, in `src/pricing.js:39` (`orderTotal`). It discounted the base correctly, then charged tax on the **pre-discount** amount and added the two together:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxes the undiscounted base\nreturn discounted + tax;\n```\n\nThat contradicts the function's own doc comment (\"tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied to it\"), so the code was wrong and the spec was right. The fix taxes the discounted amount:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThis also reuses the existing `applyTax` instead of re-deriving the rounding inline.\n\n## Why it looked worse than it was\n\nThe wall of text hides how narrow this is. Only 3 of 625 cases failed, and all three were in `order totals`. The other 66 rows in that suite have either a zero discount or a zero tax — and with one factor zeroed, `discounted + cents*rate` and `discounted*(1+rate)` produce the same number, so the ordering mistake is invisible. Only the three rows with both non-zero could expose it:\n\n| case | expected | actual | delta |\n|---|---|---|---|\n| 12000c, 15% off, tax 0.0825 | 11042 | 11190 | +148 |\n| 8650c, 20% off, tax 0.05 | 7266 | 7353 | +87 |\n| 33400c, 10% off, tax 0.2 | 36072 | 36740 | +668 |\n\nThe overcharge scales with `discount × tax_rate`, which is why the 33400c/10%/20% row was off by the most. The error is always in the customer's disfavour — real orders were being overbilled by the tax on the discount.\n\nI only touched the one function; no test cases or expectations were changed.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "00c7b282e6013b52cf1e1a19604a86ddc59560f4cd0b9a03814ae0c58a3a13c1"
+}

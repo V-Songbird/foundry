@@ -1,0 +1,37 @@
+{
+  "key": "explain-rerender__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 69,
+  "task": "explain-rerender",
+  "segment": "coding",
+  "arm": "hush",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 18749,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.029195400000000003,
+  "numTurns": 2,
+  "durationMs": 17213,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1081
+  },
+  "contextTraffic": 54600,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 116,
+  "narrationWords": 0,
+  "finalWords": 179,
+  "finalText": "In React, a child component re-renders when its **parent** re-renders, regardless of whether its props changed. That's the default behavior — React doesn't know if you care about the props difference without being told.\n\nThree things usually cause it:\n\n**Parent re-renders.** When a parent's state or context changes, React re-renders the whole tree, including children with unchanged props. This is the most common culprit.\n\n**Props reference changes.** Even if a prop's *value* is the same, a *new* object or function reference counts as a different prop. So passing `{ id: 1 }` or `onClick={() => ...}` creates a new reference each time, triggering a re-render.\n\n**Context changes.** If the child uses `useContext()`, any change to that context forces a re-render, props or not.\n\n**The fix depends on what's happening:**\n\n- Wrap the child in `React.memo()` to skip re-render if props haven't actually changed.\n- Use `useCallback()` to keep function props stable across renders.\n- Use `useMemo()` to keep object/array props stable across renders.\n\nDo you have code to look at? That would help narrow down which one it is.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c2d09b09560b5dbd663728d18c238c8d465ae9b8db171440ae4ede93b63a011c"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "checkout-bug__dense-prose__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 33,
+  "task": "checkout-bug",
+  "segment": "debugging",
+  "arm": "dense-prose",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 36064,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.056839999999999995,
+  "numTurns": 10,
+  "durationMs": 33929,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2455
+  },
+  "contextTraffic": 178722,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 5049,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "finalText": "All tests pass. The bug was in how flat coupons were applied with non-USD currencies. The code was subtracting the flat coupon amount from the already-converted total, treating it as if it were in the target currency. The fix applies the flat coupon to the USD subtotal first, then converts the result—so a $10 coupon stays $10 USD value regardless of which currency the customer checks out in.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6fd2de39c1575add07842bf41d1709fe12b45651d9909032b826f7cd25bf2fd5"
+}

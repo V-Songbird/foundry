@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 85,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 67621,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2637054000000001,
+  "numTurns": 18,
+  "durationMs": 62517,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3711
+  },
+  "contextTraffic": 639417,
+  "apiCalls": 14,
+  "toolCalls": 14,
+  "toolResultChars": 14359,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "Handoff is written to `incident-handoff.md`.\n\nShort version: 503s started at 2:14 AM and are still happening as of the last log line at 3:59 AM. Root cause is `dep-4471`, a gateway config deploy that turned on `gateway.pool.perRequest`, which exhausted the 20-connection pool within 33 seconds. Only the gateway was hit, workers stayed healthy throughout. Roll back `dep-4471`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9f699ec2a24925b66dd01e9525ab9d743758668328ca785dfb25b35c078b4cbd"
+}

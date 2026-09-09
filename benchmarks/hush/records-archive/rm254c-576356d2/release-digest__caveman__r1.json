@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__caveman__r1",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 38,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 65969,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4809111,
+  "numTurns": 10,
+  "durationMs": 64753,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5796
+  },
+  "contextTraffic": 332178,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 72985,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "finalText": "380 commits, ~380 total. Real signal: 1 feat, 10 fix worth naming, rest dep bumps/refactors/CI/test noise. CHANGELOG.md 4.2.0 section written.\n\nHighlights:\n- **Added**: webhook retry w/ exponential backoff on failed deliveries.\n- **Fixed**: auth 401 vs 403 on expired token (behavior change, watch for client code checking status code), request body no longer logged in full (privacy), null-cursor crash across queue/api/webhooks/db pagination, HTTP hang-on-socket-drop + pool-not-closing-on-shutdown, duplicate response header, trace ID lost on retry, empty allowlist crash, wrong histogram units, trailing-slash double-trim, sharper parser error messages.\n\nNo Breaking section — nothing hit that bar this cycle.\n\nNote: same bug class (null cursor, duplicate header, trailing slash, empty allowlist) got fixed separately per module (queue/api/webhooks/db etc) — commits.log shows repeat pattern, collapsed into one bullet each rather than listing per-module. Check that reads right for you before ship.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "fe354208a1ad985149e40e35821555a14343a02522434264fc7cfce999f63937"
+}

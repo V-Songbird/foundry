@@ -1,0 +1,40 @@
+{
+  "key": "dep-bump-warnings__labelonly__r2",
+  "batchId": "iso2-7a42a715",
+  "seed": "1787993947774",
+  "orderIndex": 12,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "labelonly",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 28245,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.11587679999999999,
+  "numTurns": 10,
+  "durationMs": 26608,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1619
+  },
+  "contextTraffic": 193614,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 7779,
+  "narrationWords": 0,
+  "finalWords": 68,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Build's clean.** Exit 0, \"0 errors.\"\n\nTwo real bugs from the bump, both were link-stage crashes hiding behind the noise:\n\n- [options.js:6](src/core/options.js:6) still read `options.retries`, but the new bundler passes `retryCount`.\n- [retryPolicy.js:7](src/net/retryPolicy.js:7) treated an unset flag as invalid instead of `false`, since the new config loader leaves it `undefined`.\n\nThe rest were just deprecation/style warnings (`Buffer()`, `punycode`, unused export, circular import) — left those alone.\n\nNext: nothing.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f70ad89f22beb1b8d38cd838a7fd3aac18b7ccae0001e6e69d31ecaf933cde5d"
+}

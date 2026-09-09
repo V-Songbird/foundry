@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 167,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 16187,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.032251199999999994,
+  "numTurns": 2,
+  "durationMs": 14563,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 970
+  },
+  "contextTraffic": 56409,
+  "apiCalls": 2,
+  "toolCalls": 1,
+  "toolResultChars": 4602,
+  "narrationWords": 0,
+  "finalWords": 180,
+  "finalText": "Redis went down at 02:14:07 (connection refused to 10.0.0.12:6379), and the app couldn't gracefully handle it.\n\nHere's the chain:\n\n1. **Redis lost** → cache layer disabled, app fell back to direct store reads.\n2. **Store got hammered** → cache miss storms hit for order keys, and reads started timing out at 5 seconds.\n3. **Requests piled up** → queue depth climbed past the 500-item limit and kept growing. Redis reconnects failed 12 times in a row.\n4. **Memory exhausted** → by 02:31:44, worker-2's heap ran out from the backlog of stuck requests. It crashed.\n5. **Cascade** → supervisor restarted worker-2, but the API was already unresponsive. At 02:31:45, the whole process group was killed to stop the bleeding.\n\n**Root cause:** The app has no circuit breaker for the cache layer. When Redis dies, it switches to direct-store mode, but there's no backpressure — the store gets flooded, requests back up in memory, and nothing drains fast enough. You need either a circuit breaker (fail fast instead of timing out) or a queue limit that sheds load when Redis is down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d5fd5ce5069c33aa38c333049cfac1a1de8036993a0bbffe4c36b683067b813a"
+}

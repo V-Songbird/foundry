@@ -1,0 +1,37 @@
+{
+  "key": "write-validator__both__r3",
+  "batchId": "caps-haiku-37249fe3",
+  "seed": "1786009855333",
+  "orderIndex": 95,
+  "task": "write-validator",
+  "segment": "coding",
+  "arm": "both",
+  "rep": 3,
+  "category": "qa",
+  "model": "haiku",
+  "turnsRun": 1,
+  "wallMs": 8560,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.0224575,
+  "numTurns": 1,
+  "durationMs": 6804,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 507
+  },
+  "contextTraffic": 27044,
+  "apiCalls": 1,
+  "toolCalls": 0,
+  "toolResultChars": 0,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "finalText": "```python\nimport re\n\ndef validate_email(email: str) -> bool:\n    \"\"\"Validate an email address using regex pattern.\"\"\"\n    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\n    return re.match(pattern, email) is not None\n```\n\nThis checks for the basic structure: characters before `@`, a domain name, and a valid TLD.\n\nFor stricter validation (checking if the address actually receives mail), install the `email-validator` package:\n\n```python\nfrom email_validator import validate_email, EmailNotValidError\n\ndef validate_email(email: str) -> bool:\n    \"\"\"Validate email using the email-validator library.\"\"\"\n    try:\n        validate_email(email, check_deliverability=False)\n        return True\n    except EmailNotValidError:\n        return False\n```\n\nThe regex version is lightweight for basic checks. The library version normalizes addresses and catches edge cases the regex misses. Use `check_deliverability=True` if you want to verify the domain actually exists (slower, requires DNS lookups).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5feb7cae9df4dfdef34a51406f7f98ce5fb7f61d5e343a0b25eac4d761c62025"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r2",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 66890,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.4086065,
+  "numTurns": 19,
+  "durationMs": 64874,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4509
+  },
+  "contextTraffic": 217862,
+  "apiCalls": 7,
+  "toolCalls": 18,
+  "toolResultChars": 19382,
+  "narrationWords": 8,
+  "finalWords": 117,
+  "assistantMsgs": 2,
+  "finalText": "**94 files, 1082 hits.** Most of it is mechanical.\n\n75 service files repeat one shape. 25 entities across 5 services.\n\nFour places must not be renamed:\n\n| Place | Files | Why |\n|---|---|---|\n| [docs/openapi.yaml](docs/openapi.yaml) | 1 | public contract, needs a new dated version |\n| [lib/serialize.js:8](lib/serialize.js) | 1 | `WIRE` values are the frozen wire name |\n| `migrations/*.sql` | 12 | applied history, editing breaks the down step |\n| `vendor/reporting-sdk` | 4 | generated, wiped by `npm run vendor:refresh` |\n\nAlso 125 SQL column refs in repos. Those are the real DB column. And 25 `JSON.stringify` payload writes hold `account_id` in stored rows.\n\nNext: split the code rename from the column rename.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f58e43b025866f43eb37ebb2ea9e75552bf2f49f08c6680a26bccff6022006ad"
+}

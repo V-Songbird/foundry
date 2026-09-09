@@ -1,0 +1,37 @@
+{
+  "key": "repo-summary__dense-prose__r1",
+  "batchId": "caps-sonnet-d9ed252d",
+  "seed": "1786009855333",
+  "orderIndex": 134,
+  "task": "repo-summary",
+  "segment": "search-heavy",
+  "arm": "dense-prose",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23955,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "5/5 rubric hits (need 4)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1415676,
+  "numTurns": 7,
+  "durationMs": 22050,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1614
+  },
+  "contextTraffic": 111889,
+  "apiCalls": 3,
+  "toolCalls": 6,
+  "toolResultChars": 4294,
+  "narrationWords": 0,
+  "finalWords": 164,
+  "finalText": "This is a small Node HTTP API, five files, no dependencies beyond the built-in `http` and `crypto` modules.\n\n```mermaid\nflowchart LR\n  Client -->|Bearer token| server[server.js]\n  server -->|checks token| auth[auth.js]\n  server --> routes[routes.js]\n  routes -->|reads| cache[cache.js] --> store[store.js]\n  routes -->|writes| store\n```\n\nEach file has one job:\n\n- `server.js` opens the HTTP port and checks the token on every request before anything else runs.\n- `auth.js` makes and checks those tokens — a user ID plus a signed hash, using a secret from the environment.\n- `routes.js` is a small lookup table matching method and path to a handler.\n- `cache.js` is a 256-item memory cache that sits in front of reads only, so repeat lookups skip the store.\n- `store.js` holds the actual data in memory, and quietly drops any record 15 minutes after it was last written.\n\nNothing here is a real database — it's all in memory, and it resets on restart. There's no `package.json` and no tests in the repo yet.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc5c0ef8a3998f32c257136d44c7835cc5612d7971ca31bbdbd342c42355ab39"
+}

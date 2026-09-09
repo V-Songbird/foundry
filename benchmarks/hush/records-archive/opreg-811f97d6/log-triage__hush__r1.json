@@ -1,0 +1,39 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "opreg-811f97d6",
+  "seed": "1787983909163",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 69228,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.36406649999999996,
+  "numTurns": 11,
+  "durationMs": 67597,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4389
+  },
+  "contextTraffic": 163985,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 14276,
+  "narrationWords": 6,
+  "finalWords": 122,
+  "assistantMsgs": 2,
+  "finalText": "Redis died at 02:14:07. **It never came back.**\n\n| time | event |\n|---|---|\n| 02:14:07 | `redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07 | cache falls back to direct store reads |\n| 02:15:26–02:31:26 | 13 `redis reconnect attempt` failures, all refused |\n| 02:29:12 | `request queue depth 502 (max 500)` |\n| 02:31:44 | `worker-2` hits `JavaScript heap out of memory` |\n| 02:31:52 | `api unresponsive, killing process group — service down` |\n\nEvery read went straight to the store. Those reads timed out at 5000ms. Backlog grew for 18 minutes. Then memory ran out. The 173 timeouts all trace back to Redis.\n\nOne catch. [logs/app.log](logs/app.log) covers `2026-07-04`, not last night. Check for a newer file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "66322b604a8b9d4ab1ac17c800b9ca43c2c5b4ffb7aadac4abdef0adaf65c893"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__adhd__r1",
+  "batchId": "rx2-6256459f",
+  "seed": "1786463213439",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 18851,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "i-have-adhd:i-have-adhd",
+  "costUsd": 0.3187961,
+  "numTurns": 5,
+  "durationMs": 17088,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1042
+  },
+  "contextTraffic": 207889,
+  "apiCalls": 5,
+  "toolCalls": 4,
+  "toolResultChars": 60187,
+  "narrationWords": 0,
+  "finalWords": 233,
+  "finalText": "**Root cause: Redis died, and nothing degraded gracefully — it just piled up until the process OOM'd.**\n\nTimeline (2026-07-04):\n1. **02:14:07** — `redis connection lost: ECONNREFUSED 10.0.0.12:6379`. Cache layer fell back to direct DB reads.\n2. **02:14:08 onward** — cache-miss storms + `TimeoutError: store overloaded` on every service (api/worker-1/worker-2/scheduler), repeating every ~2s for the next 17 minutes straight.\n3. **02:14:07 → 02:30:06** — 12 automatic redis reconnect attempts, all failed with the same ECONNREFUSED. Redis never came back.\n4. Request queue depth climbed the whole time: 52 → 568 (max was supposed to be 500 — **it blew past its own cap around 02:29:06 at depth 502** and kept growing anyway, so the queue limit wasn't actually enforced).\n5. **02:31:44** — `worker-2` hit `JavaScript heap out of memory` from the backlog.\n6. **02:31:45** — supervisor restarted worker-2 (exit code 134), but too late.\n7. **02:31:52** — `api unresponsive, killing process group — service down`. That's the outage.\n\n**Root cause: Redis at 10.0.0.12:6379 went unreachable at 02:14:07 and never recovered. The app had no circuit breaker or backpressure — it kept queuing/retrying against an overloaded store instead of shedding load, until the queue growth OOM'd a worker and took the whole process group down 17.5 minutes later.**\n\nNext: check what happened to Redis at 10.0.0.12 around 02:14 UTC (host metrics/redis logs) — that's the actual trigger, this app log only shows the blast radius.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "467e6230010e43e1fc59dd15531a638de3a528e0733669d650976f7bed9280d9"
+}

@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__hushmax__r5",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 20,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hushmax",
+  "rep": 5,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23894,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.20632680000000003,
+  "numTurns": 10,
+  "durationMs": 22395,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1750
+  },
+  "contextTraffic": 241605,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 8182,
+  "narrationWords": 0,
+  "finalWords": 78,
+  "finalText": "Build's clean now, 0 errors.\n\nTwo real bugs were hiding under all that deprecation noise, both from the bundler bump:\n\n1. `src/core/options.js` read `options.retries`, but the new bundler passes `retryCount`. That crashed the link step outright.\n2. `src/net/retryPolicy.js` treated a missing backoff flag as invalid instead of \"off.\" The new config loader leaves unset flags as `undefined` rather than `false`, so it threw.\n\nFixed both. `node build.js` now exits 0 with 8 leftover warnings, all harmless deprecation noise.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6ffe6033526e1e4637ae36fd52fee4f4009e439c123d6c17439a81a3aeb19b92"
+}

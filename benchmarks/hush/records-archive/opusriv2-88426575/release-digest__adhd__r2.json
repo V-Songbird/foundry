@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__adhd__r2",
+  "batchId": "opusriv2-88426575",
+  "seed": "1787807973670",
+  "orderIndex": 29,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 118547,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9056350000000001,
+  "numTurns": 11,
+  "durationMs": 116707,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7824
+  },
+  "contextTraffic": 494590,
+  "apiCalls": 10,
+  "toolCalls": 10,
+  "toolResultChars": 75696,
+  "narrationWords": 107,
+  "finalWords": 629,
+  "finalText": "## What actually changed\n\n380 commits, and **37** of them are `feat`/`fix`/`perf`. The rest is 153 chores (104 are dependency bumps), 73 refactors, 64 test commits, 33 CI, 20 docs — none of which an installer can observe. The 37 dedupe to about 25 real changes, because the same fix landed separately in several modules (the null-cursor paginator bug was fixed four times: api, db, queue, webhooks).\n\n**The one feature:** webhook retries with exponential backoff. It touched `src/core/config.js` alongside `src/webhooks/dispatch.js`, which almost certainly means there's a new config knob (max attempts? base delay?) — worth naming in the notes, but the log doesn't tell me what it's called. Worth a look before you publish.\n\n**Three things I put under Breaking**, two of which are labelled as ordinary fixes in the log:\n\n- **401-instead-of-403 for expired tokens.** Filed as `fix(auth)`, but any client with a `if (status === 403) refresh()` branch silently stops refreshing. That's a breaking change regardless of the commit prefix.\n- **Latency histogram units.** Filed as `fix(core)` and `fix(store)`. Your 4.1 notes already set the precedent — the `timeout` seconds→milliseconds change was Breaking — and this is the same class of thing, except it hits dashboards and alerts rather than code.\n- **v1 export route removal.** Filed as `refactor(api): drop the unused v1 export route`. \"Unused\" is an internal claim about a public HTTP route; if you have telemetry on it, confirm before shipping, because if it's wrong it's a breaking change discovered by a customer.\n\nI left the 10 perf commits out. They're real work (schema reuse across requests, dropped JSON round-trips, batched metric writes) but none carry a number, and your template's \"only what someone installing would notice\" rule doesn't have a home for an unquantified speedup. If you have a benchmark, one line under Added would be justified — otherwise it's noise.\n\n## Three things to check before tomorrow\n\n**1. The history stops on June 17 — ten weeks ago.** Both files end on the same date, so it's not a truncated export of one of them. Either the release branch froze in June, or someone pulled this before the meeting and it's stale. If work continued, this digest is missing all of it. This is the one I'd resolve first.\n\n**2. The merged-PR sheet is not a reliable source.** It has 127 rows against 380 commits and is missing 17 distinct user-facing changes, including both HTTP resource leaks (`clear the timer when the socket drops`, `close the pool on shutdown`) and the schema-reuse perf work. If anyone else on the team is drafting from that sheet, they'll produce a materially different — and wronger — set of notes.\n\n**3. The Node version floor may have moved, and nothing in the log says so definitively.** Five separate `docs: note the minimum node version` commits, plus CI moving to Node 22 and `.nvmrc` being pinned twice. Docs and CI alone don't change what installs, so I didn't put it in the entry — but if `engines` moved too, that's a Breaking bullet, and it's exactly the kind of omission that generates install failures on release day.\n\nOne aside on the dependency noise: all 104 bump commits collapse to **16 distinct upgrades**, each recorded 5–12 times with identical version pairs (pino 9.2.0→9.3.1 appears twelve times). That's rebase or duplicate-PR artifact, not twelve upgrades. Nothing for the changelog, but if your release tooling counts commits for anything, it's inflating by roughly 6×. The only runtime-facing ones are fastify, pg, knex, ioredis, pino, zod, nanoid, dotenv, and undici — all patch or minor. The major bump in the set, vitest 1.6.0→2.0.1, is dev-only. I'm classifying those from the package names, though; `package.json` isn't in the export, so confirm if you want to mention the dependency floor at all.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "16a8a2033f6c925b02f50f47e62e05ed524d4c0dc9d6a3692052bb4c892ad6d5"
+}

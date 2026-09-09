@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__ste__r1",
+  "batchId": "rm254b-72ba4032",
+  "seed": "1787258322601",
+  "orderIndex": 17,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 32039,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2276488,
+  "numTurns": 11,
+  "durationMs": 30635,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2026
+  },
+  "contextTraffic": 278004,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 18251,
+  "narrationWords": 71,
+  "finalWords": 137,
+  "finalText": "Build's clean now — exit code 0, \"0 errors.\"\n\nThere were two real bugs hiding in that wall of deprecation noise, both from the bundler's options-shape changes:\n\n- `src/core/options.js` — `resolveRetries` was still reading `options.retries`, but the bumped bundler now hands modules `{ retryCount }`. That left it calling `.toFixed()` on `undefined`, which is what was actually throwing and failing the build.\n- `src/net/retryPolicy.js` — `isBackoffEnabled` threw on anything that wasn't strictly `true`/`false`, but the new config loader leaves unset flags as `undefined` instead of `false`. Simplified it to `flags.backoffEnabled === true` so unset just means disabled, matching old behavior.\n\nThe rest (DEP0142/0198/0233/0250/0267, the W1042/W2213/W3307 warnings) are genuine deprecation/lint noise from the dependency bump itself, not build-breakers — left those alone since fixing them wasn't required to get a clean build and they're a separate cleanup effort.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "bc4647c32a49c0da7c3e885d440d4fcf2f263b36ffd75830f3f57ab62b149c71"
+}

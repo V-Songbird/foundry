@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__baseline__r2",
+  "batchId": "hero-31a025f9",
+  "seed": "1787177750394",
+  "orderIndex": 63,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 66021,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.3898604,
+  "numTurns": 15,
+  "durationMs": 60442,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4542
+  },
+  "contextTraffic": 506882,
+  "apiCalls": 11,
+  "toolCalls": 11,
+  "toolResultChars": 31222,
+  "narrationWords": 0,
+  "finalWords": 284,
+  "finalText": "## On-Call Handoff — Gateway 503s\n\n**Status:** Ongoing / unresolved as of last log entry (2026-03-14 03:59:44Z)\n\n**Root cause:**\nDeploy `dep-4471` (gateway, a.novak, \"config: connection-per-request for pool isolation\") applied config generation 119 at 02:13:41Z, flipping `gateway.pool.perRequest: false -> true` (also bumped `upstreamMs` timeout 2000→2500ms, unrelated). This drove concurrent demand for DB connections past the fixed pool cap (`size=20`). Pool hit `in_use=20/idle=0` within ~2 minutes and has stayed pinned there ever since, with `waiting` growing every snapshot (12 → 32 → 52 → ... → 172+ by end of log). Every 503 in `gateway.log` is paired with `ERROR pool ... ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`.\n\n**Impact window:**\n- Start: **2026-03-14 02:14:18.972Z** (first 503, ~33s after config gen 119 applied at 02:13:41Z)\n- End: **none — still active** at the last log line (03:59:44Z), ~1h45m and counting\n- Scope: gateway only. All routed endpoints affected (`/v1/cart`, `/v1/session`, `/v1/catalog/search`, `/v1/orders`, `/v1/checkout`) across all upstream services; `/health` checks unaffected. `worker.log` confirms workers were not impacted — separate connection pool, stayed idle (`in_use=1/8`) throughout, zero ERRORs.\n\n**Action: roll back `dep-4471`** (gateway config gen 119 → 118), specifically reverting `gateway.pool.perRequest` to `false`. Alternatively, if per-request pooling is intentional, raise pool size to absorb the new acquisition pattern — but rollback is the safe/fast path.\n\n**Not related, don't chase during this incident:**\n- `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) — different services, timing doesn't line up with onset.\n- `worker.log` WARN at 02:36:22Z (1.9s slow query on `orders`) — pre-tagged as known issue `OPS-2210`.\n- Worth a follow-up look (non-blocking): worker job durations drift from ~200-400ms early to ~2.2-2.3s by end of log — unconfirmed whether downstream of gateway saturation or a separate trend.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "979b42e3d7d980bf5a54623a5297f37685726bd7c594e1935ab950a3e0199f62"
+}

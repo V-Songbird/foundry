@@ -1,0 +1,43 @@
+{
+  "key": "feature-drift__stock__r1",
+  "batchId": "final1-c41c0cf2",
+  "seed": "1787988604542",
+  "orderIndex": 24,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 5,
+  "wallMs": 104148,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3124524,
+  "numTurns": 25,
+  "durationMs": 94956,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5285
+  },
+  "contextTraffic": 786802,
+  "apiCalls": 23,
+  "toolCalls": 20,
+  "toolResultChars": 19904,
+  "narrationWords": 35,
+  "finalWords": 36,
+  "assistantMsgs": 7,
+  "narrationTexts": [
+    "No test suite, just simulate.js. Implementing the straightforward priority-to-channel mapping.",
+    "0 dropped, 0 route errors. The \"errors/criticals/warnings\" counts in the earlier note were just lines containing those words (e.g. `critical` priority rows), not real failures."
+  ],
+  "finalText": "**Dedup added.**\n\n[src/router.js:27](src/router.js:27) tracks last-sent time per `key` in `state.lastSentAt`. Repeats within 5 minutes of a same-key send now drop, regardless of priority or channel.\n\nReplay confirms: `dropped: 99` now (up from 0), 0 route errors.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "206d7d3512e92059e32ea99d5b52e048d370fa5087b85aaf3cd221c6caeb582f"
+}

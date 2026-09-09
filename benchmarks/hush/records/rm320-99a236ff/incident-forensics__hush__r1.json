@@ -1,0 +1,40 @@
+{
+  "key": "incident-forensics__hush__r1",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 57,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 4,
+  "wallMs": 117124,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5462,
+  "numTurns": 17,
+  "durationMs": 110250,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6508
+  },
+  "contextTraffic": 391897,
+  "apiCalls": 16,
+  "toolCalls": 13,
+  "toolResultChars": 8855,
+  "narrationWords": 0,
+  "finalWords": 88,
+  "assistantMsgs": 4,
+  "narrationTexts": [],
+  "finalText": "Handoff is at [HANDOFF.md](HANDOFF.md).\n\n**Root cause: `dep-4471` set `gateway.pool.perRequest: false -> true` with pool size still 20.** Every request took its own connection. The pool saturated in 37 seconds.\n\nImpact ran `02:14:18.972Z` to `03:59:27.974Z` and is still open at log end. 530 of 636 requests failed, 83%. On-call was paged 67 minutes late.\n\nRoll back `dep-4471`. Watch `ERR_POOL_EXHAUSTED` stop and `waiting` drop to 0.\n\nThe doc also records what I ruled out and one loose end: worker job time drifts 200ms to 2324ms, unrelated.\n\nNext: roll back `dep-4471`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3e110724f487ea5d93e33269d70820b82e71e6d0261f3ec6f7d7136b2ad345e5"
+}

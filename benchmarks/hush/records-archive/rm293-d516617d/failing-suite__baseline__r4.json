@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 23,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 30177,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.24520800000000004,
+  "numTurns": 10,
+  "durationMs": 28395,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1730
+  },
+  "contextTraffic": 160797,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 11662,
+  "narrationWords": 20,
+  "finalWords": 198,
+  "assistantMsgs": 3,
+  "finalText": "Green: 625/625, exit 0.\n\n**What was broken:** exactly 3 of 625 cases failed, all in `order totals`:\n\n```\nFAIL 433  total 12000c, 15% off, tax 0.0825\nFAIL 434  total 8650c,  20% off, tax 0.05\nFAIL 435  total 33400c, 10% off, tax 0.2\n```\n\n**Root cause** — `src/pricing.js:39` `orderTotal` applied tax to the *pre-discount* base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // <- cents, not discounted\nreturn discounted + tax;\n```\n\nIts own doc comment says tax is charged on what the customer actually pays, so this contradicted the documented rule as well as `cases.js:89`. It stayed hidden because 66 of the 69 order-total rows have either a zero discount or a zero tax, and in both of those degenerate cases the wrong formula gives the right answer. Only the three rows with *both* non-zero could expose it — e.g. 12000c at 15% off with 8.25% tax returned 11190 instead of 11042 (+148).\n\n**Fix** (one line, `src/pricing.js:39`):\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\nThis also routes the tax through `applyTax`, matching the spec's round-then-tax-then-round sequencing. No other file changed; the other eight suites were already passing and still are.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ac5ade39aaf8fd074e8653754602d10ff3bb14954bc929f37eafe9ebdde64bd6"
+}

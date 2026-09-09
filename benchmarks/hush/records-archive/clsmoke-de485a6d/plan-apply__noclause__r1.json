@@ -1,0 +1,39 @@
+{
+  "key": "plan-apply__noclause__r1",
+  "batchId": "clsmoke-de485a6d",
+  "seed": "1787981345773",
+  "orderIndex": 1,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "noclause",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 12501,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.12010220000000002,
+  "numTurns": 4,
+  "durationMs": 11013,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 544
+  },
+  "contextTraffic": 75884,
+  "apiCalls": 3,
+  "toolCalls": 3,
+  "toolResultChars": 1221,
+  "narrationWords": 0,
+  "finalWords": 70,
+  "assistantMsgs": 1,
+  "finalText": "**Plan, not yet applied**, in [cli.js](src/cli.js:1):\n\n```js\nconst USAGE = 'usage: cli.js report [--json]';\n\nfunction main(argv) {\n  const command = argv[0];\n  if (command !== 'report') {\n    process.stderr.write(USAGE + '\\n');\n    return 1;\n  }\n  const json = argv.includes('--json');\n  const rows = buildRows();\n  process.stdout.write((json ? JSON.stringify(rows, null, 2) : toTable(rows)) + '\\n');\n  return 0;\n}\n```\n\n`buildRows()` in `report.js` stays untouched, it already returns the full data.\n\nSay go and I'll apply it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "390fff57b1276fabee2a45af70c09d6e4503041d6f1aa89fc85bd16d37e9767e"
+}

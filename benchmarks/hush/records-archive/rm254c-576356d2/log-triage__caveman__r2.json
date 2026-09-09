@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "rm254c-576356d2",
+  "seed": "1787262070641",
+  "orderIndex": 7,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14673,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.2949723,
+  "numTurns": 3,
+  "durationMs": 13312,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 755
+  },
+  "contextTraffic": 146278,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60097,
+  "narrationWords": 0,
+  "finalWords": 197,
+  "finalText": "Root cause and timeline:\n\n**02:14:07** — Redis at `10.0.0.12:6379` drops: `ECONNREFUSED`. API falls back to direct store reads (cache layer degraded).\n\n**02:14:08 onward** — No cache means store gets hammered directly. Cascading pattern repeats every ~2s for 17 min straight: cache miss storm → timeout (5000ms, store overloaded) → queue depth climbing. Queue depth 52 at start, climbs steadily to 568 by 02:31:24 (limit was 500 — breached around 02:25:48).\n\n**Redis reconnect attempts** (all failed, same ECONNREFUSED): attempts 0 through 12, spaced ~2min apart, 02:15:26 through 02:31:26. Redis never came back.\n\n**02:31:44** — worker-2 hits `JavaScript heap out of memory` (request backlog piled up, unbounded queue ate memory).\n\n**02:31:45** — supervisor restarts worker-2 (exit code 134).\n\n**02:31:52** — api itself goes unresponsive, supervisor kills whole process group. **Service down.**\n\nBottom line: Redis died and never reconnected (12 attempts, all refused) → no cache fallback protection on queue depth → backlog grew unbounded 17 min straight → OOM crash → cascading kill of API.\n\nFix candidates: cap request queue depth (hard-fail fast instead of unbounded growth past max 500), alert on Redis down sooner (not wait 17min), check why Redis at `10.0.0.12:6379` went down and had no failover.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5f155c29ac3a277da693d04d482ca08dbd2db687032b079376e930856d883f78"
+}

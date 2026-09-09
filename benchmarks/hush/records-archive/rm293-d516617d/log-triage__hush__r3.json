@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__hush__r3",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 4,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 35486,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.274269,
+  "numTurns": 7,
+  "durationMs": 33729,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1366
+  },
+  "contextTraffic": 195856,
+  "apiCalls": 7,
+  "toolCalls": 6,
+  "toolResultChars": 12345,
+  "narrationWords": 0,
+  "finalWords": 117,
+  "assistantMsgs": 1,
+  "finalText": "**Redis died at 02:14:07 and never came back. That took prod down 18 minutes later.**\n\n| Time | Event |\n|---|---|\n| 02:14:07 | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:10 | Cache miss storm, first 5s store timeouts |\n| 02:29:12 | Queue depth 502 passes max 500 |\n| 02:31:44 | `worker-2` heap out of memory, exit 134 |\n| 02:31:52 | `FATAL [supervisor] api unresponsive` service down |\n\nAll 13 reconnect tries failed on the same refused port. Redis was down the whole time, not flapping. Totals: 173 timeouts, 174 miss storms, 0 recovery.\n\nNext: check why `10.0.0.12:6379` refused connections. The app has no backpressure, so a cache loss becomes a full outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "968b2aa5df703deffbd873f406da6a60690e837383bc0ca11fbdcc9f5d4639de"
+}

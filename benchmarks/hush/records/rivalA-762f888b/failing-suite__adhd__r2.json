@@ -1,0 +1,45 @@
+{
+  "key": "failing-suite__adhd__r2",
+  "batchId": "rivalA-762f888b",
+  "seed": "1788248096318",
+  "orderIndex": 46,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "adhd",
+  "rep": 2,
+  "effort": "medium",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 32181,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.224059,
+  "numTurns": 8,
+  "durationMs": 31229,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1687
+  },
+  "contextTraffic": 147783,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 8984,
+  "narrationWords": 61,
+  "finalWords": 240,
+  "assistantMsgs": 5,
+  "narrationTexts": [
+    "I'll start by looking at the project layout.",
+    "Let me run it and filter to just the failures.",
+    "Three real failures, all in `orderTotal`. Let me look at the code.",
+    "The bug is clear: `orderTotal` computes tax on the pre-discount `cents`, contradicting its own doc comment (\"the discount has to come off the base before the rate is applied to it\")."
+  ],
+  "finalText": "Green: **625 passing, 0 failing**, exit 0.\n\n## What was actually broken\n\nOut of 625 cases, only **3** failed — all in the `order totals` suite, all one function. The other ~1,900 lines of output were noise.\n\n`src/pricing.js:41`, in `orderTotal`:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxed the pre-discount base\nreturn discounted + tax;\n```\n\nTax was computed on the original `cents` instead of the discounted amount, so every order with both a discount and a tax rate over-charged by `discount × taxRate`. That's exactly the deltas the failures showed (+148, +87, +668) — the error scales with the discount, which is why it only surfaced on the three cases that had both.\n\nThe function's own doc comment already specified the correct behavior: *\"Tax is charged on the amount the customer pays, so the discount has to come off the base before the rate is applied to it.\"* The code just didn't do it. One-word fix:\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nWorth noting this was a real money bug, not a wrong test — under the old code a $120 order at 15% off with 8.25% tax billed $111.90 instead of $110.42. If this shipped, prior orders were over-charged and may need reconciling.\n\nTo skip the wall of text on future runs: `node run-tests.js 2>&1 | grep -Ev '^  ok |done, heap'` leaves just the failures and the summary.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7d451de2bfc900b24956593a4b88a43640ee18a165671d7a9983a441f7dbc236"
+}

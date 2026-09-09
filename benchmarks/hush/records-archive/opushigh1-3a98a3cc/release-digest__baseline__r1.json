@@ -1,0 +1,44 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "opushigh1-3a98a3cc",
+  "seed": "1788892585819",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": "high",
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 156094,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.691287,
+  "numTurns": 14,
+  "durationMs": 155305,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 11182
+  },
+  "contextTraffic": 316845,
+  "apiCalls": 11,
+  "toolCalls": 13,
+  "toolResultChars": 31307,
+  "narrationWords": 51,
+  "finalWords": 695,
+  "assistantMsgs": 4,
+  "narrationTexts": [
+    "I'll start by getting the lay of the land.",
+    "The PR sheet ends at 06-17 but 4.2 is tomorrow, so the commit log likely covers more. Let me read it.",
+    "Now let me check the ambiguous ones — anything labeled refactor/chore that's actually user-visible, plus the file paths behind each fix."
+  ],
+  "finalText": "Read the whole history. Here's what's actually in 4.2.\n\n## The shape of it\n\n380 commits, and 343 of them are invisible to anyone installing the package:\n\n| | count | user-facing? |\n|---|---|---|\n| chore (153) | 16 unique dep bumps, rest is lockfiles/tsconfig/editorconfig/codeowners | no |\n| refactor (73) | 11 unique refactors, each re-landed 4–13× across modules | no (2 exceptions, below) |\n| test (64), ci (33), docs (20) | fixtures, flake fixes, node 22 runners | no |\n| **feat (1), fix (26), perf (10)** | | **yes** |\n\nThe dep bumps are all patch/minor. Runtime deps (fastify, pg, knex, ioredis, pino, nanoid, zod, dotenv, undici) moved at most a minor; the only major is vitest 1.6→2.0, which is dev-only. Nothing there for a consumer to read.\n\nThe 26 fixes collapse to **10 distinct behaviors** — the same bug was fixed in 4–5 modules under the same subject line. `fix(api): keep the trace id across the retry` landed three times (twice in `serialize.js`, once in `router.js`), which reads like it took three attempts.\n\n## Draft — 4.2.0\n\n```markdown\n## 4.2.0 — 2026-09-09\n\n### Breaking\n- An expired token now returns 401 instead of 403. Clients that branch on 403\n  to trigger a token refresh will not refresh until they are updated.\n- The latency histogram now records in the documented units. The numbers it\n  emits change magnitude, so dashboards and alert thresholds calibrated on 4.1\n  will read wrong until they are rebased.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff.\n\n### Fixed\n- The database layer no longer writes the full request body to the log.\n- Pagination no longer fails on a null cursor.\n- An empty allowlist no longer errors.\n- The HTTP client clears its timeout when the socket drops, and closes its\n  connection pool on shutdown, so a process can exit cleanly.\n- Requests no longer go out with a duplicated header.\n- The trace id now survives a retry.\n- A trailing slash in a path is trimmed once rather than repeatedly.\n- The token parser's error message is more specific. Match on the error code,\n  not the message text.\n```\n\n**Why 401/403 and the histogram are under Breaking:** neither is labelled breaking in the log, but both silently change something callers build on, and 4.1's only Breaking entry was itself a units change (`timeout` seconds→ms). Same precedent. Move them down to Fixed if you disagree — I'd argue against it for the histogram especially, since it fails silently on someone's pager.\n\n**On perf:** 10 commits (batched metric writes, skipped JSON round-trips, dropped clones in the mapper, parsed schemas reused across requests). Real work, genuine throughput impact, but the log carries no benchmark numbers and your template is fixed at three headings. I left it out rather than invent a figure. If you want a line, `- Lower request overhead on the hot paths.` under Added is honest, or drop a measured number into the release blog instead.\n\n## Three things to check before you publish\n\n1. **`refactor: stop re-exporting the internal error types`** — 8 commits, across core/db/auth/billing/jobs, touching `src/core/errors.js`. If any of those symbols were reachable from the package entry point, this is a silent breaking change for anyone doing `import { SomeError }`. The log gives me diffstats only. Worth `git diff v4.1.0..HEAD -- src/core/errors.js` plus the exports map.\n2. **`refactor(api): drop the unused v1 export route`** (56dc828) — removes a route, its handler, and its test. The author says unused; if it was documented or is in access logs, it's a Breaking line.\n3. **Minimum Node version** — five docs commits now state a minimum and CI moved to node 22, but no commit touches `engines` in `package.json`. Either the docs are ahead of the manifest or nothing changed. Confirm the number, then add a Breaking line or correct the docs.\n\nOne more: the last commit in `commits.log` is 2026-06-17 and the PR sheet stops the same day. That's nearly three months before tomorrow's cut. If anything landed on `release/4.2` after mid-June, it isn't in these files.\n\nWant me to paste the draft into CHANGELOG.md at the placeholder?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2d11049ea2fcfe2e823ee371e3c76fca404046336ac9fb628a359c3513414ae0"
+}

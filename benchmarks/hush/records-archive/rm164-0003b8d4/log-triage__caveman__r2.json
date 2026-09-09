@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r2",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 9,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14598,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.29573609999999995,
+  "numTurns": 3,
+  "durationMs": 13118,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 801
+  },
+  "contextTraffic": 146296,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60092,
+  "narrationWords": 0,
+  "finalWords": 187,
+  "finalText": "Full picture, root cause found:\n\n**02:14:07** — Redis at 10.0.0.12:6379 drop: `ECONNREFUSED`. API fall back to direct store reads.\n\n**02:14:07 onward** — cache miss storm, every request now hit store direct. Store overload, TimeoutErrors (5000ms) start cascade across api/worker-1/worker-2/scheduler, repeat every ~2s.\n\n**02:14:12 → 02:31:26** — request queue depth climb steady, 52 → 568 (max 500 breached ~02:25:48, queue 400+, worse from there). Redis reconnect attempts fail every ~140s: attempt 0 (02:15:26) through attempt 12 (02:31:26), all `ECONNREFUSED` — redis never came back, 17 min total.\n\n**02:31:44** — worker-2 heap OOM (`JavaScript heap out of memory (request backlog)`) — unbounded queue growth ate memory.\n\n**02:31:45** — supervisor restart worker-2, exit code 134.\n\n**02:31:52** — api unresponsive, supervisor kill whole process group. Service down.\n\nRoot cause: Redis instance (10.0.0.12:6379) died at 02:14:07 and never recovered (12 failed reconnects over 17 min). Fallback path (direct store reads, no backpressure) overwhelm store, queue grow unbounded, worker OOM, cascading kill.\n\nFix priorities: bound request queue (max 500 ignored, kept growing past 568), circuit-break on repeated store timeouts instead of retry-storm, alert on redis down + reconnect backoff, check why 10.0.0.12 dropped.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1fd545af0d35a6ed41cb50c3d2b32c20f021f20425595c73d833bb3afad9f972"
+}

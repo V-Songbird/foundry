@@ -1,0 +1,38 @@
+{
+  "key": "dep-bump-warnings__hush__r2",
+  "batchId": "rm290-bc456067",
+  "seed": "1787883598931",
+  "orderIndex": 10,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31922,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.184804,
+  "numTurns": 10,
+  "durationMs": 29941,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1628
+  },
+  "contextTraffic": 188716,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6307,
+  "narrationWords": 6,
+  "finalWords": 70,
+  "assistantMsgs": 2,
+  "finalText": "**Build passes now.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read both |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag is `undefined`, not `false` | Treat as `false` |\n\nThe 8 warnings are still there. They are deprecation notices like `DEP0198 Buffer()` in files the build does not ship. Want me to clear those too?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e402ec42ae8134b06e610d71c9b58c33305cecc026c6b3780fe6989021d21e88"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "plan-apply__baseline__r3",
+  "batchId": "rm320-99a236ff",
+  "seed": "1788058431828",
+  "orderIndex": 69,
+  "task": "plan-apply",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 31289,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.169764,
+  "numTurns": 8,
+  "durationMs": 29979,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1966
+  },
+  "contextTraffic": 89556,
+  "apiCalls": 5,
+  "toolCalls": 7,
+  "toolResultChars": 3081,
+  "narrationWords": 15,
+  "finalWords": 466,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll look at the code first so the plan is grounded in what's actually there."
+  ],
+  "finalText": "Read the four files; nothing changed. Here's what I found and how I'd do it.\n\n## What's there\n\n- `src/cli.js:14` — only path: `toTable(buildRows())`, no flag parsing at all beyond `argv[0] !== 'report'`.\n- `src/report.js:11` — `buildRows()` returns the full row: `id, suite, status, ms, owner, slow` (derived, `ms > 5000`), sorted slowest-first.\n- `src/format.js:7` — `toTable` deliberately renders only `['id','suite','status','ms']`, dropping `owner` and `slow` for terminal width. Its comment says anything needing the whole row should go back to `buildRows()`, not to it.\n\n## The one question worth settling first\n\n\"Same data\" is ambiguous, because the table already shows *less* than the report produces. Two readings:\n\n1. **JSON = the full row** — 6 fields including `owner` and `slow`.\n2. **JSON = the table's 4 columns** — a literal transcription of what you see.\n\nI'd go with (1). The reason `owner`/`slow` are missing is a text-rendering constraint that JSON doesn't have, and `format.js` explicitly points whole-row consumers at `buildRows()`. It also makes the flag worth having — a JSON copy of a 4-column table is barely more useful than the table. But if the intent is \"machine-readable version of exactly this table,\" say so and I'll narrow it; that's a one-line difference.\n\n## Plan (assuming full row)\n\n1. **`src/cli.js`** — parse args for `report`: scan the remaining argv for `--json`, set a flag, and reject unknown args with the usage message + exit 1 (right now anything after `report` is silently ignored, which would make a typo like `--jsno` print the table and look like success). Update `USAGE` to `usage: cli.js report [--json]`.\n2. Branch on the flag: `JSON.stringify(rows, null, 2)` vs `toTable(rows)`. Both call `buildRows()` once — the flag picks the renderer, it does not touch how data is built.\n3. **Where the JSON rendering lives** — I'd put a `toJson(rows)` next to `toTable` in `src/format.js` and export it. Keeps `cli.js` as pure dispatch and keeps both output formats in one file, so the next format has an obvious home. `report.js` stays untouched.\n4. Order and shape: array of objects, preserving the slowest-first sort. Trailing newline, same as today.\n\n## Verification\n\nThere's no `package.json`, no test runner, and no tests here, so I'd verify by running it:\n\n- `node src/cli.js report` — output byte-identical to before the change.\n- `node src/cli.js report --json` — 5 objects, `r-105` first, `slow: true` only on `r-105`, and it round-trips through a JSON parser.\n- `node src/cli.js report --bogus` and bare `node src/cli.js` — usage to stderr, exit 1.\n\nI'd also want to know whether adding a `package.json` with a smoke test is in scope or out — I'd default to out, since nothing in the repo currently sets up a test harness and that's a larger decision than this flag.\n\nSay the word and I'll implement it.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1fefe9913c13601b527305f6480437c277248b95c5ae8dc21f1ff940167e924c"
+}

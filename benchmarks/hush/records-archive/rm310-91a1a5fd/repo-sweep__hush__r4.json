@@ -1,0 +1,42 @@
+{
+  "key": "repo-sweep__hush__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 38,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 134906,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.934497,
+  "numTurns": 58,
+  "durationMs": 133290,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 13591
+  },
+  "contextTraffic": 360007,
+  "apiCalls": 9,
+  "toolCalls": 57,
+  "toolResultChars": 44088,
+  "narrationWords": 8,
+  "finalWords": 57,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by finding the remaining `db.query` calls."
+  ],
+  "finalText": "**Migrated 12 files, 36 call sites, to `db.execute({ sql, params })`.**\n\nAll 12 pass `node --check`. No `db.query` left in `packages/`. The 25 `cache.query` calls are a different API and stay.\n\nLeft alone: `vendor/legacy-orm/adapter.js` has 2 `db.query` calls. Its header says do not edit, since upgrades overwrite it.\n\nNext: patch `legacy-orm` upstream, or wrap the vendored adapter.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e7bc0376ee30cd0c2ae32fb3fa76ead2ee1fc1efcd81580fc1fcb68ad24489e1"
+}

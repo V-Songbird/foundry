@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__hush__r1",
+  "batchId": "rm270-f4037027",
+  "seed": "1787669679609",
+  "orderIndex": 51,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 77349,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3603946,
+  "numTurns": 43,
+  "durationMs": 76237,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10156
+  },
+  "contextTraffic": 367406,
+  "apiCalls": 8,
+  "toolCalls": 42,
+  "toolResultChars": 21604,
+  "narrationWords": 20,
+  "finalWords": 82,
+  "finalText": "All the old calls are switched over. 12 files got moved from `db.query` to `db.execute`, one call each swapped like this:\n\n```js\nawait db.execute({ sql: 'SELECT * FROM cohorts WHERE id = ?', params: [id] })\n```\n\nOne file still uses `db.query`: `vendor/legacy-orm/adapter.js`. I left it alone on purpose. Its own comment says it's a vendored copy, replaced wholesale on every upgrade, and any local edit gets silently thrown away. Want me to touch it anyway, or handle it a different way?",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "b035ff9f427227db2fec7e27675914ee0eab3a4c63a1a630055ab0476d30dcef"
+}

@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r4",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 55,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 4,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 129168,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6696310000000001,
+  "numTurns": 26,
+  "durationMs": 122243,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7718
+  },
+  "contextTraffic": 572739,
+  "apiCalls": 23,
+  "toolCalls": 21,
+  "toolResultChars": 13523,
+  "narrationWords": 6,
+  "finalWords": 126,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project first."
+  ],
+  "finalText": "Dedup is in, at `src/router.js:29`.\n\n`createState()` now carries `lastSentAt` (key → `at` of the last delivery for that key). A notification whose key was delivered less than 5 minutes ago returns `[]`; only actual deliveries stamp the map, so a dropped repeat doesn't extend the window and a queued notification does count as sent.\n\nReplay: 99 drops, 0 errors — exactly the flaps `events.js` plants (same key, +2 minutes). Sample pair: `evt-0287 @1 → queue`, then `evt-0288 @3 → (dropped)`. Deliveries fell accordingly (pager 225→200, queue 300→266).\n\nDedup runs ahead of the quiet-hours rule, so a repeat is suppressed rather than queued. I used a strict 5-minute window — a repeat exactly 5 minutes later goes through; say the word if you want that boundary inclusive.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9c8d06348fa93123c450514c5b44e659f6a93b11df189eea444c3c7a10bb0f36"
+}

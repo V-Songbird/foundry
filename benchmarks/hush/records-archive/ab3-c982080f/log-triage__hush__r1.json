@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "ab3-c982080f",
+  "seed": "1787388718601",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 23821,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2235586,
+  "numTurns": 6,
+  "durationMs": 21856,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1216
+  },
+  "contextTraffic": 276096,
+  "apiCalls": 6,
+  "toolCalls": 5,
+  "toolResultChars": 53064,
+  "narrationWords": 0,
+  "finalWords": 200,
+  "finalText": "Now I have the full picture, start to crash. Here's what happened.\n\n**Redis died, and everything backed up from there.**\n\nAt 2:14:07 AM, the app lost its connection to Redis at `10.0.0.12:6379` (connection refused). Redis is the cache layer, so the app fell back to reading straight from the database. That database couldn't handle the extra load, so requests started timing out after 5 seconds, and the request queue kept growing.\n\nThe app tried to reconnect to Redis 12 times over the next 17 minutes, roughly every 90 seconds, and every single attempt failed. The queue never stopped climbing: 52 requests waiting at 2:14, over 500 by 2:24, and 568 by the last reading at 2:31.\n\nAt 2:31:44 AM, worker-2 ran out of memory trying to hold the backlog and crashed. It tried to restart but couldn't keep up. At 2:31:52 AM the whole API gave up and the service went down.\n\nSo the root cause is Redis going unreachable at `10.0.0.12:6379` and never coming back. Everything after that, the timeouts, the growing queue, the crash, was the app slowly drowning without its cache. Worth checking why that Redis host stopped answering, since the app-side retries never had a chance.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "78cf0cc8e7b4f2eebaeb2e49524e87aafed8d4a7810abf15108fa5fea13e3776"
+}

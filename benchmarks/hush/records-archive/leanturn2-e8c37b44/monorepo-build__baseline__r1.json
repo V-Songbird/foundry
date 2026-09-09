@@ -1,0 +1,37 @@
+{
+  "key": "monorepo-build__baseline__r1",
+  "batchId": "leanturn2-e8c37b44",
+  "seed": "1786215962361",
+  "orderIndex": 8,
+  "task": "monorepo-build",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 34006,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.182118,
+  "numTurns": 9,
+  "durationMs": 32652,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2520
+  },
+  "contextTraffic": 194326,
+  "apiCalls": 6,
+  "toolCalls": 8,
+  "toolResultChars": 10168,
+  "narrationWords": 40,
+  "finalWords": 69,
+  "finalText": "Fixed. `resolveRelease` in `packages/shared/config.js` was doing a shallow `Object.assign`, so any package overriding one key inside `output` or `sourcemap` (e.g. `@acme/api` setting `output.format`) silently dropped the sibling keys (`output.dir`, etc.), which then failed `build.js`'s bundle-stage config check. Replaced it with a proper per-key deep merge across the defaults/package-override/CLI-flag layers. `node verify.js` now passes (`build.js` builds green, 0 errors) and the layering rule holds for the untested override case too.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "a0e70d275a84c7b317a7e1da84f6affb492d48a7ee4e7023937710d99b5f6b4d"
+}

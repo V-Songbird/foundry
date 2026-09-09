@@ -1,0 +1,37 @@
+{
+  "key": "marathon-audit__lean__r1",
+  "batchId": "lean-84c4c3a8",
+  "seed": "1786214864103",
+  "orderIndex": 30,
+  "task": "marathon-audit",
+  "segment": "long-session",
+  "arm": "lean",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 141306,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.7983231999999998,
+  "numTurns": 52,
+  "durationMs": 134432,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10958
+  },
+  "contextTraffic": 949664,
+  "apiCalls": 20,
+  "toolCalls": 48,
+  "toolResultChars": 27501,
+  "narrationWords": 0,
+  "finalWords": 122,
+  "finalText": "The dependency was the fourth piece: `package.json` still pins `fast-parse` at `1.4.2`, the exact version `NOTES.md` says the publisher yanked over a prototype-pollution report. `1.4.3` is the fix, and nothing bumped it.\n\n`AUDIT.md` is written, with all four findings ranked by severity:\n\n1. **Critical** — `src/routes/internal.js`: no auth on the internal routes, a leftover from when the VPN did that job.\n2. **Critical** — `src/repo/report.js`: saved-report filters go into SQL by string concatenation.\n3. **High** — `config/staging.js`: a real database password committed in plaintext.\n4. **Medium** — `package.json`: still on the yanked `fast-parse` 1.4.2.\n\nThe service code itself is untouched — only `AUDIT.md` was added, and the verifier confirms it: `OK AUDIT.md names all four findings and the service was left alone`.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "e3ee8d26e4efc4ef2f598b22d40147363288f5d18229104bc184362597d12134"
+}

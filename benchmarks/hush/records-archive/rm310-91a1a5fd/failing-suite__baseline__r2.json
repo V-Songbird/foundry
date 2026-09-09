@@ -1,0 +1,43 @@
+{
+  "key": "failing-suite__baseline__r2",
+  "batchId": "rm310-91a1a5fd",
+  "seed": "1788051222717",
+  "orderIndex": 19,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 38318,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.26401800000000003,
+  "numTurns": 12,
+  "durationMs": 36945,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2183
+  },
+  "contextTraffic": 152683,
+  "apiCalls": 7,
+  "toolCalls": 11,
+  "toolResultChars": 12618,
+  "narrationWords": 21,
+  "finalWords": 204,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "I'll start by looking at the project structure and finding the pricing suite.",
+    "The failures are all one bug. Fixing it:"
+  ],
+  "finalText": "Green: **625 total, 625 passing, 0 failing** (exit 0).\n\n## What was actually broken\n\nOnly 3 of the 625 cases failed, all in the `order totals` suite — the rest of the wall of text was passing noise.\n\n**Root cause:** `orderTotal` in `src/pricing.js:39` applied tax to the *pre-discount* base:\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nconst tax = roundCents(cents * taxRate);   // ← taxes the full amount\nreturn discounted + tax;\n```\n\nThe function's own doc comment states the correct rule (\"the discount has to come off the base before the rate is applied\"), so the code contradicted its stated contract. The customer was charged tax on money they never paid.\n\n**Fix:**\n\n```js\nconst discounted = applyDiscount(cents, discountPct);\nreturn applyTax(discounted, taxRate);\n```\n\n## Why it hid so long\n\nThe suite has 69 order-total rows, but 66 of them have either a zero discount or a zero tax rate — with either factor at zero the two orderings produce identical results. Only the 3 hand-written rows at `cases.js:80-82` have both non-zero, and those were exactly the 3 failures (e.g. `orderTotal(12000, 15, 0.0825)` returned 11190 instead of 11042 — 148c overcharge).\n\nNo other module was at fault; `tiers.js` and the remaining eight suites were clean throughout.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "9e813664480d391575806a406c1521ace91ec686983fbf94e8193148f5adc366"
+}

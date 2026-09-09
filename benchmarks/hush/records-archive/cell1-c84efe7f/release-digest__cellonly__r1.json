@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__cellonly__r1",
+  "batchId": "cell1-c84efe7f",
+  "seed": "1788028316411",
+  "orderIndex": 12,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "cellonly",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 109923,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2929426,
+  "numTurns": 13,
+  "durationMs": 108458,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 9817
+  },
+  "contextTraffic": 297810,
+  "apiCalls": 8,
+  "toolCalls": 12,
+  "toolResultChars": 30265,
+  "narrationWords": 0,
+  "finalWords": 143,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Wrote the 4.2.0 entry into [CHANGELOG.md](CHANGELOG.md).**\n\nOut of 380 commits, almost everything was dep bumps and refactors. Real signal:\n\n- **Breaking**: internal error classes for `jobs`, `db`, `core`, `auth`, `billing` are no longer re-exported. Anyone doing `instanceof` on those breaks.\n- **Added**: webhook deliveries retry with exponential backoff.\n- **Fixed**: 11 items — paginator crash on null cursor (queue/api/webhooks/db), HTTP hang on dropped socket, db logging full request bodies, expired tokens now `401` not `403`, and a few more.\n\nNote: several fixes (like `core` \"drop the duplicate header\" and `api` \"keep the trace id\") show the identical commit re-landing 2-3 times in the same module. Treated those as one changelog line each, not three — worth a sanity check with whoever owns `core`/`api` since repeated re-fixes usually mean the bug came back.\n\nNext: review the wording before you publish, especially the breaking-change note.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "209521f98b42daf95d4e6d5bc75bbea5fc8897543bdac4d16091c15b7218131a"
+}

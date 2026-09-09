@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__ste__r2",
+  "batchId": "rm254-cde35d60",
+  "seed": "1787245282532",
+  "orderIndex": 44,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "ste",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 255027,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.9457363999999999,
+  "numTurns": 15,
+  "durationMs": 253611,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 22442
+  },
+  "contextTraffic": 639185,
+  "apiCalls": 10,
+  "toolCalls": 13,
+  "toolResultChars": 71894,
+  "narrationWords": 20,
+  "finalWords": 187,
+  "finalText": "Done — added a **4.2.0** section to `CHANGELOG.md`, dated 2026-08-21.\n\nOut of ~380 commits and 127 merged PRs, only 11 were user-facing (1 feature, 9 fixes, 1 behavior change worth flagging as breaking). Everything else was dependency bumps, refactors, CI, and internal tests.\n\nWorth double-checking yourself:\n- **#4223** (`fix(auth): return 401 for an expired token instead of 403`) — I flagged this as Breaking, not just a fix, since any client branching on 403 for expired tokens will need an update. Confirm that's the call you want before this goes out.\n- I used `merged-prs.tsv` as the source of truth for \"what actually shipped.\" `commits.log` has several near-duplicate titles (e.g. \"guard the null cursor in the paginator\" shows up in queue, api, webhooks, and db) that never appear in the PR sheet — I treated those as superseded/unmerged attempts and left them out. Worth a sanity check if you know that log had extra real merges the sheet missed.\n- I didn't include the perf commits (`batch the metric writes`, `avoid the extra clone in the mapper`, `skip the JSON round-trip`) — internal, no observable behavior change.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "cae8a4fb3b8949edc1d0ca004d5b4a7cf768cc5facde96c93e6e30b5c5300482"
+}

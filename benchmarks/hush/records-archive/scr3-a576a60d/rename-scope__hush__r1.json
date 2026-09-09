@@ -1,0 +1,37 @@
+{
+  "key": "rename-scope__hush__r1",
+  "batchId": "scr3-a576a60d",
+  "seed": "1787637417989",
+  "orderIndex": 7,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 80983,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.5603999999999999,
+  "numTurns": 17,
+  "durationMs": 79456,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5910
+  },
+  "contextTraffic": 356934,
+  "apiCalls": 10,
+  "toolCalls": 16,
+  "toolResultChars": 21302,
+  "narrationWords": 12,
+  "finalWords": 87,
+  "finalText": "**It's big.** 1,291 spots across 94 files. Most sit in the five services.\n\nThree places must keep the old name:\n\n1. The public API contract in `docs/openapi.yaml`. Also the right side of `WIRE` in `lib/serialize.js`. Clients read that name. Renaming breaks them.\n2. The 12 files in `migrations/`. They already ran in production.\n3. The 4 files in `vendor/reporting-sdk/`. A vendor refresh overwrites any edit.\n\nThis is not a find-and-replace. 250 service lines query an `account_id` database column. A new migration has to rename that column first.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "56cd8c7ae3560f77436f52561c3ec943e15187ae6771ceb421f79f857c52435f"
+}

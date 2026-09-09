@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__lookfurther__r2",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 21,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "lookfurther",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 62233,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 0.5780155,
+  "numTurns": 20,
+  "durationMs": 60547,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3507
+  },
+  "contextTraffic": 409921,
+  "apiCalls": 10,
+  "toolCalls": 19,
+  "toolResultChars": 35224,
+  "narrationWords": 0,
+  "finalWords": 57,
+  "finalText": "**Migration done.** 36 old calls in 12 files now use `db.execute({ sql, params })`.\n\nTwo things I left alone on purpose:\n- `cache.query` takes a cache key, not SQL. All 25 uses untouched.\n- `vendor/legacy-orm/adapter.js` is vendored code. Its 2 calls stay.\n\n`node verify.js` passes: \"OK every db.query call site moved to db.execute, and nothing else moved\".",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f92e97916f84fdb2aa4e4c30a758ec27ae614724ef9331d3d3a219e2f06cc7db"
+}

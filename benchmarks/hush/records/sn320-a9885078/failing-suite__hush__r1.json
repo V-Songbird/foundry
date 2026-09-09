@@ -1,0 +1,42 @@
+{
+  "key": "failing-suite__hush__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 9,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 22090,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.1202702,
+  "numTurns": 10,
+  "durationMs": 20422,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1175
+  },
+  "contextTraffic": 203192,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 11806,
+  "narrationWords": 13,
+  "finalWords": 41,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirms the bug: `orderTotal` taxes the pre-discount amount instead of the discounted one."
+  ],
+  "finalText": "**Suite is green: 625 passing, 0 failing.**\n\nThe bug was in `orderTotal` in [src/pricing.js:41](src/pricing.js:41). Tax was charged on the full pre-discount amount instead of the discounted total.\n\n```js\nconst tax = roundCents(discounted * taxRate);\n```\n\nNext: nothing, all suites pass now.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3c0d82c10153da7d98433a1d4dee25df615ce2f4e5e0a39e2e06182daafa2e7c"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "release-digest__baseline__r1",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 24,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 106214,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.8620605000000001,
+  "numTurns": 12,
+  "durationMs": 104901,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 7195
+  },
+  "contextTraffic": 448128,
+  "apiCalls": 9,
+  "toolCalls": 11,
+  "toolResultChars": 76165,
+  "narrationWords": 33,
+  "finalWords": 769,
+  "assistantMsgs": 4,
+  "finalText": "I read all 380 commits and the 127-row PR sheet. Here's what I found, then a draft entry in your shape.\n\n## The short version\n\n**Of 380 commits, ~20 logical changes are user-visible.** The rest is 114 dependency bumps, ~90 test commits, ~60 refactors, ~35 CI, and the usual chore churn. But four of the user-visible ones are **breaking**, and three of those are disguised as `refactor:` or `fix:` — they will not show up if you filter the log by conventional-commit type.\n\n## Draft entry\n\n```markdown\n## 4.2.0 — 2026-08-28\n\n### Breaking\n- An expired token now returns 401 instead of 403. Code that branches on 403\n  to detect expiry must be updated.\n- The internal error types are no longer re-exported from `core`, `db`, `auth`,\n  `jobs`, or `billing`. Import them from their own modules instead.\n- The v1 export route has been removed.\n- The latency histogram now reports in different units. Dashboards and alerts\n  built on it will need rescaling.\n\n### Added\n- Failed webhook deliveries are retried with exponential backoff, with a new\n  config option to tune it.\n\n### Fixed\n- The HTTP client no longer leaks a timer when the socket drops, and now closes\n  its connection pool on shutdown.\n- Pagination no longer breaks on a null cursor (api, db, queue, webhooks).\n- An empty allowlist is handled correctly instead of erroring (db, jobs, store).\n- The trace id survives a retry.\n- Request bodies are no longer written to the database log.\n- Trailing slashes are trimmed exactly once (queue, jobs).\n- Token parser errors are more specific (core, billing, queue).\n```\n\n## The judgment calls you should check\n\n**These four I promoted to Breaking; three weren't labelled as such.**\n\n- `fix(auth): return 401 for an expired token instead of 403` (#4223) — labelled a fix, but it's a contract change. Anyone with a `if (status === 403)` retry path silently stops refreshing tokens.\n- `refactor(*): stop re-exporting the internal error types` — **8 commits** across core/db/auth/jobs/billing (`2e61589`, `5d4de73`, `d988aed`, `4d83260`, `d7cf97b`, `9b717dc`, `b5cfbc3`, `8639397`). Buried in refactor noise. If anyone does `import { SomeError } from 'pkg'`, this is a hard break at import time. This is the one I'd most want a second pair of eyes on — \"internal\" is the author's claim, and it's worth confirming those types weren't in your public typings.\n- `refactor(api): drop the unused v1 export route` (#4152, `56dc828`) — \"unused\" is asserted, not proven; it touched `router.js`, `handlers.js` and the tests. A removed route is a 404 for anyone still calling it.\n- `fix(store|core): use the right units in the latency histogram` (#4185, `1f2bc4e`) — correct fix, but every existing dashboard and alert threshold on that metric silently moves. I could not tell from the log **which direction** the units changed; you'll need the diff to write that line properly.\n\n**Two things I need from you:**\n\n1. **The new webhook config option name.** The feat (`395fb48`, #4191) touched `src/core/config.js`, so it added a knob — but `src/` isn't in this directory, so I can't name it and won't guess.\n2. **The date gap.** Both files stop at **2026-06-17** — ten weeks before tomorrow's cut. Either the branch has been frozen since June, or these exports are stale and there's user-facing work missing from this digest. Worth regenerating before you publish.\n\n**Also worth knowing:** the PR sheet is not a complete view — it has 127 rows against 380 commits, and several real fixes (`clear the timer when the socket drops`, `close the pool on shutdown`, `fix(store): handle an empty allowlist`) appear **only** in the commit log. If you were planning to write these notes off the PR sheet, you'd have missed them.\n\n## What I deliberately left out\n\n- **All 114 dependency bumps.** Every runtime dep (pino, fastify, pg, ioredis, knex, zod, undici, nanoid, dotenv) moved patch or minor only — nothing a consumer notices. The two aggressive bumps, `vitest 1.6.0→2.0.1` and `esbuild 0.21.4→0.23.0`, are dev-only. Note the log is heavily duplicated: pino alone appears 12 times for a single 9.2.0→9.3.1 move.\n- **The 10 `perf:` commits.** Your template has only three headings with no home for them, and I have no benchmark numbers to justify a claim. Add a line only if you have measurements — otherwise it's an unfalsifiable \"it's faster.\"\n- **Duplicate commits.** `fix(api): keep the trace id across the retry` appears 3× and `fix(core): drop the duplicate header` 3×; I collapsed each to one logical change.\n\nWant me to write this into `CHANGELOG.md`? I'd rather resolve the config-option name and the histogram direction first so those two lines aren't vague.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "3316b83ec118ff19945014636a1145e083bc3181672d0b86de1b2ab31c30d09e"
+}

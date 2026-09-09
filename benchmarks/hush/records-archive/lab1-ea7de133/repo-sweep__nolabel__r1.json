@@ -1,0 +1,43 @@
+{
+  "key": "repo-sweep__nolabel__r1",
+  "batchId": "lab1-ea7de133",
+  "seed": "1787989541623",
+  "orderIndex": 20,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "nolabel",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 77153,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.28914839999999997,
+  "numTurns": 37,
+  "durationMs": 74820,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 10397
+  },
+  "contextTraffic": 280634,
+  "apiCalls": 8,
+  "toolCalls": 36,
+  "toolResultChars": 25172,
+  "narrationWords": 34,
+  "finalWords": 90,
+  "assistantMsgs": 3,
+  "narrationTexts": [
+    "Confirms the pattern: `db.execute({ sql, params })`. Now let's read and migrate the remaining application files (excluding the vendored adapter, which explicitly says not to edit).",
+    "Verifying no `db.query` remains outside the vendored file."
+  ],
+  "finalText": "**Migrated all remaining `db.query` calls to `db.execute({ sql, params })`.**\n\n12 files across `support`, `orders`, `accounts`, `billing`, `analytics`, and `catalog` packages, 33 call sites total.\n\nLeft `[vendor/legacy-orm/adapter.js](vendor/legacy-orm/adapter.js)` untouched — its header says it's a vendored copy overwritten on every upgrade, so edits there would be lost.\n\nNote: `cache.query` calls in several repo files are a separate cache API, not `db.query` — left alone.\n\n`lib/db.js:13` still exposes `query` as `@deprecated`, so nothing breaks. Next step, if you want, is dropping that method once the vendor adapter gets its own fix upstream.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "608fc1ce5e5c2d47548392b3921fcd9cc92cfd61dccd9b31f15093ca4ff5572b"
+}

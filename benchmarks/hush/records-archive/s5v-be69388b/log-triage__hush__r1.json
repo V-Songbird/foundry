@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__hush__r1",
+  "batchId": "s5v-be69388b",
+  "seed": "1787820296138",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 37629,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.22792239999999997,
+  "numTurns": 3,
+  "durationMs": 35558,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2863
+  },
+  "contextTraffic": 115756,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 128,
+  "finalText": "**Redis crashed first.** At 2:14 AM on July 4, the app lost its link to Redis, a fast lookup store, at 10.0.0.12:6379. It never came back — 12 reconnect tries all failed with \"connection refused.\"\n\n**That overloaded everything else.** With Redis gone, every request fell back to the slow main store instead. Requests began timing out, and the line of waiting requests grew from 52 to 568, way past its limit of 500.\n\n**The pileup crashed the app.** At 2:31:44 AM one worker ran out of memory. Seconds later the main process stopped responding, and at 2:31:52 AM the supervisor shut the whole service down.\n\nThe service was down for about 18 minutes. Fix Redis at 10.0.0.12 first — that's the root cause everything else fell out of.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "232ead23d68e99817af69e7bddde32185eca660aeee4c82a8dd6d50a5a893aed"
+}

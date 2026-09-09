@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__stock__r1",
+  "batchId": "opfinal-04ffb7ac",
+  "seed": "1787992016567",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 42450,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.25705500000000003,
+  "numTurns": 10,
+  "durationMs": 40734,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2320
+  },
+  "contextTraffic": 149821,
+  "apiCalls": 7,
+  "toolCalls": 9,
+  "toolResultChars": 6136,
+  "narrationWords": 7,
+  "finalWords": 72,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by looking at the project."
+  ],
+  "finalText": "**Build passes now, exit 0.** Two real bugs from the bump, not noise.\n\n| File | Bug | Fix |\n|---|---|---|\n| [options.js:6](src/core/options.js:6) | `retries` renamed to `retryCount` | Read new name, still accept old |\n| [retryPolicy.js:7](src/net/retryPolicy.js:7) | Unset flag now `undefined`, not `false` | Treat unset as off |\n\nThe 8 warnings are real deprecations in `src/legacy` code. That code is not in this tree. Chase them where it lives.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "6b3336e2bc184f844911e96ae36ba518d727bac037678da461e39ac528d6fbc4"
+}

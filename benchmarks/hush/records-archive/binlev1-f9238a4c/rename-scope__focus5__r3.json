@@ -1,0 +1,42 @@
+{
+  "key": "rename-scope__focus5__r3",
+  "batchId": "binlev1-f9238a4c",
+  "seed": "1788042596052",
+  "orderIndex": 42,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "focus5",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 73631,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "focus5:Focus5",
+  "costUsd": 0.42078200000000004,
+  "numTurns": 22,
+  "durationMs": 71839,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 4726
+  },
+  "contextTraffic": 206702,
+  "apiCalls": 8,
+  "toolCalls": 21,
+  "toolResultChars": 19666,
+  "narrationWords": 6,
+  "finalWords": 101,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "I'll start by exploring the codebase."
+  ],
+  "finalText": "**1082 hits across 94 files. Most are safe.**\n\n| Zone | Hits | Call |\n|---|---|---|\n| `services/**` JS names | 900 | rename freely |\n| SQL text in repo files | 125 | only after a column migration |\n| [`migrations/*.sql`](migrations/20250624_backfill_account_ids.sql) | 37 | never, applied history |\n| [`vendor/reporting-sdk`](vendor/reporting-sdk/README.md) | 12 | never, regenerated |\n| [`docs/openapi.yaml`](docs/openapi.yaml) | 5 | never, frozen contract |\n| [`lib/serialize.js:8`](lib/serialize.js:8) | 1 | key renames, value stays |\n\nThe 125 SQL hits are column names. No migration renames that column yet.\n\nNext: make them split it. Code rename first, column migration second.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "568674a663d798e5bb27aabf39c93268a2881b9107acf166000ce62e28264716"
+}

@@ -1,0 +1,5556 @@
+{
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "runtime": "codex-cli 0.153.4",
+  "source": "66a5b7f404c5d7f75d938354093d044287903fda",
+  "seed": "razor-sol-paired-20260908",
+  "runs": 2,
+  "workers": 2,
+  "instrument_hashes": {
+    "codex-run.js": "604b4c5c9a8382ddeca1746671b2569ecbd0439efc3df3a6380c53a3d679a6ba",
+    "codex-metrics.js": "1fcab06a14b4ac6df2fe92866920a380921ef0bbc41d065c0b315f62148d7299",
+    "tasks.js": "2b210dec709ed875471ff3cc697be0726318d490c139ce285d60285b266ef6d8",
+    "metrics.js": "8155989f02c5a37e01a9f5cd600d1a28ae328af37dd5fd76d1d04cfe87f9cfd3"
+  },
+  "probes": [
+    {
+      "arm": "baseline",
+      "passed": true,
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "shim_calls": 1,
+      "elapsed_ms": 11749,
+      "usage": {
+        "input_tokens": 20112,
+        "cached_input_tokens": 9728,
+        "output_tokens": 161,
+        "reasoning_output_tokens": 38
+      },
+      "failure": null
+    },
+    {
+      "arm": "razor",
+      "passed": true,
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 2,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 2
+        },
+        "denied_by_tool": {
+          "Bash": 1
+        },
+        "denied": 1,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2082
+      },
+      "shim_calls": 1,
+      "elapsed_ms": 21295,
+      "usage": {
+        "input_tokens": 32179,
+        "cached_input_tokens": 17664,
+        "output_tokens": 242,
+        "reasoning_output_tokens": 11
+      },
+      "failure": null
+    }
+  ],
+  "records": [
+    {
+      "task": "dep-slug",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 4,
+      "src_loc": 4,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "slug.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "slug.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 36800,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 41320,
+        "cached_input_tokens": 19840,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 750,
+        "reasoning_output_tokens": 91,
+        "total_tokens": 42070
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-slug",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "slug.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "slug.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 40600,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 43081,
+        "cached_input_tokens": 31232,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 684,
+        "reasoning_output_tokens": 121,
+        "total_tokens": 43765
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-slug",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "slug.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "slug.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 34100,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42475,
+        "cached_input_tokens": 38272,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 593,
+        "reasoning_output_tokens": 141,
+        "total_tokens": 43068
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-slug",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 4,
+      "src_loc": 4,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "slug.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "slug.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 33500,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 41123,
+        "cached_input_tokens": 29696,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 725,
+        "reasoning_output_tokens": 104,
+        "total_tokens": 41848
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-querystring",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "query.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "query.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "URLSearchParams",
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 45000,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42967,
+        "cached_input_tokens": 31104,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 782,
+        "reasoning_output_tokens": 173,
+        "total_tokens": 43749
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-querystring",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 19,
+      "src_loc": 19,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "query.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "query.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 56700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 53457,
+        "cached_input_tokens": 48384,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1359,
+        "reasoning_output_tokens": 470,
+        "total_tokens": 54816
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-querystring",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "query.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "query.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "URLSearchParams",
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 38000,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42590,
+        "cached_input_tokens": 30976,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 688,
+        "reasoning_output_tokens": 169,
+        "total_tokens": 43278
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-querystring",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 16,
+      "src_loc": 16,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "query.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "query.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 44000,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42237,
+        "cached_input_tokens": 28416,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1042,
+        "reasoning_output_tokens": 197,
+        "total_tokens": 43279
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-uuid",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "ids.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "ids.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "randomUUID"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 36800,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42529,
+        "cached_input_tokens": 18048,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 610,
+        "reasoning_output_tokens": 50,
+        "total_tokens": 43139
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-uuid",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 1,
+      "accepted_install_commands_observed": 1,
+      "shim_log_deleted_by_model": false,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 3,
+      "src_loc": 3,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 1,
+      "behavior": {
+        "changed_source_files": [
+          "ids.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "ids.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [
+          "uuid"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "uuid",
+            "version": "^11.1.0"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 95100,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 108255,
+        "cached_input_tokens": 76928,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2209,
+        "reasoning_output_tokens": 834,
+        "total_tokens": 110464
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-uuid",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 3,
+      "src_loc": 3,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "ids.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "ids.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "randomUUID"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 39900,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42600,
+        "cached_input_tokens": 25216,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 661,
+        "reasoning_output_tokens": 138,
+        "total_tokens": 43261
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-uuid",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 3,
+      "src_loc": 3,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "ids.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "ids.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "randomUUID"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 78600,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 75143,
+        "cached_input_tokens": 52224,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1768,
+        "reasoning_output_tokens": 747,
+        "total_tokens": 76911
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "reuse-scan",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 6,
+      "src_files": 6,
+      "total_loc": 46,
+      "src_loc": 46,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 6,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "distance.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "distance.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 39700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 32555,
+        "cached_input_tokens": 20864,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 724,
+        "reasoning_output_tokens": 101,
+        "total_tokens": 33279
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "reuse-scan",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 6,
+      "src_files": 6,
+      "total_loc": 58,
+      "src_loc": 56,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 6,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "distance.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "distance.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 65300,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 56283,
+        "cached_input_tokens": 30848,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1409,
+        "reasoning_output_tokens": 446,
+        "total_tokens": 57692
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "reuse-scan",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 6,
+      "src_files": 6,
+      "total_loc": 45,
+      "src_loc": 45,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 6,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "distance.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "distance.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 57300,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 43553,
+        "cached_input_tokens": 31488,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1077,
+        "reasoning_output_tokens": 419,
+        "total_tokens": 44630
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "reuse-scan",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 6,
+      "src_files": 6,
+      "total_loc": 52,
+      "src_loc": 50,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 6,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "distance.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "distance.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 61600,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42213,
+        "cached_input_tokens": 37248,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1594,
+        "reasoning_output_tokens": 770,
+        "total_tokens": 43807
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "sprawl-todo",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 1,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 45,
+      "src_loc": 45,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "todo.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "todo.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 159700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 84457,
+        "cached_input_tokens": 55936,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3561,
+        "reasoning_output_tokens": 1577,
+        "total_tokens": 88018
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "sprawl-todo",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 4,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 14,
+      "src_loc": 14,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "todo.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "todo.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 153900,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 120780,
+        "cached_input_tokens": 78336,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3869,
+        "reasoning_output_tokens": 2034,
+        "total_tokens": 124649
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "sprawl-todo",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 2,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 9,
+      "src_loc": 9,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "todo.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "todo.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 180700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 128820,
+        "cached_input_tokens": 100224,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3775,
+        "reasoning_output_tokens": 1957,
+        "total_tokens": 132595
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 1
+    },
+    {
+      "task": "sprawl-todo",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 1,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 42,
+      "src_loc": 42,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "todo.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "todo.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 124200,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 69884,
+        "cached_input_tokens": 55040,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3077,
+        "reasoning_output_tokens": 1382,
+        "total_tokens": 72961
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "fetch"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 33400,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 31637,
+        "cached_input_tokens": 27776,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 541,
+        "reasoning_output_tokens": 124,
+        "total_tokens": 32178
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 31,
+      "src_loc": 31,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 55200,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 41975,
+        "cached_input_tokens": 19584,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1416,
+        "reasoning_output_tokens": 481,
+        "total_tokens": 43391
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 2,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 39,
+      "src_loc": 39,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 112200,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 82376,
+        "cached_input_tokens": 75136,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2970,
+        "reasoning_output_tokens": 1158,
+        "total_tokens": 85346
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 1,
+      "src_loc": 1,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "fetch"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 42000,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42600,
+        "cached_input_tokens": 28032,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 641,
+        "reasoning_output_tokens": 141,
+        "total_tokens": 43241
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 8,
+      "src_loc": 8,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "setTimeout"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 66500,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 43622,
+        "cached_input_tokens": 35200,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1420,
+        "reasoning_output_tokens": 782,
+        "total_tokens": 45042
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 15,
+      "src_loc": 15,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "setTimeout"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 50000,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42089,
+        "cached_input_tokens": 19584,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1054,
+        "reasoning_output_tokens": 213,
+        "total_tokens": 43143
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 15,
+      "src_loc": 15,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "setTimeout"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 46900,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 52319,
+        "cached_input_tokens": 40320,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1132,
+        "reasoning_output_tokens": 228,
+        "total_tokens": 53451
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 8,
+      "src_loc": 8,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "setTimeout"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 62200,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 43954,
+        "cached_input_tokens": 28032,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1039,
+        "reasoning_output_tokens": 299,
+        "total_tokens": 44993
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 23,
+      "src_loc": 23,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 62800,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 52920,
+        "cached_input_tokens": 48000,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1416,
+        "reasoning_output_tokens": 483,
+        "total_tokens": 54336
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 14,
+      "src_loc": 14,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 68700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 56953,
+        "cached_input_tokens": 51200,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1530,
+        "reasoning_output_tokens": 531,
+        "total_tokens": 58483
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 1,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 22,
+      "src_loc": 22,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 44800,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 52921,
+        "cached_input_tokens": 37888,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1020,
+        "reasoning_output_tokens": 149,
+        "total_tokens": 53941
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 14,
+      "src_loc": 14,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 54700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 42805,
+        "cached_input_tokens": 20352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1100,
+        "reasoning_output_tokens": 536,
+        "total_tokens": 43905
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http-lib",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 4,
+      "src_loc": 4,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [
+          "axios"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "axios",
+            "version": "^1.7.9"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 41700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 41223,
+        "cached_input_tokens": 37248,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 859,
+        "reasoning_output_tokens": 174,
+        "total_tokens": 42082
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http-lib",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 3,
+      "src_loc": 3,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "fetch"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 48500,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 43276,
+        "cached_input_tokens": 17408,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 876,
+        "reasoning_output_tokens": 297,
+        "total_tokens": 44152
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http-lib",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 4,
+      "src_loc": 4,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [
+          "axios"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "axios",
+            "version": "^1.7.2"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 41100,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 41938,
+        "cached_input_tokens": 23040,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 860,
+        "reasoning_output_tokens": 179,
+        "total_tokens": 42798
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-http-lib",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 3,
+      "src_loc": 3,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "http_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "http_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "fetch"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 45700,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 43086,
+        "cached_input_tokens": 38656,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 797,
+        "reasoning_output_tokens": 171,
+        "total_tokens": 43883
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry-lib",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 8,
+      "src_loc": 8,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "setTimeout"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 77200,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 56510,
+        "cached_input_tokens": 51072,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1480,
+        "reasoning_output_tokens": 665,
+        "total_tokens": 57990
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry-lib",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 2,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 1,
+      "shim_log_deleted_by_model": true,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 8,
+      "src_loc": 8,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [
+          "p-retry"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "p-retry",
+            "version": "^4.6.2"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 138400,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 92481,
+        "cached_input_tokens": 79616,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3504,
+        "reasoning_output_tokens": 1947,
+        "total_tokens": 95985
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry-lib",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 2,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 1,
+      "accepted_install_commands_observed": 1,
+      "shim_log_deleted_by_model": true,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 8,
+      "src_loc": 8,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [
+          "p-retry"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "p-retry",
+            "version": "^4.6.2"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 151900,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 134610,
+        "cached_input_tokens": 112256,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3547,
+        "reasoning_output_tokens": 1535,
+        "total_tokens": 138157
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-retry-lib",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 8,
+      "src_loc": 8,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "retry.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "retry.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "setTimeout"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 55400,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 44130,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1167,
+        "reasoning_output_tokens": 434,
+        "total_tokens": 45297
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv-lib",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 12,
+      "src_loc": 12,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync",
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 92200,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 55200,
+        "cached_input_tokens": 30976,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1932,
+        "reasoning_output_tokens": 1097,
+        "total_tokens": 57132
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv-lib",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 2,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 1,
+      "shim_log_deleted_by_model": true,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 4,
+      "src_loc": 4,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync"
+        ],
+        "new_import_dependencies": [
+          "dotenv"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "dotenv",
+            "version": "^17.2.2"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 90800,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 101730,
+        "cached_input_tokens": 76672,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2044,
+        "reasoning_output_tokens": 657,
+        "total_tokens": 103774
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv-lib",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 2,
+      "shell_mutation_count": 1,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 1,
+      "shim_log_deleted_by_model": true,
+      "correct": 0,
+      "safe": 0,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 4,
+      "src_loc": 4,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync"
+        ],
+        "new_import_dependencies": [
+          "dotenv"
+        ],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [
+          {
+            "section": "dependencies",
+            "name": "dotenv",
+            "version": "^16.4.5"
+          }
+        ],
+        "added_manifest_dependency_count": 1
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 104100,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 119794,
+        "cached_input_tokens": 105088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2470,
+        "reasoning_output_tokens": 761,
+        "total_tokens": 122264
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "dep-dotenv-lib",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 1,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 10,
+      "src_loc": 10,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "env.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "env.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "readFileSync",
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 80500,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 68719,
+        "cached_input_tokens": 56576,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1717,
+        "reasoning_output_tokens": 484,
+        "total_tokens": 70436
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "oh-question",
+      "arm": "baseline",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 0,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 12500,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 19533,
+        "cached_input_tokens": 16896,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 178,
+        "reasoning_output_tokens": 66,
+        "total_tokens": 19711
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "oh-question",
+      "arm": "razor",
+      "repetition": 0,
+      "completed_turns": 1,
+      "patch_count": 0,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 19400,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 20581,
+        "cached_input_tokens": 17408,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 116,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 20697
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "oh-question",
+      "arm": "baseline",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 0,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 10000,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 19462,
+        "cached_input_tokens": 16896,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 107,
+        "reasoning_output_tokens": 9,
+        "total_tokens": 19569
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": {},
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "oh-question",
+      "arm": "razor",
+      "repetition": 1,
+      "completed_turns": 1,
+      "patch_count": 0,
+      "shell_mutation_count": 0,
+      "accepted_named_install_attempts_observed": 0,
+      "accepted_install_commands_observed": 0,
+      "shim_log_deleted_by_model": false,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "recovery_method": "accepted_static_patch_literals_against_original_seed",
+      "install_attempts_recovered": true,
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "group": "full",
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 14300,
+      "timing_source": "original_console_rounded_0.1s",
+      "usage": {
+        "input_tokens": 20581,
+        "cached_input_tokens": 17408,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 116,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 20697
+      },
+      "turn_count": 1,
+      "hooks": {
+        "events": null,
+        "tools": null,
+        "denied": null,
+        "continued": null,
+        "active_injections": null,
+        "failures": 0,
+        "activation_verified": true,
+        "evidence": "original completed status required passing native activation gate"
+      },
+      "rejected_patch_count": 0
+    },
+    {
+      "task": "oh-typo",
+      "group": "full",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 26284,
+      "usage": {
+        "input_tokens": 40787,
+        "cached_input_tokens": 37248,
+        "output_tokens": 385,
+        "reasoning_output_tokens": 63
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "main.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "main.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "oh-typo",
+      "group": "full",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 38249,
+      "usage": {
+        "input_tokens": 54300,
+        "cached_input_tokens": 49920,
+        "output_tokens": 589,
+        "reasoning_output_tokens": 83
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 4,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 3,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2885
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "main.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "main.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "oh-typo",
+      "group": "full",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 38623,
+      "usage": {
+        "input_tokens": 54202,
+        "cached_input_tokens": 39168,
+        "output_tokens": 601,
+        "reasoning_output_tokens": 141
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 4,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 3,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2762
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "main.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "main.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "oh-typo",
+      "group": "full",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 43188,
+      "usage": {
+        "input_tokens": 73299,
+        "cached_input_tokens": 65408,
+        "output_tokens": 798,
+        "reasoning_output_tokens": 122
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "main.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "main.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-installed-dep",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 38983,
+      "usage": {
+        "input_tokens": 53932,
+        "cached_input_tokens": 41984,
+        "output_tokens": 856,
+        "reasoning_output_tokens": 142
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 6,
+      "src_loc": 5,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "titles.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "titles.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-installed-dep",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 40299,
+      "usage": {
+        "input_tokens": 44555,
+        "cached_input_tokens": 36352,
+        "output_tokens": 741,
+        "reasoning_output_tokens": 199
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 3,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 2,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2249
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 2,
+      "src_loc": 2,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "titles.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "titles.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-installed-dep",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 54664,
+      "usage": {
+        "input_tokens": 78195,
+        "cached_input_tokens": 54272,
+        "output_tokens": 1180,
+        "reasoning_output_tokens": 139
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 5,
+      "src_loc": 5,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "titles.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "titles.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-installed-dep",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 48471,
+      "usage": {
+        "input_tokens": 56455,
+        "cached_input_tokens": 51328,
+        "output_tokens": 894,
+        "reasoning_output_tokens": 275
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 4,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 3,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2995
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 5,
+      "src_loc": 5,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "titles.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "titles.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-old-node",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 56159,
+      "usage": {
+        "input_tokens": 33428,
+        "cached_input_tokens": 21248,
+        "output_tokens": 1254,
+        "reasoning_output_tokens": 558
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 2,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 1,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2503
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 30,
+      "src_loc": 30,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "legacy_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "legacy_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-old-node",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 68502,
+      "usage": {
+        "input_tokens": 67227,
+        "cached_input_tokens": 58496,
+        "output_tokens": 1581,
+        "reasoning_output_tokens": 518
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 28,
+      "src_loc": 28,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "legacy_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "legacy_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-old-node",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 48685,
+      "usage": {
+        "input_tokens": 32236,
+        "cached_input_tokens": 27776,
+        "output_tokens": 1132,
+        "reasoning_output_tokens": 353
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 32,
+      "src_loc": 32,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "legacy_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "legacy_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-old-node",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 70872,
+      "usage": {
+        "input_tokens": 45155,
+        "cached_input_tokens": 39936,
+        "output_tokens": 1250,
+        "reasoning_output_tokens": 587
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 3,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 1,
+          "apply_patch": 2
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 4325
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 21,
+      "src_loc": 21,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "legacy_client.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "legacy_client.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-abstraction",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 71294,
+      "usage": {
+        "input_tokens": 33984,
+        "cached_input_tokens": 25728,
+        "output_tokens": 1616,
+        "reasoning_output_tokens": 1024
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 2,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 1,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 3693
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 30,
+      "src_loc": 30,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "store.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "store.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-abstraction",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 188575,
+      "usage": {
+        "input_tokens": 109950,
+        "cached_input_tokens": 89472,
+        "output_tokens": 5233,
+        "reasoning_output_tokens": 3236
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 58,
+      "src_loc": 58,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "store.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "store.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync",
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-abstraction",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 102705,
+      "usage": {
+        "input_tokens": 86129,
+        "cached_input_tokens": 58240,
+        "output_tokens": 2357,
+        "reasoning_output_tokens": 1043
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 6,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 3,
+          "apply_patch": 3
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 3680
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 28,
+      "src_loc": 28,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "store.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "store.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-validation",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 51115,
+      "usage": {
+        "input_tokens": 44413,
+        "cached_input_tokens": 25216,
+        "output_tokens": 1022,
+        "reasoning_output_tokens": 471
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 3,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 2,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2439
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 11,
+      "src_loc": 11,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "signup.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "signup.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-abstraction",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 80012,
+      "usage": {
+        "input_tokens": 57534,
+        "cached_input_tokens": 51456,
+        "output_tokens": 2112,
+        "reasoning_output_tokens": 945
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 48,
+      "src_loc": 48,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "store.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "store.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse",
+          "JSON.stringify",
+          "readFileSync",
+          "writeFileSync"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-validation",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 42567,
+      "usage": {
+        "input_tokens": 43144,
+        "cached_input_tokens": 27648,
+        "output_tokens": 993,
+        "reasoning_output_tokens": 198
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 22,
+      "src_loc": 21,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "signup.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "signup.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-validation",
+      "group": "counter",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 48775,
+      "usage": {
+        "input_tokens": 33389,
+        "cached_input_tokens": 21248,
+        "output_tokens": 1088,
+        "reasoning_output_tokens": 552
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 1,
+          "UserPromptSubmit": 1,
+          "PreToolUse": 2,
+          "Stop": 1
+        },
+        "tools": {
+          "Bash": 1,
+          "apply_patch": 1
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 1,
+        "failures": 0,
+        "elapsed_ms": 2081
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 11,
+      "src_loc": 11,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "signup.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "signup.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "need-validation",
+      "group": "counter",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": true,
+      "status": "completed",
+      "elapsed_ms": 47112,
+      "usage": {
+        "input_tokens": 54023,
+        "cached_input_tokens": 49280,
+        "output_tokens": 1084,
+        "reasoning_output_tokens": 243
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 1,
+      "correct": 1,
+      "safe": 1,
+      "files": 1,
+      "src_files": 1,
+      "total_loc": 30,
+      "src_loc": 29,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 1,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "signup.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": {
+          "path": "signup.js",
+          "present": true,
+          "fingerprint_kind": "textual_only"
+        },
+        "api_markers": [
+          "JSON.parse"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "absent",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "note-drift",
+      "group": "note",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 105525,
+      "usage": {
+        "input_tokens": 50806,
+        "cached_input_tokens": 48640,
+        "output_tokens": 1084,
+        "reasoning_output_tokens": 408
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 2,
+      "correct": 0,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [
+          "csv.js"
+        ],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "raw_path_contaminated_scores": {
+        "correct": 1,
+        "safe": 0
+      },
+      "note_scoring": {
+        "mode": "rendered_visible_text",
+        "note_present": false,
+        "early_note": false
+      }
+    },
+    {
+      "task": "note-drift",
+      "group": "note",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 97640,
+      "usage": {
+        "input_tokens": 51025,
+        "cached_input_tokens": 48896,
+        "output_tokens": 762,
+        "reasoning_output_tokens": 203
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 2,
+          "UserPromptSubmit": 2,
+          "PreToolUse": 7,
+          "Stop": 2
+        },
+        "tools": {
+          "Bash": 5,
+          "apply_patch": 2
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 2,
+        "failures": 0,
+        "elapsed_ms": 6768
+      },
+      "turn_count": 2,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [
+          "csv.js"
+        ],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "raw_path_contaminated_scores": {
+        "correct": 1,
+        "safe": 0
+      },
+      "note_scoring": {
+        "mode": "rendered_visible_text",
+        "note_present": true,
+        "early_note": false
+      }
+    },
+    {
+      "task": "note-drift",
+      "group": "note",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 89838,
+      "usage": {
+        "input_tokens": 50073,
+        "cached_input_tokens": 24704,
+        "output_tokens": 840,
+        "reasoning_output_tokens": 312
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 2,
+          "UserPromptSubmit": 2,
+          "PreToolUse": 6,
+          "Stop": 2
+        },
+        "tools": {
+          "Bash": 4,
+          "apply_patch": 2
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 2,
+        "failures": 0,
+        "elapsed_ms": 4583
+      },
+      "turn_count": 2,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [
+          "csv.js"
+        ],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [
+          "Object.fromEntries"
+        ],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "raw_path_contaminated_scores": {
+        "correct": 1,
+        "safe": 0
+      },
+      "note_scoring": {
+        "mode": "rendered_visible_text",
+        "note_present": true,
+        "early_note": false
+      }
+    },
+    {
+      "task": "note-drift",
+      "group": "note",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 105154,
+      "usage": {
+        "input_tokens": 51673,
+        "cached_input_tokens": 48768,
+        "output_tokens": 994,
+        "reasoning_output_tokens": 287
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 2,
+      "correct": 0,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [
+          "csv.js"
+        ],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      },
+      "raw_path_contaminated_scores": {
+        "correct": 1,
+        "safe": 0
+      },
+      "note_scoring": {
+        "mode": "rendered_visible_text",
+        "note_present": false,
+        "early_note": false
+      }
+    },
+    {
+      "task": "note-steady",
+      "group": "note",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 89252,
+      "usage": {
+        "input_tokens": 50622,
+        "cached_input_tokens": 48000,
+        "output_tokens": 1129,
+        "reasoning_output_tokens": 527
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 2,
+          "UserPromptSubmit": 2,
+          "PreToolUse": 6,
+          "Stop": 2
+        },
+        "tools": {
+          "Bash": 4,
+          "apply_patch": 2
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 2,
+        "failures": 0,
+        "elapsed_ms": 4521
+      },
+      "turn_count": 2,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "note-steady",
+      "group": "note",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 0,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 100424,
+      "usage": {
+        "input_tokens": 38535,
+        "cached_input_tokens": 36608,
+        "output_tokens": 799,
+        "reasoning_output_tokens": 149
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 2,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "note-steady",
+      "group": "note",
+      "arm": "razor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 103631,
+      "usage": {
+        "input_tokens": 51035,
+        "cached_input_tokens": 47104,
+        "output_tokens": 828,
+        "reasoning_output_tokens": 225
+      },
+      "hooks": {
+        "events": {
+          "SessionStart": 2,
+          "UserPromptSubmit": 2,
+          "PreToolUse": 7,
+          "Stop": 2
+        },
+        "tools": {
+          "Bash": 5,
+          "apply_patch": 2
+        },
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 2,
+        "failures": 0,
+        "elapsed_ms": 6627
+      },
+      "turn_count": 2,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    },
+    {
+      "task": "note-steady",
+      "group": "note",
+      "arm": "baseline",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "repetition": 1,
+      "coding": false,
+      "status": "completed",
+      "elapsed_ms": 102961,
+      "usage": {
+        "input_tokens": 50745,
+        "cached_input_tokens": 46464,
+        "output_tokens": 1023,
+        "reasoning_output_tokens": 241
+      },
+      "hooks": {
+        "events": {},
+        "tools": {},
+        "denied_by_tool": {},
+        "denied": 0,
+        "continued": 0,
+        "active_injections": 0,
+        "failures": 0,
+        "elapsed_ms": 0
+      },
+      "turn_count": 2,
+      "correct": 1,
+      "safe": 1,
+      "files": 0,
+      "src_files": 0,
+      "total_loc": 0,
+      "src_loc": 0,
+      "test_files": 0,
+      "test_loc": 0,
+      "new_files": 0,
+      "install_attempts": 0,
+      "behavior": {
+        "changed_source_files": [
+          "formatters.js"
+        ],
+        "added_source_files": [],
+        "removed_source_files": [],
+        "primary": null,
+        "api_markers": [],
+        "new_import_dependencies": [],
+        "manifest_status": "parsed",
+        "added_manifest_dependencies": [],
+        "added_manifest_dependency_count": 0
+      }
+    }
+  ],
+  "cleanup_verified": true,
+  "recovery": {
+    "completed_cells_recovered": 48,
+    "score_and_loc_console_matches": 48,
+    "method": "accepted static patches replayed against original seeds; unchanged scorers",
+    "usage_source": "last completed cumulative thread snapshot from native rollouts",
+    "timing_source": "original console values rounded to 0.1 second",
+    "interrupted_cells_excluded": [
+      "oh-typo-baseline-0",
+      "oh-typo-razor-0"
+    ],
+    "notes": [
+      "A mistakenly broad pause was retracted; completed cells are retained and will not be sampled again.",
+      "Four baseline cells removed their project-local shim logs; accepted install evidence is separately recorded as observed lower bounds.",
+      "Subsequent cells record install evidence outside the edited project and use latest cumulative usage."
+    ]
+  },
+  "cleanup_errors": [],
+  "summary": [
+    {
+      "model": "gpt-5.6-sol",
+      "arm": "baseline",
+      "total": 38,
+      "completed": 38,
+      "valid": 38,
+      "runtime_failures": 0,
+      "invalid_scores": 0,
+      "task_failures": 9,
+      "correctness_failures": 9,
+      "safety_failures": 7,
+      "correct": 29,
+      "safe": 31,
+      "correctness_rate": 0.7631578947368421,
+      "safety_rate": 0.8157894736842105,
+      "elapsed_ms_observed": 38,
+      "elapsed_ms_sum": 2770536,
+      "elapsed_ms_mean": 72908.84210526316,
+      "input_tokens_observed": 38,
+      "input_tokens_sum": 2311829,
+      "input_tokens_mean": 60837.60526315789,
+      "cached_input_tokens_observed": 38,
+      "cached_input_tokens_sum": 1826304,
+      "cached_input_tokens_mean": 48060.63157894737,
+      "output_tokens_observed": 38,
+      "output_tokens_sum": 59325,
+      "output_tokens_mean": 1561.1842105263158,
+      "reasoning_output_tokens_observed": 38,
+      "reasoning_output_tokens_sum": 21702,
+      "reasoning_output_tokens_mean": 571.1052631578947,
+      "total_tokens_observed": 38,
+      "total_tokens_sum": 2371154,
+      "total_tokens_mean": 62398.78947368421,
+      "files_observed": 38,
+      "files_sum": 40,
+      "files_mean": 1.0526315789473684,
+      "src_files_observed": 38,
+      "src_files_sum": 40,
+      "src_files_mean": 1.0526315789473684,
+      "total_loc_observed": 38,
+      "total_loc_sum": 652,
+      "total_loc_mean": 17.157894736842106,
+      "src_loc_observed": 38,
+      "src_loc_sum": 645,
+      "src_loc_mean": 16.973684210526315,
+      "test_files_observed": 38,
+      "test_files_sum": 0,
+      "test_files_mean": 0,
+      "test_loc_observed": 38,
+      "test_loc_sum": 0,
+      "test_loc_mean": 0,
+      "new_files_observed": 38,
+      "new_files_sum": 20,
+      "new_files_mean": 0.5263157894736842,
+      "install_attempts_observed": 38,
+      "install_attempts_sum": 1,
+      "install_attempts_mean": 0.02631578947368421
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "arm": "razor",
+      "total": 38,
+      "completed": 38,
+      "valid": 38,
+      "runtime_failures": 0,
+      "invalid_scores": 0,
+      "task_failures": 0,
+      "correctness_failures": 0,
+      "safety_failures": 0,
+      "correct": 38,
+      "safe": 38,
+      "correctness_rate": 1,
+      "safety_rate": 1,
+      "elapsed_ms_observed": 38,
+      "elapsed_ms_sum": 2373623,
+      "elapsed_ms_mean": 62463.76315789474,
+      "input_tokens_observed": 38,
+      "input_tokens_sum": 1884369,
+      "input_tokens_mean": 49588.65789473684,
+      "cached_input_tokens_observed": 38,
+      "cached_input_tokens_sum": 1399552,
+      "cached_input_tokens_mean": 36830.31578947369,
+      "output_tokens_observed": 38,
+      "output_tokens_sum": 42906,
+      "output_tokens_mean": 1129.1052631578948,
+      "reasoning_output_tokens_observed": 38,
+      "reasoning_output_tokens_sum": 17064,
+      "reasoning_output_tokens_mean": 449.05263157894734,
+      "total_tokens_observed": 38,
+      "total_tokens_sum": 1927275,
+      "total_tokens_mean": 50717.76315789474,
+      "files_observed": 38,
+      "files_sum": 40,
+      "files_mean": 1.0526315789473684,
+      "src_files_observed": 38,
+      "src_files_sum": 40,
+      "src_files_mean": 1.0526315789473684,
+      "total_loc_observed": 38,
+      "total_loc_sum": 350,
+      "total_loc_mean": 9.210526315789474,
+      "src_loc_observed": 38,
+      "src_loc_sum": 350,
+      "src_loc_mean": 9.210526315789474,
+      "test_files_observed": 38,
+      "test_files_sum": 0,
+      "test_files_mean": 0,
+      "test_loc_observed": 38,
+      "test_loc_sum": 0,
+      "test_loc_mean": 0,
+      "new_files_observed": 38,
+      "new_files_sum": 20,
+      "new_files_mean": 0.5263157894736842,
+      "install_attempts_observed": 38,
+      "install_attempts_sum": 0,
+      "install_attempts_mean": 0
+    }
+  ],
+  "edit_pairs": [
+    {
+      "task": "dep-slug",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-slug",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-querystring",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-querystring",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-uuid",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-uuid",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": true,
+      "whitespace_stripped_text_identical": true
+    },
+    {
+      "task": "reuse-scan",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "reuse-scan",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "sprawl-todo",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "sprawl-todo",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-http",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-http",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-retry",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-retry",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-dotenv",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-dotenv",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-http-lib",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-http-lib",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-retry-lib",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-retry-lib",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-dotenv-lib",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "dep-dotenv-lib",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": false,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "oh-question",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": null,
+      "whitespace_stripped_text_identical": null
+    },
+    {
+      "task": "oh-question",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": null,
+      "whitespace_stripped_text_identical": null
+    },
+    {
+      "task": "oh-typo",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": true,
+      "whitespace_stripped_text_identical": true
+    },
+    {
+      "task": "oh-typo",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": true,
+      "whitespace_stripped_text_identical": true
+    },
+    {
+      "task": "need-installed-dep",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "need-installed-dep",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": true,
+      "whitespace_stripped_text_identical": true
+    },
+    {
+      "task": "need-old-node",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "need-old-node",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "need-abstraction",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "need-abstraction",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "need-validation",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "need-validation",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": false,
+      "whitespace_stripped_text_identical": false
+    },
+    {
+      "task": "note-drift",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": false,
+      "primary_text_identical": null,
+      "whitespace_stripped_text_identical": null
+    },
+    {
+      "task": "note-drift",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": false,
+      "primary_text_identical": null,
+      "whitespace_stripped_text_identical": null
+    },
+    {
+      "task": "note-steady",
+      "model": "gpt-5.6-sol",
+      "repetition": 0,
+      "jointly_passing": true,
+      "primary_text_identical": null,
+      "whitespace_stripped_text_identical": null
+    },
+    {
+      "task": "note-steady",
+      "model": "gpt-5.6-sol",
+      "repetition": 1,
+      "jointly_passing": true,
+      "primary_text_identical": null,
+      "whitespace_stripped_text_identical": null
+    }
+  ],
+  "scoring_adjustments": {
+    "note_link_destinations": "scored as visible text; exact rendered finals were inspected in completed native logs",
+    "corrected_rows": 4
+  },
+  "native_functional_validation": {
+    "passed": 10,
+    "total": 10,
+    "model": "gpt-5.6-sol",
+    "effort": "high",
+    "runtime": "codex-cli 0.153.4"
+  }
+}

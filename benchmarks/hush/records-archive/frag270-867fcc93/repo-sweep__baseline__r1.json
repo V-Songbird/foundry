@@ -1,0 +1,37 @@
+{
+  "key": "repo-sweep__baseline__r1",
+  "batchId": "frag270-867fcc93",
+  "seed": "1787779121390",
+  "orderIndex": 13,
+  "task": "repo-sweep",
+  "segment": "search-heavy",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 81090,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.49873149999999994,
+  "numTurns": 17,
+  "durationMs": 79733,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5570
+  },
+  "contextTraffic": 293067,
+  "apiCalls": 9,
+  "toolCalls": 16,
+  "toolResultChars": 25423,
+  "narrationWords": 63,
+  "finalWords": 297,
+  "finalText": "Migration finished and verified.\n\n## Changed — 12 files, 36 call sites\n\nEvery one followed the same shape, rewritten to match the convention already established in the migrated files (e.g. `packages/accounts/src/repo/user.js`):\n\n```js\ndb.query('SELECT * FROM slas WHERE id = ?', [id])\ndb.execute({ sql: 'SELECT * FROM slas WHERE id = ?', params: [id] })\n```\n\n| Package | Files |\n|---|---|\n| accounts | `repo/session.js`, `service/teamService.js`, `admin/apiKeyAdmin.js` |\n| billing | `repo/refund.js`, `service/couponService.js` |\n| catalog | `repo/supplier.js`, `admin/variantAdmin.js` |\n| orders | `repo/shipment.js`, `service/returnService.js` |\n| support | `repo/sla.js`, `admin/macroAdmin.js` |\n| analytics | `repo/cohort.js` |\n\n## Deliberately not changed\n\n**`vendor/legacy-orm/adapter.js:9,13`** — the only remaining `db.query` calls in the repo. The file's header says it's a vendored copy of legacy-orm 2.1.4, replaced wholesale on upgrade, with local edits silently lost. Editing it would be reverted on the next bump, so this needs an upstream fix or a wrapper — flagging it as the one loose end rather than patching it. Consequently `db.query` must stay in `lib/db.js` for now; it can only be deleted once vendor is off it.\n\n**`cache.query(...)` — 25 sites, untouched.** Despite the matching name, `lib/cache.js` `query` takes a cache key, not SQL, and is unrelated to the db handle (noted in that file's own comment). These are not part of the migration.\n\n## Verification\n\n- `db.query` no longer appears anywhere outside `vendor/`.\n- All 25 `cache.query` calls intact (unchanged count).\n- `node --check` passes on every `.js` file in the repo.\n- Ran each migrated module against the `lib/db.js` call recorder: 48 calls, **0** on the old `query` form, with SQL and params landing correctly — e.g. `UPDATE coupon_services SET name = ?, status = ? WHERE id = ?` / `[\"x\",\"y\",1]`, confirming the spread-params rewrite in the `update*` functions preserved argument order.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c63e18faaeec7d2f8f73e733f6723f9e90285c7a8e77fffa09a18d8c02e76e9a"
+}

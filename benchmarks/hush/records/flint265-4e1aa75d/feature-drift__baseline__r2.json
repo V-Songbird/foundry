@@ -1,0 +1,38 @@
+{
+  "key": "feature-drift__baseline__r2",
+  "batchId": "flint265-4e1aa75d",
+  "seed": "1787932829339",
+  "orderIndex": 41,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 108768,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.655767,
+  "numTurns": 25,
+  "durationMs": 100469,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6288
+  },
+  "contextTraffic": 658453,
+  "apiCalls": 22,
+  "toolCalls": 20,
+  "toolResultChars": 12017,
+  "narrationWords": 18,
+  "finalWords": 138,
+  "assistantMsgs": 7,
+  "finalText": "Dedup is in at `src/router.js:39`, ahead of the quiet-hours and priority logic so a flap is dropped regardless of where it would otherwise land.\n\n`state` now carries a `lastSentAt` Map keyed by `event.key`, and `createState()` seeds it. The window only starts on an actual delivery — a dropped repeat doesn't extend it, so a key flapping every 2 minutes gets through once per 5 minutes rather than being silenced forever.\n\nThe replay shows 99 drops, which lines up with the ~100 flaps `events.js` seeds every ninth event, and every channel count fell proportionally. Still 0 errors.\n\nTwo boundary choices, both easy to flip: a repeat exactly 5 minutes after the last send is delivered (strict `< 5`), and dedup is keyed on `key` alone, so a critical event is suppressed by an earlier low-priority one sharing that key.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "8bbb65bb7c1adefcbb18ec4e5ee5d677d60207506e2065bb908ad706c9b3258a"
+}

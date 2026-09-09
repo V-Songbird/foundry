@@ -1,0 +1,38 @@
+{
+  "key": "failing-suite__baseline__r3",
+  "batchId": "rm291-34426eb0",
+  "seed": "1787886089218",
+  "orderIndex": 20,
+  "task": "failing-suite",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 40591,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.293654,
+  "numTurns": 12,
+  "durationMs": 39189,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2077
+  },
+  "contextTraffic": 222577,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 12773,
+  "narrationWords": 67,
+  "finalWords": 176,
+  "assistantMsgs": 3,
+  "finalText": "Green: **625 total, 625 passing, 0 failing**, exit 0.\n\n**What was broken** — one bug, in `orderTotal` (`src/pricing.js:39`):\n\n```js\nconst tax = roundCents(cents * taxRate);   // taxed the pre-discount base\nreturn discounted + tax;\n```\n\nIt applied the discount, then computed tax from the original `cents` rather than the discounted amount — contradicting the function's own docstring (\"tax what's actually owed\"). Fixed to `return applyTax(discounted, taxRate);`.\n\n**Why it looked worse than it was** — the wall of text was 625 per-case lines plus a coverage table, but only 3 lines were real failures, and all three were the same defect. The order-totals suite has 69 rows; 66 of them zero out either the discount or the tax rate, and with either at zero the two orderings produce the same number. Only the three rows with *both* non-zero (12000c/15%/8.25%, 8650c/20%/5%, 33400c/10%/20%) could expose it.\n\nNothing else needed changing — the other 8 suites were passing and the engine agreed with the spec in `cases.js` everywhere else. Also removed the two temp output files I captured runs into.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "f3ef17432089674a34a3d704c53b35363d1661b3af2d2b565b3a155a7cc99703"
+}

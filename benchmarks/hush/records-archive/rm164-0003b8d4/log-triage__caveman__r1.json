@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__caveman__r1",
+  "batchId": "rm164-0003b8d4",
+  "seed": "1787201216892",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "caveman",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 14597,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4126077,
+  "numTurns": 3,
+  "durationMs": 13007,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 766
+  },
+  "contextTraffic": 146313,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 60177,
+  "narrationWords": 0,
+  "finalWords": 196,
+  "finalText": "## Root cause chain\n\n1. **02:14:07.113** — Redis at 10.0.0.12:6379 drops: `ECONNREFUSED`. Cache layer degrade to direct store reads.\n2. Cache miss storm start immediately after, every service (api/worker-1/worker-2/scheduler) hit store direct, no cache buffer.\n3. Store overload, TimeoutError cascade every ~2s across all services, non-stop from 02:14:10 to end.\n4. Request queue depth climb steady: 52 at 02:14:12 → 568 at 02:31:24 (max 500 cap breached ~02:29:06, depth 502).\n5. Redis reconnect attempts fail repeated every ~2min (attempts 0-12, all ECONNREFUSED) — Redis never come back.\n6. **02:31:44.902** — worker-2 heap OOM from backlog (queue grow unbounded, requests pile in memory).\n7. **02:31:45.001** — supervisor restart worker-2 (exit 134).\n8. **02:31:52.318** — api unresponsive, supervisor kill whole process group. **Service down.**\n\n## Verdict\n\nRedis went down at 02:14 and never recovered (12 reconnect attempts over 17min, all refused). No circuit breaker / backpressure on cache miss — every service kept hammering store direct, queue grew unbounded until worker-2 OOM'd, then supervisor took down entire process group.\n\nFix candidates: circuit breaker on store calls when cache down, cap queue depth with shed/reject instead of unbounded grow, alert on Redis ECONNREFUSED at first failure not after minutes.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "ae588cc6d425385e11379fc56d8245aa01d03365e73463065d01b38902af4a87"
+}

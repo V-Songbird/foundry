@@ -1,0 +1,37 @@
+{
+  "key": "release-digest__hush__r1",
+  "batchId": "ab4-56e6f019",
+  "seed": "1787389233379",
+  "orderIndex": 7,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "hush",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 218848,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.6833726,
+  "numTurns": 15,
+  "durationMs": 217123,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 18304
+  },
+  "contextTraffic": 958545,
+  "apiCalls": 14,
+  "toolCalls": 14,
+  "toolResultChars": 101417,
+  "narrationWords": 0,
+  "finalWords": 183,
+  "finalText": "I went through all 380 commits and the 128 merged PRs. Most really was noise: dependency bumps, file moves, renamed internal types, dead code cleanup, test and CI tweaks. I found 13 things people would actually notice, and wrote them into `CHANGELOG.md` as a 4.2.0 section, same shape as before.\n\nOne new feature: failed webhook deliveries now retry automatically with backoff, instead of dropping after one try. The rest are fixes: expired tokens now return 401 instead of 403, four different list endpoints no longer error on a null cursor, trailing slashes stopped doubling up in two places, empty allowlists stopped erroring in three places, trace ids survive retries, latency metrics report the right units, a duplicate header got dropped, the database client stopped logging full request bodies, and the HTTP client now cleans up its timer and connection pool properly. No breaking changes this time.\n\nWorth a look before you publish: the raw commit log had a several-week gap between the last commit (2026-06-17) and today. I used tomorrow's date, 2026-08-23, for the release, same as the other entries in the file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "d30781e607e9888539d62897b5c53b6935aa0562f9e3d43876b48c8dc4225df4"
+}

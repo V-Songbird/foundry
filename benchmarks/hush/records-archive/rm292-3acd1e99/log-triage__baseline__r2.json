@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r2",
+  "batchId": "rm292-3acd1e99",
+  "seed": "1787896384754",
+  "orderIndex": 2,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50244,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4995029999999999,
+  "numTurns": 8,
+  "durationMs": 48728,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 3210
+  },
+  "contextTraffic": 196715,
+  "apiCalls": 7,
+  "toolCalls": 7,
+  "toolResultChars": 16792,
+  "narrationWords": 24,
+  "finalWords": 538,
+  "assistantMsgs": 4,
+  "finalText": "## What happened\n\nA single Redis outage cascaded into a full service-down over ~17 minutes. Nothing in the log points to a traffic spike or a bad deploy — the trigger is external, the outage is self-inflicted amplification.\n\n**Timeline** (all times UTC, log covers `02:00:00` → `02:31:52`):\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Fully healthy. All `200`s, latency 12–145ms, cache hit ratio 0.90–0.96 |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — **the trigger** |\n| 02:14:07.114 | `WARN [api] cache layer degraded — falling back to direct store reads` |\n| 02:14:08 | Cache miss storm begins (`orders:1000` onward), 174 occurrences |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` — 173 total, spread evenly across api/worker-1/worker-2/scheduler |\n| 02:15:26 → 02:31:26 | 13 Redis reconnect attempts, **all** `ECONNREFUSED`. Redis never came back |\n| 02:29:12 | Queue depth hits **502 (max 500)** — saturation. It keeps climbing anyway |\n| 02:31:26 | Final reconnect attempt 12 fails; queue depth 568 |\n| 02:31:44.902 | `ERROR [worker-2] JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | `FATAL [supervisor] worker-2 exited with code 134, restarting` |\n| **02:31:52.318** | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n**Last successful request: 02:14:03.137.** Everything after the Redis drop was errors and warnings — 188 ERROR, 348 WARN, 2 FATAL out of 719 lines.\n\n## Root cause\n\nRedis at `10.0.0.12:6379` refused connections and never recovered. The cache-degradation fallback did exactly the wrong thing: instead of shedding load, it sent every cache miss straight to the backing store. That store couldn't take full uncached read volume, so requests started timing out at 5s, requests piled into the queue, and the queue backlog consumed the heap until worker-2 OOM'd (exit 134 = SIGABRT, the V8 OOM abort) and the api process went unresponsive.\n\n## Three things I'd fix\n\n1. **The queue max of 500 isn't enforced.** Depth crossed 502 at 02:29:12 and climbed steadily to 568 with nothing but a WARN — the process kept accepting work for another 2.5 minutes until it OOM'd. If 500 had actually rejected/shed, you'd have had degraded service instead of an outage. This is the single highest-leverage fix.\n2. **No circuit breaker on the store.** 173 timeouts, all at the identical 5000ms ceiling, continuing right up to the crash. Each one held a request (and its memory) alive for 5 full seconds. A breaker that opened after N consecutive timeouts and fast-failed would have kept the backlog bounded.\n3. **Reconnect backoff is flat, not exponential.** The 13 attempts are spaced at a constant ~80s (02:15:26, 02:16:46, 02:18:06, …). That's not harmful here, but it also means there was no ceiling or give-up path — worth reviewing the `ioredis` retry strategy alongside the above.\n\nTwo caveats worth naming: the log is timestamped **2026-07-04**, not last night (today is 2026-08-27), so either this is an older capture or the log timestamps are wrong — confirm which before you brief anyone. And the log ends at the FATAL, so it tells you nothing about *why* Redis went down or how recovery went; you'll need the Redis-side logs and infra events around 02:14:07 for that.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "93575566144d8a9a948fa4716f64754f6ec7f7ae48900c457bc2fb2831c8582f"
+}

@@ -1,0 +1,38 @@
+{
+  "key": "rename-scope__hush__r4",
+  "batchId": "rm293-d516617d",
+  "seed": "1787898948786",
+  "orderIndex": 47,
+  "task": "rename-scope",
+  "segment": "search-heavy",
+  "arm": "hush",
+  "rep": 4,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 43287,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.31573300000000004,
+  "numTurns": 16,
+  "durationMs": 41551,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2507
+  },
+  "contextTraffic": 205612,
+  "apiCalls": 7,
+  "toolCalls": 15,
+  "toolResultChars": 13195,
+  "narrationWords": 0,
+  "finalWords": 137,
+  "assistantMsgs": 1,
+  "finalText": "**Big but mostly mechanical.** About 1290 hits in 94 files. The bulk is safe. Three zones are not.\n\n| Zone | Hits | Call |\n|---|---|---|\n| `services/*` JS vars and args | ~1200 | rename freely |\n| `migrations/*.sql` | 61 | do not edit |\n| `vendor/reporting-sdk` | 20 | do not edit |\n| `docs/openapi.yaml` + `lib/serialize.js` | 6 | frozen wire name |\n\n1. Leave the 12 applied migrations alone. They are history and hold the down step.\n2. Keep `WIRE.account_id` mapping to `account_id`. That key is the public API.\n3. SQL strings in `repo/*.js` name real DB columns. They only change with a new migration.\n4. `vendor:refresh` overwrites the SDK, so edits there vanish.\n\nSo: rename JS identifiers, keep the column and the wire field. That is a one day sign off.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "1db5e6759e588a9ff94d190b2a6c2e75df40ad06637835cd94a3fac35a8ce02c"
+}

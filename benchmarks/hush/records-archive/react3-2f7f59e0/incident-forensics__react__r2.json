@@ -1,0 +1,37 @@
+{
+  "key": "incident-forensics__react__r2",
+  "batchId": "react3-2f7f59e0",
+  "seed": "1786431985993",
+  "orderIndex": 39,
+  "task": "incident-forensics",
+  "segment": "long-session",
+  "arm": "react",
+  "rep": 2,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 4,
+  "wallMs": 62778,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 3)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.3558395,
+  "numTurns": 12,
+  "durationMs": 56000,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2900
+  },
+  "contextTraffic": 511216,
+  "apiCalls": 12,
+  "toolCalls": 8,
+  "toolResultChars": 13432,
+  "narrationWords": 0,
+  "finalWords": 158,
+  "finalText": "**On-call handoff — gateway 503s**\n\n**Root cause.** Deploy `dep-4471` (gateway, a.novak, 02:12–02:14 UTC) shipped a config change enabling `gateway.pool.perRequest` (`false → true`), applied as generation 119 at 02:13:41. That setting pins a DB connection per request instead of sharing the pool, so the pool (size 20) fills up and stays full. Every 503 since then logs the same underlying error: `ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting N)`.\n\n**Impact window.** First 503 at 02:14:18 UTC, one minute after the deploy applied. Still ongoing as of the last log line at 03:59:27 UTC — the waiting queue has climbed to 74 and never recovered on its own. Gateway only. `worker.log` stayed clean the whole time, pool steady at `size=8 in_use=1 idle=7 waiting=0`.\n\n**Roll back.** `dep-4471` on gateway — revert `gateway.pool.perRequest` to `false`. No other deploy in the window is implicated: `dep-4472` (billing-svc, 02:41) and `dep-4473` (catalog-svc, 03:20) landed after the errors began and don't touch pooling.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "2c2d622724e9e03b5480ec389470a761896e0a2ff22b29c14cbf25652bea4358"
+}

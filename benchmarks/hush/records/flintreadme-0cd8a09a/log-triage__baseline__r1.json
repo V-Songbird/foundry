@@ -1,0 +1,38 @@
+{
+  "key": "log-triage__baseline__r1",
+  "batchId": "flintreadme-0cd8a09a",
+  "seed": "1787934856127",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 78859,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.4807389999999999,
+  "numTurns": 11,
+  "durationMs": 77571,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5324
+  },
+  "contextTraffic": 155108,
+  "apiCalls": 7,
+  "toolCalls": 10,
+  "toolResultChars": 16142,
+  "narrationWords": 8,
+  "finalWords": 641,
+  "assistantMsgs": 2,
+  "finalText": "I dug through all 719 lines. Here's what happened.\n\n## Short version\n\nRedis died at **02:14:07**. Everything else in the log is downstream fallout. The service was effectively down from that moment — the supervisor just didn't kill it until **02:31:52**, 17m45s later.\n\n## Timeline\n\n| Time | Event |\n|---|---|\n| 02:00:00 – 02:14:03 | Fully healthy. Cache hit ratio 0.90–0.98, all 200s, no warnings. |\n| **02:14:03.137** | **Last successful request in the entire log** (`worker-1 GET /orders 200`). |\n| **02:14:07.113** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` |\n| 02:14:07.114 | App fails open: \"cache layer degraded — falling back to direct store reads\" |\n| 02:14:08 | Cache miss storm begins (`orders:1000`, then every key sequentially → `orders:1119`) |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 | Queue depth 52, climbing linearly |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts (0–12), every ~80s, **all** ECONNREFUSED. Never recovers. |\n| 02:29:12 | Queue depth crosses the 500 max (502) |\n| 02:31:44.902 | `worker-2` JS heap OOM (request backlog) |\n| 02:31:45.001 | Supervisor restarts worker-2 (exit 134 = SIGABRT) |\n| 02:31:52.318 | `FATAL [supervisor] api unresponsive, killing process group — service down` |\n\n## The causal chain\n\n1. **Redis at `10.0.0.12:6379` went away.** `ECONNREFUSED` — not a timeout, not a network partition. Something was actively refusing on that port, meaning the Redis process was down or not listening. Nothing in the app log explains why; the cause is on the Redis box.\n2. **Cache fail-open turned into a thundering herd.** The fallback (\"direct store reads\") sent 100% of traffic to the backing store — a store that had been absorbing ~5–10% of reads (hit ratio was 0.90–0.98 right up to 02:13:23). That's a ~10–20x instantaneous load multiplier.\n3. **The store folded**, producing uniform 5000ms timeouts across all four components (`api`, `worker-1`, `worker-2`, `scheduler`).\n4. **Queues grew unbounded.** Depth went 52 → 568 at a dead-linear ~30/min. The \"max 500\" was logged but clearly not enforced — depth sailed past it to 568 with no shedding.\n5. **Retained request objects exhausted the heap**, worker-2 OOM'd, and the supervisor killed the process group.\n\n## Things worth calling out\n\n- **The 5000ms timeout is the amplifier.** Every request held a slot for 5 full seconds before failing. That's what let the backlog accumulate faster than it drained.\n- **No backpressure.** The queue-depth ceiling of 500 is advisory only. If it had shed load at 500 (02:29:12), you'd have avoided the OOM 2.5 minutes later.\n- **No circuit breaker.** After 17 minutes and 173 consecutive timeouts, the app was still faithfully forwarding every request to a store it knew was dead.\n- **Reconnect backoff is broken.** Attempts 0–12 are spaced at a fixed ~80s, not exponential. Harmless here, but it means the client never gave up or escalated.\n- **Your alerting fired 17 minutes late.** If the page came from the FATAL, that's the problem — the real signal was the single ERROR at 02:14:07, or the first timeouts 3 seconds later.\n\n## Caveats on the evidence\n\n- The log **starts exactly at 02:00:00.000** and ends at the FATAL. I can't see what preceded the incident or whether the service came back — that's outside this file.\n- The `api` process was killed as \"unresponsive\"; only `worker-2` logged an explicit OOM. `api` was likely GC-thrashing too, but the log doesn't prove it.\n- The rising 12ms→145ms latency sawtooth during the healthy window is **not** a leading indicator — it resets and repeats identically from 02:00 onward, including well before the incident.\n\n**Root cause: Redis outage. Contributing causes: unbounded cache fail-open, no circuit breaker, unenforced queue limit.** Fixing Redis's availability alone won't prevent a repeat — items 2–4 are what turned a cache outage into a total service outage.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "5f2af36d58ceda5b39f09958dc87bf30d8029b6c83a924bc8350396547b380d9"
+}

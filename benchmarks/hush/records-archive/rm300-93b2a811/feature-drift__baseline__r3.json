@@ -1,0 +1,42 @@
+{
+  "key": "feature-drift__baseline__r3",
+  "batchId": "rm300-93b2a811",
+  "seed": "1787995285960",
+  "orderIndex": 53,
+  "task": "feature-drift",
+  "segment": "long-session",
+  "arm": "baseline",
+  "rep": 3,
+  "effort": null,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 5,
+  "wallMs": 106825,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.6338914999999999,
+  "numTurns": 28,
+  "durationMs": 100369,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 6265
+  },
+  "contextTraffic": 607304,
+  "apiCalls": 25,
+  "toolCalls": 23,
+  "toolResultChars": 12577,
+  "narrationWords": 7,
+  "finalWords": 148,
+  "assistantMsgs": 6,
+  "narrationTexts": [
+    "I'll look at the project files first."
+  ],
+  "finalText": "Dedupe added at `src/router.js:24` (`route()`), backed by `state.lastSentByKey` from `createState()`.\n\nReplay: 99 dropped as repeats, 0 errors. Deliveries drop across the board (e.g. pager 225→200, queue 300→266).\n\nThree decisions I made, all easy to flip:\n\n- **\"Sent\" means a non-empty result**, including a queue-only delivery during quiet hours — a queued item updates the key's timestamp and suppresses repeats. A dropped repeat does *not* refresh the timestamp, so the window is measured from the last real delivery, not the last attempt.\n- **The window is inclusive** (`at - last <= 5`), so a repeat exactly 5 minutes later is dropped.\n- **Dedupe applies to critical too.** You said \"if we already sent something with the same key,\" with no priority carve-out, so critical repeats get suppressed like everything else — that's most of the pager drop from 225 to 200. Tell me if critical should always page through.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "42a5405b5dc5cb1bca40a2d23cbc4c568e0e30f912ec0cb488ed2961e150a433"
+}

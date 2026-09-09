@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r2",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 8,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 2,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 47426,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.3741885,
+  "numTurns": 8,
+  "durationMs": 46012,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2614
+  },
+  "contextTraffic": 182301,
+  "apiCalls": 6,
+  "toolCalls": 7,
+  "toolResultChars": 29555,
+  "narrationWords": 6,
+  "finalWords": 521,
+  "finalText": "**Root cause: Redis died, and the app had no protection against the resulting cache stampede. 17 minutes later it OOM'd and the supervisor killed the service.**\n\nTimeline (all UTC, log covers 02:00–02:31:52):\n\n| Time | Event |\n|---|---|\n| 02:00–02:14:03 | Healthy. All 200s, cache hit ratio 0.90–0.98 |\n| **02:14:07.113** | `redis connection lost: ECONNREFUSED 10.0.0.12:6379` — trigger |\n| 02:14:07.114 | Cache layer degraded → falls back to **direct store reads** (no circuit breaker) |\n| 02:14:08 | Cache miss storm begins; every `orders:*` read hits the backing store |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:14:12 → 02:31:26 | Queue depth climbs linearly, +3 every ~6s, from 52 to 568 |\n| 02:15:26 → 02:31:26 | 13 reconnect attempts (0–12), **all** ECONNREFUSED, fixed ~80s interval |\n| 02:29:12 | Queue depth **crosses the 500 max** — backpressure limit ignored, nothing sheds load |\n| 02:31:44.902 | `worker-2: JavaScript heap out of memory (request backlog)` |\n| 02:31:45.001 | FATAL — worker-2 exited code 134 (SIGABRT), supervisor restarts it |\n| 02:31:52.318 | FATAL — `api unresponsive, killing process group — service down` |\n\nWhat actually happened: Redis at `10.0.0.12:6379` refused connections (ECONNREFUSED, not a timeout — the process was down or the port closed; this isn't a network partition). Redis never came back during the log window. The service degraded gracefully in name only: it fell back to direct store reads, which the store couldn't absorb, so every request took 5s and timed out. Requests arrived faster than they drained, the in-memory queue grew unbounded, and worker-2's heap filled with the backlog until V8 aborted. The api process was already saturated and got killed by the supervisor 7s later.\n\nRedis is the trigger, but the outage is an app bug — three failures compound it:\n\n1. **No circuit breaker on the cache-miss path.** The fallback sent full production traffic straight at the store. A breaker or single-flight/request-coalescing on `orders:*` would have capped store load; the miss keys cycle through the same ~200 ids repeatedly (`orders:1000`…`1192`, then wrapping back to `orders:1065`), so nearly all that store load was duplicate work on a small hot key set.\n2. **`max 500` on the queue isn't enforced.** It's logged as a threshold but depth sailed past it to 568 with no rejection or 503s. That's what turned a slow service into an OOM.\n3. **Reconnect never recovers and never gives up.** 13 attempts at a flat ~80s interval, no backoff variation, no alerting escalation, and no mode where the service stops pretending it can serve traffic.\n\nImmediate: confirm why Redis at 10.0.0.12 is down (it was already down before 02:14 traffic — check that host's own logs/OOM-killer/maintenance window). It is the single point of failure here with no replica.\n\nOne thing to check on your side: these entries are dated **2026-07-04**, not last night (today is 2026-08-27). Either this is an archived log from the July incident rather than last night's, or the file wasn't rotated and you're looking at the wrong window. Worth confirming before you write this up as last night's postmortem.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "39142ef1e5d51d3701ab130beee57e6be9ac76ab8cdce70771fb3a489c7d0074"
+}

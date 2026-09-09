@@ -1,0 +1,40 @@
+{
+  "key": "release-digest__stock__r1",
+  "batchId": "tab1-f8a5203d",
+  "seed": "1787992776953",
+  "orderIndex": 10,
+  "task": "release-digest",
+  "segment": "noisy-output",
+  "arm": "stock",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 78011,
+  "check": {
+    "pass": true,
+    "score": 0.6666666666666666,
+    "detail": "2/3 rubric hits (need 2)"
+  },
+  "outputStyle": "hush:Hush",
+  "costUsd": 0.2393134,
+  "numTurns": 12,
+  "durationMs": 76484,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 5959
+  },
+  "contextTraffic": 296056,
+  "apiCalls": 8,
+  "toolCalls": 11,
+  "toolResultChars": 30254,
+  "narrationWords": 0,
+  "finalWords": 110,
+  "assistantMsgs": 1,
+  "narrationTexts": [],
+  "finalText": "**Added a 4.2.0 section to [CHANGELOG.md](CHANGELOG.md).**\n\nUnder the deps/refactor noise, 380 commits held one real feature and about a dozen distinct user-facing fixes.\n\nOne Added: webhook deliveries now retry with backoff instead of failing outright.\n\nFixed, deduped from repeats across modules: null-cursor crashes on paginated lists, expired tokens wrongly returning 403 instead of 401, full request bodies getting logged, a socket-drop hang and pool-close bug in the HTTP client, trace ids dropping on retry, duplicate headers, trailing-slash and empty-allowlist bugs, wrong latency-histogram units, and leaky token-parser error messages.\n\nNo breaking changes this cycle. Worth a look before you sign off: the 401-vs-403 change could break callers checking for 403 specifically.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "99f927561b9e4bbd03804e624389264ad8af1ca8e8399f99072a2a45acda5c88"
+}

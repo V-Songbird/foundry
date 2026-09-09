@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__concise__r1",
+  "batchId": "rm280-7e554675",
+  "seed": "1787842957640",
+  "orderIndex": 0,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "concise",
+  "rep": 1,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 27705,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "Concise",
+  "costUsd": 0.47507099999999997,
+  "numTurns": 4,
+  "durationMs": 25851,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1555
+  },
+  "contextTraffic": 146951,
+  "apiCalls": 4,
+  "toolCalls": 3,
+  "toolResultChars": 60197,
+  "narrationWords": 8,
+  "finalWords": 446,
+  "finalText": "**Root cause: Redis died, and nothing ever recovered from it.** Classic cache-loss cascade ending in OOM.\n\n## Timeline (all times UTC, log covers 02:00–02:31)\n\n| Time | Event |\n|---|---|\n| 02:00–02:14 | Normal. All 200s, cache hit ratio 0.90–0.98 |\n| **02:14:07** | `ERROR [api] redis connection lost: connect ECONNREFUSED 10.0.0.12:6379` — the trigger (`app.log:182`) |\n| 02:14:07 | Cache layer degrades to direct store reads (`:183`) |\n| 02:14:08 | Cache miss storm begins on `orders:*` keys |\n| 02:14:10 | First `TimeoutError: request timed out after 5000ms (store overloaded)` |\n| 02:15:26 → 02:31:26 | 13 redis reconnect attempts (0–12), **every one ECONNREFUSED**. Fixed ~80s interval — no backoff, no success |\n| 02:29:12 | Queue depth crosses the 500 max (`:647`) and keeps climbing to 568 |\n| **02:31:44** | `worker-2 JavaScript heap out of memory (request backlog)` (`:717`) |\n| 02:31:45 | Supervisor restarts worker-2 (exit 134) |\n| **02:31:52** | `FATAL [supervisor] api unresponsive, killing process group — service down` (`:719`) — log ends here |\n\n## What actually happened\nRedis at `10.0.0.12:6379` went away and stayed away — every single reconnect was refused, so this was Redis being down/unreachable (host gone, port closed, or firewall), not a flaky link. With the cache gone, all `/orders` traffic hit the backing store directly, which couldn't absorb it. Requests started timing out at 5s but kept being enqueued, so queue depth grew monotonically (~3 per sample, 52 → 568) for 17 minutes. Once the backlog exceeded the max, worker-2 exhausted its heap, and ~7s later the supervisor killed the whole api process group.\n\n**Total: 17m 45s from redis loss to service down.** The three symptom lines (timeouts, miss storms, queue depth) round-robin across api/worker-1/worker-2/scheduler and are all downstream noise — they're the same failure, not four.\n\n## What I'd fix\n1. **Redis itself** — check why `10.0.0.12:6379` refuses connections. Nothing recovers until that's answered.\n2. **No backoff or cap on reconnects** — 13 identical attempts at a fixed interval, never succeeding, never escalating.\n3. **Unbounded queueing** — depth exceeded its declared max of 500 and kept accepting work. Needs load shedding / 503s at the limit instead of buffering into OOM.\n4. **No circuit breaker** on the store — every request retried into an already-overloaded backend.\n5. **Alerting gap** — 17 minutes of ERROR-level timeouts before anything fatal. The first `redis connection lost` should have paged.\n\nOne thing worth confirming: **these logs are dated 2026-07-04, not last night** (today is 2026-08-27). Either this is an archived file from a prior incident or the rotation/timestamps are off — if you were expecting last night's data, you may be looking at the wrong file.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "dd2d3b5120e6280aaa91cf6ab1ab8343a5d40816fc0b6fd488126bd6ffcfc31f"
+}

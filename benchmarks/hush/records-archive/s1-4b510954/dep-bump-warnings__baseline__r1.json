@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 21,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 35419,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.21755069999999999,
+  "numTurns": 11,
+  "durationMs": 34041,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2109
+  },
+  "contextTraffic": 329832,
+  "apiCalls": 9,
+  "toolCalls": 10,
+  "toolResultChars": 9586,
+  "narrationWords": 71,
+  "finalWords": 139,
+  "finalText": "Build is green now. Summary of what was going on and what I fixed:\n\n**The screen of warnings** was mostly harmless noise from the bundler bump itself (Node deprecation notices like `fs.exists`, `Buffer()`, punycode, etc., plus tree-shaking/dedupe chatter) — those aren't errors and don't need code changes.\n\n**The real breakage** was two spots the bumped bundler's shape changes exposed, both at the link stage:\n\n1. `src/core/options.js` — the new bundler passes options as `{ retryCount }`, but `resolveRetries` still read `options.retries` (undefined), so calling `.toFixed(0)` on it threw. Fixed to read `options.retryCount`.\n2. `src/net/retryPolicy.js` — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only handled explicit `true`/`false` and threw on anything else. Fixed it to treat `undefined` as disabled.\n\nBuild now finishes with 0 errors (8 warnings remain, all deprecation noise, not build-breaking).",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "556d5b0408c7f77a5681f7a48be9671a394665566b3a542a4aafbbd2cb828378"
+}

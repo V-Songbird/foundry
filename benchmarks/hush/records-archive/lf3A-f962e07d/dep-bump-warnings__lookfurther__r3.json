@@ -1,0 +1,37 @@
+{
+  "key": "dep-bump-warnings__lookfurther__r3",
+  "batchId": "lf3A-f962e07d",
+  "seed": "1787083453533",
+  "orderIndex": 11,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "lookfurther",
+  "rep": 3,
+  "category": "tool",
+  "model": "opus",
+  "turnsRun": 1,
+  "wallMs": 50247,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "lookfurther:Lookfurther",
+  "costUsd": 0.327619,
+  "numTurns": 11,
+  "durationMs": 48410,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 2752
+  },
+  "contextTraffic": 232176,
+  "apiCalls": 8,
+  "toolCalls": 10,
+  "toolResultChars": 6939,
+  "narrationWords": 7,
+  "finalWords": 67,
+  "finalText": "**The build passes now.** Exit 0, no errors.\n\nTwo real bugs hid in the warnings. Both came from the bump.\n\n1. `src/core/options.js` read `options.retries`. The bundler now sends `retryCount`. It reads both names now.\n2. `src/net/retryPolicy.js` threw on an unset flag. The new loader leaves it `undefined`. Unset now means off, as before.\n\nThe 8 leftover warnings are noise. They name files this project does not have.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c3271b050134fb280770c6b298733b35e971ecbaa132a6bcbb0219f906fdc9c7"
+}

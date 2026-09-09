@@ -1,0 +1,42 @@
+{
+  "key": "dep-bump-warnings__baseline__r1",
+  "batchId": "sn320-a9885078",
+  "seed": "1788060607179",
+  "orderIndex": 4,
+  "task": "dep-bump-warnings",
+  "segment": "noisy-output",
+  "arm": "baseline",
+  "rep": 1,
+  "effort": null,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 29104,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "tests pass"
+  },
+  "outputStyle": "default",
+  "costUsd": 0.12024460000000001,
+  "numTurns": 10,
+  "durationMs": 27697,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 1684
+  },
+  "contextTraffic": 169611,
+  "apiCalls": 6,
+  "toolCalls": 9,
+  "toolResultChars": 15617,
+  "narrationWords": 16,
+  "finalWords": 107,
+  "assistantMsgs": 2,
+  "narrationTexts": [
+    "Confirmed: buried under the deprecation noise is a real link-stage crash. Fixing both real bugs now."
+  ],
+  "finalText": "Build's clean now — exit 0, 0 errors. There were two real bugs hiding in the deprecation noise, both from the bundler bump changing option shapes:\n\n1. `src/core/options.js` — the new bundler passes `{ retryCount }`, but `resolveRetries` still read `options.retries` (`undefined`), so `.toFixed(0)` crashed the link stage.\n2. `src/net/retryPolicy.js` — the new config loader leaves unset flags as `undefined` instead of `false`, but `isBackoffEnabled` only handled explicit `true`/`false` and threw on anything else.\n\nFixed both to match the new shapes; the remaining 8 warnings are the deprecation/lint noise (`Buffer()`, `fs.exists`, unused export, circular import, etc.) — non-fatal, worth cleaning up eventually but not blocking the build.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "c3145ee77a7cb32051df4a57f9f006e90109629de4bfcdd1b3314b302253a04e"
+}

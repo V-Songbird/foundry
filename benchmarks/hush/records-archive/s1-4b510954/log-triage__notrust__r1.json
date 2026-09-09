@@ -1,0 +1,37 @@
+{
+  "key": "log-triage__notrust__r1",
+  "batchId": "s1-4b510954",
+  "seed": "1787151735289",
+  "orderIndex": 1,
+  "task": "log-triage",
+  "segment": "noisy-output",
+  "arm": "notrust",
+  "rep": 1,
+  "category": "tool",
+  "model": "sonnet",
+  "turnsRun": 1,
+  "wallMs": 13937,
+  "check": {
+    "pass": true,
+    "score": 1,
+    "detail": "3/3 rubric hits (need 2)"
+  },
+  "outputStyle": "notrust:Notrust",
+  "costUsd": 0.18608239999999998,
+  "numTurns": 3,
+  "durationMs": 12235,
+  "resultSubtype": "success",
+  "usage": {
+    "output_tokens": 549
+  },
+  "contextTraffic": 125245,
+  "apiCalls": 3,
+  "toolCalls": 2,
+  "toolResultChars": 23455,
+  "narrationWords": 0,
+  "finalWords": 130,
+  "finalText": "Redis went down at 02:14:07, at `10.0.0.12:6379`, and never came back. Every reconnect attempt after that failed the same way, through attempt 12 at 02:31:26.\n\nOnce the cache was gone, the app fell back to hitting the store directly. That triggered cache-miss storms, 5-second timeouts, and a growing request queue, climbing from 52 to over 560 against a max of 500.\n\nThe pile-up of stuck requests finally exhausted memory. `worker-2` crashed with an out-of-memory error at 02:31:44, and the whole API went unresponsive and was killed at 02:31:52.\n\nSo the trigger was Redis dying, and the crash was 17 minutes of backpressure with no working cache. Fixing this means either getting Redis back reliably or adding a circuit breaker so direct-store reads don't pile up when the cache is down.",
+  "stderr": "",
+  "debugManifest": null,
+  "contentSha256": "7620dde010a9e553ccd9883b4c6243bf9f9e457a40b63ff32597ca155b6b946e"
+}
