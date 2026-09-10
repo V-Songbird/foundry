@@ -1,8 +1,8 @@
 <!-- foundry:edition Claude -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../../../../hush/assets/banner-dark.png" />
-    <img src="../../../../hush/assets/banner-light.png" alt="hush" width="900" />
+    <source media="(prefers-color-scheme: dark)" srcset="../../launch/assets/ember-brand-kit/hush/banner-dark.png" />
+    <img src="../../launch/assets/ember-brand-kit/hush/banner-light.png" alt="hush" width="900" />
   </picture>
   <h1>hush</h1>
   <p><strong>You asked for a change. Read what changed.</strong></p>
@@ -20,7 +20,7 @@ A coding assistant can finish the job and still leave you with a lot to read. Hu
 
 For a task such as fixing a failing test, the useful answer tells you what was fixed, whether the check passed and anything you still need to do. That is the kind of answer Hush aims for. This is an illustration of the goal, not a recorded result.
 
-<p align="center"><img src="../../../../hush/assets/mascot.svg" alt="Ember quiets the speech bubbles and log pile, then returns to calm typing." width="700"></p>
+<p align="center"><img src="../../launch/assets/ember-approved/hush.svg" alt="Ember quiets the speech bubbles and log pile, then returns to calm typing." width="700"></p>
 
 ## Why you'd want it
 
@@ -79,14 +79,14 @@ The retained source describes nine jobs and 36 sessions per setup. The run date 
 <!-- /foundry:platform benchmarks -->
 
 <!-- foundry:hero -->
-<p align="center"><img src="../../../../hush/assets/hero.svg" alt="Hush original product visualization" width="700"></p>
+<p align="center"><img src="../../launch/assets/graphics-ink/hush-hero.svg" alt="Hush original product visualization" width="700"></p>
 
 Original Claude Code benchmark visualization. These measurements describe the recorded Claude sessions, not Codex performance. [Evidence and methodology](https://github.com/V-Songbird/foundry/tree/main/docs/hush).
 
 <details>
 <summary>Watch the recorded Claude Code demo</summary>
 
-<p align="center"><img src="../../../../hush/assets/demo.svg" alt="Recorded Claude Code demonstration of Hush" width="700"></p>
+<p align="center"><img src="../../launch/assets/graphics-ink/hush-demo.svg" alt="Recorded Claude Code demonstration of Hush" width="700"></p>
 
 </details>
 <!-- /foundry:hero -->

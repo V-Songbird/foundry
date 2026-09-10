@@ -15,6 +15,8 @@ const copies = require("./check-shared-copies.js").main();
 if (copies !== 0) process.exit(copies);
 const maintenance = require("./check-maintenance-copies.js").main();
 if (maintenance !== 0) process.exit(maintenance);
+const graphics = require("./check-graphic-references.js").main();
+if (graphics !== 0) process.exit(graphics);
 // README nav: every front page keeps a nav line, and every anchor in it still
 // resolves. See check-readme-nav.js.
 process.exit(require("./check-readme-nav.js").main(["staged"]));

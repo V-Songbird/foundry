@@ -1,3 +1,5 @@
+> Historical design archive. Use [the approved brand kit](../ember-brand-kit/README.md) for current graphics. These originals are retained for provenance.
+
 # Ember-style icons
 
 Candidate light/dark SVG icons based on the existing Hush curves, Foreman ribbon and Razor blade. Flat fills, rounded ink outlines, no shine or brush texture. Identical geometry across themes. Published icons and banners remain unchanged pending visual selection.

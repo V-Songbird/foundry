@@ -1,3 +1,5 @@
+> Historical design archive. Use [the approved brand kit](../ember-brand-kit/README.md) for current graphics. These originals are retained for provenance.
+
 # Tinta y oficio v2
 
 Revisión solicitada: banners claros sobre blanco puro y Social preview de

@@ -1,3 +1,5 @@
+> Historical design archive. Use [the approved brand kit](../ember-brand-kit/README.md) for current graphics. These originals are retained for provenance.
+
 # Tinta y oficio
 
 Identidad visual para Foundry, Foreman, Hush, Razor y Flint. Paquete de 30 PNG para las cabeceras de GitHub y la identidad visual de los plugins.

@@ -20,3 +20,5 @@ Para Ember y evidencia, usa sus generadores separados en `assets/ember-approved`
 La integración coordina main y ediciones existentes mediante `coordinate-readmes`. Subir el social preview de GitHub es una acción separada de editar README. Generar un kit no publica ni autoriza merges. Conserva originales e historia, mantén investigación fuera de plugins instalables y revisa los PNG reales en ambos temas.
 
 Mantén este archivo idéntico en `.agents/skills/tinta-y-oficio/SKILL.md` y `.claude/skills/tinta-y-oficio/SKILL.md`.
+
+Al publicar, revisar también las imágenes incrustadas en documentación y materiales de lanzamiento. Ejecutar `node scripts/git-hooks/check-graphic-references.js`: los gráficos visibles deben apuntar a derivados mantenidos; los originales de benchmark se conservan como enlaces de procedencia, no como imágenes de presentación fijadas a un commit antiguo. Los fixtures, registros y archivos de diseño históricos se preservan.

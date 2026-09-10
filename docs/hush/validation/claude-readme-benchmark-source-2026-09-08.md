@@ -2,7 +2,7 @@
 
 Reviewed 2026-09-08. Source: hush, branch Claude, commit 13c24a9bd610a39740eb2816b54cc16b090978ed, README.md.
 The source excerpt does not state its run date; the review date is not the run date.
-The image destination was normalized to the recorded source commit on 2026-09-09; benchmark text and values remain unchanged.
+The displayed chart uses the current flat-ink presentation of the same measurements; benchmark text and values remain unchanged. [Original chart at the recorded source commit](https://raw.githubusercontent.com/V-Songbird/hush/13c24a9bd610a39740eb2816b54cc16b090978ed/assets/bench-cuts.svg).
 
 ## Original benchmark section
 
@@ -41,7 +41,7 @@ is whether it keeps talking after that.
 | caveman | 151 | 73.1 | 5.1 |
 | **hush** | **69** | **87.7** | **2.7** |
 
-<p align="center"><img src="https://raw.githubusercontent.com/V-Songbird/hush/13c24a9bd610a39740eb2816b54cc16b090978ed/assets/bench-cuts.svg" alt="What hush cuts, averaged per session over the same 9 jobs on Opus 5 at medium effort, 4 runs each way. command output: no plugin 23.4k chars, hush 15.4k chars, minus 34%. chatter while working: no plugin 34 words, hush 1 word, minus 97%. Claude's whole-session output: no plugin 5,058 tok, hush 2,981 tok, minus 41%." width="700"></p>
+<p align="center"><img src="../../shared/launch/assets/graphics-ink/hush-bench-cuts.svg" alt="What hush cuts, averaged per session over the same 9 jobs on Opus 5 at medium effort, 4 runs each way. command output: no plugin 23.4k chars, hush 15.4k chars, minus 34%. chatter while working: no plugin 34 words, hush 1 word, minus 97%. Claude's whole-session output: no plugin 5,058 tok, hush 2,981 tok, minus 41%." width="700"></p>
 
 > [!IMPORTANT]
 > **Where hush doesn't win.** The short answer sometimes drops the thing you were meant to run
