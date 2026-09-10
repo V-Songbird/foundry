@@ -2,6 +2,16 @@
 const fs = require("node:fs"), path = require("node:path"), cp = require("node:child_process");
 const { productSections, checkCommon } = require("./git-hooks/check-main-frontpage");
 
+function editionSelector(plugin) {
+  const url = `https://github.com/V-Songbird/${plugin}/tree/`;
+  const codex = content => plugin === "hush" ? content : `<a href="${url}Codex">${content}</a>`;
+  return `<p align="center"><strong>Available on</strong></p>
+<p align="center">
+  ${codex('<img src="assets/edition-codex.svg" alt="Codex" width="80" height="80" />')}&emsp;&emsp;<a href="${url}Claude"><img src="assets/edition-claude.svg" alt="Claude" width="80" height="80" /></a><br />
+  ${codex(plugin === "hush" ? '<del>Codex</del>' : 'Codex')}&emsp;&emsp;&emsp;&emsp;<a href="${url}Claude">Claude</a>
+</p>${plugin === "hush" ? '\n<p align="center"><small>Codex is not currently installable.</small></p>' : ''}`;
+}
+
 function render(plugin, claude, codex) {
   if (!["foreman", "hush", "razor"].includes(plugin)) throw Error("Unknown plugin");
   const source = claude.replace(/\r\n/g, "\n");
@@ -15,9 +25,7 @@ function render(plugin, claude, codex) {
   if (!hero) throw Error("Product hero and demo are missing");
   if (!header || !animation) throw Error("Shared branding is incomplete");
   const url = `https://github.com/V-Songbird/${plugin}/tree/`;
-  const status = plugin === "hush"
-    ? `**Available for [Claude Code](${url}Claude).** The [Codex edition](${url}Codex) is not currently installable.`
-    : `**Choose your edition: [Claude Code](${url}Claude) · [Codex](${url}Codex)**`;
+  const status = editionSelector(plugin);
   const row = plugin === "hush"
     ? `| Codex | Not currently installable | [Read the edition status](${url}Codex) |`
     : `| Codex | Available | [Install and get started](${url}Codex) |`;
@@ -26,7 +34,7 @@ function render(plugin, claude, codex) {
 
 ${status}
 
-[**Get started**](#get-started) · [What is this?](#what-is-this) · [How it works](#how-it-works) · [What you can do](#what-you-can-do) · [Evidence](#evidence-and-benchmarks)
+<p align="center"><a href="#get-started"><strong>Get started</strong></a> · <a href="#what-is-this">What is this?</a> · <a href="#how-it-works">How it works</a> · <a href="#what-you-can-do">What you can do</a> · <a href="#evidence-and-benchmarks">Evidence</a></p>
 
 ${summary || ""}
 
@@ -37,8 +45,6 @@ ${block("What is this?")}
 ${block("Why you'd want it")}
 
 ${block("How it works")}
-
-${block("What you can do")}
 
 ${block("What you can do")}
 
@@ -85,5 +91,5 @@ function main(args = process.argv.slice(2)) {
     if (fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n") !== text) throw Error("Main overview differs from the shared edition content");
   } else fs.writeFileSync(file, text);
 }
-module.exports = { render, main };
+module.exports = { editionSelector, render, main };
 if (require.main === module) main();

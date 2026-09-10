@@ -39,6 +39,8 @@ Icon SVGs use a 128 × 128 viewBox. Total: eight PNGs and eight SVGs per brand, 
 
 The social composition in `build.cjs` uses 86–91 px left text padding, a category near the top, icon and name centrally, promise below, then an accent rule and attribution. Export directly at 1280 × 640; do not stretch a README banner. Deliver both themes; social platforms normally accept one selected image rather than switching themes automatically.
 
+Foreman, Hush and Razor README banners stack the symbol, name and promise on the center axis. Their centered `Available on` selector uses the editable `source/edition-codex.svg` terminal and `source/edition-claude.svg` asterisk in flat ink, with labels below and Codex first. These small SVGs adapt ink to the theme without changing geometry. Copy them to each page's `assets/`; they are navigation art, separate from the eight identity PNGs per brand. Hush keeps Codex struck through and explicitly unavailable. Center the section navigation too.
+
 ## Reproduction
 
 Use Node.js and an already available Sharp installation. The generator contains no personal runtime path. If Sharp is provided by a bundled runtime, set `NODE_PATH` to its node_modules directory. Codex desktop's `load_workspace_dependencies` reports that directory.
