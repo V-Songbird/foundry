@@ -1,5 +1,7 @@
 # Retained hush Claude benchmark source
 
+The original excerpt below is preserved. See the [September 10 reconciliation](claude-readme-benchmark-2026-09-10.md) for the matched batch date, median word-count definition, raw-record checks and distinction from the earlier detailed benchmark runs.
+
 Reviewed 2026-09-08. Source: hush, branch Claude, commit 13c24a9bd610a39740eb2816b54cc16b090978ed, README.md.
 The source excerpt does not state its run date; the review date is not the run date.
 The displayed chart uses the current flat-ink presentation of the same measurements; benchmark text and values remain unchanged. [Original chart at the recorded source commit](https://raw.githubusercontent.com/V-Songbird/hush/13c24a9bd610a39740eb2816b54cc16b090978ed/assets/bench-cuts.svg).
