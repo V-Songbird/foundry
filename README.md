@@ -4,7 +4,7 @@
     <img src="assets/banner-light.png" alt="foundry" width="900" />
   </picture>
   <h1>foundry</h1>
-  <p><strong>Plugins for Claude Code and Codex that keep the plan, cut the chatter, and stop the over-building.</strong></p>
+  <p><strong>Plugins for Claude Code and Codex: continuity between sessions, less to read and less to maintain.</strong></p>
 </div>
 
 <p align="center">
@@ -19,14 +19,14 @@
 
 A coding session ends with a fix, a new idea and a little more code. The next session needs the plan, you need a clear result, and the codebase needs to stay manageable. Foundry is a collection of plugins for those everyday problems.
 
-Each plugin works on its own. Foreman keeps the plan beside your code. Hush reduces narration and long command output. Razor asks whether new code is needed before it gets added.
+Each plugin works on its own. Foreman carries the plan between sessions. Hush leaves you less to read. Razor helps keep changes small, with less code to maintain.
 
 ## The plugins
 
 | When you want to… | Start with | Availability |
 | --- | --- | --- |
 | Pick up the next task with its context intact | [Foreman](https://github.com/V-Songbird/foreman) | Claude Code and Codex |
-| Find the result without reading every step | [Hush](https://github.com/V-Songbird/hush) | Claude Code; Codex in development |
+| Find the result without reading every step | [Hush](https://github.com/V-Songbird/hush) | Claude Code; Codex not currently installable |
 | Keep a small change from becoming extra maintenance | [Razor](https://github.com/V-Songbird/razor) | Claude Code and Codex |
 
 Ask Foreman “what’s next?” to get a recommended task and a checked handoff. Use Hush when running commentary buries the outcome. Use Razor when an existing function or language feature might solve the task without another dependency.

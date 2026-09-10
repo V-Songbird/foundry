@@ -1,6 +1,6 @@
 # hush launch posts
 
-Drafts, 2026-09-04. Post them yourself, from your own accounts. Each one is
+Drafted 2026-09-04; copy and evidence reconciled 2026-09-10. Post them yourself, from your own accounts. Each one is
 written to be pasted as-is. Order, one per day: r/ClaudeCode first (every
 reader has the exact pain), Threads and X the same day with the PNG from
 `png/hush-dark.png`, Show HN two days later on a weekday morning US time.
@@ -11,8 +11,8 @@ Reply to every comment in the first hours; comments are what lift a post.
 Claude Code narrates every step. "Let me look at the codebase." "Now I'll
 check the config." Then it pastes the whole log.
 
-I made a plugin that makes it shut up until it's done. One short answer, the
-file to open. Same job, with and without, in the picture.
+I made Hush for quieter sessions: less narration, shorter tool output and a
+concise answer focused on the result. Same job, with and without, in the picture.
 
 github.com/V-Songbird/hush
 
@@ -20,7 +20,7 @@ github.com/V-Songbird/hush
 
 **Title** (80 chars max):
 
-    Show HN: Hush – a Claude Code plugin that keeps Claude quiet until it's done
+    Show HN: Hush – less narration and shorter tool output in Claude Code
 
 **Text:**
 
@@ -28,20 +28,20 @@ Claude Code talks while it works. "Let me look at the codebase." "Now I'll
 check the config." Then it pastes 400 lines of test output into the chat, and
 the one sentence you needed is at the very bottom.
 
-hush is a plugin that stops both. Claude stays silent until the job is done,
-then sends one short message that leads with the result and names the file to
-open. Separately, a hook trims long command output before Claude reads it
+hush reduces both. Its writing style asks Claude to keep routine work quiet
+and finish with a short answer focused on the result. Separately, a hook trims selected long command output before Claude reads it
 back, so a giant log does not sit in the conversation being re-sent on every
 turn.
 
 I benchmarked it against no plugin and against caveman (the "talk like
-caveman" skill) on nine real jobs, 36 sessions per setup, on Opus 5. All three
+caveman" skill) on nine fixture jobs, 36 sessions per setup, on Opus 5 at medium effort. All three
 got every job right. hush spoke at most once before the answer in 36 of 36
-sessions, and the final message averaged 69 words at a reading grade of 2.7.
-Caveman is real competition on silence; the difference is that hush's answer
-is still plain English you can read at the end of the day.
+sessions, and the median final prose was 69 words versus 367 without a plugin.
+The readability check detected runnable content in 94% of Hush replies versus
+100% for the other setups. Three quiet jobs cost 1–10% more. Caveman is a real
+comparison: it had at most one update in 31/36 sessions and a prose median of 151 words.
 
-The benchmark harness ships in the repo, so you can rerun any number.
+The [benchmark harness and retained records](https://github.com/V-Songbird/foundry/tree/main/benchmarks/hush) are in Foundry. You can reproduce the analysis from the records or run new sessions; results vary between runs.
 
 https://github.com/V-Songbird/hush
 
@@ -52,7 +52,7 @@ at https://github.com/V-Songbird/flint
 
 **Title:**
 
-    I got tired of Claude Code narrating every step, so I built a plugin that makes it shut up until it's done
+    I built Hush to reduce narration and noisy tool output in Claude Code
 
 **Text:**
 
@@ -63,8 +63,8 @@ pricing.js:39, tax was applied before the discount."
 
 hush is a plugin that does two things:
 
-1. Claude says nothing while it works. One message at the end, answer first,
-   short sentences, the file to open as a clickable link.
+1. A writing style and session reminders reduce routine narration and ask for
+   a short final answer focused on the result and next action.
 2. Long command output gets trimmed before Claude reads it back. Errors and
    warnings are kept. A full log gets parked in a file and replaced with a
    summary that names the file.
@@ -84,50 +84,38 @@ https://github.com/V-Songbird/hush
 
 Claude Code narrates every step and pastes whole logs into your chat.
 
-hush makes it shut up until it's done. One short answer, the file to open,
-no log dumps.
+Hush reduces the narration, trims selected tool output and asks for a concise
+answer focused on the result.
 
 Same job, with and without, side by side in the README:
 https://github.com/V-Songbird/hush
 
 ## Reply ammo
 
-If someone asks "how is this different from caveman": caveman compresses the
-words. hush removes the messages. On our nine-job run both were silent most of
-the time, hush more often, and hush's final message reads at grade 2.7 versus
-5.1. The full table with caveman's numbers is in the README.
+If someone asks "how is this different from caveman": on the September 1 fixture
+comparison, Hush had at most one update in 36/36 sessions versus 31/36 for caveman.
+Median final prose was 69 versus 151 words. These are recorded outcomes, not
+promises for every session. The README carries the comparison and its limits.
 
-If someone asks about cost: it is not a cost plugin. On noisy jobs it saves
-tokens because the logs get trimmed. On quiet jobs it can cost 1-10% more.
-The README says so.
+If someone asks about cost: Hush reduces narration and tool-output noise. Costs
+depend on the workload; three jobs in the September 1 comparison cost 1–10% more.
+The README and detailed evidence preserve the wins and losses.
 
-## New hook, 2026-09-08: Anthropic published hush's lever
+## External support, 2026-09-08: concise output in Anthropic's cost study
 
-Source: https://x.com/ClaudeDevs/status/2097369738968195513 (ClaudeDevs, "Reducing cost and
-improving performance with Claude Platform"). Their cost tool, run on SWE-bench Verified with
-Sonnet 5, cut cost 55% at a flat pass rate from two changes: effort down to medium, and
-"constraining the agent's output to just a few concise sentences". Median steps 29 -> 17.
+Source: [Anthropic's original article](https://claude.com/blog/reducing-cost-and-improving-performance-with-claude-platform), September 8, 2026. On SWE-bench Verified with Sonnet 5, its cost tool reported approximately 55% lower cost after combining medium effort and concise output. Median steps fell from 29 to 17. The two effects were not isolated; do not attribute the saving to brevity alone.
 
-Their number, their benchmark, their model. hush's own read is -11% to -22% per session.
-Never quote 55% as hush's.
+This is external support for an approach Hush already implements, not a Hush benchmark or endorsement. The previous 11–22% Hush cost range had no linked comparison and is retired. Use the [reconciled Hush evidence](../validation/claude-readme-benchmark-2026-09-10.md), with its losses, instead.
 
 ### X / Threads
 
-Anthropic just published the cost lever hush has shipped since day one: make the agent answer
-in a few concise sentences. Their tool got -55% on a coding benchmark with that plus lower
-effort. hush does the sentences part for Claude Code, on every job, nothing to configure.
+Anthropic reported approximately 55% lower cost on SWE-bench Verified after combining medium effort and concise output. Hush brings concise answers, fewer interruptions and tool-output trimming to Claude Code. Its README carries its own measurements and limits.
 https://github.com/V-Songbird/hush
 
 ### r/ClaudeAI
 
-Anthropic's new cost write-up says one of the two biggest savings on a coding benchmark was
-"constraining the agent's output to just a few concise sentences". That is the whole idea
-behind hush: Claude works in silence, then one short answer that names the file to open. The
-README has the numbers from our own nine-job run, wins and losses. Link to their post in the
-README.
+Anthropic's cost study combines concise output with medium effort. Hush already uses concise answers in Claude Code and adds narration controls and tool-output trimming. In Hush's recorded nine-job comparison, median final prose was about 81% shorter; three quiet jobs cost more. The README links both studies and distinguishes their results.
 
 ### Reply ammo
 
-If someone says "so hush is just what Anthropic recommends": yes, and it does it for you. The
-post says what to do; the plugin is the doing, plus the log trimming Anthropic's post does not
-cover.
+Hush packages a writing style, session reminders and tool-output trimming for Claude Code. Anthropic's study supports concise output as one useful control, but it did not test Hush or separate brevity from effort. Hush's own comparison includes all its controls together.
