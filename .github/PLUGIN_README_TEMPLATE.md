@@ -79,3 +79,5 @@ Public community-file templates remain in the other PLUGIN_*_TEMPLATE.md files.
 ## Approved art direction
 
 Follow docs/shared/launch/tinta-y-oficio.md for Ember and supporting graphics. Hush uses blue, Foreman green, Razor red, including the name pill and decorative README accents. Preserve banners and evidence; use flat fills and organic ink outlines without corner shine.
+
+Center the README banner composition, the `Available on` selector and the navigation. Put the edition icons above their labels, Codex first and Claude second. Hush shows Codex struck through without an installation link while that edition is unavailable. Preserve the native edition status below the selector.
