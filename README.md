@@ -57,14 +57,15 @@ codex plugin add razor@foundry
 The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json).
 Both platforms use the name `foundry` and select their own catalog. Each catalog
 installs a pinned revision of the plugin repository: Foreman's `main` branch on
-both hosts, or the host's own branch for a plugin with separate editions.
+both hosts, Hush's `main` branch in Claude Code, or the host's own branch for a
+plugin with separate editions.
 Open a new Codex task after installation to load the installed skills and hooks.
 Hush for Codex is not available yet.
 
 
 ## Repository layout
 
-The plugin repositories are mounted as [Git submodules](.gitmodules). Foreman is one package for Claude Code and Codex on its `main` branch. Hush has a main overview and separate Claude and Codex editions, and Razor's move to one package is pending in Foundry. The [Claude catalog](.claude-plugin/marketplace.json) and [Codex catalog](.agents/plugins/marketplace.json) select pinned revisions.
+The plugin repositories are mounted as [Git submodules](.gitmodules). Foreman is one package for Claude Code and Codex on its `main` branch, and Hush is one package for Claude Code on its `main` branch. Razor's move to one package is pending in Foundry. The [Claude catalog](.claude-plugin/marketplace.json) and [Codex catalog](.agents/plugins/marketplace.json) select pinned revisions.
 
 [Flint](https://github.com/V-Songbird/flint) provides plain-text writing and coding instructions for sessions where you do not want to install a plugin. It is outside the marketplace.
 
