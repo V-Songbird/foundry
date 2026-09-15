@@ -5,6 +5,10 @@ date: 2026-09-15
 
 # ADR 0011: Foreman ships one package on main
 
+Amended for Hush by [ADR 0012](0012-hush-single-package.md): Hush no longer keeps
+the edition layout described under Plugins with editions; it ships one package
+on main for Claude Code.
+
 ## Decision
 
 Foreman ships one package on `main` for Claude Code and Codex.

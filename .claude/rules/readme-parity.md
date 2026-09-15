@@ -13,7 +13,9 @@ shared product overview with coordinated branding, checked by check-main-frontpa
 carry these exception blocks or benchmark sections. Flint is outside that cleanup.
 Foreman has one README for both hosts (ADR 0011). Its installation, commands,
 compatibility and benchmark content names the host inside that page, without
-edition markers, and the evidence rules below apply to each host.
+edition markers, and the evidence rules below apply to each host. Hush has one
+README for Claude Code (ADR 0012) under the same rules, and it says that Codex
+is not available.
 
 For each plugin, Claude and Codex share the same product purpose, narrative,
 headings, section order, common outcomes and decorative branding. A platform
@@ -44,7 +46,7 @@ Before considering a README change or release ready:
   revisions. Find existing checkouts with `git worktree list`; preserve their work.
 - Check navigation with `check-readme-nav.js` and review sources for every claim.
   The parser verifies declarations, not the truth of the underlying measurements.
-- For Foreman's single README, skip the two parity steps: run `check-readme-nav.js`
+- For Foreman's or Hush's single README, skip the two parity steps: run `check-readme-nav.js`
   and review each host's evidence against its source.
 
 Keep skills, review criteria and checks aligned in both native locations.

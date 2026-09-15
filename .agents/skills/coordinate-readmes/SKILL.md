@@ -13,7 +13,7 @@ measured tables in their editions. Use scripts/build-main-readmes.js to
 regenerate common content and validate main with check-main-frontpage.js
 --claude-ref Claude --codex-ref Codex. Common edition changes also update main
 before release. Flint is excluded from this main policy. A single-package plugin
-such as Foreman (ADR 0011) has one README and no selector: check its navigation
+such as Foreman (ADR 0011) or Hush (ADR 0012) has one README and no selector: check its navigation
 and review each host's evidence in that page instead of pairing editions.
 
 Locate both platform checkouts before editing. Use `git worktree list` or inspect

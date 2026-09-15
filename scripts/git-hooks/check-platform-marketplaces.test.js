@@ -47,7 +47,9 @@ function fixture(t, icon = "./assets/icon.svg") {
   const release = (version, codexVersion = version) => {
     git(repo, ["switch", "main"]);
     write(".claude-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version }));
-    write(".codex-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version: codexVersion, interface: { composerIcon: icon } }));
+    // A null Codex version releases a package that ships for Claude Code only.
+    if (codexVersion === null) fs.rmSync(path.join(repo, ".codex-plugin"), { recursive: true, force: true });
+    else write(".codex-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version: codexVersion, interface: { composerIcon: icon } }));
     icons();
     write("CHANGELOG.md", `release ${++releases}\n`);
     const sha = commit();
@@ -158,6 +160,23 @@ test("a package plugin rejects split pins, a missing Codex entry, an edition ref
     catalogs(f, claudePlugins, codexPlugins);
     assert.match(verifyCatalogs(f.root).join("\n"), error);
   }
+});
+
+test("a package without a Codex manifest needs only its Claude catalog entry", (t) => {
+  const f = fixture(t);
+  // The Codex catalog stays empty here, so only this plugin's own findings count.
+  const demoErrors = () => verifyCatalogs(f.root).filter((error) => error.startsWith("demo:")).join("\n");
+  const claudeOnly = f.release("1.1.0", null);
+  catalogs(f, [f.entry("Claude", { ref: "main", sha: claudeOnly })], []);
+  assert.equal(demoErrors(), "");
+  catalogs(f, ...pinned(f, claudeOnly));
+  assert.match(demoErrors(), /demo: cannot validate Codex pin/);
+  catalogs(f, [f.entry("Claude", { ref: "main", sha: f.release(undefined, null) })], []);
+  assert.match(demoErrors(), /demo: the Claude manifest at [0-9a-f]{12} needs a version/);
+  catalogs(f, [{ ...f.entry("Claude"), version: "1.1.0" }], []);
+  commitCatalogs(f);
+  catalogs(f, [f.entry("Claude", { ref: "main", sha: claudeOnly })], []);
+  assert.match(demoErrors(), /demo: version 1\.1\.0 was already pinned/);
 });
 
 test("an editions plugin cannot install either host from main", (t) => {

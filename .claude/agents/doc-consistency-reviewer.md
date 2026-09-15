@@ -16,14 +16,15 @@ For the main selector of a plugin with editions, check only the introduction,
 correct edition links, README/license/two-logo file set and navigation. Use the
 check-main-frontpage.js result. Do not demand the full platform README or its
 benchmark blocks there. Flint is explicitly outside this main-cleanup policy.
-Foreman's main is its package for both hosts (ADR 0011), not a selector.
+Foreman's main is its package for both hosts (ADR 0011), and Hush's main is its
+Claude Code package (ADR 0012); neither is a selector.
 
 For a plugin with editions, inspect both platform READMEs and their checker
 results. Their common product narrative, headings, order, outcomes and branding
 must agree. Only identity, installation, commands, actual
 compatibility/availability, benchmarks and edition-specific links may differ.
 Each exception needs a real platform reason. Main headings cannot be hidden
-inside an exception. For Foreman's single README, review one page: every
+inside an exception. For Foreman's or Hush's single README, review one page: every
 host-specific instruction, command and result must name its host.
 
 Benchmarks ask the same questions with the same metric columns. Model/setup

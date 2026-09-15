@@ -2,7 +2,9 @@
 
 Accepted for local implementation by the owner, 2026-09-08. Superseded for
 Foreman by [ADR 0011](0011-foreman-single-package.md): Foreman has one README
-for both hosts, and the evidence rules below still apply inside it. The paired
+for both hosts, and the evidence rules below still apply inside it. Superseded
+for Hush by [ADR 0012](0012-hush-single-package.md) on the same terms: Hush has
+one README, for Claude Code. The paired
 README contract and Foundry's pair check remain in force for plugins with Claude
 and Codex editions.
 

@@ -2,8 +2,8 @@
 
 Use this workflow only for an explicit release request. Establish the plugin,
 edition and intended version from that request and the current repository state.
-A package plugin, whose catalogs pin one main commit for both hosts, has no
-edition to choose. Otherwise, if the edition is ambiguous, resolve it before
+A package plugin, whose catalog entries pin one main commit, has no edition
+to choose. Otherwise, if the edition is ambiguous, resolve it before
 writing metadata. Running in a particular assistant does not by itself choose
 the edition being released.
 
@@ -23,10 +23,12 @@ do not introduce a Claude-style version field into the Codex catalog.
 A package such as Foreman (ADR 0011) releases one main commit. Bump the same
 version in both manifests, then pin that commit with `ref: "main"` in both
 catalogs. Its Claude catalog entry carries no version, so only `source.sha`
-moves in Foundry.
+moves in Foundry. Hush (ADR 0012) is a package for Claude Code only: bump the
+version in `.claude-plugin/plugin.json` and pin that commit in the Claude
+catalog alone.
 
-Hush/Codex is not installable until its package and validation exist. Do not
-create a release or add it to the catalog merely because the branch exists.
+Hush has no Codex package. Do not add it to the Codex catalog until a Codex
+port exists and passes validation.
 
 ## Prepare a reviewable release
 
@@ -70,8 +72,8 @@ Once the release commit is integrated and remotely reachable, record its full
 SHA in the correct Foundry catalog. Verify the remote branch contains that SHA.
 For a Claude edition, update the catalog version in that same root change. For a
 Codex edition, verify the pinned manifest contains the new effective version. For
-a package, move `source.sha` in both catalogs to the same main commit and verify
-that both manifests there carry the new version. A gitlink update alone does not
+a package, move `source.sha` in both catalogs (the Claude catalog alone for Hush)
+to the same main commit and verify that its manifests there carry the new version. A gitlink update alone does not
 publish a package update.
 
 Run `node scripts/git-hooks/check-platform-marketplaces.js` from Foundry and

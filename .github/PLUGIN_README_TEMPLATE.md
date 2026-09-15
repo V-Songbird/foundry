@@ -32,7 +32,9 @@ A plugin that ships one package for both hosts on main, such as Foreman
 compatibility and evidence name their host inside that page. It carries no
 `foundry:edition` marker or `foundry:platform` blocks, and its main is not a
 selector. Every result identifies its host, model, source and date; a host
-without equivalent evidence shows Not measured.
+without equivalent evidence shows Not measured. Hush (ADR 0012) ships one
+package on main for Claude Code only; its README follows the same rules and
+marks Codex as not available.
 
 ## Six native exceptions
 

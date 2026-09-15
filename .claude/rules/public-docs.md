@@ -17,7 +17,7 @@ narrative and section order. Use the native readme-parity rule and the current
 shared template. Changes outside its six bounded exceptions belong in both
 editions together. An unavailable edition says so explicitly instead of
 borrowing installation instructions or capabilities from its sibling. A single
-package README, such as Foreman's (ADR 0011), names the host beside every
+package README, such as Foreman's (ADR 0011) or Hush's (ADR 0012), names the host beside every
 host-specific instruction or result.
 
 Benchmark tables identify the actual model, setup, metric and denominators.
