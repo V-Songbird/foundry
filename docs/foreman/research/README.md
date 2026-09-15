@@ -25,6 +25,7 @@ Investigations, design proposals and historical studies.
 - [Foreman ledger review — the provenance vision, measured against what ships](foreman-ledger-review-2026-09-05.md) — `foreman-ledger-review-2026-09-05.md`
 - [A correct lesson changes the outcome — measured](foreman-lesson-benefit-2026-08-18.md) — `foreman-lesson-benefit-2026-08-18.md`
 - [Foreman "Lesson Ledger" — verified design for a workflow-fed knowledge layer](foreman-lesson-ledger-design-2026-08-11.md) — `foreman-lesson-ledger-design-2026-08-11.md`
+- [Foreman probes from the Memanto review — 2026-09-11](foreman-memanto-probes-2026-09-11.md) — `foreman-memanto-probes-2026-09-11.md`
 - [Foreman × praxis-workflow-os mining — 2026-07-22](foreman-praxis-mining-2026-07-22.md) — `foreman-praxis-mining-2026-07-22.md`
 - [Foreman §4.1–4.3: the three held changes, measured](foreman-prompt-eng-measurements-2026-08-18.md) — `foreman-prompt-eng-measurements-2026-08-18.md`
 - [Foreman: prompting improvement opportunities](foreman-prompt-engineering-opportunities-2026-08-13.md) — `foreman-prompt-engineering-opportunities-2026-08-13.md`
