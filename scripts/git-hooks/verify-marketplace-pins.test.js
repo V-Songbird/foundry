@@ -1,6 +1,6 @@
 "use strict";
 
-// Tests for verify-marketplace-pins.js -- the CI backstop that checks
+// Tests for verify-marketplace-pins.js -- the manual check of
 // marketplace.json's pinned source.sha against each submodule's actual
 // checked-out commit (absolute truth, not a diff).
 

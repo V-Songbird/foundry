@@ -3,6 +3,7 @@
 **Scope:** repo/plugin structure, docs, ignore rules, git state, manifests, public docs. House-maintenance only — no plugin functionality was touched or is proposed to change.
 **Method:** full-tree and git-state walk of the parent repo and the three submodules, plus two local audit agents (`manifest-curator`, `doc-consistency-reviewer`) whose reports are folded in at §6–§7.
 **Status (2026-08-11):** §3 D1 and its §9 execution row are SUPERSEDED by docs/shared/adr/0004-benchmark-data-stays-local.md — no benchmark run data is committed anywhere; benchmarks/razor/records/ was removed in razor b4e5fc0, foreman's in foreman de7a937. Everything else in this report stands.
+**Status (2026-09-15):** the statements in the Verdict, §1 and §5 that CI re-verifies the pins describe the setup audited on 2026-08-06. Foundry `c3d036eb` (#4, 2026-09-09) replaced the `verify-marketplace-pins.js` step in `validate-marketplace.yml` with `check-platform-marketplaces.js`, which validates each catalog pin on its platform branch but does not compare it with the parent gitlink; a gitlink now selects a development checkout independently of the release pins. No hook or workflow runs `verify-marketplace-pins.js` now; CI runs only its tests.
 
 ## Verdict
 
@@ -25,7 +26,7 @@ Every submodule working tree is clean; the flags are new commits sitting ahead o
 
 All three plugin commits already carry CHANGELOG entries. This is the poster-hero wave (ADR 0001–0003) staged for the next release. To ship it: bump versions in `.claude-plugin/marketplace.json` (foreman 1.0.2, hush 1.1.2, razor 1.0.1 — hush's `8eeaff7` changes style behavior, so it is more than a doc release), re-pin the three `source.sha` values, push the submodules first, then the parent. The pre-commit gate and `validate-marketplace.yml` will hold the pins honest. Until that release, the ` M` flags are the expected steady state.
 
-Verified live: the hook scripts' own tests pass 54/54; `verify-marketplace-pins.js` run against the working tree correctly reports all three pointers drifted (that strict check runs only in CI, where checkout follows the recorded gitlinks and passes); the local pre-commit gate fires only on a *staged* pointer bump, so ordinary parent commits are not blocked meanwhile.
+Verified live: the hook scripts' own tests pass 54/54; `verify-marketplace-pins.js` run against the working tree correctly reports all three pointers drifted (that strict check runs only in CI, where checkout follows the recorded gitlinks and passes); the local pre-commit gate fires only on a *staged* pointer bump, so ordinary parent commits are not blocked meanwhile. *(CI stopped running this check on 2026-09-09; see the 2026-09-15 status at the top.)*
 
 ## 2. Fix now — mechanical, zero functionality risk
 
@@ -78,7 +79,7 @@ The harness moved from the hush repo keeping its old wrapper: content sits at `b
 
 ## 5. Verified healthy — no action
 
-- Commit gates wired in all four repos (`core.hooksPath → scripts/git-hooks`); CI checks out submodules, re-verifies pins, runs the hook scripts' own tests.
+- Commit gates wired in all four repos (`core.hooksPath → scripts/git-hooks`); CI checks out submodules, re-verifies pins, runs the hook scripts' own tests. *(CI stopped re-verifying the pins on 2026-09-09; see the 2026-09-15 status at the top.)*
 - Community files (README, CHANGELOG, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY) present in the root and all three plugins; owner identity consistent everywhere (Victor Villegas / victor.villegas@tuta.com).
 - Blocklist compliance: zero hits in tracked files outside READMEs, all four repos.
 - The poster wave matches ADR 0001's stated consequences (bench-narration and bench-offcut retired, heroes added, detailed charts kept below the fold).
