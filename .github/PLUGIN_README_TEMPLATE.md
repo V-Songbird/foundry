@@ -28,7 +28,7 @@ Use the approved example-led C style: one short promise, edition availability an
 ## Single package
 
 A plugin that ships one package for both hosts on main, such as Foreman
-(ADR 0011), has one README for both hosts. Its installation, commands,
+(ADR 0011) or Razor (ADR 0013), has one README for both hosts. Its installation, commands,
 compatibility and evidence name their host inside that page. It carries no
 `foundry:edition` marker or `foundry:platform` blocks, and its main is not a
 selector. Every result identifies its host, model, source and date; a host

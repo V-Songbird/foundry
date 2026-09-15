@@ -11,7 +11,7 @@ Find the documents for the plugin you are working on:
 
 Each plugin archive contains research, launch material, validation evidence,
 task documents and an index of its decisions. Plugin-specific contracts live
-in the plugin's own `docs/adr/`: on `main` for a package such as Foreman, or in
+in the plugin's own `docs/adr/`: on `main` for a package such as Foreman or Razor, or in
 the corresponding edition for a plugin with editions. Shared studies and decisions have one home under
 `shared/`; this includes studies that involve Flint and Hush together.
 
@@ -21,7 +21,7 @@ report does not make its measurements current or establish parity between hosts.
 
 Usage guides and plugin-specific decisions stay with the plugin source so they describe the checked-out
 version. A plugin with editions uses `main` as its public front page, with product
-documentation on `Claude` and `Codex`; Foreman's `main` carries its product
+documentation on `Claude` and `Codex`; Foreman's and Razor's `main` carry their product
 documentation for both hosts, and Hush's `main` carries its Claude Code
 documentation. The central archive
 is independent of which plugin branch is checked out.

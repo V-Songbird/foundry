@@ -20,7 +20,7 @@ validated commit SHA. Claude's version and source.sha move together. A Codex
 release updates its native version and then pins that exact integrated commit;
 do not introduce a Claude-style version field into the Codex catalog.
 
-A package such as Foreman (ADR 0011) releases one main commit. Bump the same
+A package such as Foreman (ADR 0011) or Razor (ADR 0013) releases one main commit. Bump the same
 version in both manifests, then pin that commit with `ref: "main"` in both
 catalogs. Its Claude catalog entry carries no version, so only `source.sha`
 moves in Foundry. Hush (ADR 0012) is a package for Claude Code only: bump the

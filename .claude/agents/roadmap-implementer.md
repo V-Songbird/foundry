@@ -35,7 +35,7 @@ in Foundry. Follow the native project rules and current shared templates.
 
 Release metadata ownership follows the plugin's layout. With editions, the
 Claude catalog owns the Claude version, whereas a Codex plugin owns its native
-manifest version. A package such as Foreman (ADR 0011) keeps one version in both
+manifest version. A package such as Foreman (ADR 0011) or Razor (ADR 0013) keeps one version in both
 of its manifests on main; Hush (ADR 0012) keeps its version in its only
 manifest, the Claude Code one. Catalogs are .claude-plugin/marketplace.json and
 .agents/plugins/marketplace.json. Do not change either as a side effect of

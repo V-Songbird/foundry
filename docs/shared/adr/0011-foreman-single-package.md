@@ -9,6 +9,10 @@ Amended for Hush by [ADR 0012](0012-hush-single-package.md): Hush no longer keep
 the edition layout described under Plugins with editions; it ships one package
 on main for Claude Code.
 
+Amended by [ADR 0013](0013-razor-single-package.md): Razor ships one package on
+main under this decision's rules for both hosts, and the `Claude` and `Codex`
+branches described under Branches were deleted on 2026-09-15.
+
 ## Decision
 
 Foreman ships one package on `main` for Claude Code and Codex.

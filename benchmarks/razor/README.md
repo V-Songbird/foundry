@@ -6,12 +6,12 @@ Run Codex checks and create a local report with the [Codex runner](CODEX-HARNESS
 The original Claude Code runner is also available below.
 
 ## Original Claude Code benchmark
-This is the original Claude Code benchmark harness. To reproduce its live
-runs from the Codex branch, set `RAZOR_DIR` to a separate Claude checkout
-(for the port baseline, commit `e0cf7ceb4d09efb5ea651555aa8354d03b1c6c2e`).
-The native hooks in this branch require Codex; this runner invokes Claude.
-Offline `--selftest`, `--rescore` and reporting still work here. These runs
-do not measure Codex.
+This is the original Claude Code benchmark harness. It loads Razor's `main`
+package from the submodule or `RAZOR_DIR`; for the port baseline, use a checkout
+of commit `e0cf7ceb4d09efb5ea651555aa8354d03b1c6c2e`. It refuses an arm whose
+`hooks/hooks.json` registers the Codex hook, because this runner invokes Claude.
+Offline `--selftest`, `--rescore` and reporting always work. These runs do not
+measure Codex.
 
 It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed coding tasks, once with no plugin and once with razor. Cost and token counts come straight out of the API's own usage JSON. No mocks, no estimates, and no single-shot prompts — a canned reply can't tell you what a plugin costs across a real multi-turn session. Each session is scored on the code it leaves behind, and correctness is checked mechanically — the harness runs the produced code with `node`. A lean answer that breaks the task scores as a *failure*, not a win.
 

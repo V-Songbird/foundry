@@ -5,6 +5,10 @@ date: 2026-09-15
 
 # ADR 0012: Hush ships one package on main
 
+Amended by [ADR 0013](0013-razor-single-package.md): the `Claude` and `Codex`
+branches described under Branches were deleted on 2026-09-15, so Hush's edition
+commits are no longer reachable from a branch.
+
 ## Decision
 
 Hush ships one package on `main`: its Claude Code plugin. The package carries

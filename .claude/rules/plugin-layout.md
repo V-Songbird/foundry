@@ -15,12 +15,12 @@ paths:
 
 Foreman, Hush and Razor are independent repositories mounted in Foundry. A
 plugin's layout follows its Claude catalog entry. With `ref: "main"`, main is
-one package, and the Claude and Codex branches are frozen history (ADR 0011).
-Foreman ships this way for Claude Code and Codex; Hush ships this way for Claude
-Code only, with no Codex manifest or Codex catalog entry (ADR 0012). With a
-`Claude` ref, the Claude and Codex branches contain the native implementations
-and main is the edition selector. Razor's move to one package is pending in Foundry. Flint
-keeps its existing standalone product layout.
+one package (ADR 0011). Foreman and Razor ship this way for Claude Code and
+Codex (ADR 0013); Hush ships this way for Claude Code only, with no Codex
+manifest or Codex catalog entry (ADR 0012). Their former Claude and Codex
+branches were deleted on 2026-09-15. With a `Claude` ref, the Claude and Codex
+branches contain the native implementations and main is the edition selector.
+Flint keeps its existing standalone product layout.
 
 The Claude catalog is .claude-plugin/marketplace.json in Foundry. For a plugin
 with editions it owns the Claude edition's version and pins a full SHA on the
@@ -43,7 +43,7 @@ states.
 
 Common README content stays coordinated under the readme-parity rule. Main
 selectors of plugins with editions follow their own contract, and a package's
-single README follows ADR 0011 or ADR 0012. Product guides and plugin-specific decisions
+single README follows ADR 0011, 0012 or 0013. Product guides and plugin-specific decisions
 accompany the plugin; research and benchmark tooling live in Foundry. Community
 files follow the current .github templates and retain necessary plugin- or
 edition-specific sections.

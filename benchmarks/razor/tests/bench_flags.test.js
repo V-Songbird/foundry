@@ -31,13 +31,18 @@ test('the Claude live runner refuses native Codex hooks before starting a model 
   const os = require('os');
   const path = require('path');
   const { spawnSync } = require('child_process');
-  const root = process.env.RAZOR_DIR ? path.resolve(process.env.RAZOR_DIR) : path.resolve(__dirname, '../../../razor');
+  // A Codex-only checkout: its hooks/hooks.json registers the Codex hook.
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-host-'));
   const results = path.join(fixture, 'must-not-be-created');
+  fs.mkdirSync(path.join(fixture, '.codex-plugin'));
+  fs.writeFileSync(path.join(fixture, '.codex-plugin', 'plugin.json'), '{"name":"razor"}');
+  fs.mkdirSync(path.join(fixture, 'hooks'));
+  fs.writeFileSync(path.join(fixture, 'hooks', 'hooks.json'),
+    '{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"node ./hooks/codex-hook.js"}]}]}}');
   try {
     const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
       encoding: 'utf8', timeout: 30000,
-      env: { ...process.env, RAZOR_DIR: root, RAZOR_BENCH_RUNS: results },
+      env: { ...process.env, RAZOR_DIR: fixture, RAZOR_BENCH_RUNS: results },
     });
     assert.ifError(run.error);
     assert.equal(run.status, 1);
@@ -48,12 +53,10 @@ test('the Claude live runner refuses native Codex hooks before starting a model 
   }
 });
 
-test('offline instruments work from the Codex package without legacy metadata', () => {
-  const fs = require('fs');
+test('offline instruments work from the razor package', () => {
   const path = require('path');
   const { spawnSync } = require('child_process');
   const root = process.env.RAZOR_DIR ? path.resolve(process.env.RAZOR_DIR) : path.resolve(__dirname, '../../../razor');
-  assert.equal(fs.existsSync(path.join(root, '.claude-plugin', 'plugin.json')), false);
   const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--selftest'], {
     encoding: 'utf8', timeout: 30000,
     env: { ...process.env, RAZOR_DIR: root },
