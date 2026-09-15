@@ -18,7 +18,8 @@ Foundry contains two different catalog formats:
 - Package: a plugin whose Claude entry pins `ref: "main"`, such as Foreman
   (ADR 0011), ships both manifests from one main commit. Both catalogs pin that
   commit with `ref: "main"`, the Claude entry has no version, and both manifests
-  carry the same version.
+  carry the same version. Hush (ADR 0012) is a package for Claude Code only: its
+  Claude manifest carries the version, and it has no Codex manifest or entry.
 
 Never translate one schema by changing the assistant's name. Do not demand a
 Claude owner block or catalog version from a Codex catalog. Do not remove the
@@ -45,8 +46,8 @@ activation. A passing check of an old pin says nothing about uncommitted files.
 
 Check versions against the selected edition's or package's previous release.
 Both catalogs use a full validated source SHA with the correct platform ref, or
-`main` for a package. Do not add an unavailable Hush Codex edition merely to
-fill a symmetry gap.
+`main` for a package. Do not add Hush to the Codex catalog merely to fill a
+symmetry gap.
 
 Use .github/RELEASE_WORKFLOW.md for release ownership and sequencing. Preserve
 unrelated changes and any runtime freeze imposed by the user.

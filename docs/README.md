@@ -22,7 +22,8 @@ report does not make its measurements current or establish parity between hosts.
 Usage guides and plugin-specific decisions stay with the plugin source so they describe the checked-out
 version. A plugin with editions uses `main` as its public front page, with product
 documentation on `Claude` and `Codex`; Foreman's `main` carries its product
-documentation for both hosts. The central archive
+documentation for both hosts, and Hush's `main` carries its Claude Code
+documentation. The central archive
 is independent of which plugin branch is checked out.
 
 ## Reading existing records

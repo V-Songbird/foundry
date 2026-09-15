@@ -97,19 +97,29 @@ function manifestVersion(repo, sha, platform) {
   return JSON.parse(git(repo, ["show", `${sha}:${MANIFESTS[platform]}`])).version;
 }
 
-// Both manifests at one main commit own the package version. Hosts key updates
-// on it, so a moved pin with an already released version would never reach users.
+function hasManifest(repo, sha, platform) {
+  try { git(repo, ["cat-file", "-e", `${sha}:${MANIFESTS[platform]}`]); return true; } catch { return false; }
+}
+
+// A package's manifests at one main commit own its version: both of them, or the
+// Claude manifest alone when the package ships no Codex manifest and so has no
+// Codex catalog entry (ADR 0012). Hosts key updates on the version, so a moved
+// pin with an already released version would never reach users.
 function verifyPackage(root, name, { Claude: claude, Codex: codex }, previous) {
-  if (!claude || !codex) return [`${name}: a package plugin needs an entry in both catalogs`];
+  if (!claude) return [`${name}: a package plugin needs a Claude catalog entry`];
   const errors = "version" in claude ? [`${name}: a package plugin's version belongs in its manifests, not the Claude catalog`] : [];
   const sha = claude.source?.sha;
-  if (codex.source?.sha !== sha) return [...errors, `${name}: both catalogs must pin the same main commit`];
+  if (codex && codex.source?.sha !== sha) return [...errors, `${name}: both catalogs must pin the same main commit`];
   if (!/^[0-9a-f]{40}$/.test(sha || "")) return errors;
   const repo = path.join(root, name);
   try {
     const version = manifestVersion(repo, sha, "Claude");
-    if (!version || version !== manifestVersion(repo, sha, "Codex")) {
-      errors.push(`${name}: both manifests at ${sha.slice(0, 12)} need the same version`);
+    if (!codex && hasManifest(repo, sha, "Codex")) {
+      errors.push(`${name}: a package plugin needs an entry in both catalogs when it ships a Codex manifest`);
+    } else if (!version || (codex && version !== manifestVersion(repo, sha, "Codex"))) {
+      errors.push(codex
+        ? `${name}: both manifests at ${sha.slice(0, 12)} need the same version`
+        : `${name}: the Claude manifest at ${sha.slice(0, 12)} needs a version`);
     }
     const released = new Map();
     for (const [platform, catalog] of Object.entries(previous)) {

@@ -1,12 +1,14 @@
 ---
-status: accepted for local reconciliation; superseded for Foreman by ADR 0011
+status: accepted for local reconciliation; superseded for Foreman by ADR 0011 and for Hush by ADR 0012
 date: 2026-09-09
 ---
 
 # Main selectors carry their documentation validation
 
 Superseded for Foreman by [ADR 0011](0011-foreman-single-package.md): Foreman's
-main is its package for both hosts. This contract remains in force for plugins
+main is its package for both hosts. Superseded for Hush by
+[ADR 0012](0012-hush-single-package.md): Hush's main is its Claude Code package.
+This contract remains in force for plugins
 with Claude and Codex editions.
 
 ## Decision

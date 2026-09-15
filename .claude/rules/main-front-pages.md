@@ -9,9 +9,9 @@ you'd want it, How it works, What you can do and Good to know sections, along wi
 the shared branding and summary. Installation commands, runtime, skills,
 hooks, benchmark data and platform instructions stay off main.
 
-Foreman's main is its package for Claude Code and Codex (ADR 0011), so this
-selector contract does not apply to it. Razor's move to one package is pending
-in Foundry.
+Foreman's main is its package for Claude Code and Codex (ADR 0011), and Hush's
+main is its Claude Code package (ADR 0012), so this selector contract does not
+apply to them. Razor's move to one package is pending in Foundry.
 
 Main is a complete product overview, not just a few redirect links. Native
 installation and compatibility details and measured benchmark tables remain in

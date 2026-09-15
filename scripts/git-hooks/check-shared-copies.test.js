@@ -14,6 +14,7 @@ const os = require("os");
 const path = require("path");
 
 const { functionBody, checkShared, SHARED } = require("./check-shared-copies");
+const { git } = require("./check-platform-marketplaces");
 
 const HELPER = { file: "lib/thing.js", fn: "doThing", plugins: ["alpha", "beta"] };
 
@@ -92,6 +93,35 @@ describe("checkShared", () => {
     const problems = checkShared(root, [HELPER]);
     assert.equal(problems.length, 1);
     assert.match(problems[0], /beta\/lib\/thing\.js has no top-level function doThing/);
+  });
+
+  test("with both catalogs, a package's main copy is compared instead of its Claude branch", () => {
+    const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), "sharedcopies-"));
+    scratch.push(root);
+    const write = (file, text) => {
+      fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+      fs.writeFileSync(path.join(root, file), text);
+    };
+    const commit = (plugin, branch, source) => {
+      const repo = path.join(root, plugin);
+      if (fs.existsSync(repo)) git(repo, ["switch", "-q", "-c", branch]);
+      else { fs.mkdirSync(repo); git(repo, ["init", "-q", "-b", branch]); }
+      write(`${plugin}/${HELPER.file}`, source);
+      git(repo, ["add", "."]);
+      git(repo, ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.com", "-c", "core.hooksPath=", "commit", "-qm", branch]);
+    };
+    const catalogs = (alphaRef) => {
+      write(".claude-plugin/marketplace.json", JSON.stringify({ plugins: [
+        { name: "alpha", source: { ref: alphaRef } }, { name: "beta", source: { ref: "Claude" } }] }));
+      write(".agents/plugins/marketplace.json", JSON.stringify({ plugins: [] }));
+    };
+    commit("alpha", "Claude", `${BODY.replace("x + 1", "x + 2")}\n`);
+    commit("alpha", "main", `${BODY}\n`);
+    commit("beta", "Claude", `${BODY}\n`);
+    catalogs("main");
+    assert.deepEqual(checkShared(root, [HELPER]), []);
+    catalogs("Claude");
+    assert.match(checkShared(root, [HELPER]).join("\n"), /doThing\(\) differs between alpha and beta/);
   });
 });
 

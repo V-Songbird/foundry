@@ -15,13 +15,13 @@ This is a personal plugin collection maintained by a single author. Contribution
 ## Plugin structure
 
 Foundry uses only `main`. A plugin's catalog entries choose its layout. When
-they pin `ref: "main"`, the plugin is one package for Claude Code and Codex on
-`main`, and its `Claude` and `Codex` branches are frozen history; Foreman ships
-this way ([ADR 0011](docs/shared/adr/0011-foreman-single-package.md)). A plugin
-with editions uses `main` for its front page, `Claude` for Claude Code, and
-`Codex` for Codex; make implementation changes on the matching platform branch.
-Razor's move to one package is pending in Foundry. Hush's Codex branch is an
-unpublished entry point until its port is validated.
+they pin `ref: "main"`, the plugin is one package on `main`, and its `Claude`
+and `Codex` branches are frozen history. Foreman ships this way for Claude Code
+and Codex ([ADR 0011](docs/shared/adr/0011-foreman-single-package.md)), and Hush
+for Claude Code only ([ADR 0012](docs/shared/adr/0012-hush-single-package.md)).
+A plugin with editions uses `main` for its front page, `Claude` for Claude Code,
+and `Codex` for Codex; make implementation changes on the matching platform
+branch. Razor's move to one package is pending in Foundry.
 
 The Claude branch of a plugin with editions follows this layout:
 
@@ -55,6 +55,9 @@ Foreman's `main` holds both hosts in one tree. `.claude-plugin/plugin.json` and
 Claude Code hooks, and `hooks/codex-hooks.json`, named by the Codex manifest's
 `hooks` field, registers Codex hooks. One runtime, `skills/` tree, README and
 CHANGELOG serve both hosts.
+
+Hush's `main` holds its Claude Code plugin: `.claude-plugin/plugin.json` carries
+the version and `hooks/hooks.json` registers its hooks. It has no Codex manifest.
 
 Each executable plugin branch lives in its own repo (mounted here as a git submodule) and
 carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md`,
@@ -110,8 +113,9 @@ git config core.hooksPath scripts/git-hooks
 This enables a `pre-commit` hook that checks both staged marketplace catalogs.
 Each entry must name its platform branch, or `main` for a package, and pin a
 complete commit SHA from that branch, with the matching plugin manifest and
-author. A package also needs the same SHA in both catalogs, one version in both
-manifests, and a version that differs from the one at its previous pin. Shared
+author. A package that ships for Codex also needs the same SHA in both catalogs
+and one version in both manifests, and every package needs a version that
+differs from the one at its previous pin. Shared
 Claude helpers are compared on the Claude branches even when a developer has
 Codex checked out. The submodule pointer selects a development checkout
 independently of the release pins. Fetch the plugin branches before running
@@ -135,8 +139,9 @@ For a plugin with editions, the Claude catalog owns its release versions. Its tw
 Codex's version lives in `.codex-plugin/plugin.json` on its `Codex` branch.
 A package such as Foreman has no `version` in the Claude catalog: its release
 commit on `main` sets the same new version in both manifests, and both catalogs
-move `source.sha` to that commit. Every changed installable payload needs a
-fresh effective version.
+move `source.sha` to that commit. Hush, which has no Codex package, sets the
+version in its Claude manifest and moves only its Claude catalog pin. Every
+changed installable payload needs a fresh effective version.
 
 Update the changelog and run the plugin's checks, then commit and publish the
 plugin's release branch first: its platform branch, or `main` for a package.

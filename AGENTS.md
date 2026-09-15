@@ -35,7 +35,9 @@ both edition refs when changing main. Do not reduce it to a thin link selector.
 Foreman ships one package for Claude Code and Codex on main (ADR 0011). Its main
 is the product, and its single README names the host beside every host-specific
 instruction and result, so the selector and paired README rules do not apply to
-it. Razor's move to one package is pending in Foundry.
+it. Hush ships one package for Claude Code on main under the same rules
+(ADR 0012); it has no Codex package. Razor's move to one package is pending in
+Foundry.
 
 Benchmark runners, datasets, measurement tests and experiments belong in
 Foundry's `benchmarks/<plugin>/`, not inside the installable plugin. Product
