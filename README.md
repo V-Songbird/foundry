@@ -31,7 +31,7 @@ Each plugin works on its own. Foreman carries the plan between sessions. Hush le
 
 Ask Foreman “what’s next?” to get a recommended task and a checked handoff. Use Hush when running commentary buries the outcome. Use Razor when an existing function or language feature might solve the task without another dependency.
 
-The edition pages explain native commands, coverage and limitations. Benchmark results belong to the named host and recorded setup; quieter sessions do not always cost less.
+The plugin pages explain native commands, coverage and limitations. Benchmark results belong to the named host and recorded setup; quieter sessions do not always cost less.
 
 ## Install
 
@@ -56,14 +56,15 @@ codex plugin add razor@foundry
 
 The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json).
 Both platforms use the name `foundry` and select their own catalog. Each catalog
-installs from the plugin repository's platform branch at a pinned revision.
+installs a pinned revision of the plugin repository: Foreman's `main` branch on
+both hosts, or the host's own branch for a plugin with separate editions.
 Open a new Codex task after installation to load the installed skills and hooks.
 Hush for Codex is not available yet.
 
 
 ## Repository layout
 
-The plugin repositories are mounted as [Git submodules](.gitmodules). Each has a main overview and separate Claude and Codex editions. The [Claude catalog](.claude-plugin/marketplace.json) and [Codex catalog](.agents/plugins/marketplace.json) select pinned edition revisions.
+The plugin repositories are mounted as [Git submodules](.gitmodules). Foreman is one package for Claude Code and Codex on its `main` branch. Hush has a main overview and separate Claude and Codex editions, and Razor's move to one package is pending in Foundry. The [Claude catalog](.claude-plugin/marketplace.json) and [Codex catalog](.agents/plugins/marketplace.json) select pinned revisions.
 
 [Flint](https://github.com/V-Songbird/flint) provides plain-text writing and coding instructions for sessions where you do not want to install a plugin. It is outside the marketplace.
 

@@ -12,10 +12,15 @@ Foundry contains two different catalog formats:
 - Codex: `.agents/plugins/marketplace.json`; the native
   `.codex-plugin/plugin.json` owns the version. The catalog carries its native
   interface/policy/category fields and pins the Codex commit.
+- Package: a plugin whose Claude entry pins `ref: "main"`, such as Foreman
+  (ADR 0011), ships both manifests from one main commit. Both catalogs pin that
+  commit with `ref: "main"`, the Claude entry has no version, and both manifests
+  carry the same version.
 
 Never translate one schema by changing the assistant's name. Do not demand a
 Claude owner block or catalog version from a Codex catalog. Do not remove the
-version required by a Codex plugin. Main selectors are not installable packages.
+version required by a Codex plugin. The main selector of a plugin with editions
+is not an installable package; a package plugin's main is.
 
 Read the authoritative references for the edition being audited:
 
@@ -35,9 +40,10 @@ scripts/git-hooks/check-platform-marketplaces.js and its result. Distinguish
 local ancestry/manifest validation from remote reachability and installed
 activation. A passing check of an old pin says nothing about uncommitted files.
 
-Check versions against the selected edition's previous release. Both catalogs
-use a full validated source SHA with the correct platform ref. Do not add an
-unavailable Hush Codex edition merely to fill a symmetry gap.
+Check versions against the selected edition's or package's previous release.
+Both catalogs use a full validated source SHA with the correct platform ref, or
+`main` for a package. Do not add an unavailable Hush Codex edition merely to
+fill a symmetry gap.
 
 Use .github/RELEASE_WORKFLOW.md for release ownership and sequencing. Preserve
 unrelated changes and any runtime freeze imposed by the user.

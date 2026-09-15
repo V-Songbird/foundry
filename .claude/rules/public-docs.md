@@ -12,11 +12,13 @@ long research narratives, methodology and experimental records in Foundry's
 central documentation, with sources and limitations; keep usage guides and
 plugin-specific decisions with the plugin.
 
-Each plugin's Claude and Codex README follows the same narrative and section
-order. Use the native readme-parity rule and the current shared template.
-Changes outside its six bounded exceptions belong in both editions together.
-An unavailable edition says so explicitly instead of borrowing installation
-instructions or capabilities from its sibling.
+For a plugin with editions, the Claude and Codex README follow the same
+narrative and section order. Use the native readme-parity rule and the current
+shared template. Changes outside its six bounded exceptions belong in both
+editions together. An unavailable edition says so explicitly instead of
+borrowing installation instructions or capabilities from its sibling. A single
+package README, such as Foreman's (ADR 0011), names the host beside every
+host-specific instruction or result.
 
 Benchmark tables identify the actual model, setup, metric and denominators.
 Use the same questions and columns in both editions, with each edition's own

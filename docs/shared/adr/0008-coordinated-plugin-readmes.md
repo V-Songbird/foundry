@@ -1,6 +1,10 @@
 # ADR 0008: coordinated README editions
 
-Accepted for local implementation by the owner, 2026-09-08.
+Accepted for local implementation by the owner, 2026-09-08. Superseded for
+Foreman by [ADR 0011](0011-foreman-single-package.md): Foreman has one README
+for both hosts, and the evidence rules below still apply inside it. The paired
+README contract and Foundry's pair check remain in force for plugins with Claude
+and Codex editions.
 
 Each plugin has one shared README narrative across Claude and Codex. Product
 purpose, common scope, outcomes, headings, order and decorative branding stay

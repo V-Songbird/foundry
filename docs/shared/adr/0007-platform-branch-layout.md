@@ -1,6 +1,8 @@
 # ADR 0007: plugin branches contain their own platform configuration
 
 Status: accepted for local implementation by the owner, 2026-09-08.
+Superseded for Foreman by [ADR 0011](0011-foreman-single-package.md); still in
+force for plugins whose catalog entries pin their `Claude` and `Codex` branches.
 
 ## Decision
 

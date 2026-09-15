@@ -20,7 +20,7 @@ history and acceptance states, and record any ID remapping explicitly.
 
 ## Coordinated documentation
 
-Foreman, Hush and Razor main branches are product overview pages containing README.md,
+For a plugin with Claude and Codex editions, main is a product overview page containing README.md,
 LICENSE, the branding assets, the shared animated mascot and the minimal documentation check in
 .github/check-main-frontpage.cjs and .github/workflows/test.yml. Use
 check-main-frontpage.js for that contract; the paired README rules below apply
@@ -32,12 +32,17 @@ edition choice; host-specific install commands, compatibility and measurements
 stay in the edition pages. Validate the five shared sections and branding against
 both edition refs when changing main. Do not reduce it to a thin link selector.
 
+Foreman ships one package for Claude Code and Codex on main (ADR 0011). Its main
+is the product, and its single README names the host beside every host-specific
+instruction and result, so the selector and paired README rules do not apply to
+it. Razor's move to one package is pending in Foundry.
+
 Benchmark runners, datasets, measurement tests and experiments belong in
 Foundry's `benchmarks/<plugin>/`, not inside the installable plugin. Product
 functional tests stay in the plugin. Use `.scratch/` for maintenance output,
 backups and temporary validation dependencies; do not recreate `.benchmarks/`.
 
-The Claude and Codex README of each plugin share their product narrative,
+For a plugin with editions, the Claude and Codex README share their product narrative,
 headings, order, common outcomes and decorative branding. Change common content
 in both editions together. Only the six bounded native exceptions may differ:
 identity, installation, commands, compatibility and actual availability,

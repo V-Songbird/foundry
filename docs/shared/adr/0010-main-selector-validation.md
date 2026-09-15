@@ -1,9 +1,13 @@
 ---
-status: accepted for local reconciliation
+status: accepted for local reconciliation; superseded for Foreman by ADR 0011
 date: 2026-09-09
 ---
 
 # Main selectors carry their documentation validation
+
+Superseded for Foreman by [ADR 0011](0011-foreman-single-package.md): Foreman's
+main is its package for both hosts. This contract remains in force for plugins
+with Claude and Codex editions.
 
 ## Decision
 

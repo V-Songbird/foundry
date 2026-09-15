@@ -4,6 +4,9 @@
 
 Foreman for Codex is a sibling package, not a dual-host mode inside `foreman/`.
 
+History: [ADR 0011](../../shared/adr/0011-foreman-single-package.md) replaces this
+boundary; Foreman ships one package for Claude Code and Codex on `main`.
+
 ```text
 plugins/foreman-codex/
   .codex-plugin/plugin.json

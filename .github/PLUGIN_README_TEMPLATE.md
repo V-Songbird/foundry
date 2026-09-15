@@ -1,7 +1,8 @@
 # Shared plugin README contract
 
-This template covers Claude/Codex editions. Foreman, Hush and Razor main branches
-use a shared product overview with animation and edition choices, checked by check-main-frontpage.js against both editions.
+This template covers Claude/Codex editions and single packages. Plugins with
+editions use a shared product overview on main with animation and edition
+choices, checked by check-main-frontpage.js against both editions.
 Flint's existing main product is outside that policy.
 
 The two editions of each plugin have one product story. Keep the same purpose,
@@ -21,12 +22,21 @@ The required shared sections, in order, are:
 8. Going deeper
 9. License
 
-Use the approved example-led C style: one short promise, edition availability and navigation, then a concrete situation explaining the product. Put the mascot after the introduction. Avoid a TL;DR that duplicates the promise. Use practical examples and connected prose; use tables for genuinely parallel choices. Put measured charts and recorded demos beside the evidence, with source attribution. Keep limits visible before results. Main overview uses an edition choice in place of native installation. Root uses a plugin choice table before installation.
+Use the approved example-led C style: one short promise, edition availability and navigation, then a concrete situation explaining the product. Put the mascot after the introduction. Avoid a TL;DR that duplicates the promise. Use practical examples and connected prose; use tables for genuinely parallel choices. Put measured charts and recorded demos beside the evidence, with source attribution. Keep limits visible before results. A main overview for editions uses an edition choice in place of native installation. Root uses a plugin choice table before installation.
 
+
+## Single package
+
+A plugin that ships one package for both hosts on main, such as Foreman
+(ADR 0011), has one README for both hosts. Its installation, commands,
+compatibility and evidence name their host inside that page. It carries no
+`foundry:edition` marker or `foundry:platform` blocks, and its main is not a
+selector. Every result identifies its host, model, source and date; a host
+without equivalent evidence shows Not measured.
 
 ## Six native exceptions
 
-Use exactly one block for each key. Keep main headings outside the blocks.
+In an edition README, use exactly one block for each key. Keep main headings outside the blocks.
 
 | Key | Justified differences |
 | --- | --- |
