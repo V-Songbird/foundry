@@ -23,9 +23,10 @@ keeps its existing standalone product layout.
 
 The Claude catalog is .claude-plugin/marketplace.json in Foundry. For a plugin
 with editions it owns the Claude edition's version and pins a full SHA on the
-Claude branch; the plugin's .claude-plugin/plugin.json does not override that
-version. A package's entry has no version and pins a full SHA on main, and both
-of the package's manifests carry the same version.
+Claude branch; any .claude-plugin/plugin.json there carries no version, because
+Claude Code prefers a manifest version over the catalog's. A package's entry
+has no version and pins a full SHA on main, and both of the package's manifests
+carry the same version.
 
 The Codex catalog is .agents/plugins/marketplace.json in Foundry. The native
 .codex-plugin/plugin.json owns the Codex package version. The catalog pins its
