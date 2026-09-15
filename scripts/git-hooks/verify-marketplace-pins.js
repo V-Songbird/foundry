@@ -1,21 +1,23 @@
 #!/usr/bin/env node
 "use strict";
 
-// CI backstop for check-marketplace-sync.js's pre-commit gate: that hook
-// only sees a *diff* at commit time, so it can be skipped (--no-verify, a
-// GitHub web edit, a contributor without core.hooksPath set). This script
-// checks absolute truth instead. Two truths, because a submodule has two
-// commits and they are not always the same one:
+// Run by hand; no hook or workflow runs this check, and CI runs only its
+// tests. validate-marketplace.yml ran it until c3d036eb (#4) replaced the
+// step with check-platform-marketplaces.js. An entry with a source ref is
+// validated by that checker's verifyEntry, because its gitlink selects a
+// development checkout independently of the release pin.
+//
+// An entry without a ref must match both of its submodule's commits, which
+// are not always the same one:
 //
 //   * the commit the submodule is CHECKED OUT at, and
 //   * the commit the parent repo has RECORDED as its pointer.
 //
-// In CI those agree, since the checkout comes from the pointer. On a working
-// machine they part company the moment marketplace.json is committed without
-// the plugin directory staged alongside it, and only the recorded pointer is
-// what anyone else ends up cloning. Checking the checkout alone reported a
-// clean bill of health across exactly that split. Run in CI on every push/PR
-// (see .github/workflows/validate-marketplace.yml).
+// A fresh clone checks out the recorded pointer, so there they agree. On a
+// working machine they part company the moment marketplace.json is committed
+// without the plugin directory staged alongside it, and only the recorded
+// pointer is what anyone else ends up cloning. Checking the checkout alone
+// reported a clean bill of health across exactly that split.
 
 const fs = require("fs");
 const path = require("path");
