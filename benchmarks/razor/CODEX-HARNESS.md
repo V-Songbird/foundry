@@ -5,7 +5,7 @@ using the same explicit model, reasoning effort and permissions. It runs the
 13 original tasks, four counter-examples where adding code is necessary, and
 two multi-turn conversations. Arms are shuffled within each task/repetition.
 
-From the Foundry root, with razor checked out on Codex (or RAZOR_DIR pointing at that checkout), run:
+From the Foundry root, with the razor submodule on its `main` package (or RAZOR_DIR pointing at a razor checkout), run:
 
 ~~~powershell
 fnm env --use-on-cd | Out-String | Invoke-Expression

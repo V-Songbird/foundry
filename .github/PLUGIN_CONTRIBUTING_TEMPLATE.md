@@ -2,7 +2,7 @@
   Shared CONTRIBUTING.md template for standalone plugin repos.
   Copy this into <plugin>/CONTRIBUTING.md and delete this comment block. No placeholders
   to fill — the content is written to apply to any plugin with Claude and Codex editions as-is.
-  A single-package plugin such as Foreman (Foundry ADR 0011) keeps this text and adds a
+  A single-package plugin such as Foreman (Foundry ADR 0011) or Razor (Foundry ADR 0013) keeps this text and adds a
   plugin-specific section for its two manifests, hooks/codex-hooks.json and the version it
   bumps in both manifests, which replaces the version notes below. Hush (Foundry ADR 0012)
   adds the same kind of section for its single Claude Code manifest.

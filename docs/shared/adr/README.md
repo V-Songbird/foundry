@@ -4,17 +4,19 @@ Recorded decisions and product contracts; each document keeps its own scope and 
 
 [Plugin index](../README.md)
 
+- [Razor single package](0013-razor-single-package.md) — one package on main for Claude Code and Codex; supersedes ADRs 0007, 0008 and 0010 for Razor and records the deletion of the edition branches, amending ADRs 0011 and 0012.
+
 - [Hush single package](0012-hush-single-package.md) — one package on main for Claude Code; supersedes ADRs 0007, 0008 and 0010 for Hush and amends ADR 0011.
 
 - [Foreman single package](0011-foreman-single-package.md) — one package on main for Claude Code and Codex; supersedes ADRs 0007, 0008 and 0010 for Foreman.
 
-- [Main selector validation](0010-main-selector-validation.md) — documentation-only main with its required local CI check; superseded for Foreman by ADR 0011 and for Hush by ADR 0012.
+- [Main selector validation](0010-main-selector-validation.md) — documentation-only main with its required local CI check; superseded for Foreman by ADR 0011, for Hush by ADR 0012 and for Razor by ADR 0013.
 
 - [Public research and evidence](0009-public-research-and-evidence.md) — current publication policy; supersedes ADR 0004.
 
-- [Coordinated plugin READMEs](0008-coordinated-plugin-readmes.md) — shared narrative and bounded native evidence differences; superseded for Foreman by ADR 0011 and for Hush by ADR 0012.
+- [Coordinated plugin READMEs](0008-coordinated-plugin-readmes.md) — shared narrative and bounded native evidence differences; superseded for Foreman by ADR 0011, for Hush by ADR 0012 and for Razor by ADR 0013.
 
-- [Plugin platform branch layout](0007-platform-branch-layout.md) — native configuration per branch and GitHub check scope; superseded for Foreman by ADR 0011 and for Hush by ADR 0012.
+- [Plugin platform branch layout](0007-platform-branch-layout.md) — native configuration per branch and GitHub check scope; superseded for Foreman by ADR 0011, for Hush by ADR 0012 and for Razor by ADR 0013.
 
 - [README hero graphics are posters, and the metaphor is the plugin's name](0001-poster-hero-graphics.md) — `0001-poster-hero-graphics.md`
 - [Every README graphic renders real data at readable size](0002-readme-graphics-floor.md) — `0002-readme-graphics-floor.md`

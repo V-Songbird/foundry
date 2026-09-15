@@ -1,8 +1,9 @@
 # ADR 0007: plugin branches contain their own platform configuration
 
 Status: accepted for local implementation by the owner, 2026-09-08.
-Superseded for Foreman by [ADR 0011](0011-foreman-single-package.md) and for Hush
-by [ADR 0012](0012-hush-single-package.md); still in force for plugins whose
+Superseded for Foreman by [ADR 0011](0011-foreman-single-package.md), for Hush
+by [ADR 0012](0012-hush-single-package.md) and for Razor by
+[ADR 0013](0013-razor-single-package.md); still in force for plugins whose
 catalog entries pin their `Claude` and `Codex` branches.
 
 ## Decision

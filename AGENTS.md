@@ -32,12 +32,12 @@ edition choice; host-specific install commands, compatibility and measurements
 stay in the edition pages. Validate the five shared sections and branding against
 both edition refs when changing main. Do not reduce it to a thin link selector.
 
-Foreman ships one package for Claude Code and Codex on main (ADR 0011). Its main
-is the product, and its single README names the host beside every host-specific
-instruction and result, so the selector and paired README rules do not apply to
-it. Hush ships one package for Claude Code on main under the same rules
-(ADR 0012); it has no Codex package. Razor's move to one package is pending in
-Foundry.
+Foreman and Razor ship one package for Claude Code and Codex on main (ADRs 0011
+and 0013). Their main is the product, and each single README names the host
+beside every host-specific instruction and result, so the selector and paired
+README rules do not apply to them. Hush ships one package for Claude Code on
+main under the same rules (ADR 0012); it has no Codex package. The former
+`Claude` and `Codex` branches of all three were deleted on 2026-09-15.
 
 Benchmark runners, datasets, measurement tests and experiments belong in
 Foundry's `benchmarks/<plugin>/`, not inside the installable plugin. Product

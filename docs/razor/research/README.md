@@ -20,6 +20,7 @@ Investigations, design proposals and historical studies.
 - [razor memory archive — the dated log, lifted out of recall (2026-08-18)](razor-memory-archive-2026-08-18.md) — `razor-memory-archive-2026-08-18.md`
 - [Razor product review and decision-quality plan](razor-product-strategy-2026-07-27.md) — `razor-product-strategy-2026-07-27.md`
 - [Razor product strategy — ground-truth review and development plan](razor-product-strategy-groundtruth-2026-07-28.md) — `razor-product-strategy-groundtruth-2026-07-28.md`
+- [Razor as one package for Claude Code and Codex — feasibility (2026-09-15)](razor-single-package-2026-09-15.md) — `razor-single-package-2026-09-15.md`
 - [razor v1 recon — canon sync, over-engineering audit, defect verification (2026-08-06)](razor-v1-recon-2026-08-06.md) — `razor-v1-recon-2026-08-06.md`
 - [razor value proof — every axis the existing evidence settles, and what it does not](razor-value-proof-2026-08-29.md) — `razor-value-proof-2026-08-29.md`
 - [scripts/](scripts/)

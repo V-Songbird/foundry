@@ -15,13 +15,14 @@ This is a personal plugin collection maintained by a single author. Contribution
 ## Plugin structure
 
 Foundry uses only `main`. A plugin's catalog entries choose its layout. When
-they pin `ref: "main"`, the plugin is one package on `main`, and its `Claude`
-and `Codex` branches are frozen history. Foreman ships this way for Claude Code
-and Codex ([ADR 0011](docs/shared/adr/0011-foreman-single-package.md)), and Hush
-for Claude Code only ([ADR 0012](docs/shared/adr/0012-hush-single-package.md)).
-A plugin with editions uses `main` for its front page, `Claude` for Claude Code,
-and `Codex` for Codex; make implementation changes on the matching platform
-branch. Razor's move to one package is pending in Foundry.
+they pin `ref: "main"`, the plugin is one package on `main`. Foreman
+([ADR 0011](docs/shared/adr/0011-foreman-single-package.md)) and Razor
+([ADR 0013](docs/shared/adr/0013-razor-single-package.md)) ship this way for
+Claude Code and Codex, and Hush for Claude Code only
+([ADR 0012](docs/shared/adr/0012-hush-single-package.md)); their former `Claude`
+and `Codex` branches were deleted on 2026-09-15. A plugin with editions uses
+`main` for its front page, `Claude` for Claude Code, and `Codex` for Codex; make
+implementation changes on the matching platform branch.
 
 The Claude branch of a plugin with editions follows this layout:
 
@@ -50,7 +51,7 @@ plugin-name/
 The Codex branch uses `.codex-plugin/plugin.json`, including its own version
 and interface metadata. Both platforms retain their own skills and hooks.
 
-Foreman's `main` holds both hosts in one tree. `.claude-plugin/plugin.json` and
+Foreman's and Razor's `main` each hold both hosts in one tree. `.claude-plugin/plugin.json` and
 `.codex-plugin/plugin.json` carry the same version. `hooks/hooks.json` registers
 Claude Code hooks, and `hooks/codex-hooks.json`, named by the Codex manifest's
 `hooks` field, registers Codex hooks. One runtime, `skills/` tree, README and
@@ -137,7 +138,7 @@ For a plugin with editions, the Claude catalog owns its release versions. Its tw
 - `source.sha` — the exact commit of the plugin's own repo that `version` maps to; bump it or installers silently keep serving old code under the new label.
 
 Codex's version lives in `.codex-plugin/plugin.json` on its `Codex` branch.
-A package such as Foreman has no `version` in the Claude catalog: its release
+A package such as Foreman or Razor has no `version` in the Claude catalog: its release
 commit on `main` sets the same new version in both manifests, and both catalogs
 move `source.sha` to that commit. Hush, which has no Codex package, sets the
 version in its Claude manifest and moves only its Claude catalog pin. Every

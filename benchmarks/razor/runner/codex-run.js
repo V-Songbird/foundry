@@ -134,7 +134,7 @@ function setupHome(home) {
   fs.writeFileSync(observer,
     "'use strict';\nconst fs=require('fs'),path=require('path'),{spawnSync}=require('child_process');\n" +
     "const input=fs.readFileSync(0,'utf8'),event=process.argv[2];\n" +
-    "const config=JSON.parse(fs.readFileSync(path.join(process.env.PLUGIN_ROOT,'hooks/hooks.json'),'utf8'));\n" +
+    "const config=JSON.parse(fs.readFileSync(path.join(process.env.PLUGIN_ROOT,'hooks/codex-hooks.json'),'utf8'));\n" +
     "const handler=config.hooks[event][0].hooks[0];\n" +
     "const command=process.platform==='win32'?handler.commandWindows:handler.command;\n" +
     "const start=Date.now();const r=spawnSync(command,{shell:process.platform==='win32'?true:'/bin/sh',input,encoding:'utf8',timeout:15000});\n" +
@@ -146,7 +146,7 @@ function setupHome(home) {
     "continued:output.decision==='block',exit:r.status,error:!!r.error,elapsed_ms:Date.now()-start};\n" +
     "fs.appendFileSync(process.env.RAZOR_BENCH_TRACE,JSON.stringify(item)+'\\n');\n" +
     "if(r.stdout)process.stdout.write(r.stdout);if(r.stderr)process.stderr.write(r.stderr);process.exit(r.status===null?1:r.status);\n");
-  const native = JSON.parse(fs.readFileSync(path.join(ROOT, 'hooks/hooks.json'), 'utf8'));
+  const native = JSON.parse(fs.readFileSync(path.join(ROOT, 'hooks/codex-hooks.json'), 'utf8'));
   for (const [event, groups] of Object.entries(native.hooks)) for (const group of groups) {
     group.hooks = [{
       type: 'command',
