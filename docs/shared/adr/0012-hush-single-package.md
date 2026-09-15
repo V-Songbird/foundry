@@ -22,9 +22,10 @@ ADR 0011's statement that Hush keeps its editions.
 
 `main` is Hush's default branch and its release destination. `Claude` and
 `Codex` become frozen history: they receive no further updates and are not
-deleted, so every commit a catalog pinned before stays reachable from its
-branch and from `main`. `Claude` holds the last edition release, 1.11.8.
-`Codex` never carried an installable package.
+deleted. The package reached `main` as a squash merge (hush #23, `15dc0ef`), so
+edition commits are reachable only from those branches, and every commit a
+catalog pinned before depends on keeping them. `Claude` holds the last edition
+release, 1.11.8. `Codex` never carried an installable package.
 
 ## Catalogs and version
 
