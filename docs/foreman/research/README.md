@@ -31,6 +31,7 @@ Investigations, design proposals and historical studies.
 - [Foreman × official prompt library — 2026-07-23](foreman-prompt-library-2026-07-23.md) — `foreman-prompt-library-2026-07-23.md`
 - [Proving foreman — the axis map, the harness repair, and what the runs said](foreman-proof-axes-2026-08-29.md) — `foreman-proof-axes-2026-08-29.md`
 - [Foreman repo mining — 2026-07-18](foreman-repo-mining-2026-07-18.md) — `foreman-repo-mining-2026-07-18.md`
+- [Foreman as one package for Claude Code and Codex (2026-09-15)](foreman-single-package-2026-09-15.md) — `foreman-single-package-2026-09-15.md`
 - [Foreman × the Claude Code Task family — implementation brief](foreman-task-family-brief.md) — `foreman-task-family-brief.md`
 - [What a wrong lesson costs — measured](foreman-wrong-lesson-2026-08-19.md) — `foreman-wrong-lesson-2026-08-19.md`
 - [Foreman XML-tag experiment — 2026-07-18](foreman-xml-experiment-2026-07-18.md) — `foreman-xml-experiment-2026-07-18.md`

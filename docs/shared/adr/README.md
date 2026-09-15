@@ -4,13 +4,15 @@ Recorded decisions and product contracts; each document keeps its own scope and 
 
 [Plugin index](../README.md)
 
-- [Main selector validation](0010-main-selector-validation.md) — documentation-only main with its required local CI check.
+- [Foreman single package](0011-foreman-single-package.md) — one package on main for Claude Code and Codex; supersedes ADRs 0007, 0008 and 0010 for Foreman.
+
+- [Main selector validation](0010-main-selector-validation.md) — documentation-only main with its required local CI check; superseded for Foreman by ADR 0011.
 
 - [Public research and evidence](0009-public-research-and-evidence.md) — current publication policy; supersedes ADR 0004.
 
-- [Coordinated plugin READMEs](0008-coordinated-plugin-readmes.md) — shared narrative and bounded native evidence differences.
+- [Coordinated plugin READMEs](0008-coordinated-plugin-readmes.md) — shared narrative and bounded native evidence differences; superseded for Foreman by ADR 0011.
 
-- [Plugin platform branch layout](0007-platform-branch-layout.md) — native configuration per branch and GitHub check scope.
+- [Plugin platform branch layout](0007-platform-branch-layout.md) — native configuration per branch and GitHub check scope; superseded for Foreman by ADR 0011.
 
 - [README hero graphics are posters, and the metaphor is the plugin's name](0001-poster-hero-graphics.md) — `0001-poster-hero-graphics.md`
 - [Every README graphic renders real data at readable size](0002-readme-graphics-floor.md) — `0002-readme-graphics-floor.md`

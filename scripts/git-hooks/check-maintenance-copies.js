@@ -2,42 +2,51 @@
 "use strict";
 const fs=require("node:fs"),path=require("node:path");
 const {execFileSync}=require('node:child_process');
-const {git,branchRef}=require("./check-platform-marketplaces");
-const EDITIONS=[['foreman','Codex','foreman'],['foreman','Claude','.claude/worktrees/platform-isolation/foreman-Claude'],
- ['hush','Claude','hush'],['hush','Codex','.claude/worktrees/platform-isolation/hush-Codex'],
- ['razor','Codex','razor'],['razor','Claude','.claude/worktrees/platform-isolation/razor-Claude']];
+const {git,branchRef,readCatalog,layoutOf,CATALOGS}=require("./check-platform-marketplaces");
+const NAV=['check-readme-nav.js','vendor/github-slugger-regex.js','vendor/github-slugger-LICENSE'];
 const FILES=['check-platform-layout.js','check-platform-layout.test.js','check-readme-parity.js','check-readme-parity.test.js',
- 'check-readme-candidate.js','check-readme-candidate.test.js','check-readme-nav.js',
- 'vendor/github-slugger-regex.js','vendor/github-slugger-LICENSE'];
-const PAIRS=[...FILES.map(file=>['scripts/git-hooks/'+file,'scripts/git-hooks/'+file]),
+ 'check-readme-candidate.js','check-readme-candidate.test.js',...NAV];
+const copies=files=>files.map(file=>['scripts/git-hooks/'+file,'scripts/git-hooks/'+file]);
+const PAIRS=[...copies(FILES),
  ['.github/PLUGIN_PLATFORM_LAYOUT_WORKFLOW.yml','.github/workflows/platform-layout.yml'],
  ['.github/PLUGIN_README_PARITY_WORKFLOW.yml','.github/workflows/readme-parity.yml'],
  ['.github/README_COORDINATION.md','.github/README_COORDINATION.md']];
+// A package on main keeps only the README navigation check its plugin pre-commit runs.
+const PACKAGE_PAIRS=copies(NAV);
 const normalize=text=>text.replace(/\r\n/g,'\n');
 
-function compareCopies(readRoot,readEdition){
+// One [plugin, branch, local checkouts] row per maintained plugin branch, with the
+// layout taken from the Claude catalog. An edition may be checked out in the
+// submodule or in a local platform-isolation worktree.
+function branches(catalog){
+ return catalog.plugins.flatMap(({name})=>layoutOf(catalog,name)==='package'?[[name,'main',[name]]]:
+  ['Claude','Codex'].map(platform=>[name,platform,[name,`.claude/worktrees/platform-isolation/${name}-${platform}`]]));
+}
+
+function compareCopies(readRoot,readEdition,rows){
  const errors=[];
- for(const [plugin,platform,checkout] of EDITIONS) for(const [canonical,file] of PAIRS){
+ for(const [plugin,branch,checkouts] of rows) for(const [canonical,file] of branch==='main'?PACKAGE_PAIRS:PAIRS){
   try{
-   if(normalize(readRoot(canonical))!==normalize(readEdition(plugin,platform,checkout,file)))errors.push(`${plugin}/${platform}: ${file} differs from ${canonical}`);
-  }catch(error){errors.push(`${plugin}/${platform}: cannot verify ${file}: ${error.message}`);}
+   if(normalize(readRoot(canonical))!==normalize(readEdition(plugin,branch,checkouts,file)))errors.push(`${plugin}/${branch}: ${file} differs from ${canonical}`);
+  }catch(error){errors.push(`${plugin}/${branch}: cannot verify ${file}: ${error.message}`);}
  }
  return errors;
 }
 
 function main(root=path.resolve(__dirname,'../..')){
- const errors=compareCopies(file=>fs.readFileSync(path.join(root,file),'utf8'),(plugin,platform,checkout,file)=>{
-  const candidate=path.join(root,checkout);
-  // A conventional checkout path can be switched by the developer. Only read
-  // its working files when Git confirms that it is the requested edition.
-  if(fs.existsSync(candidate)){
-   const branch=git(candidate,['branch','--show-current']);
-   if(branch===platform)return fs.readFileSync(path.join(candidate,file),'utf8');
+ let rows;
+ try{rows=branches(readCatalog(root,CATALOGS.Claude));}catch(error){console.error(`Cannot read Claude marketplace: ${error.message}`);return 1;}
+ const errors=compareCopies(file=>fs.readFileSync(path.join(root,file),'utf8'),(plugin,branch,checkouts,file)=>{
+  // A checkout path can be switched by the developer. Only read its working
+  // files when Git confirms that it is the requested branch.
+  for(const checkout of checkouts){
+   const candidate=path.join(root,checkout);
+   if(fs.existsSync(candidate)&&git(candidate,['branch','--show-current'])===branch)return fs.readFileSync(path.join(candidate,file),'utf8');
   }
   const repo=path.join(root,plugin);
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('GIT_')));
-  return execFileSync('git',['-C',repo,'show',`${branchRef(repo,platform)}:${file}`],{env,encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:4*1024*1024});
- });
+  return execFileSync('git',['-C',repo,'show',`${branchRef(repo,branch)}:${file}`],{env,encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:4*1024*1024});
+ },rows);
  // Native development skills share one body, not independently drifting ports.
  for(const skill of ['coordinate-readmes','tinta-y-oficio']){
   try{
@@ -47,7 +56,7 @@ function main(root=path.resolve(__dirname,'../..')){
   }catch(error){errors.push(error.message);}
  }
  if(errors.length){console.error(errors.join('\n'));return 1;}
- console.log('Maintenance copies agree across six editions and shared native skills.');return 0;
+ console.log(`Maintenance copies agree across ${rows.length} plugin branches and shared native skills.`);return 0;
 }
-module.exports={compareCopies,main,PAIRS,EDITIONS};
+module.exports={compareCopies,branches,main,PAIRS,PACKAGE_PAIRS};
 if(require.main===module)process.exitCode=main();

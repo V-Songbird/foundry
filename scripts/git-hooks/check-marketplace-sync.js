@@ -43,7 +43,7 @@ function evaluate({ submoduleChanges, marketplaceStaged, marketplace, pluginName
     // Platform catalogs install from explicit repository revisions. A gitlink
     // selects a development checkout independently of either release channel.
     // check-platform-marketplaces validates the staged release pins separately.
-    if (findPluginEntry(marketplace, pluginName)?.source?.ref === "Claude") continue;
+    if (findPluginEntry(marketplace, pluginName)?.source?.ref) continue;
 
     if (!marketplaceStaged) {
       problems.push(
@@ -122,8 +122,8 @@ function main() {
   process.stderr.write("\n[pre-commit] marketplace.json / submodule pointer mismatch:\n\n");
   for (const p of problems) process.stderr.write(`  - ${p}\n`);
   process.stderr.write(
-    "\nmarketplace.json is the single owner of version + source.sha for every plugin -- both must change " +
-      "together, in this commit.\n\n"
+    "\nA marketplace.json entry without a source ref pins the submodule itself -- its version and source.sha " +
+      "must change with the pointer, in this commit.\n\n"
   );
   return 1;
 }

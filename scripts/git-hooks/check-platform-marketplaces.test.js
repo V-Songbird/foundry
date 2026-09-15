@@ -5,11 +5,12 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { git, verifyEntry, verifyCatalogs } = require("./check-platform-marketplaces");
+const { git, layoutOf, editionPlugins, verifyEntry, verifyCatalogs } = require("./check-platform-marketplaces");
 
 function fixture(t, icon = "./assets/icon.svg") {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-platforms-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  git(root, ["init", "-q"]);
   const repo = path.join(root, "demo");
   fs.mkdirSync(repo);
   git(repo, ["init", "-q"]);
@@ -24,6 +25,10 @@ function fixture(t, icon = "./assets/icon.svg") {
     git(repo, ["commit", "-qm", "fixture"]);
     return git(repo, ["rev-parse", "HEAD"]);
   };
+  const icons = () => {
+    write("assets/icon.svg", '<svg xmlns="http://www.w3.org/2000/svg"/>');
+    write("assets/icon.png", Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a5ZkAAAAASUVORK5CYII=', 'base64'));
+  };
   write("README.md", "Platform front page\n");
   const base = commit();
   const owner = { name: "Fixture", email: "fixture@example.com" };
@@ -33,16 +38,42 @@ function fixture(t, icon = "./assets/icon.svg") {
   git(repo, ["switch", "--detach", base]);
   git(repo, ["switch", "-c", "Codex"]);
   write(".codex-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version: "1.0.0", interface: { composerIcon: icon } }));
-  write("assets/icon.svg", '<svg xmlns="http://www.w3.org/2000/svg"/>');
-  write("assets/icon.png", Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a5ZkAAAAASUVORK5CYII=', 'base64'));
+  icons();
   const codex = commit();
+  // A single package: each release on main carries both manifests.
   git(repo, ["switch", "--detach", base]);
-  const entry = (platform) => ({
+  git(repo, ["switch", "-C", "main"]);
+  let releases = 0;
+  const release = (version, codexVersion = version) => {
+    git(repo, ["switch", "main"]);
+    write(".claude-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version }));
+    write(".codex-plugin/plugin.json", JSON.stringify({ name: "demo", author: owner, version: codexVersion, interface: { composerIcon: icon } }));
+    icons();
+    write("CHANGELOG.md", `release ${++releases}\n`);
+    const sha = commit();
+    git(repo, ["switch", "--detach", base]);
+    return sha;
+  };
+  const main = release("1.0.0");
+  const entry = (platform, source = {}) => ({
     name: "demo",
-    source: { source: "url", url: "https://github.com/V-Songbird/demo.git", ref: platform, sha: platform === "Codex" ? codex : claude },
+    source: { source: "url", url: "https://github.com/V-Songbird/demo.git", ref: platform, sha: platform === "Codex" ? codex : claude, ...source },
     policy: { installation: "AVAILABLE", authentication: "ON_INSTALL" }, category: "Productivity",
   });
-  return { root, repo, base, claude, codex, owner, entry };
+  return { root, repo, base, claude, codex, main, owner, entry, release };
+}
+
+function catalogs(f, claude, codex) {
+  const write = (file, data) => { fs.mkdirSync(path.dirname(path.join(f.root, file)), { recursive: true }); fs.writeFileSync(path.join(f.root, file), JSON.stringify(data)); };
+  write(".claude-plugin/marketplace.json", { name: "foundry", owner: f.owner, plugins: claude });
+  write(".agents/plugins/marketplace.json", { name: "foundry", interface: { displayName: "Foundry" }, plugins: codex });
+}
+
+const pinned = (f, sha) => [[f.entry("Claude", { ref: "main", sha })], [f.entry("Codex", { ref: "main", sha })]];
+
+function commitCatalogs(f) {
+  git(f.root, ["add", ".claude-plugin", ".agents"]);
+  git(f.root, ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.com", "-c", "core.hooksPath=", "commit", "-qm", "pins"]);
 }
 
 test("validates both platform pins while the checkout is a documentation-only commit", (t) => {
@@ -96,4 +127,75 @@ test("validates both same-name catalogs and rejects duplicate entries", (t) => {
   codex.plugins.push(f.entry("Codex"));
   write(".agents/plugins/marketplace.json", codex);
   assert.match(verifyCatalogs(f.root).join("\n"), /duplicate plugin/);
+});
+
+test("the Claude catalog's main ref selects the package layout; any other ref keeps editions", (t) => {
+  const f = fixture(t);
+  catalogs(f, [f.entry("Claude", { ref: "main" }), { ...f.entry("Claude"), name: "other" }], []);
+  const claude = JSON.parse(fs.readFileSync(path.join(f.root, ".claude-plugin/marketplace.json"), "utf8"));
+  assert.equal(layoutOf(claude, "demo"), "package");
+  assert.equal(layoutOf(claude, "other"), "editions");
+  assert.equal(layoutOf(claude, "missing"), "editions");
+  assert.deepEqual(editionPlugins(f.root), ["other"]);
+});
+
+test("a package plugin pins one main commit in both catalogs", (t) => {
+  const f = fixture(t);
+  catalogs(f, ...pinned(f, f.main));
+  assert.deepEqual(verifyCatalogs(f.root), []);
+});
+
+test("a package plugin rejects split pins, a missing Codex entry, an edition ref and a commit outside main", (t) => {
+  const f = fixture(t);
+  const later = f.release("1.1.0");
+  const claude = [f.entry("Claude", { ref: "main", sha: f.main })];
+  for (const [claudePlugins, codexPlugins, error] of [
+    [claude, [f.entry("Codex", { ref: "main", sha: later })], /demo: both catalogs must pin the same main commit/],
+    [claude, [], /demo: a package plugin needs an entry in both catalogs/],
+    [claude, [f.entry("Codex")], /demo: expected ref main/],
+    [...pinned(f, f.claude), /demo: cannot validate Claude pin/],
+  ]) {
+    catalogs(f, claudePlugins, codexPlugins);
+    assert.match(verifyCatalogs(f.root).join("\n"), error);
+  }
+});
+
+test("an editions plugin cannot install either host from main", (t) => {
+  const f = fixture(t);
+  catalogs(f, [f.entry("Claude")], [f.entry("Codex", { ref: "main", sha: f.main })]);
+  assert.match(verifyCatalogs(f.root).join("\n"), /demo: expected ref Codex/);
+});
+
+test("a package plugin's version lives in both manifests, not in the Claude catalog", (t) => {
+  const f = fixture(t);
+  const [claude, codex] = pinned(f, f.main);
+  catalogs(f, [{ ...claude[0], version: "1.0.0" }], codex);
+  assert.match(verifyCatalogs(f.root).join("\n"), /version belongs in its manifests/);
+  catalogs(f, ...pinned(f, f.release("1.1.0", "1.2.0")));
+  assert.match(verifyCatalogs(f.root).join("\n"), /both manifests at [0-9a-f]{12} need the same version/);
+});
+
+test("a moved package pin needs a version other than the previously committed pin's", (t) => {
+  const f = fixture(t);
+  catalogs(f, [{ ...f.entry("Claude"), version: "0.9.0" }], [f.entry("Codex")]);
+  commitCatalogs(f);
+  // From editions: the Claude entry's version and the Codex manifest's version were both released.
+  catalogs(f, ...pinned(f, f.main));
+  assert.match(verifyCatalogs(f.root).join("\n"), new RegExp(`version 1\\.0\\.0 was already pinned at ${f.codex.slice(0, 12)}`));
+  catalogs(f, ...pinned(f, f.release("0.9.0")));
+  assert.match(verifyCatalogs(f.root).join("\n"), new RegExp(`version 0\\.9\\.0 was already pinned at ${f.claude.slice(0, 12)}`));
+  catalogs(f, ...pinned(f, f.release("1.1.0")));
+  assert.deepEqual(verifyCatalogs(f.root), []);
+  git(f.root, ["add", ".claude-plugin", ".agents"]);
+  assert.deepEqual(verifyCatalogs(f.root, true), []);
+  commitCatalogs(f);
+  // A clean checkout is the commit under test, compared with its parent.
+  assert.deepEqual(verifyCatalogs(f.root), []);
+  // Between packages the old version is read from the manifests at the old pin.
+  catalogs(f, ...pinned(f, f.release("1.1.0")));
+  assert.match(verifyCatalogs(f.root).join("\n"), /version 1\.1\.0 was already pinned/);
+  git(f.root, ["add", ".claude-plugin", ".agents"]);
+  assert.match(verifyCatalogs(f.root, true).join("\n"), /version 1\.1\.0 was already pinned/);
+  commitCatalogs(f);
+  assert.match(verifyCatalogs(f.root).join("\n"), /version 1\.1\.0 was already pinned/);
 });

@@ -24,11 +24,12 @@ Keep README common content and native exceptions coordinated. Product guides
 and plugin decisions accompany the plugin; research and benchmark tooling live
 in Foundry. Follow the native project rules and current shared templates.
 
-Release metadata has edition-specific ownership: the Claude catalog owns its
-version, whereas a Codex plugin owns its native manifest version. Catalogs are
-.claude-plugin/marketplace.json and .agents/plugins/marketplace.json. Do not
-change either as a side effect of implementation. The release workflow lives in
-.github/RELEASE_WORKFLOW.md.
+Release metadata ownership follows the plugin's layout. With editions, the
+Claude catalog owns the Claude version, whereas a Codex plugin owns its native
+manifest version. A package such as Foreman (ADR 0011) keeps one version in both
+of its manifests on main. Catalogs are .claude-plugin/marketplace.json and
+.agents/plugins/marketplace.json. Do not change either as a side effect of
+implementation. The release workflow lives in .github/RELEASE_WORKFLOW.md.
 
 Report the result, changed paths, verification, justified limitations and
 unrelated findings. A discrepancy with the task is evidence to surface, not a
