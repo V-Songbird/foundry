@@ -23,7 +23,8 @@ jobs:
       - run: node --test scripts/git-hooks/check-main-frontpage.test.js
       - name: Check each published main selector and its destinations
         run: |
-          for plugin in foreman hush razor; do
+          plugins=$(node -p "require('./scripts/git-hooks/check-platform-marketplaces').editionPlugins('.').join(' ')")
+          for plugin in $plugins; do
             git -C "$plugin" fetch origin "+refs/heads/main:refs/remotes/origin/main" "+refs/heads/Claude:refs/remotes/origin/Claude" "+refs/heads/Codex:refs/remotes/origin/Codex"
             node scripts/git-hooks/check-main-frontpage.js --repo "$plugin" --plugin "$plugin" --ref refs/remotes/origin/main --claude-ref refs/remotes/origin/Claude --codex-ref refs/remotes/origin/Codex
           done

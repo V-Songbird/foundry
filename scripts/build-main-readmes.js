@@ -1,6 +1,7 @@
 "use strict";
 const fs = require("node:fs"), path = require("node:path"), cp = require("node:child_process");
 const { productSections, checkCommon } = require("./git-hooks/check-main-frontpage");
+const { editionPlugins } = require("./git-hooks/check-platform-marketplaces");
 
 function editionSelector(plugin) {
   const url = `https://github.com/V-Songbird/${plugin}/tree/`;
@@ -12,8 +13,9 @@ function editionSelector(plugin) {
 </p>${plugin === "hush" ? '\n<p align="center"><small>Codex is not currently installable.</small></p>' : ''}`;
 }
 
-function render(plugin, claude, codex) {
-  if (!["foreman", "hush", "razor"].includes(plugin)) throw Error("Unknown plugin");
+// Only plugins with Claude and Codex editions have a selector main; a package's main is the product.
+function render(plugin, claude, codex, plugins = editionPlugins(path.resolve(__dirname, ".."))) {
+  if (!plugins.includes(plugin)) throw Error(`${plugin} is not a plugin with Claude and Codex editions`);
   const source = claude.replace(/\r\n/g, "\n");
   const sections = productSections(source);
   const errors = checkCommon(source, source, codex);

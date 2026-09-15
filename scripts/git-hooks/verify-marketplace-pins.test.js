@@ -117,6 +117,22 @@ describe("verify", () => {
     fs.rmSync(root, { recursive: true, force: true });
   });
 
+  test("validates a package plugin's pin on main rather than on a Claude branch", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-pins-package-"));
+    const dir = path.join(root, "demo");
+    const owner = { name: "t", email: "t@t" };
+    fs.mkdirSync(path.join(dir, ".claude-plugin"), { recursive: true });
+    fs.writeFileSync(path.join(dir, ".claude-plugin", "plugin.json"), JSON.stringify({ name: "demo", author: owner, version: "1.0.0" }));
+    const git = (cmd) => execSync(cmd, { cwd: dir, env: cleanEnv(), encoding: "utf-8" }).trim();
+    git("git init -q -b main");
+    git("git add .");
+    git("git -c user.email=t@t -c user.name=t commit -q -m init");
+    const entry = (ref) => ({ name: "demo", source: { source: "url", url: "https://github.com/V-Songbird/demo.git", ref, sha: git("git rev-parse HEAD") } });
+    assert.deepEqual(verify(root, { owner, plugins: [entry("main")] }), []);
+    assert.match(verify(root, { owner, plugins: [entry("Claude")] }).join("\n"), /missing Claude branch/);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
   test("checks multiple plugins independently", () => {
     const { root, plugins } = makeFakeRoot({ good: null, bad: null });
     const goodSha = plugins.find((p) => p.name === "good").actualSha;

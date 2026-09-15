@@ -4,6 +4,8 @@ Recorded decisions and product contracts; each document keeps its own scope and 
 
 [Plugin index](../README.md)
 
+- [Foreman single package](0011-foreman-single-package.md) — one package on main for Claude Code and Codex; supersedes ADRs 0007, 0008 and 0010 for Foreman.
+
 - [Main selector validation](0010-main-selector-validation.md) — documentation-only main with its required local CI check.
 
 - [Public research and evidence](0009-public-research-and-evidence.md) — current publication policy; supersedes ADR 0004.

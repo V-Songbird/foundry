@@ -67,6 +67,14 @@ describe("evaluate", () => {
     });
     assert.deepEqual(problems, []);
   });
+  test("a package release pinned on main is independent of the development gitlink", () => {
+    const problems = evaluate({
+      submoduleChanges: [{ path: "foreman", newSha: "a".repeat(40) }],
+      marketplaceStaged: false,
+      marketplace: { plugins: [{ name: "foreman", source: { source: "url", ref: "main", sha: "b".repeat(40) } }] },
+    });
+    assert.deepEqual(problems, []);
+  });
   test("passes when no submodule changes are staged", () => {
     const problems = evaluate({ submoduleChanges: [], marketplaceStaged: false, marketplace: null });
     assert.deepEqual(problems, []);

@@ -60,7 +60,9 @@ function verify(root, marketplace) {
     if (!source || typeof source !== "object" || source.source !== "url" || !source.sha) continue;
 
     if (source.ref) {
-      problems.push(...require("./check-platform-marketplaces.js").verifyEntry(root, entry, "Claude", marketplace.owner));
+      const platforms = require("./check-platform-marketplaces.js");
+      const branch = platforms.layoutOf(marketplace, entry.name) === "package" ? "main" : "Claude";
+      problems.push(...platforms.verifyEntry(root, entry, "Claude", marketplace.owner, branch));
       continue;
     }
 

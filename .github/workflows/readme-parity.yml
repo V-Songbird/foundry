@@ -22,12 +22,16 @@ jobs:
           node-version: 22
       - name: Fetch both platform branches
         run: |
-          for plugin in foreman hush razor; do
+          plugins=$(node -p "require('./scripts/git-hooks/check-platform-marketplaces').editionPlugins('.').join(' ')")
+          for plugin in $plugins; do
             git -C "$plugin" fetch origin "+refs/heads/Claude:refs/remotes/origin/Claude" "+refs/heads/Codex:refs/remotes/origin/Codex"
           done
       - run: node scripts/git-hooks/check-graphic-references.js
       - run: node --test scripts/git-hooks/check-graphic-references.test.js
       - run: node --test scripts/git-hooks/check-readme-parity.test.js
-      - run: node scripts/git-hooks/check-readme-parity.js --git-pair foreman refs/remotes/origin/Claude refs/remotes/origin/Codex
-      - run: node scripts/git-hooks/check-readme-parity.js --git-pair hush refs/remotes/origin/Claude refs/remotes/origin/Codex
-      - run: node scripts/git-hooks/check-readme-parity.js --git-pair razor refs/remotes/origin/Claude refs/remotes/origin/Codex
+      - name: Compare the committed README pair of each plugin with editions
+        run: |
+          plugins=$(node -p "require('./scripts/git-hooks/check-platform-marketplaces').editionPlugins('.').join(' ')")
+          for plugin in $plugins; do
+            node scripts/git-hooks/check-readme-parity.js --git-pair "$plugin" refs/remotes/origin/Claude refs/remotes/origin/Codex
+          done
