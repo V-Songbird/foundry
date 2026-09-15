@@ -83,9 +83,13 @@ describe("plugin pre-commit template", () => {
         "const assert = require('node:assert/strict');",
         "require('node:test')('does not leak into the real repo', () => {",
         "  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'leak-fixture-'));",
-        "  spawnSync('git', ['init', '-q'], { cwd: fixture });",
-        "  const result = spawnSync('git', ['config', '--local', 'user.email', 'leaked@example.com'], { cwd: fixture });",
-        "  assert.equal(result.status, 0);",
+        "  try {",
+        "    spawnSync('git', ['init', '-q'], { cwd: fixture });",
+        "    const result = spawnSync('git', ['config', '--local', 'user.email', 'leaked@example.com'], { cwd: fixture });",
+        "    assert.equal(result.status, 0);",
+        "  } finally {",
+        "    fs.rmSync(fixture, { recursive: true, force: true });",
+        "  }",
         "});",
       ].join("\n")
     );
