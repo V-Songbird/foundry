@@ -1,55 +1,64 @@
-# Local workspaces, backups and maintenance output
-.scratch/
+# Foundry repository visibility and local generated files.
+# Keep the catalogs, shared agent configuration and public documentation visible.
 
-# Python cache directories
-__pycache__/
-.pytest_cache/
-node_modules/
-.venv/
-venv/
+# Private working material and documentation
+.private/
+docs/tasks/
+docs/decisions/
+docs/knowledge/private/
+docs/apis/private/
+
+# Local environment values; public .env.example/.sample/.template files stay visible
 .env
-.env.*
-!.env.example
-!.env.sample
+.env.local
+.env.*.local
+.dev.vars
+.dev.vars.*.local
+id_rsa
+id_ed25519
 
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-# Research and maintained documentation are public project material.
-/plugins/
+# Machine-local agent state; shared instructions, skills and hook configuration stay visible
+**/.claude/settings.local.json
+**/.claude/memory/
+**/.claude/backups/
+**/.claude/logs/
+**/.claude/worktrees/
+**/.claude/transcripts/
+**/.claude/skills/synced/
+**/.claude/skills/.trash/
+**/.claude/plugins/synced/
+**/.claude/plugins/.trash/
+.claude.json.corrupted.*
+CLAUDE.local.md
+AGENTS.override.md
 
-**/.claude/*
-!/.claude/settings.json
-!/.claude/hooks/
-!/.claude/rules/
-!/.claude/agents/
-!/.claude/skills/
-
-# Nested project stores stay local; Foundry's planning records are shared.
-ROADMAP.jsonl
-!/ROADMAP.jsonl
-.foreman/
-!/.foreman/
-/.foreman/*
-!/.foreman/config.json
-!/.foreman/notes.jsonl
-!/.foreman/archive.jsonl
-
-# Shared project skills and marketplace; other agent state remains local.
+# Shared project skills and the Codex catalog; other Codex agent state remains local.
 /.agents/*
 !/.agents/skills/
 !/.agents/plugins/
 /.agents/plugins/*
 !/.agents/plugins/marketplace.json
 
-# Codex project agents; other Codex configuration and session state remain local.
-/.codex/*
-!/.codex/agents/
-!/.codex/hooks.json
+# Reproducible dependency and interpreter caches
+node_modules/
+__pycache__/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.gradle/
 
-# Plugin-local session state — written at run time, never published
-.assay/
-.scribe/
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local planning records stay where their tools expect them; Foundry keeps no roadmap.
+ROADMAP.jsonl
+ROADMAP.md
+.foreman/
+
+# Workstation editor project
+.idea/
