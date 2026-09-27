@@ -1,1 +1,0 @@
-Current production instructions live in `docs/shared/launch/tinta-y-oficio.md` and `docs/shared/launch/assets/ember-approved/README.md`. The earlier recipe is retained under `docs/shared/launch/assets/ember-approved/source/legacy/ember-skill/` for historical reference only. Follow the shared guide for drawing, animation, validation and publication.

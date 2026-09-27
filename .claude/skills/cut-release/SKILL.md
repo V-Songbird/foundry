@@ -1,98 +1,293 @@
 ---
 name: cut-release
-description: Prepare and publish an explicitly requested Foundry plugin or edition release using its actual release branch, version owner and catalogs. Includes coordinated README and verification gates; never an automatic release trigger.
+description: Bump a plugin's version and changelog in its own repo, then pin the pushed commit in both Foundry catalogs.
+argument-hint: "[plugin] [version]"
 disable-model-invocation: true
-allowed-tools: Bash, Read, Edit
+license: MIT
+compatibility: Claude Code only. Requires git, Node 22 or later and the claude CLI. Step 5 also runs the codex CLI for a plugin that ships for Codex and the agy CLI for one that ships for Antigravity.
+metadata:
+  version: "1.0"
 ---
 
-# Release a Foundry plugin or edition
+# cut-release
 
-Use this workflow only for an explicit release request. Establish the plugin,
-edition and intended version from that request and the current repository state.
-A package plugin, whose catalog entries pin one main commit, has no edition
-to choose. Otherwise, if the edition is ambiguous, resolve it before
-writing metadata. Running in a particular assistant does not by itself choose
-the edition being released.
+Cuts a release for one plugin this marketplace lists. Plugins are submodules, so a release is two
+commits that move together: one in the plugin's own repository, pushed to its `main`, then one in
+Foundry that pins that commit in every catalog listing the plugin.
 
-## Sources of truth
+Which plugins exist is not written down here. Plugins get added and retired, so read the current
+set from the catalogs. Never assume a plugin name — list them.
 
-| Release | Plugin metadata | Catalog | Version owner |
-| --- | --- | --- | --- |
-| Claude edition | `<plugin>/.claude-plugin/plugin.json` on Claude | `.claude-plugin/marketplace.json` in Foundry | the Claude catalog entry |
-| Codex edition | `<plugin>/.codex-plugin/plugin.json` on Codex | `.agents/plugins/marketplace.json` in Foundry | the native plugin manifest |
-| Package | both `<plugin>` manifests on main | both Foundry catalogs, same main SHA | both plugin manifests, same version |
+## Where the version lives, and where the pin lives
 
-Both catalog entries identify the plugin repository, platform ref and full
-validated commit SHA. Claude's version and source.sha move together. A Codex
-release updates its native version and then pins that exact integrated commit;
-do not introduce a Claude-style version field into the Codex catalog.
+| Host | Version | Pin |
+| --- | --- | --- |
+| Claude Code | `<plugin>/.claude-plugin/plugin.json` | `.claude-plugin/marketplace.json`, the entry's `source.sha` |
+| Codex | `<plugin>/.codex-plugin/plugin.json` | `.agents/plugins/marketplace.json`, the entry's `source.sha` |
+| Antigravity | `<plugin>/plugin.json` | Foundry's gitlink for the plugin: users install from a Foundry clone, which checks the plugin out at its gitlink |
 
-A package such as Foreman (ADR 0011) or Razor (ADR 0013) releases one main commit. Bump the same
-version in both manifests, then pin that commit with `ref: "main"` in both
-catalogs. Its Claude catalog entry carries no version, so only `source.sha`
-moves in Foundry. Hush (ADR 0012) is a package for Claude Code only: bump the
-version in `.claude-plugin/plugin.json` and pin that commit in the Claude
-catalog alone.
+Every manifest a plugin carries holds the same version. A catalog entry carries no version and
+must not gain one: only `source.sha` moves, together with the gitlink. A plugin missing from a
+catalog does not ship for that host; a release does not add it.
 
-Hush has no Codex package. Do not add it to the Codex catalog until a Codex
-port exists and passes validation.
+The gitlink and `source.sha` name the same commit, so the Foundry push in step 4 releases to every
+host the plugin ships for at once, and a push to the plugin's `main` reaches nobody until it is
+pinned. An Antigravity install is a copy: its user takes the release by pulling the Foundry clone,
+running `git submodule update --init` and running `agy plugin install` again.
 
-## Prepare a reviewable release
+## Step 0 — which plugin, and is it ready
 
-1. Locate Foundry and the intended plugin checkout. Check its branch, HEAD,
-   working tree and published refs. Confirm its physical working directory with
-   `git rev-parse --show-toplevel`; worktree-list output alone can identify a
-   submodule's gitdir instead. Preserve other working copies and unrelated edits.
-2. Work on an appropriate non-main branch. On Windows, an existing Codex ref can
-   prevent a codex/ prefix; use a non-conflicting maintenance branch. For a
-   plugin with editions, main is its selector, never the implementation release
-   destination; a package integrates into main.
-3. Establish the exact release surface and inspect the changes since the last
-   published pin for this edition or package. A dirty checkout is not
-   authorization to include everything in it. Prepare the requested files and
-   checks before requesting any genuinely missing publication approval.
-4. Write a short user-facing CHANGELOG entry and update the release's version
-   owner. Use the user's version when supplied; otherwise choose or clarify the
-   bump according to the actual compatibility change. Keep unrelated metadata.
-5. For a plugin with editions, use coordinate-readmes and check the actual
-   candidate pair. The CLI supports `--pair <Claude-README> <Codex-README>` and
-   `--git-pair <plugin-repo> <Claude-candidate-ref> <Codex-candidate-ref>`.
-   Shared changes need both candidates; model-specific measurements must retain
-   their own evidence. A package's single README needs its navigation check and
-   a review of each host's evidence. Missing benchmarks stay explicitly unmeasured.
-6. Run the relevant plugin, packaging, documentation and maintenance checks.
-   Read the compatibility/validation guide for each host in the release. Do not
-   run a Claude hook canary against a Codex package, invent hook events, or treat
-   unit tests as installed activation. Paid benchmarks and installations need
-   their own scope.
+List what each catalog ships, and ask which plugin if the user did not say:
 
-## Integrate and publish the release
+```bash
+node -e "for (const c of ['.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json']) for (const p of require('./' + c).plugins) console.log(c, p.name, p.source.ref, p.source.sha.slice(0, 7))"
+```
 
-Commit only the reviewed release surface. Use the repository's actual PR and
-branch-protection process to integrate into Claude or Codex, or into main for a
-package. Push the explicit reviewed branch/ref to its intended destination; never
-substitute `origin main` for an edition branch. Preserve any separate acceptance
-or merge requirement from the user. Do not bypass a failing check to force a
-release through.
+Then look at the plugin checkout. A release ships from its `main`, so the branch, the unpushed
+commits and the uncommitted edits all matter:
 
-Once the release commit is integrated and remotely reachable, record its full
-SHA in the correct Foundry catalog. Verify the remote branch contains that SHA.
-For a Claude edition, update the catalog version in that same root change. For a
-Codex edition, verify the pinned manifest contains the new effective version. For
-a package, move `source.sha` in both catalogs (the Claude catalog alone for Hush)
-to the same main commit and verify that its manifests there carry the new version. A gitlink update alone does not
-publish a package update.
+```bash
+git -C <plugin> fetch origin
+git -C <plugin> status --short --branch
+git -C <plugin> log --oneline <pinned-sha>..origin/main
+git -C <plugin> log --oneline origin/main..main
+```
 
-Run `node scripts/git-hooks/check-platform-marketplaces.js` from Foundry and
-the relevant documentation/integration checks. Integrate the reviewed root
-catalog change through its normal PR process. For a plugin with editions,
-publish destination branches before selector pages that link to them. Do not
-fold unrelated local work into either repository's release commit.
+Report what is unpushed and what is uncommitted. A dirty checkout is not authorization to include
+everything in it; say what is coming along rather than sweeping it in silently.
 
-## Report the outcome
+Run the plugin's suite from inside its directory. Stop and report if it is red; do not release
+over it without the user's explicit go-ahead:
 
-Report the plugin and its edition or package, version, integrated plugin SHA,
-root catalog SHA, actual push/check results and any remaining activation or
-publication boundary. If a remote operation fails, inspect the result and report
-its concrete state; do not silently broaden the push or retry with force. Do not
-claim publication from a local commit, valid manifest or passing unit suite alone.
+```bash
+node --test "tests/*.test.js"
+```
+
+## Step 1 — pick the new version
+
+Read the current version from `<plugin>/.claude-plugin/plugin.json`. Ask the user for the new one,
+or propose a semver bump from the Step 0 log: patch for fixes, minor for new user-facing behaviour,
+major for breaking changes.
+
+## Step 2 — changelog and manifests, in the plugin
+
+1. `Read` `<plugin>/docs/knowledge/changelog.md`. Entries are `## <version> — <YYYY-MM-DD>` followed by a short
+   user-facing paragraph. Add the new entry at the top, or date the existing undated one. State the
+   effect, not the journey: no methodology, no counts, no design rationale.
+2. `Edit` `version` in `<plugin>/.claude-plugin/plugin.json` and, when they exist,
+   `<plugin>/.codex-plugin/plugin.json` and `<plugin>/plugin.json`. Then confirm every hit reads
+   the same string:
+
+```bash
+grep -n '"version"' <plugin>/.claude-plugin/plugin.json <plugin>/.codex-plugin/plugin.json <plugin>/plugin.json
+```
+
+## Step 3 — commit and push the plugin
+
+Stage only the release surface: `docs/knowledge/changelog.md`, `.claude-plugin/plugin.json` and, when they exist,
+`.codex-plugin/plugin.json` and `plugin.json`. The plugin's own `pre-commit` hook reruns its suite.
+
+```bash
+git -C <plugin> commit -m "Release <plugin> <version>"
+git -C <plugin> push origin main
+```
+
+Use a pull request instead when the repository requires one. Either way, the pin waits until the
+release commit is reachable from `origin/main`:
+
+```bash
+git -C <plugin> fetch origin
+git -C <plugin> branch -r --contains <release-sha>
+```
+
+## Step 4 — pin the commit in Foundry
+
+1. `Edit` `source.sha` in the plugin's entry of `.claude-plugin/marketplace.json` and, when the
+   plugin is listed there, `.agents/plugins/marketplace.json`. Both pins name the same full SHA.
+2. The plugin checkout already sits on that commit, so stage the gitlink: `git add <plugin>`.
+3. Verify that pins, gitlinks and manifests agree and that the plugins' shared copies still
+   match, then validate the Claude catalog:
+
+```bash
+node -e '
+const fs = require("fs"), { execFileSync } = require("child_process");
+const git = (args, cwd = ".") => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+const manifests = [".claude-plugin/plugin.json", ".codex-plugin/plugin.json", "plugin.json"];
+for (const catalog of [".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"])
+  for (const p of JSON.parse(fs.readFileSync(catalog, "utf8")).plugins) {
+    const { sha, ref } = p.source;
+    const gitlink = git(["ls-files", "-s", p.name]).split(" ")[1] === sha;
+    const pushed = git(["branch", "-r", "--contains", sha], p.name).includes("origin/" + ref);
+    const versions = new Set(manifests.flatMap((m) => { try { return [JSON.parse(git(["show", sha + ":" + m], p.name)).version]; } catch { return []; } }));
+    console.log(catalog, p.name, [...versions].join("/"), versions.size === 1 ? "manifests agree" : "MANIFEST VERSIONS DIFFER", gitlink ? "gitlink ok" : "GITLINK DIFFERS", pushed ? "on origin/" + ref : "NOT ON origin/" + ref);
+  }'
+node scripts/check-shared-copies.js
+claude plugin validate .
+```
+
+The pin check prints a problem instead of failing on it, so read each line: an uppercase word means
+stop and fix it before you push. `MANIFEST VERSIONS DIFFER`: bump every manifest together in
+step 2, then commit, push and pin the new commit. `GITLINK DIFFERS`: check the plugin out at the
+pinned commit and stage its gitlink, as in item 2. `NOT ON origin/<ref>`: push the plugin's `main`
+and fetch, as in step 3.
+
+`scripts/check-shared-copies.js` compares the code after the header comment of Hush's and Razor's
+`hooks/lib/safe-write.js` and the `FIXTURES` array of their `tests/turn_boundary_conformance.test.js`,
+the Node.js and fnm lookup in Foreman's and Razor's `hooks/windows-launcher.ps1`, and the whole
+of the README nav check's seven files in Foreman, Hush and Razor:
+`scripts/git-hooks/check-readme-nav.js`, `scripts/git-hooks/pre-commit`, the two files under
+`scripts/git-hooks/vendor/`, `tests/readme_nav.test.js`, `tests/pre_commit.test.js` and
+`tests/fixtures/github-slugger-fixtures.json`.
+It reads every file at the commit each plugin's gitlink pins, including the gitlink you just
+staged, and names that commit; a checkout's branch and uncommitted edits do not count. A
+difference means one plugin ships a fix another lacks: land the missing change in that plugin
+before you push the pin. The check skips a plugin with no checkout and names it, fails when it
+compared nothing, and fails when a pinned commit is missing from its checkout.
+
+`agy plugin validate <plugin>` checks the Antigravity package of a plugin that ships one, when
+the Antigravity CLI is installed; report it as not run otherwise.
+
+4. Commit and push:
+
+```bash
+git add .claude-plugin/marketplace.json .agents/plugins/marketplace.json <plugin>
+git commit -m "Install <plugin> <version> from main"
+git push origin main
+```
+
+Nothing here is pre-approved beyond reading and editing: every command in this skill goes through
+the usual permission prompt, and the two pushes are the ones you should read before allowing.
+
+## Step 5 — install the release as a user would
+
+The pin is public now. Install from the catalog into a throwaway config home per host, so your own
+installs, settings and hook trust stay untouched. Each new home starts without a login: the lines
+marked `owner login` need the owner's account, so ask before running them. Keep both homes and a
+disposable project in one scratch folder. The project holds one open roadmap entry, so Foreman's
+session hook has something to say:
+
+```bash
+check="$(mktemp -d)" && mkdir "$check/project" "$check/claude-home" "$check/codex-home"
+cd "$check/project"
+printf '%s\n' '{"id":"001","title":"Release hook check","status":"in_progress"}' > ROADMAP.jsonl
+```
+
+**Claude Code.** Install the released plugin, and Foreman too when another plugin is released,
+because the Task-event check needs it. Then run one short session with hook events in its output.
+A capture hook on the two Task events receives the same input as Foreman's task-created and
+task-completed hooks:
+
+```bash
+export CLAUDE_CONFIG_DIR="$check/claude-home"
+claude --version
+claude plugin marketplace add V-Songbird/foundry
+claude plugin install <plugin>@foundry
+claude plugin install foreman@foundry   # when <plugin> is not foreman
+claude plugin list
+claude                                  # owner login: sign in, then quit
+cat > capture.js <<'EOF'
+const fs = require("fs");
+fs.appendFileSync("task-events.jsonl", fs.readFileSync(0, "utf8").trim() + "\n");
+EOF
+claude -p "Use TaskCreate to add one task, then mark it completed with TaskUpdate. Do nothing else." \
+  --model haiku --allowedTools TaskCreate,TaskUpdate \
+  --settings '{"hooks":{"TaskCreated":[{"hooks":[{"type":"command","command":"node capture.js"}]}],"TaskCompleted":[{"hooks":[{"type":"command","command":"node capture.js"}]}]}}' \
+  --output-format stream-json --verbose --include-hook-events < /dev/null > session.jsonl
+node -e '
+const fs = require("fs");
+const read = (f) => fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+const ok = read("session.jsonl").filter((e) => e.subtype === "hook_response" && e.outcome === "success");
+const fired = (event, text) => ok.some((e) => e.hook_event === event && e.stdout.includes(text));
+console.log("foreman SessionStart:", fired("SessionStart", "[Foreman]"));
+console.log("razor SessionStart:", fired("SessionStart", "RAZOR ACTIVE"));
+console.log("hush UserPromptSubmit:", fired("UserPromptSubmit", "hush:"));
+for (const event of ["TaskCreated", "TaskCompleted"]) console.log(event, "hooks that ran:", ok.filter((e) => e.hook_event === event).length);
+for (const e of read("task-events.jsonl"))
+  console.log(e.hook_event_name, ["task_id", "task_subject", "task_description"].map((k) => k + (typeof e[k] === "string" ? " ok" : " MISSING")).join(", "));
+'
+```
+
+`claude plugin list` must show the new version, and every plugin you installed must print `true`.
+Each Task event must show two hooks that ran, the capture hook and Foreman's, and all three fields
+`ok`. A `MISSING` field means Claude Code changed the Task-event input, which silently turns
+Foreman's task hooks off: report it as a Foreman bug with the Claude Code version. A plugin that
+prints `false` only in the first session of a new home may have hit its hook timeout on a cold
+start; run the session once more before reporting it.
+
+**Codex.** Skip it when the release is Hush, which has no Codex package. When the codex CLI is not
+installed, report the Codex check as not run. Otherwise install the released plugin and trust its
+hooks the way a user does:
+
+```bash
+export CODEX_HOME="$check/codex-home"
+codex --version
+codex login                             # owner login
+codex plugin marketplace add V-Songbird/foundry
+codex plugin add <plugin>@foundry
+codex plugin list --marketplace foundry --json
+```
+
+The listing must show the new version. Start `codex` in the same project and open `/hooks`.
+Record whether Codex asked you to review and trust the plugin's hooks before they ran; in a fresh
+home it should. Trust them, quit, and start `codex` again. Ask the new session to quote the first
+line of each note it received at session start: Razor's begins `RAZOR ACTIVE`, and Foreman's
+`[Foreman] Roadmap entries still open`.
+
+Existing Codex users keep their trust unless a hook definition changed. This command compares the
+pin step 0 printed with the release; when it prints anything, record that existing users must
+review and trust the hooks again:
+
+```bash
+git -C <plugin> diff --stat <pinned-sha> <release-sha> -- hooks/codex-hooks.json
+```
+
+**Antigravity.** Skip it for a plugin without a root `plugin.json`, such as Hush. Antigravity has
+no config-home setting: `agy plugin install` writes into `~/.gemini/config/plugins` of the user
+who runs it. So run it in a throwaway user profile, with `HOME`, `USERPROFILE`, `APPDATA` and
+`LOCALAPPDATA` relocated into the scratch folder, and install from a Foundry clone at the pin, as
+a user would:
+
+```bash
+git clone -q --recurse-submodules https://github.com/V-Songbird/foundry.git "$check/foundry"
+profile="$(cd "$check" && { pwd -W 2>/dev/null || pwd; })/agy-profile"
+mkdir -p "$profile/AppData/Roaming" "$profile/AppData/Local"
+in_profile() { HOME="$profile" USERPROFILE="$profile" APPDATA="$profile/AppData/Roaming" LOCALAPPDATA="$profile/AppData/Local" "$@"; }
+ls ~/.gemini/config/plugins > "$check/gemini-before.txt" 2>/dev/null
+in_profile agy --version
+in_profile agy plugin install "$check/foundry/<plugin>"
+in_profile agy plugin list
+diff -r --exclude=.git "$check/foundry/<plugin>" "$profile/.gemini/config/plugins/<plugin>"
+ls ~/.gemini/config/plugins 2>/dev/null | diff "$check/gemini-before.txt" -
+```
+
+Record the `agy` version and that `agy plugin list` names the plugin with its skills and hooks.
+Both `diff` commands must print nothing: the installed copy equals the clone, and your own
+`~/.gemini/config/plugins` did not change. The relocated profile has no Antigravity sign-in, so
+it cannot show a hook firing in a live conversation. That check is `owner login`: with the
+owner's go-ahead, sign in inside the relocated profile, start a conversation in
+`$check/project`, and ask it to quote the first line of each note it received at its first model
+call; Razor's begins `RAZOR ACTIVE`. Report it as not run otherwise.
+
+Delete the scratch folder afterwards, which removes both homes, the relocated profile, the clone
+and the project:
+
+```bash
+cd && rm -rf "$check" && unset CLAUDE_CONFIG_DIR CODEX_HOME
+```
+
+## Step 6 — confirm
+
+Report the plugin, the version, the plugin release SHA, the Foundry commit SHA and both push
+results. Add step 5's results: the Claude Code and Codex versions, which hook fired for each plugin
+on each host, whether Codex asked to trust the hooks and whether existing users must trust them
+again, the Task-event fields, and Antigravity's version, listing and live check, each as run or
+not run. A local commit, a valid catalog or a green suite is not publication; if a push failed,
+surface that rather than retrying silently.
+
+## What this skill does not do
+
+- Write or edit plugin source, skills, agents or hooks.
+- Add a `version` to a catalog entry, or a plugin to a catalog that does not list it.
+- Pin a commit that is not reachable from the plugin's `origin/main`.
+- Decide the bump size without asking, unless the user already stated it.
+- Force-push, skip hooks, or release over a red suite without explicit confirmation.
