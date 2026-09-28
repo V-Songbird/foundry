@@ -110,17 +110,18 @@ git -C <plugin> branch -r --contains <release-sha>
 
 ```bash
 node -e '
-const fs = require("fs"), { execFileSync } = require("child_process");
+const fs = require("fs"), path = require("path"), { execFileSync } = require("child_process");
+const root = process.argv[1] || ".";
 const git = (args, cwd = ".") => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
 const manifests = [".claude-plugin/plugin.json", ".codex-plugin/plugin.json", "plugin.json"];
 for (const catalog of [".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"])
   for (const p of JSON.parse(fs.readFileSync(catalog, "utf8")).plugins) {
-    const { sha, ref } = p.source;
+    const { sha, ref } = p.source, dir = path.join(root, p.name);
     const gitlink = git(["ls-files", "-s", p.name]).split(" ")[1] === sha;
-    const pushed = git(["branch", "-r", "--contains", sha], p.name).includes("origin/" + ref);
-    const versions = new Set(manifests.flatMap((m) => { try { return [JSON.parse(git(["show", sha + ":" + m], p.name)).version]; } catch { return []; } }));
+    const pushed = git(["branch", "-r", "--contains", sha], dir).includes("origin/" + ref);
+    const versions = new Set(manifests.flatMap((m) => { try { return [JSON.parse(git(["show", sha + ":" + m], dir)).version]; } catch { return []; } }));
     console.log(catalog, p.name, [...versions].join("/"), versions.size === 1 ? "manifests agree" : "MANIFEST VERSIONS DIFFER", gitlink ? "gitlink ok" : "GITLINK DIFFERS", pushed ? "on origin/" + ref : "NOT ON origin/" + ref);
-  }'
+  }' <root>
 node scripts/check-shared-copies.js
 claude plugin validate .
 ```
@@ -130,6 +131,12 @@ stop and fix it before you push. `MANIFEST VERSIONS DIFFER`: bump every manifest
 step 2, then commit, push and pin the new commit. `GITLINK DIFFERS`: check the plugin out at the
 pinned commit and stage its gitlink, as in item 2. `NOT ON origin/<ref>`: push the plugin's `main`
 and fetch, as in step 3.
+
+The pin check reads the catalogs and gitlinks of the checkout it runs in, and each plugin's
+history from the plugin checkouts under `<root>`, the Foundry root: `.` when you run it there.
+Run it from the checkout that holds the release commit. From a worktree, whose plugin folders
+are empty or stale, pass the Foundry root's path; the release commit must be fetched into the
+root's plugin checkout.
 
 `scripts/check-shared-copies.js` compares the code after the header comment of Hush's and Razor's
 `hooks/lib/safe-write.js` and the `FIXTURES` array of their `tests/turn_boundary_conformance.test.js`,
