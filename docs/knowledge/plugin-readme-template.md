@@ -83,8 +83,10 @@ A measured comment carries two dates, written `YYYY-MM-DD`:
 - A callout only when it helps a reader decide something.
 - Current limits stay visible. A caveat leaves only with the release that resolves it.
 - A fair, sourced comparison may name what it measured. Never belittle a real person or project.
-- The README never states the plugin's version; a minimum version it names must exist in the
-  plugin's changelog.
+- The README never states which version of the plugin is current. It may name the release that a
+  published measurement ran on, linked to that release's entry in the plugin's changelog. That
+  name stays true after later releases. A minimum version it names must exist in the changelog.
+  The README names no other version.
 
 ## Images
 
