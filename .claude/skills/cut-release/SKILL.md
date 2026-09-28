@@ -125,16 +125,17 @@ for (const catalog of [".claude-plugin/marketplace.json", ".agents/plugins/marke
     const pushed = git(["branch", "-r", "--contains", sha], dir).includes("origin/" + ref);
     const versions = new Set(manifests.flatMap((m) => { try { return [JSON.parse(git(["show", sha + ":" + m], dir)).version]; } catch { return []; } }));
     console.log(catalog, p.name, [...versions].join("/"), versions.size === 1 ? "manifests agree" : "MANIFEST VERSIONS DIFFER", gitlink ? "gitlink ok" : "GITLINK DIFFERS", pushed ? "on origin/" + ref : "NOT ON origin/" + ref);
+    if (versions.size !== 1 || !gitlink || !pushed) process.exitCode = 1;
   }' .
 node scripts/check-shared-copies.js .
 claude plugin validate .
 ```
 
-The pin check prints a problem instead of failing on it, so read each line: an uppercase word means
-stop and fix it before you push. `MANIFEST VERSIONS DIFFER`: bump every manifest together in
+The pin check prints every line and exits non-zero on any problem, so read each line: an uppercase
+word means stop and fix it before you push. `MANIFEST VERSIONS DIFFER`: bump every manifest together in
 step 2, then commit, push and pin the new commit. `GITLINK DIFFERS`: check the plugin out at the
 pinned commit and stage its gitlink, as in item 2. `NOT ON origin/<ref>`: push the plugin's `main`
-and fetch, as in step 3. `COMMIT NOT IN <dir>`, which also makes the check exit non-zero: that
+and fetch, as in step 3. `COMMIT NOT IN <dir>`: that
 plugin checkout lacks the pinned commit, so fetch it there or pass the right root.
 
 The pin check and the shared-copy check read the gitlinks, staged ones included, of the
