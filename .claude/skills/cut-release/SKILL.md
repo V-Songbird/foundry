@@ -164,11 +164,12 @@ The pin is public now. Install from the catalog into a throwaway config home per
 installs, settings and hook trust stay untouched. Each new home starts without a login: the lines
 marked `owner login` need the owner's account, so ask before running them. Keep both homes and a
 disposable project in one scratch folder. The project holds one open roadmap entry, so Foreman's
-session hook has something to say:
+session hook has something to say. It is its own Git repository, because Codex otherwise reads
+the `AGENTS.md` of any repository that encloses the scratch folder:
 
 ```bash
 check="$(mktemp -d)" && mkdir "$check/project" "$check/claude-home" "$check/codex-home"
-cd "$check/project"
+cd "$check/project" && git init -q
 printf '%s\n' '{"id":"001","title":"Release hook check","status":"in_progress"}' > ROADMAP.jsonl
 ```
 
@@ -227,11 +228,15 @@ codex plugin add <plugin>@foundry
 codex plugin list --marketplace foundry --json
 ```
 
-The listing must show the new version. Start `codex` in the same project and open `/hooks`.
+The listing must show the new version. The owner's sign-in also syncs their account plugins into
+the new home; an `AuthRequired` error their MCP servers print on stderr is not a release failure.
+Start `codex` in the same project and open `/hooks`.
 Record whether Codex asked you to review and trust the plugin's hooks before they ran; in a fresh
 home it should. Trust them, quit, and start `codex` again. Ask the new session to quote the first
 line of each note it received at session start: Razor's begins `RAZOR ACTIVE`, and Foreman's
-`[Foreman] Roadmap entries still open`.
+`[Foreman] Roadmap entries still open`. A `NODE_OPTIONS` preload that logs which hook ran must
+read `process.execArgv`, not `process.argv`: Foreman's hooks start as `node -e "require(...)"`,
+so their argv names no script.
 
 Existing Codex users keep their trust unless a hook definition changed. This command compares the
 pin step 0 printed with the release; when it prints anything, record that existing users must
