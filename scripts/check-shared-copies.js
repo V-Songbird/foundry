@@ -11,7 +11,10 @@
 // This check compares the copies as committed at the commit a Foundry tree
 // pins for each plugin, the gitlink in its index, and fails when they differ.
 // A plugin's branch and uncommitted edits do not count, because users install
-// the pinned commit. It only reads. In safe-write.js each plugin's header
+// the pinned commit. Given a root, the command reads the gitlinks, staged ones
+// included, from the index of the checkout it runs in, and each plugin's history from
+// the checkouts under root, so a worktree with empty plugin folders checks the
+// gitlinks it stages against the root's plugins. It only reads. In safe-write.js each plugin's header
 // comment speaks for that plugin, so only the code after it has to match; the
 // README nav check's and the pre-commit hook's files must match whole.
 // Foreman's and Razor's Windows launchers dispatch their hooks differently,
@@ -147,9 +150,9 @@ function readFiles(dir, commit, files) {
   return texts;
 }
 
-/** The commit root's index pins for plugin, or null when it has no gitlink there. */
-function pinnedCommit(root, plugin) {
-  const match = /^160000 ([0-9a-f]+) /.exec(git(root, ["ls-files", "-s", "--", plugin]) || "");
+/** The commit the index of the checkout at index pins for plugin, or null when it has no gitlink there. */
+function pinnedCommit(index, plugin) {
+  const match = /^160000 ([0-9a-f]+) /.exec(git(index, ["ls-files", "-s", "--", `:(top)${plugin}`]) || "");
   return match ? match[1] : null;
 }
 
@@ -161,10 +164,11 @@ function headCommit(dir) {
 
 /**
  * Compares every shared part across the plugins checked out under root, at the
- * commits root's index pins, or at each checkout's HEAD when heads is true.
- * A plugin named in dirs is read from that directory at its HEAD instead.
+ * commits the index of the checkout at index pins, root's by default, or at
+ * each checkout's HEAD when heads is true. A plugin named in dirs is read from
+ * that directory at its HEAD instead.
  */
-function checkShared(root = path.join(__dirname, ".."), shared = SHARED, { heads = false, dirs = {} } = {}) {
+function checkShared(root = path.join(__dirname, ".."), shared = SHARED, { heads = false, dirs = {}, index = root } = {}) {
   const problems = [];
   const agreed = [];
   const skipped = [];
@@ -175,10 +179,10 @@ function checkShared(root = path.join(__dirname, ".."), shared = SHARED, { heads
     const dir = override ? dirs[plugin] : path.join(root, plugin);
     const head = heads || override;
     read.set(plugin, { dir, head });
-    const commit = (checkedOut(dir) || override) && (head ? headCommit(dir) : pinnedCommit(root, plugin));
+    const commit = (checkedOut(dir) || override) && (head ? headCommit(dir) : pinnedCommit(index, plugin));
     if (commit === false) skipped.push(plugin);
     else if (!commit && head) problems.push(`${plugin} at ${dir} is not a Git checkout, so it has no HEAD to compare.`);
-    else if (!commit) problems.push(`${plugin} has no gitlink in the Foundry index, so it has no pinned copy to compare.`);
+    else if (!commit) problems.push(`${plugin} has no gitlink in the index of ${index}, so it has no pinned copy to compare.`);
     else if (!heads && git(dir, ["cat-file", "-e", `${commit}^{commit}`]) === null)
       problems.push(`${plugin}'s pinned commit ${commit} is not in its checkout: fetch it there, then rerun.`);
     else commits.set(plugin, commit);
@@ -231,7 +235,7 @@ function main(args = []) {
   }
   const root = rest[0] || path.join(__dirname, "..");
   for (const plugin in dirs) dirs[plugin] = path.resolve(root, dirs[plugin]);
-  const { problems, agreed, skipped, commits } = checkShared(path.resolve(root), SHARED, { heads, dirs });
+  const { problems, agreed, skipped, commits } = checkShared(path.resolve(root), SHARED, { heads, dirs, index: rest[0] ? process.cwd() : root });
   for (const plugin of skipped) console.log(`Skipped ${plugin}: no checkout at ${path.join(root, plugin)}.`);
   for (const [plugin, commit] of commits) {
     const where = dirs[plugin] ? `HEAD in ${dirs[plugin]}` : heads ? "HEAD" : "pinned commit";

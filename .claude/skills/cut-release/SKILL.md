@@ -105,6 +105,8 @@ git -C <plugin> branch -r --contains <release-sha>
 1. `Edit` `source.sha` in the plugin's entry of `.claude-plugin/marketplace.json` and, when the
    plugin is listed there, `.agents/plugins/marketplace.json`. Both pins name the same full SHA.
 2. The plugin checkout already sits on that commit, so stage the gitlink: `git add <plugin>`.
+   In a worktree whose plugin folder is empty, `git add <plugin>` stages nothing; stage the
+   full SHA directly with `git update-index --cacheinfo 160000,<sha>,<plugin>`.
 3. Verify that pins, gitlinks and manifests agree and that the plugins' shared copies still
    match, then validate the Claude catalog:
 
@@ -124,7 +126,7 @@ for (const catalog of [".claude-plugin/marketplace.json", ".agents/plugins/marke
     const versions = new Set(manifests.flatMap((m) => { try { return [JSON.parse(git(["show", sha + ":" + m], dir)).version]; } catch { return []; } }));
     console.log(catalog, p.name, [...versions].join("/"), versions.size === 1 ? "manifests agree" : "MANIFEST VERSIONS DIFFER", gitlink ? "gitlink ok" : "GITLINK DIFFERS", pushed ? "on origin/" + ref : "NOT ON origin/" + ref);
   }' .
-node scripts/check-shared-copies.js
+node scripts/check-shared-copies.js .
 claude plugin validate .
 ```
 
@@ -135,11 +137,12 @@ pinned commit and stage its gitlink, as in item 2. `NOT ON origin/<ref>`: push t
 and fetch, as in step 3. `COMMIT NOT IN <dir>`, which also makes the check exit non-zero: that
 plugin checkout lacks the pinned commit, so fetch it there or pass the right root.
 
-The pin check reads the catalogs and gitlinks of the checkout it runs in, and each plugin's
-history from the plugin checkouts under the path after the closing quote, the Foundry root:
-`.` when you run it there. Run it from the checkout that holds the release commit. From a
-worktree, whose plugin folders are empty or stale, replace `.` with the Foundry root's path;
-the release commit must be fetched into the root's plugin checkout.
+The pin check and the shared-copy check read the gitlinks, staged ones included, of the
+checkout they run in, the pin check its catalogs too, and each plugin's history from the plugin checkouts under the Foundry
+root: the path after the pin check's closing quote and the shared-copy check's argument, `.`
+when you run them there. Run both from the root of the checkout that holds the release
+commit. From a worktree, whose plugin folders are empty or stale, replace both `.` with the
+Foundry root's path; the release commit must be fetched into the root's plugin checkout.
 
 `scripts/check-shared-copies.js` compares the code after the header comment of Hush's and Razor's
 `hooks/lib/safe-write.js` and the `FIXTURES` array of their `tests/turn_boundary_conformance.test.js`,

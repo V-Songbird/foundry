@@ -3,7 +3,9 @@
 // Tests for check-shared-copies.js. The fixtures are synthetic Foundry trees in
 // the system temp directory, each a Git repository whose index pins a plugin
 // repository per plugin, or for --heads a plain folder of plugin
-// repositories. The last block runs the check on this repository
+// repositories. The command reads gitlinks from the checkout it runs in, so
+// its tests run it inside a fixture root or a worktree of one. The last block
+// runs the check on this repository
 // too, because a check that only ever sees its own fixtures proves nothing
 // about the tree it guards.
 
@@ -253,7 +255,7 @@ describe("checkShared", () => {
     const root = tree(agreeing());
     git(root, "update-index", "--force-remove", "razor");
     assert.deepEqual(checkShared(root).problems, [
-      "razor has no gitlink in the Foundry index, so it has no pinned copy to compare.",
+      `razor has no gitlink in the index of ${root}, so it has no pinned copy to compare.`,
     ]);
   });
 
@@ -366,24 +368,47 @@ describe("checkShared with a directory override", () => {
 });
 
 describe("the command", () => {
+  /** A worktree of root's committed index, as a desktop app worktree is, with empty plugin folders. */
+  function foundryWorktree(root) {
+    git(root, "commit", "-q", "-m", "pins");
+    const worktree = path.join(fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), "sharedcopies-foundry-")), "app");
+    scratch.push(path.dirname(worktree));
+    git(root, "worktree", "add", "-q", "--detach", worktree);
+    return worktree;
+  }
+
   test("--<plugin> <dir> reads that plugin's HEAD there and fails on a drifted copy", () => {
     const root = tree(agreeing());
     const worktree = path.join(root, "razor-799");
     git(path.join(root, "razor"), "worktree", "add", "-q", "-b", "topic", worktree);
-    assert.equal(spawnSync(process.execPath, [SCRIPT, "--razor", worktree, root], { encoding: "utf8" }).status, 0);
+    assert.equal(spawnSync(process.execPath, [SCRIPT, "--razor", worktree, root], { encoding: "utf8", cwd: root }).status, 0);
     commit(worktree, { [SAFE_WRITE]: safeWrite("// Razor's header.", changedCode) });
-    const run = spawnSync(process.execPath, [SCRIPT, "--razor", worktree, root], { encoding: "utf8" });
+    const run = spawnSync(process.execPath, [SCRIPT, "--razor", worktree, root], { encoding: "utf8", cwd: root });
     assert.equal(run.status, 1);
     assert.match(run.stdout, new RegExp(`^Read razor at its HEAD in .+razor-799 ${git(worktree, "rev-parse", "HEAD")}\\.$`, "m"));
     assert.match(run.stderr, /hooks\/lib\/safe-write\.js differs between hush and razor/);
-    assert.equal(spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8" }).status, 0);
+    assert.equal(spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: root }).status, 0);
+  });
+
+  test("from a worktree, a staged gitlink is read from its index and its plugin from the root", () => {
+    const root = tree(agreeing());
+    const worktree = foundryWorktree(root);
+    assert.deepEqual(fs.readdirSync(path.join(worktree, "razor")), []);
+    const staged = commit(path.join(root, "razor"), { [SAFE_WRITE]: safeWrite("// Razor's header.", changedCode) });
+    git(worktree, "update-index", "--cacheinfo", `160000,${staged},razor`);
+    const run = spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: worktree });
+    assert.equal(run.status, 1, run.stdout);
+    assert.match(run.stdout, new RegExp(`^Read razor at its pinned commit ${staged}\\.$`, "m"));
+    assert.match(run.stderr, /hooks\/lib\/safe-write\.js differs between hush and razor/);
+    // The root's own index still pins the old commit, whose copies agree.
+    assert.equal(spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: root }).status, 0);
   });
 
   test("a relative override resolves against the root, not the current directory", () => {
     const root = tree(agreeing());
     const worktree = path.join(root, "razor-799");
     git(path.join(root, "razor"), "worktree", "add", "-q", "-b", "topic", worktree);
-    const run = spawnSync(process.execPath, [SCRIPT, "--razor", "razor-799", root], { encoding: "utf8", cwd: os.tmpdir() });
+    const run = spawnSync(process.execPath, [SCRIPT, "--razor", "razor-799", root], { encoding: "utf8", cwd: foundryWorktree(root) });
     assert.equal(run.status, 0, run.stderr);
     assert.match(run.stdout, new RegExp(`^Read razor at its HEAD in .+razor-799 ${git(worktree, "rev-parse", "HEAD")}\\.$`, "m"));
   });
@@ -410,7 +435,8 @@ describe("the command", () => {
   test("exits 1 and names the file when a body changed", () => {
     const files = agreeing();
     files[`hush/${SAFE_WRITE}`] = safeWrite("// Hush's header.", `${CODE}\n\nmodule.exports = {};`);
-    const run = spawnSync(process.execPath, [SCRIPT, tree(files)], { encoding: "utf8" });
+    const root = tree(files);
+    const run = spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: root });
     assert.equal(run.status, 1);
     assert.match(run.stderr, /hooks\/lib\/safe-write\.js differs between hush and razor/);
   });
@@ -418,7 +444,7 @@ describe("the command", () => {
   test("exits 0, names each pinned commit and says which plugin it skipped", () => {
     const files = Object.fromEntries(Object.entries(agreeing()).filter(([f]) => !f.startsWith("hush/")));
     const root = tree(files);
-    const run = spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8" });
+    const run = spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: root });
     assert.equal(run.status, 0);
     assert.match(run.stdout, /^Skipped hush: no checkout at /m);
     assert.match(run.stdout, new RegExp(`^Read razor at its pinned commit ${git(path.join(root, "razor"), "rev-parse", "HEAD")}\\.$`, "m"));
@@ -433,7 +459,8 @@ describe("the command", () => {
 
   test("exits 1 when it read only one plugin, because it compared nothing", () => {
     const files = Object.fromEntries(Object.entries(agreeing()).filter(([f]) => f.startsWith("razor/")));
-    const run = spawnSync(process.execPath, [SCRIPT, tree(files)], { encoding: "utf8" });
+    const root = tree(files);
+    const run = spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: root });
     assert.equal(run.status, 1);
     assert.match(run.stdout, /^Read razor at its pinned commit /m);
     assert.match(run.stderr, /Nothing was compared/);
