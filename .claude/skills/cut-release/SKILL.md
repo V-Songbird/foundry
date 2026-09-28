@@ -247,7 +247,7 @@ the new home; an `AuthRequired` error their MCP servers print on stderr is not a
 Start `codex --no-daemon` in the same project and open `/hooks`; without the flag the TUI fails
 when `CODEX_HOME` sits under a long path.
 Record whether Codex asked you to review and trust the plugin's hooks before they ran; in a fresh
-home it should. Trust them, quit, and start `codex` again. Ask the new session to quote the first
+home it should. Trust them, quit, and start `codex --no-daemon` again. Ask the new session to quote the first
 line of each note it received at session start: Razor's begins `RAZOR ACTIVE`, and Foreman's
 `[Foreman] Roadmap entries still open`. A `NODE_OPTIONS` preload that logs which hook ran must
 read `process.execArgv`, not `process.argv`: Foreman's hooks start as `node -e "require(...)"`,
