@@ -118,10 +118,12 @@ for (const catalog of [".claude-plugin/marketplace.json", ".agents/plugins/marke
   for (const p of JSON.parse(fs.readFileSync(catalog, "utf8")).plugins) {
     const { sha, ref } = p.source, dir = path.join(root, p.name);
     const gitlink = git(["ls-files", "-s", p.name]).split(" ")[1] === sha;
+    try { git(["cat-file", "-e", sha + "^{commit}"], dir); }
+    catch { console.log(catalog, p.name, "COMMIT NOT IN " + dir + ": fetch it there, or pass the Foundry root"); process.exitCode = 1; continue; }
     const pushed = git(["branch", "-r", "--contains", sha], dir).includes("origin/" + ref);
     const versions = new Set(manifests.flatMap((m) => { try { return [JSON.parse(git(["show", sha + ":" + m], dir)).version]; } catch { return []; } }));
     console.log(catalog, p.name, [...versions].join("/"), versions.size === 1 ? "manifests agree" : "MANIFEST VERSIONS DIFFER", gitlink ? "gitlink ok" : "GITLINK DIFFERS", pushed ? "on origin/" + ref : "NOT ON origin/" + ref);
-  }' <root>
+  }' .
 node scripts/check-shared-copies.js
 claude plugin validate .
 ```
@@ -130,13 +132,14 @@ The pin check prints a problem instead of failing on it, so read each line: an u
 stop and fix it before you push. `MANIFEST VERSIONS DIFFER`: bump every manifest together in
 step 2, then commit, push and pin the new commit. `GITLINK DIFFERS`: check the plugin out at the
 pinned commit and stage its gitlink, as in item 2. `NOT ON origin/<ref>`: push the plugin's `main`
-and fetch, as in step 3.
+and fetch, as in step 3. `COMMIT NOT IN <dir>`, which also makes the check exit non-zero: that
+plugin checkout lacks the pinned commit, so fetch it there or pass the right root.
 
 The pin check reads the catalogs and gitlinks of the checkout it runs in, and each plugin's
-history from the plugin checkouts under `<root>`, the Foundry root: `.` when you run it there.
-Run it from the checkout that holds the release commit. From a worktree, whose plugin folders
-are empty or stale, pass the Foundry root's path; the release commit must be fetched into the
-root's plugin checkout.
+history from the plugin checkouts under the path after the closing quote, the Foundry root:
+`.` when you run it there. Run it from the checkout that holds the release commit. From a
+worktree, whose plugin folders are empty or stale, replace `.` with the Foundry root's path;
+the release commit must be fetched into the root's plugin checkout.
 
 `scripts/check-shared-copies.js` compares the code after the header comment of Hush's and Razor's
 `hooks/lib/safe-write.js` and the `FIXTURES` array of their `tests/turn_boundary_conformance.test.js`,
