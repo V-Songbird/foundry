@@ -60,7 +60,7 @@ and CI checks out no submodules.
 | `flint/` | Plain-text writing and coding instructions; a submodule outside both catalogs |
 | `.claude/skills/cut-release/`, `.agents/skills/cut-release/` | The release procedure, user-invoked only: Claude Code's skill holds the steps, and the Codex skill delegates to it with Codex notes |
 | `.claude/skills/brand/`, `.agents/skills/brand/` | The artwork procedure for Claude Code and Codex; the two files stay identical |
-| `.claude/agents/`, `.codex/agents/` | `plugin-docs-reviewer`, the read-only README review, for Claude Code and Codex |
+| `.claude/agents/`, `.codex/agents/` | `plugin-docs-reviewer`, the read-only README review, for Claude Code and Codex; on Codex it is read-only by its instructions only, because an agent role cannot set its sandbox, and starting the parent session with `-s read-only` enforces it |
 | `.claude/settings.json`, `.codex/hooks.json` | Shared Claude Code settings and the Codex hook registration for this checkout |
 | `.github/workflows/validate-marketplace.yml` | The CI workflow that produces the required `validate` check |
 | `scripts/claude-hooks/` | The post-edit hook that reruns the touched plugin's tests, with its own test |
