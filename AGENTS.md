@@ -38,7 +38,7 @@ Run from the repository root unless a row names another directory.
 | `git submodule update --init` | Check every plugin out at its pinned commit | Network on a fresh clone |
 | `node --test scripts/claude-hooks/*.test.js` | The repository's own hook, which reruns a plugin's suite after an edit under its `scripts/` or `hooks/`; for Foreman, only the test files that cover the edited module | Local temporary fixtures |
 | `node brand/mascot/build.cjs`, `node brand/graphics/build.cjs` | Rebuild the Ember scenes or the evidence graphics | Local |
-| `node brand/identity/build.cjs` | Rebuild icons, README banners, wordmarks and social cards | Local; needs Segoe UI and Sharp 0.35.4, the `sharp.sharp` version in `brand/identity/build-environment.json`, resolved normally or through `NODE_PATH`; the repository installs neither |
+| `node brand/identity/build.cjs` | Rebuild icons, README banners, wordmarks and social cards | Local; needs Segoe UI and Sharp at the `sharp.sharp` version in `brand/identity/build-environment.json`, resolved normally or through `NODE_PATH`; the repository installs neither |
 | `node brand/identity/build-review.cjs` | Refresh the review gallery `brand/identity/index.html` | Local |
 | `node brand/check-timing.js <svg>` | Check the SMIL timing lists of an animated SVG | Local |
 
