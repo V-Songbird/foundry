@@ -36,6 +36,7 @@ for(const [plugin,files] of Object.entries(jobs)) for(const file of files){
   assert.ok(seals[plugin][file],'No seal position for '+plugin+'-'+file);
   const [x,y,turn,size]=seals[plugin][file];
   after=after.replace(/<\/svg>(\s*)$/,`<g transform="translate(${x} ${y}) rotate(${turn}) translate(${-size/2} ${-size/2}) scale(${size/128})" aria-hidden="true">${seal(plugin)}</g></svg>$1`);
+  assert.ok(after.includes('<g class="seal"'),'Seal not inserted: '+plugin+'-'+file);
   if(plugin==='razor' && file==='demo.svg') after=after.replace(/<text\b[^>]*>[\s\S]*?<\/text>/g,node=>{
     const y=Number(node.match(/\by="([^"]+)"/)?.[1]);
     return y>=156 && y<=608 ? '<g transform="translate(0 14)">'+node+'</g>' : node;
