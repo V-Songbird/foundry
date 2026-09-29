@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const jobs={hush:['hero.svg','demo.svg'],foreman:['hero.svg','demo.svg','paper-trail.svg'],razor:['hero.svg','demo.svg']};
+const jobs={hush:['hero.svg','demo.svg','hero-opus5.svg','demo-opus5.svg'],foreman:['hero.svg','demo.svg','paper-trail.svg'],razor:['hero.svg','demo.svg']};
 const palette={hush:['#2c75a5','#79b6de'],foreman:['#21553b','#9ec8ac'],razor:['#bf4935','#eb8d79']};
 const nodes=(s,tag)=>[...s.matchAll(new RegExp('<'+tag+'\\b[^>]*(?:/>|>[\\s\\S]*?</'+tag+'>)','g'))].map(m=>m[0]);
 const report=[];
@@ -12,7 +12,7 @@ for(const [plugin,files] of Object.entries(jobs)) for(const file of files){
     const attr=name=>attrs.match(new RegExp('\\b'+name+'="([^"]*)"'))?.[1];
     const cls=attr('class'), w=Number(attr('width')),h=Number(attr('height'));
     // Only containers and labels. Small measured bars and all plotted marks stay exact.
-    if(!['card','bg','stp','stw','pill','cw','cf'].includes(cls)&&!(file==='demo.svg'&&['bp','ac'].includes(cls)&&h>=20))return node;
+    if(!['card','bg','stp','stw','pill','cw','cf'].includes(cls)&&!(file.startsWith('demo')&&['bp','ac'].includes(cls)&&h>=20))return node;
     const x=Number(attr('x')||0),y=Number(attr('y')||0),r=Math.min(12,h/3,w/5),bend=Math.min(2,h/20);
     const d=`M${x+r} ${y+1} Q${x+w*.36} ${y-bend} ${x+w-r} ${y+1} Q${x+w-1} ${y} ${x+w-1} ${y+r} L${x+w-2} ${y+h-r} Q${x+w} ${y+h-1} ${x+w-r} ${y+h-1} Q${x+w*.48} ${y+h+bend} ${x+r} ${y+h-1} Q${x+1} ${y+h} ${x+1} ${y+h-r} L${x+2} ${y+r} Q${x} ${y+1} ${x+r} ${y+1}Z`;
     count++;
@@ -55,7 +55,7 @@ for(const [plugin,files] of Object.entries(jobs)) for(const file of files){
   // Reduced motion: a demo replay only fades groups in and out, so under prefers-reduced-motion
   // each group holds the opacity it ends on and the replay rests on its final recorded frame.
   // The animate nodes and their timing stay exactly as recorded.
-  if(file==='demo.svg'){
+  if(file.startsWith('demo')){
     assert.ok(nodes(after,'animate').every(a=>/attributeName="opacity"/.test(a)&&/values="[^"]*;[01]"/.test(a)),'Reduced motion expects opacity fades that end at 0 or 1: '+file);
     after=after.replace('</style>','@media(prefers-reduced-motion:reduce){g:has(>animate[values$=";1"]){opacity:1!important}g:has(>animate[values$=";0"]){opacity:0!important}}</style>');
   }

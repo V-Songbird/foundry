@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=__dirname;
 const brands=['foundry','hush','foreman','razor','flint'];
-const extra={hush:['mascot','hero','demo'],foreman:['mascot','hero','demo','paper-trail'],razor:['mascot','hero','demo']};
+const extra={hush:['mascot','hero','demo','hero-opus5','demo-opus5'],foreman:['mascot','hero','demo','paper-trail'],razor:['mascot','hero','demo']};
 const media=/@media\s*\(prefers-color-scheme:\s*dark\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g;
 const text=s=>[...s.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map(m=>m[1]);
 for(const [brand,files]of Object.entries(extra))for(const name of files){
@@ -26,7 +26,7 @@ for(const host of hosts){
   fs.writeFileSync(path.join(root,'hosts','edition-'+host+'-'+theme+'.svg'),svg);
  }
 }
-const labels={icon:'Icon',social:'Social banner · 1280 × 640',banner:'README banner · 2172 × 724',logo:'Transparent wordmark · 1400 × 420',mascot:'Ember animation',hero:'Overview graphic',demo:'Recorded Claude demo','paper-trail':'Task trail','edition-codex':'Codex host card','edition-claude':'Claude host card','edition-antigravity':'Antigravity host card'};
+const labels={icon:'Icon',social:'Social banner · 1280 × 640',banner:'README banner · 2172 × 724',logo:'Transparent wordmark · 1400 × 420',mascot:'Ember animation',hero:'Overview graphic',demo:'Recorded Claude demo','hero-opus5':'Overview graphic, Opus 5, earlier voice','demo-opus5':'Recorded Claude demo, Opus 5, earlier voice','paper-trail':'Task trail','edition-codex':'Codex host card','edition-claude':'Claude host card','edition-antigravity':'Antigravity host card'};
 const panel=(brand,type,theme)=>{
  const png=['icon','social','banner','logo'].includes(type),file=`${brand}/${type}-${theme}.${png?'png':'svg'}`;
  assert.ok(fs.existsSync(path.join(root,file)),file);

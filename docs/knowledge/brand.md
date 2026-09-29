@@ -130,8 +130,8 @@ otherwise review the new PNGs and report the difference.
 
 ## Before copying
 
-1. Run `node brand/check-timing.js <svg>` on every SVG with SMIL animation, today the three
-   demos. It checks that `keyTimes`, `values` and `keySplines` agree.
+1. Run `node brand/check-timing.js <svg>` on every SVG with SMIL animation, today every
+   demo. It checks that `keyTimes`, `values` and `keySplines` agree.
 2. Open `brand/identity/index.html` in a web browser, straight from disk, and review every brand
    on both backgrounds, with icons at 128, 64 and 32 px, and the host cards under "host cards" at
    128, 80 and 32 px. A preview that loads the page without its folder, such as a chat or editor
