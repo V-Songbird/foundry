@@ -43,9 +43,9 @@ Semantic diff, error and success colors keep their meaning and are never brand a
 
 | Path | Holds | Rebuild |
 | --- | --- | --- |
-| `brand/identity/source/` | Each brand's icon, one file per theme, and the host cards `edition-codex.svg`, `edition-claude.svg` and `edition-antigravity.svg` | Edited by hand |
-| `brand/identity/build.cjs` | Social card, README banner, wordmark and icon for every brand and theme, as PNG and SVG, plus `manifest.json` and `build-environment.json` | `node brand/identity/build.cjs` |
-| `brand/identity/build-review.cjs` | Fixed light and dark previews of every scene, evidence graphic and host card, and the gallery `brand/identity/index.html` | `node brand/identity/build-review.cjs` |
+| `brand/identity/source/` | Each brand's icon, one file per theme, the host cards `edition-codex.svg`, `edition-claude.svg` and `edition-antigravity.svg`, and the skill icons in `skills/` | Edited by hand |
+| `brand/identity/build.cjs` | Social card, README banner, wordmark and icon for every brand and theme, and each skill icon, as PNG and SVG, plus `manifest.json` and `build-environment.json` | `node brand/identity/build.cjs` |
+| `brand/identity/build-review.cjs` | Fixed light and dark previews of every scene, evidence graphic and host card, and the gallery `brand/identity/index.html` with the skill icons | `node brand/identity/build-review.cjs` |
 | `brand/mascot/` | The Ember scene for Hush, Foreman and Razor, built from the approved Hush drawing and each plugin's original scene in `source/` | `node brand/mascot/build.cjs` |
 | `brand/graphics/` | The evidence graphics, restyled from their recorded originals in `source/`; `validation.json` records what each build preserved | `node brand/graphics/build.cjs` |
 
@@ -76,6 +76,14 @@ carries no mark of the host's own; its name is the only artwork. The cards are d
 fixed-theme previews `build-review.cjs` writes to `brand/identity/hosts/` for the gallery, and
 no plugin copies those.
 
+Each skill has its own icon: its brand's seal with a glyph for the skill, such as a flag for
+`foreman:init`. The sources are `brand/identity/source/skills/<plugin>-<skill>-light.svg`, on the
+same 128 × 128 viewBox as the brand icons. Codex takes one icon per skill and has no dark variant,
+so skill icons exist in the light theme only. The build writes each one to
+`brand/identity/skills/<plugin>-<skill>.svg` and a 512 × 512 PNG beside it, with a transparent
+background. The gallery shows each on both backgrounds at 128, 64, 32 and 16 px, because Codex's
+own small skill icons are 14 to 16 px.
+
 ## Copying into a plugin
 
 Identity files come from `brand/identity/<plugin>/`, the scene from `brand/mascot/` and the
@@ -88,6 +96,7 @@ evidence graphics from `brand/graphics/`. Copy with these names:
 | `brand/identity/<plugin>/logo-light.png`, `logo-dark.png` | `assets/logo-on-light.png`, `assets/logo-on-dark.png` | Identity |
 | `brand/identity/<plugin>/logo-light.svg`, `logo-dark.svg` | `assets/logo.svg`, `assets/logo-dark.svg` | Identity |
 | `brand/identity/source/edition-codex.svg`, `edition-claude.svg`, `edition-antigravity.svg` | `assets/edition-codex.svg`, `assets/edition-claude.svg`, `assets/edition-antigravity.svg` | Host card |
+| `brand/identity/skills/<plugin>-<skill>.svg`, `.png` | `skills/<skill>/assets/icon.svg`, `skills/<skill>/assets/icon.png` | Skill icon |
 | `brand/mascot/<plugin>.svg` | `assets/mascot.svg` | Ember scene |
 | `brand/graphics/<plugin>-<name>.svg`, such as `razor-demo.svg` | `assets/<name>.svg`, such as `assets/demo.svg` | Evidence graphic |
 
@@ -98,6 +107,11 @@ a page in the plugin references it, and remove one that no page references.
 
 The Codex manifests point at `assets/icon-on-light.png` and `assets/icon-on-dark.png`, so a new
 icon reaches Codex through the same copy. Flint takes the identity files only.
+
+Copy a skill icon only into a plugin that ships for Codex, today Foreman and Razor. Each skill's
+`agents/openai.yaml` declares its icons under `interface`, with `icon_small: "./assets/icon.svg"`
+and `icon_large: "./assets/icon.png"`; Codex ignores an icon path outside the skill's or the plugin's `assets/`.
+Hush ships for Claude Code only and has no skill icons.
 
 ## Ember
 
@@ -146,7 +160,7 @@ otherwise review the new PNGs and report the difference.
    demo. It checks that `keyTimes`, `values` and `keySplines` agree.
 2. Open `brand/identity/index.html` in a web browser, straight from disk, and review every brand
    on both backgrounds, with icons at 128, 64 and 32 px, and the host cards under "host cards" at
-   128, 80 and 32 px. A preview that loads the page without its folder, such as a chat or editor
+   128, 80 and 32 px, and the skill icons under "skill icons" at 128, 64, 32 and 16 px. A preview that loads the page without its folder, such as a chat or editor
    preview, shows every image broken. Check spelling, clipping, contrast and transparency in the
    real PNGs.
 3. Foundry and Flint carry no spark.
