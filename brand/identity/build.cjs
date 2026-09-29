@@ -29,8 +29,18 @@ for(const [name,[accent,promise,category]]of Object.entries(brands)){
   }
  }
 }
+// Codex takes one icon per skill, so skill icons are light only.
+fs.mkdirSync(path.join(out,'skills'),{recursive:true});
+for(const file of fs.readdirSync(path.join(out,'source','skills')).filter(f=>f.endsWith('-light.svg')).sort()){
+ const name=file.replace('-light.svg',''),brand=name.split('-')[0],prefix=path.join(out,'skills',name);
+ const icon=fs.readFileSync(path.join(out,'source','skills',file),'utf8').replaceAll('var(--accent)',brands[brand][0]).replaceAll('var(--paper)','#ffffff');
+ fs.writeFileSync(prefix+'.svg',icon);
+ await sharp(Buffer.from(icon)).resize(512,512).png().toFile(prefix+'.png');
+ const meta=await sharp(prefix+'.png').metadata();if(meta.width!==512||meta.height!==512)throw Error('Wrong size');
+ manifest.push({brand,type:'skill-icon',theme:'light',file:`skills/${name}.png`,width:512,height:512,alpha:meta.hasAlpha,pngSha256:hash(prefix+'.png'),svgSha256:hash(prefix+'.svg')});
+}
 fs.writeFileSync(path.join(out,'build-environment.json'),JSON.stringify({node:process.version,sharp:sharp.versions,fonts:'Segoe UI required; Arial/sans-serif fallback is not pixel-identical'},null,2)+'\n');
 for(const name of Object.keys(brands))for(const type of ['icon','logo']){const alpha=async theme=>sharp(path.join(out,name,type+'-'+theme+'.png')).ensureAlpha().extractChannel(3).raw().toBuffer();if(!(await alpha('light')).equals(await alpha('dark')))throw Error('Theme alpha mismatch: '+name+'/'+type);}
 fs.writeFileSync(path.join(out,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-console.log('40 PNGs and editable SVG sources exported; dimensions verified.');
+console.log(manifest.length+' PNGs and editable SVG sources exported; dimensions verified.');
 })();
