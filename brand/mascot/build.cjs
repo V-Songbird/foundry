@@ -40,7 +40,7 @@ for (const plugin of Object.keys(palette)) {
     } else {
       svg=svg.replace(/<g class="stress"><g class="tense">[\s\S]*?<\/g><\/g>/,'<g class="noise"><path d="M-33 -38q8 -4 16 0M18 -42l15 1M-5 0h10" class="mark"/><path d="M56 19Q27 18 18 2Q12 -5 9 1Q7 8 16 12L42 36" class="body edge"/></g>');
       svg=svg.replace('class="typing-left"','class="typing-left working"').replace('class="typing-right"','class="typing-right working"');
-      svg=svg.replace('</style>','.working{opacity:0;animation:work 14s ease-in-out infinite!important}@keyframes work{0%,51%,100%{opacity:0}56%,95%{opacity:1}}.flame-move{animation:none;transform:scale(.9)}.typing-left path{animation:slowTap .6s ease-in-out infinite alternate}.typing-right path{animation:slowTap .6s ease-in-out -.6s infinite alternate}@keyframes slowTap{to{transform:translateY(-3px)}}</style>');
+      svg=svg.replace('</style>','.working{opacity:0;animation:work 14s ease-in-out infinite}@keyframes work{0%,51%,100%{opacity:0}56%,95%{opacity:1}}@media(prefers-reduced-motion:reduce){.working{opacity:1}}.flame-move{animation:none;transform:scale(.9)}.typing-left path{animation:slowTap .6s ease-in-out infinite alternate}.typing-right path{animation:slowTap .6s ease-in-out -.6s infinite alternate}@keyframes slowTap{to{transform:translateY(-3px)}}</style>');
     }
     svg=svg.replace('>hush</text>',`>${plugin==='foreman'?'Foreman':'razor'}</text>`);
     if(plugin==='foreman') svg=svg.replace('font-size="20" font-weight="600">Foreman','font-size="17" font-weight="600">Foreman');
@@ -60,6 +60,8 @@ for (const plugin of Object.keys(palette)) {
   if(!svg.includes('<g class="stamp">')) throw Error('Stamp ending not inserted: '+plugin);
   if(!svg.includes('presses the '+plugin+' seal')) throw Error('Stamp ending not described: '+plugin);
   if(!svg.includes('>'+closing+'</text>')) throw Error('Closing text changed: '+plugin);
+  // Reduced motion relies on *{animation:none!important}; any other important animation declaration can outrank it.
+  if(!svg.includes('@media(prefers-reduced-motion:reduce){*{animation:none!important}')||svg.match(/animation[\w-]*\s*:[^;{}"]*!\s*important/gi).length!==1) throw Error('An animation can outrank the reduced-motion rule: '+plugin);
   fs.writeFileSync(path.join(__dirname,plugin+'.svg'),svg);
 }
 console.log('Built Hush, Foreman and Razor; each scene keeps its original closing line.');
