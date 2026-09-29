@@ -103,7 +103,8 @@ icon reaches Codex through the same copy. Flint takes the identity files only.
 
 Ember is round and orange, with a friendly face and an expressive flame. No rocky crust, fissures
 or shine. Its body, flame outline and face stay in dark ink `#252820` in both themes and never get
-a white outline; props and text around it may adapt to a dark background.
+a white outline. In the scenes, prop outlines use the same dark ink in both themes; prop fills and
+text adapt to a dark background, and the seal follows the theme's ink.
 
 Each plugin tells one story. Hush goes from stressed typing to calm work. Foreman starts
 overwhelmed by crooked folders and torn paper, gathers Task #1, Side Request and Issue 104 into a
