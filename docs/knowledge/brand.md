@@ -24,16 +24,19 @@ Text stays straight: names in lowercase bold Segoe UI, supporting copy in regula
 generous empty space and one short promise, and never invent a performance claim. Do not
 regenerate the identity with an image model.
 
-| Brand | Symbol | Fill in both themes |
-| --- | --- | --- |
-| Foundry | Rounded anvil, no spark | `#BE5D27` |
-| Hush | Speech bubble with a quiet dash, no finger | `#2C75A5` |
-| Foreman | Folded ribbon | `#21553B` |
-| Razor | Notched diagonal blade | `#BF4935` |
-| Flint | One faceted stone, no spark and no second stone | `#C18423` |
+Each symbol is a hallmark seal: one filled outline per brand with a glyph inside it.
+
+| Brand | Seal | Glyph inside | Fill in both themes |
+| --- | --- | --- | --- |
+| Foundry | Shield | Ember's flame, no spark | `#BE5D27` |
+| Hush | Pebble | Crescent moon | `#2C75A5` |
+| Foreman | Tag with clipped corners | Plumb line | `#21553B` |
+| Razor | Blade hexagon | Trimmed block | `#BF4935` |
+| Flint | One faceted stone, no spark and no second stone | Its facets: one paper-filled, three ink lines | `#C18423` |
 
 The light theme uses ink `#252820` on `#FFFFFF`; the dark theme uses ink `#EEE9DE` on `#191C1B`.
-Brand fills and geometry stay identical between themes, and only ink and background change.
+Seal fills and geometry stay identical between themes. Only ink, background and the glyph's
+paper fill change; the flame keeps Ember's own orange in both themes.
 Semantic diff, error and success colors keep their meaning and are never brand accents.
 
 ## What lives where
@@ -108,14 +111,22 @@ plan and points only at the end, with Issue 104 still unchecked. Razor thinks, l
 checklist, then works. The scene accents are Hush `#2C75A5` and `#79B6DE`, Foreman `#21553B` and
 `#9EC8AC`, Razor `#BF4935` and `#EB8D79`, light and dark.
 
+Every scene ends the same way. After the answer card appears, a stamp presses the plugin's seal
+onto the card's lower right corner and lifts; the seal stays until the card fades. The build takes
+the seal from the light icon source in `brand/identity/source/`, so a changed seal reaches the
+scenes on the next mascot build.
+
 The scenes are illustrations, not measurements: never present their timing as a result. Each
 keeps the closing line of its original scene, and the build stops if that line changes. Keep the
-reduced-motion state and a readable final hold.
+reduced-motion state and a readable final hold. Under reduced motion the stamp is hidden and the
+card shows the seal.
 
 ## Evidence graphics
 
 The graphics build restyles frames and labels only. Recorded text, plotted marks, measured bars
-and replay animation stay exactly as recorded, and the build fails if any of them changes. In the
+and replay animation stay exactly as recorded, and the build fails if any of them changes. Each
+frame also carries the plugin's seal, from the light icon source, in empty space on the right that
+the build sets per graphic; the seal follows the theme's ink and paper. In the
 Razor demo, code indentation and diff highlighting may change presentation, never code tokens.
 The demo replays animate with SMIL; under reduced motion each one rests on its final recorded frame.
 

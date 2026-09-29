@@ -3,6 +3,14 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const jobs={hush:['hero.svg','demo.svg','hero-opus5.svg','demo-opus5.svg'],foreman:['hero.svg','demo.svg','paper-trail.svg'],razor:['hero.svg','demo.svg']};
 const palette={hush:['#2c75a5','#79b6de'],foreman:['#21553b','#9ec8ac'],razor:['#bf4935','#eb8d79']};
+// Each frame carries its plugin's hallmark seal: [x, y, rotation, size] of its center in the viewBox.
+const seals={hush:{'hero.svg':[628,238,-8,64],'hero-opus5.svg':[628,238,-8,64],'demo.svg':[655,38,-6,40],'demo-opus5.svg':[655,38,-6,40]},foreman:{'hero.svg':[612,176,-10,64],'demo.svg':[650,40,-6,44],'paper-trail.svg':[655,44,-6,44]},razor:{'hero.svg':[632,284,-8,64],'demo.svg':[655,38,-6,40]}};
+const seal=plugin=>{
+  const icon=fs.readFileSync(path.join(__dirname,'..','identity','source',plugin+'-light.svg'),'utf8');
+  const group=icon.slice(icon.indexOf('<g'),icon.lastIndexOf('</svg>')).replace('stroke="#252820"','class="seal"').replaceAll('fill="var(--paper)"','class="seal-paper"').replaceAll('var(--accent)',icon.match(/--accent:(#[\da-f]{6})/)[1]);
+  assert.ok(group.startsWith('<g class="seal"'),'Seal source lost its ink stroke: '+plugin);
+  return group;
+};
 const nodes=(s,tag)=>[...s.matchAll(new RegExp('<'+tag+'\\b[^>]*(?:/>|>[\\s\\S]*?</'+tag+'>)','g'))].map(m=>m[0]);
 const report=[];
 for(const [plugin,files] of Object.entries(jobs)) for(const file of files){
@@ -24,7 +32,10 @@ for(const [plugin,files] of Object.entries(jobs)) for(const file of files){
     const dark=before.indexOf('@media')>=0&&after.slice(0,offset).includes('@media');
     return '.'+cls+'{'+body.replace(/#[\da-fA-F]{6}/g,palette[plugin][dark?1:0])+'}';
   });
-  after=after.replace('</style>',`.card,.bg{fill:#fff}.ink-frame{stroke:#252820;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}text{font-kerning:normal;text-rendering:optimizeLegibility}@media(prefers-color-scheme:dark){.card,.bg{fill:#191c1b}.ink-frame{stroke:#eee9de}}`+'</style>');
+  after=after.replace('</style>',`.card,.bg{fill:#fff}.ink-frame{stroke:#252820;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.seal{stroke:#252820}.seal-paper{fill:#fff}text{font-kerning:normal;text-rendering:optimizeLegibility}@media(prefers-color-scheme:dark){.card,.bg{fill:#191c1b}.ink-frame{stroke:#eee9de}.seal{stroke:#eee9de}.seal-paper{fill:#191c1b}}`+'</style>');
+  assert.ok(seals[plugin][file],'No seal position for '+plugin+'-'+file);
+  const [x,y,turn,size]=seals[plugin][file];
+  after=after.replace(/<\/svg>(\s*)$/,`<g transform="translate(${x} ${y}) rotate(${turn}) translate(${-size/2} ${-size/2}) scale(${size/128})" aria-hidden="true">${seal(plugin)}</g></svg>$1`);
   if(plugin==='razor' && file==='demo.svg') after=after.replace(/<text\b[^>]*>[\s\S]*?<\/text>/g,node=>{
     const y=Number(node.match(/\by="([^"]+)"/)?.[1]);
     return y>=156 && y<=608 ? '<g transform="translate(0 14)">'+node+'</g>' : node;

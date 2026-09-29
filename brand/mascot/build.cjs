@@ -46,6 +46,13 @@ for (const plugin of Object.keys(palette)) {
   }
   svg=svg.replace(/<g class="hush">([\s\S]*?)<\/g>/,'<g class="hush"><g transform="translate(619 85) scale(1.5) translate(-619 -85)">$1</g></g>');
   svg=svg.replace('font-weight="600">'+(plugin==='foreman'?'Foreman':plugin)+'</text>','font-weight="700">'+(plugin==='foreman'?'Foreman':plugin)+'</text>');
+  // Ending: once the answer card shows, a stamp presses the plugin's hallmark seal onto it and lifts.
+  const icon=fs.readFileSync(path.join(__dirname,'..','identity','source',plugin+'-light.svg'),'utf8');
+  const seal=icon.slice(icon.indexOf('<g'),icon.lastIndexOf('</svg>')).replace('stroke="#252820"','class="seal"').replaceAll('fill="var(--paper)"','class="seal-paper"').replaceAll('var(--accent)',icon.match(/--accent:(#[\da-f]{6})/)[1]);
+  if(!seal.startsWith('<g class="seal"')) throw Error('Seal source lost its ink stroke: '+plugin);
+  svg=svg.replace('</style>','.seal{stroke:var(--ink)}.seal-paper{fill:var(--paper)}.stamp{animation:stamp 14s cubic-bezier(.5,0,.3,1) infinite}@keyframes stamp{0%,74%{opacity:0;transform:translate(0,-150px)}77%{opacity:1}81%{opacity:1;transform:translate(0,-6px)}83%{opacity:1;transform:translate(0,0) scale(1.04,.94)}85%{opacity:1;transform:translate(0,-10px)}88%{opacity:1}91%,100%{opacity:0;transform:translate(0,-170px)}}.imprint{transform-box:fill-box;transform-origin:center;animation:imprint 14s ease-out infinite}@keyframes imprint{0%,82.5%{opacity:0;transform:scale(.9)}84%,95%{opacity:1;transform:scale(1)}100%{opacity:0}}@media(prefers-reduced-motion:reduce){.stamp{opacity:0}.imprint{opacity:1}}</style>');
+  svg=svg.replace('<text x="410" y="369"',`<g transform="translate(770 250) rotate(-9) translate(-22 -22) scale(.34375)" aria-hidden="true"><g class="imprint">${seal}</g></g><g transform="translate(770 282)" aria-hidden="true"><g class="stamp"><g transform="rotate(-9) scale(.75)"><path d="M-10 -86Q0 -90 10 -86L12 -48Q0 -44 -12 -48Z" class="warm edge"/><path d="M-30 -48Q0 -52 30 -48L32 -38Q0 -34 -32 -38Z" class="paper edge"/><path d="M-38 -38Q0 -42 38 -38L38 -30Q0 -26 -38 -30Z" class="blue edge"/></g></g></g>\n<text x="410" y="369"`);
+  svg=svg.replace(' Illustrative animation',` At the end, a stamp presses the ${plugin} seal onto the answer. Illustrative animation`);
   if(!svg.includes('>'+closing+'</text>')) throw Error('Closing text changed: '+plugin);
   fs.writeFileSync(path.join(__dirname,plugin+'.svg'),svg);
 }
