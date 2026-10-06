@@ -2,12 +2,12 @@
 
 Foundry is the marketplace that lists the Foreman, Hush and Razor plugins for Claude Code and
 Codex. The plugins are Git submodules pinned by commit; this repository holds the two catalogs,
-the release procedure, the README contract the plugins share and the brand kit their images come
-from. Foreman and Razor also run on Antigravity, which has no catalog: its users install a plugin
-directory from a Foundry clone, which checks the plugin out at its pinned commit, and Antigravity
-reads that plugin's own root `plugin.json` and `hooks.json`. Nothing is installed here, and the
-only build is the artwork under `brand/`. The plugins run their hooks and tests with Node.js 22 or
-later and Git.
+the release procedure, the README contract the plugins share, the brand kit their images come
+from and the benchmark harness that measures them. Foreman and Razor also run on Antigravity,
+which has no catalog: its users install a plugin directory from a Foundry clone, which checks the
+plugin out at its pinned commit, and Antigravity reads that plugin's own root `plugin.json` and
+`hooks.json`. Nothing is installed here, and the only build is the artwork under `brand/`. The
+plugins run their hooks and tests with Node.js 22 or later and Git.
 
 ## Start here
 
@@ -41,6 +41,7 @@ Run from the repository root unless a row names another directory.
 | `node brand/identity/build.cjs` | Rebuild icons, README banners, wordmarks and social cards | Local; needs Segoe UI and Sharp at the `sharp.sharp` version in `brand/identity/build-environment.json`, resolved normally or through `NODE_PATH`; the repository installs neither |
 | `node brand/identity/build-review.cjs` | Refresh the review gallery `brand/identity/index.html` | Local |
 | `node brand/check-timing.js <svg>` | Check the SMIL timing lists of an animated SVG | Local |
+| `node --test foreman/tests/*.test.js`, `hush/tests/*.test.js` or `razor/tests/*.test.js` from `benchmarks/` | One benchmark suite's offline tests: runners, scorers and fixtures, with no model session | Local; reads the plugin checkouts, so CI, which checks out no submodules, cannot run them. From a worktree, set `BENCH_PLUGINS_DIR` to the Foundry root. The tests read no run history from `.private/benchmarks/`; a live run or a history reader from a worktree also needs `BENCH_DATA_DIR` set to `<Foundry root>/.private/benchmarks`, because the default is the worktree's own `.private/`. A live run starts paid model sessions; read [the benchmarks README](benchmarks/README.md) first |
 
 CI runs `.github/workflows/validate-marketplace.yml` on pushes and pull requests to `main`. Its
 `validate` job is the check the default branch's ruleset requires. It checks both catalogs: no
@@ -66,6 +67,7 @@ and CI checks out no submodules.
 | `scripts/claude-hooks/` | The post-edit hook that reruns the touched plugin's tests, with its own test |
 | `scripts/check-shared-copies.js` | The check that the plugins' hand-copied files agree, with its own test |
 | `brand/` | The brand kit: sources, generators and the exported images each plugin copies into its `assets/` |
+| `benchmarks/` | The benchmark harness: per-plugin runners, fixtures and offline tests; `paths.js` resolves the plugin checkouts and the ignored `.private/benchmarks/<plugin>/` folder that holds run history and output |
 | `docs/knowledge/` | Public documentation: the plugin README contract and the brand guide |
 
 ## Conventions

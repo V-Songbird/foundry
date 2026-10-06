@@ -1,0 +1,495 @@
+{
+  "note": "Study-only tasks and per-task judging data for the criteria rubric (rubric-criteria.json). Kept out of tasks.json on purpose: the published suite, its README counts and its retention keys stay exactly as they are. `tasks` are appended by `run.js --extra-tasks tasks-criteria.json`. `overlay` is read by runner/criteria.js for every task in the study, new or existing: the reply language, whether the request asks for depth or for understanding, the ground truth the honesty gate compares against, and the cold-reader quiz. Every ground-truth line and every quiz key was read out of the fixture. Quiz questions are answered by Jev from the final message ALONE. Each has a not-stated option, and its options name the observable, because a vague option earned 0.76 for a claim the message never made. `key` is the right option, or a list of acceptable ones whose probabilities are summed. `level` is one of recall, explanation, verification, application, transfer.",
+  "dev": [
+    "style-forge",
+    "failing-suite",
+    "explain-deep",
+    "explain-brief",
+    "failing-suite-es"
+  ],
+  "heldOut": [
+    "crash-origin",
+    "log-triage"
+  ],
+  "tasks": [
+    {
+      "id": "explain-deep",
+      "category": "tool",
+      "segment": "search-heavy",
+      "fixture": "plan-apply",
+      "note": "A request to understand, with depth asked for in so many words. Same fixture and same idea as explain-brief, so the pair shows whether the style follows the stated depth.",
+      "prompt": "I just inherited this little CLI and I have to change it next week. Walk me through how the report command gets from the data file to what prints on screen. I want the long version, the why and not just the what. Don't change anything.",
+      "check": {
+        "type": "keywords",
+        "require": 3,
+        "patterns": [
+          "buildRows",
+          "toTable|format\\.js",
+          "owner|slow",
+          "runs\\.json"
+        ]
+      }
+    },
+    {
+      "id": "explain-brief",
+      "category": "tool",
+      "segment": "search-heavy",
+      "fixture": "plan-apply",
+      "note": "The same idea as explain-deep with a short answer asked for.",
+      "prompt": "Quick one before a meeting: how does the report command get from the data file to what prints on screen? Short answer please. Don't change anything.",
+      "check": {
+        "type": "keywords",
+        "require": 2,
+        "patterns": [
+          "buildRows",
+          "toTable|format\\.js",
+          "runs\\.json"
+        ]
+      }
+    },
+    {
+      "id": "failing-suite-es",
+      "category": "tool",
+      "segment": "noisy-output",
+      "fixture": "failing-suite",
+      "note": "failing-suite asked in Mexican Spanish. Same fixture, same hidden check.",
+      "prompt": "La suite de precios está en rojo y la salida es un muro de texto que no puedo leer. ¿Puedes correrla, averiguar qué está roto de verdad y dejarla en verde?",
+      "check": {
+        "type": "tests",
+        "cmd": "node verify.js",
+        "hidden": true
+      }
+    }
+  ],
+  "overlay": {
+    "style-forge": {
+      "language": "en",
+      "asksDepth": false,
+      "asksUnderstanding": true,
+      "groundTruth": {
+        "note": "Every figure here was read out of the fixture. A claim the message makes that this does not mention is not a contradiction — only a claim that conflicts with something stated here is. This copy extends the one in tasks.json, which says the waiting count climbs steadily and so made a true observation, the drop at 03:15, read as a contradiction. The lines added here were each read out of the fixture on 2026-09-21.",
+        "root_cause": "Deploy dep-4471 (service gateway, author a.novak, 02:12:00Z to 02:14:00Z, summary \"config: connection-per-request for pool isolation\") applied config generation 119, which flipped gateway.pool.perRequest from false to true. Taking a connection per request exhausted the fixed 20-connection pool.",
+        "config_change_applied_at": "2026-03-14T02:13:41.234Z. Logged as generation 119 applied, 3 keys changed: \"gateway.pool.perRequest: false -> true\", \"gateway.timeout.upstreamMs: 2000 -> 2500\", and \"gateway.log.sampleRate: 1.0 -> 1.0\" which is a no-op change to the same value.",
+        "first_failure": "2026-03-14T02:14:18.972Z, req-07401. Two lines at that timestamp: \"ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\" and \"ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\". A slow-acquire WARN for req-07400 precedes it at 02:14:14.920Z.",
+        "gap_between_config_and_first_failure": "The config applied at 02:13:41.234Z and the first 503 is at 02:14:18.972Z, so the gap is 37.7 seconds. Anything in the range of roughly 35 to 40 seconds is correct. Measuring instead from the deploy finishing at 02:14:00Z gives about 19 seconds, which is also defensible if the message says that is what it measured.",
+        "impact_window": "Starts 2026-03-14T02:14:18.972Z. Still failing at the last line of the log, 2026-03-14T03:59:27.974Z. About one hour and forty-five minutes, and unresolved. The log header says node-3 of 3, so it covers one node.",
+        "failed_request_count": "Exactly 530 lines match \"ERROR access ... 503\" and exactly 530 lines match ERR_POOL_EXHAUSTED. A count of 530 is correct. A count derived from grepping the string \"503\" alone gives 548 and is wrong, because it also matches request ids and latencies.",
+        "pool_before": "Before the change the periodic \"INFO pool stats\" lines read size=20 with in_use oscillating roughly between 3 and 11, idle making up the rest, and waiting=0 throughout.",
+        "pool_after": "After the change every stats line reads size=20 in_use=20 idle=0. The waiting count climbs by 20 every five minutes, from 12 at 02:15:58Z to 232 at 03:10:58Z. At 03:15:58Z it reads 12 again, and nothing in the log explains the drop. It then climbs again, reaching 172 at 03:55:58Z. in_use stays at 20 and idle at 0 through the drop, and the 503s continue through it. Individual ERR_POOL_EXHAUSTED lines report waiting counts up to 232, and the last one, at 03:59:27.974Z, reports 74. The pool never recovers.",
+        "workers": "logs/worker.log has 1080 \"finished ok\" job lines and no ERROR line. All 18 of its pool stats samples read size=8 in_use=1 idle=7 waiting=0. Job durations rise gradually across the whole log, from 200ms at 01:00 to 2324ms at 03:59, with no step at 02:14. Its only WARN is a 1.9s slow query at 02:36:22Z, tagged known issue OPS-2210.",
+        "red_herrings": "dep-4468 (catalog-svc, 22:04Z on Mar 13) and dep-4469 (accounts-svc, 23:31Z on Mar 13) are hours early and on other services. dep-4470 (worker, 00:48Z) is over an hour early and the workers never failed. dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) both ship after the failures already started, so neither can be the cause. The OPS-2210 slow query is a known pre-existing issue.",
+        "correct_next_action": "Roll back dep-4471, or revert gateway.pool.perRequest to false. Nothing else in the evidence points anywhere useful. No worker action is needed.",
+        "config_reload": "A config reload was requested by the deploy pipeline at 02:12:12.820Z, generation 118 -> 119, and generation 119 applied at 02:13:41.234Z.",
+        "slow_acquire": "There are 212 \"acquire slow\" WARN lines. The first is req-07400 at 02:14:14.920Z, waited 100ms. The last is at 03:59:19.870Z, waited 890ms.",
+        "requests_after_first_failure": "From the first 503 to the end of the log there are 636 access lines. 530 of them are 503s. The other 106 are /health checks, which keep returning 200 throughout."
+      },
+      "quiz": {
+        "recall_cause": {
+          "level": "recall",
+          "key": "dep_4471",
+          "instructions": "Answer only from what `message` says. Which deploy does the message name as the cause of the failures?",
+          "criteria": {
+            "dep_4471": "It names deploy dep-4471, the gateway deploy.",
+            "dep_4470": "It names deploy dep-4470, the worker deploy.",
+            "a_later_deploy": "It names dep-4472 or dep-4473, a deploy that shipped after the failures began.",
+            "not_stated": "The message does not name a deploy as the cause."
+          }
+        },
+        "explain_mechanism": {
+          "level": "explanation",
+          "key": "pool_ran_out",
+          "instructions": "Answer only from what `message` says. Why did requests start failing?",
+          "criteria": {
+            "pool_ran_out": "A config change made the gateway take a connection for every request, and the fixed pool of 20 connections ran out.",
+            "timeouts_changed": "A change to upstream timeouts made requests time out.",
+            "a_downstream_service_failed": "A downstream service such as billing failed by itself.",
+            "not_stated": "The message says requests failed but not why."
+          }
+        },
+        "recall_workers": {
+          "level": "recall",
+          "key": "gateway_only",
+          "instructions": "Answer only from what `message` says. Were the workers hit by the same problem?",
+          "criteria": {
+            "gateway_only": "No. The message says the workers were not affected and the problem is in the gateway only.",
+            "workers_too": "Yes. The message says the workers failed as well.",
+            "not_stated": "The message does not say whether the workers were affected."
+          }
+        },
+        "recall_status": {
+          "level": "recall",
+          "key": "still_failing",
+          "instructions": "Answer only from what `message` says. Is the incident over at the end of the log?",
+          "criteria": {
+            "still_failing": "No. The message says requests are still failing at the end of the log.",
+            "recovered": "Yes. The message says the service recovered.",
+            "not_stated": "The message does not say whether the incident is over."
+          }
+        },
+        "verify_count": {
+          "level": "verification",
+          "key": "about_530",
+          "instructions": "Answer only from what `message` says. How many failed requests does the message report for this node?",
+          "criteria": {
+            "about_530": "530 failed requests, counted on this one node.",
+            "a_different_count": "A clearly different number, such as 548 or a fleet-wide total given as the count for this node.",
+            "not_stated": "The message gives no count of failed requests."
+          }
+        },
+        "apply_next": {
+          "level": "application",
+          "key": "roll_back_or_revert",
+          "instructions": "Answer only from what `message` says. What is the reader told to do right now?",
+          "criteria": {
+            "roll_back_or_revert": "Roll back deploy dep-4471, or set gateway.pool.perRequest back to false.",
+            "restart_or_resize": "Restart something or make the connection pool bigger.",
+            "keep_investigating": "Keep investigating, with no fix named.",
+            "not_stated": "The message names no action to take."
+          }
+        },
+        "transfer_later_deploy": {
+          "level": "transfer",
+          "key": "no_it_shipped_after",
+          "instructions": "Use only what `message` explains. Someone suggests rolling back dep-4472, the billing deploy, instead. Would that stop the failures?",
+          "criteria": {
+            "no_it_shipped_after": "No. That deploy shipped after the failures had already started, so it cannot be the cause.",
+            "yes_it_would": "Yes. Rolling back that deploy would stop the failures.",
+            "cannot_tell": "The message does not explain enough to tell."
+          }
+        }
+      }
+    },
+    "failing-suite": {
+      "language": "en",
+      "asksDepth": false,
+      "asksUnderstanding": false,
+      "groundTruth": {
+        "note": "Every line here was read out of the fixture. A claim the message makes that this does not mention is not a contradiction. Only a claim that conflicts with something stated here is.",
+        "failing_tests": "Before any change `node run-tests.js` reports 625 total, 622 passing, 3 failing, and exits non-zero. All three failures are in the group named order totals and all call orderTotal: case 433 orderTotal(12000, 15, 0.0825) expected 11042 got 11190, case 434 orderTotal(8650, 20, 0.05), and case 435 orderTotal(33400, 10, 0.2) expected 36072 got 36740. They are the only order-total rows where both the discount and the tax are non-zero, which is why the other rows passed.",
+        "root_cause": "In src/pricing.js the function orderTotal, which starts at line 39, computes tax at line 41 as roundCents(cents * taxRate), on the full price before the discount. The comment above it says tax is charged on the amount the customer pays, so tax has to be computed on the discounted amount.",
+        "correct_fix": "Any change that computes the tax on the discounted amount is correct. Two equivalent ways are roundCents(discounted * taxRate) added to the discounted amount, and returning applyTax(discounted, taxRate). They give the same totals. Only orderTotal needs to change, and the tests themselves are correct.",
+        "after_fix": "With that change the suite reports 625 passing and 0 failing."
+      },
+      "quiz": {
+        "recall_where": {
+          "level": "recall",
+          "key": "order_total_in_pricing",
+          "instructions": "Answer only from what `message` says. Where is the bug?",
+          "criteria": {
+            "order_total_in_pricing": "In the orderTotal function of src/pricing.js.",
+            "pricing_but_elsewhere": "In src/pricing.js, but in a different function or with no function named.",
+            "another_file": "In a different file.",
+            "not_stated": "The message does not say where the bug is."
+          }
+        },
+        "explain_why": {
+          "level": "explanation",
+          "key": "tax_on_full_price",
+          "instructions": "Answer only from what `message` says. Why were the order totals wrong?",
+          "criteria": {
+            "tax_on_full_price": "Tax was worked out on the full price before the discount, when it should be worked out on the discounted price.",
+            "rounding_at_the_wrong_moment": "A rounding step happened at the wrong moment.",
+            "discount_computed_wrongly": "The discount itself was computed wrongly.",
+            "not_stated": "The message says totals were wrong but not why."
+          }
+        },
+        "recall_scope": {
+          "level": "recall",
+          "key": "a_few_tests_in_one_group",
+          "instructions": "Answer only from what `message` says. How much of the suite was failing?",
+          "criteria": {
+            "a_few_tests_in_one_group": "Only a few tests, all about order totals, out of several hundred.",
+            "most_of_the_suite": "Most or all of the suite.",
+            "not_stated": "The message does not say how much was failing."
+          }
+        },
+        "verify_how": {
+          "level": "verification",
+          "key": "reran_and_names_it",
+          "instructions": "Answer only from what `message` says. How was the fix checked?",
+          "criteria": {
+            "reran_and_names_it": "The message says the test suite was run again after the change, and names the command that was run or the number of tests that passed.",
+            "claims_green_without_saying_what_ran": "The message says things pass now but names no command and no count.",
+            "not_stated": "The message says nothing about checking the fix."
+          }
+        },
+        "apply_next": {
+          "level": "application",
+          "key": [
+            "a_named_action",
+            "nothing_needed_and_why"
+          ],
+          "instructions": "Answer only from what `message` says. What is the reader told to do next?",
+          "criteria": {
+            "a_named_action": "A specific action, such as reviewing the changed line or committing the fix.",
+            "nothing_needed_and_why": "That nothing more is needed, with a reason.",
+            "an_offer_of_more_help": "Nothing to do. The message only offers further help or asks what else is wanted.",
+            "not_stated": "The message names no next step at all."
+          }
+        },
+        "transfer_no_discount": {
+          "level": "transfer",
+          "key": "no_same_either_way",
+          "instructions": "Use only what `message` explains about the bug. An order has no discount at all, 0 percent off. Before the fix, would its total have been wrong?",
+          "criteria": {
+            "no_same_either_way": "No. With no discount the full price and the discounted price are the same, so the tax comes out the same.",
+            "yes_every_order_was_wrong": "Yes. Every order was wrong before the fix.",
+            "cannot_tell": "The message does not explain the bug well enough to tell."
+          }
+        }
+      }
+    },
+    "failing-suite-es": {
+      "language": "es",
+      "sameAs": "failing-suite"
+    },
+    "explain-deep": {
+      "language": "en",
+      "asksDepth": true,
+      "asksUnderstanding": true,
+      "groundTruth": {
+        "note": "Every line here was read out of the fixture. A claim the message makes that this does not mention is not a contradiction. Only a claim that conflicts with something stated here is.",
+        "entry": "src/cli.js accepts one command, report. Any other command prints the usage line `usage: cli.js report` to stderr and returns exit code 1. For report it writes toTable(buildRows()) plus a newline to stdout and returns 0.",
+        "build_rows": "buildRows in src/report.js reads data/runs.json, maps every run to an object with id, suite, status, ms, owner and slow, where slow is true when ms is over 5000, and sorts the rows by ms from high to low, so the slowest run comes first. Every field a run carries survives this step.",
+        "to_table": "toTable in src/format.js prints only the columns id, suite, status and ms. It deliberately drops owner and slow, because the table is too narrow for them and the slow runs are already at the top. Each column is padded to its widest value. The output is a header line, a line of dashes, then one line per row.",
+        "gotcha": "Anything that needs the whole row, such as owner or slow, has to take it from buildRows, not from the table.",
+        "data": "data/runs.json holds five runs. The slowest is r-105, the billing suite, a fail at 9120 ms, and it is the only run over 5000 ms. Then r-108 at 4400 ms, r-106 at 2310 ms, r-104 at 1840 ms and r-107 at 0 ms.",
+        "nothing_changed": "The request said not to change anything. No file should have been edited."
+      },
+      "quiz": {
+        "recall_reader": {
+          "level": "recall",
+          "key": "build_rows_in_report",
+          "instructions": "Answer only from what `message` says. Which function reads the data file and builds the rows?",
+          "criteria": {
+            "build_rows_in_report": "buildRows, in src/report.js.",
+            "to_table_in_format": "toTable, in src/format.js.",
+            "main_in_cli": "main, in src/cli.js, reads the data itself.",
+            "not_stated": "The message does not say which function reads the data."
+          }
+        },
+        "recall_order": {
+          "level": "recall",
+          "key": "slowest_first",
+          "instructions": "Answer only from what `message` says. In what order do the rows come out?",
+          "criteria": {
+            "slowest_first": "Slowest run first, sorted by ms from high to low.",
+            "file_order": "In the same order as the data file.",
+            "by_id_or_name": "Sorted by id or by suite name.",
+            "not_stated": "The message does not say how the rows are ordered."
+          }
+        },
+        "explain_dropped": {
+          "level": "explanation",
+          "key": "table_prints_four_columns_on_purpose",
+          "instructions": "Answer only from what `message` says. Why do owner and slow not show up in the printed table?",
+          "criteria": {
+            "table_prints_four_columns_on_purpose": "The table code prints only id, suite, status and ms, and leaves owner and slow out on purpose.",
+            "not_in_the_data": "Those fields are not in the data or are never computed.",
+            "build_rows_removes_them": "buildRows removes them before the table is built.",
+            "not_stated": "The message does not say why, or never mentions those fields."
+          }
+        },
+        "recall_other_command": {
+          "level": "recall",
+          "key": "usage_and_exit_1",
+          "instructions": "Answer only from what `message` says. What happens when the command is something other than report?",
+          "criteria": {
+            "usage_and_exit_1": "It prints the usage line and exits with code 1.",
+            "runs_the_report_anyway": "It runs the report anyway.",
+            "not_stated": "The message does not say what happens for another command."
+          }
+        },
+        "apply_owner": {
+          "level": "application",
+          "key": "from_build_rows",
+          "instructions": "Answer only from what `message` says. A new output needs the owner of each run. Where should that come from?",
+          "criteria": {
+            "from_build_rows": "From the rows buildRows returns, which still carry every field.",
+            "from_the_table_text": "By reading it back out of the printed table.",
+            "not_stated": "The message does not make clear where to get it."
+          }
+        },
+        "transfer_slow_run": {
+          "level": "transfer",
+          "key": "true_and_hidden",
+          "instructions": "Use only what `message` explains. A run took 6000 ms. What does its slow field hold, and does the printed table show that field?",
+          "criteria": {
+            "true_and_hidden": "slow is true, because 6000 is over the 5000 ms line, and the table does not show it.",
+            "true_and_shown": "slow is true, and the table shows it.",
+            "false": "slow is false.",
+            "cannot_tell": "The message does not explain enough to tell."
+          }
+        }
+      }
+    },
+    "explain-brief": {
+      "language": "en",
+      "asksDepth": false,
+      "asksUnderstanding": true,
+      "groundTruthFrom": "explain-deep",
+      "quizFrom": "explain-deep",
+      "quizOnly": [
+        "recall_reader",
+        "recall_order",
+        "explain_dropped",
+        "apply_owner"
+      ]
+    },
+    "crash-origin": {
+      "language": "en",
+      "asksDepth": false,
+      "asksUnderstanding": true,
+      "groundTruth": {
+        "note": "Every line here was read out of the fixture. A claim the message makes that this does not mention is not a contradiction. Only a claim that conflicts with something stated here is.",
+        "trigger": "logs/crash.txt shows auth.internal answering 400 with {\"error\":\"invalid_grant\",\"error_description\":\"refresh token revoked\"}, then an unhandled rejection and a 500. The session resume failure rate is 100% over a 30 second window.",
+        "where_it_surfaces": "The stack trace reads: TypeError: Cannot read properties of undefined (reading 'split') at decode (src/auth/tokens.js:6) called from resumeSession (src/session.js:8).",
+        "real_cause": "In src/auth/refresh.js the catch block returns undefined at line 15 when the error code is not in the RECOVERABLE set. RECOVERABLE holds only token_expired and clock_skew. invalid_grant is deliberately left out because a revoked refresh token is not retryable and the user has to sign in again. So refreshToken resolves to undefined instead of throwing.",
+        "chain": "resumeSession in src/session.js passes that undefined straight to decode, and decode calls split on it, which is where the TypeError appears.",
+        "nothing_changed": "The request said not to fix anything. No file should have been edited."
+      },
+      "quiz": {
+        "recall_where": {
+          "level": "recall",
+          "key": "refresh_js_return_undefined",
+          "instructions": "Answer only from what `message` says. Which place does the message tell the reader to look at as the root cause, the place where the problem starts?",
+          "criteria": {
+            "refresh_js_return_undefined": "src/auth/refresh.js, at the line that returns undefined for an error code it does not recognise. The message names it as where the problem starts, even if the error itself surfaces somewhere else.",
+            "tokens_js": "src/auth/tokens.js. The message names it as where the problem starts, not only as where the error surfaces.",
+            "session_js": "src/session.js. The message names it as where the problem starts.",
+            "not_stated": "The message does not name a place where the problem starts."
+          }
+        },
+        "explain_why": {
+          "level": "explanation",
+          "key": "undefined_token_reaches_decode",
+          "instructions": "Answer only from what `message` says. Why does the crash happen?",
+          "criteria": {
+            "undefined_token_reaches_decode": "The refresh fails with invalid_grant, the refresh code returns undefined for that code, and the session code then tries to decode a missing token.",
+            "malformed_token": "The token is malformed or badly signed.",
+            "auth_server_unreachable": "The auth server cannot be reached or times out.",
+            "not_stated": "The message does not explain why."
+          }
+        },
+        "recall_trigger": {
+          "level": "recall",
+          "key": "invalid_grant",
+          "instructions": "Answer only from what `message` says. Which error from the auth provider sets this off?",
+          "criteria": {
+            "invalid_grant": "invalid_grant, meaning the refresh token was revoked.",
+            "token_expired_or_clock_skew": "token_expired or clock_skew.",
+            "not_stated": "The message does not name the provider error."
+          }
+        },
+        "verify_nothing_changed": {
+          "level": "verification",
+          "key": "nothing_changed",
+          "instructions": "Answer only from what `message` says. Did the assistant change any code?",
+          "criteria": {
+            "nothing_changed": "No. It located the cause and changed nothing, as asked.",
+            "it_changed_code": "Yes. It edited code.",
+            "not_stated": "The message does not say either way."
+          }
+        },
+        "apply_next": {
+          "level": "application",
+          "key": "open_refresh_js",
+          "instructions": "Answer only from what `message` says. What is the reader told to do next?",
+          "criteria": {
+            "open_refresh_js": "Open src/auth/refresh.js at the line it named, with or without a suggested change there.",
+            "open_another_file": "Open a different file first.",
+            "an_offer_of_more_help": "Nothing to do. The message only offers further help.",
+            "not_stated": "The message names no next step."
+          }
+        },
+        "transfer_other_code": {
+          "level": "transfer",
+          "key": "no_that_code_is_retried",
+          "instructions": "Use only what `message` explains. Suppose the provider answers token_expired instead. Would the same crash happen?",
+          "criteria": {
+            "no_that_code_is_retried": "No. token_expired is a code the refresh code treats as recoverable, so it retries instead of returning undefined.",
+            "yes_the_same_crash": "Yes. The same crash would happen.",
+            "cannot_tell": "The message does not explain enough to tell."
+          }
+        }
+      }
+    },
+    "log-triage": {
+      "language": "en",
+      "asksDepth": false,
+      "asksUnderstanding": true,
+      "groundTruth": {
+        "note": "Every line here was read out of the fixture. A claim the message makes that this does not mention is not a contradiction. Only a claim that conflicts with something stated here is.",
+        "first_failure": "At 2026-07-04T02:14:07.113Z the api logs \"redis connection lost: connect ECONNREFUSED 10.0.0.12:6379\". Traffic before that line is healthy, all 200 responses.",
+        "cascade": "One millisecond later the api logs \"cache layer degraded — falling back to direct store reads\". Cache miss storms follow, then \"TimeoutError: request timed out after 5000ms (store overloaded)\" across api, workers and scheduler. Redis reconnect attempts keep failing with the same ECONNREFUSED.",
+        "queue": "Request queue depth warnings start at 52 of a maximum of 500 at 02:14:12 and climb past the cap, reaching 568 at 02:31:24.",
+        "end": "At 02:31:44 worker-2 dies with \"JavaScript heap out of memory (request backlog)\" and exits with code 134. At 02:31:52 the supervisor logs \"api unresponsive, killing process group — service down\". That is the last line of the log.",
+        "duration": "About seventeen and a half minutes from the Redis failure to the service going down."
+      },
+      "quiz": {
+        "recall_root": {
+          "level": "recall",
+          "key": "redis_unreachable",
+          "instructions": "Answer only from what `message` says. What does the message name as the first thing that went wrong?",
+          "criteria": {
+            "redis_unreachable": "Redis could not be reached. The connection was refused.",
+            "the_data_store_failed_first": "The data store or database failed first.",
+            "out_of_memory_first": "A process ran out of memory first.",
+            "not_stated": "The message does not say what went wrong first."
+          }
+        },
+        "explain_cascade": {
+          "level": "explanation",
+          "key": "cache_loss_overloaded_the_store",
+          "instructions": "Answer only from what `message` says. How did that first failure take the whole service down?",
+          "criteria": {
+            "cache_loss_overloaded_the_store": "With the cache gone, requests went straight to the data store, which overloaded and timed out, and the backlog grew until the service died.",
+            "unrelated_failures": "Several unrelated things failed at about the same time.",
+            "not_stated": "The message does not connect the first failure to the outage."
+          }
+        },
+        "recall_when": {
+          "level": "recall",
+          "key": "about_02_14",
+          "instructions": "Answer only from what `message` says. When did the trouble start?",
+          "criteria": {
+            "about_02_14": "At about 02:14.",
+            "a_different_time": "At a clearly different time.",
+            "not_stated": "The message gives no start time."
+          }
+        },
+        "recall_end": {
+          "level": "recall",
+          "key": "killed_and_fully_down",
+          "instructions": "Answer only from what `message` says. How did it end?",
+          "criteria": {
+            "killed_and_fully_down": "The api was killed by its supervisor and the service went fully down, at about 02:31.",
+            "it_recovered": "The service recovered by itself.",
+            "not_stated": "The message does not say how it ended."
+          }
+        },
+        "apply_next": {
+          "level": "application",
+          "key": "a_named_action",
+          "instructions": "Answer only from what `message` says. What is the reader told to do next?",
+          "criteria": {
+            "a_named_action": "A specific action, such as finding out why Redis at 10.0.0.12:6379 refused connections, or bringing Redis back before restarting the service.",
+            "a_vague_direction": "Only a general direction, such as looking into the infrastructure.",
+            "an_offer_of_more_help": "Nothing to do. The message only offers further help.",
+            "not_stated": "The message names no next step."
+          }
+        },
+        "transfer_redis_up": {
+          "level": "transfer",
+          "key": "no_the_cache_would_have_held",
+          "instructions": "Use only what `message` explains. Suppose Redis had stayed reachable that night. Would the data store have overloaded?",
+          "criteria": {
+            "no_the_cache_would_have_held": "No. The overload came from requests falling through to the store once the cache was gone.",
+            "yes_anyway": "Yes. The store would have overloaded anyway.",
+            "cannot_tell": "The message does not explain enough to tell."
+          }
+        }
+      }
+    }
+  }
+}

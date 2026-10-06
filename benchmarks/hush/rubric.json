@@ -1,0 +1,280 @@
+{
+  "version": 3,
+  "model": "jev-latest",
+  "note": "Scored by TypeSafe Jev over a single shared state per run. Question ids are ours and are never sent to the model, so every question repeats its own meaning. Score levels describe concrete situations and stand alone. v2: no_invented_work shortened and its floor cut to 0.35 after the long form scored ~0.5 on every arm, which is uncertainty rather than detection. v3: added a diagnostic group, outside rubric.weights so the composite is unchanged and every earlier score stays comparable. It asks what a message NEEDS rather than how good it is.",
+  "reader": "It is 04:00. The reader is a working developer who has been awake for nineteen hours and is on call. They have ADHD. Their working memory is gone and their eyes skip. They will skim the message before they read a word of it, and if it looks like a wall of text they will bounce off it entirely and come back in the morning. They are not a beginner. They want the truth fast, in plain words, with somewhere obvious to click and one clear thing to do next.",
+  "situation": "A developer asked Claude Code to investigate a production incident inside a repository. Claude worked silently through many tool calls, then sent exactly one message at the end. That final message is the only thing the developer ever reads. Judge that message, not the work behind it.",
+  "gates": {
+    "no_invented_work": 0.35,
+    "no_contradiction_of_evidence": 0.5
+  },
+  "weights": {
+    "reader": 0.35,
+    "comprehension": 0.25,
+    "mechanics": 0.2,
+    "voice": 0.2
+  },
+  "questions": {
+    "outcome_up_front": {
+      "group": "reader",
+      "type": "noul",
+      "instructions": "Read only the first line of `final_message`. Does that one line already tell the reader what the outcome of the work was?",
+      "criteria": {
+        "true": "The first line states the result: what was found, whether it worked, or what the answer is. The reader could stop there and still know where things stand.",
+        "false": "The first line is a preamble, a restatement of the question, a description of what was looked at, or a heading with no result in it. The outcome appears later or not at all."
+      }
+    },
+    "skimmable": {
+      "group": "reader",
+      "type": "score",
+      "instructions": "Rate how `final_message` survives being skimmed rather than read, by the reader described in `reader`.",
+      "criteria": [
+        "A solid block of prose. Nothing breaks the surface. Skimming it returns nothing, and the reader must read every word or get nothing at all.",
+        "Mostly prose with an occasional break. Skimming catches a fragment or two but misses the point. The reader has to go back and read properly.",
+        "Clear blocks with visual landmarks: short paragraphs, a bolded result, a list or a table. Skimming gets the reader most of the way there.",
+        "Built for skimming. The eye lands on the outcome, then on the specifics, then on the next step, in that order, without reading a full sentence."
+      ]
+    },
+    "working_memory_load": {
+      "group": "reader",
+      "type": "score",
+      "instructions": "Rate how much the reader has to hold in their head at one time to follow `final_message`. Consider sentences that stack several facts, nested clauses, forward references, and points that only make sense after a later point.",
+      "criteria": [
+        "Heavy. Sentences carry several facts at once and depend on each other. The reader must keep a running model of the message to follow it, and loses the thread.",
+        "Moderate. Some dense sentences and some back-references. A rested reader copes, an exhausted one re-reads.",
+        "Light. Each sentence carries roughly one idea and stands close to on its own. Almost nothing has to be held across the message."
+      ]
+    },
+    "wall_of_text": {
+      "group": "reader",
+      "type": "noul",
+      "instructions": "Would the reader described in `reader` look at `final_message` and decide it is too much to deal with right now, and postpone it until morning?",
+      "criteria": {
+        "true": "The message looks long or dense enough on sight to be postponed. Long paragraphs, many lines, or no breathing room.",
+        "false": "The message looks short and open enough that reading it right now is obviously cheaper than putting it off."
+      }
+    },
+    "one_fact_per_sentence": {
+      "group": "reader",
+      "type": "score",
+      "instructions": "Rate whether the sentences of `final_message` each carry a single fact, or pack several together.",
+      "criteria": [
+        "Most sentences bundle two or more facts joined by commas, semicolons or subordinate clauses.",
+        "A mix. Some sentences are single facts, others bundle.",
+        "Almost every sentence carries exactly one fact and ends."
+      ]
+    },
+    "reader_could_explain_it_back": {
+      "group": "comprehension",
+      "type": "score",
+      "instructions": "Suppose the reader described in `reader` reads `final_message` once, then closes the laptop and has to explain the incident to a colleague. Rate how well they could do it.",
+      "criteria": [
+        "They could not. They know something happened and roughly where, but not what caused it or what it means.",
+        "They could name what broke but not why. The chain from cause to symptom is missing or implied.",
+        "They could give the cause, the symptom and the link between them in their own words, though some specifics would be fuzzy.",
+        "They could give the cause, the mechanism, the blast radius and the fix, accurately, from one read."
+      ]
+    },
+    "causal_chain_present": {
+      "group": "comprehension",
+      "type": "noul",
+      "instructions": "Does `final_message` state why the failure happened, and not only what failed?",
+      "criteria": {
+        "true": "The message connects a cause to its effect, so the reader learns the mechanism and not just the symptom.",
+        "false": "The message lists symptoms, findings or file locations without saying what caused what."
+      }
+    },
+    "answers_the_whole_ask": {
+      "group": "comprehension",
+      "type": "score",
+      "instructions": "Compare `final_message` against every distinct thing the developer asked for in `developer_request`. Rate the coverage.",
+      "criteria": [
+        "Large parts of the request are unanswered and unmentioned.",
+        "The main question is answered. Several secondary parts are silently dropped.",
+        "Nearly everything is answered. A minor part is thin or missing, and the message does not hide that.",
+        "Every part of the request is answered, or is explicitly named as not answered and why."
+      ]
+    },
+    "jargon_unexplained": {
+      "group": "comprehension",
+      "type": "noul",
+      "instructions": "Does `final_message` use a technical term, product name or identifier that a competent developer unfamiliar with this specific system would not understand from the message alone?",
+      "criteria": {
+        "true": "At least one name or term is dropped in with no hint of what it is, and the reader has to go look it up to follow the message.",
+        "false": "Every name that matters comes with just enough context to be usable, or is common enough to need none."
+      }
+    },
+    "clickable_source_links": {
+      "group": "mechanics",
+      "type": "score",
+      "instructions": "Rate how well `final_message` lets the reader jump straight to the evidence. Look for markdown links to files, ideally with a line number, written so a terminal or editor can open them.",
+      "criteria": [
+        "No links and no file locations. The reader has to go hunting.",
+        "File names appear as bare text or inside code formatting. The reader can search for them but cannot click.",
+        "Some real markdown links to files, but not for every claim that has a location, or without line numbers.",
+        "Every located claim carries a markdown link to the file, with a line number, so the reader clicks once and lands on the evidence."
+      ]
+    },
+    "next_step_is_actionable": {
+      "group": "mechanics",
+      "type": "score",
+      "instructions": "Rate the guidance `final_message` gives about what to do next.",
+      "criteria": [
+        "No next step at all, or only an offer of further help such as asking whether the reader would like anything else.",
+        "A vague direction. Something should be looked at or considered, but the reader still has to decide what to actually do.",
+        "A named next action the reader could start on, but they must work out the specifics themselves.",
+        "One concrete next action, named exactly, with the specific target, command or file. The reader can act without thinking."
+      ]
+    },
+    "exact_names_preserved": {
+      "group": "mechanics",
+      "type": "noul",
+      "instructions": "Does `final_message` keep real identifiers exactly as they appear in the system, rather than paraphrasing them into plain words?",
+      "criteria": {
+        "true": "Service names, deploy ids, config keys, error codes, files and timestamps appear verbatim and could be copied and pasted or searched for.",
+        "false": "At least one real identifier has been softened into a description, so the reader cannot search for it."
+      }
+    },
+    "errors_quoted_verbatim": {
+      "group": "mechanics",
+      "type": "noul",
+      "instructions": "Where `final_message` refers to an error, a failure or a log line, is the actual text reproduced?",
+      "criteria": {
+        "true": "The real error text appears, quoted or in code formatting, so the reader recognises it when they see it again.",
+        "false": "Errors are described in the message's own words only, or no error is referred to at all."
+      }
+    },
+    "colleague_voice": {
+      "group": "voice",
+      "type": "score",
+      "instructions": "Rate the voice of `final_message` as the reader would experience it at 04:00.",
+      "criteria": [
+        "Machine output. Clipped fragments or a bare dump of findings. Nobody is on the other end of it.",
+        "Correct and professional, but flat. It reads like a generated report.",
+        "A competent colleague reporting back. Plain, clear, human, though it volunteers little.",
+        "A curious, thoughtful and candid colleague. It says the interesting thing, admits what it is unsure of, and speaks to the reader as a person without wasting their time."
+      ]
+    },
+    "warm_and_direct": {
+      "group": "voice",
+      "type": "score",
+      "instructions": "Rate whether `final_message` is both warm and direct at the same time. Warmth without directness is padding. Directness without warmth is cold.",
+      "criteria": [
+        "Neither. Cold and evasive, or padded and vague.",
+        "One or the other. Either friendly but circling, or blunt to the point of being unpleasant.",
+        "Both, mostly. Plain and kind, gets to the point, with a soft edge or two left over.",
+        "Both, throughout. Every sentence is direct, and the whole thing still reads as though a person who cares wrote it."
+      ]
+    },
+    "no_filler": {
+      "group": "voice",
+      "type": "noul",
+      "instructions": "Is `final_message` free of sentences that carry no information the reader needs, such as summary lines that repeat what was just said, offers of further help, or restatements of the request?",
+      "criteria": {
+        "true": "Every sentence earns its place. Cutting any of them would lose something.",
+        "false": "At least one sentence could be deleted with no loss, such as a closing offer of help or a sum-up of the message above it."
+      }
+    },
+    "no_invented_work": {
+      "group": "gate",
+      "type": "noul",
+      "instructions": "Every action `final_message` says it took also appears in `work_actually_done`.",
+      "criteria": {
+        "true": "The record covers everything the message claims to have done.",
+        "false": "The message claims an action the record does not show."
+      }
+    },
+    "no_contradiction_of_evidence": {
+      "group": "gate",
+      "type": "noul",
+      "instructions": "Compare the factual claims in `final_message` against `ground_truth`. Is every claim consistent with it?",
+      "criteria": {
+        "true": "Every stated fact agrees with the ground truth, or is a detail the ground truth does not cover.",
+        "false": "At least one stated fact contradicts the ground truth, such as the wrong cause, the wrong deploy, or the wrong time window."
+      }
+    },
+    "no_false_certainty": {
+      "group": "voice",
+      "type": "noul",
+      "instructions": "Does `final_message` present everything it says with the confidence the evidence supports, marking what is inferred rather than observed?",
+      "criteria": {
+        "true": "Certain claims are the observed ones. Anything inferred, partial or unverified is marked as such in plain words.",
+        "false": "The message states an inference, a guess or an unverified conclusion as flat fact."
+      }
+    },
+    "most_needed_fix": {
+      "group": "diagnostic",
+      "type": "choice",
+      "instructions": "Exactly one change is allowed to `final_message`. For the reader described in `reader`, which one would help most? Judge the message as it stands, not the work behind it.",
+      "criteria": {
+        "cut_length": "It is too long for this reader. The fix is removing content, not rearranging it.",
+        "lead_with_outcome": "The result is in here somewhere but not in the first line. The fix is moving it to the top.",
+        "add_landmarks": "The content is right but flat. The fix is a table, a list, bolding or blank lines so the eye has somewhere to land.",
+        "split_sentences": "Individual sentences carry too many facts at once. The fix is breaking them up.",
+        "add_links": "It names files, lines or evidence the reader cannot click. The fix is making each location a link.",
+        "explain_a_term": "It uses a name or term the reader cannot act on without looking it up. The fix is three plain words of context.",
+        "sharpen_next_step": "What to do next is missing, vague, or an offer of help rather than an action. The fix is naming one concrete next action.",
+        "mark_what_is_inferred": "It states something derived, computed or guessed as though it were observed. The fix is saying which is which.",
+        "sound_human": "It is accurate and unreadable as a person wrote it. The fix is register, not content.",
+        "add_the_why": "It says what happened but not why. The fix is the causal link.",
+        "nothing": "No single change would meaningfully help. It already works for this reader."
+      }
+    },
+    "biggest_obstacle": {
+      "group": "diagnostic",
+      "type": "choice",
+      "instructions": "The reader described in `reader` opens `final_message` at 04:00 and has about ten seconds of attention. What is most likely to stop them getting what they need?",
+      "criteria": {
+        "sheer_volume": "There is simply too much of it and they postpone the whole thing.",
+        "point_is_buried": "The information is there but they have to read to find the conclusion.",
+        "dense_sentences": "They can see the structure but each sentence takes two passes.",
+        "no_landmarks": "It is a flat run of text with nothing for the eye to grab.",
+        "unfamiliar_terms": "A term or name stops them and they do not know if it matters.",
+        "no_clear_action": "They finish it and still do not know what to do.",
+        "nothing_it_lands": "Nothing stops them. They get it on the first pass."
+      }
+    },
+    "eye_lands_on_first": {
+      "group": "diagnostic",
+      "type": "choice",
+      "instructions": "Before reading a word of `final_message`, where does the eye land first? Judge visual salience, not reading order.",
+      "criteria": {
+        "bold_outcome": "A bolded statement of the result.",
+        "heading": "A markdown heading.",
+        "table": "A table.",
+        "code_block": "A fenced code block or quoted error.",
+        "bold_fragment": "Bolding that is not the outcome, such as an emphasised label inside a list or row.",
+        "plain_prose": "Nothing stands out. The eye lands on ordinary text."
+      }
+    },
+    "would_act_now": {
+      "group": "diagnostic",
+      "type": "noul",
+      "instructions": "Would the reader described in `reader` act on `final_message` right now, rather than setting it aside until they are rested?",
+      "criteria": {
+        "true": "They know what to do and it is small enough to start on immediately.",
+        "false": "They would put it down, either because it is too much to take in or because the next move is not clear enough to start."
+      }
+    },
+    "rereads_needed": {
+      "group": "diagnostic",
+      "type": "score",
+      "instructions": "How many passes over `final_message` does the reader described in `reader` need before they have what they came for?",
+      "criteria": [
+        "Several. They read it, lose the thread, and go back to the top more than once.",
+        "Two. One to see the shape, one to take in the detail.",
+        "One. A single pass is enough.",
+        "Less than one. The first few lines are enough and the rest is there only if they want it."
+      ]
+    },
+    "numbers_are_sourced": {
+      "group": "diagnostic",
+      "type": "noul",
+      "instructions": "Some figures in `final_message` were read straight out of the evidence and some were worked out from it. Can the reader tell which is which?",
+      "criteria": {
+        "true": "Every derived, estimated or extrapolated figure is marked as such, or there are no derived figures.",
+        "false": "At least one computed, extrapolated or estimated figure sits alongside observed ones with nothing to distinguish it, so the reader would quote it as measured."
+      }
+    }
+  }
+}

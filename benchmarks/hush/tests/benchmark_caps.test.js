@@ -1,0 +1,304 @@
+'use strict';
+
+// Cap conformance meter (runner/caps.js). All local/pure — no
+// `claude` CLI invocation, no cost.
+//
+// The vocabulary here is pinned with LITERAL samples pushed through the shipped
+// functions, never by asking the production regex whether it agrees with
+// itself: an oracle built from the code under test proves nothing.
+
+const { test, describe } = require('node:test');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const { readCaps, loadCaps, analyzeMessage, capReport, unitsOf, countWords } =
+  require('../runner/caps.js');
+
+const CAPS = { wordCap: 15, blockCap: 40 };
+
+describe('readCaps: the numbers come from the style, not from this file', () => {
+  test('reads both caps out of the real style file', () => {
+    const caps = loadCaps();
+    assert.strictEqual(caps.wordCap, 12);
+    assert.strictEqual(caps.blockCap, 40);
+  });
+
+  test('the caps the meter scores against are the caps the style states', () => {
+    const style = fs.readFileSync(
+      path.join(require('../../paths.js').pluginDir('hush'), 'output-styles', 'hush.md'), 'utf8');
+    const caps = loadCaps();
+    assert.ok(style.includes(`${caps.wordCap} words per sentence, tops`), 'sentence cap must appear verbatim in the style');
+    assert.ok(style.includes(`${caps.blockCap} words per block, tops`), 'block cap must appear verbatim in the style');
+  });
+
+  test('a reworded style throws instead of scoring against a stale number', () => {
+    assert.throws(() => readCaps('- 40 words for each block.\n- 12 words per sentence.'),
+      /could not read the sentence and block caps/);
+    assert.throws(() => readCaps('- 12 words per sentence, tops.\n- 8 lines, tops.'),
+      /could not read the sentence and block caps/);
+  });
+});
+
+describe('countWords: an identifier is one word', () => {
+  test('a backticked path does not spend the sentence budget', () => {
+    assert.strictEqual(countWords('Fixed `src/net/retryPolicy.js` today.'), 3);
+  });
+
+  test('a bare path still counts as the words it is written with', () => {
+    assert.strictEqual(countWords('Fixed src/net/retryPolicy.js today.'), 3);
+  });
+
+  test('plain prose counts every word', () => {
+    assert.strictEqual(countWords('one two three four five'), 5);
+  });
+});
+
+describe('unitsOf: what a cap applies to', () => {
+  test('a bullet holding two sentences is two units', () => {
+    const units = unitsOf('- The build failed. I fixed the import.');
+    assert.deepStrictEqual(units, ['The build failed.', 'I fixed the import.']);
+  });
+
+  test('list markers and blockquote markers are not words', () => {
+    assert.deepStrictEqual(unitsOf('> 1. Run the migration.'), ['Run the migration.']);
+    assert.deepStrictEqual(unitsOf('* Run the migration.'), ['Run the migration.']);
+  });
+
+  test('a table cell is a unit like a list item, and a separator row is not', () => {
+    const md = '| Package | Version |\n|---|---|\n| `left-pad` | 1.3.0 |\nAll three bumped.';
+    assert.deepStrictEqual(unitsOf(md), ['Package', 'Version', '`left-pad`', '1.3.0', 'All three bumped.']);
+  });
+
+  test('a table cell holding two sentences is two units', () => {
+    assert.deepStrictEqual(unitsOf('| api | The build failed. I fixed it. |'),
+      ['api', 'The build failed.', 'I fixed it.']);
+  });
+
+  test('a sentence closing inside bold is its own unit', () => {
+    assert.deepStrictEqual(
+      unitsOf('**Fixed the coupon bug.** The rate was missing.'),
+      ['**Fixed the coupon bug.**', 'The rate was missing.']);
+  });
+
+  test('a quoted sentence closing inside quotes is its own unit', () => {
+    assert.deepStrictEqual(
+      unitsOf('It said "the build failed." Then it stopped.'),
+      ['It said "the build failed."', 'Then it stopped.']);
+  });
+
+  test('headings are not sentences', () => {
+    assert.deepStrictEqual(unitsOf('## What changed\nThe order was wrong.'), ['The order was wrong.']);
+  });
+});
+
+describe('analyzeMessage: the caps', () => {
+  test('a compliant message breaches nothing', () => {
+    const msg = 'Fixed the coupon bug.\n\nThe rate was missing, so the code used 1.\n\nAll 214 tests pass.';
+    const r = analyzeMessage(msg, CAPS);
+    assert.strictEqual(r.overWordCap, 0);
+    assert.strictEqual(r.overBlockCap, 0);
+    assert.strictEqual(r.blocks, 3);
+    assert.strictEqual(r.semicolons, 0);
+    assert.strictEqual(r.parenUnits, 0);
+    assert.strictEqual(r.units, 3);
+  });
+
+  test('a 16-word sentence breaches a 15-word cap and a 15-word one does not', () => {
+    const fifteen = 'one two three four five six seven eight nine ten more words to fill it.';
+    const sixteen = 'one two three four five six seven eight nine ten more words to fill it now.';
+    assert.strictEqual(countWords(fifteen), 15);
+    assert.strictEqual(countWords(sixteen), 16);
+    assert.strictEqual(analyzeMessage(fifteen, CAPS).overWordCap, 0);
+    assert.strictEqual(analyzeMessage(sixteen, CAPS).overWordCap, 1);
+  });
+
+  test('the longest sentence is reported with its length', () => {
+    const r = analyzeMessage('Short one.\n\nA far longer sentence that runs well past the fifteen word limit set by the style.', CAPS);
+    assert.strictEqual(r.longestWords, 16);
+    assert.match(r.longestText, /^A far longer sentence/);
+  });
+
+  // Twenty two-word sentences: 40 words in one block.
+  const forty = Array.from({ length: 20 }, (_, i) => `Line ${i}.`);
+
+  test('a 41-word block breaches a 40-word block cap and a 40-word one does not', () => {
+    const r = analyzeMessage(forty.join(' '), CAPS);
+    assert.strictEqual(r.blocks, 1);
+    assert.strictEqual(r.longestBlockWords, 40);
+    assert.strictEqual(r.overBlockCap, 0);
+    assert.strictEqual(analyzeMessage(`${forty.join(' ')} Extra.`, CAPS).overBlockCap, 1);
+  });
+
+  test('a whole list is one block', () => {
+    const r = analyzeMessage(`Changed:\n${forty.map((s) => `- ${s}`).join('\n')}\n- Extra.`, CAPS);
+    assert.strictEqual(r.blocks, 1);
+    assert.strictEqual(r.overBlockCap, 1);
+  });
+
+  test('a blank line splits the words into two blocks', () => {
+    const r = analyzeMessage(`${forty.slice(0, 10).join(' ')}\n\n${forty.slice(10).join(' ')} Extra.`, CAPS);
+    assert.strictEqual(r.blocks, 2);
+    assert.strictEqual(r.overBlockCap, 0);
+  });
+
+  test('table rows and headings add no words to a block', () => {
+    const rows = Array.from({ length: 30 }, (_, i) => `| file${i}.js | one two three |`).join('\n');
+    const r = analyzeMessage(`## What changed\n| File | Change |\n|---|---|\n${rows}\nAll bumped.`, CAPS);
+    assert.strictEqual(r.longestBlockWords, 2);
+    assert.strictEqual(r.overBlockCap, 0);
+  });
+
+  test('a table cell over the sentence cap is a breach', () => {
+    const cell = 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen';
+    const r = analyzeMessage(`| File | Change |\n|---|---|\n| a.js | ${cell} |`, CAPS);
+    assert.strictEqual(r.overWordCap, 1);
+    assert.strictEqual(r.longestWords, 18);
+  });
+});
+
+describe('analyzeMessage: banned marks', () => {
+  test('a semicolon in prose is counted', () => {
+    assert.strictEqual(analyzeMessage('It failed; I fixed it.', CAPS).semicolons, 1);
+  });
+
+  test('a semicolon inside inline code is not prose', () => {
+    assert.strictEqual(analyzeMessage('Run `a=1; b=2` and retry.', CAPS).semicolons, 0);
+  });
+
+  test('an aside inside a sentence is counted once per unit', () => {
+    assert.strictEqual(analyzeMessage('The build is green (three warnings remain).', CAPS).parenUnits, 1);
+    assert.strictEqual(analyzeMessage('One (first) and two (second) in one sentence.', CAPS).parenUnits, 1);
+  });
+
+  test('a call in inline code is not an aside', () => {
+    assert.strictEqual(analyzeMessage('Call `withConnection(pool)` instead.', CAPS).parenUnits, 0);
+  });
+
+  test('a one-character group is not an aside', () => {
+    assert.strictEqual(analyzeMessage('The flag (x) is set.', CAPS).parenUnits, 0);
+  });
+
+  test('a markdown link reads as its label, not as an aside or extra words', () => {
+    const a = analyzeMessage('See [src/pricing.js:39](src/pricing.js:39).', CAPS);
+    assert.strictEqual(a.parenUnits, 0, 'the link target is plumbing, not a parenthetical');
+    assert.strictEqual(a.longestWords, 2, 'See + the label — the target adds nothing');
+  });
+});
+
+describe('analyzeMessage: fenced blocks are Never compress content', () => {
+  const msg = [
+    'Tests failed.',
+    '',
+    '```',
+    'AssertionError: expected 540 to equal 560; at payroll.test.js:14',
+    'a very long quoted failure line that runs far past any fifteen word cap the style could state',
+    '```',
+    '',
+    'Fixed the order.',
+  ].join('\n');
+
+  test('a fenced block contributes no sentences and no block', () => {
+    const r = analyzeMessage(msg, CAPS);
+    assert.strictEqual(r.units, 2);
+    assert.strictEqual(r.overWordCap, 0);
+    assert.strictEqual(r.blocks, 2);
+    assert.strictEqual(r.fencedBlocks, 1);
+  });
+
+  test('a semicolon inside quoted output is not a style breach', () => {
+    assert.strictEqual(analyzeMessage(msg, CAPS).semicolons, 0);
+  });
+
+  // The style defines a block as the text between two blank lines, and a fence
+  // is not a blank line: prose touching a fence on both sides is one block.
+  test('a fence with no blank line around it does not split the block', () => {
+    const words = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ') + '.';
+    const r = analyzeMessage(`${words(30)}\n\`\`\`\ncode here\n\`\`\`\n${words(20)}`, CAPS);
+    assert.strictEqual(r.blocks, 1);
+    assert.strictEqual(r.longestBlockWords, 50);
+    assert.strictEqual(r.overBlockCap, 1);
+    assert.strictEqual(r.fencedBlocks, 1);
+  });
+
+  test('a fence opened mid-line does not join the text around it into one sentence', () => {
+    const r = analyzeMessage('The fix is below, in the file the parser reads: ```js\nx();\n```\n'
+      + 'It passed on every platform we test against today.', CAPS);
+    assert.strictEqual(r.units, 2);
+    assert.strictEqual(r.overWordCap, 0);
+  });
+
+  test('a fence indented inside a list item does not split the list into two blocks', () => {
+    const words = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ') + '.';
+    const r = analyzeMessage(`- ${words(14)}\n  \`\`\`\n  code here\n  \`\`\`\n- ${words(14)}\n- ${words(14)}`, CAPS);
+    assert.strictEqual(r.blocks, 1);
+    assert.strictEqual(r.longestBlockWords, 42);
+    assert.strictEqual(r.overBlockCap, 1);
+  });
+
+  test('a triple-backtick span inside a sentence is inline code, not a break', () => {
+    const r = analyzeMessage('The writer now calls ```flush()``` before it closes the handle, so the last record reaches the disk every time.', CAPS);
+    assert.strictEqual(r.units, 1);
+    assert.strictEqual(r.overWordCap, 1);
+    assert.strictEqual(r.fencedBlocks, 0);
+  });
+
+  test('an unterminated fence still swallows the rest, never half a block', () => {
+    const r = analyzeMessage('Here:\n\n```\nraw; output (here)\n', CAPS);
+    assert.strictEqual(r.semicolons, 0);
+    assert.strictEqual(r.units, 1);
+  });
+});
+
+describe('analyzeMessage: over-cap bands', () => {
+  test('a breach is banded by how far past the cap it went', () => {
+    const w = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ') + '.';
+    const r = analyzeMessage([w(17), w(24), w(38), w(60)].join('\n'), CAPS);
+    assert.deepStrictEqual(r.overBands, { '16-20': 1, '21-30': 1, '31-45': 1, '46+': 1 });
+  });
+});
+
+describe('capReport: aggregation', () => {
+  // Built word by word so the count is the fixture, not an arithmetic guess.
+  const long = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ') + '.';
+
+  const records = [
+    { arm: 'baseline', task: 'log-triage', finalText: long(20) },
+    { arm: 'baseline', task: 'log-triage', finalText: 'Short.' },
+    { arm: 'hush', task: 'log-triage', finalText: 'Short and clean.' },
+    { arm: 'hush', task: 'noisy-build', finalText: `Also short. ${long(20)}` },
+    { arm: 'hush', task: 'noisy-build', error: 'rate limited', finalText: 'ignored' },
+    { arm: 'hush', task: 'noisy-build' },
+  ];
+
+  test('errored and textless records never reach the numbers', () => {
+    const r = capReport(records, CAPS);
+    assert.strictEqual(r.runs, 4);
+    assert.strictEqual(r.arms.hush.runs, 2);
+  });
+
+  test('per-arm counts and rate', () => {
+    const r = capReport(records, CAPS);
+    assert.strictEqual(r.arms.baseline.overWordCap, 1);
+    assert.strictEqual(r.arms.hush.overWordCap, 1);
+    assert.strictEqual(r.arms.hush.units, 3);
+    assert.ok(Math.abs(r.arms.hush.overWordCapPct - (100 / 3)) < 0.01);
+    assert.strictEqual(r.arms.hush.blocks, 2);
+    assert.strictEqual(r.arms.hush.overBlockCap, 0);
+  });
+
+  test('the worst sentence is named with its task', () => {
+    const r = capReport(records, CAPS);
+    assert.strictEqual(r.arms.hush.worst.task, 'noisy-build');
+    assert.strictEqual(r.arms.hush.worst.words, 20);
+  });
+
+  test('breaches are attributed to the task that carried them', () => {
+    const r = capReport(records, CAPS);
+    assert.deepStrictEqual(r.arms.hush.overWordCapByTask, { 'noisy-build': 1 });
+  });
+
+  test('the caps used are reported alongside the numbers', () => {
+    assert.deepStrictEqual(capReport(records, CAPS).caps, CAPS);
+  });
+});

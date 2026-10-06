@@ -1,0 +1,189 @@
+[
+  {
+    "id": "log-triage",
+    "category": "tool",
+    "segment": "noisy-output",
+    "fixture": "log-triage",
+    "prompt": "Prod fell over last night and the logs are a mess. Can you dig through logs/app.log and tell me what actually happened?",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "patterns": [
+        "redis",
+        "ECONNREFUSED|6379",
+        "cascade|storm|overload|degrad|backlog"
+      ]
+    }
+  },
+  {
+    "id": "dep-bump-warnings",
+    "category": "tool",
+    "segment": "noisy-output",
+    "fixture": "dep-bump-warnings",
+    "prompt": "Bumped a couple of packages this morning and now the build's spitting out a screen full of warnings. Pretty sure at least one of them isn't just noise. Can you get it building clean again?",
+    "check": {
+      "type": "tests",
+      "cmd": "node build.js"
+    }
+  },
+  {
+    "id": "failing-suite",
+    "category": "tool",
+    "segment": "noisy-output",
+    "fixture": "failing-suite",
+    "prompt": "The pricing suite is red and the output is a wall of text I can't read through. Can you run it, work out what's actually broken, and get it green?",
+    "check": {
+      "type": "tests",
+      "cmd": "node verify.js",
+      "hidden": true
+    }
+  },
+  {
+    "id": "release-digest",
+    "category": "tool",
+    "segment": "noisy-output",
+    "fixture": "release-digest",
+    "prompt": "We're cutting 4.2 tomorrow and I have to write the release notes. history/ has every commit since 4.1 plus the merged-PR sheet, and it's almost all dependency bumps and refactors. Can you go through it and tell me what actually changed for the people using this? CHANGELOG.md shows the shape we use.",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "orFiles": ".md",
+      "patterns": [
+        "v1[^a-z0-9]{0,3}export|export (route|endpoint)",
+        "webhook[\\s\\S]{0,60}(retry|retries|retried|backoff)|(retry|retries|retried|backoff)[\\s\\S]{0,60}webhook",
+        "401|expired token"
+      ]
+    }
+  },
+  {
+    "id": "repo-sweep",
+    "category": "tool",
+    "segment": "search-heavy",
+    "fixture": "repo-sweep",
+    "prompt": "We're retiring db.query in favour of db.execute({ sql, params }). Most of the codebase moved over in earlier passes — can you find whatever is still on the old call and finish the migration?",
+    "check": {
+      "type": "tests",
+      "cmd": "node verify.js",
+      "hidden": true
+    }
+  },
+  {
+    "id": "rename-scope",
+    "category": "tool",
+    "segment": "search-heavy",
+    "fixture": "rename-scope",
+    "prompt": "Someone on the platform team wants to rename account_id to owner_id everywhere, and I have to sign off on it today. How big is this really, and is there anywhere it must not be renamed?",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "patterns": [
+        "vendor|third.?part",
+        "migration|\\.sql|already (applied|shipped|run)",
+        "openapi|public api|api contract|wire (name|format|field)|response (field|shape|body)|breaking change"
+      ]
+    }
+  },
+  {
+    "id": "feature-drift",
+    "category": "tool",
+    "segment": "long-session",
+    "fixture": "feature-drift",
+    "prompts": [
+      "I need a notification router. Fill in route() in src/router.js: low goes to email, normal to push, high to sms, critical to pager. There's a replay harness, node simulate.js, that shows you what it did.",
+      "Change of plan on high — those should go to both sms and email, not just sms.",
+      "We need quiet hours too. Between 22:00 and 07:00, only critical gets through, and it should go to push instead of pager.",
+      "Scrap that last part. During quiet hours everything except critical goes to the queue channel, and critical still pages the way it does the rest of the day.",
+      "One more: if we already sent something with the same key in the last 5 minutes, drop the repeat."
+    ],
+    "check": {
+      "type": "tests",
+      "cmd": "node verify.js",
+      "hidden": true
+    }
+  },
+  {
+    "id": "incident-forensics",
+    "category": "tool",
+    "segment": "long-session",
+    "fixture": "incident-forensics",
+    "prompts": [
+      "The gateway started throwing 503s last night. Can you dig through logs/gateway.log and tell me when it started and what the errors actually say?",
+      "Check deploys.csv — did anything ship near that time?",
+      "logs/worker.log covers the same window. Did the workers hit the same trouble, or was this only the gateway?",
+      "Write me the on-call handoff: root cause, the impact window, and which deploy to roll back."
+    ],
+    "check": {
+      "type": "keywords",
+      "require": 3,
+      "patterns": [
+        "dep-4471",
+        "pool|POOL_EXHAUSTED|connection",
+        "perRequest|per-request|02:1[0-9]"
+      ]
+    }
+  },
+  {
+    "id": "crash-origin",
+    "category": "tool",
+    "segment": "search-heavy",
+    "fixture": "crash-origin",
+    "prompt": "Prod is throwing 500s on session resume. I pasted the crash into logs/crash.txt. The stack trace points at the wrong place — I need to know which file and line actually causes it, so I can open it. Don't fix anything yet, just tell me where to look and why.",
+    "check": {
+      "type": "keywords",
+      "require": 2,
+      "patterns": [
+        "refresh\\.js",
+        ":1[45]\\b|line 1[45]",
+        "undefined|swallow|invalid_grant|not (in )?recoverable|unhandled (error )?code"
+      ]
+    }
+  },
+  {
+    "id": "plan-apply",
+    "category": "tool",
+    "segment": "search-heavy",
+    "fixture": "plan-apply",
+    "prompt": "We want a --json flag on the report command — same data, printed as JSON instead of the text table. Don't touch anything yet. How would you work on this?",
+    "check": {
+      "type": "keywords",
+      "require": 3,
+      "patterns": [
+        "cli\\.js",
+        "buildRows|report\\.js",
+        "--json|asJson"
+      ]
+    }
+  },
+  {
+    "id": "style-forge",
+    "category": "tool",
+    "segment": "noisy-output",
+    "fixture": "incident-forensics",
+    "note": "One fixed, heavy, technical prompt, held constant across every style iteration. It is deliberately multi-part so the final message has to carry links, verbatim errors, a comparison, numbers and a next step all at once — the whole readability rubric in one run.",
+    "prompt": "The gateway is throwing 503s and I'm the one on call. Everything you need is in this directory. Work out what actually happened from logs/gateway.log, logs/worker.log and deploys.csv, then give me the on-call handoff. I need all of this: the exact timestamp the failures start and the error line word for word; what the connection pool numbers were doing right before and right after that; which deploy lines up with it, and which of the other deploys are red herrings and why; whether the workers took the same hit or whether this is gateway-only, with the evidence either way; the impact window and roughly how many failed requests it covers; and the single thing I should do right now.",
+    "check": {
+      "type": "keywords",
+      "require": 3,
+      "patterns": [
+        "dep-4471",
+        "POOL_EXHAUSTED|perRequest|per-request",
+        "02:1[34]|02:14:18",
+        "gateway.pool|pool"
+      ]
+    },
+    "groundTruth": {
+      "note": "Every figure here was read out of the fixture. A claim the message makes that this does not mention is not a contradiction — only a claim that conflicts with something stated here is.",
+      "root_cause": "Deploy dep-4471 (service gateway, author a.novak, 02:12:00Z to 02:14:00Z, summary \"config: connection-per-request for pool isolation\") applied config generation 119, which flipped gateway.pool.perRequest from false to true. Taking a connection per request exhausted the fixed 20-connection pool.",
+      "config_change_applied_at": "2026-03-14T02:13:41.234Z. Logged as generation 119 applied, 3 keys changed: \"gateway.pool.perRequest: false -> true\", \"gateway.timeout.upstreamMs: 2000 -> 2500\", and \"gateway.log.sampleRate: 1.0 -> 1.0\" which is a no-op change to the same value.",
+      "first_failure": "2026-03-14T02:14:18.972Z, req-07401. Two lines at that timestamp: \"ERROR access  req-07401 /v1/cart -> billing-svc 503 659ms\" and \"ERROR pool    req-07401 ERR_POOL_EXHAUSTED acquiring connection from pool (size 20, in_use 20, waiting 13)\". A slow-acquire WARN for req-07400 precedes it at 02:14:14.920Z.",
+      "gap_between_config_and_first_failure": "The config applied at 02:13:41.234Z and the first 503 is at 02:14:18.972Z, so the gap is 37.7 seconds. Anything in the range of roughly 35 to 40 seconds is correct. Measuring instead from the deploy finishing at 02:14:00Z gives about 19 seconds, which is also defensible if the message says that is what it measured.",
+      "impact_window": "Starts 2026-03-14T02:14:18.972Z. Still failing at the last line of the log, 2026-03-14T03:59:27.974Z. About one hour and forty-five minutes, and unresolved. The log header says node-3 of 3, so it covers one node.",
+      "failed_request_count": "Exactly 530 lines match \"ERROR access ... 503\" and exactly 530 lines match ERR_POOL_EXHAUSTED. A count of 530 is correct. A count derived from grepping the string \"503\" alone gives 548 and is wrong, because it also matches request ids and latencies.",
+      "pool_before": "Before the change the periodic \"INFO pool stats\" lines read size=20 with in_use oscillating roughly between 3 and 11, idle making up the rest, and waiting=0 throughout.",
+      "pool_after": "After the change every stats line reads size=20 in_use=20 idle=0, and waiting climbs steadily: 12 at 02:15:58Z, 32 at 02:20:58Z, 132 at 03:45:58Z, 152 at 03:50:58Z, 172 at 03:55:58Z. Individual ERR_POOL_EXHAUSTED lines report waiting counts up to 232. The pool never recovers.",
+      "workers": "logs/worker.log has zero ERROR and zero FATAL lines and no 503s. Every job logs \"finished ok\". Its own pool is separate and smaller, and every stats line from 01:00:55Z to 03:50:55Z reads size=8 in_use=1 idle=7 waiting=0, flat throughout. Job durations do climb across the window, from about 200ms to about 2300ms, while db_wait stays between 0ms and 12ms. There is one unrelated WARN at 02:36:22.838Z about a slow unindexed query, already tracked as OPS-2210. This was gateway-only.",
+      "red_herrings": "dep-4468 (catalog-svc, 22:04Z on Mar 13) and dep-4469 (accounts-svc, 23:31Z on Mar 13) are hours early and on other services. dep-4470 (worker, 00:48Z) is over an hour early and the workers never failed. dep-4472 (billing-svc, 02:41Z) and dep-4473 (catalog-svc, 03:20Z) both ship after the failures already started, so neither can be the cause. The OPS-2210 slow query is a known pre-existing issue.",
+      "correct_next_action": "Roll back dep-4471, or revert gateway.pool.perRequest to false. Nothing else in the evidence points anywhere useful. No worker action is needed."
+    }
+  }
+]

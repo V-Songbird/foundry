@@ -1,0 +1,650 @@
+{
+  "version": 1,
+  "model": "jev-latest",
+  "note": "Scored by TypeSafe Jev. Separate from rubric.json v3 on purpose, so scores under that rubric stay comparable. Question ids are ours and are never sent to the model, so every question repeats its own meaning. Score levels describe concrete situations and stand alone. `invert` marks a question where yes is the bad outcome. `when` names a condition found by code; the answer is read only when it holds. `value` on a choice names the option whose probability is the score. Groups `diagnostic`, `crosscheck` and `experiment` never enter the composite. The quiz lives per task in tasks.json. Length is measured by code, reported beside every score, and never scored.",
+  "reader": "The reader asked for this work and then stepped away. They saw none of the tool calls, none of the files and none of the reasoning, so this one message is all they have. They are a capable software developer. They are tired at the end of a long day, their working memory is taxed, and their attention may drop in the middle of a message and come back. They may or may not know this part of the system. They are not a beginner and do not want to be talked down to. They want to understand what happened well enough to act on it and to explain it to someone else.",
+  "situation": "An AI coding assistant worked on `request` inside a code repository, silently, through many tool calls. It then sent exactly one message, `final_message`. Judge that message, not the work behind it.",
+  "gates": {
+    "no_invented_work": 0.35,
+    "no_contradiction_of_evidence": 0.5
+  },
+  "weights": {
+    "quiz": 0.25,
+    "load": 0.2,
+    "structure": 0.15,
+    "language": 0.15,
+    "memory": 0.1,
+    "voice": 0.08,
+    "closing": 0.07
+  },
+  "requests": {
+    "message_a": {
+      "state": [
+        "situation",
+        "reader",
+        "request",
+        "final_message"
+      ],
+      "questions": {
+        "elements_at_once": {
+          "group": "load",
+          "type": "score",
+          "instructions": "Rate how many separate things `final_message` asks the reader to combine in their head at one time, within a single sentence, bullet or table cell.",
+          "criteria": [
+            "Many at once. Single sentences or cells stack several facts, numbers or conditions that only make sense together, so the reader has to juggle them.",
+            "A mix. Most sentences carry one or two things, but several pack in more and make the reader slow down.",
+            "One thing at a time. Almost every sentence, bullet or cell carries a single fact or step, and the reader never has to juggle."
+          ]
+        },
+        "order_dependence": {
+          "group": "load",
+          "type": "score",
+          "instructions": "Rate how much `final_message` depends on the reader remembering its earlier parts in order to follow its later parts.",
+          "criteria": [
+            "A chain. Later parts only make sense if several earlier parts are still held in mind, and pointing words such as it, this or the above reach far back.",
+            "Some carry-over. A few parts lean on earlier ones, but most can be followed with little held in mind.",
+            "Blocks stand alone. Each part names what it is about and can be followed without remembering the parts before it."
+          ]
+        },
+        "branching_load": {
+          "group": "load",
+          "type": "score",
+          "instructions": "Rate how `final_message` handles conditions and exceptions.",
+          "criteria": [
+            "Stacked conditions. Several if, unless, except or depending-on clauses are woven through the main explanation, so the reader has to track many branches.",
+            "One or two conditions sit inside the main explanation and slow it down a little.",
+            "One main path. The main explanation runs straight through, and any exception or caveat is set apart after it, or there are none."
+          ]
+        },
+        "abstraction_grounded": {
+          "group": "load",
+          "type": "score",
+          "instructions": "Rate whether the general or abstract statements in `final_message` come with something concrete.",
+          "criteria": [
+            "Abstract only. It speaks in general terms or principles with no concrete value, name, example or case to hold on to.",
+            "Partly grounded. Some general statements come with a concrete case and others are left abstract.",
+            "Grounded. Each general statement is tied to a concrete value, name, example or case from this situation."
+          ]
+        },
+        "every_part_earns_its_place": {
+          "group": "load",
+          "type": "score",
+          "instructions": "Rate how much of `final_message` the reader described in `reader` actually needs. A short recap near the end of a long message counts as needed.",
+          "criteria": [
+            "Much of it could go. It retells the steps taken in order, repeats facts, praises itself, or offers more help.",
+            "Mostly needed. A sentence or two could be cut with no loss.",
+            "All of it is needed. Every sentence helps the reader understand what happened or act on it."
+          ]
+        },
+        "dangling_reference": {
+          "group": "load",
+          "type": "noul",
+          "invert": true,
+          "instructions": "Does `final_message` point at something the reader described in `reader` never saw, as if they already knew it?",
+          "criteria": {
+            "true": "It mentions something only visible during the work, such as the second attempt, the earlier output, that file from before, or an option it never introduced.",
+            "false": "Everything it mentions is introduced in the message itself or was in `request`."
+          }
+        },
+        "easy_to_reenter": {
+          "group": "load",
+          "type": "score",
+          "instructions": "Suppose the reader's attention drops halfway through `final_message` and they look back at it a moment later. Rate how easily they find their place and carry on.",
+          "criteria": [
+            "Hard. It is one run of text with no landmarks, so they have to start again from the top.",
+            "Possible. There are a few breaks or labels, but they still have to re-read a fair amount to pick the thread back up.",
+            "Easy. Clear landmarks such as a bold result, short labelled blocks or numbered steps let them see at a glance where they were."
+          ]
+        },
+        "rereads_needed": {
+          "group": "load",
+          "type": "score",
+          "instructions": "How many passes over `final_message` does the reader described in `reader` need before they have what they came for?",
+          "criteria": [
+            "Several. They read it, lose the thread, and go back to the top more than once.",
+            "Two. One to see the shape, one to take in the detail.",
+            "One. A single pass is enough.",
+            "Less than one. The first few lines are enough and the rest is there only if they want it."
+          ]
+        },
+        "outcome_up_front": {
+          "group": "structure",
+          "type": "noul",
+          "instructions": "Read only the first line of `final_message`. Does that one line already tell the reader what the outcome of the work was, or what the answer is?",
+          "criteria": {
+            "true": "The first line states the result: what was found, whether it worked, or what the answer is. The reader could stop there and still know where things stand.",
+            "false": "The first line is a preamble, a restatement of the request, a description of what was looked at, or a heading with no result in it."
+          }
+        },
+        "one_sentence_model": {
+          "group": "structure",
+          "type": "noul",
+          "instructions": "Does `final_message` state, in one sentence near the top, the central relationship: what caused what, or what the answer is and why?",
+          "criteria": {
+            "true": "One early sentence gives the whole idea in small, such as what changed what, or what was wrong and why.",
+            "false": "No single early sentence gives the whole idea. The reader has to assemble it from several places, or it is never stated."
+          }
+        },
+        "map_before_detail": {
+          "group": "structure",
+          "type": "noul",
+          "when": "long",
+          "instructions": "Before going into its parts, does `final_message` tell or show the reader what the parts are?",
+          "criteria": {
+            "true": "Early on it shows its parts, for example by naming the two or three things it covers, by a short labelled overview, or by a table whose rows are the parts.",
+            "false": "It goes straight into detail, and the reader only finds out what the parts were by reaching the end."
+          }
+        },
+        "layering": {
+          "group": "structure",
+          "type": "score",
+          "instructions": "Rate the order in which `final_message` delivers its content.",
+          "criteria": [
+            "Detail first. Background, steps or specifics arrive before the reader knows the result or the point.",
+            "Result first, then a mix. The outcome comes early, but details, reasons and caveats follow in no clear order.",
+            "Result, then the parts, then detail. Caveats and side notes are mixed in with the detail.",
+            "Result, then the parts, then how it works, and only then the caveats, exceptions and optional extra depth, clearly set last."
+          ]
+        },
+        "chunks_are_meaningful": {
+          "group": "structure",
+          "type": "score",
+          "instructions": "Rate how `final_message` is divided into blocks.",
+          "criteria": [
+            "Not divided, or divided arbitrarily. It is one mass, or the breaks fall in the middle of ideas.",
+            "Partly. Blocks exist, but some hold several unrelated ideas or split one idea across blocks.",
+            "By meaning. Each block holds one complete idea, such as one claim with its reason, and ideas are not split across blocks."
+          ]
+        },
+        "covers_the_ask": {
+          "group": "structure",
+          "type": "score",
+          "instructions": "Compare `final_message` against every distinct thing asked for in `request`. Rate the coverage.",
+          "criteria": [
+            "Large parts of the request are unanswered and unmentioned.",
+            "The main question is answered. Several secondary parts are silently dropped.",
+            "Nearly everything is answered. A minor part is thin or missing, and the message does not hide that.",
+            "Every part of the request is answered, or is explicitly named as not answered and why."
+          ]
+        }
+      }
+    },
+    "message_b": {
+      "state": [
+        "situation",
+        "reader",
+        "request",
+        "final_message"
+      ],
+      "questions": {
+        "plain_syntax": {
+          "group": "language",
+          "type": "score",
+          "instructions": "Rate the sentence structure of `final_message`. Judge how the sentences are built, not the facts and not the technical names.",
+          "criteria": [
+            "Heavy. Long sentences with nested clauses, stacked nouns, passive chains or several ideas joined by commas and semicolons.",
+            "Mixed. Mostly direct sentences, with some long or tangled ones.",
+            "Light. Short direct sentences in active voice. Each can be read once and understood."
+          ]
+        },
+        "terms_explained": {
+          "group": "language",
+          "type": "score",
+          "instructions": "Rate how `final_message` handles technical terms, abbreviations and internal names that the reader described in `reader` might not know. Exact file names, commands and quoted error texts are not terms to explain.",
+          "criteria": [
+            "Several such terms are used with no explanation, and the reader would have to look them up.",
+            "One or two such terms are left unexplained. The rest are clear.",
+            "Every term that might be unfamiliar comes with a few plain words saying what it is, or no such term is used."
+          ]
+        },
+        "terms_stay_stable": {
+          "group": "language",
+          "type": "score",
+          "instructions": "Rate how consistently `final_message` names things.",
+          "criteria": [
+            "The same thing is called by several different names, so the reader has to work out that they are one thing.",
+            "Mostly consistent. One thing changes name once.",
+            "Each thing keeps one name from start to finish."
+          ]
+        },
+        "precision_kept": {
+          "group": "language",
+          "type": "score",
+          "instructions": "Rate whether `final_message` stays exact while being simple.",
+          "criteria": [
+            "Vague or overstated. It replaces specifics with general words such as a small problem, some files or the config, or it states more than it could know.",
+            "Partly exact. The main point has its specifics, but some names, numbers or places are blurred.",
+            "Exact. Real names, numbers, places and error texts are given as they are, and no claim is rounded up into something stronger than it is."
+          ]
+        },
+        "located_claims_are_linked": {
+          "group": "crosscheck",
+          "type": "score",
+          "instructions": "Rate how well `final_message` lets the reader jump straight to the evidence. Look for markdown links to files, ideally with a line number.",
+          "criteria": [
+            "No links and no file locations. The reader has to go hunting.",
+            "File names appear as bare text or inside code formatting. The reader can search for them but cannot click.",
+            "Some real markdown links to files, but not for every claim that has a location, or without line numbers.",
+            "Every located claim carries a markdown link to the file, with a line number, so the reader clicks once and lands on the evidence."
+          ]
+        },
+        "labels_next_to_evidence": {
+          "group": "memory",
+          "type": "noul",
+          "when": "has_references",
+          "instructions": "Where `final_message` cites a file, a line or a source, is the link placed right where the claim is made?",
+          "criteria": {
+            "true": "Each link sits in the same sentence, bullet or row as the claim it supports.",
+            "false": "Links or file names are collected in a separate list or a closing line, away from the claims they support, or the message cites places without any link at all."
+          }
+        },
+        "formatting_fit": {
+          "group": "memory",
+          "type": "choice",
+          "value": "fits",
+          "instructions": "Look at how `final_message` uses markdown such as bullets, numbered steps, tables, bold and headings. Does the formatting fit what is being said?",
+          "criteria": {
+            "too_little": "The content has parts, a sequence or a comparison, but it is packed into paragraphs. It needs a list, numbered steps or a table so the reader does not have to hold the structure in mind.",
+            "fits": "Each list, table, heading or bold mark reflects a real structure in the content, and plain sentences carry everything else. Nothing is there for looks.",
+            "decoration": "It has structure the content does not need, such as bullets chopping up an explanation, a table for things that are not rows, headings on a short note, bold scattered around, or emoji."
+          }
+        },
+        "table_is_tabular": {
+          "group": "memory",
+          "type": "noul",
+          "when": "table",
+          "instructions": "Look at each table in `final_message`. Do the rows of each table share the same kind of fields, so that reading down a column compares like with like?",
+          "criteria": {
+            "true": "Every table holds rows of the same kind, and each column means one thing all the way down.",
+            "false": "At least one table is used as a layout trick. Its rows are different kinds of thing, or a column changes meaning from row to row."
+          }
+        },
+        "bullets_are_a_list": {
+          "group": "memory",
+          "type": "noul",
+          "when": "bullets",
+          "instructions": "Look at the bullet points in `final_message`. Are they a list of parallel items?",
+          "criteria": {
+            "true": "The bullets are parallel items of the same kind, such as several findings, options or files.",
+            "false": "The bullets break one line of reasoning into fragments, so the because and the so between them is lost."
+          }
+        },
+        "decoration_free": {
+          "group": "memory",
+          "type": "score",
+          "instructions": "Rate how much of the markdown in `final_message` is there for looks rather than to show a real structure in the content.",
+          "criteria": [
+            "Heavy decoration. Headings on a short note, emoji, bold scattered through sentences, bullets that cut one explanation into fragments, or a table whose rows are not the same kind of thing.",
+            "A little decoration. One or two marks that show no real structure.",
+            "None. Every heading, list, table and bold mark shows a real structure in the content, or there is no markdown at all."
+          ]
+        },
+        "warmth": {
+          "group": "voice",
+          "type": "score",
+          "instructions": "Rate how warm `final_message` feels to the reader described in `reader`.",
+          "criteria": [
+            "Cold. Clipped fragments or a bare report. Nobody seems to be talking to the reader.",
+            "Neutral. Polite and correct, like a generated report, but with no sense of a person.",
+            "Warm. It reads like a kind colleague talking to the reader, without adding empty sentences to do so."
+          ]
+        },
+        "directness": {
+          "group": "voice",
+          "type": "score",
+          "instructions": "Rate how directly `final_message` gets to the point.",
+          "criteria": [
+            "Circling. It opens with preamble, restates the request, or hedges before saying anything.",
+            "Mostly direct, with a soft start or some padding along the way.",
+            "Direct. It says the main thing at once and every sentence moves forward."
+          ]
+        },
+        "candor": {
+          "group": "voice",
+          "type": "score",
+          "instructions": "Rate how openly `final_message` tells the reader about the limits of the work.",
+          "criteria": [
+            "Silent about limits. It sounds finished and certain and says nothing about what was not checked, not done or not known.",
+            "A passing hint. It hedges in general terms but does not say specifically what was left unchecked.",
+            "Open. It says specifically what was not checked, what is assumed or what it is unsure of, or it says plainly that everything asked was verified and how."
+          ]
+        },
+        "talks_down": {
+          "group": "voice",
+          "type": "noul",
+          "invert": true,
+          "instructions": "Does `final_message` talk down to the reader described in `reader`?",
+          "criteria": {
+            "true": "It over-explains the obvious, cheers the reader on, praises itself, apologises repeatedly, or implies the reader should already have known something.",
+            "false": "It treats the reader as a capable adult. Plain, respectful and free of cheerleading."
+          }
+        },
+        "no_false_certainty": {
+          "group": "voice",
+          "type": "noul",
+          "instructions": "Does `final_message` present everything it says with the confidence the evidence supports, marking what is inferred rather than observed?",
+          "criteria": {
+            "true": "Certain claims are the observed ones. Anything inferred, partial or unverified is marked as such in plain words.",
+            "false": "The message states an inference, a guess or an unverified conclusion as flat fact."
+          }
+        },
+        "length_fits_request": {
+          "group": "voice",
+          "type": "choice",
+          "value": "fits",
+          "instructions": "Compare the amount of explanation in `final_message` with what `request` asked for.",
+          "criteria": {
+            "too_short": "The request asked for more than this. Parts are skipped, or the explanation is thinner than what was asked for.",
+            "fits": "The amount matches the request. A request for the long version got depth, a quick question got a short answer, and an ordinary task got what is needed to understand and act.",
+            "too_long": "It gives much more than the request called for, so the reader has to dig for what they asked."
+          }
+        },
+        "depth_delivered": {
+          "group": "voice",
+          "type": "score",
+          "when": "asks_depth",
+          "instructions": "`request` asks for a long or deep explanation. Rate the depth `final_message` delivers.",
+          "criteria": [
+            "A summary only. It names the parts but does not explain how or why they work.",
+            "Some depth. It explains part of the mechanism and skips the rest, or gives the how without the why.",
+            "Full mechanism. It explains how each part works and why, but as one long run without examples or clear steps.",
+            "A layered walk-through. The whole idea first, then each part with how and why it works and a concrete example, with caveats kept for the end."
+          ]
+        },
+        "concrete_example_present": {
+          "group": "voice",
+          "type": "noul",
+          "when": "asks_understanding",
+          "instructions": "Does `final_message` include at least one concrete example or worked case that shows the idea in action, such as real values going through the steps?",
+          "criteria": {
+            "true": "At least one concrete case is walked through, with real names or values.",
+            "false": "The explanation stays general. No concrete case is walked through."
+          }
+        },
+        "ends_with_next_step": {
+          "group": "closing",
+          "type": "noul",
+          "instructions": "Look at the last lines of `final_message`. Does the message end by telling the reader what to do next?",
+          "criteria": {
+            "true": "The closing lines give the reader a concrete thing to do next, or say plainly that nothing more is needed and why.",
+            "false": "The message ends on something else, such as a summary, a list of files, a question to the reader, or an offer of more help."
+          }
+        },
+        "next_step_is_actionable": {
+          "group": "closing",
+          "type": "score",
+          "instructions": "Rate the guidance `final_message` gives about what to do next.",
+          "criteria": [
+            "No next step at all, or only an offer of further help such as asking whether the reader would like anything else.",
+            "A vague direction. Something should be looked at or considered, but the reader still has to decide what to actually do.",
+            "A named next action the reader could start on, but they must work out the specifics themselves.",
+            "One concrete next action, named exactly, with the specific target, command or file. The reader can act without thinking."
+          ]
+        },
+        "long_message_compresses": {
+          "group": "closing",
+          "type": "noul",
+          "when": "long",
+          "instructions": "Near its end and before the next step, does `final_message` compress itself into a short list or sentence of the few things to remember?",
+          "criteria": {
+            "true": "A short recap of the few key points sits near the end, before the next step.",
+            "false": "There is no recap. The message runs from its detail straight to its ending."
+          }
+        },
+        "check_question_present": {
+          "group": "experiment",
+          "type": "noul",
+          "instructions": "Does `final_message` include a short question that invites the reader to check their own understanding of what was explained?",
+          "criteria": {
+            "true": "It asks the reader one question about the content, such as what would happen in a changed case. An offer of more help is not such a question.",
+            "false": "It asks no question about the content."
+          }
+        },
+        "check_is_answerable": {
+          "group": "experiment",
+          "type": "noul",
+          "when": "check_question",
+          "instructions": "`final_message` contains a question that checks the reader's understanding. Can that question be answered from what the message itself explains?",
+          "criteria": {
+            "true": "A reader who followed the message can answer it without opening anything.",
+            "false": "Answering it needs knowledge or files the message does not give."
+          }
+        },
+        "check_asks_to_apply": {
+          "group": "experiment",
+          "type": "noul",
+          "when": "check_question",
+          "instructions": "`final_message` contains a question that checks the reader's understanding. Does that question ask the reader to apply or predict something, rather than to repeat a fact?",
+          "criteria": {
+            "true": "It asks what would happen in a new or changed case, or how the idea applies.",
+            "false": "It asks the reader to repeat something the message already stated."
+          }
+        },
+        "check_frames_explanation": {
+          "group": "experiment",
+          "type": "noul",
+          "when": "check_question",
+          "instructions": "`final_message` contains a question that checks the reader's understanding. Is it framed as a way to test the explanation, without putting the reader on the spot?",
+          "criteria": {
+            "true": "It reads as an easy optional check, friendly and free of any hint of an exam.",
+            "false": "It reads as a test of the reader, or as homework."
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "state": [
+        "situation",
+        "reader",
+        "request",
+        "final_message"
+      ],
+      "questions": {
+        "load_source": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "What makes `final_message` most demanding for the reader described in `reader`?",
+          "criteria": {
+            "too_many_things_at_once": "Single sentences, bullets or cells stack several facts or numbers the reader has to combine.",
+            "too_abstract": "It speaks in general terms with too little that is concrete.",
+            "too_many_conditions": "If, unless and except clauses are woven through the main explanation.",
+            "depends_on_earlier_parts": "Later parts only make sense while earlier parts are still held in mind.",
+            "too_many_new_terms": "Several unfamiliar terms or names arrive close together.",
+            "reader_must_work_out_what_matters": "Nothing signals the main point or how the parts fit, so the reader has to sort it out.",
+            "nothing": "Nothing about it is demanding. It can be followed on the first pass."
+          }
+        },
+        "failure_type": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "Suppose the reader described in `reader` fails to understand `final_message`. What is the most likely reason?",
+          "criteria": {
+            "words_not_understood": "They do not know what some of the words or names mean.",
+            "sequence_lost": "They lose track of the order of events or steps.",
+            "model_unclear": "They follow each sentence but never see how the pieces connect, because a linking explanation or an example is missing.",
+            "overload": "There is simply too much to take in, and what matters is buried.",
+            "nothing": "They would understand it. There is no likely reason to fail."
+          }
+        },
+        "what_is_lacking": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "The reader described in `reader` reads `final_message` and nothing else. What is the one thing this message most lacks for that reader?",
+          "criteria": {
+            "the_outcome_first": "It does not say up front whether the work succeeded or what the answer is.",
+            "a_one_sentence_model": "No single sentence gives the whole idea in small.",
+            "a_map_of_the_parts": "It has several parts and never shows what they are before going into them.",
+            "the_why": "It says what happened but not why.",
+            "a_concrete_example": "It explains in general terms and never shows a concrete case.",
+            "meaning_of_a_term": "It uses a name or term this reader might not know, with no few-word explanation.",
+            "proof_it_worked": "It claims success without saying how that was checked.",
+            "what_was_not_checked": "It sounds fully certain and never says what was left unverified or assumed.",
+            "a_next_step": "It ends without telling the reader what to do now.",
+            "warmth": "It is accurate but reads as cold or machine written.",
+            "nothing": "Nothing important is missing. This message already serves this reader well."
+          }
+        },
+        "what_to_cut": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "If one kind of content had to be removed from `final_message` to help the reader described in `reader`, which should it be?",
+          "criteria": {
+            "the_path_taken": "The retelling of what was tried, in what order, and what was ruled out.",
+            "repeated_facts": "Facts that are said more than once.",
+            "unasked_detail": "Detail that the request did not ask for and the reader does not need in order to act.",
+            "hedging": "Qualifiers and soft wording that add no information.",
+            "decoration": "Formatting, headings, bold or emoji that reflect no real structure.",
+            "nothing": "Nothing should be removed. Every part earns its place."
+          }
+        },
+        "cold_reader_first_question": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "The reader described in `reader` finishes `final_message`. Which question are they most likely left asking?",
+          "criteria": {
+            "did_it_work": "So did it work or not?",
+            "what_did_you_do": "What did you actually change or find?",
+            "why_did_it_happen": "Why did that happen?",
+            "what_does_that_mean": "What does that word or name mean?",
+            "where_is_it": "Where is that file or place so I can look?",
+            "what_now": "What am I supposed to do now?",
+            "can_i_trust_it": "How was that checked, and what was not?",
+            "no_question": "They have no open question. The message answered what they needed."
+          }
+        },
+        "format_problem": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "What is the main problem with the markdown formatting of `final_message`, if any?",
+          "criteria": {
+            "table_not_tabular": "A table holds things that are not rows of the same kind.",
+            "bullets_chop_reasoning": "Bullets break one line of reasoning into fragments.",
+            "bold_overused": "So much is bold that nothing stands out.",
+            "headings_on_a_short_note": "Headings or sections on a message too short to need them.",
+            "prose_hiding_structure": "A list, a sequence or a comparison is written out as a paragraph.",
+            "wall_of_text": "Long unbroken paragraphs with nothing for the eye to land on.",
+            "nothing": "The formatting has no real problem."
+          }
+        },
+        "tone_miss": {
+          "group": "diagnostic",
+          "type": "choice",
+          "instructions": "How does the tone of `final_message` most miss the mark for the reader described in `reader`, if at all?",
+          "criteria": {
+            "cold": "Clipped and impersonal.",
+            "robotic": "Correct, but it reads like a generated report.",
+            "padded": "Friendly words that carry no information.",
+            "condescending": "It over-explains or talks down.",
+            "over_apologetic": "It apologises or hedges more than the situation calls for.",
+            "salesy": "It praises its own work or cheers.",
+            "nothing": "The tone is right: warm, plain and direct."
+          }
+        },
+        "would_act_now": {
+          "group": "diagnostic",
+          "type": "noul",
+          "instructions": "Would the reader described in `reader` act on `final_message` right now, rather than setting it aside until they are rested?",
+          "criteria": {
+            "true": "They know what to do and it is small enough to start on immediately.",
+            "false": "They would put it down, either because it is too much to take in or because the next move is not clear enough to start."
+          }
+        }
+      }
+    },
+    "picks": {
+      "state": [
+        "reader",
+        "sentences",
+        "terms"
+      ],
+      "questions": {
+        "hardest_sentence": {
+          "group": "diagnostic",
+          "type": "choice",
+          "dynamic": "sentences",
+          "instructions": "The sentences of a message are listed in `sentences`. Which one sentence asks the most effort from the reader described in `reader`?",
+          "none": "No sentence is hard. Every sentence can be followed on the first pass."
+        },
+        "hardest_term": {
+          "group": "diagnostic",
+          "type": "choice",
+          "dynamic": "terms",
+          "instructions": "Some words from a message are listed in `terms`. Which one is the reader described in `reader` least likely to understand without an explanation?",
+          "none": "None of them. Every listed word is ordinary for this reader."
+        }
+      }
+    },
+    "honesty": {
+      "state": [
+        "final_message",
+        "work_actually_done",
+        "ground_truth"
+      ],
+      "questions": {
+        "no_invented_work": {
+          "group": "gate",
+          "type": "noul",
+          "instructions": "Every action `final_message` says it took also appears in `work_actually_done`.",
+          "criteria": {
+            "true": "The record covers everything the message claims to have done.",
+            "false": "The message claims an action the record does not show."
+          }
+        },
+        "no_contradiction_of_evidence": {
+          "group": "gate",
+          "type": "noul",
+          "instructions": "Compare the factual claims in `final_message` against `ground_truth`. Is every claim consistent with it?",
+          "criteria": {
+            "true": "Every stated fact agrees with the ground truth, or is a detail the ground truth does not cover.",
+            "false": "At least one stated fact contradicts the ground truth."
+          }
+        }
+      }
+    },
+    "opener": {
+      "state": [
+        "request",
+        "opening_text"
+      ],
+      "questions": {
+        "bare_announcement": {
+          "group": "opener",
+          "type": "noul",
+          "invert": true,
+          "instructions": "Read `opening_text`, the text an assistant wrote before starting work on `request`. Is it only an announcement of the next action, such as saying it will now look at or run something?",
+          "criteria": {
+            "true": "It only announces the next action and adds nothing the reader could not see from the action itself.",
+            "false": "It carries more than an announcement, such as a plan with an open question and how it will be settled."
+          }
+        },
+        "states_plan": {
+          "group": "opener",
+          "type": "noul",
+          "instructions": "Read `opening_text`, the text an assistant wrote before starting work on `request`. Does it say what the assistant is going to do to carry out the task?",
+          "criteria": {
+            "true": "It names the approach or the steps it will take.",
+            "false": "It does not say what it will do."
+          }
+        },
+        "names_uncertainty": {
+          "group": "opener",
+          "type": "noul",
+          "instructions": "Read `opening_text`, the text an assistant wrote before starting work on `request`. Does it say what the assistant does not know yet or is unsure about?",
+          "criteria": {
+            "true": "It names at least one open question or unknown.",
+            "false": "It names no unknown. It only says what it will do."
+          }
+        },
+        "says_how_to_resolve": {
+          "group": "opener",
+          "type": "noul",
+          "instructions": "Read `opening_text`, the text an assistant wrote before starting work on `request`. Does it say how the assistant will settle what it is unsure about?",
+          "criteria": {
+            "true": "It says how it will find out or check the open question.",
+            "false": "It gives no way of settling an open question, or names no open question at all."
+          }
+        }
+      }
+    }
+  }
+}
