@@ -149,3 +149,48 @@ It plays every message the no-plugin session sent beside the one message hush se
 ### A note on fairness
 
 hush's output style is part of the product, so its prompt overhead is included in the measurement, not subtracted. Each arm runs in a fresh throwaway workspace outside any git repo, with only that one plugin loaded (`--setting-sources project`, no MCP servers, a scoped tool allowlist) — so a difference between arms is the plugin, nothing else.
+
+## Check a batch before you publish it
+
+The readiness gate decides whether one batch's figures are ready to publish with the hush checkout you are about to release. Run `runner/publish.js` on the batch first, because the gate compares the batch's `published/claims.md` with what its records regenerate. The gate also needs the retained batch of the previous hush release, on the same model. It reads both batches and the hush checkout, and starts no session:
+
+```bash
+node scripts/readiness-gate.js --records ../../.private/benchmarks/hush/records/mine-1a2b3c4d --previous ../../.private/benchmarks/hush/records/mine-0f9e8d7c
+```
+
+Replace `mine-1a2b3c4d` with the batch to publish, and `mine-0f9e8d7c` with the previous release's batch.
+
+It prints each point as `[MET]` or `[NOT MET]`, with what it read. The last line is `READY TO PUBLISH: every point met.` and the exit code is 0. Otherwise the last line names each unmet point, such as `NOT READY TO PUBLISH: point(s) 2, 5 unmet.`, and the exit code is 1.
+
+Each point is a promise from hush's output style or README, checked against the batch's records:
+
+| Point | Proven by |
+| --- | --- |
+| 1. The batch is complete and auditable | Hash-verified records, one `batch.json` naming the records' batch and listing its planned runs, every planned run present and scored, each record stamped with batch, seed, segment and model id, both `baseline` and `hush` arms |
+| 2. The batch measured one clean hush build, and the checkout being published ships that build's code | The `hush` field of `batch.json`: a full commit, a clean tree, and the version in the checkout's `.claude-plugin/plugin.json`. The checkout has no uncommitted or untracked changes, holds that commit, and its `HEAD` differs from it only in `README.md`, `docs/` or `assets/` |
+| 3. The hush voice was active in every hush session | Each hush record's `outputStyle` is `hush:Hush` |
+| 4. Every hush job passes its check | Each hush record's `check.pass` |
+| 5. No hush session breaks in more than once before the answer | `narrationTexts`, counted as in `runner/stats.js` |
+| 6. The sentence cap holds at least as well as without a plugin and as in the previous release | `runner/caps.js` over both batches, with the cap read from the style |
+| 7. The block cap holds at least as well as without a plugin and as in the previous release | `runner/caps.js` over both batches, with the cap read from the style |
+| 8. No more semicolons and asides than without a plugin or in the previous release | `runner/caps.js` over both batches |
+| 9. No hush answer opens with a preamble | `runner/readability.js` |
+| 10. Hush carries less tool output per call on noisy jobs | Median tool characters per call on the `noisy-output` segment, strictly lower than without a plugin |
+| 11. The published claims regenerate from the records, the README names this batch, and each README dollar figure equals one of its costs | `published/claims.md` matches `runner/publish.js`, hush's README names the batch, and each dollar figure in that README, such as `$3`, `$0.42` or `$1,204.50`, equals one of the batch's costs at the figure's precision |
+
+Points 6, 7 and 8 compare hush with the no-plugin arm of the same batch, because the published figures compare arms. They also compare it with the hush arm of the previous release's batch, so a release cannot regress on the caps and still pass. The previous release is the highest version below the checkout's in the Git history of its `.claude-plugin/plugin.json`. That batch's `batch.json` must record exactly that hush version and the same model, and its hush runs must record the same model ids as this batch's. Both batches are scored with the caps of the checkout's style.
+
+The gate does not prove these promises:
+
+- `HUSH_WRAP=1` on every arm. `runner/run.js` always sets it, and no record holds it.
+- Compression never hides a failure or an exit code. hush's own tests cover that: `compress_tool_output`, `preserve_exit_code` and `transform_properties`.
+- One fact per sentence beyond punctuation, no dashes, a link for every file, the reply in the user's language, and no stock block labels.
+- That a README dollar figure is the statistic, arm or segment its sentence names. Point 11 only finds the figure among the batch's costs.
+- Any README figure that is not a dollar amount, such as a pass count, a word count or a percentage.
+- That the previous release's batch ran the same tasks and repetitions. Points 6, 7 and 8 check only its version, its model, its model ids and its record hashes.
+- Any dollar figure written without a leading digit, such as `$.42`.
+
+> [!NOTE]
+> Point 2 fails on every batch today. The retained batches predate the runner recording the hush build in `batch.json`. A batch the runner writes now loses the commit to the record sanitizer, which redacts it as if it were a secret. Both need a new run once the sanitizer keeps the commit.
+>
+> Points 6, 7 and 8 also fail until a retained batch records the hush version it measured. No retained batch does today, so none can serve as the previous release.

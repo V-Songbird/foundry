@@ -32,6 +32,14 @@ Expected output, last lines:
 
 The Hush and Razor suites run the same way: `node --test hush/tests/*.test.js` and `node --test razor/tests/*.test.js`. The offline tests read no run history; they need only the plugin checkouts.
 
+Before publishing a Hush batch's figures, run its readiness gate from `benchmarks/hush/`. It reads the batch, the previous hush release's batch and the hush checkout. The checkout must be its own clean Git checkout, so the gate can compare its `HEAD` with the commit the batch measured. It starts no session, and exits 1 naming each unmet point:
+
+```shell
+node scripts/readiness-gate.js --records <batch folder> --previous <previous release's batch folder>
+```
+
+[Check a batch before you publish it](hush/README.md#check-a-batch-before-you-publish-it) lists the points and what proves each.
+
 ## Where things go
 
 - **Plugin checkouts.** A runner measures Foundry's own `foreman/`, `hush/` and `razor/` checkouts, resolved in [paths.js](paths.js).
@@ -104,7 +112,7 @@ Set these as environment variables. Where a script reads a per-plugin variable, 
 ## Limitations
 
 - Published figures keep the model, plugin revision and limits of the run that produced them. A figure measured on one host says nothing about another.
-- The Hush suite has no readiness gate for Hush 2.0. No check yet decides whether a Hush release's figures are ready to publish.
+- Hush's readiness gate cannot pass a batch the runner writes today: the record sanitizer redacts the hush commit in `batch.json`, so point 2 finds no build. No retained batch records a hush version either, so none can serve as the previous release that points 6, 7 and 8 compare against.
 - `--regrade` needs the workspace a session left in the system temp folder. Once that folder is cleared, only Hush's keyword tasks that do not read files can be graded again.
 - Only Hush tasks with a reference answer under `anchors/<id>/gold.md` and a keyword check get an oracle: 3 of 11 today. `--smoke` checks only the null case of the rest.
 - Foreman's `foreman-std` prompts are files that `foreman/defaultarm/gen.js` writes from the Foreman checkout. After a change to Foreman, run that generator before the next variant. A row whose prompt file changed since its run carries `meta.prompt_changed`, and the call prints a warning. A record written before runs stored a prompt hash is compared by length only, so a same-length change goes unflagged.
