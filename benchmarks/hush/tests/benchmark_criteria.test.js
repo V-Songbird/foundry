@@ -13,9 +13,11 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
-const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, BYTE_HASHES, loadJudged } = require('../runner/criteria.js');
-const { shape } = require('../runner/criteria-checks.js');
+const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal } = require('../runner/criteria.js');
+const checks = require('../runner/criteria-checks.js');
+const { shape } = checks;
 
 const BENCH = path.join(__dirname, '..');
 const rubric = JSON.parse(fs.readFileSync(path.join(BENCH, 'rubric-criteria.json'), 'utf8'));
@@ -137,6 +139,57 @@ describe('rubricHash: which edits invalidate stored scores', () => {
     const tasks = TASKS.map((t) => (t.id === 'repo-sweep' ? { ...t, prompt: `${t.prompt} Reworded.` } : t));
     assert.strictEqual(rubricHash(rubric, study, tasks), base);
   });
+
+  test('renaming or adding a file in a judged fixture moves the hash, since the judge is shown the file list', () => {
+    const listed = (t) => checks.fixtureFiles(path.join(BENCH, 'fixtures', t.fixture)).sort();
+    const judged = TASKS.find((t) => study.overlay[t.id]);
+    assert.strictEqual(rubricHash(rubric, study, TASKS, listed), base);
+    const renamed = (t) => (t.id === judged.id ? listed(t).map((f, i) => (i ? f : `renamed-${f}`)) : listed(t));
+    const added = (t) => (t.id === judged.id ? [...listed(t), 'added.js'] : listed(t));
+    assert.notStrictEqual(rubricHash(rubric, study, TASKS, renamed), base);
+    assert.notStrictEqual(rubricHash(rubric, study, TASKS, added), base);
+  });
+});
+
+describe('rejudge hashes: what --rehonesty and --requiz may restamp', () => {
+  const copy = (o) => JSON.parse(JSON.stringify(o));
+  const part = (s, reasked) => rubricHash(rubric, s, TASKS, undefined, reasked);
+
+  test('the stamped rejudge hashes are the ones the content gives', () => {
+    assert.deepStrictEqual(REJUDGE_HASHES, { honesty: part(study, 'honesty'), quiz: part(study, 'quiz') });
+  });
+
+  test('a ground-truth edit moves the full and quiz hashes and keeps the honesty one', () => {
+    const s = copy(study);
+    Object.values(s.overlay).find((o) => o.groundTruth).groundTruth.extra = 'Reworded.';
+    assert.notStrictEqual(rubricHash(rubric, s, TASKS), RUBRIC_HASH);
+    assert.strictEqual(part(s, 'honesty'), REJUDGE_HASHES.honesty);
+    assert.notStrictEqual(part(s, 'quiz'), REJUDGE_HASHES.quiz);
+  });
+
+  test('a quiz edit moves the full and honesty hashes and keeps the quiz one', () => {
+    const s = copy(study);
+    const q = Object.values(Object.values(s.overlay).find((o) => o.quiz).quiz)[0];
+    q.instructions += ' Reworded.';
+    assert.notStrictEqual(rubricHash(rubric, s, TASKS), RUBRIC_HASH);
+    assert.strictEqual(part(s, 'quiz'), REJUDGE_HASHES.quiz);
+    assert.notStrictEqual(part(s, 'honesty'), REJUDGE_HASHES.honesty);
+  });
+
+  test('current or same-content scores may be rejudged, in full or by task', () => {
+    for (const h of [RUBRIC_HASH, ...Object.keys(BYTE_HASHES)]) {
+      assert.strictEqual(rejudgeRefusal({ rubricHash: h }, 'honesty', false), null, h);
+      assert.strictEqual(rejudgeRefusal({ rubricHash: h }, 'quiz', true), null, h);
+    }
+  });
+
+  test('stale scores may be rejudged only in full, and only when nothing but the re-asked request changed', () => {
+    const j = { rubricHash: '000000000000', rejudgeHashes: { honesty: REJUDGE_HASHES.honesty, quiz: 'ffffffffffff' } };
+    assert.strictEqual(rejudgeRefusal(j, 'honesty', false), null);
+    assert.match(rejudgeRefusal(j, 'honesty', true), /--task/);
+    assert.match(rejudgeRefusal(j, 'quiz', false), /more than the quiz request/);
+    assert.match(rejudgeRefusal({ rubricHash: '000000000000' }, 'honesty', false), /000000000000/);
+  });
 });
 
 describe('loadJudged: stored scores stay loadable across the note-free hash', () => {
@@ -148,7 +201,7 @@ describe('loadJudged: stored scores stay loadable across the note-free hash', ()
     return file;
   };
 
-  test('every legacy raw-bytes hash maps to the current rubric hash', () => {
+  test('every earlier hash of the same content maps to the current rubric hash', () => {
     assert.ok(Object.keys(BYTE_HASHES).length > 0);
     for (const [legacy, current] of Object.entries(BYTE_HASHES)) assert.strictEqual(current, RUBRIC_HASH, legacy);
   });
@@ -171,6 +224,28 @@ describe('loadJudged: stored scores stay loadable across the note-free hash', ()
     assert.strictEqual(loadJudged(stamped('000000000000')), null);
     assert.strictEqual(loadJudged(path.join(dir, 'missing.json')), null);
   });
+});
+
+describe('--rehonesty and --requiz never relabel stale scores as current', () => {
+  // A batch with no runs asks Jev nothing, so the runner's own command line
+  // shows what it does to the stamp without a network call.
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'criteria-rejudge-'));
+  after(() => fs.rmSync(data, { recursive: true, force: true }));
+
+  for (const flag of ['--rehonesty', '--requiz']) {
+    test(`${flag} refuses a file scored under another rubric and leaves its stamp`, () => {
+      const file = path.join(data, 'hush', 'results', 'stale', 'criteria.json');
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, JSON.stringify({ tag: 'stale', rubricHash: '000000000000', runs: {} }));
+      const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--tag', 'stale', flag], {
+        encoding: 'utf8',
+        env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
+      });
+      assert.strictEqual(JSON.parse(fs.readFileSync(file, 'utf8')).rubricHash, '000000000000', r.stdout);
+      assert.notStrictEqual(r.status, 0);
+      assert.match(r.stderr, /judge them again with --force/);
+    });
+  }
 });
 
 describe('normalize: an answer becomes a value where higher is better', () => {

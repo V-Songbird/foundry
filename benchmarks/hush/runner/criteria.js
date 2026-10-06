@@ -46,23 +46,45 @@ const study = JSON.parse(fs.readFileSync(STUDY_FILE, 'utf8'));
 const TASKS = [...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...study.tasks];
 // The request text the judge is shown for a task.
 const promptOf = (task) => task.prompt || (task.prompts || []).join('\n');
+// The fixture's file list, which the honesty gate and the link check are shown.
+const fixtureList = (task) => checks.fixtureFiles(path.join(ROOT, 'fixtures', task.fixture)).sort();
 // A rubric, quiz or prompt edit perturbs every answer in the request it touches,
 // so a cached score from another version is never spliced beside a fresh one.
-// The prompts of judged tasks count wherever they live, tasks.json included.
-// The file and task `note` fields never reach the judge, so rewording one keeps
-// the hash; a `note` inside a ground truth is sent, so it still counts.
-function rubricHash(r, s, tasks) {
+// The prompts and fixture file lists of judged tasks count wherever they live,
+// tasks.json included. The file and task `note` fields never reach the judge, so
+// rewording one keeps the hash; a `note` inside a ground truth is sent, so it
+// still counts. `reasked` ('honesty' or 'quiz') leaves out what that rejudge
+// asks again, so the result says whether anything else changed.
+function rubricHash(r, s, tasks, filesOf = fixtureList, reasked = null) {
   const { note: _rn, ...rest } = r;
   const { note: _sn, ...st } = s;
   st.tasks = st.tasks.map(({ note: _tn, ...t }) => t);
-  const prompts = tasks.filter((t) => s.overlay[t.id]).map((t) => [t.id, promptOf(t)]);
-  return crypto.createHash('sha256').update(JSON.stringify([rest, st, prompts])).digest('hex').slice(0, 12);
+  if (reasked === 'honesty') {
+    const { honesty: _h, ...requests } = rest.requests;
+    rest.requests = requests;
+    delete rest.gates;
+  }
+  const drop = { honesty: ['groundTruth', 'groundTruthFrom'], quiz: ['quiz', 'quizFrom', 'quizOnly'] }[reasked] || [];
+  st.overlay = Object.fromEntries(Object.entries(st.overlay).map(([id, o]) => [id, Object.fromEntries(Object.entries(o).filter(([k]) => !drop.includes(k)))]));
+  const judged = tasks.filter((t) => s.overlay[t.id]).map((t) => [t.id, promptOf(t), filesOf(t)]);
+  return crypto.createHash('sha256').update(JSON.stringify([rest, st, judged])).digest('hex').slice(0, 12);
 }
 const RUBRIC_HASH = rubricHash(rubric, study, TASKS);
+const REJUDGE_HASHES = { honesty: rubricHash(rubric, study, TASKS, fixtureList, 'honesty'), quiz: rubricHash(rubric, study, TASKS, fixtureList, 'quiz') };
 // Scores stored under an earlier hash of the same content: the raw-bytes hash
-// from before notes were left out, and the note-free hash from before prompts
-// counted. Each entry maps that hash to the current hash it equals.
-const BYTE_HASHES = { '23fd222890c7': 'dc73724fcf79', a56788c781c5: 'dc73724fcf79' };
+// from before notes were left out, the note-free hash from before prompts
+// counted, and the prompt hash from before fixture file lists counted. Each
+// entry maps that hash to the current hash it equals.
+const BYTE_HASHES = { '23fd222890c7': '5fa66bab2a58', a56788c781c5: '5fa66bab2a58', dc73724fcf79: '5fa66bab2a58' };
+const stamp = (j) => Object.assign(j, { rubricHash: RUBRIC_HASH, rejudgeHashes: REJUDGE_HASHES });
+// A rejudge re-asks one request of every run and restamps the file as current.
+// That is only true when the stored scores are current already, or when the
+// file's own rejudge hash shows nothing but that request changed since.
+function rejudgeRefusal(j, part, partial) {
+  if ((BYTE_HASHES[j.rubricHash] || j.rubricHash) === RUBRIC_HASH) return null;
+  if (!partial && j.rejudgeHashes?.[part] === REJUDGE_HASHES[part]) return null;
+  return `scores stored under rubric ${j.rubricHash} differ from rubric ${RUBRIC_HASH} in more than the ${part} request${partial ? ', or --task leaves runs unasked' : ''}; judge them again with --force instead`;
+}
 
 // --- per-task judging data ---------------------------------------------------
 function overlayFor(taskId) {
@@ -329,10 +351,11 @@ async function judgeMessage({ taskId, finalText, events }) {
 async function rejudgeHonesty(file, textOf, eventsOf) {
   const j = JSON.parse(fs.readFileSync(file, 'utf8'));
   const onlyTasks = many('task');
+  const refusal = rejudgeRefusal(j, 'honesty', onlyTasks.length > 0);
+  if (refusal) throw new Error(`${file}: ${refusal}`);
   await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), Number(one('concurrency', 3)), async ([key, run]) => {
     try {
-      const task = TASKS.find((t) => t.id === run.task);
-      const files = checks.fixtureFiles(path.join(ROOT, 'fixtures', task.fixture));
+      const files = fixtureList(TASKS.find((t) => t.id === run.task));
       const req = honestyRequest(textOf(key, run), eventsOf(key, run), overlayFor(run.task), files);
       if (!req) return;
       const { answers } = await req;
@@ -342,8 +365,7 @@ async function rejudgeHonesty(file, textOf, eventsOf) {
       console.log(`${run.passed ? 'OK  ' : 'GATE'} ${key}`);
     } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
   });
-  j.rubricHash = RUBRIC_HASH;
-  j.judgedAt = new Date().toISOString();
+  stamp(j).judgedAt = new Date().toISOString();
   fs.writeFileSync(file, JSON.stringify(j, null, 1));
   return j;
 }
@@ -354,6 +376,8 @@ async function rejudgeHonesty(file, textOf, eventsOf) {
 async function rejudgeQuiz(file, textOf) {
   const j = JSON.parse(fs.readFileSync(file, 'utf8'));
   const onlyTasks = many('task');
+  const refusal = rejudgeRefusal(j, 'quiz', onlyTasks.length > 0);
+  if (refusal) throw new Error(`${file}: ${refusal}`);
   await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), Number(one('concurrency', 3)), async ([key, run]) => {
     try {
       const quizDef = overlayFor(run.task).quiz;
@@ -375,7 +399,7 @@ async function rejudgeQuiz(file, textOf) {
       console.log(`QUIZ ${key} ${run.quiz.mean.toFixed(3)}`);
     } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
   });
-  j.rubricHash = RUBRIC_HASH;
+  stamp(j);
   fs.writeFileSync(file, JSON.stringify(j, null, 1));
   return j;
 }
@@ -419,7 +443,7 @@ async function judgeTag(tag) {
       console.log(`${j.passed ? 'OK  ' : 'GATE'} ${key.padEnd(40)} composite=${j.composite.toFixed(3)} quiz=${(j.quiz.mean ?? 0).toFixed(3)} words=${j.mech.words}`);
     } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
   });
-  prior.judgedAt = new Date().toISOString();
+  stamp(prior).judgedAt = new Date().toISOString();
   fs.writeFileSync(file, JSON.stringify(prior, null, 1));
   return prior;
 }
@@ -456,7 +480,7 @@ async function judgeAnchors() {
       console.log(`${key.padEnd(44)} composite=${j.composite.toFixed(3)} quiz=${(j.quiz.mean ?? 0).toFixed(3)} words=${j.mech.words}`);
     } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
   });
-  prior.judgedAt = new Date().toISOString();
+  stamp(prior).judgedAt = new Date().toISOString();
   fs.writeFileSync(file, JSON.stringify(prior, null, 1));
   return prior;
 }
@@ -634,4 +658,4 @@ async function main() {
 
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });
 
-module.exports = { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, BYTE_HASHES, loadJudged };
+module.exports = { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal };
