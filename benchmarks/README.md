@@ -44,7 +44,7 @@ node scripts/readiness-gate.js --records <batch folder> --previous <previous rel
 
 - **Plugin checkouts.** A runner measures Foundry's own `foreman/`, `hush/` and `razor/` checkouts, resolved in [paths.js](paths.js).
 - **History and run output.** Datasets, records, experiments, results and runs go to `.private/benchmarks/<plugin>/` at the Foundry root. Git ignores that folder, so a clone has no history, and a run's raw output never reaches the repository. Razor's Claude runner is the exception: its runs go to `razor-bench` in your system temp folder, outside any Git tree, unless `RAZOR_BENCH_RUNS` names another folder.
-- **Session state.** A live Foreman or Hush Claude run keeps its session registry and transcripts in a scratch state folder, set up by [bench-config-dir.js](bench-config-dir.js), never in your own `~/.claude`. Razor's Claude runner does not use that folder, so its sessions land in your own `~/.claude`.
+- **Session state.** A live Foreman, Hush or Razor Claude run keeps its session registry and transcripts in a scratch state folder, set up by [bench-config-dir.js](bench-config-dir.js), never in your own `~/.claude`.
 
 ## Hill-climb a suite
 
@@ -100,7 +100,7 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 | --- | --- | --- | --- |
 | `BENCH_PLUGINS_DIR` | No | The Foundry root | A folder that holds `foreman/`, `hush/` and `razor/`. Set it in a worktree, whose plugin folders are empty. |
 | `BENCH_DATA_DIR` | No | `.private/benchmarks` in this checkout | A folder with the same per-plugin history layout. In a worktree, set it to `<Foundry root>/.private/benchmarks`: the worktree's own folder has no history and goes away with the worktree. |
-| `BENCH_CONFIG_DIR` | Before a Foreman or Hush runner starts a Claude session | None | The scratch Claude state folder. A live run seeds it from `~/.claude` while it has no `.claude.json`, stored login included, so keep it outside any repository. A dry run, a plan-only run and Foreman's picks `--arms foreman` start no session and need none. |
+| `BENCH_CONFIG_DIR` | Before a Foreman, Hush or Razor runner starts a Claude session | None | The scratch Claude state folder. A live run seeds it from `~/.claude` while it has no `.claude.json`, stored login included, so keep it outside any repository. A dry run, a plan-only run, Razor's `--selftest` and `--rescore`, and Foreman's picks `--arms foreman` start no session and need none. |
 | `FOREMAN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Foreman checkout for the Foreman prompt generators, `picks/run.js`, `selfcheck.js` and `validation/validate-records.js`. |
 | `HUSH_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Hush checkout for the plugged arm of Hush's `runner/run.js` and for Foreman's `trio` arm. The Hush scorers, such as `metrics.js` and `caps.js`, always read the checkout under `BENCH_PLUGINS_DIR`. |
 | `RAZOR_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Razor's runners. |

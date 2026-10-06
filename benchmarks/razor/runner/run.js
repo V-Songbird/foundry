@@ -33,6 +33,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS } = require('./tasks.js');
+const benchConfigDir = require('../../bench-config-dir.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
   selfcheckSplit,
@@ -635,6 +636,10 @@ async function main() {
       'Offline --selftest and --rescore remain available.');
     process.exit(1);
   }
+
+  // From here on the runner starts Claude sessions: keep their registry and
+  // transcripts in the scratch state dir, before any cell copies process.env.
+  benchConfigDir();
 
   const models = flag('models', 'sonnet').split(',').map((m) => m.trim());
   const workers = Number(flag('workers', 4));
