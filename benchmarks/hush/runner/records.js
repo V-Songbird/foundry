@@ -77,6 +77,11 @@ const PATH_RULES = [
 // a false redaction inside a benchmark record costs nothing, a leaked key does.
 const TOKEN_RULE = [/\b[A-Za-z0-9_\-]{40,}\b/g, '<redacted-secret>'];
 
+// The one exception: a full Git commit under a `head` key is the build a batch
+// measured (runner/provenance.js), and the readiness gate needs it intact.
+const COMMIT = /^[0-9a-f]{40}$/;
+const isCommit = (k, v) => k === 'head' && typeof v === 'string' && COMMIT.test(v);
+
 // KEY=value for shouty env-style names — the value goes, the name stays so the
 // record still shows which knob was set.
 const ENV_RULE = [/\b([A-Z][A-Z0-9_]{2,})=(?!<redacted)[^\s,;'"]+/g, '$1=<redacted-env>'];
@@ -111,7 +116,8 @@ function sanitizeRecord(value, identity = localIdentity()) {
   if (value && typeof value === 'object') {
     const out = {};
     for (const [k, v] of Object.entries(value)) {
-      out[k] = DROP_KEYS.test(k) ? '<redacted>' : sanitizeRecord(v, identity);
+      if (DROP_KEYS.test(k)) out[k] = '<redacted>';
+      else out[k] = isCommit(k, v) ? v : sanitizeRecord(v, identity);
     }
     return out;
   }
