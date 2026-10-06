@@ -34,9 +34,19 @@ const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'))
 
 // --- CLI args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
+// The value after a value flag: refused with a usage line naming the flag when
+// it is missing or is itself another flag. An empty value ("") is allowed.
+function flagValue(name, i) {
+  const v = argv[i + 1];
+  if (v === undefined || v.startsWith('--')) {
+    console.error(`usage: --${name} needs a value${v === undefined ? ' but none was given' : `, got ${v}`}`);
+    process.exit(2);
+  }
+  return v;
+}
 function flag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? argv[i + 1] : dflt;
+  return i >= 0 ? flagValue(name, i) : dflt;
 }
 const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
@@ -103,7 +113,7 @@ const ARMS = {
 // styles are measured — see settings-concise.json.
 function flagAll(name) {
   const out = [];
-  for (let i = 0; i < argv.length; i++) if (argv[i] === `--${name}`) out.push(argv[i + 1]);
+  for (let i = 0; i < argv.length; i++) if (argv[i] === `--${name}`) out.push(flagValue(name, i));
   return out;
 }
 function addArm(name, dir, settings, env, overlay) {
