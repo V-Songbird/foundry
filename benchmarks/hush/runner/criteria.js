@@ -85,6 +85,16 @@ function rejudgeRefusal(j, part, partial) {
   if (!partial && j.rejudgeHashes?.[part] === REJUDGE_HASHES[part]) return null;
   return `scores stored under rubric ${j.rubricHash} differ from rubric ${RUBRIC_HASH} in more than the ${part} request${partial ? ', or --task leaves runs unasked' : ''}; judge them again with --force instead`;
 }
+// A run whose request failed keeps the answers of the rubric the file was
+// stamped with, so the file keeps that stamp until a rejudge asks every run.
+function saveRejudged(file, j, failed) {
+  if (failed) {
+    console.error(`WARNING ${file}: ${failed} run(s) failed, so the file keeps rubric ${j.rubricHash}; run the rejudge again`);
+    process.exitCode = 1;
+  } else stamp(j).judgedAt = new Date().toISOString();
+  fs.writeFileSync(file, JSON.stringify(j, null, 1));
+  return j;
+}
 
 // --- per-task judging data ---------------------------------------------------
 function overlayFor(taskId) {
@@ -353,21 +363,21 @@ async function rejudgeHonesty(file, textOf, eventsOf) {
   const onlyTasks = many('task');
   const refusal = rejudgeRefusal(j, 'honesty', onlyTasks.length > 0);
   if (refusal) throw new Error(`${file}: ${refusal}`);
+  let failed = 0;
   await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), Number(one('concurrency', 3)), async ([key, run]) => {
     try {
       const files = fixtureList(TASKS.find((t) => t.id === run.task));
       const req = honestyRequest(textOf(key, run), eventsOf(key, run), overlayFor(run.task), files);
-      if (!req) return;
-      const { answers } = await req;
+      const { answers } = req ? await req : { answers: {} };
+      // An answer to a question the request no longer asks is stale.
+      for (const id of Object.keys(rubric.requests.honesty.questions)) delete run.per[id];
       for (const [id, ans] of Object.entries(answers)) run.per[id] = { group: 'gate', value: Number(ans.noul.toFixed(4)), confidence: null, applicable: true };
       run.gateFailures = Object.entries(rubric.gates).filter(([id, floor]) => run.per[id] && run.per[id].value < floor).map(([id, floor]) => ({ id, value: run.per[id].value, floor }));
       run.passed = run.gateFailures.length === 0;
       console.log(`${run.passed ? 'OK  ' : 'GATE'} ${key}`);
-    } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
+    } catch (err) { failed += 1; console.log(`FAIL ${key}  ${err.message}`); }
   });
-  stamp(j).judgedAt = new Date().toISOString();
-  fs.writeFileSync(file, JSON.stringify(j, null, 1));
-  return j;
+  return saveRejudged(file, j, failed);
 }
 
 // The same idea for the quiz: its request holds the message and the task's
@@ -378,10 +388,14 @@ async function rejudgeQuiz(file, textOf) {
   const onlyTasks = many('task');
   const refusal = rejudgeRefusal(j, 'quiz', onlyTasks.length > 0);
   if (refusal) throw new Error(`${file}: ${refusal}`);
+  let failed = 0;
   await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), Number(one('concurrency', 3)), async ([key, run]) => {
     try {
       const quizDef = overlayFor(run.task).quiz;
-      const { answers } = await askJev({ message: textOf(key, run) }, Object.fromEntries(Object.entries(quizDef).map(([id, q]) => [id, { type: 'choice', instructions: q.instructions, criteria: q.criteria }])));
+      // A task whose quiz was removed asks nothing and keeps no quiz score.
+      const { answers } = Object.keys(quizDef).length
+        ? await askJev({ message: textOf(key, run) }, Object.fromEntries(Object.entries(quizDef).map(([id, q]) => [id, { type: 'choice', instructions: q.instructions, criteria: q.criteria }])))
+        : { answers: {} };
       const per = {}; const byLevel = {};
       for (const [id, ans] of Object.entries(answers)) {
         const q = quizDef[id];
@@ -390,18 +404,16 @@ async function rejudgeQuiz(file, textOf) {
         (byLevel[q.level] ||= []).push(p);
       }
       const all = Object.values(per).map((x) => x.pRight);
-      const m = (xs) => Number((xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(4));
+      const m = (xs) => (xs.length ? Number((xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(4)) : null);
       run.quiz = { mean: m(all), byLevel: Object.fromEntries(Object.entries(byLevel).map(([lv, xs]) => [lv, m(xs)])), per };
-      run.groups.quiz = run.quiz.mean;
+      if (run.quiz.mean == null) delete run.groups.quiz; else run.groups.quiz = run.quiz.mean;
       let acc = 0; let wsum = 0;
       for (const [g, w] of Object.entries(rubric.weights)) if (run.groups[g] != null) { acc += run.groups[g] * w; wsum += w; }
-      run.composite = Number((acc / wsum).toFixed(4));
-      console.log(`QUIZ ${key} ${run.quiz.mean.toFixed(3)}`);
-    } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
+      run.composite = wsum ? Number((acc / wsum).toFixed(4)) : null;
+      console.log(`QUIZ ${key} ${run.quiz.mean?.toFixed(3) ?? 'none'}`);
+    } catch (err) { failed += 1; console.log(`FAIL ${key}  ${err.message}`); }
   });
-  stamp(j);
-  fs.writeFileSync(file, JSON.stringify(j, null, 1));
-  return j;
+  return saveRejudged(file, j, failed);
 }
 
 // --- batches -----------------------------------------------------------------
@@ -658,4 +670,4 @@ async function main() {
 
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });
 
-module.exports = { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal };
+module.exports = { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty, rejudgeQuiz };

@@ -15,7 +15,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal } = require('../runner/criteria.js');
+const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty } = require('../runner/criteria.js');
 const checks = require('../runner/criteria-checks.js');
 const { shape } = checks;
 
@@ -232,20 +232,69 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
   const data = fs.mkdtempSync(path.join(os.tmpdir(), 'criteria-rejudge-'));
   after(() => fs.rmSync(data, { recursive: true, force: true }));
 
+  const STALE = '000000000000';
+  const run = (tag, flag, stored) => {
+    const file = path.join(data, 'hush', 'results', tag, 'criteria.json');
+    fs.mkdirSync(path.join(path.dirname(file), 'runs'), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify({ tag, ...stored }));
+    for (const key of Object.keys(stored.runs)) fs.writeFileSync(path.join(path.dirname(file), 'runs', `${key}.json`), JSON.stringify({ finalText: 'Done.' }));
+    const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--tag', tag, flag], {
+      encoding: 'utf8',
+      env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
+    });
+    return { r, j: JSON.parse(fs.readFileSync(file, 'utf8')) };
+  };
+
   for (const flag of ['--rehonesty', '--requiz']) {
     test(`${flag} refuses a file scored under another rubric and leaves its stamp`, () => {
-      const file = path.join(data, 'hush', 'results', 'stale', 'criteria.json');
-      fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(file, JSON.stringify({ tag: 'stale', rubricHash: '000000000000', runs: {} }));
-      const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--tag', 'stale', flag], {
-        encoding: 'utf8',
-        env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
-      });
-      assert.strictEqual(JSON.parse(fs.readFileSync(file, 'utf8')).rubricHash, '000000000000', r.stdout);
+      const { r, j } = run(`stale${flag}`, flag, { rubricHash: STALE, runs: {} });
+      assert.strictEqual(j.rubricHash, STALE, r.stdout);
       assert.notStrictEqual(r.status, 0);
       assert.match(r.stderr, /judge them again with --force/);
     });
+
+    test(`${flag} restamps a stale file whose rejudge hash shows only the re-asked request changed`, () => {
+      const { r, j } = run(`allowed${flag}`, flag, { rubricHash: STALE, rejudgeHashes: REJUDGE_HASHES, runs: {} });
+      assert.strictEqual(r.status, 0, r.stderr);
+      assert.strictEqual(j.rubricHash, RUBRIC_HASH);
+      assert.deepStrictEqual(j.rejudgeHashes, REJUDGE_HASHES);
+    });
+
+    test(`${flag} keeps the old stamp and the old answers when a request fails`, () => {
+      const per = { no_contradiction_of_evidence: { group: 'gate', value: 0.1, confidence: null, applicable: true } };
+      const stored = { task: 'failing-suite', per, quiz: { mean: 0.2, byLevel: {}, per: {} }, groups: { quiz: 0.2 }, gateFailures: [], passed: true };
+      const { r, j } = run(`failed${flag}`, flag, { rubricHash: STALE, rejudgeHashes: REJUDGE_HASHES, runs: { k1: stored } });
+      assert.match(r.stdout, /FAIL k1/);
+      assert.match(r.stderr, /keeps rubric 000000000000/);
+      assert.notStrictEqual(r.status, 0);
+      assert.strictEqual(j.rubricHash, STALE);
+      assert.deepStrictEqual(j.runs.k1, stored);
+    });
   }
+
+  test('--rehonesty drops answers to honesty questions it no longer asks, and recomputes the gates', async () => {
+    const file = path.join(data, 'dropped.json');
+    const gate = (value) => ({ group: 'gate', value, confidence: null, applicable: true });
+    fs.writeFileSync(file, JSON.stringify({ tag: 't', rubricHash: STALE, rejudgeHashes: REJUDGE_HASHES, runs: {
+      k1: { task: 'failing-suite', per: { no_invented_work: gate(0.1), no_contradiction_of_evidence: gate(0.1) }, gateFailures: [{ id: 'no_invented_work' }], passed: false },
+    } }));
+    const real = globalThis.fetch;
+    const asked = [];
+    globalThis.fetch = async (url, init) => {
+      asked.push(Object.keys(JSON.parse(init.body).questions));
+      return { ok: true, status: 200, json: async () => ({ answers: { no_contradiction_of_evidence: { noul: 0.9 } } }) };
+    };
+    try {
+      await rejudgeHonesty(file, () => 'Done.', () => null);
+    } finally { globalThis.fetch = real; }
+    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    assert.deepStrictEqual(asked, [['no_contradiction_of_evidence']]);
+    assert.deepStrictEqual(Object.keys(j.runs.k1.per), ['no_contradiction_of_evidence']);
+    assert.strictEqual(j.runs.k1.per.no_contradiction_of_evidence.value, 0.9);
+    assert.deepStrictEqual(j.runs.k1.gateFailures, []);
+    assert.strictEqual(j.runs.k1.passed, true);
+    assert.strictEqual(j.rubricHash, RUBRIC_HASH);
+  });
 });
 
 describe('normalize: an answer becomes a value where higher is better', () => {
