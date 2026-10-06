@@ -98,9 +98,9 @@ const ARMS = {
 // you point this at whatever plugin dir you want to measure against. The
 // flags repeat for extra rivals and pair up by position: the Nth --rival-name,
 // --rival-dir, --rival-settings and --rival-env all describe the same arm.
-// --rival-dir may be left out for a rival that needs no plugin loaded, which
-// is how Claude Code's own built-in output styles are measured — see
-// settings-concise.json.
+// A flag is given for every rival or for none; --rival-dir "" marks a rival
+// that needs no plugin loaded, which is how Claude Code's own built-in output
+// styles are measured — see settings-concise.json.
 function flagAll(name) {
   const out = [];
   for (let i = 0; i < argv.length; i++) if (argv[i] === `--${name}`) out.push(argv[i + 1]);
@@ -126,9 +126,20 @@ const rivalNames = flagAll('rival-name');
 const rivalSettingsList = flagAll('rival-settings');
 const rivalEnvs = flagAll('rival-env');
 const rivalOverlays = flagAll('rival-overlay');
-// Driven by whichever list is longest, so a dir-less rival still pairs up by
-// position with its name, settings and env.
-const rivalCount = Math.max(rivalDirs.length, rivalNames.length, rivalSettingsList.length, rivalOverlays.length);
+// Pairing is by position, so a flag given for only some rivals would shift
+// every later rival's value onto the wrong arm. Refuse it: each --rival-* flag
+// is either absent or given once per rival, and an empty value ("") leaves
+// that field out for one rival, such as --rival-dir "" for a dir-less rival.
+const rivalLists = { 'rival-dir': rivalDirs, 'rival-name': rivalNames, 'rival-settings': rivalSettingsList,
+  'rival-env': rivalEnvs, 'rival-overlay': rivalOverlays };
+const rivalCount = Math.max(rivalDirs.length, rivalNames.length, rivalSettingsList.length, rivalOverlays.length, rivalEnvs.length);
+for (const [flagName, list] of Object.entries(rivalLists)) {
+  if (list.length && list.length !== rivalCount) {
+    throw new Error(`--${flagName} appears ${list.length} time(s) but ${rivalCount} rivals are described. `
+      + `Give --${flagName} once per rival, in the same order as the other --rival-* flags, `
+      + `and pass an empty value ("") for a rival that has none.`);
+  }
+}
 for (let i = 0; i < rivalCount; i++) {
   const name = rivalNames[i] || (rivalCount > 1 ? `rival${i + 1}` : 'rival');
   addArm(name, rivalDirs[i], rivalSettingsList[i], parseRivalEnv(rivalEnvs[i] || null), rivalOverlays[i]);
