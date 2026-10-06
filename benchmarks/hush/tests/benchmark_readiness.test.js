@@ -239,7 +239,9 @@ describe('the readiness gate', () => {
     ['the README prints whole and thousands dollar figures no record produces', { readme: README.replace('$0.42', '$3 and $1,204.50') }, [11], /2 README figure\(s\) no record produces: \$3, \$1,204\.50/],
     ['the README names another model id', { readme: README.replace('claude-opus-5-5', 'claude-opus-5') }, [11], /README\.md does not name model id\(s\) claude-opus-5-5 that the batch's records carry/],
     ['the README names the model id only as a prefix of another', { readme: README.replace('claude-opus-5-5', 'claude-opus-5-5-preview') }, [11], /does not name model id\(s\) claude-opus-5-5/],
-    ['the README names another batch',{ readme: '# hush\n\nBatch `older-0000` averaged **$0.42**.\n' }, [11], /README\.md does not name batch fixture-0001/],
+    ['the README prints a figure after a fence closed by a longer run', { readme: `${README}\n\`\`\`\necho $1\n\`\`\`\`\nprose $0.42 and \`x\` then $9.99 \`y\`\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README prints a figure after a stray backtick and a blank line', { readme: `${README}\nPress the \` key.\n\nThen \`x\` costs $9.99 and \`y\` too.\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README names another batch', { readme: '# hush\n\nBatch `older-0000` averaged **$0.42**.\n' }, [11], /README\.md does not name batch fixture-0001/],
   ];
 
   for (const [name, edit, points, message] of BREAKS) {
@@ -280,10 +282,23 @@ describe('the readiness gate', () => {
     assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
   });
 
-  test('reports a missing or empty order as one gap on point 1', () => {
-    for (const change of [(m) => { delete m.order; }, (m) => { m.order = []; }]) {
-      const missing = point(run(fixture({ manifest: change })), 1).missing;
-      assert.strictEqual(missing.match(/lists no planned runs/g).length, 1, missing);
+  test('treats an unclosed fence in the README as code to the end', () => {
+    const report = run(fixture({ readme: `${README}\n\`\`\`bash\nawk {print $1}\n` }));
+    assert.deepStrictEqual(report.results.filter((r) => !r.met).map((r) => `${r.n}: ${r.missing}`), []);
+    assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
+  });
+
+  test('reports each batch.json problem as one gap on point 1', () => {
+    const cases = [
+      [(m) => { delete m.order; }, /lists no planned runs/],
+      [(m) => { m.order = []; }, /lists no planned runs/],
+      [null, /expected one batch\.json, found 0/],
+      [(m) => { m.batchId = 'other-0002'; }, /batch\.json names other-0002/],
+    ];
+    for (const [manifest, cause] of cases) {
+      const missing = point(run(fixture({ manifest })), 1).missing;
+      assert.match(missing, cause);
+      assert.strictEqual(missing.split('; ').length, 1, missing);
     }
   });
 

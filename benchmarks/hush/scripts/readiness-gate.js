@@ -166,11 +166,13 @@ const POINTS = [
       const gaps = [];
       const evidence = [`${ctx.runs.length} hash-verified run records, ${ctx.batches.length} batch manifest(s)`];
       if (ctx.batches.length !== 1) gaps.push(`expected one batch.json, found ${ctx.batches.length}`);
-      // assertBatchComplete refuses a missing or empty order and names it.
+      // assertBatchComplete refuses a missing or empty order and names it. It
+      // runs only on the one matching batch.json, so a cause reported here is
+      // not reported again in its words.
       try {
         const id = assertOneBatch(ctx.runs);
         if (ctx.manifest && ctx.manifest.batchId !== id) gaps.push(`batch.json names ${ctx.manifest.batchId}, the records name ${id}`);
-        assertBatchComplete(ctx.runs, ctx.batches, id);
+        else if (ctx.batches.length === 1) assertBatchComplete(ctx.runs, ctx.batches, id);
       } catch (err) {
         gaps.push(err.message);
       }
@@ -314,8 +316,11 @@ const POINTS = [
 // Files a release may change after the measurement without changing what ran.
 const PRESENTATION = /^(README\.md$|docs\/|assets\/)/;
 
-// Fenced blocks, then inline code spans: a `$1` in an awk or sed example is no price.
-const CODE = /^ {0,3}(`{3,}|~{3,})[\s\S]*?^ {0,3}\1|(`+)(?!`)[\s\S]*?(?<!`)\2(?!`)/gm;
+// Fenced blocks, then inline code spans: a `$1` in an awk or sed example is no
+// price. A fence closes on a line of at least its own run of the same
+// character, or runs to the end of the document; a span never crosses a blank
+// line, so a stray backtick cannot hide the next paragraph.
+const CODE = /^ {0,3}((`|~)\2{2,})[^\n]*(?:\n[\s\S]*?^ {0,3}\1\2*[ \t]*$|[\s\S]*)|(?<!`)(`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])*?(?<!`)\3(?!`)/gm;
 
 /**
  * Git's output in `dir`, or null when the command fails. GIT_* variables are
