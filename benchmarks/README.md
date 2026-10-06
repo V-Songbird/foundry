@@ -25,8 +25,8 @@ node --test foreman/tests/*.test.js
 Expected output, last lines:
 
 ```text
-# tests 87
-# pass 87
+# tests 95
+# pass 95
 # fail 0
 ```
 
@@ -37,6 +37,54 @@ The Hush and Razor suites run the same way: `node --test hush/tests/*.test.js` a
 - **Plugin checkouts.** A runner measures Foundry's own `foreman/`, `hush/` and `razor/` checkouts, resolved in [paths.js](paths.js).
 - **History and run output.** Datasets, records, experiments, results and runs go to `.private/benchmarks/<plugin>/` at the Foundry root. Git ignores that folder, so a clone has no history, and a run's raw output never reaches the repository. Razor's Claude runner is the exception: its runs go to `razor-bench` in your system temp folder, outside any Git tree, unless `RAZOR_BENCH_RUNS` names another folder.
 - **Session state.** A live Foreman or Hush Claude run keeps its session registry and transcripts in a scratch state folder, set up by [bench-config-dir.js](bench-config-dir.js), never in your own `~/.claude`. Razor's Claude runner does not use that folder, so its sessions land in your own `~/.claude`.
+
+## Hill-climb a suite
+
+Claude Code's `/claude-api build-eval` and `/claude-api hillclimb` commands run an eval loop over a suite. Each suite has one entry point the loop calls once per variant: `runner/hillclimb.js`, run from the suite's folder, such as `benchmarks/hush/`.
+
+1. Check the grader first. This starts no session and costs nothing:
+
+   ```shell
+   node runner/hillclimb.js --smoke
+   ```
+
+   Expected output, last line, from `benchmarks/hush/`:
+
+   ```text
+   oracle 3/3 pass (want all), null 0/11 pass (want none)
+   ```
+
+2. Run one variant. This starts paid sessions through the suite's own `runner/run.js`:
+
+   ```shell
+   node runner/hillclimb.js --variant baseline -- --reps 2
+   ```
+
+   Flags after `--` go to `runner/run.js`. Razor's runner also needs a task selector, such as `-- --default --runs 2`.
+
+| Flag | What it does |
+| --- | --- |
+| `--variant baseline` or `--variant v<N>` | The variant folder to write. |
+| `--from <source>` | Reads a finished run and starts nothing. The source is a tag for Foreman and Hush, a run folder for Razor. |
+| `--flow <folder>` | The flow folder. Default: `.claude/hillclimb/<suite>` at the checkout root. |
+| `--arm <name>` | The arm under test. Default: `hush`, `razor` or `foreman-std`. |
+| `--regrade` | Grades each stored attempt twice and lists every verdict that changes. Exits 1 on a change, or when nothing could be graded. |
+| `--smoke` | Grades a reference answer (oracle) and an empty result (null) for each task. Exits 1 unless every oracle passes and every null fails. |
+
+An unknown flag, a flag with no value or a stray argument stops the call with exit code 2 before any session starts. Only a call without `--from` starts a live run.
+
+Each call writes three things under `<flow>/<variant>/`:
+
+- `results.jsonl`: one row per case and rep, with `prompt_id`, `rep`, `prompt`, `tags`, `grade`, `model`, `usage` and `latency_s`. `model` comes from the API response, not from the requested alias.
+- `traces/<id>_rep<k>.json`: that attempt's conversation.
+- `errors.jsonl`: attempts with no scorable output, such as a killed session, a rate-limited call or an API error, each with a `failure_class`.
+
+The `grade` metrics are `pass` and `score` for Hush, `pass`, `correct` and `safe` for Razor, and `pass` and `tests` for Foreman. Git ignores `.claude/hillclimb/`, so the loop's transcripts and reports stay out of the repository.
+
+Answer keys, reference solutions and held-back tests stay in this folder. A session works in a copy of its fixture in the system temp folder, and that copy never receives them:
+
+- Foreman's held-back tests and Hush's held-out graders run in a randomly named copy of the session's folder, deleted when the check ends.
+- Razor deletes every file its scorer writes into a cell, such as a test input, once the cell is scored.
 
 ## Configuration
 
@@ -57,6 +105,12 @@ Set these as environment variables. Where a script reads a per-plugin variable, 
 
 - Published figures keep the model, plugin revision and limits of the run that produced them. A figure measured on one host says nothing about another.
 - The Hush suite has no readiness gate for Hush 2.0. No check yet decides whether a Hush release's figures are ready to publish.
+- `--regrade` needs the workspace a session left in the system temp folder. Once that folder is cleared, only Hush's keyword tasks that do not read files can be graded again.
+- Only Hush tasks with a reference answer under `anchors/<id>/gold.md` and a keyword check get an oracle: 3 of 11 today. `--smoke` checks only the null case of the rest.
+- Foreman's `foreman-std` prompts are files that `foreman/defaultarm/gen.js` writes from the Foreman checkout. After a change to Foreman, run that generator before the next variant. A row whose prompt file changed since its run carries `meta.prompt_changed`, and the call prints a warning. A record written before runs stored a prompt hash is compared by length only, so a same-length change goes unflagged.
+- While a check runs, its held-back tests or grader sit in a randomly named folder in the system temp folder. A concurrent session that searches the whole temp folder could find them in that window.
+- Foreman's runner never clears a tag, so a second live call on the same variant stops before it starts a session. Adapt the earlier run with `--from hc-<flow>-<variant>`, or move its records aside.
+- Hush rows cover only tasks in `tasks.json`. The call names any task added with `-- --extra-tasks` and leaves its records out.
 
 ## Support
 

@@ -687,6 +687,6 @@ async function main() {
   console.log(`\nnext: node runner/report.js ${outDir}`);
 }
 
-module.exports = { buildQueue, makeRng, shuffled, unknownFlags, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS };
+module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();

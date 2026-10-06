@@ -22,7 +22,7 @@ const { spawn } = require('node:child_process');
 // Keeps every cell's temp cwd out of the real ~/.claude registry and
 // transcript store; main() calls it before a live batch starts.
 const benchConfigDir = require('../../bench-config-dir.js');
-const { parseTranscript, runCheck, readDebugManifest, assertUsableRun } = require('./metrics.js');
+const { parseTranscript, checkTask, readDebugManifest, assertUsableRun } = require('./metrics.js');
 const { makeRng, shuffled, hashSeed } = require('./stats.js');
 const { writeRecord } = require('./records.js');
 const { workspaceName, pluginProvenance } = require('./provenance.js');
@@ -369,8 +369,9 @@ async function oneRun(task, arm, rep, orderIndex) {
   // ask about the contradiction — measured on feature-drift, where it cost the
   // arms that asked four turns of doing nothing. Hold it out of the workspace
   // and put it back for the check, from the fixture, so a session can neither
-  // read it nor blunt it. `hidden` is opt-in: dep-bump-warnings' build.js is
-  // the thing the prompt asks about and stays visible.
+  // read it nor blunt it; checkTask grades in a private copy, so it never
+  // returns here. `hidden` is opt-in: dep-bump-warnings' build.js is the thing
+  // the prompt asks about and stays visible.
   const graderFile = task.check.hidden ? task.check.cmd.split(' ').pop() : null;
   if (graderFile) fs.rmSync(path.join(workDir, graderFile), { force: true });
 
@@ -398,10 +399,7 @@ async function oneRun(task, arm, rep, orderIndex) {
     const last = parsed[parsed.length - 1];
     assertUsableRun(parsed);
     const sum = (f) => parsed.reduce((n, p) => n + (p[f] || 0), 0);
-    if (graderFile) {
-      fs.cpSync(path.join(ROOT, 'fixtures', task.fixture, graderFile), path.join(workDir, graderFile));
-    }
-    const check = runCheck(task.check, last.finalText, workDir);
+    const check = checkTask(task, last.finalText, workDir);
     record = {
       ...provenance, category: task.category, model,
       // The id the session actually ran on; `model` is only the alias asked for.

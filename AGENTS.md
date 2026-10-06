@@ -42,6 +42,7 @@ Run from the repository root unless a row names another directory.
 | `node brand/identity/build-review.cjs` | Refresh the review gallery `brand/identity/index.html` | Local |
 | `node brand/check-timing.js <svg>` | Check the SMIL timing lists of an animated SVG | Local |
 | `node --test foreman/tests/*.test.js`, `hush/tests/*.test.js` or `razor/tests/*.test.js` from `benchmarks/` | One benchmark suite's offline tests: runners, scorers and fixtures, with no model session | Local; reads the plugin checkouts, so CI, which checks out no submodules, cannot run them. From a worktree, set `BENCH_PLUGINS_DIR` to the Foundry root. The tests read no run history from `.private/benchmarks/`; a live run or a history reader from a worktree also needs `BENCH_DATA_DIR` set to `<Foundry root>/.private/benchmarks`, because the default is the worktree's own `.private/`. A live run starts paid model sessions; read [the benchmarks README](benchmarks/README.md) first |
+| `node runner/hillclimb.js --smoke`, `--variant <variant> --from <run>` or `--variant <variant> --regrade` from `benchmarks/<suite>/` | The suite's entry point for `/claude-api build-eval` and `/claude-api hillclimb`, called once per variant: it writes `results.jsonl`, `traces/` and `errors.jsonl` under the ignored `.claude/hillclimb/<suite>/<variant>/`. `--smoke` grades oracle and null answers; `--regrade` grades stored output twice and lists changed verdicts | Local with `--smoke`, `--from` or `--regrade`, under the same `BENCH_PLUGINS_DIR` and `BENCH_DATA_DIR` rules as the row above. Without `--from` it starts the suite's live run, which starts paid model sessions; read [Hill-climb a suite](benchmarks/README.md#hill-climb-a-suite) first |
 
 CI runs `.github/workflows/validate-marketplace.yml` on pushes and pull requests to `main`. Its
 `validate` job is the check the default branch's ruleset requires. It checks both catalogs: no
@@ -67,7 +68,7 @@ and CI checks out no submodules.
 | `scripts/claude-hooks/` | The post-edit hook that reruns the touched plugin's tests, with its own test |
 | `scripts/check-shared-copies.js` | The check that the plugins' hand-copied files agree, with its own test |
 | `brand/` | The brand kit: sources, generators and the exported images each plugin copies into its `assets/` |
-| `benchmarks/` | The benchmark harness: per-plugin runners, fixtures and offline tests; `paths.js` resolves the plugin checkouts and the ignored `.private/benchmarks/<plugin>/` folder that holds run history and output |
+| `benchmarks/` | The benchmark harness: per-plugin runners, fixtures and offline tests; `paths.js` resolves the plugin checkouts and the ignored `.private/benchmarks/<plugin>/` folder that holds run history and output; `hillclimb.js` writes the per-variant files that each suite's `runner/hillclimb.js` hands to `/claude-api hillclimb` |
 | `docs/knowledge/` | Public documentation: the plugin README contract and the brand guide |
 
 ## Conventions

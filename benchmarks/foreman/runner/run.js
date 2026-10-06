@@ -21,7 +21,7 @@ const { spawn } = require('node:child_process');
 // Keeps every cell's temp cwd out of the real ~/.claude registry and
 // transcript store; main() calls it before the first session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
-const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun } = require('./metrics.js');
+const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun, textSha256 } = require('./metrics.js');
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/foreman
 const { pluginDir, dataDir } = require('../../paths.js');
@@ -322,6 +322,7 @@ function oneRun(task, arm, rep) {
           exitCode: code, wallMs,
           promptFile: path.relative(ROOT, promptPath(task, arm)).split(path.sep).join('/'),
           promptChars: prompt.length,
+          promptSha256: textSha256(prompt),
           check,
           readsBeforeFirstEdit: m.readsBeforeFirstEdit,
           verificationRan: verifyCommand !== null,

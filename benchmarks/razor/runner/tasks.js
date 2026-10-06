@@ -988,4 +988,20 @@ const RAZOR_TASKS = {
   },
 };
 
+// What a scorer writes into a cell (a test input, the data its test runs
+// leave) is removed once it has scored: cell folders sit side by side, and a
+// later or concurrent session must not find a finished cell's test inputs.
+const listed = (dir) => fs.readdirSync(dir, { recursive: true }).map(String).filter((f) => !/^\.git([\\/]|$)/.test(f));
+for (const t of Object.values(RAZOR_TASKS)) {
+  const score = t.score;
+  t.score = async (workdir) => {
+    const before = new Set(listed(workdir));
+    try {
+      return await score(workdir);
+    } finally {
+      for (const f of listed(workdir)) if (!before.has(f)) fs.rmSync(path.join(workdir, f), { recursive: true, force: true });
+    }
+  };
+}
+
 module.exports = { RAZOR_TASKS, depVerdict, JS_ALLOWED, PKG_JSON_SEED };

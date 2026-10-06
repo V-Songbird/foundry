@@ -1,5 +1,6 @@
 'use strict';
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 // The hush plugin is Foundry's submodule, or BENCH_PLUGINS_DIR's hush/;
@@ -134,6 +135,23 @@ function runCheck(check, finalText, workDir) {
   throw new Error(`unknown check type ${check.type}`);
 }
 
+// A task's check against a finished workspace. A held-out grader
+// (`check.hidden`) never enters the workspace, which sits beside other
+// sessions' workspaces and outlives the run: it runs in a randomly named copy
+// that is removed at once, taken from the fixture so a session cannot blunt it.
+function checkTask(task, finalText, workDir) {
+  if (!task.check.hidden) return runCheck(task.check, finalText, workDir);
+  const grader = task.check.cmd.split(' ').pop();
+  const copy = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-grade-'));
+  try {
+    fs.cpSync(workDir, copy, { recursive: true });
+    fs.cpSync(path.join(__dirname, '..', 'fixtures', task.fixture, grader), path.join(copy, grader));
+    return runCheck(task.check, finalText, copy);
+  } finally {
+    fs.rmSync(copy, { recursive: true, force: true });
+  }
+}
+
 // Reject a run that cannot honestly be a data point, before it reaches the
 // averages. Two shapes, both of which arrive looking like success:
 //
@@ -195,4 +213,4 @@ function readDebugManifest(sessionId) {
   return { entries: lines.length, byAction, bytesIn, bytesOut };
 }
 
-module.exports = { parseTranscript, runCheck, readDebugManifest, assertUsableRun };
+module.exports = { parseTranscript, runCheck, checkTask, readDebugManifest, assertUsableRun };

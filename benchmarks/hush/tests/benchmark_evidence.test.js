@@ -98,13 +98,15 @@ describe('segments: every task is placed, every segment is populated', () => {
     }
   });
 
-  test('the runner removes the hidden grader and puts it back for the check', () => {
+  // checkTask brings the grader in from the fixture, in a private copy; its
+  // own test is in hillclimb.test.js.
+  test('the runner removes the hidden grader and grades through checkTask', () => {
     const src = fs.readFileSync(path.join(BENCH, 'runner', 'run.js'), 'utf8');
     const cut = src.indexOf('fs.rmSync(path.join(workDir, graderFile)');
-    const restore = src.indexOf("task.fixture, graderFile), path.join(workDir, graderFile)");
-    const check = src.indexOf('runCheck(task.check, last.finalText, workDir)');
+    const check = src.indexOf('checkTask(task, last.finalText, workDir)');
     assert.ok(cut > 0, 'run.js never removes the hidden grader');
-    assert.ok(restore > cut && restore < check, 'it is not put back before the check runs');
+    assert.ok(check > cut, 'run.js does not grade through checkTask');
+    assert.ok(!src.includes('path.join(workDir, graderFile));'), 'run.js copies the grader back into the workspace');
   });
 
   test('the search-heavy fixture is big enough that a grep genuinely collapses', () => {
