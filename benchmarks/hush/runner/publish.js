@@ -144,12 +144,19 @@ function chartValues(runs, metric, arms, scale = 1) {
 // against it. A run that errored still wrote a record and counts as present;
 // a run whose record is simply gone does not.
 //
-// razor: no manifest, no check — records written before the manifest existed
-// still publish. Upgrade path if that matters: refuse a record set whose
-// batchId names no manifest at all.
+// A batch that cannot be compared is refused, not waved through: no manifest
+// names the batch, or the manifest plans no runs, so completeness is unproven.
 function assertBatchComplete(runs, batches, batchId) {
   const manifest = (batches || []).find((b) => b.batchId === batchId);
-  if (!manifest || !Array.isArray(manifest.order)) return;
+  if (!manifest) {
+    throw new Error(
+      `batch ${batchId} has no batch.json naming it, so its completeness cannot be proven. `
+      + 'Publish from the directory that holds the batch manifest.');
+  }
+  if (!Array.isArray(manifest.order)) {
+    throw new Error(
+      `batch ${batchId} has a batch.json that lists no planned runs (no order array), so its completeness cannot be proven.`);
+  }
   const present = new Set(runs.map((r) => r.key));
   const missing = manifest.order.filter((k) => !present.has(k));
   if (!missing.length) return;

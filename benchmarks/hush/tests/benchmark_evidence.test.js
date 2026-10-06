@@ -630,9 +630,10 @@ describe('records are write-once and hash-stamped', () => {
 
 describe('published claims are generated from records', () => {
   const runs = synthRuns();
+  const planned = [{ batchId: "synthetic-0001", order: runs.map((r) => r.key) }];
 
   test('the claim table carries per-segment numbers that match the statistics', () => {
-    const { markdown } = publish.buildClaims(runs);
+    const { markdown } = publish.buildClaims(runs, planned);
     assert.match(markdown, /## By segment/);
     assert.match(markdown, /\| noisy-output \| hush \| 4 \|/);
     assert.match(markdown, /\| coding \| baseline \| 4 \|/);
@@ -645,13 +646,13 @@ describe('published claims are generated from records', () => {
   });
 
   test('the suite total is present but labelled as a headline, not evidence', () => {
-    const { markdown } = publish.buildClaims(runs);
+    const { markdown } = publish.buildClaims(runs, planned);
     assert.match(markdown, /## Suite total/);
     assert.match(markdown, /not evidence/);
   });
 
   test('charts come out as standalone SVG, one bar per arm per segment', () => {
-    const { charts } = publish.buildClaims(runs);
+    const { charts } = publish.buildClaims(runs, planned);
     const svg = charts['cost-by-segment.svg'];
     assert.ok(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg"'));
     assert.ok(svg.endsWith('</svg>'));
@@ -690,8 +691,8 @@ describe('published claims are generated from records', () => {
       assert.throws(() => publish.buildClaims(thinned, [manifest()]),
         /batch synthetic-0001 is incomplete: 2 of 16 planned runs have no record/);
       assert.throws(() => publish.buildClaims(thinned, [manifest()]), /log-triage__baseline__r1/);
-      // Without the manifest the same thinned set publishes — that is the defect.
-      assert.doesNotThrow(() => publish.buildClaims(thinned));
+      // Without a manifest the same set is refused, not published.
+      assert.throws(() => publish.buildClaims(thinned), /batch synthetic-0001 has no batch.json/);
     });
 
     test('a run that errored is present, not missing', () => {
@@ -733,7 +734,7 @@ describe('published claims are generated from records', () => {
       for (const r of runs) records.writeRecord(dir, r.key, r);
       const { runs: back } = records.readRecords(dir);
       assert.strictEqual(back.length, runs.length);
-      const { markdown, charts } = publish.buildClaims(back);
+      const { markdown, charts } = publish.buildClaims(back, planned);
       assert.match(markdown, /Generated from 16 retained run records/);
       assert.strictEqual(Object.keys(charts).length, 4);
     } finally { rmTree(dir); }
