@@ -44,20 +44,25 @@ const STUDY_FILE = path.join(ROOT, 'tasks-criteria.json');
 const rubric = JSON.parse(fs.readFileSync(RUBRIC_FILE, 'utf8'));
 const study = JSON.parse(fs.readFileSync(STUDY_FILE, 'utf8'));
 const TASKS = [...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...study.tasks];
-// A rubric or quiz edit perturbs every answer in the request it touches, so a
-// cached score from another version is never spliced beside a fresh one. The
-// file and task `note` fields never reach the judge, so rewording one keeps the
-// hash; a `note` inside a ground truth is sent, so it still counts.
-function rubricHash(r, s) {
+// The request text the judge is shown for a task.
+const promptOf = (task) => task.prompt || (task.prompts || []).join('\n');
+// A rubric, quiz or prompt edit perturbs every answer in the request it touches,
+// so a cached score from another version is never spliced beside a fresh one.
+// The prompts of judged tasks count wherever they live, tasks.json included.
+// The file and task `note` fields never reach the judge, so rewording one keeps
+// the hash; a `note` inside a ground truth is sent, so it still counts.
+function rubricHash(r, s, tasks) {
   const { note: _rn, ...rest } = r;
   const { note: _sn, ...st } = s;
   st.tasks = st.tasks.map(({ note: _tn, ...t }) => t);
-  return crypto.createHash('sha256').update(JSON.stringify([rest, st])).digest('hex').slice(0, 12);
+  const prompts = tasks.filter((t) => s.overlay[t.id]).map((t) => [t.id, promptOf(t)]);
+  return crypto.createHash('sha256').update(JSON.stringify([rest, st, prompts])).digest('hex').slice(0, 12);
 }
-const RUBRIC_HASH = rubricHash(rubric, study);
-// Scores stored before notes were left out carry the raw-bytes hash of the same
-// content; each entry maps that hash to the note-free hash it equals.
-const BYTE_HASHES = { '23fd222890c7': 'a56788c781c5' };
+const RUBRIC_HASH = rubricHash(rubric, study, TASKS);
+// Scores stored under an earlier hash of the same content: the raw-bytes hash
+// from before notes were left out, and the note-free hash from before prompts
+// counted. Each entry maps that hash to the current hash it equals.
+const BYTE_HASHES = { '23fd222890c7': 'dc73724fcf79', a56788c781c5: 'dc73724fcf79' };
 
 // --- per-task judging data ---------------------------------------------------
 function overlayFor(taskId) {
@@ -163,7 +168,7 @@ async function judgeMessage({ taskId, finalText, events }) {
   const task = TASKS.find((t) => t.id === taskId);
   const ov = overlayFor(taskId);
   if (!task || !ov) throw new Error(`no study overlay for task ${taskId}`);
-  const prompt = task.prompt || (task.prompts || []).join('\n');
+  const prompt = promptOf(task);
 
   // Mechanical half first: it decides which answers are read.
   const refs = checks.references(finalText);
@@ -383,10 +388,10 @@ async function pool(items, n, fn) {
   }));
 }
 
-function loadJudged(file) {
+function loadJudged(file, hash = RUBRIC_HASH) {
   if (!fs.existsSync(file)) return null;
   const j = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return j.rubricHash === RUBRIC_HASH || BYTE_HASHES[j.rubricHash] === RUBRIC_HASH ? j : null;
+  return j.rubricHash === hash || BYTE_HASHES[j.rubricHash] === hash ? j : null;
 }
 
 async function judgeTag(tag) {

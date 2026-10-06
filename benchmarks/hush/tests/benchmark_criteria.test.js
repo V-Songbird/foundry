@@ -107,7 +107,7 @@ describe('the rubric is internally sound', () => {
 
 describe('rubricHash: which edits invalidate stored scores', () => {
   const copy = (o) => JSON.parse(JSON.stringify(o));
-  const base = rubricHash(rubric, study);
+  const base = rubricHash(rubric, study, TASKS);
 
   test('the hash is the one the runner stamps on scores', () => {
     assert.strictEqual(base, RUBRIC_HASH);
@@ -117,20 +117,25 @@ describe('rubricHash: which edits invalidate stored scores', () => {
     const r = copy(rubric); const s = copy(study);
     r.note += ' Reworded.'; s.note += ' Reworded.';
     for (const t of s.tasks) t.note = 'Reworded.';
-    assert.strictEqual(rubricHash(r, s), base);
+    assert.strictEqual(rubricHash(r, s, TASKS), base);
   });
 
   test('a ground-truth note is sent to the judge, so editing it moves the hash', () => {
     const s = copy(study);
     const gt = Object.values(s.overlay).find((o) => o.groundTruth?.note).groundTruth;
     gt.note += ' Reworded.';
-    assert.notStrictEqual(rubricHash(rubric, s), base);
+    assert.notStrictEqual(rubricHash(rubric, s, TASKS), base);
   });
 
   test('editing the reader the judge is shown moves the hash', () => {
     const r = copy(rubric);
     r.reader += ' Reworded.';
-    assert.notStrictEqual(rubricHash(r, study), base);
+    assert.notStrictEqual(rubricHash(r, study, TASKS), base);
+  });
+
+  test('a prompt outside the study never reaches the criteria judge, so editing it keeps the hash', () => {
+    const tasks = TASKS.map((t) => (t.id === 'repo-sweep' ? { ...t, prompt: `${t.prompt} Reworded.` } : t));
+    assert.strictEqual(rubricHash(rubric, study, tasks), base);
   });
 });
 
@@ -151,6 +156,15 @@ describe('loadJudged: stored scores stay loadable across the note-free hash', ()
   test('a file stamped with the legacy hash loads, so a judge run does not re-judge it', () => {
     assert.deepStrictEqual(loadJudged(stamped('23fd222890c7')).runs, { k: {} });
     assert.ok(loadJudged(stamped(RUBRIC_HASH)));
+  });
+
+  test('rewording a judged prompt in tasks.json moves the hash, and scores stored before it no longer load', () => {
+    const judged = JSON.parse(fs.readFileSync(path.join(BENCH, 'tasks.json'), 'utf8')).find((t) => study.overlay[t.id] && t.prompt);
+    const tasks = TASKS.map((t) => (t.id === judged.id ? { ...t, prompt: `${t.prompt} Reworded.` } : t));
+    const reworded = rubricHash(rubric, study, tasks);
+    assert.notStrictEqual(reworded, RUBRIC_HASH, `${judged.id}: its prompt is sent to the judge`);
+    assert.strictEqual(loadJudged(stamped(RUBRIC_HASH), reworded), null);
+    for (const legacy of Object.keys(BYTE_HASHES)) assert.strictEqual(loadJudged(stamped(legacy), reworded), null, legacy);
   });
 
   test('a file stamped with any other hash does not load', () => {
