@@ -236,11 +236,15 @@ describe('analyzeMessage: fenced blocks are Never compress content', () => {
     assert.strictEqual(r.overBlockCap, 1);
   });
 
+  // The span is one word and the space after it still separates the next one:
+  // sixteen words, one over the cap, so a dropped space would pass the sentence.
   test('a triple-backtick span inside a sentence is inline code, not a break', () => {
-    const r = analyzeMessage('The writer now calls ```flush()``` before it closes the handle, so the last record reaches the disk every time.', CAPS);
+    const r = analyzeMessage('The writer now calls ```flush()``` before it closes the handle so the last record lands safely.', CAPS);
     assert.strictEqual(r.units, 1);
+    assert.strictEqual(r.longestWords, 16);
     assert.strictEqual(r.overWordCap, 1);
     assert.strictEqual(r.fencedBlocks, 0);
+    assert.strictEqual(analyzeMessage('Call ```flush()``` now.', CAPS).longestWords, 3);
   });
 
   test('an unterminated fence still swallows the rest, never half a block', () => {

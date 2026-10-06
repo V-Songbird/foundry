@@ -128,12 +128,13 @@ function blocksOf(prose) {
 function analyzeMessage(text, caps) {
   const src = String(text || '');
   const fenced = (src.match(FENCE) || []).filter((m) => !INLINE_FENCE.test(m));
-  // Inline code reads as one word. A fence opened after text on its line leaves
+  // Inline code reads as one word, and keeps the whitespace the match took
+  // after its closing backticks. A fence opened after text on its line leaves
   // a line break, so the text before it never joins the text after it into one
   // sentence; one opened after indentation alone leaves nothing, so no
   // whitespace-only line splits its block.
   const prose = collapseLinks(src.replace(FENCE, (m, at) => {
-    if (INLINE_FENCE.test(m)) return m.endsWith('\n') ? 'X\n' : 'X';
+    if (INLINE_FENCE.test(m)) return `X${m.slice(m.lastIndexOf('```') + 3)}`;
     return /\S/.test(src.slice(src.lastIndexOf('\n', at - 1) + 1, at)) ? '\n' : '';
   }));
 

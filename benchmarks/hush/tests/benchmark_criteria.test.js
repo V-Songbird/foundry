@@ -8,12 +8,13 @@
 // fails here instead of surfacing as a silently skipped question in a paid
 // batch.
 
-const { describe, test } = require('node:test');
+const { describe, test, after } = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 
-const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH } = require('../runner/criteria.js');
+const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, BYTE_HASHES, loadJudged } = require('../runner/criteria.js');
 const { shape } = require('../runner/criteria-checks.js');
 
 const BENCH = path.join(__dirname, '..');
@@ -130,6 +131,31 @@ describe('rubricHash: which edits invalidate stored scores', () => {
     const r = copy(rubric);
     r.reader += ' Reworded.';
     assert.notStrictEqual(rubricHash(r, study), base);
+  });
+});
+
+describe('loadJudged: stored scores stay loadable across the note-free hash', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'criteria-'));
+  after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const stamped = (hash) => {
+    const file = path.join(dir, `${hash}.json`);
+    fs.writeFileSync(file, JSON.stringify({ tag: 't', rubricHash: hash, runs: { k: {} } }));
+    return file;
+  };
+
+  test('every legacy raw-bytes hash maps to the current rubric hash', () => {
+    assert.ok(Object.keys(BYTE_HASHES).length > 0);
+    for (const [legacy, current] of Object.entries(BYTE_HASHES)) assert.strictEqual(current, RUBRIC_HASH, legacy);
+  });
+
+  test('a file stamped with the legacy hash loads, so a judge run does not re-judge it', () => {
+    assert.deepStrictEqual(loadJudged(stamped('23fd222890c7')).runs, { k: {} });
+    assert.ok(loadJudged(stamped(RUBRIC_HASH)));
+  });
+
+  test('a file stamped with any other hash does not load', () => {
+    assert.strictEqual(loadJudged(stamped('000000000000')), null);
+    assert.strictEqual(loadJudged(path.join(dir, 'missing.json')), null);
   });
 });
 

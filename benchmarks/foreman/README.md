@@ -77,6 +77,9 @@ Flags: `--tasks a,b` · `--reps N` · `--model sonnet|opus` · `--arms vibe,free
 | `gaming-off` / `gaming-on` (opt-in) | Does naming the test-gaming shortcut stop it, or teach it? `gamed-check` only, scored on held-back tests. |
 | `extras-off` / `extras-on` (opt-in) | Scope rules cover what the session is asked mid-task; what is a constraint line about what it finds on its own worth? `quiet-extras` only. Both come out of `craft-handoff.js` and differ by that one line. |
 | `pin-off` / `pin-on` / `pin-wrong` (opt-in) | Does a served lesson change the outcome, and what does a wrong one cost? `pinned-dup` only — the fact the lesson carries exists nowhere else in the fixture. |
+| `chain-off` / `chain-on` (opt-in) | Does the block naming the entries that shaped a function carry a fact the way a lesson does? `pinned-dup` only. |
+| `unpin-off` / `unpin-wrong` / `unpin-ranked` (opt-in) | What does a false lesson cost when nothing in the fixture can refute it? `unpinned-dup` only. |
+| `cut-on` / `cut-wrong` (opt-in) | The same pin as a constraint line inside the task rules. `cut-on` runs on `pinned-dup`, where it is true; `cut-wrong` on `unpinned-dup`, where it is false. |
 
 **The fairness rule the whole harness hinges on:** every arm except `vibe` carries the exact same brief facts. Arms differ in format and guardrails, never in information access — including the deliberately wrong file name in the stale-brief task, which every arm states identically.
 
