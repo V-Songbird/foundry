@@ -38,10 +38,14 @@
 //     block labels: nothing gates these yet.
 //   - Which statistic, arm or segment a README dollar figure names, and every
 //     README figure that is not a dollar amount, such as pass counts, word
-//     counts and percentages: point 11 only finds each dollar figure among the
-//     batch's costs.
+//     counts and percentages: point 11 only finds each dollar figure outside
+//     code among the batch's costs.
+//   - Which model a README sentence or table row names, and the host and date
+//     the README states: point 11 only finds each model id the batch's records
+//     carry somewhere in the README.
 //   - That the previous release's batch ran the same tasks and repetitions:
-//     points 6, 7 and 8 check only its version, its model and its hashes.
+//     points 6, 7 and 8 check only its version, its model, its model ids and
+//     its hashes.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -162,7 +166,7 @@ const POINTS = [
       const gaps = [];
       const evidence = [`${ctx.runs.length} hash-verified run records, ${ctx.batches.length} batch manifest(s)`];
       if (ctx.batches.length !== 1) gaps.push(`expected one batch.json, found ${ctx.batches.length}`);
-      if (ctx.manifest && !Array.isArray(ctx.manifest.order)) gaps.push('batch.json lists no planned runs, so completeness cannot be checked');
+      // assertBatchComplete refuses a missing or empty order and names it.
       try {
         const id = assertOneBatch(ctx.runs);
         if (ctx.manifest && ctx.manifest.batchId !== id) gaps.push(`batch.json names ${ctx.manifest.batchId}, the records name ${id}`);
@@ -193,7 +197,7 @@ const POINTS = [
       const commit = /^[0-9a-f]{40}$/.test(String(build.head));
       if (!commit) {
         gaps.push(build.head === '<redacted-secret>'
-          ? 'batch.json lost the hush commit: the record sanitizer redacted it'
+          ? 'batch.json lost the hush commit to the record sanitizer, so the batch predates the runner keeping it'
           : 'batch.json names no hush commit');
       }
       if (build.dirty !== false) gaps.push('the hush checkout had uncommitted changes, or its state was unknown');
@@ -272,8 +276,8 @@ const POINTS = [
   },
   {
     n: 11,
-    point: 'The published claims regenerate from the records, the README names this batch, and each README dollar figure equals one of its costs.',
-    proof: `runner/publish.js buildClaims against ${CLAIMS}; dollar figures in the checkout's README.md`,
+    point: 'The published claims regenerate from the records, the README names this batch and its model ids, and each README dollar figure equals one of its costs.',
+    proof: `runner/publish.js buildClaims against ${CLAIMS}; record modelId and dollar figures outside code in the checkout's README.md`,
     check(ctx) {
       runsOf(ctx);
       let claims;
@@ -293,9 +297,13 @@ const POINTS = [
       if (!ctx.readme.includes(claims.batchId)) {
         gaps.push(`README.md does not name batch ${claims.batchId}, so its figures cannot be traced to this batch`);
       } else {
-        const figures = [...new Set(ctx.readme.match(/\$\d+(?:,\d{3})*(?:\.\d+)?/g) || [])];
+        const ids = [...new Set(runsOf(ctx).map((r) => r.modelId).filter(Boolean))].sort();
+        const unnamed = ids.filter((id) => !new RegExp(`(?<![\\w.-])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-]|\\.\\w)`).test(ctx.readme));
+        const prose = ctx.readme.replace(CODE, '');
+        const figures = [...new Set(prose.match(/\$\d+(?:,\d{3})*(?:\.\d+)?/g) || [])];
         const untraced = figures.filter((f) => !figureIsGenerated(f, claims.costs));
-        evidence.push(`README.md names batch ${claims.batchId} and prints ${figures.length} dollar figure(s)`);
+        evidence.push(`README.md names batch ${claims.batchId}, model id(s) ${ids.join(', ')}, and prints ${figures.length} dollar figure(s) outside code`);
+        if (unnamed.length) gaps.push(`README.md does not name model id(s) ${unnamed.join(', ')} that the batch's records carry`);
         if (untraced.length) gaps.push(`${untraced.length} README figure(s) no record produces: ${someOf(untraced)}`);
       }
       return verdict(evidence, gaps);
@@ -305,6 +313,9 @@ const POINTS = [
 
 // Files a release may change after the measurement without changing what ran.
 const PRESENTATION = /^(README\.md$|docs\/|assets\/)/;
+
+// Fenced blocks, then inline code spans: a `$1` in an awk or sed example is no price.
+const CODE = /^ {0,3}(`{3,}|~{3,})[\s\S]*?^ {0,3}\1|(`+)(?!`)[\s\S]*?(?<!`)\2(?!`)/gm;
 
 /**
  * Git's output in `dir`, or null when the command fails. GIT_* variables are
@@ -324,8 +335,9 @@ function gitIn(dir, args) {
  * separately, through the checkout's dirty flag.
  */
 function changedSince(dir, commit) {
-  const out = gitIn(dir, ['diff', '--name-only', '--no-renames', commit, 'HEAD', '--']);
-  return out === null ? null : out.split('\n').filter(Boolean);
+  // -z keeps a non-ASCII path such as docs/guía.md unquoted.
+  const out = gitIn(dir, ['diff', '-z', '--name-only', '--no-renames', commit, 'HEAD', '--']);
+  return out === null ? null : out.split('\0').filter(Boolean);
 }
 
 /** True when a dollar figure, such as $3 or $1,204.50, equals one of the batch's costs at the figure's own precision. */

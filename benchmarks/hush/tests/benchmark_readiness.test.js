@@ -12,7 +12,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const gate = require('../scripts/readiness-gate.js');
-const { writeRecord, readRecords, hashRecord, HASH_FIELD } = require('../runner/records.js');
+const { writeRecord, readRecords } = require('../runner/records.js');
 const { buildClaims } = require('../runner/publish.js');
 
 const GATE = path.join(__dirname, '..', 'scripts', 'readiness-gate.js');
@@ -80,7 +80,7 @@ function synthRuns() {
 }
 
 const STYLE = 'One fact per sentence. 12 words per sentence, tops.\n\nBlank line between blocks. 40 words per block, tops.\n';
-const README = `# hush\n\nBatch \`${BATCH}\`: a session without the plugin averaged **$0.42** on the noisy job.\n`;
+const README = `# hush\n\nBatch \`${BATCH}\` on model id \`claude-opus-5-5\`: a session without the plugin averaged **$0.42** on the noisy job.\n`;
 
 // No inherited GIT_DIR or GIT_INDEX_FILE may point the fixture at a real repository.
 const gitEnv = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
@@ -157,11 +157,8 @@ function fixture(edit = {}) {
 
   const recordsDir = path.join(root, 'records', BATCH);
   for (const r of runs) writeRecord(recordsDir, r.key, r);
-  // Written by hand, hashed the way records.js hashes: writeRecord's sanitizer
-  // redacts a 40-character commit, which point 2 needs to read.
-  if (edit.manifest !== null) {
-    fs.writeFileSync(path.join(recordsDir, 'batch.json'), JSON.stringify({ ...manifest, [HASH_FIELD]: hashRecord(manifest) }));
-  }
+  // writeRecord's sanitizer keeps the 40-character commit under hush.head.
+  if (edit.manifest !== null) writeRecord(recordsDir, 'batch', manifest);
 
   if (edit.published !== 'none') {
     const { runs: kept, batches } = readRecords(recordsDir);
@@ -202,9 +199,10 @@ describe('the readiness gate', () => {
     ['batch.json names another batch', { manifest: (m) => { m.batchId = 'other-0002'; } }, [1, 11], /batch\.json names other-0002, the records name fixture-0001/],
     ['a run errored', { runs: onHush('rename__hush__r2', (r) => ({ key: r.key, batchId: r.batchId, seed: r.seed, task: r.task, segment: r.segment, arm: r.arm, rep: r.rep, model: r.model, error: 'Error: killed' })) }, [1], /1 run\(s\) errored with no scored output: rename__hush__r2/],
     ['the hush checkout was dirty', { manifest: (m) => { m.hush.dirty = true; } }, [2], /uncommitted changes/],
-    ['the sanitizer redacted the commit', { manifest: (m) => { m.hush.head = '<redacted-secret>'; } }, [2], /the record sanitizer redacted it/],
+    ['the batch predates the sanitizer keeping the commit', { manifest: (m) => { m.hush.head = '<redacted-secret>'; } }, [2], /lost the hush commit to the record sanitizer, so the batch predates the runner keeping it/],
     ['the batch measured another version', { version: '2.1.0' }, [2], /measured hush 2\.0\.0, the checkout is 2\.1\.0/],
-    ['batch.json lists no planned runs', { manifest: (m) => { delete m.order; } }, [1, 11], /batch\.json lists no planned runs/],
+    ['batch.json lists no planned runs', { manifest: (m) => { delete m.order; } }, [1, 11], /lists no planned runs \(order is missing or empty\)/],
+    ['batch.json plans an empty order', { manifest: (m) => { m.order = []; } }, [1, 11], /lists no planned runs \(order is missing or empty\)/],
     ['the voice changed in a commit after the measured one', { later: (dir) => fs.appendFileSync(path.join(dir, 'output-styles', 'hush.md'), 'Lead with the result.\n') }, [2], /hush changed output-styles\/hush\.md after the measured commit/],
     ['a later commit changed the voice and the checkout reverts it uncommitted', {
       later: (dir) => fs.appendFileSync(path.join(dir, 'output-styles', 'hush.md'), 'Lead with the result.\n'),
@@ -239,7 +237,9 @@ describe('the readiness gate', () => {
     ['the claims were never published', { published: 'none' }, [11], /claims\.md was never generated/],
     ['the README prints a figure no record produces', { readme: README.replace('$0.42', '$9.99') }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
     ['the README prints whole and thousands dollar figures no record produces', { readme: README.replace('$0.42', '$3 and $1,204.50') }, [11], /2 README figure\(s\) no record produces: \$3, \$1,204\.50/],
-    ['the README names another batch', { readme: '# hush\n\nBatch `older-0000` averaged **$0.42**.\n' }, [11], /README\.md does not name batch fixture-0001/],
+    ['the README names another model id', { readme: README.replace('claude-opus-5-5', 'claude-opus-5') }, [11], /README\.md does not name model id\(s\) claude-opus-5-5 that the batch's records carry/],
+    ['the README names the model id only as a prefix of another', { readme: README.replace('claude-opus-5-5', 'claude-opus-5-5-preview') }, [11], /does not name model id\(s\) claude-opus-5-5/],
+    ['the README names another batch',{ readme: '# hush\n\nBatch `older-0000` averaged **$0.42**.\n' }, [11], /README\.md does not name batch fixture-0001/],
   ];
 
   for (const [name, edit, points, message] of BREAKS) {
@@ -265,6 +265,26 @@ describe('the readiness gate', () => {
     } }));
     assert.deepStrictEqual(report.results.filter((r) => !r.met).map((r) => `${r.n}: ${r.missing}`), []);
     assert.ok(point(report, 2).evidence.includes('3 file(s) changed from the measured commit to HEAD, 0 outside README.md, docs/ and assets/'));
+  });
+
+  test('passes when a later commit adds a docs file with a non-ASCII name', () => {
+    const report = run(fixture({ later: (dir) => fs.writeFileSync(path.join(dir, 'docs', 'guía.md'), '# Guía\n') }));
+    assert.deepStrictEqual(report.results.filter((r) => !r.met).map((r) => `${r.n}: ${r.missing}`), []);
+    assert.ok(point(report, 2).evidence.includes('1 file(s) changed from the measured commit to HEAD, 0 outside README.md, docs/ and assets/'));
+  });
+
+  test('ignores dollar signs inside fenced and inline code in the README', () => {
+    const readme = `${README}\n\`\`\`bash\nawk '{print $1}' build.log\n\`\`\`\n\nThen run \`sed 's/a/$2/' x\` or \`\`echo $3,000\`\`.\n`;
+    const report = run(fixture({ readme }));
+    assert.deepStrictEqual(report.results.filter((r) => !r.met).map((r) => `${r.n}: ${r.missing}`), []);
+    assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
+  });
+
+  test('reports a missing or empty order as one gap on point 1', () => {
+    for (const change of [(m) => { delete m.order; }, (m) => { m.order = []; }]) {
+      const missing = point(run(fixture({ manifest: change })), 1).missing;
+      assert.strictEqual(missing.match(/lists no planned runs/g).length, 1, missing);
+    }
   });
 
   test('fails point 2 when a later commit changes a presentation file and a code file', () => {

@@ -112,7 +112,7 @@ Set these as environment variables. Where a script reads a per-plugin variable, 
 ## Limitations
 
 - Published figures keep the model, plugin revision and limits of the run that produced them. A figure measured on one host says nothing about another.
-- Hush's readiness gate cannot pass a batch the runner writes today: the record sanitizer redacts the hush commit in `batch.json`, so point 2 finds no build. No retained batch records a hush version either, so none can serve as the previous release that points 6, 7 and 8 compare against.
+- Hush's readiness gate cannot pass any retained batch: none records the hush build in `batch.json`, so point 2 finds no build. For the same reason, none can serve as the previous release that points 6, 7 and 8 compare against. A batch the runner writes now records the build, commit included.
 - `--regrade` needs the workspace a session left in the system temp folder. Once that folder is cleared, only Hush's keyword tasks that do not read files can be graded again.
 - Only Hush tasks with a reference answer under `anchors/<id>/gold.md` and a keyword check get an oracle: 3 of 11 today. `--smoke` checks only the null case of the rest.
 - Foreman's `foreman-std` prompts are files that `foreman/defaultarm/gen.js` writes from the Foreman checkout. After a change to Foreman, run that generator before the next variant. A row whose prompt file changed since its run carries `meta.prompt_changed`, and the call prints a warning. A record written before runs stored a prompt hash is compared by length only, so a same-length change goes unflagged.
