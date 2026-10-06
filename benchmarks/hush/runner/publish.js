@@ -153,9 +153,9 @@ function assertBatchComplete(runs, batches, batchId) {
       `batch ${batchId} has no batch.json naming it, so its completeness cannot be proven. `
       + 'Publish from the directory that holds the batch manifest.');
   }
-  if (!Array.isArray(manifest.order)) {
+  if (!Array.isArray(manifest.order) || !manifest.order.length) {
     throw new Error(
-      `batch ${batchId} has a batch.json that lists no planned runs (no order array), so its completeness cannot be proven.`);
+      `batch ${batchId} has a batch.json that lists no planned runs (order is missing or empty), so its completeness cannot be proven.`);
   }
   const present = new Set(runs.map((r) => r.key));
   const missing = manifest.order.filter((k) => !present.has(k));

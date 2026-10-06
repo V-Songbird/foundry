@@ -28,8 +28,8 @@ test("a manifest naming another batch is refused, naming the records' batch", ()
   assert.throws(() => buildClaims(runs, other), new RegExp(BATCH));
 });
 
-test("a manifest with no order array is refused, naming the batch", () => {
-  for (const bad of [{ order: undefined }, { order: "a,b" }]) {
+test("a manifest with no order array or an empty one is refused, naming the batch", () => {
+  for (const bad of [{ order: undefined }, { order: "a,b" }, { order: [] }]) {
     assert.throws(() => assertBatchComplete(runs, [manifest(bad)], BATCH), new RegExp(BATCH));
     assert.throws(() => buildClaims(runs, [manifest(bad)]), new RegExp(BATCH));
   }
