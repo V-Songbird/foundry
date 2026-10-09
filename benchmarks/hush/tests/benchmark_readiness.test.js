@@ -314,6 +314,7 @@ describe('the readiness gate', () => {
     ['indented code', '    echo $5\n\nprose $9.99\n', ['$5', '$9.99']],
     ['indented code holding a backtick', 'x\n\n    echo `\nprose $9.99 and `y`\n', ['$9.99']],
     ['a fence in a blockquote', '> ```\n> echo $1\n> ```\n', ['$1']],
+    ['a ``` line inside a <details> block', '<details>\n```\nprose $9.99\n</details>\n\n```\necho $1\n```\n', ['$9.99', '$1']],
   ];
   for (const [shape, text, figures] of COUNTED) {
     for (const [eol, readme] of [['LF', `${README}\n${text}`], ['CRLF', `${README}\n${text}`.replace(/\n/g, '\r\n')]]) {

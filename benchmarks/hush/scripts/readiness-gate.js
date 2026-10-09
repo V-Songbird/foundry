@@ -325,11 +325,14 @@ const PRESENTATION = /^(README\.md$|docs\/|assets\/)/;
 // runs of equal length open and close on one line, outside a backslash escape.
 // A fence closed by an indented line counts as prose up to that line. A fence
 // run indented 1-3 spaces may open a fence that a column-0 run closes, or sit
-// in a list item, so no fence after it is stripped. An unclosed fence, a fence
+// in a list item, so no fence after it is stripped; nor is one after a line
+// that opens with an HTML tag, since a ``` line inside an HTML block such as
+// <details> is raw HTML, not a fence. An unclosed fence, a fence
 // in a list or quote, indented code and a span that wraps lines all count as
 // prose, and so does every line after a backtick run left open, up to the next
 // blank line, since that run may close on a later line.
 const FENCE = /^( {0,3})(?:(`{3,})[^`]*|(~{3,}).*)$/;
+const HTML = /^ {0,3}<[A-Za-z/!?]/;
 const SPAN = /\\[\s\S]|(`+)(?:.*?(?<!`)\1(?!`))?/g;
 
 function proseOf(markdown) {
@@ -338,6 +341,7 @@ function proseOf(markdown) {
   let open = false;
   let fences = true;
   for (let i = 0; i < lines.length; i++) {
+    if (HTML.test(lines[i])) fences = false;
     const fence = fences && FENCE.exec(lines[i]);
     if (fence && fence[1]) fences = false;
     else if (fence) {
