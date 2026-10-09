@@ -315,9 +315,13 @@ describe('the readiness gate', () => {
     ['indented code holding a backtick', 'x\n\n    echo `\nprose $9.99 and `y`\n', ['$9.99']],
     ['a fence in a blockquote', '> ```\n> echo $1\n> ```\n', ['$1']],
     ['a ``` line inside a <details> block', '<details>\n```\nprose $9.99\n</details>\n\n```\necho $1\n```\n', ['$9.99', '$1']],
+    ['a span inside a <details> block', '<details>\nIt costs `$9.99` a run.\n</details>\n', ['$9.99']],
+    ['a span after a <details> block', '<details>\nx\n</details>\n\nIt costs `$9.99` a run.\n', ['$9.99']],
   ];
-  for (const [shape, text, figures] of COUNTED) {
-    for (const [eol, readme] of [['LF', `${README}\n${text}`], ['CRLF', `${README}\n${text}`.replace(/\n/g, '\r\n')]]) {
+  // A UTF-8 BOM before the README's first HTML line still trips the HTML latch.
+  const BOM = '﻿<details>\n```\nprose $9.99\n</details>\n\n```\necho $1\n```\n\n';
+  for (const [shape, text, figures, lead = ''] of [...COUNTED, ['a BOM-prefixed <details> block', '', ['$9.99', '$1'], BOM]]) {
+    for (const [eol, readme] of [['LF', `${lead}${README}\n${text}`], ['CRLF', `${lead}${README}\n${text}`.replace(/\n/g, '\r\n')]]) {
       test(`counts the dollar figures after ${shape} as prose (${eol})`, () => {
         const report = run(fixture({ readme }));
         assert.deepStrictEqual(unmetPoints(report), [11]);
