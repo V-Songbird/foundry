@@ -45,6 +45,22 @@ test('the Claude runner refuses to start a session without BENCH_CONFIG_DIR', ()
   }
 });
 
+const missingDrive = process.platform === 'win32'
+  && 'QRSTUVWXYZ'.split('').find((d) => !fs.existsSync(`${d}:/`));
+
+test('the Claude runner does not hang on a RAZOR_BENCH_RUNS on a missing drive', { skip: !missingDrive && 'needs Windows and a free drive letter' }, () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-drive-'));
+  const emptyBin = path.join(fixture, 'bin');
+  fs.mkdirSync(emptyBin);
+  try {
+    const run = smoke(fixture, { RAZOR_BENCH_RUNS: `${missingDrive}:/razor-runs`, PATH: emptyBin });
+    assert.equal(run.status, 2);
+    assert.match(run.stderr, /Set BENCH_CONFIG_DIR/);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
 test('the Claude runner refuses a RAZOR_BENCH_RUNS inside a Git work tree', () => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-git-'));
   const repo = path.join(fixture, 'repo');
