@@ -5,16 +5,27 @@ using the same explicit model, reasoning effort and permissions. It runs the
 13 original tasks, four counter-examples where adding code is necessary, and
 two multi-turn conversations. Arms are shuffled within each task/repetition.
 
-From the Foundry root, with the razor submodule on its `main` package (or RAZOR_DIR pointing at a razor checkout), run:
+Before you start:
+
+- The Codex CLI must be signed in. Every run starts paid model sessions.
+- Node.js 22 or later on your PATH. With fnm, activate it in this shell first,
+  for example `fnm env --use-on-cd | Out-String | Invoke-Expression`.
+- On Windows, pass the native `codex.exe` with `--codex-bin` (or set
+  `RAZOR_CODEX_BIN`), not a PowerShell or npm command shim. On Unix, `codex`
+  on the PATH works and `--codex-bin` can be left out. Last run on Windows
+  with Codex CLI 0.161.0.
+- The razor submodule is on its `main` package, or `RAZOR_DIR` points at a
+  razor checkout.
+
+From the Foundry root, run:
 
 ~~~powershell
-fnm env --use-on-cd | Out-String | Invoke-Expression
 node benchmarks/razor/runner/codex-run.js --codex-bin "<absolute path to codex.exe>" --model gpt-5.6-sol --effort high --suite all --runs 2 --workers 2 --seed razor-sol-paired-20260908 --report .private/benchmarks/razor/results/codex-sol-high-paired.md
 ~~~
 
-Use a native executable path on Windows rather than a PowerShell/npm command
-shim. On Unix, an executable on PATH also works. The tested Windows runtime is
-Codex 0.153.4. The account must already be signed in.
+The run ends by writing the Markdown report named by `--report`, beside its
+JSON measurements. Without `--model` and `--effort`, `codex-run.js` uses its
+own defaults, which differ from `codex-parity.js`'s; pass both to compare runs.
 
 The runner first verifies native activation with a package-manager no-op:
 baseline executes it directly; Razor must deny it once, then permit its retry.
@@ -29,7 +40,8 @@ Other plugins, memories, skills and browsing are disabled equally in both arms.
 
 `--suite full|counter|note|all` chooses a group; `--tasks a,b` chooses tasks.
 `--probe` runs activation only, `--smoke` adds one small task per arm, and
-`--selftest` checks the original instruments offline. Unknown options are
+`--selftest` checks the original instruments offline. `--timeout <seconds>`
+limits each session (default 300, at most 1800). Unknown options are
 rejected. `--help` explains the command without starting a model.
 
 Every completed cell is checkpointed before its project is deleted. Resume

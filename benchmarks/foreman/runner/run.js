@@ -75,11 +75,12 @@ const ARMS = {
     pluginDirs: [HUSH_DIR, RAZOR_DIR],
     settings: path.join(ROOT, 'settings-trio.json'),
   },
-  // The fact-matched foreman arm for the DEFAULT grid — see defaultarm/gen.js.
-  // It comes out of the product's own craft-handoff.js and passes the product's
-  // own gate, which the hand-frozen `foreman` arm does not. Prefer it over
-  // `foreman` for any cross-arm comparison; `foreman` is kept only so older
-  // tagged runs stay re-reportable.
+  // The fact-matched foreman arm — see defaultarm/gen.js. It comes out of the
+  // product's own craft-handoff.js and passes the product's own gate, which
+  // the hand-frozen `foreman` arm does not. It stays out of config.json's
+  // default arms (tests/default_arm.test.js), so name it via --arms for any
+  // cross-arm comparison; `foreman` is kept only so older tagged runs stay
+  // re-reportable.
   'foreman-std': { prompt: 'foreman-std', pluginDirs: [] },
   // A pin that exists nowhere in the fixture, served as a Constraints line
   // inside <task_rules>. Written by benefit/gen.js; `cut-on` runs on

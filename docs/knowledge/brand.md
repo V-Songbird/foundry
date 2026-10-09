@@ -87,7 +87,9 @@ own small skill icons are 14 to 16 px.
 ## Copying into a plugin
 
 Identity files come from `brand/identity/<plugin>/`, the scene from `brand/mascot/` and the
-evidence graphics from `brand/graphics/`. Copy with these names:
+evidence graphics from `brand/graphics/`. `brand/identity/<plugin>/` also holds light and dark
+previews of the scene and graphics, such as `hero-light.svg`, for the review gallery only; never
+copy those. Copy with these names:
 
 | Kit file | Plugin file | Set |
 | --- | --- | --- |
@@ -159,9 +161,10 @@ otherwise review the new PNGs and report the difference.
 1. Run `node brand/check-timing.js <svg>` on every SVG with SMIL animation, today every
    demo. It checks that `keyTimes`, `values` and `keySplines` agree.
 2. Open `brand/identity/index.html` in a web browser, straight from disk, and review every brand
-   on both backgrounds, with icons at 128, 64 and 32 px, and the host cards under "host cards" at
-   128, 80 and 32 px, and the skill icons under "skill icons" at 128, 64, 32 and 16 px. A preview that loads the page without its folder, such as a chat or editor
-   preview, shows every image broken. Check spelling, clipping, contrast and transparency in the
+   on both backgrounds, with icons at 128, 64 and 32 px, the host cards under "host cards" at
+   128, 80 and 32 px, and the skill icons under "skill icons" at 128, 64, 32 and 16 px. A preview
+   that loads the page without its folder, such as a chat or editor preview, shows every image
+   broken. Check spelling, clipping, contrast and transparency in the
    real PNGs.
 3. Foundry and Flint carry no spark.
 4. Follow the [plugin README contract](plugin-readme-template.md) for where each image goes.

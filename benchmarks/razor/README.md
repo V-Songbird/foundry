@@ -1,38 +1,37 @@
 # Razor benchmarks
 
-The runners measure Foundry's `razor/` checkout unless `RAZOR_DIR` names another. `runner/run.js` targets Claude; `runner/codex-run.js` and `runner/codex-parity.js` target Codex. Offline tests live in `tests/`. Codex reports, run workspaces and the past dependency comparison go to the ignored `.private/benchmarks/razor/` folder at the Foundry root. [All benchmark suites](../README.md) explains that layout and its environment variables.
+The runners measure Foundry's `razor/` checkout unless `RAZOR_DIR` names another. `runner/run.js` targets Claude; `runner/codex-run.js` and `runner/codex-parity.js` target Codex. Offline tests live in `tests/`. Codex reports and run workspaces go to the ignored `.private/benchmarks/razor/` folder at the Foundry root. [All benchmark suites](../README.md) explains that layout and its environment variables.
 
 Run Codex checks and create a local report with the [Codex runner](CODEX-HARNESS.md).
-The original Claude Code runner is also available below.
+The Claude Code runner is described below.
 
-## Original Claude Code benchmark
-This is the original Claude Code benchmark harness. It loads Razor's `main`
-package from the submodule or `RAZOR_DIR`; for the port baseline, use a checkout
-of commit `e0cf7ceb4d09efb5ea651555aa8354d03b1c6c2e`. It refuses an arm whose
-`hooks/hooks.json` registers the Codex hook, because this runner invokes Claude.
-Offline `--selftest`, `--rescore` and reporting always work. These runs do not
-measure Codex.
+## Claude Code runner
+
+This runner loads Razor's package from the submodule or `RAZOR_DIR`. It refuses
+an arm whose `hooks/hooks.json` registers the Codex hook, because this runner
+invokes Claude. Offline `--selftest`, `--rescore` and reporting always work.
+These runs do not measure Codex.
 
 It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed coding tasks, once with no plugin and once with razor. Cost and token counts come straight out of the API's own usage JSON. No mocks, no estimates, and no single-shot prompts — a canned reply can't tell you what a plugin costs across a real multi-turn session. Each session is scored on the code it leaves behind, and correctness is checked mechanically — the harness runs the produced code with `node`. A lean answer that breaks the task scores as a *failure*, not a win.
 
 ## Before you start
 
 - **Claude Code, signed in.** `claude` must be on your PATH and already authenticated (run any `claude` command once first). Every run bills your account — see the cost note below.
-- **Node** on your PATH (any recent version) — it runs the harness *and* scores the code each session produces. If you use [fnm](https://github.com/Schniz/fnm), activate it in this shell first — e.g. on PowerShell: `fnm env --use-on-cd | Out-String | Invoke-Expression`.
+- **Node.js 22 or later** on your PATH — it runs the harness *and* scores the code each session produces. If you use [fnm](https://github.com/Schniz/fnm), activate it in this shell first — e.g. on PowerShell: `fnm env --use-on-cd | Out-String | Invoke-Expression`.
 - **A scratch Claude state folder.** Set `BENCH_CONFIG_DIR` to a folder outside any repository before `--smoke`, `--default` or any other live run; the runner refuses to start a session without it. The first live run copies your `~/.claude` login there, so treat it as a secret. `--selftest` and `--rescore` need none. [All benchmark suites](../README.md#configuration) describes it.
 - Run the commands **from this `benchmarks/razor/` directory.**
 
 ## The honest disclaimer, up front
 
 > [!WARNING]
-> This costs real money. The cheap default run measured about **$3 on Sonnet** and takes a few minutes; the same run on Opus is roughly twice that. The full set — every task, three arms, three reps, both models, 234 sessions — measured **$36**. Those are real bills from this machine, not a quote; yours will differ.
+> This costs real money. The cheap default run measured about **$3 on Sonnet** and takes a few minutes; the same run on Opus is roughly twice that. The full set — every task, three arms, three reps, both models, 234 sessions — measured **$36**. Those are measured bills, not a quote; yours will differ.
 
 > [!NOTE]
 > The numbers move between runs — a handful of reps against a live model, not a powered experiment. A small sweep is a small sample; add reps for steadier numbers (`--runs 4`). A result only counts when both models agree on the direction.
 
 **What you should see:** razor landing **at or below baseline on cost and code size**, with **no new dependencies added** and every task still passing — the same *shape* as our published charts. You will **not** reproduce our exact figures, and that's expected. If razor is leaner and no pricier with correctness intact, the claim holds.
 
-A default run uses Sonnet, so the plugin README's **On Claude Sonnet** table is the one to compare against. `--models` accepts `sonnet` and `opus`, and both published tables come from a single interleaved run across the two.
+A default run uses Sonnet. Razor's README shows Claude Opus 5 rows only, so compare against it with `--models opus`. `--models` accepts `sonnet` and `opus`.
 
 ## Run it
 
@@ -153,7 +152,7 @@ The claims also rest on razor's unit tests, which cost nothing to run — they e
 node --test tests/*.test.js
 ```
 
-(Run that from the razor repo root. On Windows Node 22, use the explicit `*.test.js` glob shown here — a bare `node --test tests/` with a trailing slash trips up on that version.)
+(Run that from Foundry's `razor/` checkout; it runs the plugin's own suite.)
 
 ## What's measured
 
@@ -173,6 +172,10 @@ This **can** show whether razor changes what the agent builds and what it costs,
 
 ### A note on fairness
 
+razor's once-per-session ladder is part of the product, so its token cost is included in the measurement, not subtracted. Each arm runs in a fresh throwaway workspace outside any git repo, with only that one plugin loaded (`--setting-sources project,local`, no MCP servers, a scoped tool allowlist) — so a difference between arms is the plugin, nothing else.
+
+## The README replay
+
 The side-by-side replay at the top of the front page comes from a run directory too:
 
 ```bash
@@ -180,8 +183,6 @@ node runner/demo.js --run <the-run-dir-it-printed> --task dep-querystring
 ```
 
 It shows the file one no-plugin session and one razor session each delivered, as a diff against the seed, a line at a time on the recorded clock, and writes Foundry's `razor/assets/demo.svg`. With no `--baseline` or `--razor` named it takes, per arm, the session whose file has the median number of lines — a typical one, not a flattering one — and the caption prints every session's average, so the choice hides nothing.
-
-razor's once-per-session ladder is part of the product, so its token cost is included in the measurement, not subtracted. Each arm runs in a fresh throwaway workspace outside any git repo, with only that one plugin loaded (`--setting-sources project,local`, no MCP servers, a scoped tool allowlist) — so a difference between arms is the plugin, nothing else.
 
 ## Where a run lands
 

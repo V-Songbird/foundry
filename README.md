@@ -75,6 +75,8 @@ The command reports each test and exits non-zero on failure. From the root, `cla
 
 A release moves the plugin's version in its own repository, then the commit pins in both catalogs. The `cut-release` skill under `.claude/skills/` walks through it. Read [AGENTS.md](AGENTS.md) before changing a catalog.
 
+The harness that measures each plugin lives in `benchmarks/`. [The benchmarks README](benchmarks/README.md) covers its free offline tests and its paid live runs.
+
 The plugin pages share one layout, described in [the README contract](docs/knowledge/plugin-readme-template.md). Their banners, icons, mascot scenes and charts are built from `brand/`; [the brand guide](docs/knowledge/brand.md) covers the colors, the generators and how an image reaches a plugin.
 
 ## Support

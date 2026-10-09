@@ -75,6 +75,11 @@ A measured comment carries two dates, written `YYYY-MM-DD`:
   change that reviews, cuts or corrects those figures. A comment gets `reviewedAt` with its first
   such change, and has none before that.
 
+Every comment also names its host in `platform` and carries `status`: `measured` with `models`
+for a table of results, or `pending` with a `reason` for a host whose results do not exist yet.
+When a measured run's revision or date is not recorded, `revision` or `date` says so and
+`revisionReason` or `dateReason` explains why.
+
 ## Voice
 
 - Plain, warm and concrete. Short paragraphs; technical depth goes behind links.

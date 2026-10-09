@@ -41,14 +41,14 @@ node runner/run.js --dry-run --tag smoke   # print the full planned run matrix, 
 **1. Smoke test first** (one task, two arms, one rep — pennies) to confirm the plumbing drives `claude` and scores an answer:
 
 ```bash
-node runner/run.js --tag smoke --tasks api-constraint --reps 1 --model sonnet --arms vibe,foreman
+node runner/run.js --tag smoke --tasks api-constraint --reps 1 --model sonnet --arms vibe,foreman-std
 node runner/report.js --tag smoke
 ```
 
-**2. The real thing** — the full default grid:
+**2. The real thing** — every task, with the arm to quote. The default arms in `config.json` still hold the legacy `foreman` arm and leave `foreman-std` out, so name the arms:
 
 ```bash
-node runner/run.js --tag mine --model sonnet
+node runner/run.js --tag mine --model sonnet --arms vibe,freeform,webtemplate,foreman-std
 node runner/report.js --tag mine
 ```
 
@@ -57,10 +57,10 @@ That writes `.private/benchmarks/foreman/results/mine/report.md` at the Foundry 
 **3. Go bigger** (optional — costs more):
 
 ```bash
-node runner/run.js --tag big --model sonnet
+node runner/run.js --tag big --model opus --arms vibe,freeform,webtemplate,foreman-std
 ```
 
-Flags: `--tasks a,b` · `--reps N` · `--model sonnet|opus` · `--arms vibe,freeform,webtemplate,foreman,trio` · `--concurrency N` · `--tag NAME`.
+Flags: `--tasks a,b` · `--reps N` · `--model sonnet|opus` · `--arms vibe,freeform,webtemplate,foreman-std,foreman,trio,cut-on,cut-wrong` · `--concurrency N` · `--tag NAME`.
 
 ## The arms
 
@@ -76,7 +76,7 @@ Flags: `--tasks a,b` · `--reps N` · `--model sonnet|opus` · `--arms vibe,free
 
 **The fairness rule the whole harness hinges on:** every arm except `vibe` carries the exact same brief facts. Arms differ in format and guardrails, never in information access — including the deliberately wrong file name in the stale-brief task, which every arm states identically.
 
-That rule is now asserted rather than trusted. `defaultarm/gen.js` refuses to write an arm prompt that drops a constraint fact or repairs the stale file name, `tests/default_arm.test.js` pins the file set against the `freeform` arm, and `selfcheck.js` runs the product's own gate over the generated prompt. The reason for all three: a prompt can come out of `craft-handoff.js` and still lose facts. Constraint facts passed as `judgment.context` are dropped by the standard profile, and naming the task's real file instead of the brief's claimed one disarms the stale-brief trap.
+The harness asserts that rule. `defaultarm/gen.js` refuses to write an arm prompt that drops a constraint fact or repairs the stale file name, `tests/default_arm.test.js` pins the file set against the `freeform` arm, and `selfcheck.js` runs the product's own gate over the generated prompt. The reason for all three: a prompt can come out of `craft-handoff.js` and still lose facts. Constraint facts passed as `judgment.context` are dropped by the standard profile, and naming the task's real file instead of the brief's claimed one disarms the stale-brief trap.
 
 ### The trio arm
 
@@ -186,7 +186,7 @@ every invocation, so the detector is proven without spending a session on it.
 A different question again: does a roadmap stay accurate over months, and what
 does keeping one cost you? Mechanical tests can't answer either, so the foreman
 plugin ships two health tools under `scripts/health/` that measure them
-directly. From this directory, in a marketplace checkout:
+directly. From this directory, in a Foundry checkout:
 
 ```bash
 node ../../foreman/scripts/health/roadmap-health.js --roadmap /path/to/ROADMAP.jsonl --date 2026-07-28

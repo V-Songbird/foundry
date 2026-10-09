@@ -25,8 +25,8 @@ node --test foreman/tests/*.test.js
 Expected output, last lines:
 
 ```text
-# tests 95
-# pass 95
+# tests 74
+# pass 74
 # fail 0
 ```
 
@@ -101,18 +101,21 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 | `BENCH_PLUGINS_DIR` | No | The Foundry root | A folder that holds `foreman/`, `hush/` and `razor/`. Set it in a worktree, whose plugin folders are empty. |
 | `BENCH_DATA_DIR` | No | `.private/benchmarks` in this checkout | A folder with the same per-plugin history layout. In a worktree, set it to `<Foundry root>/.private/benchmarks`: the worktree's own folder has no history and goes away with the worktree. |
 | `BENCH_CONFIG_DIR` | Before a Foreman, Hush or Razor runner starts a Claude session | None | The scratch Claude state folder. A live run seeds it from `~/.claude` while it has no `.claude.json`, stored login included, so keep it outside any repository. A dry run, a plan-only run, Razor's `--selftest` and `--rescore`, and Foreman's picks `--arms foreman` start no session and need none. |
-| `FOREMAN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Foreman checkout for the Foreman prompt generators, `picks/run.js`, `selfcheck.js` and `validation/validate-records.js`. |
+| `FOREMAN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Foreman checkout for `defaultarm/gen.js`, `picks/run.js`, `selfcheck.js` and `validation/validate-records.js`. |
 | `HUSH_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Hush checkout for the plugged arm of Hush's `runner/run.js` and for Foreman's `trio` arm. The Hush scorers, such as `metrics.js` and `caps.js`, always read the checkout under `BENCH_PLUGINS_DIR`. |
 | `RAZOR_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Razor's runners. |
+| `RAZOR_CODEX_BIN` | No | `codex` on the PATH | The Codex executable for Razor's `runner/codex-run.js`; `--codex-bin` wins over it. |
 | `RAZOR_BENCH_RUNS` | No | `razor-bench` in the system temp folder | Where Razor's `runner/run.js` writes runs and where `runner/report.js` and `runner/demo.js` read them. Keep it outside any Git tree. |
 | `RAZOR_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Foreman's `trio` arm. |
+| `TYPESAFE_API_KEY` | For Hush's `runner/judge.js`, `duel.js` and `criteria.js` | None | The key for the TypeSafe judge. These scripts send each run's final message to that external, paid service; nothing else in the harness does. |
+| `TYPESAFE_API_URL` | No | `https://api.typesafe.ai/v1/systemone` | Another endpoint for the same three scripts. |
 
-Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret.
+Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`.
 
 ## Limitations
 
 - Published figures keep the model, plugin revision and limits of the run that produced them. A figure measured on one host says nothing about another.
-- Hush's readiness gate cannot pass any retained batch: none records the hush build in `batch.json`, so point 2 finds no build. For the same reason, none can serve as the previous release that points 6, 7 and 8 compare against. A batch the runner writes now records the build, commit included.
+- Hush's readiness gate cannot pass a batch whose `batch.json` does not record the hush build, so point 2 finds no build, and such a batch cannot serve as the previous release that points 6, 7 and 8 compare against. The runner records the build, commit included, in every batch it writes.
 - `--regrade` needs the workspace a session left in the system temp folder. Once that folder is cleared, only Hush's keyword tasks that do not read files can be graded again.
 - Only Hush tasks with a reference answer under `anchors/<id>/gold.md` and a keyword check get an oracle: 3 of 11 today. `--smoke` checks only the null case of the rest.
 - Foreman's `foreman-std` prompts are files that `foreman/defaultarm/gen.js` writes from the Foreman checkout. After a change to Foreman, run that generator before the next variant. A row whose prompt file changed since its run carries `meta.prompt_changed`, and the call prints a warning. A record written before runs stored a prompt hash is compared by length only, so a same-length change goes unflagged.

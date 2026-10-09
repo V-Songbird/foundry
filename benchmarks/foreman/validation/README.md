@@ -57,7 +57,7 @@ today's bytes.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `claim` | string | The exact sentence this record supports. |
-| `fixtures` | array | `{path, sha256, role?}` — repo-relative, hashed. Everything the run read. |
+| `fixtures` | array | `{path, sha256, role?}` — relative to the Foreman checkout, hashed. Everything the run read. |
 | `prompts` | array | `{path, sha256}` or `{text}` — the exact prompt(s) sent. `[]` when no model ran. |
 | `model` | object or `null` | `{id, settings}` — settings carry temperature, reasoning effort, and anything else that changes the answer. `null` means no model ran. |
 | `repetitions` | integer ≥ 1 | How many times it ran. Must equal `runs.length`. |
@@ -80,7 +80,8 @@ record has to say so rather than letting the two look alike.
 
 ## Where the data lives
 
-Record files land in this directory but are not committed — they are the
-operator's local audit trail. The harness lives in the marketplace repo under
-`benchmarks/foreman/`; it drives real sessions and reads real costs out of the
+Record files live in the ignored `.private/benchmarks/foreman/records/` folder
+(or under `BENCH_DATA_DIR`) and are never committed — they are the operator's
+local audit trail. The harness lives in Foundry under `benchmarks/foreman/`; it
+drives real sessions and reads real costs out of the
 API, so any figure can be regenerated from scratch.

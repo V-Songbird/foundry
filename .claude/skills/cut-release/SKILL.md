@@ -56,8 +56,8 @@ git -C <plugin> log --oneline origin/main..main
 Report what is unpushed and what is uncommitted. A dirty checkout is not authorization to include
 everything in it; say what is coming along rather than sweeping it in silently.
 
-Run the plugin's suite from inside its directory. Stop and report if it is red; do not release
-over it without the user's explicit go-ahead:
+Run the plugin's suite from inside its directory; Foreman's takes about 300 s. Stop and report if
+it is red; do not release over it without the user's explicit go-ahead:
 
 ```bash
 node --test "tests/*.test.js"
@@ -72,7 +72,8 @@ major for breaking changes.
 ## Step 2 — changelog and manifests, in the plugin
 
 1. `Read` `<plugin>/docs/knowledge/changelog.md`. Entries are `## <version> — <YYYY-MM-DD>` followed by a short
-   user-facing paragraph. Add the new entry at the top, or date the existing undated one. State the
+   user-facing paragraph. Rename the top `## Unreleased` heading to the new entry's heading, or add the entry at the top
+   when there is none. State the
    effect, not the journey: no methodology, no counts, no design rationale.
 2. `Edit` `version` in `<plugin>/.claude-plugin/plugin.json` and, when they exist,
    `<plugin>/.codex-plugin/plugin.json` and `<plugin>/plugin.json`. Then confirm every hit reads

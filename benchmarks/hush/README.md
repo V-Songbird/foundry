@@ -21,7 +21,7 @@ It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed
 > [!NOTE]
 > The numbers move between runs — a handful of reps against a live model, not a powered experiment. Expect single-digit-percent swings on any given task, and more on the noisy ones. Judge a task by the *per-rep spread*, not just the mean.
 
-**What you should see:** the same *shape* as our published charts — hush **cutting hard on the tasks whose commands print a lot** (`log-triage`, `release-digest`, `incident-forensics`), **costing a little on the ones that print little** (`feature-drift`, `failing-suite`, `dep-bump-warnings`, `repo-sweep`, `rename-scope`), **far less mid-turn narration** throughout, and every task still passing. You will **not** reproduce our exact figures, and that's expected. A run where hush is cheaper on every single task would be the surprising result, not the target.
+**What you should see:** the same *shape* as our published charts — hush **cutting most on the tasks whose commands print a lot** (`log-triage`, `release-digest`, `incident-forensics`), **far less mid-turn narration** throughout, and every task still passing. Cost on the tasks that print little depends on the model: on Opus 5.5, hush cost more on seven of the nine jobs. You will **not** reproduce our exact figures, and that's expected. A run where hush is cheaper on every single task would be the surprising result, not the target.
 
 ## Run it
 
@@ -37,7 +37,7 @@ node runner/run.js --tag plan --dry-run
 node runner/run.js --tag smoke --tasks failing-suite --reps 1
 ```
 
-**2. The real thing** — the whole suite (9 tasks × baseline + hush × 2 reps) on the model our headline numbers use:
+**2. The real thing** — the whole suite (9 tasks × baseline + hush × 2 reps) on Sonnet, the default in `config.json`. Hush's headline figures ran on Opus 5.5 with 4 reps; add `--model opus --reps 4` to match them, at a higher cost:
 
 ```bash
 node runner/run.js --tag mine
@@ -52,7 +52,7 @@ That writes `report.md` and `report.html` under `.private/benchmarks/hush/result
 node runner/run.js --tag big --model opus
 ```
 
-Flags: `--tasks a,b` (pick tasks) · `--reps N` · `--model sonnet|opus` · `--arms baseline,hush` · `--concurrency N` · `--tag NAME` · `--seed N` (the arm order is shuffled inside every task-and-rep block so no arm always meets a cold cache; pass the seed a run printed to replay its exact order) · `--ablations` (see below) · `--resume` (re-read completed runs from disk instead of paying for them again — a rate-limited or interrupted run records as an error and re-runs) · `--hush-debug` (attach hush's per-decision manifest to each hush-arm record, surfaced in `report.md` as a "hush decisions" line per task).
+Flags: `--tasks a,b` (pick tasks) · `--extra-tasks a,b` (add tasks outside the default set) · `--reps N` · `--model sonnet|opus` · `--effort LEVEL` · `--arms baseline,hush` · `--concurrency N` · `--tag NAME` · `--seed N` (the arm order is shuffled inside every task-and-rep block so no arm always meets a cold cache; pass the seed a run printed to replay its exact order) · `--ablations` (see below) · `--resume` (re-read completed runs from disk instead of paying for them again — a rate-limited or interrupted run records as an error and re-runs) · `--hush-debug` (attach hush's per-decision manifest to each hush-arm record, surfaced in `report.md` as a "hush decisions" line per task).
 
 ## Which half of hush is doing the work?
 
@@ -99,7 +99,7 @@ The claims also rest on hush's unit tests, which cost nothing to run — they ex
 node --test hush/tests/*.test.js
 ```
 
-(Run that from the Foundry root; it runs the plugin's own suite. On Windows Node 22, use the explicit `*.test.js` glob shown here — a bare `node --test tests/` with a trailing slash trips up on that version.)
+(Run that from the Foundry root; it runs the plugin's own suite. The same command from `benchmarks/` runs this harness's offline tests instead.)
 
 ## What's measured
 
@@ -200,6 +200,6 @@ The gate does not prove these promises:
 - Any dollar figure written without a leading digit, such as `$.42`.
 
 > [!NOTE]
-> Point 2 fails on every retained batch today, because they predate the runner recording the hush build in `batch.json`. A batch the runner writes now keeps the full commit, so a new run can pass it.
+> Point 2 fails on a batch whose `batch.json` does not record the hush build, as in a batch written before the runner recorded it. The runner keeps the full commit in every batch it writes, so a new run can pass it.
 >
-> Points 6, 7 and 8 also fail until a retained batch records the hush version it measured. No retained batch does today, so none can serve as the previous release.
+> Points 6, 7 and 8 also fail when the previous release's batch does not record the hush version it measured; such a batch cannot serve as the previous release.
