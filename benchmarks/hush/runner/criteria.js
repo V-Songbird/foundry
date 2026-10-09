@@ -510,13 +510,19 @@ async function judgeAnchors() {
     }
   }
   console.log(`anchors: ${todo.length} to judge`);
+  let failed = 0;
   await pool(todo, Number(one('concurrency', 3)), async ({ key, taskId, arm, text, textHash }) => {
     try {
       const j = await judgeMessage({ taskId, finalText: text, events: null });
       prior.runs[key] = { task: taskId, arm, rep: 0, model: 'hand', costUsd: 0, textHash, ...j };
       console.log(`${key.padEnd(44)} composite=${j.composite.toFixed(3)} quiz=${(j.quiz.mean ?? 0).toFixed(3)} words=${j.mech.words}`);
-    } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
+    } catch (err) { failed += 1; console.log(`FAIL ${key}  ${err.message}`); }
   });
+  // A failed anchor stays unscored, so the next judge run asks it again.
+  if (failed) {
+    console.error(`WARNING ${file}: ${failed} anchor(s) failed and stay unscored; run the judge again`);
+    process.exitCode = 1;
+  }
   stamp(prior).judgedAt = new Date().toISOString();
   fs.writeFileSync(file, JSON.stringify(prior, null, 1));
   return prior;
