@@ -301,7 +301,7 @@ const POINTS = [
       } else {
         const ids = [...new Set(runsOf(ctx).map((r) => r.modelId).filter(Boolean))].sort();
         const unnamed = ids.filter((id) => !new RegExp(`(?<![\\w.-])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-]|\\.\\w)`).test(ctx.readme));
-        const prose = ctx.readme.replace(CODE, '');
+        const prose = proseOf(ctx.readme);
         const figures = [...new Set(prose.match(/\$\d+(?:,\d{3})*(?:\.\d+)?/g) || [])];
         const untraced = figures.filter((f) => !figureIsGenerated(f, claims.costs));
         evidence.push(`README.md names batch ${claims.batchId}, model id(s) ${ids.join(', ')}, and prints ${figures.length} dollar figure(s) outside code`);
@@ -316,11 +316,38 @@ const POINTS = [
 // Files a release may change after the measurement without changing what ran.
 const PRESENTATION = /^(README\.md$|docs\/|assets\/)/;
 
-// Fenced blocks, then inline code spans: a `$1` in an awk or sed example is no
-// price. A fence closes on a line of at least its own run of the same
-// character, or runs to the end of the document; a span never crosses a blank
-// line, so a stray backtick cannot hide the next paragraph.
-const CODE = /^ {0,3}((`|~)\2{2,})[^\n]*(?:\n[\s\S]*?^ {0,3}\1\2*[ \t]*$|[\s\S]*)|(?<!`)(`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])*?(?<!`)\3(?!`)/gm;
+// A `$1` in an awk or sed example is no price, so point 11 reads only prose.
+// A fence opens on three or more backticks with no backtick after them, or on
+// three or more tildes, and closes on a line of at least its own run of the
+// same character, or runs to the end of the document. An inline span stays
+// inside its paragraph: a blank line, heading, list item, quote, table row or
+// rule ends it, so a stray backtick cannot hide the prose after it.
+const FENCE = /^ {0,3}(`{3,}(?=[^`]*$)|~{3,})/;
+const BLOCK_START = /^[ \t]*$|^ {0,3}(?:[-*+][ \t]|\d{1,9}[.)][ \t]|>)/;
+const ONE_LINE_BLOCK = /^ {0,3}(?:#{1,6}(?:[ \t]|$)|([-*_=])(?:[ \t]*\1)+[ \t]*$)|\|/;
+const SPAN = /(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g;
+
+function proseOf(markdown) {
+  const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+  const out = [];
+  let para = [];
+  const flush = () => { if (para.length) out.push(para.join('\n').replace(SPAN, '')); para = []; };
+  for (let i = 0; i < lines.length; i++) {
+    const fence = FENCE.exec(lines[i]);
+    if (fence) {
+      flush();
+      const close = new RegExp(`^ {0,3}\\${fence[1][0]}{${fence[1].length},}[ \\t]*$`);
+      while (++i < lines.length && !close.test(lines[i]));
+      continue;
+    }
+    const single = ONE_LINE_BLOCK.test(lines[i]);
+    if (single || BLOCK_START.test(lines[i])) flush();
+    para.push(lines[i]);
+    if (single) flush();
+  }
+  flush();
+  return out.join('\n');
+}
 
 /**
  * Git's output in `dir`, or null when the command fails. GIT_* variables are

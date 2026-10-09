@@ -241,6 +241,13 @@ describe('the readiness gate', () => {
     ['the README names the model id only as a prefix of another', { readme: README.replace('claude-opus-5-5', 'claude-opus-5-5-preview') }, [11], /does not name model id\(s\) claude-opus-5-5/],
     ['the README prints a figure after a fence closed by a longer run', { readme: `${README}\n\`\`\`\necho $1\n\`\`\`\`\nprose $0.42 and \`x\` then $9.99 \`y\`\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
     ['the README prints a figure after a stray backtick and a blank line', { readme: `${README}\nPress the \` key.\n\nThen \`x\` costs $9.99 and \`y\` too.\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README prints a figure after a stray backtick and a fence', { readme: `${README}\nPress the \` key.\n\`\`\`\necho\n\`\`\`\nCosts $9.99 and \`y\` too.\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README prints a figure after a heading with a stray backtick', { readme: `${README}\n## Keys: \`\nCosts $9.99 and \`y\` too.\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README prints a figure in a list item after a stray backtick', { readme: `${README}\n- press \`\n- costs $9.99 and \`y\`\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README prints a figure in a table row after a stray backtick', { readme: `${README}\n| \` | $1 |\n| \`x\` | $9.99 |\n` }, [11], /2 README figure\(s\) no record produces: \$1, \$9\.99/],
+    ['the README prints a figure after a backtick run whose info string holds a backtick', { readme: `${README}\n\`\`\` \`x\` \`\`\` costs $9.99 here.\n\nLater $8.88 too.\n` }, [11], /2 README figure\(s\) no record produces: \$9\.99, \$8\.88/],
+    ['the README prints a figure after a backtick line that is not a fence', { readme: `${README}\n\`\`\`js\`x\nCosts $9.99.\n` }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
+    ['the README prints a figure after a stray backtick and a CRLF blank line', { readme: `${README}\nPress the \` key.\n\nThen \`x\` costs $9.99 and \`y\` too.\n`.replace(/\n/g, '\r\n') }, [11], /1 README figure\(s\) no record produces: \$9\.99/],
     ['the README names another batch', { readme: '# hush\n\nBatch `older-0000` averaged **$0.42**.\n' }, [11], /README\.md does not name batch fixture-0001/],
   ];
 
