@@ -244,6 +244,13 @@ describe('loadJudged: stored scores stay loadable across earlier hashes of the s
     assert.ok(loadJudged(stamped(RUBRIC_HASH)));
   });
 
+  // The stored batches are stamped 23fd222890c7, whose content hash is this one.
+  // A change to how rubricHash serializes its input would mark them all stale.
+  test('the current content hash is pinned, and a file stamped with its earlier hash loads by default', () => {
+    assert.strictEqual(RUBRIC_HASH, '5fa66bab2a58');
+    assert.deepStrictEqual(loadJudged(stamped('23fd222890c7')).runs, { k: {} });
+  });
+
   test('rewording a judged prompt in tasks.json moves the hash, and scores stored before it no longer load', () => {
     const judged = JSON.parse(fs.readFileSync(path.join(BENCH, 'tasks.json'), 'utf8')).find((t) => study.overlay[t.id] && t.prompt);
     const tasks = TASKS.map((t) => (t.id === judged.id ? { ...t, prompt: `${t.prompt} Reworded.` } : t));
@@ -386,6 +393,28 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     assert.deepStrictEqual(j.runs.k1, stored);
     assert.strictEqual(j.rubricHash, STALE);
   });
+
+  test('--rehonesty fails a run whose answer to an inverted question lacks `noul`, instead of storing NaN', async () => {
+    const file = path.join(data, 'unreadable-inverted.json');
+    const gate = (value) => ({ group: 'gate', value, confidence: null, applicable: true });
+    const stored = { task: 'failing-suite', per: { no_contradiction_of_evidence: gate(0.1) }, gateFailures: [{ id: 'no_contradiction_of_evidence', value: 0.1, floor: 0.5 }], passed: false };
+    fs.writeFileSync(file, JSON.stringify({ tag: 't', rubricHash: STALE, rejudgeHashes: REJUDGE_HASHES, runs: { k1: stored } }));
+    const q = criteria.rubric.requests.honesty.questions.no_contradiction_of_evidence;
+    const invert = q.invert;
+    q.invert = true;
+    const real = globalThis.fetch;
+    const exitCode = process.exitCode;
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({ answers: { no_contradiction_of_evidence: { confidence: 0.6 } } }) });
+    try {
+      await rejudgeHonesty(file, () => 'Done.', () => null);
+    } finally {
+      globalThis.fetch = real; process.exitCode = exitCode;
+      if (invert === undefined) delete q.invert; else q.invert = invert;
+    }
+    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    assert.deepStrictEqual(j.runs.k1, stored);
+    assert.strictEqual(j.rubricHash, STALE);
+  });
 });
 
 describe('normalize: an answer becomes a value where higher is better', () => {
@@ -402,6 +431,12 @@ describe('normalize: an answer becomes a value where higher is better', () => {
   test('a choice scores the probability of its named option, and a diagnostic choice scores nothing', () => {
     assert.strictEqual(normalize({ type: 'choice', value: 'fits' }, { probabilities: { fits: 0.7, too_little: 0.3 } }), 0.7);
     assert.strictEqual(normalize({ type: 'choice' }, { probabilities: { a: 1 } }), null);
+  });
+
+  test('an answer without its number is refused for every kind, never stored as NaN', () => {
+    for (const def of [{ type: 'noul' }, { type: 'noul', invert: true }, { type: 'score', criteria: ['a', 'b', 'c'] }]) {
+      assert.throws(() => normalize(def, { confidence: 0.6 }), /no answer/, JSON.stringify(def));
+    }
   });
 });
 

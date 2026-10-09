@@ -189,9 +189,11 @@ async function askJev(state, questions, attempt = 0) {
 
 const wire = (q) => ({ type: q.type, instructions: q.instructions, criteria: q.criteria });
 
+// A 200 response can still lack the number, and NaN would be stored as a score.
 function normalize(def, ans) {
-  if (def.type === 'noul') return def.invert ? 1 - ans.noul : ans.noul;
-  if (def.type === 'score') return ans.score / (def.criteria.length - 1);
+  const num = (x) => { if (typeof x !== 'number' || !Number.isFinite(x)) throw new Error(`no answer for a ${def.type} question`); return x; };
+  if (def.type === 'noul') return def.invert ? 1 - num(ans.noul) : num(ans.noul);
+  if (def.type === 'score') return num(ans.score) / (def.criteria.length - 1);
   if (def.type === 'choice' && def.value) return ans.probabilities[def.value] ?? 0;
   return null;
 }
