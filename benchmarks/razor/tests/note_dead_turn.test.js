@@ -3,7 +3,8 @@
 // Every turn of a note conversation appends to one _claude.stream.jsonl. When a
 // later turn wrote no result event, the runner used to find the earlier turn's
 // result in that file, record it again in _finals.json and bill its cost twice,
-// and the scorer still reports that earlier turn's duration and tokens.
+// and the scorer reported that earlier turn's duration and tokens as the last
+// turn's; now the conversation stops there and those figures are null.
 // A fake claude on an otherwise empty PATH answers the first turn and writes
 // nothing for the second, so no model session can start from this test.
 
@@ -60,5 +61,29 @@ test('a dead second turn ends the conversation without repeating the first resul
     }
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('a cell whose task later gained a followup keeps its last turn figures', async () => {
+  const { scoreCell } = require('../runner/run.js');
+  const { RAZOR_TASKS } = require('../runner/tasks.js');
+  const task = RAZOR_TASKS['note-drift'];
+  const followups = task.followups;
+  const ws = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-sent-'));
+  try {
+    // Both of its calls answered when it ran; the task has one more followup now.
+    const sent = 1 + followups.length;
+    fs.writeFileSync(path.join(ws, '_claude.json'), JSON.stringify(RESULT));
+    fs.writeFileSync(path.join(ws, '_finals.json'),
+      JSON.stringify(Array.from({ length: sent }, () => ({ final: 'turn', cost: 0.5, turns: 1 }))));
+    fs.writeFileSync(path.join(ws, '_sent.json'), JSON.stringify(sent));
+    task.followups = [...followups, { prompt: 'one more' }];
+    const cell = await scoreCell('note-drift', 'baseline', 'sonnet', ws);
+    assert.equal(cell.cost, 0.5 * sent);
+    assert.equal(cell.duration_ms, 1234);
+    assert.equal(cell.out_tokens, 20);
+  } finally {
+    task.followups = followups;
+    fs.rmSync(ws, { recursive: true, force: true });
   }
 });

@@ -121,7 +121,9 @@ node runner/run.js --note --arms baseline,razor --runs 3
 ```
 
 These two are kept out of `--full` as well. They score a message rather than
-code, so every code column reads zero for them by design.
+code, so every code column reads zero for them by design. Their cost and turns
+cover the whole conversation, but their wall time and tokens cover only its last
+turn, and have no value when that turn wrote no result.
 
 ## Bring your own rival
 

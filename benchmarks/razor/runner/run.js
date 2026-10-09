@@ -264,17 +264,20 @@ async function scoreCell(taskId, arm, model, ws) {
   // _claude.json is the last result event in the whole stream: the last LIVE
   // turn's. On a conversation that undercounts the cell by every turn before it,
   // so bill the whole conversation; and when the last turn was dead (fewer
-  // _finals.json records than prompts), its duration and tokens are unknown.
+  // _finals.json records than calls sent), its duration and tokens are unknown.
+  // A cell from before _sent.json counts the task's current prompts instead.
   const fj = path.join(ws, '_finals.json');
   if (fs.existsSync(fj)) {
     try {
       const t = JSON.parse(fs.readFileSync(fj, 'utf8'));
       meta.cost = t.reduce((s, x) => s + (x.cost || 0), 0);
       meta.turns = t.reduce((s, x) => s + (x.turns || 0), 0);
-      if (t.length < 1 + (task.followups || []).length) {
+      let sent = 1 + (task.followups || []).length;
+      try { sent = JSON.parse(fs.readFileSync(path.join(ws, '_sent.json'), 'utf8')); } catch { /* older cell */ }
+      if (t.length < sent) {
         meta.duration_ms = meta.in_tokens = meta.out_tokens = meta.cache_tokens = null;
       }
-    } catch { /* leave the last turn's figures rather than inventing any */ }
+    } catch { /* unreadable: keep _claude.json's figures, the last live turn's */ }
   }
   for (const [key, marker] of Object.entries(MARKERS)) {
     meta[key] = raw.split(marker).length - 1;
