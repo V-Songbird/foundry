@@ -288,6 +288,12 @@ describe('the readiness gate', () => {
     assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
   });
 
+  test('counts no dollar figure inside a span a stray backtick opens on the same line', () => {
+    const report = run(fixture({ readme: `${README}\nPress the \` key, then $9.99 \`x and more.\n` }));
+    assert.deepStrictEqual(report.results.filter((r) => !r.met).map((r) => `${r.n}: ${r.missing}`), []);
+    assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
+  });
+
   test('reports each batch.json problem as one gap on point 1', () => {
     const cases = [
       [(m) => { delete m.order; }, /lists no planned runs/],
