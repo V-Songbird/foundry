@@ -73,9 +73,17 @@ node runner/run.js --tag vs --rival-dir /path/to/other-plugin
 node runner/report.js --tag vs
 ```
 
-Options: `--rival-name <label>` (how it shows up in the report) · `--rival-settings <path>` (a `--settings` file if that plugin needs one) · `--rival-env KEY=VAL,KEY2=VAL2` (env vars it expects). Repeat the flags to race several rivals at once — the Nth `--rival-name`, `--rival-dir`, `--rival-settings` and `--rival-env` all describe the same arm. We don't ship or name any rival plugin — you bring whichever one you're curious about.
+Options: `--rival-name <label>` (how it shows up in the report) · `--rival-settings <path>` (a `--settings` file if that plugin needs one) · `--rival-env KEY=VAL,KEY2=VAL2` (env vars it expects) · `--rival-overlay <dir>` (files copied over the task fixture for this arm only). We don't ship or name any rival plugin — you bring whichever one you're curious about.
 
-**Racing a built-in style.** Claude Code ships its own output styles, and one of them — `Concise` — sets out to do much of what hush's final message does. It needs no plugin loaded, so leave `--rival-dir` out and point at a settings file instead:
+To race several rivals at once, repeat the flags. The Nth value of each `--rival-*` flag describes the Nth rival, so give each flag once per rival or not at all. Pass an empty value (`""`) to leave one field out for one rival:
+
+```bash
+node runner/run.js --tag vs2 --rival-name a --rival-dir /path/to/plugin-a --rival-name b --rival-dir ""
+```
+
+The runner refuses a flag given for only some rivals, a flag with no value, two rivals with the same name, and a rival named `baseline`, `hush`, `hush-core-only` or `hush-quiet-only`.
+
+**Racing a built-in style.** Claude Code ships its own output styles, and one of them — `Concise` — sets out to do much of what hush's final message does. It needs no plugin loaded, so give it no plugin directory — leave `--rival-dir` out for a single rival, or pass `--rival-dir ""` next to other rivals — and point at a settings file instead:
 
 ```bash
 node runner/run.js --tag native --rival-name concise --rival-settings settings-concise.json

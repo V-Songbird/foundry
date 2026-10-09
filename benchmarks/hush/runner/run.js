@@ -150,8 +150,17 @@ for (const [flagName, list] of Object.entries(rivalLists)) {
       + `and pass an empty value ("") for a rival that has none.`);
   }
 }
+// addArm overwrites ARMS[name], so a rival named after a built-in arm, or two
+// rivals with one name, would silently replace an arm instead of adding one.
+const BUILT_IN_ARMS = ['baseline', 'hush', 'hush-core-only', 'hush-quiet-only'];
+const rivalArmNames = new Set();
 for (let i = 0; i < rivalCount; i++) {
   const name = rivalNames[i] || (rivalCount > 1 ? `rival${i + 1}` : 'rival');
+  if (BUILT_IN_ARMS.includes(name) || rivalArmNames.has(name)) {
+    throw new Error(`--rival-name ${name} ${rivalArmNames.has(name) ? 'is given to more than one rival' : 'is a built-in arm'}. `
+      + `Give each rival its own name, other than ${BUILT_IN_ARMS.join(', ')}.`);
+  }
+  rivalArmNames.add(name);
   addArm(name, rivalDirs[i], rivalSettingsList[i], parseRivalEnv(rivalEnvs[i] || null), rivalOverlays[i]);
 }
 
@@ -488,7 +497,9 @@ async function main() {
   if (!dryRun) retain('batch', manifest);
 
   if (dryRun) {
-    console.log('\ndry run — nothing was spawned, nothing was billed. Planned order:');
+    console.log('\ndry run — nothing was spawned, nothing was billed. Arms:');
+    for (const a of armNames) console.log(`  arm ${a} ${JSON.stringify(ARMS[a])}`);
+    console.log('Planned order:');
     queue.forEach(([t, a, r], i) => console.log(`  ${String(i).padStart(3)} ${t.id} [${t.segment}] ${a} r${r}`));
     return;
   }

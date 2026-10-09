@@ -912,11 +912,28 @@ describe('ablation arms reuse the rival plumbing', () => {
   test('both surfaces get an arm, wired through the same addArm the rivals use', () => {
     assert.match(run, /addArm\('hush-core-only', HUSH_DIR,[\s\S]*?\{ HUSH_QUIET: 'off' \}\)/);
     assert.match(run, /addArm\('hush-quiet-only', HUSH_DIR,[\s\S]*?\{ HUSH_CORE: 'off' \}\)/);
-    // The rival loop is driven by whichever flag list is longest, so a rival
-    // that needs no plugin directory still gets an arm — that is how a
-    // built-in output style is raced. It must still call the same addArm.
-    assert.match(run, /rivalCount = Math\.max\(rivalDirs\.length, rivalNames\.length/);
-    assert.match(run, /for \(let i = 0; i < rivalCount[\s\S]*?addArm\(name, rivalDirs\[i\]/);
+  });
+
+  test('a rival with no plugin directory gets an arm next to the ablation arms', () => {
+    // How a built-in output style is raced: settings only, no plugin to load.
+    const tag = `abl-rival-probe-${process.pid}`;
+    const env = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    delete env.NODE_CHANNEL_FD;
+    try {
+      const r = spawnSync(process.execPath, [
+        path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', '--ablations',
+        '--rival-name', 'concise', '--rival-settings', 'settings-concise.json',
+      ], { cwd: BENCH, encoding: 'utf8', env });
+      assert.strictEqual(r.status, 0, r.stderr);
+      const arms = {};
+      for (const m of r.stdout.matchAll(/^ {2}arm (\S+) (.*)$/gm)) arms[m[1]] = JSON.parse(m[2]);
+      assert.deepStrictEqual(Object.keys(arms), ['baseline', 'hush', 'concise', 'hush-core-only', 'hush-quiet-only']);
+      assert.deepStrictEqual(arms.concise,
+        { pluginDirs: [], settings: path.join(BENCH, 'settings-concise.json'), env: {} });
+      assert.deepStrictEqual(arms['hush-core-only'].env, { HUSH_QUIET: 'off' });
+      assert.deepStrictEqual(arms['hush-quiet-only'].pluginDirs, arms.hush.pluginDirs);
+    } finally { rmTree(path.join(RESULTS, tag)); }
   });
 
   test('the off tokens the arms pass are the ones the gate honours', () => {
