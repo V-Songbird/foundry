@@ -31,6 +31,10 @@ const importFiles = { 'import-probe.js': importFile('razor-parity-external') };
 const manyFiles = Object.fromEntries(Array.from({ length: 5 }, (_, i) => ['part-' + (i + 1) + '.js', 'module.exports = ' + (i + 1) + ';\n']));
 const toggleFiles = Object.fromEntries(['active', 'off', 'still-off', 'on'].map(stage =>
   [stage + '.js', importFile('razor-parity-' + stage)]));
+// Razor counts a toggle only when it is the whole message, so each one gets its own turn.
+const toggleMessage = (prompt) => /^\/razor (?:on|off)$/.test(prompt);
+const [activePatch, offPatch, stillOffPatch, onPatch] = Object.entries(toggleFiles).map(([name, text]) =>
+  patchPrompt(addPatch({ [name]: text })));
 const ledgerBase = "'use strict';\n";
 const ledgerResult = ledgerBase + Array.from({ length: 12 }, (_, i) => 'exports.value' + (i + 1) + ' = ' + (i + 1) + ';\n').join('');
 const ledgerPatch = '*** Begin Patch\n*** Update File: ledger.js\n@@\n ' + ledgerBase +
@@ -49,9 +53,8 @@ const CASES = {
   files: { arms: ['baseline', 'razor'], seed: packageSeed, files: manyFiles,
     prompts: [patchPrompt(addPatch(manyFiles))], denials: [1] },
   toggle: { arms: ['razor'], seed: packageSeed, files: toggleFiles,
-    prompts: Object.entries(toggleFiles).map(([name, text], i) =>
-      (i === 1 ? '/razor off\n' : i === 3 ? '/razor on\n' : '') + patchPrompt(addPatch({ [name]: text }))),
-    denials: [1, 0, 0, 1], offStates: [false, true, true, false] },
+    prompts: [activePatch, '/razor off', offPatch, stillOffPatch, '/razor on', onPatch],
+    denials: [1, 0, 0, 0, 0, 1], offStates: [false, true, true, true, false, false] },
   'ledger-positive': { arms: ['razor'], seed: { ...packageSeed, 'ledger.js': ledgerBase },
     files: { 'ledger.js': ledgerResult }, prompts: ledgerPrompts, denials: [0, 0],
     git: true, extraEnv: { RAZOR_LEDGER_LOC: '5' }, continuations: 1 },
@@ -94,7 +97,7 @@ function evaluateCase(caseId, arm, evidence, model = 'gpt-5.6-sol') {
     checks.expected_patch_denials = traces.length === spec.denials.length && traces.every((trace, i) =>
       trace.filter(event => event.denied).length === spec.denials[i]);
     checks.native_patch_attempted = caseId === 'subagent' || traces.every((trace, i) =>
-      (spec.git && i > 0) || trace.filter(event => event.event === 'PreToolUse' && event.tool === 'apply_patch').length >= spec.denials[i] + 1);
+      (spec.git && i > 0) || toggleMessage(spec.prompts[i]) || trace.filter(event => event.event === 'PreToolUse' && event.tool === 'apply_patch').length >= spec.denials[i] + 1);
   }
   if (spec.offStates) checks.toggle_persists_and_rearms = JSON.stringify(offStates) === JSON.stringify(spec.offStates);
   if (spec.git) {

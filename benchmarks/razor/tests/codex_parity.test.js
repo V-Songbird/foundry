@@ -17,7 +17,7 @@ function evidence(caseId, arm = 'razor') {
   const traces = spec.prompts.map((prompt, i) => arm === 'baseline' ? [] : [
     event('SessionStart', { context: i === 0 }),
     ...Array.from({ length: spec.denials[i] }, () => event('PreToolUse', { tool: 'apply_patch', denied: true })),
-    event('PreToolUse', { tool: 'apply_patch' }),
+    ...(/^\/razor (?:on|off)$/.test(prompt) ? [] : [event('PreToolUse', { tool: 'apply_patch' })]),
     ...(spec.git && i === 0 && spec.continuations ? [event('Stop', { continued: true })] : []),
     event('Stop'),
   ]);
@@ -80,8 +80,26 @@ test('toggle requires persistent native session identity, off across resume, and
   sample.offStates[2] = false;
   assert.equal(evaluateCase('toggle', 'razor', sample).checks.toggle_persists_and_rearms, false);
   sample.offStates[2] = true;
-  sample.traces[3] = sample.traces[3].filter(item => !item.denied);
+  sample.offStates[3] = false;
+  assert.equal(evaluateCase('toggle', 'razor', sample).checks.toggle_persists_and_rearms, false);
+  sample.offStates[3] = true;
+  sample.traces[5] = sample.traces[5].filter(item => !item.denied);
   assert.equal(evaluateCase('toggle', 'razor', sample).checks.expected_patch_denials, false);
+  sample.traces[5] = evidence('toggle').traces[5];
+  sample.traces[2] = sample.traces[2].filter(item => item.event !== 'PreToolUse');
+  assert.equal(evaluateCase('toggle', 'razor', sample).checks.native_patch_attempted, false);
+});
+
+test('toggle prompts drive Razor through the expected off states, each toggle a whole message', () => {
+  const { parseToggle } = require(path.join(require('../../paths.js').pluginDir('razor'), 'hooks/mode-toggle.js'));
+  let off = false;
+  const derived = CASES.toggle.prompts.map(prompt => {
+    const toggle = parseToggle(prompt);
+    if (toggle) off = toggle === 'off';
+    return off;
+  });
+  assert.deepEqual(derived, CASES.toggle.offStates);
+  assert.deepEqual(CASES.toggle.prompts.map(parseToggle).filter(Boolean), ['off', 'on']);
 });
 
 test('ledger positive fires once and stays silent after resume; negative never continues', () => {
