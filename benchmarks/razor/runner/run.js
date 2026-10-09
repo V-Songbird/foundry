@@ -641,6 +641,18 @@ async function main() {
     process.exit(1);
   }
 
+  // Cells run with bypassPermissions: never put them inside a Git work tree,
+  // whose files a cell's git could sweep up. Ask Git from the nearest folder
+  // that exists; without Git installed there is no tree to protect. A root that
+  // does not exist, such as a missing drive or share, ends the walk there.
+  let probe = RUNS_DIR;
+  while (!fs.existsSync(probe) && path.dirname(probe) !== probe) probe = path.dirname(probe);
+  if (spawnSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: probe, stdio: 'ignore' }).status === 0) {
+    console.error(`RAZOR_BENCH_RUNS ${RUNS_DIR} is inside a Git work tree. `
+      + 'Set it to a folder outside any repository, or unset it to use the system temp dir.');
+    process.exit(2);
+  }
+
   // From here on the runner starts Claude sessions: keep their registry and
   // transcripts in the scratch state dir, before any cell copies process.env.
   benchConfigDir();

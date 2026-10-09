@@ -19,6 +19,7 @@ It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed
 
 - **Claude Code, signed in.** `claude` must be on your PATH and already authenticated (run any `claude` command once first). Every run bills your account — see the cost note below.
 - **Node** on your PATH (any recent version) — it runs the harness *and* scores the code each session produces. If you use [fnm](https://github.com/Schniz/fnm), activate it in this shell first — e.g. on PowerShell: `fnm env --use-on-cd | Out-String | Invoke-Expression`.
+- **A scratch Claude state folder.** Set `BENCH_CONFIG_DIR` to a folder outside any repository before `--smoke`, `--default` or any other live run; the runner refuses to start a session without it. The first live run copies your `~/.claude` login there, so treat it as a secret. `--selftest` and `--rescore` need none. [All benchmark suites](../README.md#configuration) describes it.
 - Run the commands **from this `benchmarks/razor/` directory.**
 
 ## The honest disclaimer, up front
@@ -43,20 +44,21 @@ node runner/run.js --selftest
 
 If it prints `all instruments valid`, you're good.
 
-**2. Smoke test** (one cheap task per arm, ~1 min, tiny spend) to confirm the plumbing actually drives `claude`:
+**2. Smoke test** (one cheap task per arm, ~1 min, tiny spend) to confirm the plumbing actually drives `claude`. Set `BENCH_CONFIG_DIR` first, or it stops with exit 2:
 
 ```bash
+export BENCH_CONFIG_DIR=/path/outside/any/repo/razor-bench-config
 node runner/run.js --smoke
 ```
 
-**3. The real thing** — the cheap default subset — then turn the run into charts and a readable report:
+**3. The real thing** — the cheap default subset, with the same `BENCH_CONFIG_DIR` — then turn the run into charts and a readable report:
 
 ```bash
 node runner/run.js --default
 node runner/report.js <the-run-dir-it-printed>
 ```
 
-`run.js` prints the exact run directory when it finishes. (Runs land in your system temp dir, *outside* your project, on purpose: each cell is a real Claude session with permissions bypassed, so keeping the workspaces out of any git tree means a sandboxed run can never touch your repo. Set `RAZOR_BENCH_RUNS` to put them elsewhere.)
+`run.js` prints the exact run directory when it finishes. (Runs land in your system temp dir, *outside* your project, on purpose: each cell is a real Claude session with permissions bypassed, so keeping the workspaces out of any git tree means a sandboxed run can never touch your repo. Set `RAZOR_BENCH_RUNS` to put them elsewhere; the runner refuses, with exit 2, a folder inside a Git work tree.)
 
 One consequence worth knowing: razor treats anything under your system temp
 directory as scratch, so the new-file check never speaks there. A run left at
