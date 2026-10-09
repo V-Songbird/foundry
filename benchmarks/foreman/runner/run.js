@@ -89,19 +89,6 @@ const ARMS = {
   // `foreman` for any cross-arm comparison; `foreman` is kept only so older
   // tagged runs stay re-reportable.
   'foreman-std': { prompt: 'foreman-std', pluginDirs: [] },
-  // [§4.2] Does the standard profile need an output shape? Both prompts come
-  // out of the product's own craft-handoff.js, written by a generator that
-  // stays with the private study history, and differ by the canonical
-  // <output_format> block and nothing else.
-  'shape-off': { prompt: 'shape-off', pluginDirs: [] },
-  'shape-on': { prompt: 'shape-on', pluginDirs: [] },
-  // [§4.1] Does naming the shortcut stop it, or teach it? Both prompts come out
-  // of the product's own craft-handoff.js, written by a generator that stays
-  // with the private study history, and differ by the anti-test-gaming clause
-  // and nothing else. Only the gamed-check fixture
-  // carries them, and its held-back tests are what score the answer.
-  'gaming-off': { prompt: 'gaming-off', pluginDirs: [] },
-  'gaming-on': { prompt: 'gaming-on', pluginDirs: [] },
   // Does a CORRECT lesson change the outcome? P2 could never answer that —
   // its control was already right every time. These two are the SAME
   // pinned-dup prompt with one lesson block spliced in, written by
@@ -131,12 +118,6 @@ const ARMS = {
   // benefit/gen.js; `cut-on` runs on pinned-dup, `cut-wrong` on unpinned-dup.
   'cut-on': { prompt: 'cut-on', pluginDirs: [] },
   'cut-wrong': { prompt: 'cut-wrong', pluginDirs: [] },
-  // [§4a] scope_discipline governs a mid-session REQUEST; these two ask what a
-  // clause about what the session FINDS is worth. Same quiet-extras prompt,
-  // one constraint line apart, both written out of craft-handoff.js itself by
-  // a generator that stays with the private study history.
-  'extras-off': { prompt: 'extras-off', pluginDirs: [] },
-  'extras-on': { prompt: 'extras-on', pluginDirs: [] },
 };
 
 // Default arms come from config.json (the four prompt-only arms) — `trio`

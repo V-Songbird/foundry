@@ -1,0 +1,55 @@
+'use strict';
+
+// Every turn of a note conversation appends to one _claude.stream.jsonl. When a
+// later turn wrote no result event, the runner used to find the earlier turn's
+// result in that file, record it again in _finals.json and bill its cost twice.
+// A fake claude on an otherwise empty PATH answers the first turn and writes
+// nothing for the second, so no model session can start from this test.
+
+const { test } = require('node:test');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+
+const RESULT = { type: 'result', session_id: 's1', result: 'turn one', total_cost_usd: 0.5, num_turns: 1 };
+
+test('a dead second turn ends the conversation without repeating the first result', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-dead-'));
+  const bin = path.join(fixture, 'bin');
+  const ws = path.join(fixture, 'ws');
+  fs.mkdirSync(bin);
+  fs.mkdirSync(ws);
+  const fake = path.join(bin, 'fake-claude.js');
+  const calls = path.join(bin, 'calls.txt');
+  fs.writeFileSync(fake,
+    `const fs = require('fs');\n`
+    + `fs.appendFileSync(${JSON.stringify(calls)}, 'x');\n`
+    + `if (fs.readFileSync(${JSON.stringify(calls)}, 'utf8').length === 1) {\n`
+    + `  process.stdout.write(${JSON.stringify(JSON.stringify(RESULT) + '\n')});\n`
+    + `}\n`);
+  if (process.platform === 'win32') {
+    fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
+  } else {
+    fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`);
+    fs.chmodSync(path.join(bin, 'claude'), 0o755);
+  }
+  const driver = `require(${JSON.stringify(path.resolve(__dirname, '../runner/run.js'))})`
+    + `.runCell('note-drift', 'baseline', 'sonnet', ${JSON.stringify(ws)})`
+    + '.then((r) => console.log(JSON.stringify(r)));';
+  try {
+    const run = spawnSync(process.execPath, ['-e', driver], {
+      encoding: 'utf8', timeout: 60000, env: { ...process.env, PATH: bin },
+    });
+    assert.ifError(run.error);
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(fs.readFileSync(calls, 'utf8'), 'xx');
+    const finals = JSON.parse(fs.readFileSync(path.join(ws, '_finals.json'), 'utf8'));
+    assert.deepEqual(finals, [{ final: 'turn one', cost: 0.5, turns: 1 }]);
+    const cell = JSON.parse(run.stdout.trim().split('\n').pop());
+    assert.equal(cell.cost, 0.5);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});

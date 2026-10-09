@@ -176,7 +176,7 @@ Each point is a promise from hush's output style or README, checked against the 
 | 8. No more semicolons and asides than without a plugin or in the previous release | `runner/caps.js` over both batches |
 | 9. No hush answer opens with a preamble | `runner/readability.js` |
 | 10. Hush carries less tool output per call on noisy jobs | Median tool characters per call on the `noisy-output` segment, strictly lower than without a plugin |
-| 11. The published claims regenerate from the records, the README names this batch, and each README dollar figure equals one of its costs | `published/claims.md` matches `runner/publish.js`, hush's README names the batch, and each dollar figure in that README, such as `$3`, `$0.42` or `$1,204.50`, equals one of the batch's costs at the figure's precision |
+| 11. The published claims regenerate from the records, the README names this batch and its model ids, and each README dollar figure equals one of its costs | `published/claims.md` matches `runner/publish.js`. Hush's README names the batch and each model id its records carry, such as `claude-opus-5-5`. Each dollar figure outside code in that README, such as `$3`, `$0.42` or `$1,204.50`, equals one of the batch's costs at the figure's precision |
 
 Points 6, 7 and 8 compare hush with the no-plugin arm of the same batch, because the published figures compare arms. They also compare it with the hush arm of the previous release's batch, so a release cannot regress on the caps and still pass. The previous release is the highest version below the checkout's in the Git history of its `.claude-plugin/plugin.json`. That batch's `batch.json` must record exactly that hush version and the same model, and its hush runs must record the same model ids as this batch's. Both batches are scored with the caps of the checkout's style.
 
@@ -187,10 +187,11 @@ The gate does not prove these promises:
 - One fact per sentence beyond punctuation, no dashes, a link for every file, the reply in the user's language, and no stock block labels.
 - That a README dollar figure is the statistic, arm or segment its sentence names. Point 11 only finds the figure among the batch's costs.
 - Any README figure that is not a dollar amount, such as a pass count, a word count or a percentage.
+- Which model a README sentence or table row names, or the host and date the README states. Point 11 only finds each model id somewhere in the README.
 - That the previous release's batch ran the same tasks and repetitions. Points 6, 7 and 8 check only its version, its model, its model ids and its record hashes.
 - Any dollar figure written without a leading digit, such as `$.42`.
 
 > [!NOTE]
-> Point 2 fails on every batch today. The retained batches predate the runner recording the hush build in `batch.json`. A batch the runner writes now loses the commit to the record sanitizer, which redacts it as if it were a secret. Both need a new run once the sanitizer keeps the commit.
+> Point 2 fails on every retained batch today, because they predate the runner recording the hush build in `batch.json`. A batch the runner writes now keeps the full commit, so a new run can pass it.
 >
 > Points 6, 7 and 8 also fail until a retained batch records the hush version it measured. No retained batch does today, so none can serve as the previous release.

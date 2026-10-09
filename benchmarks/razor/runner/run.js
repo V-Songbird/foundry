@@ -373,11 +373,13 @@ function runTurn({ args, ws, shimDir, prompt, resume }) {
   });
 }
 
-// The last `result` event in the stream, which is the turn that just ended.
-function lastResult(ws) {
+// The last `result` event the turn that just ended wrote: the stream from byte
+// `from` on. Every turn appends to one file, so reading it whole would hand a
+// dead later turn the earlier turn's result.
+function lastResult(ws, from) {
   let result = null;
   let raw = '';
-  try { raw = fs.readFileSync(path.join(ws, '_claude.stream.jsonl'), 'utf8'); } catch { return null; }
+  try { raw = fs.readFileSync(path.join(ws, '_claude.stream.jsonl')).subarray(from).toString('utf8'); } catch { return null; }
   for (const line of raw.split('\n')) {
     const t = line.trim();
     if (!t) continue;
@@ -407,9 +409,11 @@ async function runCell(taskId, arm, model, ws) {
   const turns = [];
   let resume = null;
   for (const prompt of prompts) {
+    let from = 0;
+    try { from = fs.statSync(path.join(ws, '_claude.stream.jsonl')).size; } catch { /* first turn */ }
     const { stderr } = await runTurn({ args, ws, shimDir, prompt, resume });
     stderrs.push(stderr);
-    const r = lastResult(ws);
+    const r = lastResult(ws, from);
     if (!r) break; // a dead turn ends the conversation; the scorer fails the cell
     resume = r.session_id || resume;
     turns.push({ final: String(r.result || ''), cost: r.total_cost_usd || 0, turns: r.num_turns || 0 });
@@ -692,6 +696,6 @@ async function main() {
   console.log(`\nnext: node runner/report.js ${outDir}`);
 }
 
-module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
+module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();
