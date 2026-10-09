@@ -36,7 +36,7 @@ function gate(file) {
 }
 
 describe('the fact-matched foreman arm', () => {
-  test('the constraint facts reach the prompt — the shape-off arm drops them', () => {
+  test('the constraint facts reach the prompt, not the context the standard profile drops', () => {
     for (const task of TASKS) {
       const j = gen.judgmentFor(task);
       const expected = task.briefFacts.filter((f) => f.startsWith('constraint:'));
@@ -66,7 +66,7 @@ describe('the fact-matched foreman arm', () => {
 
       // Parity is defined against the hand-authored paragraph arm, which is the
       // arm the comparison is actually against: every file `freeform` names,
-      // this one names too. That is what the shape-off arm fails.
+      // this one names too.
       const files = (text) => new Set(text.match(/[A-Za-z0-9_.-]*(?:src|lib|app)\/[A-Za-z0-9_.-]+\.[a-z]+|\bindex\.js\b/g) || []);
       const freeform = files(fs.readFileSync(
         path.join(ROOT, 'fixtures', task.fixture, 'prompts', 'freeform.md'), 'utf8'

@@ -2,27 +2,17 @@
 'use strict';
 // The `foreman-std` arm — a fact-matched foreman handoff for the DEFAULT grid.
 //
-// Why this exists. The harness had two candidates for "the foreman arm" and
-// neither is one:
+// Why this exists. The hand-frozen fixtures/*/prompts/foreman.md is not a
+// foreman arm: it fails the product's own gate (check-prompt.js) with six
+// errors: altered <scope_discipline>, no closure-evidence rule, no <plan>, no
+// no-invention line, no fixed closing paragraph, and an UNBOUNDED fix loop.
+// Foreman would refuse to hand it over. Measuring it measures nothing.
 //
-//   fixtures/*/prompts/foreman.md   hand-frozen. Fails the product's own gate
-//                                   (check-prompt.js) with six errors: altered
-//                                   <scope_discipline>, no closure-evidence
-//                                   rule, no <plan>, no no-invention line, no
-//                                   fixed closing paragraph, and an UNBOUNDED
-//                                   fix loop. Foreman would refuse to hand it
-//                                   over. Measuring it measures nothing.
-//
-//   fixtures/*/prompts/shape-off.md product-generated and gate-clean, but built
-//                                   for a WITHIN-foreman A/B where fact poverty
-//                                   cancels out. It passes the constraint facts
-//                                   as `judgment.context`, which the standard
-//                                   profile drops, so `index.js is frozen` and
-//                                   `do not touch src/format.js` never reach the
-//                                   session — and its planned_touches names the
-//                                   task's REAL file, which quietly repairs
-//                                   moved-file's stale-brief trap before the
-//                                   session ever sees it.
+// Generating the prompt through craft-handoff.js is not enough on its own.
+// Passing the constraint facts as `judgment.context`, which the standard
+// profile drops, means `index.js is frozen` and `do not touch src/format.js`
+// never reach the session; naming the task's REAL file in planned_touches
+// quietly repairs moved-file's stale-brief trap before the session sees it.
 //
 // This generator fixes both: constraint facts go to `judgment.constraints`
 // (which renders into <task_rules> at either profile), and planned_touches
@@ -68,7 +58,8 @@ function claimedFile(task) {
 }
 
 // Same facts as every other arm, mapped onto the fields foreman actually
-// renders. The constraint facts are the ones the shape-off arm's prompt drops.
+// renders. Constraint facts go to `constraints`, never `context`, which the
+// standard profile drops.
 function judgmentFor(task) {
   const symptom = fact(task, 'symptom:').replace(/^symptom:\s*/, '');
   const location = fact(task, 'fix location:').replace(/^fix location:\s*/, '')
