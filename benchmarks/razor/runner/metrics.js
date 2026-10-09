@@ -215,8 +215,9 @@ function pkgAddAttempts(workdir) {
 
 // --- transcript extraction ------------------------------------------------------
 
-// stream-json -> final result event written as _claude.json, plus the raw stream
-// text for marker counting.
+// stream-json -> the last result event in the whole stream written as
+// _claude.json, plus the raw stream text for marker counting. On a conversation
+// whose last turn wrote no result, that event is an earlier turn's.
 function extractResult(workdir) {
   const stream = path.join(workdir, '_claude.stream.jsonl');
   const raw = fs.existsSync(stream) ? fs.readFileSync(stream, 'utf8') : '';
