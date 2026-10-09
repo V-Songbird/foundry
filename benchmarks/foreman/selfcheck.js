@@ -57,11 +57,14 @@ function normWs(s) {
   return String(s).replace(/\s+/g, ' ').trim();
 }
 
-function templateTruthGrounding() {
-  const text = fs.readFileSync(TEMPLATE_PATH, 'utf8');
-  const m = text.match(/<truth_grounding>([\s\S]*?)<\/truth_grounding>/);
-  if (!m) throw new Error(`no <truth_grounding> block found in ${TEMPLATE_PATH}`);
-  return normWs(m[1]);
+// The template carries one truth_grounding block per host and stage. The
+// frozen prompts are interactive Claude Code handoffs, so they carry the
+// host="claude" block that has no stage attribute.
+function templateTruthGrounding(text) {
+  for (const m of text.matchAll(/<truth_grounding\b([^>]*)>([\s\S]*?)<\/truth_grounding>/g)) {
+    if (/\bhost="claude"/.test(m[1]) && !/\bstage=/.test(m[1])) return normWs(m[2]);
+  }
+  throw new Error(`no <truth_grounding host="claude"> block without a stage found in ${TEMPLATE_PATH}`);
 }
 
 function runTests(cmd, cwd) {
@@ -77,9 +80,14 @@ function freshCopy(appDir, name) {
   return work;
 }
 
+if (require.main !== module) {
+  module.exports = { templateTruthGrounding };
+  return;
+}
+
 let truthBlock;
 try {
-  truthBlock = templateTruthGrounding();
+  truthBlock = templateTruthGrounding(fs.readFileSync(TEMPLATE_PATH, 'utf8'));
 } catch (err) {
   console.log(`FAIL template: ${err.message}`);
   process.exit(1);
