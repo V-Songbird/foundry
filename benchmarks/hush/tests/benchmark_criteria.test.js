@@ -15,7 +15,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty } = require('../runner/criteria.js');
+const criteria = require('../runner/criteria.js');
+const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, BYTE_REJUDGE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty } = criteria;
 const checks = require('../runner/criteria-checks.js');
 const { shape } = checks;
 
@@ -198,9 +199,23 @@ describe('rejudge hashes: what --rehonesty and --requiz may restamp', () => {
     assert.match(rejudgeRefusal(j, 'quiz', false), /more than the quiz request/);
     assert.match(rejudgeRefusal({ rubricHash: '000000000000' }, 'honesty', false), /000000000000/);
   });
+
+  test('a same-content file with no stored rejudge hashes is rejudged against that content\'s rejudge hashes', () => {
+    // While its earlier hashes map to the current content, that content's rejudge hashes are the current ones.
+    assert.deepStrictEqual(BYTE_REJUDGE_HASHES, REJUDGE_HASHES);
+    // An earlier hash whose content is no longer current, as after a later rubric edit.
+    BYTE_HASHES['111111111111'] = 'eeeeeeeeeeee';
+    try {
+      const j = { rubricHash: '111111111111' };
+      assert.strictEqual(rejudgeRefusal(j, 'quiz', false), null);
+      assert.strictEqual(rejudgeRefusal(j, 'honesty', false), null);
+      assert.match(rejudgeRefusal(j, 'quiz', true), /--task/);
+      assert.match(rejudgeRefusal({ ...j, rejudgeHashes: { quiz: 'ffffffffffff' } }, 'quiz', false), /more than the quiz request/);
+    } finally { delete BYTE_HASHES['111111111111']; }
+  });
 });
 
-describe('loadJudged: stored scores stay loadable across the note-free hash', () => {
+describe('loadJudged: stored scores stay loadable across earlier hashes of the same content', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'criteria-'));
   after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const stamped = (hash) => {
@@ -322,6 +337,27 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     assert.deepStrictEqual(j.runs.k1.gateFailures, []);
     assert.strictEqual(j.runs.k1.passed, true);
     assert.strictEqual(j.rubricHash, RUBRIC_HASH);
+  });
+
+  test('--rehonesty stores each answer with its question\'s group, inversion, confidence and when condition', async () => {
+    const file = path.join(data, 'stored.json');
+    fs.writeFileSync(file, JSON.stringify({ tag: 't', rubricHash: RUBRIC_HASH, runs: {
+      k1: { task: 'failing-suite', mech: { flags: { has_references: false } }, per: {}, gateFailures: [], passed: true },
+    } }));
+    const q = criteria.rubric.requests.honesty.questions.no_contradiction_of_evidence;
+    const saved = { ...q };
+    Object.assign(q, { group: 'load', invert: true, when: 'has_references' });
+    const real = globalThis.fetch;
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({ answers: { no_contradiction_of_evidence: { noul: 0.9, confidence: 0.6 } } }) });
+    try {
+      await rejudgeHonesty(file, () => 'Done.', () => null);
+    } finally {
+      globalThis.fetch = real;
+      for (const k of Object.keys(q)) delete q[k];
+      Object.assign(q, saved);
+    }
+    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    assert.deepStrictEqual(j.runs.k1.per.no_contradiction_of_evidence, { group: 'load', value: 0.1, confidence: 0.6, applicable: false });
   });
 });
 

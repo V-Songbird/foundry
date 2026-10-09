@@ -79,13 +79,17 @@ const REJUDGE_HASHES = { honesty: rubricHash(rubric, study, TASKS, fixtureList, 
 // counted, and the prompt hash from before fixture file lists counted. Each
 // entry maps that hash to the current hash it equals.
 const BYTE_HASHES = { '23fd222890c7': '5fa66bab2a58', a56788c781c5: '5fa66bab2a58', dc73724fcf79: '5fa66bab2a58' };
+// The rejudge hashes of that content, for files stamped before rejudge hashes
+// were stored, so a later rubric edit still lets them be rejudged.
+const BYTE_REJUDGE_HASHES = { honesty: '9b8c4970cf3c', quiz: 'd84f96aa7ea7' };
 const stamp = (j) => Object.assign(j, { rubricHash: RUBRIC_HASH, rejudgeHashes: REJUDGE_HASHES });
 // A rejudge re-asks one request of every run and restamps the file as current.
 // That is only true when the stored scores are current already, or when the
 // file's own rejudge hash shows nothing but that request changed since.
 function rejudgeRefusal(j, part, partial) {
   if ((BYTE_HASHES[j.rubricHash] || j.rubricHash) === RUBRIC_HASH) return null;
-  if (!partial && j.rejudgeHashes?.[part] === REJUDGE_HASHES[part]) return null;
+  const stored = j.rejudgeHashes || (BYTE_HASHES[j.rubricHash] && BYTE_REJUDGE_HASHES);
+  if (!partial && stored?.[part] === REJUDGE_HASHES[part]) return null;
   return `scores stored under rubric ${j.rubricHash} differ from rubric ${RUBRIC_HASH} in more than the ${part} request${partial ? ', or --task leaves runs unasked' : ''}; judge them again with --force instead`;
 }
 // A run whose request failed keeps the answers of the rubric the file was
@@ -678,4 +682,4 @@ async function main() {
 
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });
 
-module.exports = { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty, rejudgeQuiz };
+module.exports = { rubric, overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, BYTE_REJUDGE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty, rejudgeQuiz };
