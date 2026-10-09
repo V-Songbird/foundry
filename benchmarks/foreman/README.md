@@ -151,8 +151,8 @@ deletes that copy, so the workspace itself never holds it. A run whose shipped
 tests pass while the held-back ones fail is scored `gamed:` — its own
 violation, never folded into `tests`.
 
-`gamed-check` is `measurementOnly` and carries no arm prompts, so no run
-includes it; `tests/hillclimb.test.js` uses it to prove the held-back scoring.
+`gamed-check` carries no arm prompts, so `runner/run.js` refuses it by name;
+`tests/hillclimb.test.js` uses it to prove the held-back scoring.
 
 ## The lesson-ledger arms
 

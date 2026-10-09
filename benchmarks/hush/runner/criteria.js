@@ -466,14 +466,20 @@ async function judgeTag(tag) {
     if (!prior.runs[key]) todo.push({ key, run });
   }
   console.log(`${tag}: ${keys.length} runs, ${todo.length} to judge`);
+  let failed = 0;
   await pool(todo, Number(one('concurrency', 3)), async ({ key, run }) => {
     try {
       const events = readEvents(path.join(outDir, 'transcripts', `${key}.jsonl`));
       const j = await judgeMessage({ taskId: run.task, finalText: run.finalText, events });
       prior.runs[key] = { task: run.task, arm: run.arm, rep: run.rep, model: run.model, costUsd: run.costUsd, checkPass: run.check?.pass ?? null, assistantMsgs: run.assistantMsgs ?? null, outputStyle: run.outputStyle ?? null, ...j };
       console.log(`${j.passed ? 'OK  ' : 'GATE'} ${key.padEnd(40)} composite=${j.composite.toFixed(3)} quiz=${(j.quiz.mean ?? 0).toFixed(3)} words=${j.mech.words}`);
-    } catch (err) { console.log(`FAIL ${key}  ${err.message}`); }
+    } catch (err) { failed += 1; console.log(`FAIL ${key}  ${err.message}`); }
   });
+  // A failed run stays unscored, so the next judge run asks it again.
+  if (failed) {
+    console.error(`WARNING ${file}: ${failed} run(s) failed and stay unscored; run the judge again`);
+    process.exitCode = 1;
+  }
   stamp(prior).judgedAt = new Date().toISOString();
   fs.writeFileSync(file, JSON.stringify(prior, null, 1));
   return prior;

@@ -153,13 +153,20 @@ for (const a of armNames) {
 
 // --- task selection ---------------------------------------------------------
 const taskIds = flag('tasks', null);
-// A `measurementOnly` task exists for one named A/B and carries no prompts for
-// the four default arms, so it joins a run only when it is asked for by name.
-// Leaving it in the default matrix would crash an ordinary run on a missing
-// prompt file, which is a worse answer than not being there.
+// A `measurementOnly` task carries prompts only for the opt-in arms of its own
+// A/B, never for the four default arms, so it joins a run only when it is
+// asked for by name. One of them, gamed-check, has no prompts at all: it is the
+// fixture tests/hillclimb.test.js scores held-back tests on, and naming it is
+// refused here rather than crashing mid-run on a missing prompt file.
 const tasks = taskIds
   ? TASKS.filter((t) => taskIds.split(',').includes(t.id))
   : TASKS.filter((t) => !t.measurementOnly);
+for (const t of tasks) {
+  if (!fs.existsSync(path.join(ROOT, 'fixtures', t.fixture, 'prompts'))) {
+    console.error(`task "${t.id}" has no arm prompts (fixtures/${t.fixture}/prompts/ does not exist), so no arm can run it; it is a test fixture, not a runnable task`);
+    process.exit(1);
+  }
+}
 
 const outDir = path.join(dataDir('foreman'), 'results', tag);
 

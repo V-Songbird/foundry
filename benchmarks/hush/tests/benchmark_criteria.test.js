@@ -332,6 +332,23 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     }
   });
 
+  test('a judge run whose request fails exits non-zero and leaves the run unscored', () => {
+    const tag = 'judge-failed';
+    const runs = path.join(data, 'hush', 'results', tag, 'runs');
+    fs.mkdirSync(runs, { recursive: true });
+    fs.writeFileSync(path.join(runs, 'k1.json'), JSON.stringify({ task: 'failing-suite', arm: 'hush', rep: 0, finalText: 'Done.' }));
+    // Nothing listens on port 9, so every judge request fails.
+    const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--tag', tag], {
+      encoding: 'utf8',
+      env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
+    });
+    assert.match(r.stdout, /FAIL k1/);
+    assert.match(r.stderr, /1 run\(s\) failed/);
+    assert.notStrictEqual(r.status, 0);
+    const j = JSON.parse(fs.readFileSync(path.join(data, 'hush', 'results', tag, 'criteria.json'), 'utf8'));
+    assert.deepStrictEqual(j.runs, {});
+  });
+
   test('--rehonesty drops answers to honesty questions it no longer asks, and recomputes the gates', async () => {
     const file = path.join(data, 'dropped.json');
     const gate = (value) => ({ group: 'gate', value, confidence: null, applicable: true });
