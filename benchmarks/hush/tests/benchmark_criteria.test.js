@@ -186,7 +186,7 @@ describe('rejudge hashes: what --rehonesty and --requiz may restamp', () => {
   });
 
   test('current or same-content scores may be rejudged, in full or by task', () => {
-    for (const h of [RUBRIC_HASH, ...Object.keys(BYTE_HASHES)]) {
+    for (const h of [RUBRIC_HASH, ...Object.keys(BYTE_HASHES).filter((k) => BYTE_HASHES[k] === RUBRIC_HASH)]) {
       assert.strictEqual(rejudgeRefusal({ rubricHash: h }, 'honesty', false), null, h);
       assert.strictEqual(rejudgeRefusal({ rubricHash: h }, 'quiz', true), null, h);
     }
@@ -200,19 +200,34 @@ describe('rejudge hashes: what --rehonesty and --requiz may restamp', () => {
     assert.match(rejudgeRefusal({ rubricHash: '000000000000' }, 'honesty', false), /000000000000/);
   });
 
-  test('a same-content file with no stored rejudge hashes is rejudged against that content\'s rejudge hashes', () => {
-    // While its earlier hashes map to the current content, that content's rejudge hashes are the current ones.
-    assert.deepStrictEqual(BYTE_REJUDGE_HASHES, REJUDGE_HASHES);
-    // An earlier hash whose content is no longer current, as after a later rubric edit.
-    BYTE_HASHES['111111111111'] = 'eeeeeeeeeeee';
-    try {
-      const j = { rubricHash: '111111111111' };
-      assert.strictEqual(rejudgeRefusal(j, 'quiz', false), null);
-      assert.strictEqual(rejudgeRefusal(j, 'honesty', false), null);
-      assert.match(rejudgeRefusal(j, 'quiz', true), /--task/);
-      assert.match(rejudgeRefusal({ ...j, rejudgeHashes: { quiz: 'ffffffffffff' } }, 'quiz', false), /more than the quiz request/);
-    } finally { delete BYTE_HASHES['111111111111']; }
+  test('every content an earlier hash maps to keeps its rejudge hashes, and the current content\'s are the stamped ones', () => {
+    assert.ok(Object.keys(BYTE_HASHES).length > 0);
+    for (const [legacy, content] of Object.entries(BYTE_HASHES)) assert.ok(BYTE_REJUDGE_HASHES[content], legacy);
+    // Only the current content is checked: a rubric edit leaves an earlier content's hashes as they were.
+    if (BYTE_REJUDGE_HASHES[RUBRIC_HASH]) assert.deepStrictEqual(BYTE_REJUDGE_HASHES[RUBRIC_HASH], REJUDGE_HASHES);
   });
+
+  // A file stamped before rejudge hashes were stored, whose content differs
+  // from the current one in one re-asked request, as after a later edit.
+  for (const [edited, other, edit] of [
+    ['quiz', 'honesty', (s) => { Object.values(Object.values(s.overlay).find((o) => o.quiz).quiz)[0].instructions += ' Earlier.'; }],
+    ['honesty', 'quiz', (s) => { Object.values(s.overlay).find((o) => o.groundTruth).groundTruth.extra = 'Earlier.'; }],
+  ]) {
+    test(`a legacy file whose content differs only in the ${edited} request may be rejudged for ${edited} alone`, () => {
+      const s = copy(study);
+      edit(s);
+      const content = rubricHash(rubric, s, TASKS);
+      BYTE_HASHES['111111111111'] = content;
+      BYTE_REJUDGE_HASHES[content] = { honesty: part(s, 'honesty'), quiz: part(s, 'quiz') };
+      try {
+        const j = { rubricHash: '111111111111' };
+        assert.strictEqual(rejudgeRefusal(j, edited, false), null);
+        assert.match(String(rejudgeRefusal(j, edited, true)), /--task/);
+        assert.match(String(rejudgeRefusal(j, other, false)), new RegExp(`more than the ${other} request`));
+        assert.match(String(rejudgeRefusal({ ...j, rejudgeHashes: { [edited]: 'ffffffffffff' } }, edited, false)), new RegExp(`more than the ${edited} request`));
+      } finally { delete BYTE_HASHES['111111111111']; delete BYTE_REJUDGE_HASHES[content]; }
+    });
+  }
 });
 
 describe('loadJudged: stored scores stay loadable across earlier hashes of the same content', () => {
@@ -224,13 +239,8 @@ describe('loadJudged: stored scores stay loadable across earlier hashes of the s
     return file;
   };
 
-  test('every earlier hash of the same content maps to the current rubric hash', () => {
-    assert.ok(Object.keys(BYTE_HASHES).length > 0);
-    for (const [legacy, current] of Object.entries(BYTE_HASHES)) assert.strictEqual(current, RUBRIC_HASH, legacy);
-  });
-
-  test('a file stamped with the legacy hash loads, so a judge run does not re-judge it', () => {
-    assert.deepStrictEqual(loadJudged(stamped('23fd222890c7')).runs, { k: {} });
+  test('a file stamped with an earlier hash loads under the content hash it maps to, so a judge run does not re-judge it', () => {
+    assert.deepStrictEqual(loadJudged(stamped('23fd222890c7'), BYTE_HASHES['23fd222890c7']).runs, { k: {} });
     assert.ok(loadJudged(stamped(RUBRIC_HASH)));
   });
 
@@ -358,6 +368,23 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     }
     const j = JSON.parse(fs.readFileSync(file, 'utf8'));
     assert.deepStrictEqual(j.runs.k1.per.no_contradiction_of_evidence, { group: 'load', value: 0.1, confidence: 0.6, applicable: false });
+  });
+
+  test('--rehonesty keeps a run\'s stored answers when the response cannot be read', async () => {
+    const file = path.join(data, 'unreadable.json');
+    const gate = (value) => ({ group: 'gate', value, confidence: null, applicable: true });
+    const stored = { task: 'failing-suite', per: { no_contradiction_of_evidence: gate(0.1) }, gateFailures: [{ id: 'no_contradiction_of_evidence', value: 0.1, floor: 0.5 }], passed: false };
+    fs.writeFileSync(file, JSON.stringify({ tag: 't', rubricHash: STALE, rejudgeHashes: REJUDGE_HASHES, runs: { k1: stored } }));
+    const real = globalThis.fetch;
+    const exitCode = process.exitCode;
+    // A 200 response whose answer lacks `noul`.
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({ answers: { no_contradiction_of_evidence: { confidence: 0.6 } } }) });
+    try {
+      await rejudgeHonesty(file, () => 'Done.', () => null);
+    } finally { globalThis.fetch = real; process.exitCode = exitCode; }
+    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    assert.deepStrictEqual(j.runs.k1, stored);
+    assert.strictEqual(j.rubricHash, STALE);
   });
 });
 

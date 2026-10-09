@@ -54,9 +54,10 @@ const fixtureList = (task) => checks.fixtureFiles(path.join(ROOT, 'fixtures', ta
 // tasks.json included. The file and task `note` fields never reach the judge, so
 // rewording one keeps the hash; a `note` inside a ground truth is sent, so it
 // still counts. `reasked` ('honesty' or 'quiz') leaves out what that rejudge
-// asks again, so the result says whether anything else changed. For honesty
-// that is only the wording of its questions; their type, group, invert and
-// when decide how an answer is stored, so they still count.
+// asks again or recomputes, so the result says whether anything else changed.
+// For honesty that is the wording of its questions, the ground truth and the
+// gates; their type, group, invert and when decide how an answer is stored, so
+// they still count.
 function rubricHash(r, s, tasks, filesOf = fixtureList, reasked = null) {
   const { note: _rn, ...rest } = r;
   const { note: _sn, ...st } = s;
@@ -77,18 +78,20 @@ const REJUDGE_HASHES = { honesty: rubricHash(rubric, study, TASKS, fixtureList, 
 // Scores stored under an earlier hash of the same content: the raw-bytes hash
 // from before notes were left out, the note-free hash from before prompts
 // counted, and the prompt hash from before fixture file lists counted. Each
-// entry maps that hash to the current hash it equals.
+// entry maps that hash to the content hash it equals. A later rubric edit
+// leaves these as they are.
 const BYTE_HASHES = { '23fd222890c7': '5fa66bab2a58', a56788c781c5: '5fa66bab2a58', dc73724fcf79: '5fa66bab2a58' };
-// The rejudge hashes of that content, for files stamped before rejudge hashes
-// were stored, so a later rubric edit still lets them be rejudged.
-const BYTE_REJUDGE_HASHES = { honesty: '9b8c4970cf3c', quiz: 'd84f96aa7ea7' };
+// The rejudge hashes of each such content, keyed by its content hash, for files
+// stamped before rejudge hashes were stored, so a later edit to one request
+// still lets them be rejudged for that request alone.
+const BYTE_REJUDGE_HASHES = { '5fa66bab2a58': { honesty: '9b8c4970cf3c', quiz: 'd84f96aa7ea7' } };
 const stamp = (j) => Object.assign(j, { rubricHash: RUBRIC_HASH, rejudgeHashes: REJUDGE_HASHES });
 // A rejudge re-asks one request of every run and restamps the file as current.
 // That is only true when the stored scores are current already, or when the
 // file's own rejudge hash shows nothing but that request changed since.
 function rejudgeRefusal(j, part, partial) {
   if ((BYTE_HASHES[j.rubricHash] || j.rubricHash) === RUBRIC_HASH) return null;
-  const stored = j.rejudgeHashes || (BYTE_HASHES[j.rubricHash] && BYTE_REJUDGE_HASHES);
+  const stored = j.rejudgeHashes || BYTE_REJUDGE_HASHES[BYTE_HASHES[j.rubricHash]];
   if (!partial && stored?.[part] === REJUDGE_HASHES[part]) return null;
   return `scores stored under rubric ${j.rubricHash} differ from rubric ${RUBRIC_HASH} in more than the ${part} request${partial ? ', or --task leaves runs unasked' : ''}; judge them again with --force instead`;
 }
@@ -366,7 +369,7 @@ async function judgeMessage({ taskId, finalText, events }) {
 // request carries that state, and Jev is deterministic per request, so their
 // stored answers are still the ones it would give. --rehonesty re-asks the one
 // request and recomputes the gates, instead of paying to re-ask all of them.
-// It is only sound when the quiz and the rubric questions did not change.
+// It is only sound when no other request changed, which rejudgeRefusal checks.
 async function rejudgeHonesty(file, textOf, eventsOf) {
   const j = JSON.parse(fs.readFileSync(file, 'utf8'));
   const onlyTasks = many('task');
@@ -378,12 +381,14 @@ async function rejudgeHonesty(file, textOf, eventsOf) {
       const files = fixtureList(TASKS.find((t) => t.id === run.task));
       const req = honestyRequest(textOf(key, run), eventsOf(key, run), overlayFor(run.task), files);
       const { answers } = req ? await req : { answers: {} };
+      // Read every answer before touching the run, so one that cannot be read keeps the stored ones.
+      const fresh = Object.fromEntries(Object.entries(answers).map(([id, ans]) => {
+        const def = rubric.requests.honesty.questions[id];
+        return [id, { group: def.group, value: Number(normalize(def, ans).toFixed(4)), confidence: ans.confidence ?? null, applicable: !def.when || !!run.mech?.flags?.[def.when] }];
+      }));
       // An answer to a question the request no longer asks is stale.
       for (const id of Object.keys(rubric.requests.honesty.questions)) delete run.per[id];
-      for (const [id, ans] of Object.entries(answers)) {
-        const def = rubric.requests.honesty.questions[id];
-        run.per[id] = { group: def.group, value: Number(normalize(def, ans).toFixed(4)), confidence: ans.confidence ?? null, applicable: !def.when || !!run.mech?.flags?.[def.when] };
-      }
+      Object.assign(run.per, fresh);
       run.gateFailures = Object.entries(rubric.gates).filter(([id, floor]) => run.per[id] && run.per[id].value < floor).map(([id, floor]) => ({ id, value: run.per[id].value, floor }));
       run.passed = run.gateFailures.length === 0;
       console.log(`${run.passed ? 'OK  ' : 'GATE'} ${key}`);
