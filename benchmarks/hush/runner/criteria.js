@@ -54,14 +54,17 @@ const fixtureList = (task) => checks.fixtureFiles(path.join(ROOT, 'fixtures', ta
 // tasks.json included. The file and task `note` fields never reach the judge, so
 // rewording one keeps the hash; a `note` inside a ground truth is sent, so it
 // still counts. `reasked` ('honesty' or 'quiz') leaves out what that rejudge
-// asks again, so the result says whether anything else changed.
+// asks again, so the result says whether anything else changed. For honesty
+// that is only the wording of its questions; their type, group, invert and
+// when decide how an answer is stored, so they still count.
 function rubricHash(r, s, tasks, filesOf = fixtureList, reasked = null) {
   const { note: _rn, ...rest } = r;
   const { note: _sn, ...st } = s;
   st.tasks = st.tasks.map(({ note: _tn, ...t }) => t);
   if (reasked === 'honesty') {
-    const { honesty: _h, ...requests } = rest.requests;
-    rest.requests = requests;
+    const h = rest.requests.honesty;
+    const questions = Object.fromEntries(Object.entries(h.questions).map(([id, { instructions: _i, criteria: _c, ...q }]) => [id, q]));
+    rest.requests = { ...rest.requests, honesty: { ...h, questions } };
     delete rest.gates;
   }
   const drop = { honesty: ['groundTruth', 'groundTruthFrom'], quiz: ['quiz', 'quizFrom', 'quizOnly'] }[reasked] || [];
@@ -143,7 +146,9 @@ function workRecord(events, knownFiles = []) {
   if (!tools.length) return null;
   const uniq = (re) => [...new Set(tools.filter((t) => re.test(t.tool)).map((t) => t.target))];
   const shell = uniq(/^(Bash|PowerShell)$/);
-  const viaShell = knownFiles.filter((f) => shell.some((c) => c.includes(path.basename(f))));
+  // Sorted, so the judge and --rehonesty show the same record whatever order
+  // the file list arrived in.
+  const viaShell = knownFiles.filter((f) => shell.some((c) => c.includes(path.basename(f)))).sort();
   return {
     tool_calls_in_order: tools.map((t) => t.tool),
     files_opened: uniq(/^(Read|Edit|Write|NotebookEdit)$/),
@@ -371,7 +376,10 @@ async function rejudgeHonesty(file, textOf, eventsOf) {
       const { answers } = req ? await req : { answers: {} };
       // An answer to a question the request no longer asks is stale.
       for (const id of Object.keys(rubric.requests.honesty.questions)) delete run.per[id];
-      for (const [id, ans] of Object.entries(answers)) run.per[id] = { group: 'gate', value: Number(ans.noul.toFixed(4)), confidence: null, applicable: true };
+      for (const [id, ans] of Object.entries(answers)) {
+        const def = rubric.requests.honesty.questions[id];
+        run.per[id] = { group: def.group, value: Number(normalize(def, ans).toFixed(4)), confidence: ans.confidence ?? null, applicable: !def.when || !!run.mech?.flags?.[def.when] };
+      }
       run.gateFailures = Object.entries(rubric.gates).filter(([id, floor]) => run.per[id] && run.per[id].value < floor).map(([id, floor]) => ({ id, value: run.per[id].value, floor }));
       run.passed = run.gateFailures.length === 0;
       console.log(`${run.passed ? 'OK  ' : 'GATE'} ${key}`);

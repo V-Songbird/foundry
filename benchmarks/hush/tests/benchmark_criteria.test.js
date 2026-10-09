@@ -176,6 +176,14 @@ describe('rejudge hashes: what --rehonesty and --requiz may restamp', () => {
     assert.notStrictEqual(part(s, 'honesty'), REJUDGE_HASHES.honesty);
   });
 
+  test('rewording a honesty question keeps the honesty hash; changing how its answer is stored moves it', () => {
+    const edited = (edit) => { const r = copy(rubric); edit(r.requests.honesty.questions.no_invented_work); return rubricHash(r, study, TASKS, undefined, 'honesty'); };
+    assert.strictEqual(edited((q) => { q.instructions += ' Reworded.'; q.criteria = 'Reworded.'; }), REJUDGE_HASHES.honesty);
+    for (const [field, value] of [['invert', true], ['group', 'load'], ['type', 'score'], ['when', 'has_references']]) {
+      assert.notStrictEqual(edited((q) => { q[field] = value; }), REJUDGE_HASHES.honesty, field);
+    }
+  });
+
   test('current or same-content scores may be rejudged, in full or by task', () => {
     for (const h of [RUBRIC_HASH, ...Object.keys(BYTE_HASHES)]) {
       assert.strictEqual(rejudgeRefusal({ rubricHash: h }, 'honesty', false), null, h);
@@ -272,6 +280,26 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     });
   }
 
+  test('a judge run stamps the rubric and rejudge hashes, for a batch and for anchors', () => {
+    const tag = 'judged';
+    const runs = path.join(data, 'hush', 'results', tag, 'runs');
+    fs.mkdirSync(runs, { recursive: true });
+    fs.writeFileSync(path.join(runs, 'k1.json'), JSON.stringify({ error: 'session failed' }));
+    const anchors = path.join(data, 'anchors-empty');
+    fs.mkdirSync(anchors, { recursive: true });
+    const env = { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' };
+    for (const [args, file] of [
+      [['--tag', tag], path.join(data, 'hush', 'results', tag, 'criteria.json')],
+      [['--anchors', '--anchors-dir', anchors], path.join(data, 'hush', 'results', 'criteria-anchors-empty', 'criteria.json')],
+    ]) {
+      const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), ...args], { encoding: 'utf8', env });
+      assert.strictEqual(r.status, 0, r.stderr);
+      const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+      assert.strictEqual(j.rubricHash, RUBRIC_HASH, args.join(' '));
+      assert.deepStrictEqual(j.rejudgeHashes, REJUDGE_HASHES, args.join(' '));
+    }
+  });
+
   test('--rehonesty drops answers to honesty questions it no longer asks, and recomputes the gates', async () => {
     const file = path.join(data, 'dropped.json');
     const gate = (value) => ({ group: 'gate', value, confidence: null, applicable: true });
@@ -327,6 +355,12 @@ describe('workRecord: what the honesty gate is shown', () => {
     assert.deepStrictEqual(w.shell_commands_run, ['node run-tests.js']);
     assert.deepStrictEqual(w.files_opened, ['src/pricing.js']);
     assert.deepStrictEqual(w.searches_run, ['orderTotal']);
+  });
+
+  test('the files read through the shell are listed in one order, whatever order the fixture list arrives in', () => {
+    const events = [asst({ type: 'tool_use', name: 'Bash', input: { command: 'cat b.js a.js' } })];
+    assert.deepStrictEqual(workRecord(events, ['b.js', 'a.js']).files_read_or_searched_by_shell_commands, ['a.js', 'b.js']);
+    assert.deepStrictEqual(workRecord(events, ['a.js', 'b.js']).files_read_or_searched_by_shell_commands, ['a.js', 'b.js']);
   });
 
   test('a session with no tool call, or no transcript, gives no record to check against', () => {
