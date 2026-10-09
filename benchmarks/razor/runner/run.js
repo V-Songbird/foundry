@@ -261,14 +261,19 @@ async function scoreCell(taskId, arm, model, ws) {
       }
     } catch { resultText = ''; }
   }
-  // _claude.json is the LAST turn's result. On a conversation that undercounts
-  // the cell by every turn before it, so bill the whole conversation.
+  // _claude.json is the last result event in the whole stream: the last LIVE
+  // turn's. On a conversation that undercounts the cell by every turn before it,
+  // so bill the whole conversation; and when the last turn was dead (fewer
+  // _finals.json records than prompts), its duration and tokens are unknown.
   const fj = path.join(ws, '_finals.json');
   if (fs.existsSync(fj)) {
     try {
       const t = JSON.parse(fs.readFileSync(fj, 'utf8'));
       meta.cost = t.reduce((s, x) => s + (x.cost || 0), 0);
       meta.turns = t.reduce((s, x) => s + (x.turns || 0), 0);
+      if (t.length < 1 + (task.followups || []).length) {
+        meta.duration_ms = meta.in_tokens = meta.out_tokens = meta.cache_tokens = null;
+      }
     } catch { /* leave the last turn's figures rather than inventing any */ }
   }
   for (const [key, marker] of Object.entries(MARKERS)) {

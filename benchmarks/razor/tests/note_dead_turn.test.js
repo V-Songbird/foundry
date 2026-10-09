@@ -2,7 +2,8 @@
 
 // Every turn of a note conversation appends to one _claude.stream.jsonl. When a
 // later turn wrote no result event, the runner used to find the earlier turn's
-// result in that file, record it again in _finals.json and bill its cost twice.
+// result in that file, record it again in _finals.json and bill its cost twice,
+// and the scorer still reports that earlier turn's duration and tokens.
 // A fake claude on an otherwise empty PATH answers the first turn and writes
 // nothing for the second, so no model session can start from this test.
 
@@ -13,7 +14,10 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const RESULT = { type: 'result', session_id: 's1', result: 'turn one', total_cost_usd: 0.5, num_turns: 1 };
+const RESULT = {
+  type: 'result', session_id: 's1', result: 'turn one', total_cost_usd: 0.5, num_turns: 1,
+  duration_ms: 1234, usage: { input_tokens: 10, output_tokens: 20, cache_read_input_tokens: 30 },
+};
 
 test('a dead second turn ends the conversation without repeating the first result', () => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-dead-'));
@@ -49,6 +53,11 @@ test('a dead second turn ends the conversation without repeating the first resul
     assert.deepEqual(finals, [{ final: 'turn one', cost: 0.5, turns: 1 }]);
     const cell = JSON.parse(run.stdout.trim().split('\n').pop());
     assert.equal(cell.cost, 0.5);
+    // The last turn wrote no result, so its duration and tokens are unknown,
+    // not turn one's figures.
+    for (const key of ['duration_ms', 'in_tokens', 'out_tokens', 'cache_tokens']) {
+      assert.equal(cell[key], null, key);
+    }
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }
