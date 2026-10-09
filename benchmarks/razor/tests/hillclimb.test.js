@@ -116,6 +116,26 @@ test('a followups task whose second call wrote nothing has no result to score', 
   }
 });
 
+test('a cell checks its results against the calls it sent, and an older cell against the current followups', async () => {
+  const run = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-hillclimb-sent-'));
+  try {
+    for (const [rep, sent] of [[0, null], [1, 1]]) {
+      const ws = path.join(run, `note-drift__razor__sonnet__${rep}`);
+      fs.mkdirSync(ws);
+      fs.writeFileSync(path.join(ws, '_claude.stream.jsonl'), [
+        line({ type: 'system', subtype: 'init', model: 'claude-sonnet-5' }),
+        line({ type: 'assistant', message: { model: SERVED, content: [{ type: 'text', text: 'Done.' }] } }),
+        line({ type: 'result', subtype: 'success', result: 'Done.', usage: { output_tokens: 5 } }),
+      ].join('\n'));
+      if (sent !== null) fs.writeFileSync(path.join(ws, '_sent.json'), JSON.stringify(sent));
+    }
+    // Rep 1 ran before a followup was added: it sent one call and got one result.
+    assert.deepStrictEqual((await suite.adapt(run, 'razor')).map((a) => a.stream.failure), ['no_result', null]);
+  } finally {
+    fs.rmSync(run, { recursive: true, force: true });
+  }
+});
+
 test('a conversation whose later turn wrote nothing has no result to score', () => {
   const turn1 = [
     line({ type: 'system', subtype: 'init', model: 'sonnet' }),

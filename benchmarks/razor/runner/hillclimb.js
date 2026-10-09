@@ -42,12 +42,15 @@ async function adapt(source, arm) {
     const ws = path.join(dir, name);
     let transcript = '';
     try { transcript = fs.readFileSync(path.join(ws, '_claude.stream.jsonl'), 'utf8'); } catch { /* none */ }
+    // How many calls run.js sent; a cell from before it recorded that falls back to the current followups.
+    let sent;
+    try { sent = JSON.parse(fs.readFileSync(path.join(ws, '_sent.json'), 'utf8')); } catch { /* older cell */ }
     const s = await scoreCell(tid, arm, model, ws);
     attempts.push({
       prompt_id: tid, rep: Number(rep), prompt: prompts(TASKS[tid]).join('\n\n'),
       tags: [TASKS[tid].counter ? 'counter' : TASKS[tid].note ? 'note' : 'core', TASKS[tid].axis || 'safe'],
       grade: 'correct' in s ? grade(s) : null, error: s.error,
-      stream: hc.readStream(transcript, prompts(TASKS[tid])),
+      stream: hc.readStream(transcript, prompts(TASKS[tid]), sent),
       meta: {
         task: tid, arm, model, workDir: ws, reason: s.reason, cli_cost_usd: s.cost ?? null,
         total_loc: s.total_loc, new_files: s.new_files, install_attempts: s.install_attempts,

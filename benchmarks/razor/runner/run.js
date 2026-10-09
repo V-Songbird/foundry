@@ -424,6 +424,7 @@ async function runCell(taskId, arm, model, ws) {
     turns.push({ final: String(r.result || ''), cost: r.total_cost_usd || 0, turns: r.num_turns || 0 });
   }
   fs.writeFileSync(path.join(ws, '_claude.stderr.txt'), stderrs.join('\n---\n'));
+  fs.writeFileSync(path.join(ws, '_sent.json'), JSON.stringify(stderrs.length)); // calls sent, for runner/hillclimb.js
   if (prompts.length > 1) fs.writeFileSync(path.join(ws, '_finals.json'), JSON.stringify(turns, null, 2));
 
   try {
