@@ -111,6 +111,16 @@ describe('mutationReport counts which way each meter moved', () => {
     assert.strictEqual(f['delete-branch-arm'].meters.keywords.n, 0);
   });
 
+  test('a rubric that names the line catches a moved line or a renamed file', () => {
+    // crash-origin: refresh\.js, :1[45]|line 1[45], invalid_grant|swallow|...
+    const crash = mutationReport([{ task: 'crash-origin', arm: 'a',
+      finalText: 'Look at [src/auth/refresh.js:14](src/auth/refresh.js:14): it swallows invalid_grant.' }], { caps: CAPS }).families;
+    assert.deepStrictEqual(crash['alter-line'].meters.keywords, { n: 1, worse: 1, better: 0 });
+    assert.deepStrictEqual(crash['alter-path'].meters.keywords, { n: 1, worse: 1, better: 0 });
+    // log-triage's rubric names no line, so the same family leaves it alone.
+    assert.deepStrictEqual(f['alter-line'].meters.keywords, { n: 1, worse: 0, better: 0 });
+  });
+
   test('rate is sensitivity for errors and specificity for harmless rewrites', () => {
     assert.strictEqual(rate('error', { n: 4, worse: 3 }), 0.75);
     assert.strictEqual(rate('harmless', { n: 4, worse: 1 }), 0.75);

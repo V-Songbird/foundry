@@ -31,7 +31,11 @@
 // touches, so it is left out rather than reported as blind.
 //
 //   node runner/mutate.js --records ../../.private/benchmarks/hush/records/rivalA-762f888b
-//   node runner/mutate.js --records <dir> [--records <dir>] [--copy-to <empty dir>]
+//   node runner/mutate.js --records <dir> [--records <dir>] [--by-task] [--copy-to <empty dir>]
+//
+// The keyword meter is only as sensitive as each task's rubric: crash-origin's
+// rubric names the line, so alter-line can lower it there and nowhere else.
+// --by-task prints the table once per task as well as pooled.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -321,7 +325,7 @@ function main() {
   const dirs = argv.flatMap((a, i) => (a === '--records' && argv[i + 1] ? [path.resolve(ROOT, argv[i + 1])] : []));
   const copyArg = argv.includes('--copy-to') ? argv[argv.indexOf('--copy-to') + 1] : null;
   if (!dirs.length) {
-    console.error('Usage: mutate.js --records <dir> [--records <dir>] [--copy-to <empty dir>]');
+    console.error('Usage: mutate.js --records <dir> [--records <dir>] [--by-task] [--copy-to <empty dir>]');
     process.exit(1);
   }
   const copyTo = copyArg ? path.resolve(copyArg) : null;
@@ -339,7 +343,19 @@ function main() {
   const records = dirs.flatMap((d) => readRecords(d).runs);
   const report = mutationReport(records, { onMutant: copyTo ? (r, f, t) => writeMutant(copyTo, r, f, t) : null });
 
-  console.log(`mutation check — ${dirs.map((d) => path.relative(ROOT, d)).join(', ')}: ${report.records} records`);
+  console.log(`mutation check — ${dirs.map((d) => path.relative(ROOT, d)).join(', ')}`);
+  printReport('all tasks', report);
+  // Rubrics differ per task, so a pooled rate can hide a task whose rubric does catch a family.
+  if (argv.includes('--by-task')) {
+    for (const task of [...new Set(records.map((r) => r?.task))].filter(Boolean).sort()) {
+      printReport(task, mutationReport(records.filter((r) => r?.task === task)));
+    }
+  }
+  if (copyTo) console.log(`\nmutants written under ${copyTo}, one folder per family`);
+}
+
+function printReport(label, report) {
+  console.log(`\n== ${label}: ${report.records} records`);
   console.log('cells: mutants scored worse / mutants the meter scored both times\n');
   const head = ['family', 'kind', 'applied', ...METERS.map((m) => m.id)];
   console.log(head.join('\t'));
@@ -351,7 +367,6 @@ function main() {
   for (const [id, f] of Object.entries(report.families)) {
     console.log([id, f.kind, f.applied, ...METERS.map((m) => pct(rate(f.kind, f.meters[m.id])))].join('\t'));
   }
-  if (copyTo) console.log(`\nmutants written under ${copyTo}, one folder per family`);
 }
 
 if (require.main === module) main();
