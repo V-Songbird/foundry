@@ -118,6 +118,7 @@ Set these as environment variables. Where a script reads a per-plugin variable, 
 - Foreman's `foreman-std` prompts are files that `foreman/defaultarm/gen.js` writes from the Foreman checkout. After a change to Foreman, run that generator before the next variant. A row whose prompt file changed since its run carries `meta.prompt_changed`, and the call prints a warning. A record written before runs stored a prompt hash is compared by length only, so a same-length change goes unflagged.
 - While a check runs, its held-back tests or grader sit in a randomly named folder in the system temp folder. A concurrent session that searches the whole temp folder could find them in that window.
 - Foreman's runner never clears a tag, so a second live call on the same variant stops before it starts a session. Adapt the earlier run with `--from hc-<flow>-<variant>`, or move its records aside.
+- A multi-prompt attempt with fewer results than calls goes to `errors.jsonl` as `no_result`. Hush takes the call count from the record's `turnsRun`, so a later change to a task's prompts leaves older attempts alone. A Razor cell does not store its call count, so the count comes from the current `followups` in `tasks.js`: after a followup is added to a task, every older attempt of that task goes to `errors.jsonl` with no warning.
 - Hush rows cover only tasks in `tasks.json`. The call names any task added with `-- --extra-tasks` and leaves its records out.
 
 ## Support
