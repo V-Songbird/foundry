@@ -316,36 +316,40 @@ const POINTS = [
 // Files a release may change after the measurement without changing what ran.
 const PRESENTATION = /^(README\.md$|docs\/|assets\/)/;
 
-// A `$1` in an awk or sed example is no price, so point 11 reads only prose.
-// A fence opens on three or more backticks with no backtick after them, or on
-// three or more tildes, and closes on a line of at least its own run of the
-// same character, or runs to the end of the document. An inline span stays
-// inside its paragraph: a blank line, heading, list item, quote, table row or
-// rule ends it, so a stray backtick cannot hide the prose after it.
-const FENCE = /^ {0,3}(`{3,}(?=[^`]*$)|~{3,})/;
-const BLOCK_START = /^[ \t]*$|^ {0,3}(?:[-*+][ \t]|\d{1,9}[.)][ \t]|>)/;
-const ONE_LINE_BLOCK = /^ {0,3}(?:#{1,6}(?:[ \t]|$)|([-*_=])(?:[ \t]*\1)+[ \t]*$)|\|/;
-const SPAN = /(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g;
+// A `$1` in an awk or sed example is no price, so point 11 drops only what is
+// certainly code and counts the rest as prose: a false gap is acceptable, a
+// hidden figure is not. Code is a fence that opens at column 0 on three or more
+// backticks with no backtick after them, or on three or more tildes, and that a
+// later column-0 line of at least that run of the same character closes; and a
+// span whose backtick runs of equal length open and close on one line, outside
+// a backslash escape. An unclosed fence, a fence in a list or quote, indented
+// code and a span that wraps lines all count as prose, and so does every line
+// after a backtick run left open, up to the next blank line, since that run may
+// close on a later line. Known limit: a column-0 run that closes a fence opened
+// 1-3 spaces deep is read as an opener, which hides the prose up to the next
+// column-0 run.
+const FENCE = /^(?:(`{3,})[^`]*|(~{3,}).*)$/;
+const SPAN = /\\[\s\S]|(`+)(?:.*?(?<!`)\1(?!`))?/g;
 
 function proseOf(markdown) {
   const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
   const out = [];
-  let para = [];
-  const flush = () => { if (para.length) out.push(para.join('\n').replace(SPAN, '')); para = []; };
+  let open = false;
   for (let i = 0; i < lines.length; i++) {
     const fence = FENCE.exec(lines[i]);
     if (fence) {
-      flush();
-      const close = new RegExp(`^ {0,3}\\${fence[1][0]}{${fence[1].length},}[ \\t]*$`);
-      while (++i < lines.length && !close.test(lines[i]));
-      continue;
+      const run = fence[1] || fence[2];
+      const close = new RegExp(`^${run[0]}{${run.length},}[ \\t]*$`);
+      const end = lines.findIndex((line, j) => j > i && close.test(line));
+      if (end > 0) { i = end; continue; }
     }
-    const single = ONE_LINE_BLOCK.test(lines[i]);
-    if (single || BLOCK_START.test(lines[i])) flush();
-    para.push(lines[i]);
-    if (single) flush();
+    if (/^[ \t]*$/.test(lines[i])) open = false;
+    if (open) { out.push(lines[i]); continue; }
+    out.push(lines[i].replace(SPAN, (m, run) => {
+      if (m === run) open = true;
+      return run && m !== run ? '' : m;
+    }));
   }
-  flush();
   return out.join('\n');
 }
 

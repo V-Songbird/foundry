@@ -289,11 +289,37 @@ describe('the readiness gate', () => {
     assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
   });
 
-  test('treats an unclosed fence in the README as code to the end', () => {
-    const report = run(fixture({ readme: `${README}\n\`\`\`bash\nawk {print $1}\n` }));
-    assert.deepStrictEqual(report.results.filter((r) => !r.met).map((r) => `${r.n}: ${r.missing}`), []);
-    assert.match(point(report, 11).evidence.join('\n'), /prints 1 dollar figure\(s\) outside code/);
-  });
+  // Only a column-0 fence with a column-0 closer and a span that opens and
+  // closes on one line are code; every other shape counts as prose.
+  const COUNTED = [
+    ['an unclosed fence', '```bash\nawk {print $1}\n', ['$1']],
+    ['an escaped backtick', 'Type \\` to quote. It costs $9.99 and `x` too.\n', ['$9.99']],
+    ['an escaped backtick before a span', 'Type \\``x` and it costs $9.99 then `y` too.\n', ['$9.99']],
+    ['an escaped backslash before a span', 'Type \\\\`x` and it costs $9.99 then `y` too.\n', ['$9.99']],
+    ['an unclosed fence in a list item', '- a\n  ```\n  code\n- costs $9.99\n', ['$9.99']],
+    ['a list-item fence closed four spaces deep', '- a\n\n  ```\n  echo $1\n    ```\n\nprose $9.99\n', ['$1', '$9.99']],
+    ['a ``` fence holding a run indented four spaces', '```md\n1. Install:\n\n    ```\n    npm i\n    ```\n```\n\nprose $9.99\n', ['$9.99']],
+    ['a ~~~ fence holding a run indented four spaces', '~~~md\n1. Install:\n\n    ~~~\n    npm i\n    ~~~\n~~~\n\nprose $9.99\n', ['$9.99']],
+    ['a list-item span that wraps onto an indented line', '- Install with `npm i\n    hush` for $9.99 or `pnpm`.\n', ['$9.99']],
+    ['a span that wraps onto an indented line', 'Install with `npm i\n    hush` for $9.99 or `pnpm`.\n', ['$9.99']],
+    ['a span that wraps onto a tab-indented line', 'Install with `npm i\n\thush` for $9.99 or `pnpm`.\n', ['$9.99']],
+    ['an indented fence holding a deeper run', '  ```\n     ```\n  ```\n  prose $9.99\n', ['$9.99']],
+    ['a fence on a list marker line', '- ```\n  code $1\n  ```\n  more prose $9.99\n', ['$1', '$9.99']],
+    ['a list-item fence followed by a top-level fence', '- a\n  ```\n  code\n```\n$5 code\n```\nprose $9.99\n', ['$9.99']],
+    ['an indented fence with a dedented line', '  ```\ncode $1\n  ```\nprose $9.99\n', ['$1', '$9.99']],
+    ['indented code', '    echo $5\n\nprose $9.99\n', ['$5', '$9.99']],
+    ['indented code holding a backtick', 'x\n\n    echo `\nprose $9.99 and `y`\n', ['$9.99']],
+    ['a fence in a blockquote', '> ```\n> echo $1\n> ```\n', ['$1']],
+  ];
+  for (const [shape, text, figures] of COUNTED) {
+    for (const [eol, readme] of [['LF', `${README}\n${text}`], ['CRLF', `${README}\n${text}`.replace(/\n/g, '\r\n')]]) {
+      test(`counts the dollar figures after ${shape} as prose (${eol})`, () => {
+        const report = run(fixture({ readme }));
+        assert.deepStrictEqual(unmetPoints(report), [11]);
+        assert.ok(point(report, 11).missing.includes(`${figures.length} README figure(s) no record produces: ${figures.join(', ')}`), point(report, 11).missing);
+      });
+    }
+  }
 
   test('counts no dollar figure inside a span a stray backtick opens on the same line', () => {
     const report = run(fixture({ readme: `${README}\nPress the \` key, then $9.99 \`x and more.\n` }));
