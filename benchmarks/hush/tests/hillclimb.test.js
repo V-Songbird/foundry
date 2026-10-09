@@ -160,6 +160,26 @@ test('a held-out grader runs from the fixture in a private copy, never in the wo
   assert.strictEqual(fs.readFileSync(path.join(ws, 'verify.js'), 'utf8'), 'process.exit(0);\n');
 });
 
+test('a multi-prompt task is held to the calls its run sent, and a limit outranks a missing result', () => {
+  const multi = path.join(DATA, 'hush', 'results', 'hc-test-multi');
+  fs.mkdirSync(path.join(multi, 'runs'), { recursive: true });
+  fs.mkdirSync(path.join(multi, 'transcripts'), { recursive: true });
+  const add = (rep, record, text) => {
+    const key = `feature-drift__hush__r${rep}`;
+    fs.writeFileSync(path.join(multi, 'runs', `${key}.json`), JSON.stringify({ key, batchId: BATCH, task: 'feature-drift', arm: 'hush', rep, ...record }));
+    fs.writeFileSync(path.join(multi, 'transcripts', `${key}.jsonl`), text);
+  };
+  const graded = { check: { pass: true, score: 1 }, finalText: 'Done.' };
+  const sent = TASKS.find((t) => t.id === 'feature-drift').prompts.length;
+  assert.ok(sent > 1);
+  add(1, { ...graded, turnsRun: sent }, transcript('Done.')); // later calls wrote nothing
+  add(2, { ...graded, turnsRun: 1 }, transcript('Done.')); // a run from before tasks.json gained prompts
+  add(3, { error: 'Error: rate limited' }, [transcript('You\'ve hit your session limit · resets 5pm'),
+    line({ type: 'system', subtype: 'init', model: 'sonnet' })].join('\n'));
+  assert.deepStrictEqual(suite.adapt('hc-test-multi', 'hush').map((a) => [a.rep, a.stream.failure]),
+    [[0, 'no_result'], [1, null], [2, 'rate_limited']]);
+});
+
 test('a turn-capped call is truncated, not scored', () => {
   const s = hc.readStream([
     line({ type: 'assistant', message: { model: SERVED, content: [{ type: 'text', text: 'still going' }] } }),

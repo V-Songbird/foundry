@@ -37,8 +37,9 @@ function toolText(content) {
 
 // One attempt's `claude -p --output-format stream-json` output, which may hold
 // several calls in a row (each starts with a system/init event). `prompts` are
-// the user messages in call order: stream-json never echoes them.
-function readStream(jsonl, prompts) {
+// the user messages in call order: stream-json never echoes them. `sent` is how
+// many calls the run made, when its record says so; it defaults to the prompts.
+function readStream(jsonl, prompts, sent = prompts.length) {
   const trace = [{ role: 'user', content: prompts[0] ?? '' }];
   const usage = Object.fromEntries(USAGE_KEYS.map((k) => [k, 0]));
   const models = new Map();
@@ -82,11 +83,12 @@ function readStream(jsonl, prompts) {
   // An attempt the harness killed, the API refused or the plan limit stopped
   // has no output to score; a turn-capped one does, but it is not comparable.
   // A conversation that stopped before its last prompt is unscored too, even
-  // when the dead call wrote nothing at all.
+  // when the dead call wrote nothing at all; a limit or an API error comes
+  // first, since it is usually why a later call wrote nothing.
   let failure = null;
-  if (results.length < Math.max(1, calls, prompts.length)) failure = 'no_result';
-  else if (/you\s*['’]?ve hit your (session|usage|weekly) limit/i.test(finalText)) failure = 'rate_limited';
+  if (/you\s*['’]?ve hit your (session|usage|weekly) limit/i.test(finalText)) failure = 'rate_limited';
   else if (results.some((r) => r.subtype !== 'error_max_turns' && (r.is_error || /^error/.test(r.subtype || '')))) failure = 'serving_error';
+  else if (results.length < Math.max(1, calls, sent)) failure = 'no_result';
   else if (!model) failure = 'no_model';
   return {
     trace, usage, model, initModel, toolCalls, failure,

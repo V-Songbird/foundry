@@ -41,7 +41,8 @@ function adapt(tag, arm) {
       prompt_id: rec.task, rep: rec.rep - 1, prompt: prompts(task).join('\n\n'),
       tags: [rec.segment, task.category].filter(Boolean),
       grade: rec.check ? grade(rec.check) : null, error: rec.error,
-      stream: hc.readStream(transcript, prompts(task)),
+      // turnsRun pins the call count to what the run sent, not today's tasks.json.
+      stream: hc.readStream(transcript, prompts(task), rec.turnsRun ?? prompts(task).length),
       meta: {
         task: rec.task, run, cli_cost_usd: rec.costUsd ?? null,
         workDir: path.join(os.tmpdir(), 'work', workspaceName(rec.batchId, rec.key)),

@@ -99,6 +99,23 @@ test('no seeded workspace holds a reference answer', () => {
   }
 });
 
+test('a followups task whose second call wrote nothing has no result to score', async () => {
+  const run = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-hillclimb-followups-'));
+  try {
+    const ws = path.join(run, 'note-drift__razor__sonnet__0');
+    fs.mkdirSync(ws);
+    fs.writeFileSync(path.join(ws, '_claude.stream.jsonl'), [
+      line({ type: 'system', subtype: 'init', model: 'claude-sonnet-5' }),
+      line({ type: 'assistant', message: { model: SERVED, content: [{ type: 'text', text: 'Done.' }] } }),
+      line({ type: 'result', subtype: 'success', result: 'Done.', usage: { output_tokens: 5 } }),
+    ].join('\n'));
+    assert.ok(RAZOR_TASKS['note-drift'].followups.length > 0);
+    assert.deepStrictEqual((await suite.adapt(run, 'razor')).map((a) => a.stream.failure), ['no_result']);
+  } finally {
+    fs.rmSync(run, { recursive: true, force: true });
+  }
+});
+
 test('a conversation whose later turn wrote nothing has no result to score', () => {
   const turn1 = [
     line({ type: 'system', subtype: 'init', model: 'sonnet' }),

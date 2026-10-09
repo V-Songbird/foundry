@@ -148,6 +148,14 @@ test('a row whose prompt file changed since the run is flagged', () => {
   }
 });
 
+test('a limit or an API error is classed before a later call that wrote nothing', () => {
+  const init = line({ type: 'system', subtype: 'init', model: 'sonnet' });
+  const stopped = (result) => hc.readStream([init, line({ type: 'result', ...result }), init].join('\n'), ['first', 'second']).failure;
+  assert.strictEqual(stopped({ subtype: 'success', result: 'You\'ve hit your usage limit' }), 'rate_limited');
+  assert.strictEqual(stopped({ subtype: 'error_during_execution', is_error: true, result: 'API Error: 529' }), 'serving_error');
+  assert.strictEqual(stopped({ subtype: 'success', result: 'done' }), 'no_result');
+});
+
 test('the oracle passes and the null fails on every task', async () => {
   const cases = await suite.smoke();
   assert.strictEqual(cases.length, 2 * TASKS.length);
