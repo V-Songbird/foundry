@@ -75,47 +75,15 @@ const ARMS = {
     pluginDirs: [HUSH_DIR, RAZOR_DIR],
     settings: path.join(ROOT, 'settings-trio.json'),
   },
-  // P2, the lesson-ledger arms. Opt-in like trio, and moved-file only —
-  // they are the SAME foreman.md prompt with one lesson block spliced in,
-  // written by lessons/gen.js. See that file for what each arm carries and
-  // why the unlabeled one has to exist.
-  'lessons-control': { prompt: 'lessons-control', pluginDirs: [] },
-  'lessons-fresh': { prompt: 'lessons-fresh', pluginDirs: [] },
-  'lessons-graded': { prompt: 'lessons-graded', pluginDirs: [] },
-  'lessons-unlabeled': { prompt: 'lessons-unlabeled', pluginDirs: [] },
   // The fact-matched foreman arm for the DEFAULT grid — see defaultarm/gen.js.
   // It comes out of the product's own craft-handoff.js and passes the product's
   // own gate, which the hand-frozen `foreman` arm does not. Prefer it over
   // `foreman` for any cross-arm comparison; `foreman` is kept only so older
   // tagged runs stay re-reportable.
   'foreman-std': { prompt: 'foreman-std', pluginDirs: [] },
-  // Does a CORRECT lesson change the outcome? P2 could never answer that —
-  // its control was already right every time. These two are the SAME
-  // pinned-dup prompt with one lesson block spliced in, written by
-  // benefit/gen.js, and the pin they carry exists nowhere else in the fixture.
-  'pin-off': { prompt: 'pin-off', pluginDirs: [] },
-  'pin-on': { prompt: 'pin-on', pluginDirs: [] },
-  // The mirror: the same block carrying a claim that is false of the code, on
-  // the same fresh label. Nothing in the product can detect this case, so what
-  // it costs has to be measured rather than reasoned about.
-  'pin-wrong': { prompt: 'pin-wrong', pluginDirs: [] },
-  // Does the symbol chain carry a fact the way a lesson does? The SAME
-  // pinned-dup prompt with the block craft-handoff.js builds from git history
-  // spliced in — the pin rides in the why of the entry that wrote the helpers.
-  // Written by benefit/gen.js.
-  'chain-off': { prompt: 'chain-off', pluginDirs: [] },
-  'chain-on': { prompt: 'chain-on', pluginDirs: [] },
-  // The uncheckable false lesson: pin-on's exact block on the unpinned-dup
-  // fixture, where the task asks for the collapse and no ticket pins anything.
-  // Nothing in the fixture can refute the claim; only the instruction does.
-  'unpin-off': { prompt: 'unpin-off', pluginDirs: [] },
-  'unpin-wrong': { prompt: 'unpin-wrong', pluginDirs: [] },
-  // The same false block under a header that ranks the task's instructions
-  // above a recorded claim — the measure-first candidate that batch left.
-  'unpin-ranked': { prompt: 'unpin-ranked', pluginDirs: [] },
-  // The same pin as a Constraints line inside <task_rules> — the fact
-  // delivered where the task is cut, not where it is worked. Written by
-  // benefit/gen.js; `cut-on` runs on pinned-dup, `cut-wrong` on unpinned-dup.
+  // A pin that exists nowhere in the fixture, served as a Constraints line
+  // inside <task_rules>. Written by benefit/gen.js; `cut-on` runs on
+  // pinned-dup, where it is true, `cut-wrong` on unpinned-dup, where it is false.
   'cut-on': { prompt: 'cut-on', pluginDirs: [] },
   'cut-wrong': { prompt: 'cut-wrong', pluginDirs: [] },
 };

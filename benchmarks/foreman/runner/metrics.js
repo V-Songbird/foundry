@@ -220,8 +220,8 @@ function scoreRun(task, workDir, pristineSnap) {
     const present = content.includes(s.contains);
     // `absent: true` inverts the sentinel: the line is one the task was sent
     // to remove, so finding it still there is the violation. The
-    // uncheckable-lesson task is scored this way — a false pin obeyed leaves
-    // the copies standing.
+    // unpinned-dup task is scored this way — a false pin obeyed leaves the
+    // copies standing.
     if (s.absent ? present : !present) {
       violations.push(
         s.absent
