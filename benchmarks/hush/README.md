@@ -111,9 +111,9 @@ The tasks: **13** in all, across three segments — the shapes of real engineeri
 
 - **noisy build and test output** (6) — a production log to triage, 380 commits of release history hiding three changes anyone would notice, a dependency bump that buried a real error under 400 warnings, a 625-case suite hiding three real failures, a six-part on-call handoff that has to come out of 300KB of incident logs in one message, and three bad rows to find in a 151-line range of a 1,600-row CSV.
 - **search-heavy work** (5) — finishing a half-done API migration across 76 modules without touching the vendored copy, scoping a column rename that matches a thousand lines and must not touch three of them, finding the file and line a crash really comes from when the stack trace names a different one, planning a new CLI flag without editing anything, and finding the missing and empty files in a 167-file listing of translation folders.
+- **long sessions that drift** (2) — a feature whose requirements change under it across five prompts, and a four-prompt incident investigation over 300KB of logs. These are the shapes where history piles up.
 
 `locale-gaps` and `rate-import` invite a directory listing and a line-range print long enough that hush would trim ordinary output of that size. hush passes a listing or a ranged print whole up to 250 lines, so these two tasks measure that pass. `tests/benchmark_bounded_jobs.test.js` fails if either fixture leaves that size range.
-- **long sessions that drift** (2) — a feature whose requirements change under it across five prompts, and a four-prompt incident investigation over 300KB of logs. These are the shapes where history piles up.
 
 The suite spans the size range on purpose. hush can only compress output that reaches the session, so its effect swings from a large saving on a task whose tool results run to tens of thousands of characters down to a small loss on a task with almost nothing to cut. Half the tasks sit at each end, and the per-task table shows where the line falls rather than hiding it in an average.
 
