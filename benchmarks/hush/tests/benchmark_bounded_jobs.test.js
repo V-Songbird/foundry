@@ -13,18 +13,25 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const hook = require(path.join(require('../../paths.js').pluginDir('hush'), 'hooks', 'compress-tool-output.js'));
+const HOOK = path.join(require('../../paths.js').pluginDir('hush'), 'hooks', 'compress-tool-output.js');
+const hook = require(HOOK);
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
 
-// The paths `find . -type f` prints: the tersest listing of the folder.
-function listing(dir) {
+// The trim floor, read from the hook (it is not exported), and the factor a
+// fixture must clear it by so that a slightly smaller one still measures it.
+const FLOOR = Number(/const GREP_MIN_CHARS = (\d+);/.exec(fs.readFileSync(HOOK, 'utf8'))[1]);
+const MARGIN = 1.1;
+
+// The paths `find <sub> -type f` prints from the fixture root: the tersest
+// listing of the folder the prompt names.
+function listing(dir, sub) {
   const out = [];
   (function walk(rel) {
     for (const e of fs.readdirSync(path.join(dir, rel), { withFileTypes: true })) {
       const r = `${rel}/${e.name}`;
       if (e.isDirectory()) walk(r); else out.push(r);
     }
-  })('.');
+  })(sub);
   return out.join('\n') + '\n';
 }
 
@@ -34,7 +41,7 @@ function range(file, from, to) {
 }
 
 const CASES = [
-  ['locale-gaps', 'find . -type f', () => listing(path.join(FIXTURES, 'locale-gaps'))],
+  ['locale-gaps', 'find locales -type f', () => listing(path.join(FIXTURES, 'locale-gaps'), 'locales')],
   ['rate-import', "sed -n '1200,1350p' data/rates.csv", () => range(path.join(FIXTURES, 'rate-import', 'data', 'rates.csv'), 1200, 1350)],
 ];
 
@@ -45,6 +52,7 @@ for (const [id, command, print] of CASES) {
     // Arguments: text, exitCode, isDump, enumerate, relevance, scale, sessionId,
     // noSidecar, hostMayTruncate, decision, bounded.
     const run = (bounded) => hook.compress(out, 0, false, false, [], 1, undefined, true, false, {}, bounded);
+    assert.ok(out.length >= FLOOR * MARGIN, `${id}: ${out.length} characters are under ${MARGIN}x the ${FLOOR}-character trim floor`);
     assert.notStrictEqual(run(false), out, `${id}: ${out.length} characters pass whole as ordinary output, under the trim floor`);
     assert.strictEqual(run(true), out, `${id}: ${out.split('\n').length - 1} lines are past the bounded pass`);
   });

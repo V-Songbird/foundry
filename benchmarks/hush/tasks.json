@@ -191,7 +191,7 @@
     "category": "tool",
     "segment": "search-heavy",
     "fixture": "locale-gaps",
-    "note": "The answer is in a recursive listing with sizes: 167 locale files across 12 folders, one namespace missing and two files with no strings. The listing runs to about 200 lines and 10,000 characters, past the size where hush trims ordinary output, so it measures the pass that keeps a listing whole.",
+    "note": "The answer is in a recursive listing with sizes: 167 locale files across 12 folders, one namespace missing and two files with no strings. `find locales -type f` prints 167 lines and about 4,600 characters, past the size where hush trims ordinary output, so it measures the pass that keeps a listing whole.",
     "prompt": "QA says a few screens show raw translation keys in some languages. Before I dig into the strings themselves, list everything under locales/ with file sizes and tell me which locale files are missing or have no strings in them. i18n.config.json says what should be there.",
     "check": {
       "type": "keywords",
@@ -208,7 +208,7 @@
     "category": "tool",
     "segment": "noisy-output",
     "fixture": "rate-import",
-    "note": "The prompt names a line range of a 1,601-line CSV. That range is 151 lines and about 6,000 characters, and each bad row is accepted by its id or by its line number counted with or without the header, past the size where hush trims ordinary output, so a print of it measures the pass that keeps a ranged print whole.",
+    "note": "The prompt names a line range of a 1,601-line CSV. That range is 151 lines and about 6,000 characters, past the size where hush trims ordinary output, so a print of it measures the pass that keeps a ranged print whole. Each bad row is accepted by its id or by its line number counted with or without the header.",
     "prompt": "Last night's rate import rejected data/rates.csv with \"validation failed: 3 bad rows between lines 1200 and 1350\". The file is 1,600 rows, so I don't want the whole thing. Print that stretch and tell me exactly which rows are bad and what's wrong with each, so I can fix them by hand. import.config.json has the rules.",
     "check": {
       "type": "keywords",

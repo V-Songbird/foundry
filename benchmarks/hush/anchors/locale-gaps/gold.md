@@ -4,11 +4,11 @@
 
 | File | State | Size |
 | --- | --- | --- |
-| [locales/pt-BR/billing.json](locales/pt-BR/billing.json) | Missing | — |
+| `locales/pt-BR/billing.json` | Missing | — |
 | [locales/ja/checkout.json](locales/ja/checkout.json) | Empty file | 0 bytes |
-| [locales/de/onboarding.json](locales/de/onboarding.json) | Only `{}` | 3 bytes |
+| [locales/de/onboarding.json](locales/de/onboarding.json) | Only `{}` | A few bytes, whatever the line endings |
 
-Every other file is between about 270 and 730 bytes and holds 8 to 16 strings. Nothing else in the listing is out of line.
+Every other file is between about 290 and 790 bytes and holds 8 to 16 strings. Nothing else in the listing is out of line.
 
 I listed the folder and read the two short files. I did not open the strings in the other 165.
 
