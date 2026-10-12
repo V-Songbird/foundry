@@ -1,5 +1,5 @@
 {
-  "$comment": "Answer keys for the retention meter (runner/retention.js). One entry per task: the details a final report must carry because they change what the reader does next. Written from the fixtures and task prompts only — never from any arm's replies — and frozen before a batch is scored. Provenance: authored 2026-08-11; the author had seen same-day batch outputs, so treat scores on batches run before that date as post-hoc; keys apply cleanly to any batch run after it. The release-digest and rename-scope lists were added 2026-08-19 with those tasks, before either had ever been run, so no reply of any kind existed to write them from. The crash-origin list was added 2026-08-27 with that task and its fixture, again before any arm had run it. One pilot amendment, disclosed: repo-sweep item 1 originally read 'the remaining old db.query call sites were moved', which a judge fairly read as contradicted by reports that correctly leave the vendored adapter alone; it now says 'the application call sites'. Scoring is separate from each task's pass/fail check on purpose: a run can pass and still drop details, which is exactly what this meter exists to see. DISCLOSED: the plan-apply list was added 2026-08-29, after that task had already been run, so its author had seen replies to it; treat retention scores on plan-apply as post-hoc, and only the four items are drawn from the fixture and prompt alone. DISCLOSED: the style-forge list was added 2026-09-21, after that task had already been run, and its author had seen replies quoted in the study write-up; treat retention scores on style-forge as post-hoc. Its nine items follow the six asks in the prompt and were each checked against the incident-forensics fixture.",
+  "$comment": "Answer keys for the retention meter (runner/retention.js). One entry per task: the details a final report must carry because they change what the reader does next. Written from the fixtures and task prompts only — never from any arm's replies — and frozen before a batch is scored. Provenance: authored 2026-08-11; the author had seen same-day batch outputs, so treat scores on batches run before that date as post-hoc; keys apply cleanly to any batch run after it. The release-digest and rename-scope lists were added 2026-08-19 with those tasks, before either had ever been run, so no reply of any kind existed to write them from. The crash-origin list was added 2026-08-27 with that task and its fixture, again before any arm had run it. One pilot amendment, disclosed: repo-sweep item 1 originally read 'the remaining old db.query call sites were moved', which a judge fairly read as contradicted by reports that correctly leave the vendored adapter alone; it now says 'the application call sites'. Scoring is separate from each task's pass/fail check on purpose: a run can pass and still drop details, which is exactly what this meter exists to see. DISCLOSED: the plan-apply list was added 2026-08-29, after that task had already been run, so its author had seen replies to it; treat retention scores on plan-apply as post-hoc, and only the four items are drawn from the fixture and prompt alone. DISCLOSED: the style-forge list was added 2026-09-21, after that task had already been run, and its author had seen replies quoted in the study write-up; treat retention scores on style-forge as post-hoc. Its nine items follow the six asks in the prompt and were each checked against the incident-forensics fixture. The locale-gaps and rate-import lists were added 2026-10-12 with those tasks and their fixtures, before any arm had run them.",
   "tasks": {
     "log-triage": [
       "Redis was unreachable — connection refused at 10.0.0.12:6379",
@@ -72,6 +72,19 @@
       "the incident is still ongoing at the end of the log, at about 03:59",
       "about 530 requests failed in this log",
       "the thing to do now is roll back dep-4471, or set gateway.pool.perRequest back to false"
+    ],
+    "locale-gaps": [
+      "the pt-BR billing file is missing",
+      "the ja checkout file is empty, zero bytes",
+      "the de onboarding file holds an empty object with no strings",
+      "every other expected locale file is present and holds strings"
+    ],
+    "rate-import": [
+      "line 1238, id fx-48659, writes its rate with a decimal comma, which splits it into an extra column",
+      "line 1271, id fx-48890, has a negative rate",
+      "line 1322, id fx-49247, has the date 2026-02-30, which does not exist",
+      "the other rows in that range pass the rules",
+      "nothing was changed in the file"
     ]
   }
 }

@@ -191,6 +191,22 @@ describe('segments: every task is placed, every segment is populated', () => {
     assert.strictEqual(say('rename-scope',
       'It matches around 1,100 lines in 97 files. Big but mechanical.'),
     false, 'a size-only answer passes');
+
+    assert.strictEqual(say('locale-gaps', [
+      'locales/pt-BR/billing.json is missing.',
+      'locales/ja/checkout.json is 0 bytes.',
+      'locales/de/onboarding.json is just {}.',
+    ].join('\n')), true, 'naming the three gaps fails');
+    assert.strictEqual(say('locale-gaps',
+      'There are 167 files across 12 locales; pt-BR has no billing.json.'),
+    false, 'naming only the gap a plain file search finds passes');
+
+    assert.strictEqual(say('rate-import',
+      'Bad rows: fx-48659 (decimal comma), line 1271 (negative rate), fx-49247 (2026-02-30).'),
+    true, 'naming the three rows fails');
+    assert.strictEqual(say('rate-import',
+      'Rows 1200 to 1350 look fine apart from fx-48659, which uses a decimal comma.'),
+    false, 'naming one row passes');
   });
 
   test('every long-session task really spans several prompts', () => {

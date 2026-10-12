@@ -109,7 +109,7 @@ test('a keyword task that reads files is not regraded without its workspace', ()
 
 test('the oracle passes and the null fails on every task', async () => {
   const cases = await suite.smoke();
-  assert.deepStrictEqual(cases.filter((c) => c.kind === 'oracle').map((c) => c.id).sort(), ['crash-origin', 'log-triage', 'style-forge']);
+  assert.deepStrictEqual(cases.filter((c) => c.kind === 'oracle').map((c) => c.id).sort(), ['crash-origin', 'locale-gaps', 'log-triage', 'rate-import', 'style-forge']);
   assert.strictEqual(cases.filter((c) => c.kind === 'null').length, TASKS.length);
   for (const c of cases) assert.strictEqual(c.pass, c.kind === 'oracle' ? 1 : 0, `${c.kind} ${c.id}`);
 });
