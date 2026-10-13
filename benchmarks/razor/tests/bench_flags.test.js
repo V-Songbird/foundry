@@ -26,6 +26,30 @@ describe('benchmark CLI flags', () => {
   });
 });
 
+test('--max-cost is a known flag and stops new cells once the summed cost reaches it', () => {
+  const { parseMaxCost, totalCost, costCapReached } = require('../runner/run.js');
+  assert.deepStrictEqual(unknownFlags(['--default', '--max-cost', '40']), []);
+  assert.strictEqual(parseMaxCost(null), null);
+  assert.strictEqual(parseMaxCost('40'), 40);
+  for (const bad of ['0', '-3', 'abc', '']) assert.ok(Number.isNaN(parseMaxCost(bad)), `${bad} is refused`);
+  const done = [{ cost: 0.5 }, { cost: 1.25 }, { error: 'x' }];
+  assert.strictEqual(totalCost(done), 1.75);
+  assert.strictEqual(costCapReached(done, null), false, 'no cap never stops');
+  assert.strictEqual(costCapReached(done, 1.76), false);
+  assert.strictEqual(costCapReached(done, 1.75), true, 'reaching the cap stops');
+  assert.strictEqual(costCapReached(done, 1), true);
+});
+
+test('--max-cost refuses a non-positive value before any session starts', () => {
+  const path = require('path');
+  const { spawnSync } = require('child_process');
+  const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke', '--max-cost', '0'],
+    { encoding: 'utf8', timeout: 30000 });
+  assert.ifError(run.error);
+  assert.equal(run.status, 1, run.stdout + run.stderr);
+  assert.match(run.stderr, /--max-cost wants a positive number/);
+});
+
 test('--models opus55 resolves to Claude Opus 5.5 and the older values keep their ids', () => {
   const { MODELS } = require('../runner/run.js');
   assert.strictEqual(MODELS.opus55, 'claude-opus-5-5');

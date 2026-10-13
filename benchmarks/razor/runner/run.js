@@ -103,9 +103,24 @@ function flag(name, dflt) {
 // Every flag this runner reads. `has`/`flag` ignore anything else, and a
 // silently-ignored typo starts a real billed run instead of erroring out.
 const KNOWN_FLAGS = ['selftest', 'smoke', 'default', 'full', 'counter', 'note', 'task', 'arms',
-  'runs', 'models', 'effort', 'workers', 'seed', 'rescore', 'arm-dir', 'rival-dir', 'rival-name'];
+  'runs', 'models', 'effort', 'workers', 'seed', 'rescore', 'arm-dir', 'rival-dir', 'rival-name', 'max-cost'];
 function unknownFlags(args) {
   return args.filter((a) => a.startsWith('--') && !KNOWN_FLAGS.includes(a.slice(2)));
+}
+
+// --max-cost <usd>: null when absent, the cap when it is a positive number,
+// NaN when the value is not one (the caller refuses to start).
+function parseMaxCost(raw) {
+  if (raw === null || raw === undefined) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : NaN;
+}
+// The summed cost of the cells finished so far. A cell with no cost counts 0.
+function totalCost(results) {
+  return results.reduce((s, r) => s + (Number(r.cost) || 0), 0);
+}
+function costCapReached(results, cap) {
+  return cap !== null && totalCost(results) >= cap;
 }
 
 // Reasoning effort for every cell in the run; omitted entirely when unset so a
@@ -591,6 +606,8 @@ function stampNow() {
 }
 
 async function main() {
+  const maxCost = parseMaxCost(flag('max-cost', null));
+  if (Number.isNaN(maxCost)) { console.error('--max-cost wants a positive number of US dollars'); process.exit(1); }
   const bad = unknownFlags(argv);
   if (bad.length) {
     console.error(`unknown flag ${bad.join(' ')} -- this runner reads: ${KNOWN_FLAGS.map((f) => `--${f}`).join(' ')}`);
@@ -702,12 +719,20 @@ async function main() {
   const results = [];
   let done = 0;
 
+  const stopReason = () => {
+    if (LOGIN_LOST.cell) return `login lost in ${LOGIN_LOST.cell}`;
+    if (costCapReached(results, maxCost)) return `cost cap USD ${maxCost} reached at USD ${totalCost(results).toFixed(4)}`;
+    return null;
+  };
   const writeResults = () => fs.writeFileSync(path.join(outDir, 'results.json'), JSON.stringify({
     date: stamp,
     seed,
     order: cells.map(([tid, arm, model, r]) => `${tid}__${arm}__${model}__${r}`),
     models: Object.fromEntries(models.map((m) => [m, MODELS[m] || m])),
     effort: EFFORT,
+    max_cost: maxCost,
+    stopped: stopReason(),
+    cost_total: totalCost(results),
     claude: claudeVersion(),
     arms: Object.fromEntries(arms.map((a) => [a, ARM_DIRS[a] || 'none'])),
     results,
@@ -718,7 +743,7 @@ async function main() {
 
   let idx = 0;
   async function worker() {
-    while (idx < cells.length && !LOGIN_LOST.cell) {
+    while (idx < cells.length && !LOGIN_LOST.cell && !costCapReached(results, maxCost)) {
       const [tid, arm, model, r] = cells[idx++];
       const ws = path.join(outDir, `${tid}__${arm}__${model}__${r}`);
       fs.mkdirSync(ws, { recursive: true });
@@ -739,6 +764,11 @@ async function main() {
   printTable(rows);
   console.log(`\nwrote ${outDir}${path.sep}results.json + summary.json (${results.length} cells)`);
   console.log(`\nnext: node runner/report.js ${outDir}`);
+  if (!LOGIN_LOST.cell && costCapReached(results, maxCost) && results.length < total) {
+    console.error(`\nstopped: ${stopReason()}, so ${total - results.length} cells were not started. `
+      + 'Cells already running when the cap was reached finished and are counted.');
+    process.exitCode = 1;
+  }
   if (LOGIN_LOST.cell) {
     console.error(`\nstopped: ${LOGIN_LOST.cell} reported a lost login, so ${total - results.length} cells were not started. `
       + `The login stored in BENCH_CONFIG_DIR (${process.env.BENCH_CONFIG_DIR}) has expired: sign in again, then delete `
@@ -747,6 +777,6 @@ async function main() {
   }
 }
 
-module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
+module.exports = { parseMaxCost, totalCost, costCapReached, buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();
