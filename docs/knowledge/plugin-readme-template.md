@@ -58,7 +58,7 @@ The H2 sections, in order:
 7. **The numbers.** The evidence, in one H3 subsection per host, headed `<Host> results`. Each
    measured table carries its `foundry:evidence` comment, and `assets/hero.svg` and
    `assets/demo.svg` sit here, beside the results they illustrate. Other kit graphics, such as
-   Foreman's `paper-trail.svg`, may illustrate the plugin's own guides.
+   a plugin's own diagram, may illustrate the plugin's own guides.
 8. **Going deeper.** Links to the plugin's guides and reference pages.
 9. **License.**
 

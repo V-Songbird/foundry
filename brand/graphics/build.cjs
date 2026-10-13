@@ -1,10 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const jobs={hush:['hero.svg','demo.svg','hero-opus5.svg','demo-opus5.svg'],foreman:['hero.svg','demo.svg','paper-trail.svg'],razor:['hero.svg','demo.svg']};
+const jobs={hush:['hero.svg','demo.svg','hero-opus5.svg','demo-opus5.svg'],foreman:['hero.svg','demo.svg'],razor:['hero.svg','demo.svg']};
 const palette={hush:['#2c75a5','#79b6de'],foreman:['#21553b','#9ec8ac'],razor:['#bf4935','#eb8d79']};
 // Each frame carries its plugin's hallmark seal: [x, y, rotation, size] of its center in the viewBox.
-const seals={hush:{'hero.svg':[628,238,-8,64],'hero-opus5.svg':[628,238,-8,64],'demo.svg':[655,38,-6,40],'demo-opus5.svg':[655,38,-6,40]},foreman:{'hero.svg':[612,176,-10,64],'demo.svg':[650,40,-6,44],'paper-trail.svg':[655,44,-6,44]},razor:{'hero.svg':[632,284,-8,64],'demo.svg':[655,38,-6,40]}};
+const seals={hush:{'hero.svg':[628,238,-8,64],'hero-opus5.svg':[628,238,-8,64],'demo.svg':[655,38,-6,40],'demo-opus5.svg':[655,38,-6,40]},foreman:{'hero.svg':[612,176,-10,64],'demo.svg':[650,40,-6,44]},razor:{'hero.svg':[632,284,-8,64],'demo.svg':[655,38,-6,40]}};
 const seal=plugin=>{
   const icon=fs.readFileSync(path.join(__dirname,'..','identity','source',plugin+'-light.svg'),'utf8');
   const group=icon.slice(icon.indexOf('<g'),icon.lastIndexOf('</svg>')).replace('stroke="#252820"','class="seal"').replaceAll('fill="var(--paper)"','class="seal-paper"').replaceAll('var(--accent)',icon.match(/--accent:(#[\da-f]{6})/)[1]);

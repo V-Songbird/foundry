@@ -12,7 +12,7 @@
 // project, the model, and one entry per turn: the text the user sent and the
 // `claude -p --output-format stream-json` transcript of Foreman's answer.
 // Transcripts stay in that ignored folder; the drawn SVG ships. Both themes ride on
-// prefers-color-scheme, like paper-trail.svg.
+// prefers-color-scheme, like the other kit graphics.
 
 const fs = require('node:fs');
 const path = require('node:path');
