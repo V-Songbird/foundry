@@ -43,10 +43,11 @@ node runner/run.js --selftest
 
 If it prints `all instruments valid`, you're good.
 
-**2. Smoke test** (one cheap task per arm, ~1 min, tiny spend) to confirm the plumbing actually drives `claude`. Set `BENCH_CONFIG_DIR` first, or it stops with exit 2:
+**2. Smoke test** (one cheap task per arm, ~1 min, tiny spend) to confirm the plumbing actually drives `claude`. Set `BENCH_CONFIG_DIR` and `RAZOR_BENCH_RUNS` (step 3 explains it) first, or it stops with exit 2:
 
 ```bash
 export BENCH_CONFIG_DIR=/path/outside/any/repo/razor-bench-config
+export RAZOR_BENCH_RUNS=/path/outside/any/repo/razor-bench-runs
 node runner/run.js --smoke
 ```
 
@@ -57,12 +58,9 @@ node runner/run.js --default
 node runner/report.js <the-run-dir-it-printed>
 ```
 
-`run.js` prints the exact run directory when it finishes. (Runs land in your system temp dir, *outside* your project, on purpose: each cell is a real Claude session with permissions bypassed, so keeping the workspaces out of any git tree means a sandboxed run can never touch your repo. Set `RAZOR_BENCH_RUNS` to put them elsewhere; the runner refuses, with exit 2, a folder inside a Git work tree.)
+`run.js` prints the exact run directory when it finishes, under `RAZOR_BENCH_RUNS`. Every live run needs that folder *outside* your project and outside your system temp dir. Each cell is a real Claude session with permissions bypassed, so the runner refuses, with exit 2, a folder inside a Git work tree, where a cell's git could touch your repo. It also refuses, with exit 2, its default folder, `razor-bench` in your system temp dir: razor treats anything under the temp dir or a `scratchpad` folder as scratch, so its new-file check never speaks there. If you set `RAZOR_BENCH_RUNS` to such a folder yourself, the run goes ahead with a warning. `--rescore` and `report.js` still look in the temp default when `RAZOR_BENCH_RUNS` is unset, so keep it set for them too.
 
-One consequence worth knowing: razor treats anything under your system temp
-directory as scratch, so the new-file check never speaks there. A run left at
-its default location cannot exercise that check. Point `RAZOR_BENCH_RUNS`
-somewhere outside the temp directory if that is what you are testing.
+**Runs affected.** Before this refusal, a run with `RAZOR_BENCH_RUNS` unset ran every cell under the temp dir, and razor's new-file check had that exemption from its first commit. Razor's [benchmark page](../../razor/docs/knowledge/benchmarks.md) does not record where its runs' workspaces sat, so treat each Claude Code run there (the corpus, the 2026-08-29 batch, the Opus 5 rival run and the checklist wording test) as not having exercised the new-file check. The held-out tests replay corpus sessions and inherit the same gap. The Codex runs are not affected: `codex-run.js` writes its workspaces under `.private/benchmarks/razor/`.
 
 **4. Go bigger** (optional) — every task, more reps, or the larger model (costs more):
 
@@ -186,4 +184,4 @@ It shows the file one no-plugin session and one razor session each delivered, as
 
 ## Where a run lands
 
-Each run writes `results.json` (one record per session — task, arm, model, cost, tokens, code size, dependency verdict, pass/fail) and `summary.json` into the run directory it prints when it finishes. `report.js` adds `report.md` and `charts.svg` there. That directory sits in your system temp dir unless `RAZOR_BENCH_RUNS` points it elsewhere, so nothing lands in your project and nothing leaves your machine. The front page's numbers came from a run of this same harness; run it yourself to regenerate them from scratch.
+Each run writes `results.json` (one record per session — task, arm, model, cost, tokens, code size, dependency verdict, pass/fail) and `summary.json` into the run directory it prints when it finishes. `report.js` adds `report.md` and `charts.svg` there. That directory sits under `RAZOR_BENCH_RUNS`, outside your project, and nothing leaves your machine. The front page's numbers came from a run of this same harness; run it yourself to regenerate them from scratch.

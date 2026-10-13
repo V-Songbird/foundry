@@ -64,8 +64,9 @@ const NOTE_TASKS = Object.keys(TASKS).filter((t) => TASKS[t].note);
 // Cells run in a scratch dir OUTSIDE this repo's git tree, on purpose. A cell is
 // a real Claude session with bypassPermissions; if it sat inside your project's
 // working tree, an auto-commit (or a stray `git` the agent runs) could sweep
-// files into your repo. Keeping every workspace under the system temp dir means a
-// sandboxed session can never touch your project. Override with RAZOR_BENCH_RUNS.
+// files into your repo. A live run also refuses the system temp dir, this
+// default, where razor's new-file check never speaks; set RAZOR_BENCH_RUNS.
+// Offline --rescore and the readers of RUNS_DIR still default to it.
 const RUNS_DIR = process.env.RAZOR_BENCH_RUNS
   ? path.resolve(process.env.RAZOR_BENCH_RUNS)
   : path.join(os.tmpdir(), 'razor-bench');
@@ -664,8 +665,23 @@ async function main() {
   while (!fs.existsSync(probe) && path.dirname(probe) !== probe) probe = path.dirname(probe);
   if (spawnSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: probe, stdio: 'ignore' }).status === 0) {
     console.error(`RAZOR_BENCH_RUNS ${RUNS_DIR} is inside a Git work tree. `
-      + 'Set it to a folder outside any repository, or unset it to use the system temp dir.');
+      + 'Set it to a folder outside any repository and outside the system temp dir.');
     process.exit(2);
+  }
+
+  // razor's new-file check exempts the system temp dir and any /scratchpad/
+  // folder (razor/hooks/file-meter.js, isExemptPath), so a run there never
+  // measures it. Refuse that by default; an explicit choice only gets a warning.
+  const normPath = (p) => path.resolve(p).replace(/\\/g, '/').toLowerCase();
+  const tmpRoot = normPath(os.tmpdir());
+  const runsPath = normPath(RUNS_DIR);
+  if (runsPath === tmpRoot || runsPath.startsWith(tmpRoot + '/') || runsPath.includes('/scratchpad/')) {
+    const why = `${RUNS_DIR} is under the system temp dir or a scratchpad folder, where razor's new-file check never speaks.`;
+    if (!process.env.RAZOR_BENCH_RUNS) {
+      console.error(`The default run folder ${why} Set RAZOR_BENCH_RUNS to a folder outside any repository and outside the temp dir.`);
+      process.exit(2);
+    }
+    console.error(`warning: RAZOR_BENCH_RUNS ${why}`);
   }
 
   // From here on the runner starts Claude sessions: keep their registry and

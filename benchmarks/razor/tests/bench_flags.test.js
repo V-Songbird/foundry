@@ -62,6 +62,44 @@ test('the Claude live runner refuses native Codex hooks before starting a model 
   }
 });
 
+// razor exempts the system temp dir from its new-file check, so a live run at
+// the default temp location could never measure it. BENCH_CONFIG_DIR is removed
+// and PATH is empty, so even a regression stops before a model session starts.
+test('a live run refuses the default temp run folder and warns on a chosen one', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const { spawnSync } = require('child_process');
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-temp-'));
+  const razor = path.join(fixture, 'razor');
+  fs.mkdirSync(path.join(razor, '.claude-plugin'), { recursive: true });
+  fs.writeFileSync(path.join(razor, '.claude-plugin', 'plugin.json'), '{"name":"razor"}');
+  const emptyBin = path.join(fixture, 'bin');
+  fs.mkdirSync(emptyBin);
+  const smoke = (extra) => {
+    const env = { ...process.env, RAZOR_DIR: razor, PATH: emptyBin, ...extra };
+    delete env.BENCH_CONFIG_DIR;
+    if (!extra.RAZOR_BENCH_RUNS) delete env.RAZOR_BENCH_RUNS;
+    const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
+      encoding: 'utf8', timeout: 60000, env,
+    });
+    assert.ifError(run.error);
+    return run;
+  };
+  try {
+    const byDefault = smoke({});
+    assert.equal(byDefault.status, 2, byDefault.stdout + byDefault.stderr);
+    assert.match(byDefault.stderr, /default run folder .* razor's new-file check never speaks/);
+    assert.doesNotMatch(byDefault.stderr, /Set BENCH_CONFIG_DIR/);
+
+    const chosen = smoke({ RAZOR_BENCH_RUNS: path.join(fixture, 'runs') });
+    assert.match(chosen.stderr, /warning: RAZOR_BENCH_RUNS .* never speaks/);
+    assert.match(chosen.stderr, /Set BENCH_CONFIG_DIR/, 'a chosen temp folder is not refused');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
 test('offline instruments work from the razor package', () => {
   const path = require('path');
   const { spawnSync } = require('child_process');
