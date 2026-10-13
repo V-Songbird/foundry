@@ -110,7 +110,7 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 | `TYPESAFE_API_KEY` | For Hush's `runner/judge.js`, `duel.js` and `criteria.js` | None | The key for the TypeSafe judge. These scripts send each run's final message to that external, paid service; nothing else in the harness does. |
 | `TYPESAFE_API_URL` | No | `https://api.typesafe.ai/v1/systemone` | Another endpoint for the same three scripts. |
 
-Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`.
+Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`. Every runner starts Claude with `--setting-sources project` or `project,local`, never `user`, so the `settings.json` and `CLAUDE.md` seeded there do not reach a bench session; the stored login still does.
 
 ## Limitations
 
