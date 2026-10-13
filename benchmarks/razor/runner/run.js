@@ -274,7 +274,7 @@ async function scoreCell(taskId, arm, model, ws) {
       resultText = j.result || '';
       if (j.is_error || j.api_error_status) {
         return { task: taskId, arm, model,
-          error: `api_error ${j.api_error_status}: ${String(resultText).slice(0, 120)}` };
+          error: `api_error ${j.api_error_status}: ${String(resultText).slice(0, 120)}`, cost: meta.cost };
       }
     } catch { resultText = ''; }
   }
@@ -607,7 +607,7 @@ function stampNow() {
 
 async function main() {
   const maxCost = parseMaxCost(flag('max-cost', null));
-  if (Number.isNaN(maxCost)) { console.error('--max-cost wants a positive number of US dollars'); process.exit(1); }
+  if (Number.isNaN(maxCost) || (has('max-cost') && maxCost === null)) { console.error('--max-cost wants a positive number of US dollars'); process.exit(1); }
   const bad = unknownFlags(argv);
   if (bad.length) {
     console.error(`unknown flag ${bad.join(' ')} -- this runner reads: ${KNOWN_FLAGS.map((f) => `--${f}`).join(' ')}`);

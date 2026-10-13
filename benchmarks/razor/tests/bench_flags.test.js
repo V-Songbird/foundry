@@ -40,14 +40,89 @@ test('--max-cost is a known flag and stops new cells once the summed cost reache
   assert.strictEqual(costCapReached(done, 1), true);
 });
 
-test('--max-cost refuses a non-positive value before any session starts', () => {
+// Both refusals run with BENCH_CONFIG_DIR removed and an empty PATH, so even a
+// regression stops before a model session can start.
+test('--max-cost refuses a non-positive or missing value before any session starts', () => {
+  const fs = require('fs');
+  const os = require('os');
   const path = require('path');
   const { spawnSync } = require('child_process');
-  const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke', '--max-cost', '0'],
-    { encoding: 'utf8', timeout: 30000 });
-  assert.ifError(run.error);
-  assert.equal(run.status, 1, run.stdout + run.stderr);
-  assert.match(run.stderr, /--max-cost wants a positive number/);
+  const emptyBin = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-maxcost-bin-'));
+  try {
+    const env = { ...process.env, PATH: emptyBin };
+    delete env.BENCH_CONFIG_DIR;
+    for (const args of [['--max-cost', '0'], ['--max-cost']]) {
+      const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke', ...args],
+        { encoding: 'utf8', timeout: 30000, env });
+      assert.ifError(run.error);
+      assert.equal(run.status, 1, args.join(' ') + run.stdout + run.stderr);
+      assert.match(run.stderr, /--max-cost wants a positive number/);
+    }
+  } finally {
+    fs.rmSync(emptyBin, { recursive: true, force: true });
+  }
+});
+
+// A fake claude first on PATH bills USD 0.6 per call, so with one worker and a
+// cap of 1 the second cell is the last one started: the third is never begun.
+test('--max-cost stops starting cells and results.json records why', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const { spawnSync } = require('child_process');
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-max-cost-'));
+  try {
+    const bin = path.join(fixture, 'bin');
+    const runs = path.join(fixture, 'runs');
+    const config = path.join(fixture, 'config');
+    fs.mkdirSync(bin);
+    fs.mkdirSync(config);
+    fs.writeFileSync(path.join(config, '.claude.json'), '{}');
+    const stream = [
+      { type: 'system', subtype: 'init', model: 'claude-test-model', session_id: 's1' },
+      { type: 'result', subtype: 'success', is_error: false, result: 'done', total_cost_usd: 0.6, num_turns: 1,
+        duration_ms: 10, session_id: 's1', usage: { input_tokens: 1, output_tokens: 1 } },
+    ].map((o) => JSON.stringify(o)).join('\n') + '\n';
+    const fake = path.join(bin, 'fake-claude.js');
+    fs.writeFileSync(fake, `if (process.argv.includes('--version')) { console.log('0.0.0 (fake)'); return; }\n`
+      + `process.stdout.write(${JSON.stringify(stream)});\n`);
+    fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
+    fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
+    const env = { ...process.env, RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config };
+    for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+    const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
+    env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
+    const r = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'),
+      '--task', 'dep-slug', '--arms', 'baseline', '--runs', '3', '--workers', '1', '--max-cost', '1'],
+    { cwd: path.resolve(__dirname, '..'), encoding: 'utf8', env, timeout: 120000 });
+    assert.ifError(r.error);
+    assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+    assert.match(r.stderr, /cost cap USD 1 reached at USD 1.2000, so 1 cells were not started/);
+    const [stamp] = fs.readdirSync(runs);
+    const res = JSON.parse(fs.readFileSync(path.join(runs, stamp, 'results.json'), 'utf8'));
+    assert.strictEqual(res.results.length, 2);
+    assert.strictEqual(res.max_cost, 1);
+    assert.strictEqual(res.cost_total, 1.2);
+    assert.match(res.stopped, /cost cap USD 1 reached/);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('a billed failed cell still counts toward the cost cap', async () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const { scoreCell, totalCost } = require('../runner/run.js');
+  const ws = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-failed-cell-'));
+  try {
+    fs.writeFileSync(path.join(ws, '_claude.json'), JSON.stringify({ is_error: true, result: 'max turns', total_cost_usd: 0.7 }));
+    const cell = await scoreCell('dep-slug', 'baseline', 'sonnet', ws);
+    assert.match(cell.error, /api_error/);
+    assert.strictEqual(totalCost([cell]), 0.7);
+  } finally {
+    fs.rmSync(ws, { recursive: true, force: true });
+  }
 });
 
 test('--models opus55 resolves to Claude Opus 5.5 and the older values keep their ids', () => {
