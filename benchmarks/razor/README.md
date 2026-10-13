@@ -125,9 +125,12 @@ the turns, counted from 1, whose reply carried the line or stopped to ask.
 on each turn from the first drift turn on, late notes (the first one after
 that turn), repeats, EARLY notes (before the drift turn, which on `note-steady`
 is any note) and balks. `balked` counts a balk on any turn, while the scorers
-check only some turns. Every cell also records `repetition` (its run index,
-from 0), `turn_count` (the calls it sent) and, for a conversation, `replies`
-(the turns that answered). A cell with fewer replies than the task has prompts,
+check only some turns. Every cell, including one that recorded an error,
+also records `repetition` (its run index, from 0; `null` when a Claude cell's
+folder name carries none) and `turn_count` (the calls it sent; `null` for a
+Claude cell from before the runner wrote that count). A note cell records
+`replies` (the turns that answered) when it was scored, so a Codex
+`runtime_failed` record has none. A cell with fewer replies than the task has prompts,
 such as one whose last turn died, or one that recorded an error, such as a lost
 login, or a Codex status other than `completed`, is left out of the counts and
 named under the table by its run index. The verdicts do not change.

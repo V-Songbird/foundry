@@ -280,14 +280,21 @@ function cellEnv(shimDir) {
 
 // --- scoring ----------------------------------------------------------------
 
-async function scoreCell(taskId, arm, model, ws) {
-  const task = TASKS[taskId];
-  const raw = extractResult(ws);
-  // The cell's run index, from its folder name <task>__<arm>__<model>__<run>, and
-  // the calls it sent (_sent.json; null for a cell from before that file).
+// The fields that name a cell in results.json: its run index, from its folder name
+// <task>__<arm>__<model>__<run>, and the calls it sent (_sent.json; null for a
+// cell from before that file). A crash record carries them too, so the tally can
+// name it.
+function cellId(taskId, arm, model, ws) {
   const name = path.basename(ws).split('__');
   const id = { task: taskId, arm, model, repetition: name.length === 4 && /^\d+$/.test(name[3]) ? Number(name[3]) : null, turn_count: null };
   try { id.turn_count = JSON.parse(fs.readFileSync(path.join(ws, '_sent.json'), 'utf8')); } catch { /* older cell */ }
+  return id;
+}
+
+async function scoreCell(taskId, arm, model, ws) {
+  const task = TASKS[taskId];
+  const raw = extractResult(ws);
+  const id = cellId(taskId, arm, model, ws);
   const meta = {};
   let resultText = '';
   let apiError = null;
@@ -487,7 +494,7 @@ async function runCell(taskId, arm, model, ws) {
     return await scoreCell(taskId, arm, model, ws);
   } catch (e) {
     // The session was billed even though scoring failed: keep its cost.
-    return { task: taskId, arm, model, error: String(e).slice(0, 200), cost: turns.reduce((s, t) => s + t.cost, 0) };
+    return { ...cellId(taskId, arm, model, ws), error: String(e).slice(0, 200), cost: turns.reduce((s, t) => s + t.cost, 0) };
   }
 }
 
@@ -785,7 +792,7 @@ async function main() {
       fs.mkdirSync(ws, { recursive: true });
       let res;
       try { res = await runCell(tid, arm, model, ws); }
-      catch (e) { res = { task: tid, arm, model, error: String(e).slice(0, 200) }; }
+      catch (e) { res = { ...cellId(tid, arm, model, ws), error: String(e).slice(0, 200) }; }
       results.push(res);
       done++;
       console.log(`  [${done}/${total}] ${tid} / ${arm} #${r}  LOC=${res.total_loc} `
@@ -813,6 +820,6 @@ async function main() {
   }
 }
 
-module.exports = { buildSessionStartArm, parseMaxCost, totalCost, costCapReached, buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
+module.exports = { cellId, buildSessionStartArm, parseMaxCost, totalCost, costCapReached, buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();
