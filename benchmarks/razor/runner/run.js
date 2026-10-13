@@ -79,7 +79,7 @@ const GUARD_TOOLS = ['Agent', 'Task', 'ScheduleWakeup', 'CronCreate', 'RemoteTri
 // razor's deny/inject markers, counted in the raw stream to show gate behavior.
 const MARKERS = {
   razor_dep_denies: 'adds a new ',       // dep-guard deny reason
-  razor_file_denies: 'razor: new file #', // file-meter deny reason
+  razor_file_denies: /razor: new (?:production )?file #/, // file-meter deny reason, default and RAZOR_FILE_BUDGET forms
   razor_ledger: 'razor ledger:',          // build-ledger question
 };
 
