@@ -54,12 +54,14 @@ const ARM_DIRS = { razor: RAZOR_DIR };
 
 // razor-start: a copy of RAZOR_DIR, built into each run's folder, whose drift
 // note rides the SessionStart injection once instead of every user prompt, so
-// one run compares the two delivery routes. The razor checkout never changes.
+// one run compares the two delivery routes. Every later turn of a conversation
+// is a `--resume` call, which fires SessionStart again with source "resume", so
+// the note goes out only on source "startup". The razor checkout never changes.
 // Each edit must match exactly once, so a razor change that moves either line
 // stops the run before any session starts instead of measuring the wrong copy.
 const SESSION_START_EDITS = [
   ['hooks/session-start.js', "emitContext('SessionStart', RULESET);",
-    "emitContext('SessionStart', settingOff('DRIFT_NOTE') ? RULESET : `${RULESET}\\n\\n${require('./razor-lib').DRIFT_NOTE}`);"],
+    "emitContext('SessionStart', data.source !== 'startup' || settingOff('DRIFT_NOTE') ? RULESET : `${RULESET}\\n\\n${require('./razor-lib').DRIFT_NOTE}`);"],
   ['hooks/mode-toggle.js', "emitContext('UserPromptSubmit', DRIFT_NOTE);", ''],
 ];
 function buildSessionStartArm(src, dest) {

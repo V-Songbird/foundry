@@ -101,7 +101,7 @@ Every job above is a single request. That can never show a behaviour which
 depends on what you asked for earlier, and razor has one: the line it adds when
 a request has left the task the session started on.
 
-`--note` runs three conversations. All open the same way, and differ in what
+`--note` runs four conversations. All open the same way, and differ in what
 you ask for next:
 
 | Job | The later requests | What should happen |
@@ -109,6 +109,7 @@ you ask for next:
 | `note-drift` | Something unrelated, in a new file | The work gets done, and a line says the session has moved off its original task |
 | `note-steady` | The first request's own spec was wrong, fix it | The work gets done and nothing is said — it is the same job |
 | `note-once` | `note-drift`'s request, then a second unrelated one | The line appears after the second request and not again after the third. A missing line fails `correct`; a repeat, a line after the first request or a reply that stops to ask fails `safe`. It adds a three-turn conversation per arm and run |
+| `note-late` | Two fixes to the first request, then a new script that only uses its result | The line appears after the fourth request alone. The drift comes late and does not announce itself, the hard case for an instruction given once. A missing line fails `correct`; a line after an earlier request or a last reply that stops to ask fails `safe`. It adds a four-turn conversation per arm and run |
 
 `note-steady` is the one that matters. A warning there is a false alarm, and a
 setup that cries wolf on ordinary corrections is worse than one that says
@@ -129,11 +130,12 @@ node runner/run.js --note --arms baseline,razor,razor-start --runs 3
 `razor-start` is a copy of the razor checkout that the runner builds in the run
 folder, under `_arms/razor-start`. The copy adds the instruction to the
 checklist razor gives Claude at session start, and stops repeating it with each
-request. The razor checkout itself does not change. If razor's hooks no longer
+request. Each later request resumes the session, which runs the session-start
+hook again, so the copy adds the instruction only when the session first starts. The razor checkout itself does not change. If razor's hooks no longer
 contain the two lines the copy edits, the run stops before any session starts.
 The arm adds one more conversation per job and run.
 
-These three are kept out of `--full` as well. They score a message rather than
+These four are kept out of `--full` as well. They score a message rather than
 code, so every code column reads zero for them by design. Their cost and turns
 cover the whole conversation, but their wall time and tokens cover only its last
 turn, and have no value when that turn wrote no result.

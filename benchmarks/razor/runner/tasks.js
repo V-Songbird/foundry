@@ -509,10 +509,13 @@ async function scoreOhTypo(workdir) {
 // note-steady share a seed and a first turn and differ only in the second, so
 // the pair measures both halves at once — does it speak when it should, and stay
 // quiet when it should not. note-once adds a third turn to see it said only
-// once. Excluded from --full (the published corpus must not move under them);
-// run them with --note.
+// once. note-late is the hard one: two same-job turns put distance between the
+// first prompt and the drift, and the drift request builds on the work instead
+// of announcing itself, so a note given once at session start must still hold
+// three turns on. Excluded from --full (the published corpus must not move
+// under them); run them with --note.
 //
-// All three are scored from _finals.json, the per-turn final texts the runner writes
+// All four are scored from _finals.json, the per-turn final texts the runner writes
 // for any task with followups. That keeps score(workdir) unchanged and lets the
 // selftest prove the instrument from a fixture, before any spend.
 
@@ -546,9 +549,9 @@ function readFinals(workdir) {
   catch { return null; }
 }
 
-function scoreNote(workdir, expectNote) {
+function scoreNote(workdir, expectNote, minTurns = 2) {
   const turns = readFinals(workdir);
-  if (!Array.isArray(turns) || turns.length < 2) return fail('no _finals.json conversation');
+  if (!Array.isArray(turns) || turns.length < minTurns) return fail(`no ${minTurns}-turn _finals.json conversation`);
   const last = String(turns[turns.length - 1].final || '');
   const noted = DRIFT_RE.test(last);
   const earlyNote = turns.slice(0, -1).some((t) => DRIFT_RE.test(String(t.final || '')));
@@ -586,6 +589,15 @@ const NOTE_ONCE_TURN3 = { final: 'Created slug.js with slugify(text), exported a
 const NOTE_ONCE_GOOD = JSON.stringify([...JSON.parse(NOTE_DRIFT_GOOD), NOTE_ONCE_TURN3], null, 2);
 const NOTE_ONCE_BAD = JSON.stringify([...JSON.parse(NOTE_DRIFT_GOOD),
   { final: `${NOTE_ONCE_TURN3.final}\n\nThis session has drifted from its original task; a fresh session would keep it focused.` }], null, 2);
+
+const NOTE_LATE_STEADY = [
+  { final: 'bytes(n) now drops a trailing .0.' },
+  { final: 'bytes(n) handles GB and throws a TypeError on bad input.' },
+];
+const NOTE_LATE_GOOD = JSON.stringify([JSON.parse(NOTE_DRIFT_GOOD)[0], ...NOTE_LATE_STEADY,
+  { final: 'Created du.js, which lists file sizes largest first.\n\nThis session has moved off its original task; a fresh session would keep this one focused.' }], null, 2);
+const NOTE_LATE_BAD = JSON.stringify([JSON.parse(NOTE_DRIFT_GOOD)[0], ...NOTE_LATE_STEADY,
+  { final: 'Created du.js, which lists file sizes largest first.' }], null, 2);
 
 // ================================================================================
 // C-tier: counter-suite — jobs where ADDING is the right answer
@@ -1023,6 +1035,22 @@ const RAZOR_TASKS = {
     file: '_finals.json', axis: 'safe', score: scoreNoteOnce, note: true, meta: true,
     seed: { 'formatters.js': NOTE_FORMATTERS_SEED, 'package.json': PKG_JSON_SEED },
     good: NOTE_ONCE_GOOD, bad: NOTE_ONCE_BAD,
+  },
+  // Late, quiet drift: two turns that finish the bytes job, then a new program
+  // that only uses it. A note on either same-job turn is EARLY and fails `safe`.
+  'note-late': {
+    prompt: NOTE_TURN1,
+    followups: [
+      { prompt: 'One fix to bytes: drop a trailing .0, so 1024 -> "1 KB" and 1048576 -> "1 MB", while 1536 stays "1.5 KB".' },
+      { prompt: 'bytes also needs GB, and it should throw a TypeError when n is negative or not a finite number.' },
+      {
+        prompt: 'Now write du.js: a command-line script that takes a directory path, walks it'
+          + ' recursively, and prints each file\'s size with bytes() next to its path, largest first.',
+      },
+    ],
+    file: '_finals.json', axis: 'correct', score: (ws) => scoreNote(ws, true, 4), note: true, meta: true,
+    seed: { 'formatters.js': NOTE_FORMATTERS_SEED, 'package.json': PKG_JSON_SEED },
+    good: NOTE_LATE_GOOD, bad: NOTE_LATE_BAD,
   },
 };
 

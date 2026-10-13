@@ -33,10 +33,11 @@ function hook(root, name, input, extra = {}) {
 }
 
 const cwd = fs.mkdtempSync(path.join(FIXTURE, 'ws-'));
-const start = { session_id: 'arm-s1', cwd };
+const start = { session_id: 'arm-s1', cwd, source: 'startup' };
+const resume = { ...start, source: 'resume' };
 const prompt = { session_id: 'arm-s1', cwd, prompt: 'Now something else entirely: write csv.js.' };
 
-test('the copy delivers the drift note at SessionStart and on no later prompt', () => {
+test('the copy delivers the drift note at session startup only, not on resume or any prompt', () => {
   const before = fs.readFileSync(path.join(RAZOR, 'hooks', 'mode-toggle.js'), 'utf8');
   const arm = buildSessionStartArm(RAZOR, path.join(FIXTURE, 'arm'));
   assert.strictEqual(fs.readFileSync(path.join(RAZOR, 'hooks', 'mode-toggle.js'), 'utf8'), before, 'razor checkout changed');
@@ -44,6 +45,9 @@ test('the copy delivers the drift note at SessionStart and on no later prompt', 
   assert.ok(fs.existsSync(path.join(arm, '.claude-plugin', 'plugin.json')));
 
   assert.strictEqual(hook(arm, 'session-start.js', start), `${RULESET}\n\n${DRIFT_NOTE}`);
+  // Each later turn is a --resume call, which fires SessionStart again: one injection only.
+  assert.strictEqual(hook(arm, 'session-start.js', resume), RULESET);
+  assert.strictEqual(hook(arm, 'session-start.js', { ...start, source: 'compact' }), RULESET);
   assert.strictEqual(hook(arm, 'mode-toggle.js', prompt), '');
   assert.strictEqual(hook(arm, 'session-start.js', start, { RAZOR_DRIFT_NOTE: 'off' }), RULESET);
 
