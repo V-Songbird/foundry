@@ -54,6 +54,8 @@ test('a dead second turn ends the conversation without repeating the first resul
     assert.deepEqual(finals, [{ final: 'turn one', cost: 0.5, turns: 1 }]);
     const cell = JSON.parse(run.stdout.trim().split('\n').pop());
     assert.equal(cell.cost, 0.5);
+    // Two calls sent, one reply; the folder name carries no run index.
+    assert.deepEqual([cell.turn_count, cell.replies, cell.repetition], [2, 1, null]);
     // The last turn wrote no result, so its duration and tokens are unknown,
     // not turn one's figures.
     for (const key of ['duration_ms', 'in_tokens', 'out_tokens', 'cache_tokens']) {

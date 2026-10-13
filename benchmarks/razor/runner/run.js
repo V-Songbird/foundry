@@ -283,6 +283,11 @@ function cellEnv(shimDir) {
 async function scoreCell(taskId, arm, model, ws) {
   const task = TASKS[taskId];
   const raw = extractResult(ws);
+  // The cell's run index, from its folder name <task>__<arm>__<model>__<run>, and
+  // the calls it sent (_sent.json; null for a cell from before that file).
+  const name = path.basename(ws).split('__');
+  const id = { task: taskId, arm, model, repetition: name.length === 4 && /^\d+$/.test(name[3]) ? Number(name[3]) : null, turn_count: null };
+  try { id.turn_count = JSON.parse(fs.readFileSync(path.join(ws, '_sent.json'), 'utf8')); } catch { /* older cell */ }
   const meta = {};
   let resultText = '';
   let apiError = null;
@@ -313,15 +318,14 @@ async function scoreCell(taskId, arm, model, ws) {
       const t = JSON.parse(fs.readFileSync(fj, 'utf8'));
       meta.cost = t.reduce((s, x) => s + (x.cost || 0), 0);
       meta.turns = t.reduce((s, x) => s + (x.turns || 0), 0);
-      let sent = 1 + (task.followups || []).length;
-      try { sent = JSON.parse(fs.readFileSync(path.join(ws, '_sent.json'), 'utf8')); } catch { /* older cell */ }
-      if (t.length < sent) {
+      meta.replies = t.length;
+      if (t.length < (id.turn_count ?? 1 + (task.followups || []).length)) {
         meta.duration_ms = meta.in_tokens = meta.out_tokens = meta.cache_tokens = null;
       }
     } catch { /* unreadable: keep _claude.json's figures, the last live turn's */ }
   }
   // A failed cell is still billed for every turn it ran, so its cost counts toward --max-cost.
-  if (apiError) return { task: taskId, arm, model, error: apiError, cost: meta.cost };
+  if (apiError) return { ...id, error: apiError, cost: meta.cost, replies: meta.replies };
   for (const [key, marker] of Object.entries(MARKERS)) {
     meta[key] = raw.split(marker).length - 1;
   }
@@ -354,7 +358,7 @@ async function scoreCell(taskId, arm, model, ws) {
 
   const sc = await task.score(ws);
   const notes = task.note ? noteTurns(ws) : {};
-  return { task: taskId, arm, model, ...sc, ...notes, ...stats, ...meta };
+  return { ...id, ...sc, ...notes, ...stats, ...meta };
 }
 
 // --- cell execution ---------------------------------------------------------

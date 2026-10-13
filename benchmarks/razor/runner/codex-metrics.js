@@ -6,7 +6,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
-const { RAZOR_TASKS, JS_ALLOWED } = require('./tasks.js');
+const { RAZOR_TASKS, JS_ALLOWED, noteTurns } = require('./tasks.js');
 const { CODE_EXT, isTest, codeStats, gitDiffStats, gitNewFiles, selfcheckSplit, pkgAddAttempts, jsNewDeps } = require('./metrics.js');
 
 const TOKEN_FIELDS = ['input_tokens', 'cached_input_tokens', 'output_tokens', 'reasoning_output_tokens'];
@@ -208,7 +208,10 @@ async function scoreCell(taskId, workdir, turns) {
     fs.writeFileSync(path.join(workdir, '_finals.json'), JSON.stringify(turns.map((turn) => ({ final: renderedFinalText(turn.lastMessage ?? '') }))));
   }
   const verdict = await task.score(workdir);
-  return { ...verdict, ...stats, install_attempts, behavior };
+  // A note cell records where its notes landed and how many turns completed, as
+  // run.js does, so report.js can tally it and leave out a short conversation.
+  const notes = task.note ? { ...noteTurns(workdir), replies: turns.filter((turn) => turn.completedTurns > 0).length } : {};
+  return { ...verdict, ...stats, install_attempts, behavior, ...notes };
 }
 
 function summarize(records) {

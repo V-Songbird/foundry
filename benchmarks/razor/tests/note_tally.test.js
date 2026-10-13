@@ -9,6 +9,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('../runner/tasks.js');
 const { noteTally } = require('../runner/report.js');
 
@@ -63,6 +64,68 @@ test('a cell whose last turn died (null duration_ms) is left out of the counts a
   const only = noteTally([cell([2], null)]);
   assert.strictEqual(only.filter((l) => l.startsWith('| note-')).length, 0);
   assert.match(only[only.length - 1], /1 cell\(s\)/);
+});
+
+test('a cell with fewer replies than prompts is left out and named by run index', () => {
+  const cell = (replies, repetition, extra = {}) => ({ task: 'note-once', arm: 'razor', model: 'sonnet', note_turns: [2], balked_turns: [], replies, repetition, ...extra });
+  const md = noteTally([
+    cell(3, 0),
+    cell(2, 1, { duration_ms: 100 }), // dead last turn, figures not nulled
+    cell(1, 2, { note_turns: undefined, error: 'api_error null: Login expired' }), // lost login
+    cell(2, 3, { turn_count: 2, status: 'completed' }), // Codex record cut short
+  ]);
+  assert.deepStrictEqual(md.filter((l) => l.startsWith('| note-')), ['| note-once | razor | 1 | t2 1/1 · t3 0/1 | 0 | 0 | 0 | 0 |']);
+  assert.match(md[md.length - 1], /fewer replies than prompts, 3 cell\(s\): note-once \/ razor #1, note-once \/ razor #2, note-once \/ razor #3\./);
+});
+
+test('a Codex note cell records its replies and note turns for the tally', async () => {
+  const { scoreCell } = require('../runner/codex-metrics.js');
+  const ws = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-note-codex-'));
+  try {
+    const done = (lastMessage) => ({ lastMessage, completedTurns: 1 });
+    const full = await scoreCell('note-once', ws, [done('Added bytes(n).'), done(`Created csv.js.\n\n${NOTE}`), done('Created slug.js.')]);
+    assert.deepStrictEqual([full.replies, full.note_turns, full.balked_turns], [3, [2], []]);
+    const short = await scoreCell('note-once', ws, [done('Added bytes(n).'), { lastMessage: null, completedTurns: 0 }]);
+    assert.strictEqual(short.replies, 1);
+    const md = noteTally([{ task: 'note-once', arm: 'razor', repetition: 0, ...full }, { task: 'note-once', arm: 'razor', repetition: 1, ...short }]);
+    assert.deepStrictEqual(md.filter((l) => l.startsWith('| note-')), ['| note-once | razor | 1 | t2 1/1 · t3 0/1 | 0 | 0 | 0 | 0 |']);
+    assert.match(md[md.length - 1], /1 cell\(s\): note-once \/ razor #1\./);
+  } finally {
+    fs.rmSync(ws, { recursive: true, force: true });
+  }
+});
+
+test('a lost login records the run index, the calls sent and the replies, and the tally names it', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-note-login-'));
+  const bin = path.join(fixture, 'bin');
+  const ws = path.join(fixture, 'note-drift__baseline__sonnet__1');
+  fs.mkdirSync(bin);
+  fs.mkdirSync(ws);
+  const text = 'Login expired · Run /login to sign in again';
+  const result = { type: 'result', is_error: true, result: text, total_cost_usd: 0, num_turns: 1, duration_ms: 50, session_id: 's1' };
+  const fake = path.join(bin, 'fake-claude.js');
+  fs.writeFileSync(fake, `process.stdout.write(${JSON.stringify(JSON.stringify(result) + '\n')});\n`);
+  fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
+  fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
+  const env = { ...process.env };
+  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  for (const k of Object.keys(env)) if (k.toUpperCase() === 'PATH') delete env[k];
+  env.PATH = bin;
+  const driver = `require(${JSON.stringify(path.resolve(__dirname, '../runner/run.js'))})`
+    + `.runCell('note-drift', 'baseline', 'sonnet', ${JSON.stringify(ws)})`
+    + '.then((r) => console.log(JSON.stringify(r)));';
+  try {
+    const run = spawnSync(process.execPath, ['-e', driver], { encoding: 'utf8', timeout: 60000, env });
+    assert.ifError(run.error);
+    assert.strictEqual(run.status, 0, run.stderr);
+    const cell = JSON.parse(run.stdout.trim().split('\n').pop());
+    assert.match(cell.error, /Login expired/);
+    assert.deepStrictEqual([cell.repetition, cell.turn_count, cell.replies], [1, 1, 1]);
+    const md = noteTally([cell]);
+    assert.match(md[md.length - 1], /1 cell\(s\): note-drift \/ baseline #1\./);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });
 
 test('no note cells, no tally section', () => {
