@@ -671,17 +671,19 @@ async function main() {
 
   // razor's new-file check exempts the system temp dir and any /scratchpad/
   // folder (razor/hooks/file-meter.js, isExemptPath), so a run there never
-  // measures it. Refuse that by default; an explicit choice only gets a warning.
+  // measures it. Refuse any such folder, the default and one hillclimb.js
+  // derives from it included, unless RAZOR_BENCH_ALLOW_TEMP=1 opts in.
   const normPath = (p) => path.resolve(p).replace(/\\/g, '/').toLowerCase();
   const tmpRoot = normPath(os.tmpdir());
   const runsPath = normPath(RUNS_DIR);
   if (runsPath === tmpRoot || runsPath.startsWith(tmpRoot + '/') || runsPath.includes('/scratchpad/')) {
-    const why = `${RUNS_DIR} is under the system temp dir or a scratchpad folder, where razor's new-file check never speaks.`;
-    if (!process.env.RAZOR_BENCH_RUNS) {
-      console.error(`The default run folder ${why} Set RAZOR_BENCH_RUNS to a folder outside any repository and outside the temp dir.`);
+    const why = `Run folder ${RUNS_DIR} is under the system temp dir or a scratchpad folder, where razor's new-file check never speaks.`;
+    if (process.env.RAZOR_BENCH_ALLOW_TEMP !== '1') {
+      console.error(`${why} Set RAZOR_BENCH_RUNS to a folder outside any repository and outside the temp dir, `
+        + 'or set RAZOR_BENCH_ALLOW_TEMP=1 to run there anyway.');
       process.exit(2);
     }
-    console.error(`warning: RAZOR_BENCH_RUNS ${why}`);
+    console.error(`warning: ${why}`);
   }
 
   // From here on the runner starts Claude sessions: keep their registry and

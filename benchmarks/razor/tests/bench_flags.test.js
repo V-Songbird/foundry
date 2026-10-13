@@ -65,7 +65,7 @@ test('the Claude live runner refuses native Codex hooks before starting a model 
 // razor exempts the system temp dir from its new-file check, so a live run at
 // the default temp location could never measure it. BENCH_CONFIG_DIR is removed
 // and PATH is empty, so even a regression stops before a model session starts.
-test('a live run refuses the default temp run folder and warns on a chosen one', () => {
+test('a live run refuses temp run folders unless RAZOR_BENCH_ALLOW_TEMP opts in', () => {
   const fs = require('fs');
   const os = require('os');
   const path = require('path');
@@ -80,6 +80,7 @@ test('a live run refuses the default temp run folder and warns on a chosen one',
     const env = { ...process.env, RAZOR_DIR: razor, PATH: emptyBin, ...extra };
     delete env.BENCH_CONFIG_DIR;
     if (!extra.RAZOR_BENCH_RUNS) delete env.RAZOR_BENCH_RUNS;
+    if (!extra.RAZOR_BENCH_ALLOW_TEMP) delete env.RAZOR_BENCH_ALLOW_TEMP;
     const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
       encoding: 'utf8', timeout: 60000, env,
     });
@@ -89,12 +90,19 @@ test('a live run refuses the default temp run folder and warns on a chosen one',
   try {
     const byDefault = smoke({});
     assert.equal(byDefault.status, 2, byDefault.stdout + byDefault.stderr);
-    assert.match(byDefault.stderr, /default run folder .* razor's new-file check never speaks/);
+    assert.match(byDefault.stderr, /Run folder .* razor's new-file check never speaks/);
     assert.doesNotMatch(byDefault.stderr, /Set BENCH_CONFIG_DIR/);
 
-    const chosen = smoke({ RAZOR_BENCH_RUNS: path.join(fixture, 'runs') });
-    assert.match(chosen.stderr, /warning: RAZOR_BENCH_RUNS .* never speaks/);
-    assert.match(chosen.stderr, /Set BENCH_CONFIG_DIR/, 'a chosen temp folder is not refused');
+    // hillclimb.js sets RAZOR_BENCH_RUNS to a folder under the temp default.
+    const runs = path.join(fixture, 'runs');
+    const chosen = smoke({ RAZOR_BENCH_RUNS: runs });
+    assert.equal(chosen.status, 2, chosen.stdout + chosen.stderr);
+    assert.match(chosen.stderr, /RAZOR_BENCH_ALLOW_TEMP=1/);
+    assert.doesNotMatch(chosen.stderr, /Set BENCH_CONFIG_DIR/);
+
+    const allowed = smoke({ RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1' });
+    assert.match(allowed.stderr, /warning: Run folder .* never speaks/);
+    assert.match(allowed.stderr, /Set BENCH_CONFIG_DIR/, 'an opted-in temp folder is not refused');
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }

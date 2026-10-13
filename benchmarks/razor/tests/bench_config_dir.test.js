@@ -20,7 +20,8 @@ function smoke(fixture, env) {
   const razor = path.join(fixture, 'razor');
   fs.mkdirSync(path.join(razor, '.claude-plugin'), { recursive: true });
   fs.writeFileSync(path.join(razor, '.claude-plugin', 'plugin.json'), '{"name":"razor"}');
-  const full = { ...process.env, RAZOR_DIR: razor, ...env };
+  // The fixtures sit in the temp dir, which a live run refuses without this.
+  const full = { ...process.env, RAZOR_DIR: razor, RAZOR_BENCH_ALLOW_TEMP: '1', ...env };
   delete full.BENCH_CONFIG_DIR;
   const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
     encoding: 'utf8', timeout: 60000, env: full,
