@@ -121,17 +121,22 @@ function fmt(v, digits) {
 // drift turn on. late: first note after the first drift turn. repeat: notes on
 // more than one turn from the drift on. EARLY: a note before the drift turn,
 // which on note-steady (no drift turn) is any note. balked: a turn that
-// stopped to ask, on any turn.
+// stopped to ask, on any turn. A cell whose last turn died has fewer
+// _finals.json records than turns sent, which run.js marks with a null
+// duration_ms; its missing turn would read as "no note", so it is left out of
+// the counts and named under the table.
 function noteTally(cells) {
   const groups = new Map();
+  const dead = [];
   for (const c of cells) {
     const task = RAZOR_TASKS[c.task];
     if (!task || !task.note || !Array.isArray(c.note_turns)) continue;
+    if (c.duration_ms === null) { dead.push(`${c.task} / ${c.arm}`); continue; }
     const k = `${c.task}\u0000${c.arm}`;
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(c);
   }
-  if (!groups.size) return [];
+  if (!groups.size && !dead.length) return [];
   const md = ['\n## Note tally (turns that carried the drift note)\n',
     '| task | arm | n | noted per turn | late | repeat | EARLY | balked |',
     '|---|---|--:|---|--:|--:|--:|--:|'];
@@ -150,6 +155,7 @@ function noteTally(cells) {
       + `| ${count((c) => c.note_turns.some((n) => n < drift))} `
       + `| ${count((c) => (c.balked_turns || []).length)} |`);
   }
+  if (dead.length) md.push(`\nLeft out, last turn dead (fewer replies than turns sent): ${dead.length} cell(s): ${dead.join(', ')}.`);
   return md;
 }
 

@@ -55,6 +55,16 @@ test('the tally counts recall per drift turn, late, repeat, EARLY and balked per
   ]);
 });
 
+test('a cell whose last turn died (null duration_ms) is left out of the counts and named', () => {
+  const cell = (note_turns, duration_ms) => ({ task: 'note-once', arm: 'razor', model: 'sonnet', note_turns, balked_turns: [], duration_ms });
+  const md = noteTally([cell([2], 100), cell([2], null)]);
+  assert.deepStrictEqual(md.filter((l) => l.startsWith('| note-')), ['| note-once | razor | 1 | t2 1/1 · t3 0/1 | 0 | 0 | 0 | 0 |']);
+  assert.match(md[md.length - 1], /1 cell\(s\): note-once \/ razor/);
+  const only = noteTally([cell([2], null)]);
+  assert.strictEqual(only.filter((l) => l.startsWith('| note-')).length, 0);
+  assert.match(only[only.length - 1], /1 cell\(s\)/);
+});
+
 test('no note cells, no tally section', () => {
   assert.deepStrictEqual(noteTally([{ task: 'dep-slug', arm: 'razor', correct: 1, safe: 1 }]), []);
 });
