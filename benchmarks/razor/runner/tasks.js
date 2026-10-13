@@ -512,7 +512,7 @@ async function scoreOhTypo(workdir) {
 // once. Excluded from --full (the published corpus must not move under them);
 // run them with --note.
 //
-// Both are scored from _finals.json, the per-turn final texts the runner writes
+// All three are scored from _finals.json, the per-turn final texts the runner writes
 // for any task with followups. That keeps score(workdir) unchanged and lets the
 // selftest prove the instrument from a fixture, before any spend.
 

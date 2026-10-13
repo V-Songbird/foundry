@@ -69,7 +69,7 @@ node runner/run.js --full --runs 3      # every task, 3 reps each
 node runner/run.js --default --models opus
 ```
 
-Flags: `--task a,b` (pick tasks) · `--arms baseline,razor` · `--full` (whole suite) · `--counter` (the other suite, below) · `--note` (the note suite, below) · `--runs N` · `--models sonnet|opus|opus55` · `--effort low|medium|high` (reasoning effort for every cell; left to the CLI default when unset) · `--workers N` · `--max-cost USD` (stop starting cells once the summed cost of finished cells, every billed turn of a failed cell included, reaches it; cells already running finish, and `results.json` records `max_cost`, `cost_total` and `stopped`, which stays null when no cell was skipped; `runner/hillclimb.js` keeps the cells of a capped run) · `--seed N` (replay an earlier run's arm order) · `--rescore <run-dir>` (recompute metrics offline, no API) · `RAZOR_DIR` (override the razor plugin location).
+Flags: `--task a,b` (pick tasks) · `--arms baseline,razor` (`razor-start` is a third arm, see the note suite) · `--full` (whole suite) · `--counter` (the other suite, below) · `--note` (the note suite, below) · `--runs N` · `--models sonnet|opus|opus55` · `--effort low|medium|high` (reasoning effort for every cell; left to the CLI default when unset) · `--workers N` · `--max-cost USD` (stop starting cells once the summed cost of finished cells, every billed turn of a failed cell included, reaches it; cells already running finish, and `results.json` records `max_cost`, `cost_total` and `stopped`, which stays null when no cell was skipped; `runner/hillclimb.js` keeps the cells of a capped run) · `--seed N` (replay an earlier run's arm order) · `--rescore <run-dir>` (recompute metrics offline, no API) · `RAZOR_DIR` (override the razor plugin location).
 
 The setups take turns in a shuffled order rather than one finishing before the next starts, so neither pays more of the cold-start cost than the other. The run prints its seed and saves it — pass `--seed` to repeat the exact same order.
 
@@ -108,7 +108,7 @@ you ask for next:
 | --- | --- | --- |
 | `note-drift` | Something unrelated, in a new file | The work gets done, and a line says the session has moved off its original task |
 | `note-steady` | The first request's own spec was wrong, fix it | The work gets done and nothing is said — it is the same job |
-| `note-once` | `note-drift`'s request, then a second unrelated one | The line appears after the second request and not again after the third. A missing line fails `correct`; a repeat fails `safe` |
+| `note-once` | `note-drift`'s request, then a second unrelated one | The line appears after the second request and not again after the third. A missing line fails `correct`; a repeat, a line after the first request or a reply that stops to ask fails `safe`. It adds a three-turn conversation per arm and run |
 
 `note-steady` is the one that matters. A warning there is a false alarm, and a
 setup that cries wolf on ordinary corrections is worse than one that says
@@ -117,6 +117,21 @@ nothing at all.
 ```bash
 node runner/run.js --note --arms baseline,razor --runs 3
 ```
+
+Razor repeats its instruction for that line with every request. To compare that
+with giving the instruction once, when the session starts, add the `razor-start`
+arm:
+
+```bash
+node runner/run.js --note --arms baseline,razor,razor-start --runs 3
+```
+
+`razor-start` is a copy of the razor checkout that the runner builds in the run
+folder, under `_arms/razor-start`. The copy adds the instruction to the
+checklist razor gives Claude at session start, and stops repeating it with each
+request. The razor checkout itself does not change. If razor's hooks no longer
+contain the two lines the copy edits, the run stops before any session starts.
+The arm adds one more conversation per job and run.
 
 These three are kept out of `--full` as well. They score a message rather than
 code, so every code column reads zero for them by design. Their cost and turns

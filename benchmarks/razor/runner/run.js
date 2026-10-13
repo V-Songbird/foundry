@@ -13,6 +13,7 @@
 // Two arms ship by default:
 //   baseline  no plugin — the fair agent baseline
 //   razor     Foundry's razor/ checkout, or env RAZOR_DIR
+// --arms razor-start adds razor with its drift note at SessionStart only.
 // Bring your own third arm with --rival-dir <path-to-a-plugin>.
 //
 //   node runner/run.js --selftest        # prove every instrument, no API spend. Run first.
@@ -50,6 +51,29 @@ const TASKS = RAZOR_TASKS;
 
 // Arms: baseline + razor always, plus an optional user-supplied rival.
 const ARM_DIRS = { razor: RAZOR_DIR };
+
+// razor-start: a copy of RAZOR_DIR, built into each run's folder, whose drift
+// note rides the SessionStart injection once instead of every user prompt, so
+// one run compares the two delivery routes. The razor checkout never changes.
+// Each edit must match exactly once, so a razor change that moves either line
+// stops the run before any session starts instead of measuring the wrong copy.
+const SESSION_START_EDITS = [
+  ['hooks/session-start.js', "emitContext('SessionStart', RULESET);",
+    "emitContext('SessionStart', settingOff('DRIFT_NOTE') ? RULESET : `${RULESET}\\n\\n${require('./razor-lib').DRIFT_NOTE}`);"],
+  ['hooks/mode-toggle.js', "emitContext('UserPromptSubmit', DRIFT_NOTE);", ''],
+];
+function buildSessionStartArm(src, dest) {
+  fs.rmSync(dest, { recursive: true, force: true });
+  fs.cpSync(src, dest, { recursive: true, filter: (p) => path.basename(p) !== '.git' });
+  for (const [file, from, to] of SESSION_START_EDITS) {
+    const f = path.join(dest, file);
+    const text = fs.readFileSync(f, 'utf8');
+    if (text.split(from).length !== 2) throw new Error(`razor-start: ${file} no longer holds ${from} exactly once`);
+    fs.writeFileSync(f, text.split(from).join(to));
+  }
+  return dest;
+}
+const BUILT_ARMS = { 'razor-start': (dest) => buildSessionStartArm(RAZOR_DIR, dest) };
 const MODELS = { sonnet: 'claude-sonnet-5', opus: 'claude-opus-5', opus55: 'claude-opus-5-5' };
 
 // A small default subset across the tiers so a curious run is cheap; --full runs everything.
@@ -655,7 +679,7 @@ async function main() {
   const rivalName = rivalDir ? flag('rival-name', 'rival') : null;
   const defaultArms = ['baseline', 'razor', ...(rivalDir ? [rivalName] : [])];
   const arms = flag('arms', null) ? flag('arms').split(',').map((a) => a.trim()) : defaultArms;
-  const badArms = arms.filter((a) => a !== 'baseline' && !(a in ARM_DIRS));
+  const badArms = arms.filter((a) => a !== 'baseline' && !(a in ARM_DIRS) && !(a in BUILT_ARMS));
   if (badArms.length) { console.error(`unknown arms ${badArms} (rival needs --rival-dir)`); process.exit(1); }
 
   // This runner drives Claude. Native Codex hooks cannot be measured by
@@ -713,6 +737,10 @@ async function main() {
   const stamp = stampNow();
   const outDir = path.join(RUNS_DIR, stamp);
   fs.mkdirSync(outDir, { recursive: true });
+  for (const arm of arms.filter((a) => !(a in ARM_DIRS) && a in BUILT_ARMS)) {
+    try { ARM_DIRS[arm] = BUILT_ARMS[arm](path.join(outDir, '_arms', arm)); }
+    catch (e) { console.error(String(e.message || e)); process.exit(1); }
+  }
 
   const seed = flag('seed', null) ?? String(Date.now());
   const cells = buildQueue(taskIds, models, arms, runs, seed);
@@ -778,6 +806,6 @@ async function main() {
   }
 }
 
-module.exports = { parseMaxCost, totalCost, costCapReached, buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
+module.exports = { buildSessionStartArm, parseMaxCost, totalCost, costCapReached, buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();
