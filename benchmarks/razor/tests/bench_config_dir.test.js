@@ -78,3 +78,30 @@ test('the Claude runner refuses a RAZOR_BENCH_RUNS inside a Git work tree', () =
     fs.rmSync(fixture, { recursive: true, force: true });
   }
 });
+
+test('seeding the bench config folder copies settings and login but never CLAUDE.md', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-bench-seed-'));
+  const home = path.join(fixture, 'home');
+  const real = path.join(home, '.claude');
+  const dir = path.join(fixture, 'cfg');
+  fs.mkdirSync(path.join(real, 'plugins'), { recursive: true });
+  fs.writeFileSync(path.join(home, '.claude.json'), '{"projects":{"x":{}}}');
+  for (const name of ['settings.json', 'CLAUDE.md', '.credentials.json']) fs.writeFileSync(path.join(real, name), 'fake');
+  fs.writeFileSync(path.join(real, 'plugins', 'p.json'), 'fake');
+  try {
+    // os.homedir() reads USERPROFILE on Windows and HOME elsewhere.
+    const code = `require(${JSON.stringify(path.resolve(__dirname, '../../bench-config-dir.js'))})()`;
+    const run = spawnSync(process.execPath, ['-e', code], {
+      encoding: 'utf8', timeout: 60000,
+      env: { ...process.env, HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir },
+    });
+    assert.ifError(run.error);
+    assert.equal(run.status, 0, run.stderr);
+    for (const name of ['settings.json', '.credentials.json', '.claude.json', path.join('plugins', 'p.json')]) {
+      assert.equal(fs.existsSync(path.join(dir, name)), true, name);
+    }
+    assert.equal(fs.existsSync(path.join(dir, 'CLAUDE.md')), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
