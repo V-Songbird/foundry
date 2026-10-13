@@ -26,6 +26,7 @@ const { parseTranscript, checkTask, readDebugManifest, assertUsableRun } = requi
 const { makeRng, shuffled, hashSeed } = require('./stats.js');
 const { writeRecord } = require('./records.js');
 const { workspaceName, pluginProvenance } = require('./provenance.js');
+const { readStream } = require('../../hillclimb.js');
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/hush
 const { pluginDir, dataDir } = require('../../paths.js');
@@ -382,6 +383,8 @@ function retain(key, record) {
   }
 }
 
+let loginLost = null; // the key of the first cell whose session reported a lost login
+
 async function oneRun(task, arm, rep, orderIndex) {
   const key = `${task.id}__${arm}__r${rep}`;
   const done = completedRun(key);
@@ -417,6 +420,9 @@ async function oneRun(task, arm, rep, orderIndex) {
     calls.push(r.stdout);
     stderrAll += r.stderr;
     if (r.code !== 0 && !r.stdout.trim()) break; // hard spawn failure: stop the chain
+    // A lost login answers every later call the same way: stop the chain, and
+    // main() starts no further cell.
+    if (readStream(r.stdout, [prompts[i]]).failure === 'auth_error') { loginLost = key; break; }
   }
   const wallMs = Date.now() - started;
   fs.writeFileSync(path.join(outDir, 'transcripts', `${key}.jsonl`), calls.join('\n'));
@@ -507,13 +513,19 @@ async function main() {
   const results = [];
   let idx = 0;
   async function worker() {
-    while (idx < queue.length) {
+    while (idx < queue.length && !loginLost) {
       const i = idx++;
       const [task, arm, r] = queue[i];
       results.push(await oneRun(task, arm, r, i));
     }
   }
   await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker));
+  if (loginLost) {
+    console.error(`\nstopped: ${loginLost} reported a lost login, so ${queue.length - results.length} cells were not started. `
+      + `The login stored in BENCH_CONFIG_DIR (${process.env.BENCH_CONFIG_DIR}) has expired: sign in again, then delete `
+      + 'its .claude.json so the next run seeds it again from ~/.claude, and rerun with --resume.');
+    process.exitCode = 1;
+  }
 
   const failures = results.filter((r) => !r.check || !r.check.pass);
   console.log(`\ndone: ${results.length - failures.length}/${results.length} passed ground truth`);

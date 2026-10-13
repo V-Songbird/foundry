@@ -34,6 +34,7 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
+const { loginLost } = require('../../hillclimb.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
   selfcheckSplit,
@@ -396,6 +397,8 @@ function lastResult(ws, from) {
   return result;
 }
 
+const LOGIN_LOST = { cell: null }; // the first cell whose session reported a lost login
+
 async function runCell(taskId, arm, model, ws) {
   const task = TASKS[taskId];
   for (const [fn, content] of Object.entries(task.seed || {})) {
@@ -425,6 +428,9 @@ async function runCell(taskId, arm, model, ws) {
     if (!r) break; // a dead turn ends the conversation; the scorer fails the cell
     resume = r.session_id || resume;
     turns.push({ final: String(r.result || ''), cost: r.total_cost_usd || 0, turns: r.num_turns || 0 });
+    // A lost login answers every later turn the same way: stop the
+    // conversation, and main() starts no further cell.
+    if (loginLost(r)) { LOGIN_LOST.cell = path.basename(ws); break; }
   }
   fs.writeFileSync(path.join(ws, '_claude.stderr.txt'), stderrs.join('\n---\n'));
   fs.writeFileSync(path.join(ws, '_sent.json'), JSON.stringify(stderrs.length)); // calls sent, for runner/hillclimb.js
@@ -694,7 +700,7 @@ async function main() {
 
   let idx = 0;
   async function worker() {
-    while (idx < cells.length) {
+    while (idx < cells.length && !LOGIN_LOST.cell) {
       const [tid, arm, model, r] = cells[idx++];
       const ws = path.join(outDir, `${tid}__${arm}__${model}__${r}`);
       fs.mkdirSync(ws, { recursive: true });
@@ -715,8 +721,14 @@ async function main() {
   printTable(rows);
   console.log(`\nwrote ${outDir}${path.sep}results.json + summary.json (${results.length} cells)`);
   console.log(`\nnext: node runner/report.js ${outDir}`);
+  if (LOGIN_LOST.cell) {
+    console.error(`\nstopped: ${LOGIN_LOST.cell} reported a lost login, so ${total - results.length} cells were not started. `
+      + `The login stored in BENCH_CONFIG_DIR (${process.env.BENCH_CONFIG_DIR}) has expired: sign in again, then delete `
+      + 'its .claude.json so the next run seeds it again from ~/.claude.');
+    process.exitCode = 1;
+  }
 }
 
-module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
+module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();

@@ -85,7 +85,7 @@ Each call writes three things under `<flow>/<variant>/`:
 
 - `results.jsonl`: one row per case and rep, with `prompt_id`, `rep`, `prompt`, `tags`, `grade`, `model`, `usage` and `latency_s`. `model` comes from the API response, not from the requested alias.
 - `traces/<id>_rep<k>.json`: that attempt's conversation.
-- `errors.jsonl`: attempts with no scorable output, such as a killed session, a rate-limited call or an API error, each with a `failure_class`.
+- `errors.jsonl`: attempts with no scorable output, such as a killed session, a rate-limited call or an API error, each with a `failure_class`. A session whose stored login has expired is `auth_error`; Hush's and Razor's runners stop the batch after the first one and name `BENCH_CONFIG_DIR`.
 
 The `grade` metrics are `pass` and `score` for Hush, `pass`, `correct` and `safe` for Razor, and `pass` and `tests` for Foreman. Git ignores `.claude/hillclimb/`, so the loop's transcripts and reports stay out of the repository.
 

@@ -35,6 +35,12 @@ function toolText(content) {
     .map((p) => (p.type === 'text' ? p.text : `<[${p.type}]>`)).join('\n');
 }
 
+// A result event the CLI wrote because the stored login is gone or expired,
+// such as "Login expired · Run /login ...": every later call answers the same.
+function loginLost(result) {
+  return Boolean(result?.is_error && /login expired|run \/login|not logged in|invalid api key/i.test(String(result.result ?? '')));
+}
+
 // One attempt's `claude -p --output-format stream-json` output, which may hold
 // several calls in a row (each starts with a system/init event). `prompts` are
 // the user messages in call order: stream-json never echoes them. `sent` is how
@@ -87,6 +93,7 @@ function readStream(jsonl, prompts, sent = prompts.length) {
   // first, since it is usually why a later call wrote nothing.
   let failure = null;
   if (/you\s*['’]?ve hit your (session|usage|weekly) limit/i.test(finalText)) failure = 'rate_limited';
+  else if (results.some(loginLost)) failure = 'auth_error';
   else if (results.some((r) => r.subtype !== 'error_max_turns' && (r.is_error || /^error/.test(r.subtype || '')))) failure = 'serving_error';
   else if (results.length < Math.max(1, calls, sent)) failure = 'no_result';
   else if (!model) failure = 'no_model';
@@ -225,4 +232,4 @@ async function main(suite, argv = process.argv.slice(2)) {
   return out.rows ? 0 : 1;
 }
 
-module.exports = { readStream, writeVariant, scratchCopy, regrade, main, FOUNDRY };
+module.exports = { readStream, loginLost, writeVariant, scratchCopy, regrade, main, FOUNDRY };
