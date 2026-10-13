@@ -101,13 +101,14 @@ Every job above is a single request. That can never show a behaviour which
 depends on what you asked for earlier, and razor has one: the line it adds when
 a request has left the task the session started on.
 
-`--note` runs two conversations. Both open the same way, and differ only in
-what you ask for second:
+`--note` runs three conversations. All open the same way, and differ in what
+you ask for next:
 
-| Job | The second request | What should happen |
+| Job | The later requests | What should happen |
 | --- | --- | --- |
 | `note-drift` | Something unrelated, in a new file | The work gets done, and a line says the session has moved off its original task |
 | `note-steady` | The first request's own spec was wrong, fix it | The work gets done and nothing is said — it is the same job |
+| `note-once` | `note-drift`'s request, then a second unrelated one | The line appears after the second request and not again after the third. A missing line fails `correct`; a repeat fails `safe` |
 
 `note-steady` is the one that matters. A warning there is a false alarm, and a
 setup that cries wolf on ordinary corrections is worse than one that says
@@ -117,7 +118,7 @@ nothing at all.
 node runner/run.js --note --arms baseline,razor --runs 3
 ```
 
-These two are kept out of `--full` as well. They score a message rather than
+These three are kept out of `--full` as well. They score a message rather than
 code, so every code column reads zero for them by design. Their cost and turns
 cover the whole conversation, but their wall time and tokens cover only its last
 turn, and have no value when that turn wrote no result.

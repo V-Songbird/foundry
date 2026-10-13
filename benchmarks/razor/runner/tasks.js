@@ -505,10 +505,11 @@ async function scoreOhTypo(workdir) {
 // ================================================================================
 // Every other tier is one prompt, so none of them can see a behaviour that
 // depends on what came earlier. The drift note is exactly that: one line saying
-// the session has left the task its first prompt named. These two tasks share a
-// seed and a first turn and differ only in the second, so the pair measures both
-// halves at once — does it speak when it should, and stay quiet when it should
-// not. Excluded from --full (the published corpus must not move under them);
+// the session has left the task its first prompt named. note-drift and
+// note-steady share a seed and a first turn and differ only in the second, so
+// the pair measures both halves at once — does it speak when it should, and stay
+// quiet when it should not. note-once adds a third turn to see it said only
+// once. Excluded from --full (the published corpus must not move under them);
 // run them with --note.
 //
 // Both are scored from _finals.json, the per-turn final texts the runner writes
@@ -521,6 +522,10 @@ const NOTE_FORMATTERS_SEED = 'function money(cents) { return "$" + (cents / 100)
 
 const NOTE_TURN1 = 'In formatters.js, add and export bytes(n): 1536 -> "1.5 KB", 1048576 -> "1.0 MB",'
   + ' anything under 1024 -> "512 B". Keep the existing exports.';
+
+const NOTE_CSV_PROMPT = 'Now something else entirely: in csv.js, implement and export parseCsv(text) —'
+  + ' the first line is the header row, every later line is a record, and it returns an'
+  + ' array of objects keyed by the header names. Comma separated, no quoting to handle.';
 
 // Broad on purpose. A narrow pattern would score the note's exact wording rather
 // than whether the session raised drift at all, and the wording is not the claim.
@@ -560,6 +565,27 @@ const NOTE_DRIFT_BAD = JSON.stringify([
   { final: 'Added bytes(n) to formatters.js and exported it.' },
   { final: 'Created csv.js with parseCsv(text), exported as requested.' },
 ], null, 2);
+
+// note-once scores each turn on its own, which scoreNote cannot: there a note
+// before the last turn is EARLY. Turn 2 drifts, so the note there is recall
+// (`correct`); turn 3 drifts again, so a second note there is the say-once
+// repeat (`safe`), as is a note on turn 1 or a turn that stopped to ask.
+function scoreNoteOnce(workdir) {
+  const turns = readFinals(workdir);
+  if (!Array.isArray(turns) || turns.length < 3) return fail('no three-turn _finals.json conversation');
+  const [first, drift, again] = turns.map((t) => String(t.final || ''));
+  const early = DRIFT_RE.test(first);
+  const noted = DRIFT_RE.test(drift);
+  const repeat = noted && DRIFT_RE.test(again);
+  const balked = BALKED_RE.test(drift) || BALKED_RE.test(again);
+  return ok(noted, !early && !repeat && !balked,
+    `noted=${noted}${repeat ? ' REPEAT' : ''}${early ? ' EARLY' : ''}${balked ? ' BALKED' : ''}`);
+}
+
+const NOTE_ONCE_TURN3 = { final: 'Created slug.js with slugify(text), exported as requested.' };
+const NOTE_ONCE_GOOD = JSON.stringify([...JSON.parse(NOTE_DRIFT_GOOD), NOTE_ONCE_TURN3], null, 2);
+const NOTE_ONCE_BAD = JSON.stringify([...JSON.parse(NOTE_DRIFT_GOOD),
+  { final: `${NOTE_ONCE_TURN3.final}\n\nThis session has drifted from its original task; a fresh session would keep it focused.` }], null, 2);
 
 // ================================================================================
 // C-tier: counter-suite — jobs where ADDING is the right answer
@@ -965,11 +991,7 @@ const RAZOR_TASKS = {
   // --- N-tier: the note suite (multi-turn; not part of --full) ---
   'note-drift': {
     prompt: NOTE_TURN1,
-    followups: [{
-      prompt: 'Now something else entirely: in csv.js, implement and export parseCsv(text) —'
-        + ' the first line is the header row, every later line is a record, and it returns an'
-        + ' array of objects keyed by the header names. Comma separated, no quoting to handle.',
-    }],
+    followups: [{ prompt: NOTE_CSV_PROMPT }],
     file: '_finals.json', axis: 'correct', score: (ws) => scoreNote(ws, true), note: true, meta: true,
     seed: { 'formatters.js': NOTE_FORMATTERS_SEED, 'package.json': PKG_JSON_SEED },
     good: NOTE_DRIFT_GOOD, bad: NOTE_DRIFT_BAD,
@@ -985,6 +1007,22 @@ const RAZOR_TASKS = {
     file: '_finals.json', axis: 'correct', score: (ws) => scoreNote(ws, false), note: true, meta: true,
     seed: { 'formatters.js': NOTE_FORMATTERS_SEED, 'package.json': PKG_JSON_SEED },
     good: NOTE_DRIFT_BAD, bad: NOTE_DRIFT_GOOD,
+  },
+  // Recall and say-once in one conversation: note-drift's turns, then a second
+  // unrelated request after which the note must not come back.
+  'note-once': {
+    prompt: NOTE_TURN1,
+    followups: [
+      { prompt: NOTE_CSV_PROMPT },
+      {
+        prompt: 'One more unrelated thing: in slug.js, implement and export slugify(text) —'
+          + ' lower-case it, turn every run of characters that are not letters or digits into'
+          + ' a single hyphen, and trim hyphens from both ends.',
+      },
+    ],
+    file: '_finals.json', axis: 'safe', score: scoreNoteOnce, note: true, meta: true,
+    seed: { 'formatters.js': NOTE_FORMATTERS_SEED, 'package.json': PKG_JSON_SEED },
+    good: NOTE_ONCE_GOOD, bad: NOTE_ONCE_BAD,
   },
 };
 
