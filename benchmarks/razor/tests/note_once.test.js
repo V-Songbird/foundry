@@ -96,6 +96,7 @@ test('runCell sends all three turns and scores the repeat', () => {
     assert.deepEqual(finals.map((t) => t.final), answers);
     const cell = JSON.parse(run.stdout.trim().split('\n').pop());
     assert.deepStrictEqual([cell.correct, cell.safe], [1, 0], cell.reason);
+    assert.deepStrictEqual([cell.note_turns, cell.balked_turns], [[2, 3], []]);
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }

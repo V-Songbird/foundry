@@ -33,7 +33,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
-const { RAZOR_TASKS } = require('./tasks.js');
+const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
 const {
@@ -353,7 +353,8 @@ async function scoreCell(taskId, arm, model, ws) {
   }
 
   const sc = await task.score(ws);
-  return { task: taskId, arm, model, ...sc, ...stats, ...meta };
+  const notes = task.note ? noteTurns(ws) : {};
+  return { task: taskId, arm, model, ...sc, ...notes, ...stats, ...meta };
 }
 
 // --- cell execution ---------------------------------------------------------

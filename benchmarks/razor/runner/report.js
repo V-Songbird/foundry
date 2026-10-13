@@ -11,6 +11,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { RAZOR_TASKS } = require('./tasks.js');
 
 // Same out-of-tree location run.js writes runs to (kept in sync via RAZOR_BENCH_RUNS).
 const RUNS_BASE = process.env.RAZOR_BENCH_RUNS
@@ -113,6 +114,45 @@ function fmt(v, digits) {
   return digits !== undefined ? Number(v).toFixed(digits) : String(v);
 }
 
+// The note tally: per note task and arm, where the notes landed. It reads the
+// note_turns and balked_turns run.js records per note cell in results.json
+// (cells from before those fields are skipped), so reviewers need no tally
+// script of their own. noted: cells with a note on each turn from the first
+// drift turn on. late: first note after the first drift turn. repeat: notes on
+// more than one turn from the drift on. EARLY: a note before the drift turn,
+// which on note-steady (no drift turn) is any note. balked: a turn that
+// stopped to ask, on any turn.
+function noteTally(cells) {
+  const groups = new Map();
+  for (const c of cells) {
+    const task = RAZOR_TASKS[c.task];
+    if (!task || !task.note || !Array.isArray(c.note_turns)) continue;
+    const k = `${c.task}\u0000${c.arm}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(c);
+  }
+  if (!groups.size) return [];
+  const md = ['\n## Note tally (turns that carried the drift note)\n',
+    '| task | arm | n | noted per turn | late | repeat | EARLY | balked |',
+    '|---|---|--:|---|--:|--:|--:|--:|'];
+  for (const [k, cs] of [...groups.entries()].sort()) {
+    const [t, arm] = k.split('\u0000');
+    const task = RAZOR_TASKS[t];
+    const drift = task.drift || Infinity;
+    const last = 1 + (task.followups || []).length;
+    const count = (f) => cs.filter(f).length;
+    const perTurn = [];
+    for (let turn = drift; turn <= last; turn++) perTurn.push(`t${turn} ${count((c) => c.note_turns.includes(turn))}/${cs.length}`);
+    const after = (c) => c.note_turns.filter((n) => n >= drift);
+    md.push(`| ${t} | ${arm} | ${cs.length} | ${perTurn.join(' · ') || '–'} `
+      + `| ${count((c) => after(c).length && after(c)[0] > drift)} `
+      + `| ${count((c) => after(c).length > 1)} `
+      + `| ${count((c) => c.note_turns.some((n) => n < drift))} `
+      + `| ${count((c) => (c.balked_turns || []).length)} |`);
+  }
+  return md;
+}
+
 function main() {
   let runDir = process.argv[2]
     ? path.resolve(process.argv[2])
@@ -127,10 +167,14 @@ function main() {
     + ' usage JSON. Each model gets its own section; rows are never pooled across models.\n',
     '\n![charts](charts.svg)\n'];
   const charts = [];
+  let cells = [];
+  try { cells = JSON.parse(fs.readFileSync(path.join(runDir, 'results.json'), 'utf8')).results || []; }
+  catch { /* no results.json: no note tally */ }
   for (const model of Object.keys(byModel)) {
     const row = rows.find((r) => r.model === model);
     md.push(`\n# Model \`${model}\`, n=${row ? row.n : 0} per cell\n`);
     charts.push(...renderModel(byModel[model], arms, model, row ? row.n : 0, md));
+    md.push(...noteTally(cells.filter((c) => c.model === model)));
   }
 
   const stacked = charts.filter(Boolean);
@@ -215,4 +259,6 @@ function renderModel(byTask, arms, model, n, md) {
   return [chart1, chart2, chart3];
 }
 
-main();
+module.exports = { noteTally };
+
+if (require.main === module) main();

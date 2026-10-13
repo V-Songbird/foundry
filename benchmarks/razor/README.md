@@ -115,6 +115,8 @@ you ask for next:
 setup that cries wolf on ordinary corrections is worse than one that says
 nothing at all.
 
+Each note cell in `results.json` also records `note_turns` and `balked_turns`: the turns, counted from 1, whose reply carried the line or stopped to ask. `report.js` counts them in a note tally per task and arm: how many cells noted on each turn from the first drift turn on, late notes (the first one after that turn), repeats, EARLY notes (before the drift turn, which on `note-steady` is any note) and balks. The verdicts do not change.
+
 ```bash
 node runner/run.js --note --arms baseline,razor --runs 3
 ```
