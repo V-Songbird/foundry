@@ -31,7 +31,7 @@ It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed
 
 **What you should see:** razor landing **at or below baseline on cost and code size**, with **no new dependencies added** and every task still passing — the same *shape* as our published charts. You will **not** reproduce our exact figures, and that's expected. If razor is leaner and no pricier with correctness intact, the claim holds.
 
-A default run uses Sonnet. Razor's README shows Claude Opus 5 rows only, so compare against it with `--models opus`. `--models` accepts `sonnet` and `opus`.
+A default run uses Sonnet. Razor's README shows Claude Opus 5 rows only, so compare against it with `--models opus`. `--models` accepts `sonnet`, `opus` and `opus55` (Claude Opus 5.5).
 
 ## Run it
 
@@ -71,7 +71,7 @@ node runner/run.js --full --runs 3      # every task, 3 reps each
 node runner/run.js --default --models opus
 ```
 
-Flags: `--task a,b` (pick tasks) · `--arms baseline,razor` · `--full` (whole suite) · `--counter` (the other suite, below) · `--note` (the note suite, below) · `--runs N` · `--models sonnet|opus` · `--effort low|medium|high` (reasoning effort for every cell; left to the CLI default when unset) · `--workers N` · `--seed N` (replay an earlier run's arm order) · `--rescore <run-dir>` (recompute metrics offline, no API) · `RAZOR_DIR` (override the razor plugin location).
+Flags: `--task a,b` (pick tasks) · `--arms baseline,razor` · `--full` (whole suite) · `--counter` (the other suite, below) · `--note` (the note suite, below) · `--runs N` · `--models sonnet|opus|opus55` · `--effort low|medium|high` (reasoning effort for every cell; left to the CLI default when unset) · `--workers N` · `--seed N` (replay an earlier run's arm order) · `--rescore <run-dir>` (recompute metrics offline, no API) · `RAZOR_DIR` (override the razor plugin location).
 
 The setups take turns in a shuffled order rather than one finishing before the next starts, so neither pays more of the cold-start cost than the other. The run prints its seed and saves it — pass `--seed` to repeat the exact same order.
 

@@ -26,6 +26,15 @@ describe('benchmark CLI flags', () => {
   });
 });
 
+test('--models opus55 resolves to Claude Opus 5.5 and the older values keep their ids', () => {
+  const { MODELS } = require('../runner/run.js');
+  assert.strictEqual(MODELS.opus55, 'claude-opus-5-5');
+  assert.strictEqual(MODELS.sonnet, 'claude-sonnet-5');
+  assert.strictEqual(MODELS.opus, 'claude-opus-5');
+  assert.strictEqual(MODELS.opus5, undefined, 'an unknown alias is not mapped');
+  assert.deepStrictEqual(unknownFlags(['--models', 'opus55']), []);
+});
+
 test('the Claude live runner refuses native Codex hooks before starting a model session', () => {
   const fs = require('fs');
   const os = require('os');

@@ -50,7 +50,7 @@ const TASKS = RAZOR_TASKS;
 
 // Arms: baseline + razor always, plus an optional user-supplied rival.
 const ARM_DIRS = { razor: RAZOR_DIR };
-const MODELS = { sonnet: 'claude-sonnet-5', opus: 'claude-opus-5' };
+const MODELS = { sonnet: 'claude-sonnet-5', opus: 'claude-opus-5', opus55: 'claude-opus-5-5' };
 
 // A small default subset across the tiers so a curious run is cheap; --full runs everything.
 const DEFAULT_TASKS = ['dep-slug', 'dep-querystring', 'reuse-scan', 'sprawl-todo', 'oh-question', 'oh-typo'];
@@ -729,6 +729,6 @@ async function main() {
   }
 }
 
-module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
+module.exports = { buildQueue, makeRng, shuffled, unknownFlags, scoreCell, runCell, LOGIN_LOST, KNOWN_FLAGS, MODELS, FULL_TASKS, COUNTER_TASKS, NOTE_TASKS, RUNS_DIR };
 
 if (require.main === module) main();
