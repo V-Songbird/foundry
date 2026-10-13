@@ -43,7 +43,7 @@ node scripts/readiness-gate.js --records <batch folder> --previous <previous rel
 ## Where things go
 
 - **Plugin checkouts.** A runner measures Foundry's own `foreman/`, `hush/` and `razor/` checkouts, resolved in [paths.js](paths.js).
-- **History and run output.** Datasets, records, experiments, results and runs go to `.private/benchmarks/<plugin>/` at the Foundry root. Git ignores that folder, so a clone has no history, and a run's raw output never reaches the repository. Razor's Claude runner is the exception: its runs go to `razor-bench` in your system temp folder, outside any Git tree, unless `RAZOR_BENCH_RUNS` names another folder.
+- **History and run output.** Datasets, records, experiments, results and runs go to `.private/benchmarks/<plugin>/` at the Foundry root. Git ignores that folder, so a clone has no history, and a run's raw output never reaches the repository. Razor's Claude runner is the exception: its runs go to the folder `RAZOR_BENCH_RUNS` names, which must sit outside any Git tree. A live run refuses a folder under the system temp folder unless `RAZOR_BENCH_ALLOW_TEMP=1` is set.
 - **Session state.** A live Foreman, Hush or Razor Claude run keeps its session registry and transcripts in a scratch state folder, set up by [bench-config-dir.js](bench-config-dir.js), never in your own `~/.claude`.
 
 ## Hill-climb a suite
@@ -105,12 +105,12 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 | `HUSH_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Hush checkout for the plugged arm of Hush's `runner/run.js` and for Foreman's `trio` arm. The Hush scorers, such as `metrics.js` and `caps.js`, always read the checkout under `BENCH_PLUGINS_DIR`. |
 | `RAZOR_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Razor's runners. |
 | `RAZOR_CODEX_BIN` | No | `codex` on the PATH | The Codex executable for Razor's `runner/codex-run.js`; `--codex-bin` wins over it. |
-| `RAZOR_BENCH_RUNS` | No | `razor-bench` in the system temp folder | Where Razor's `runner/run.js` writes runs and where `runner/report.js` and `runner/demo.js` read them. Keep it outside any Git tree. |
+| `RAZOR_BENCH_RUNS` | No | `razor-bench` in the system temp folder, for offline `--rescore` and the readers only | Where Razor's `runner/run.js` writes runs and where `runner/report.js` and `runner/demo.js` read them. Keep it outside any Git tree. A live run refuses a temp folder, the default included, unless `RAZOR_BENCH_ALLOW_TEMP=1` is set. |
 | `RAZOR_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Foreman's `trio` arm. |
 | `TYPESAFE_API_KEY` | For Hush's `runner/judge.js`, `duel.js` and `criteria.js` | None | The key for the TypeSafe judge. These scripts send each run's final message to that external, paid service; nothing else in the harness does. |
 | `TYPESAFE_API_URL` | No | `https://api.typesafe.ai/v1/systemone` | Another endpoint for the same three scripts. |
 
-Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`. Every runner starts Claude with `--setting-sources project` or `project,local`, never `user`, so the `settings.json` and `CLAUDE.md` seeded there do not reach a bench session; the stored login still does.
+Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`. The seed copies `settings.json`, `plugins` and the stored login, and no `CLAUDE.md`, so the bench folder carries none. Every runner starts Claude with `--setting-sources project` or `project,local`, never `user`, which should keep the seeded `settings.json` out of a bench session; the stored login still reaches it. Claude Code's documentation does not say that flag also gates a user `CLAUDE.md`, which is why the seed omits it. A folder seeded before this change may still hold a copy: delete `<BENCH_CONFIG_DIR>/CLAUDE.md`, or delete the whole folder before reseeding, because a seed never removes files. The recorded hush b31 answers are in English although that copy asked for Spanish, which suggests it did not load there; that is a hint about past runs, not proof for every runner.
 
 ## Limitations
 

@@ -41,7 +41,9 @@ function benchConfigDir() {
     fs.mkdirSync(dir, { recursive: true });
     // The stored login is copied too: without it every cell returns a zero-cost
     // non-answer in ~3s, which the runner rejects as an unusable data point.
-    for (const name of ['settings.json', 'CLAUDE.md', 'plugins', '.credentials.json']) {
+    // CLAUDE.md is left out on purpose: the owner's user instructions must not
+    // be able to reach a bench session, whatever the runner's flags are.
+    for (const name of ['settings.json', 'plugins', '.credentials.json']) {
       const from = path.join(REAL, name);
       if (fs.existsSync(from)) fs.cpSync(from, path.join(dir, name), { recursive: true });
     }
