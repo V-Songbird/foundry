@@ -128,8 +128,9 @@ is any note) and balks. `balked` counts a balk on any turn, while the scorers
 check only some turns. Every cell also records `repetition` (its run index,
 from 0), `turn_count` (the calls it sent) and, for a conversation, `replies`
 (the turns that answered). A cell with fewer replies than the task has prompts,
-such as one whose last turn died or whose login was lost, is left out of the
-counts and named under the table by its run index. The verdicts do not change.
+such as one whose last turn died, or one that recorded an error, such as a lost
+login, or a Codex status other than `completed`, is left out of the counts and
+named under the table by its run index. The verdicts do not change.
 
 Razor repeats its instruction for that line with every request. To compare that
 with giving the instruction once, when the session starts, add the `razor-start`

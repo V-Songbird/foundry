@@ -124,7 +124,9 @@ function fmt(v, digits) {
 // stopped to ask, on any turn. A cell with fewer replies than the task has
 // prompts (a dead turn, a lost login, or a Codex conversation cut short) would
 // read its missing turns as "no note", so it is left out of the counts and
-// named under the table with its run index. Both runners record `replies` and
+// named under the table with its run index; so is a cell that recorded an
+// error (a login lost on the last turn still counts every reply) or a Codex
+// status other than completed. Both runners record `replies` and
 // `repetition`; a cell from before `replies` falls back to run.js's null
 // duration_ms mark of a dead last turn.
 function noteTally(cells) {
@@ -134,7 +136,8 @@ function noteTally(cells) {
     const task = RAZOR_TASKS[c.task];
     if (!task || !task.note) continue;
     const prompts = 1 + (task.followups || []).length;
-    if (c.replies !== undefined ? c.replies < prompts : c.duration_ms === null && Array.isArray(c.note_turns)) {
+    if (c.error || (c.status && c.status !== 'completed')
+      || (c.replies !== undefined ? c.replies < prompts : c.duration_ms === null && Array.isArray(c.note_turns))) {
       dead.push(`${c.task} / ${c.arm}${Number.isInteger(c.repetition) ? ` #${c.repetition}` : ''}`);
       continue;
     }
@@ -162,7 +165,7 @@ function noteTally(cells) {
       + `| ${count((c) => c.note_turns.some((n) => n < drift))} `
       + `| ${count((c) => (c.balked_turns || []).length)} |`);
   }
-  if (dead.length) md.push(`\nLeft out, fewer replies than prompts, ${dead.length} cell(s): ${dead.join(', ')}.`);
+  if (dead.length) md.push(`\nLeft out, fewer replies than prompts or an error, ${dead.length} cell(s): ${dead.join(', ')}.`);
   return md;
 }
 
