@@ -61,11 +61,21 @@ async function adapt(source, arm) {
   return attempts;
 }
 
+// A run that --max-cost stopped exits 1 but keeps the cells it paid for, so
+// its new run folder is adapted like a finished one.
 function live(tag, arm, extra) {
   const runs = path.join(RUNS_DIR, tag);
+  const before = fs.existsSync(runs) ? fs.readdirSync(runs) : [];
   const r = spawnSync(process.execPath, [path.join(__dirname, 'run.js'), '--arms', arm, ...extra],
     { cwd: ROOT, stdio: 'inherit', env: { ...process.env, RAZOR_BENCH_RUNS: runs } });
-  if (r.status !== 0) throw new Error(`run.js exited ${r.status}`);
+  if (r.status === 0) return runs;
+  let stopped = null;
+  try {
+    const dir = runFolder(runs);
+    if (!before.includes(path.basename(dir))) stopped = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8')).stopped;
+  } catch { /* no new run folder */ }
+  if (!/^cost cap /.test(stopped || '')) throw new Error(`run.js exited ${r.status}`);
+  console.error(`run.js ${stopped}; keeping the cells it finished`);
   return runs;
 }
 

@@ -259,6 +259,7 @@ async function scoreCell(taskId, arm, model, ws) {
   const raw = extractResult(ws);
   const meta = {};
   let resultText = '';
+  let apiError = null;
   const cj = path.join(ws, '_claude.json');
   if (fs.existsSync(cj)) {
     try {
@@ -272,10 +273,7 @@ async function scoreCell(taskId, arm, model, ws) {
       meta.in_tokens = u.input_tokens;
       meta.cache_tokens = (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0);
       resultText = j.result || '';
-      if (j.is_error || j.api_error_status) {
-        return { task: taskId, arm, model,
-          error: `api_error ${j.api_error_status}: ${String(resultText).slice(0, 120)}`, cost: meta.cost };
-      }
+      if (j.is_error || j.api_error_status) apiError = `api_error ${j.api_error_status}: ${String(resultText).slice(0, 120)}`;
     } catch { resultText = ''; }
   }
   // _claude.json is the last result event in the whole stream: the last LIVE
@@ -296,6 +294,8 @@ async function scoreCell(taskId, arm, model, ws) {
       }
     } catch { /* unreadable: keep _claude.json's figures, the last live turn's */ }
   }
+  // A failed cell is still billed for every turn it ran, so its cost counts toward --max-cost.
+  if (apiError) return { task: taskId, arm, model, error: apiError, cost: meta.cost };
   for (const [key, marker] of Object.entries(MARKERS)) {
     meta[key] = raw.split(marker).length - 1;
   }
@@ -455,7 +455,8 @@ async function runCell(taskId, arm, model, ws) {
   try {
     return await scoreCell(taskId, arm, model, ws);
   } catch (e) {
-    return { task: taskId, arm, model, error: String(e).slice(0, 200) };
+    // The session was billed even though scoring failed: keep its cost.
+    return { task: taskId, arm, model, error: String(e).slice(0, 200), cost: turns.reduce((s, t) => s + t.cost, 0) };
   }
 }
 
@@ -721,7 +722,7 @@ async function main() {
 
   const stopReason = () => {
     if (LOGIN_LOST.cell) return `login lost in ${LOGIN_LOST.cell}`;
-    if (costCapReached(results, maxCost)) return `cost cap USD ${maxCost} reached at USD ${totalCost(results).toFixed(4)}`;
+    if (costCapReached(results, maxCost) && results.length < total) return `cost cap USD ${maxCost} reached at USD ${totalCost(results).toFixed(4)}`;
     return null;
   };
   const writeResults = () => fs.writeFileSync(path.join(outDir, 'results.json'), JSON.stringify({
