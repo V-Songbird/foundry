@@ -18,7 +18,8 @@
 // pays for records it has not judged yet.
 //
 //   node runner/retention.js --records ../../.private/benchmarks/hush/records/v18-c827bd6f
-//   node runner/retention.js --records ../../.private/benchmarks/hush/records/v18-c827bd6f --judge-model sonnet
+//   node --env-file=<key file> runner/retention.js --records <dir> --max-usd 2 --go
+//   node runner/retention.js --records <dir> --cli    (the old claude -p judge)
 //
 // KNOWN CEILING: the judge is a model, so single-item verdicts carry noise;
 // spot-check a few against the raw text before trusting a close arm-to-arm
@@ -33,6 +34,7 @@ const { spawn } = require('node:child_process');
 // transcript store. judgeOnce() calls it before each judge session, so every
 // caller that judges, truth.js included, gets the gate; keep the call there.
 const benchConfigDir = require('../../bench-config-dir.js');
+const { runBatch, modelId } = require('../../batch-judge.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -66,6 +68,25 @@ function judgePrompt(finalText, items) {
     ...items.map((t, i) => `${i + 1}. ${t}`),
   ].join('\n');
 }
+
+// The Batches judge must answer in this shape; the API enforces it, so a
+// reply can no longer come back as prose.
+const VERDICTS_SCHEMA = {
+  type: 'object',
+  properties: {
+    verdicts: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { item: { type: 'integer' }, present: { type: 'boolean' } },
+        required: ['item', 'present'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['verdicts'],
+  additionalProperties: false,
+};
 
 /** Pull the verdicts array back out of whatever the judge printed. */
 function parseVerdicts(text, itemCount) {
@@ -158,8 +179,19 @@ async function main() {
   const recordsArg = at('--records', null);
   const model = at('--judge-model', 'sonnet');
   const concurrency = Number(at('--concurrency', 4));
+  // The judge is the Message Batches API with structured output, billed to
+  // ANTHROPIC_API_KEY instead of the Claude Code plan. It prints the plan and
+  // stops unless --go is passed; --max-usd caps the spend. --cli runs the old
+  // claude -p judge instead. The two are different instruments: the API judge
+  // agrees with itself on ~99% of claims, claude -p on ~90%, and the API marks
+  // more claims present. Their verdicts are cached under separate keys, and a
+  // figure from one is never compared with a figure from the other.
+  const batch = !argv.includes('--cli');
+  const go = argv.includes('--go');
+  const maxUsd = Number(at('--max-usd', NaN));
+  const keyModel = batch ? `${modelId(model)}@batch` : model;
   if (!recordsArg) {
-    console.error('Usage: retention.js --records <dir> [--judge-model sonnet] [--concurrency 4]');
+    console.error('Usage: retention.js --records <dir> [--judge-model sonnet] [--max-usd <usd> --go | --cli [--concurrency 4]]');
     process.exit(1);
   }
   const dir = path.resolve(ROOT, recordsArg);
@@ -170,22 +202,54 @@ async function main() {
   let cache = {};
   try { cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8')); } catch { /* first run */ }
 
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-retention-'));
   const records = readRecordsDir(dir).filter((r) => !r.error && r.finalText && keys[r.task]);
   const queue = [];
   const scored = [];
   let spent = 0;
   for (const r of records) {
     const items = keys[r.task];
-    const cacheKey = `${r.batchId}|${r.key}|${model}|${keysHash(items)}${PROMPT_VERSION}`;
+    const cacheKey = `${r.batchId}|${r.key}|${keyModel}|${keysHash(items)}${PROMPT_VERSION}`;
     if (cache[cacheKey]) {
       scored.push({ arm: r.arm, task: r.task, key: r.key, verdicts: cache[cacheKey] });
     } else {
       queue.push({ r, items, cacheKey });
     }
   }
-  console.log(`${records.length} records, ${scored.length} cached, ${queue.length} to judge (model ${model})`);
+  console.log(`${records.length} records, ${scored.length} cached, ${queue.length} to judge (model ${keyModel})`);
 
+  if (batch && queue.length) {
+    const jobs = queue.map(({ r, items }) => ({ prompt: judgePrompt(r.finalText, items), schema: VERDICTS_SCHEMA }));
+    const { plan } = await runBatch(jobs, { model });
+    console.log(`worst case $${plan.worstUsd.toFixed(2)} for ~${plan.inputTokens} input tokens; cap --max-usd ${maxUsd || 'unset'}`);
+    if (!go) {
+      console.log('\nplan only — nothing was sent and nothing was billed. Re-run with --go to spend.');
+      return;
+    }
+    const out = await runBatch(jobs, { model, maxUsd, go: true });
+    spent = out.spentUsd;
+    let failed = 0;
+    out.results.forEach((res, i) => {
+      const { r, items, cacheKey } = queue[i];
+      let verdicts;
+      try {
+        if (res.error) throw new Error(res.error);
+        verdicts = parseVerdicts(res.text, items.length);
+      } catch (err) {
+        failed++;
+        console.log(`SKIP ${r.key}  ${err.message}`);
+        return;
+      }
+      cache[cacheKey] = verdicts;
+      scored.push({ arm: r.arm, task: r.task, key: r.key, verdicts });
+    });
+    fs.writeFileSync(cacheFile, JSON.stringify(cache));
+    if (failed) {
+      console.log(`\n${failed} batch result(s) failed; their verdicts were not cached. Rerun to retry them.`);
+      process.exitCode = 1;
+    }
+  }
+
+  const workDir = batch ? null : fs.mkdtempSync(path.join(os.tmpdir(), 'hush-retention-'));
   let idx = 0;
   async function worker() {
     while (idx < queue.length) {
@@ -208,11 +272,15 @@ async function main() {
       console.log(`${r.key}  ${verdicts.filter(Boolean).length}/${verdicts.length}`);
     }
   }
-  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) || 1 }, worker));
-  fs.rmSync(workDir, { recursive: true, force: true });
+  if (!batch) {
+    await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) || 1 }, worker));
+    fs.rmSync(workDir, { recursive: true, force: true });
+  }
 
   const report = retentionReport(scored);
-  console.log(`\nretention — ${path.relative(ROOT, dir)} (judge: ${model}, $${spent.toFixed(3)} this pass)`);
+  console.log(`\nretention — ${path.relative(ROOT, dir)} (judge: ${keyModel}, $${spent.toFixed(3)} this pass)`);
+  console.log(batch ? 'instrument: Batches API judge; compare only with other Batches figures'
+    : 'instrument: claude -p judge; compare only with other claude -p figures');
   console.log('share of needed details the final message kept\n');
   console.log(['arm', 'runs', 'kept', 'of', 'kept%'].join('\t'));
   for (const arm of Object.keys(report).sort()) {
@@ -236,4 +304,6 @@ if (require.main === module) main();
 
 // judgeOnce and readRecordsDir are exported for truth.js, which scores the
 // same records with the same judge plumbing and a different question.
-module.exports = { judgePrompt, parseVerdicts, retentionReport, keysHash, judgeOnce, readRecordsDir, PROMPT_VERSION };
+module.exports = {
+  judgePrompt, parseVerdicts, retentionReport, keysHash, judgeOnce, readRecordsDir, PROMPT_VERSION, VERDICTS_SCHEMA,
+};

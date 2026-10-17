@@ -52,6 +52,7 @@ const { spawn } = require('node:child_process');
 // Keeps every cell's temp cwd out of the real ~/.claude registry and
 // transcript store; runJudge calls it before each session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
+const { runBatch, modelId } = require('../../batch-judge.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -222,29 +223,50 @@ async function main() {
   const only = (at('--arms') || '').split(',').filter(Boolean);
   const save = at('--save');
   const go = argv.includes('--go');
+  // --batch sends every judge prompt in one Message Batches job, billed to
+  // ANTHROPIC_API_KEY instead of the Claude Code plan; --max-usd caps it.
+  const batch = argv.includes('--batch');
+  const maxUsd = Number(at('--max-usd'));
   const dir = recordsArg
     ? path.resolve(ROOT, recordsArg)
     : tag ? path.join(RESULTS, tag, 'runs') : null;
   if (!dir) {
-    console.error('Usage: answerable.js --records <dir> | --tag <tag> [--arms a,b] [--model sonnet] --go');
+    console.error('Usage: answerable.js --records <dir> | --tag <tag> [--arms a,b] [--model sonnet] [--batch --max-usd <usd>] --go');
     process.exit(1);
   }
 
   const records = readRecordsDir(dir).filter((r) => !only.length || only.includes(r.arm));
+  const jobs = records.map((r) => {
+    const task = TASKS.find((t) => t.id === r.task);
+    const taskPrompt = task?.prompt || (task?.prompts || []).join('\n') || '(prompt unavailable)';
+    return {
+      r,
+      prompt: judgePrompt(taskPrompt, r.finalText),
+      patterns: task?.check?.type === 'keywords' ? task.check.patterns : [],
+    };
+  });
+  const judgedOn = batch ? `${modelId(model)} (Batches API)` : model;
   console.log(`answerable — ${path.relative(ROOT, dir)}`);
-  console.log(`${records.length} judge calls on ${model}, one per record, three fixed questions each.`);
+  console.log(`${records.length} judge calls on ${judgedOn}, one per record, three fixed questions each.`);
+  if (batch) {
+    const { plan } = await runBatch(jobs, { model });
+    console.log(`worst case $${plan.worstUsd.toFixed(2)} for ~${plan.inputTokens} input tokens; cap --max-usd ${maxUsd || 'unset'}`);
+  }
   if (!go) {
     console.log('\nplan only — nothing was spawned and nothing was billed. Re-run with --go to spend.');
     return;
   }
 
-  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-answerable-'));
+  let replies = null;
+  if (batch) {
+    const out = await runBatch(jobs, { model, maxUsd, go: true });
+    replies = out.results;
+    console.log(`batch ${out.batchId} ended: $${out.spentUsd.toFixed(3)} spent`);
+  }
+  const cwd = batch ? null : fs.mkdtempSync(path.join(os.tmpdir(), 'hush-answerable-'));
   const rows = [];
-  for (const [i, r] of records.entries()) {
-    const task = TASKS.find((t) => t.id === r.task);
-    const taskPrompt = task?.prompt || (task?.prompts || []).join('\n') || '(prompt unavailable)';
-    const patterns = task?.check?.type === 'keywords' ? task.check.patterns : [];
-    const res = await runJudge(judgePrompt(taskPrompt, r.finalText), model, cwd);
+  for (const [i, { r, prompt, patterns }] of jobs.entries()) {
+    const res = replies ? replies[i] : await runJudge(prompt, model, cwd);
     if (res.error) {
       rows.push({ arm: r.arm, task: r.task, error: res.error });
       console.log(`ERR  ${r.task}__${r.arm}  ${res.error}`);
@@ -278,6 +300,13 @@ async function main() {
   // The README quotes these percentages, so they need a home on disk beside the
   // batch they came from. publish.js owns claims.md and never sees a judge run,
   // so this writes its own file next to it rather than editing that one.
+  // A batch with any failed result publishes nothing: rerun it instead.
+  const failed = rows.filter((r) => r.error).length;
+  if (batch && failed) {
+    console.log(`\n${failed} batch result(s) failed; published/answerable.md was not written.`);
+    process.exitCode = 1;
+    return;
+  }
   if (dir) {
     const out = path.join(dir, 'published', 'answerable.md');
     fs.mkdirSync(path.dirname(out), { recursive: true });
@@ -289,7 +318,7 @@ async function main() {
     fs.writeFileSync(out, [
       `# answerable — batch ${path.basename(dir)}`,
       '',
-      `${rows.length} judged replies, three fixed questions each, judged on ${model}.`,
+      `${rows.length} judged replies, three fixed questions each, judged on ${judgedOn}.`,
       '',
       '| Arm | runs | q1 what happened | q2 what to open | q3 what next | all three | task facts recovered |',
       '|---|---|---|---|---|---|---|',
@@ -298,7 +327,6 @@ async function main() {
     ].join('\n'));
     console.log(`wrote ${out}`);
   }
-  const failed = rows.filter((r) => r.error).length;
   if (failed) console.log(`\n${failed} judge call(s) failed and were left out of the means.`);
 }
 
