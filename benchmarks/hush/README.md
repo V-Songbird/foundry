@@ -140,8 +140,10 @@ a literacy verdict.
 
 `conformance.js` checks real sessions against the settings `/hush:config` saved. It reads
 Claude Code transcripts, recovers each session's settings from the text hush's SessionStart
-hook sent, and checks every turn's final message against them. It starts no session and
-sends nothing anywhere:
+hook sent, and checks every turn's final message against them. A turn's final message is
+the text after its last tool call, the next-step box's `wrap_up` included, because the desktop
+app does not show earlier text as the message. It starts no session and sends nothing
+anywhere:
 
 ```bash
 node runner/conformance.js --hush <hush checkout> ~/.claude/projects

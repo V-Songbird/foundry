@@ -38,7 +38,9 @@ const GOOD = [
   '',
   'The token check read the expiry as text. I changed one line.',
   '',
-  '- ✓ `npm test`: 212 tests pass.',
+  '```diff',
+  '+ ✓ npm test: 212 tests pass',
+  '```',
   '',
   '---',
   '',
@@ -85,10 +87,10 @@ describe('checkMessage: next', () => {
     assert.strictEqual(check(GOOD, { next: 'top' }).next.status, 'fail');
   });
 
-  test('when the box asked, the Next line must be gone', () => {
+  test('when the box asked, any message after it fails', () => {
     const asked = { ask: true, work: true };
     assert.strictEqual(check(GOOD, {}, asked).next.status, 'fail');
-    assert.strictEqual(check('**Done.**\n\n---\n\nOne fact here.', {}, asked).next.status, 'pass');
+    assert.match(check('**Done.**\n\n---\n\nOne fact here.', {}, asked).next.why, /a message follows it/);
   });
 
   test('a bold header line "Siguiente paso" counts under headers=on', () => {
@@ -138,11 +140,17 @@ describe('checkMessage: parts', () => {
     assert.strictEqual(check(GOOD, { detail: 'bare' }).checks.status, 'fail');
   });
 
-  test('checks=line fails on two ✓ lines, checks=each on a shared line', () => {
-    const two = GOOD.replace('- ✓ `npm test`: 212 tests pass.', '- ✓ tests pass.\n- ✓ lint passes.');
+  test('checks=line fails on two passed lines in the diff block, checks=each on a shared line', () => {
+    const two = GOOD.replace('+ ✓ npm test: 212 tests pass', '+ ✓ tests pass\n+ ✓ lint passes');
     assert.strictEqual(check(two).checks.status, 'fail');
     assert.strictEqual(check(two, { checks: 'each' }).checks.status, 'pass');
-    assert.strictEqual(check(GOOD.replace('212 tests pass.', 'tests ✓ lint ✓'), { checks: 'each' }).checks.status, 'fail');
+    assert.strictEqual(check(GOOD.replace('212 tests pass', 'tests ✓ lint ✓'), { checks: 'each' }).checks.status, 'fail');
+  });
+
+  test('a check line outside a diff block fails; failed and unchecked lines inside it pass under checks=off', () => {
+    assert.match(check(GOOD.replace(/```diff\n(.*)\n```/, '- ✓ npm test: 212 tests pass.')).checks.why, /outside a diff block/);
+    const open = GOOD.replace('+ ✓ npm test: 212 tests pass', '- ✗ npm run lint: 3 errors\n  ○ e2e did not run');
+    assert.strictEqual(check(open, { checks: 'off' }).checks.status, 'pass');
   });
 
   test('emoji=off ignores inline code and the check marks, and fails on prose emoji', () => {
@@ -210,24 +218,28 @@ describe('readTranscript', () => {
     return { dir, file };
   }
 
-  test('the final message is the text after the last tool call; earlier text is narration', () => {
+  test('the final message is the text after the last tool call, wrap_up included; earlier text is narration', () => {
     const { dir, file } = write([
       prompt('fix it'),
       style('v1', '2026-10-17T01:00:00Z'),
       ctx('hush settings, chosen by the user with /hush:config.\n\nNo next step. The message has no "Next:" line.'),
       say({ type: 'text', text: 'Let me look first.' }, { type: 'tool_use', name: 'Bash', input: {} }),
       toolResult,
+      say({ type: 'text', text: 'Hidden before the box.' }),
+      say({ type: 'tool_use', name: 'mcp__ccd_turn__wrap_up', input: { recap: 'r' } }),
       say({ type: 'text', text: '**Fixed.**' }),
-      say({ type: 'tool_use', name: 'mcp__ccd_turn__wrap_up', input: { recap: 'r', ask: 'Commit?' } }),
+      prompt('commit?'),
+      say({ type: 'text', text: 'Unseen answer.' }, { type: 'tool_use', name: 'mcp__ccd_turn__wrap_up', input: { recap: 'r', ask: 'Commit?' } }),
       prompt('thanks'),
       say({ type: 'text', text: 'You are welcome.' }),
     ]);
     try {
-      const [first, second] = readTranscript(file, CONTRACT);
+      const [first, second, third] = readTranscript(file, CONTRACT);
       assert.deepStrictEqual(
         [first.final, first.narration, first.work, first.ask, first.settings.next, first.hush, first.style.id.length],
-        ['**Fixed.**', 4, true, true, 'off', true, 8]);
-      assert.deepStrictEqual([second.final, second.work, second.ask], ['You are welcome.', false, false]);
+        ['**Fixed.**', 8, true, false, 'off', true, 8]);
+      assert.deepStrictEqual([second.final, second.narration, second.ask], ['', 2, true]);
+      assert.deepStrictEqual([third.final, third.work, third.ask], ['You are welcome.', false, false]);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

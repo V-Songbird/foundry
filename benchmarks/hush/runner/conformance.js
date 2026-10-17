@@ -96,8 +96,8 @@ function isPrompt(e) {
 
 /**
  * One transcript -> its turns. A turn's final message is the text after its
- * last tool call; a wrap_up call does not end it, because the closing text
- * may come before or after the box. Text cut off by a later tool call is
+ * last tool call, wrap_up included: the desktop app does not show text written
+ * before a tool call as the message. Text cut off by a later tool call is
  * narration.
  */
 /** Parsed lines of a JSONL file, read in chunks: a transcript can pass Node's string limit. */
@@ -159,10 +159,7 @@ function readTranscript(file, contract) {
     for (const b of e.message?.content || []) {
       if (b.type === 'text') turn.tail.push(b.text);
       if (b.type !== 'tool_use') continue;
-      if (WRAP_UP.test(b.name)) {
-        if (typeof b.input?.ask === 'string' && b.input.ask.trim()) turn.ask = true;
-        continue;
-      }
+      if (WRAP_UP.test(b.name) && typeof b.input?.ask === 'string' && b.input.ask.trim()) turn.ask = true;
       if (WORK_TOOLS.has(b.name)) turn.work = true;
       turn.narration += turn.tail.reduce((n, t) => n + countWords(t), 0);
       turn.tail = [];
@@ -175,6 +172,7 @@ function readTranscript(file, contract) {
 // --- one message --------------------------------------------------------------
 
 const FENCE = /```[\s\S]*?(?:```|$)/g;
+const DIFF = /```diff[^\n]*\n([\s\S]*?)(?:```|$)/g;
 const EMOJI = /(?![©®™])\p{Extended_Pictographic}/u;
 const LEAD_EMOJI = /^(?:(?![©®™])\p{Extended_Pictographic}️?\s*)/u;
 const RULE = /^(?:-{3,}|\*{3,}|_{3,})$/;
@@ -213,8 +211,9 @@ function checkMessage(text, s, turn, contract) {
   out.result = /^\*\*[^*].*?\*\*/.test((nonEmpty[0] || '').replace(LEAD_EMOJI, ''))
     ? result('pass') : result('fail', `first line is not bold: "${(nonEmpty[0] || '').slice(0, 60)}"`);
 
+  // A box that asks ends the turn with no message, so any message after it is a breach.
   if (turn.ask && s.box !== 'text') {
-    out.next = ni < 0 ? result('pass') : result('fail', 'the box asked, yet a Next line is present');
+    out.next = result('fail', 'the box asked, yet a message follows it');
   } else if (s.next === 'off') {
     out.next = ni < 0 ? result('pass') : result('fail', `Next line present under next=off: "${nonEmpty[ni].slice(0, 60)}"`);
   } else if (ni < 0) {
@@ -253,8 +252,13 @@ function checkMessage(text, s, turn, contract) {
   out.length = !budget ? result('na', 'detail=bare has no word number')
     : words <= budget ? result('pass') : result('warn', `${words} words outside code, budget ${budget}`);
 
-  const checkLines = nonEmpty.filter((l) => l.includes('✓'));
-  if (s.checks === 'off' || s.detail === 'bare') {
+  // Checks live in a diff block: "+ ✓" passed, "- ✗" failed, "  ○" not checked.
+  const diffLines = [...text.matchAll(DIFF)].flatMap((m) => m[1].split('\n'));
+  const checkLines = [...nonEmpty.filter((l) => l.includes('✓')), ...diffLines.filter((l) => /^\+\s*✓/.test(l))];
+  const loose = nonEmpty.filter((l) => /^(?:[-*]\s+)?[✓✗○]\s/.test(l)).length;
+  if (loose) {
+    out.checks = result('fail', `${loose} check line(s) outside a diff block`);
+  } else if (s.checks === 'off' || s.detail === 'bare') {
     out.checks = checkLines.length ? result('fail', `${checkLines.length} passed-check line(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}`) : result('pass');
   } else if (s.checks === 'each') {
     const shared = checkLines.filter((l) => (l.match(/✓/g) || []).length > 1).length;
