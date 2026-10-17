@@ -136,6 +136,27 @@ one task at a time, so three immediate options beat a longer critical path.
 `tests/ranking_replay.test.js` pins all of it, so a future change to the
 sorter has to argue with the case rather than rediscover it.
 
+## The pick-flow eval on the API
+
+A third question: does a Fast pick reach the right questions, and what does its instruction text cost? `pickflow/` runs the pick from "what's next" to the destination question in a simulated Claude Code session on the Claude API. It bills the API key, not a Claude Code plan.
+
+```bash
+node pickflow/run.js --smoke                 # scripted replies through the simulator and grader: free
+node pickflow/run.js                         # plan only: cases, cost bounds and the oracle path's size; nothing is sent
+node --env-file=<key file> pickflow/run.js --go --max-usd 12 --tag mine
+```
+
+The model gets Read, Bash, Skill and AskUserQuestion tools, and every result is scripted. Skill files come from the Foreman checkout. Menu, list and trial-log outputs are real runs of Foreman's scripts on the fixtures in `pickflow/fixtures/`. Nothing the model writes is executed. A case stops at the destination question, at a reply with no tool call, or after `--max-rounds`.
+
+- Arms: `prose` reads today's `pick.md` and `destination-question.md`. `p1` reads `pickflow/arms/p1/pick.md`, a candidate design in which `roadmap.js step pick` returns an action code and the skill holds one row per code. That `step` command is the prototype in `pickflow/sim.js`. `real` reads every file from another Foreman checkout, `PICKFLOW_REAL_DIR` (default `.private/foreman-step-pick`), and runs that checkout's own `step pick` on a scratch git copy of the fixture with the trial log on; its events are read back from that log.
+- Scenarios, in `pickflow/scenarios.json`: a plain menu, a finished entry waiting for acceptance, a single option, other work in progress, a full session, and a task the user names.
+- Grade per case: the Q1 options, order and labels; the destination options with their `(Recommended)` and `(Caution)`; the trial events; and no file read, command or status change outside the flow. Cost: input, cached and output tokens, tool calls and rounds.
+- Flags: `--arms`, `--scenarios`, `--reps` (3), `--model` (`opus`), `--api batches|messages` (`batches`, half price), `--max-rounds` (14), `--max-tokens` (8192).
+- Billing guards: the key is read only from `ANTHROPIC_API_KEY`, so load it for one command with `--env-file`. `--go` and `--max-usd` are required to send. Before each round, the worst case (every reply at `--max-tokens`, nothing cached) must fit under the cap, or the run stops there.
+- Output: `records.json`, `report.md` and the raw replies under the ignored `.private/benchmarks/foreman/pickflow/<tag>/`; the hill-climb files under `.claude/hillclimb/foreman-pickflow/`, `baseline` for `prose`, `v1` for `p1` and `v2` for `real`.
+
+The simulator is not Claude Code: its system prompt is a short stand-in, and the tool results are fixed. Compare the arms with each other, not with a real session.
+
 ## Held-back tests
 
 In the `gamed-check` fixture, the shipped suite names exactly **one**

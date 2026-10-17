@@ -1,0 +1,98 @@
+[
+  {
+    "id": "plain",
+    "fixture": "plain",
+    "request": "what should I work on next?",
+    "choose": "002",
+    "dirty": false,
+    "contextHigh": false,
+    "expected": {
+      "q1": ["002", "003", "005"],
+      "q1Prefix": {},
+      "events": ["question_asked", "pick_accepted"],
+      "q2Recommended": "Execute here",
+      "q2Caution": ["Execute here, split by check"],
+      "q2NamesEntry": false
+    }
+  },
+  {
+    "id": "finish-first",
+    "fixture": "finish-first",
+    "request": "what should I work on next?",
+    "choose": "002",
+    "dirty": false,
+    "contextHigh": false,
+    "expected": {
+      "q1": ["001", "002", "003"],
+      "q1Prefix": { "001": "Accept:" },
+      "events": ["question_asked", "pick_overridden"],
+      "q2Recommended": "Execute here, split by check",
+      "q2Caution": [],
+      "q2NamesEntry": false
+    }
+  },
+  {
+    "id": "single",
+    "fixture": "single",
+    "request": "what should I work on next?",
+    "choose": "002",
+    "dirty": true,
+    "contextHigh": false,
+    "expected": {
+      "q1": null,
+      "q1Prefix": {},
+      "events": [],
+      "q2Recommended": "Execute here",
+      "q2Caution": ["Execute here, split by check", "Execute with a background agent"],
+      "q2NamesEntry": true
+    }
+  },
+  {
+    "id": "parallel",
+    "fixture": "parallel",
+    "request": "what should I work on next?",
+    "choose": "002",
+    "dirty": false,
+    "contextHigh": false,
+    "expected": {
+      "q1": ["001", "002", "004", "003"],
+      "q1Prefix": { "001": "Resume:" },
+      "events": ["question_asked", "pick_overridden"],
+      "q2Recommended": "Execute with a background agent",
+      "q2Caution": ["Execute here, split by check"],
+      "q2NamesEntry": false
+    }
+  },
+  {
+    "id": "full-context",
+    "fixture": "plain",
+    "request": "what should I work on next?",
+    "choose": "002",
+    "dirty": false,
+    "contextHigh": true,
+    "expected": {
+      "q1": ["002", "003", "005"],
+      "q1Prefix": {},
+      "events": ["question_asked", "pick_accepted"],
+      "q2Recommended": "Copy prompt to clipboard",
+      "q2Caution": ["Execute here, split by check"],
+      "q2NamesEntry": false
+    }
+  },
+  {
+    "id": "named",
+    "fixture": "plain",
+    "request": "let's do 005 next",
+    "choose": "005",
+    "dirty": false,
+    "contextHigh": false,
+    "expected": {
+      "q1": null,
+      "q1Prefix": {},
+      "events": [],
+      "q2Recommended": "Execute here",
+      "q2Caution": ["Execute here, split by check"],
+      "q2NamesEntry": true
+    }
+  }
+]
