@@ -109,6 +109,98 @@ describe('parseResults', () => {
   });
 });
 
+describe('answerable on Batches', () => {
+  const { ANSWERS_SCHEMA, ABSENT, parseAnswers } = require('../runner/answerable.js');
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
+  const BENCH = path.resolve(__dirname, '..');
+  const TASK = JSON.parse(fs.readFileSync(path.join(BENCH, 'tasks.json'), 'utf8'))[0].id;
+
+  test('the schema asks for exactly A1, A2 and A3 as strings', () => {
+    assert.deepStrictEqual(ANSWERS_SCHEMA.required, ['A1', 'A2', 'A3']);
+    assert.strictEqual(ANSWERS_SCHEMA.additionalProperties, false);
+    const [req] = buildRequests([{ prompt: 'p', schema: ANSWERS_SCHEMA }], 'claude-sonnet-5-5');
+    assert.deepStrictEqual(req.params.output_config.format.schema, ANSWERS_SCHEMA);
+  });
+
+  test('the schema JSON parses like the line format; a blank field is absent', () => {
+    const json = JSON.stringify({ A1: 'The build broke', A2: ' ', A3: `${ABSENT}` });
+    assert.deepStrictEqual(parseAnswers(json), ['The build broke', ABSENT, ABSENT]);
+    assert.deepStrictEqual(parseAnswers('A1: one\nA2: two\nA3: three'), ['one', 'two', 'three']);
+  });
+
+  // Runs the shipped script with fetch replaced by a preload: a plan must not
+  // call it at all, and a --go run gets a canned batch back.
+  function run(args, env = {}) {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-answerable-batch-'));
+    const records = path.join(tmp, 'records');
+    fs.mkdirSync(records);
+    fs.writeFileSync(path.join(records, 'r1.json'), JSON.stringify({ arm: 'hush', task: TASK, finalText: 'Fixed it.' }));
+    const sent = path.join(tmp, 'sent.json');
+    const reply = JSON.stringify({ A1: 'It was fixed', A2: 'src/a.js', A3: 'Nothing left to do' });
+    const preload = path.join(tmp, 'fetch-stub.js');
+    fs.writeFileSync(preload, `
+      const fs = require('node:fs');
+      global.fetch = async (url, init = {}) => {
+        if (!process.env.STUB_GO) throw new Error('network call in a plan-only run');
+        let body = '';
+        if (init.method === 'POST') { fs.writeFileSync(${JSON.stringify(sent)}, init.body); body = JSON.stringify({ id: 'msgbatch_test', processing_status: 'ended' }); }
+        else body = JSON.stringify({ custom_id: 'j0', result: { type: 'succeeded', message: { stop_reason: 'end_turn',
+          content: [{ type: 'text', text: ${JSON.stringify(reply)} }], usage: { input_tokens: 500, output_tokens: 50 } } } });
+        return { ok: true, status: 200, text: async () => body };
+      };`);
+    const full = { ...process.env, BENCH_DATA_DIR: tmp, ...env };
+    for (const k of ['NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', ...(env.ANTHROPIC_API_KEY ? [] : ['ANTHROPIC_API_KEY'])]) delete full[k];
+    const r = spawnSync(process.execPath, ['--require', preload, path.join(BENCH, 'runner', 'answerable.js'), '--records', records, ...args],
+      { cwd: BENCH, encoding: 'utf8', env: full, timeout: 60000 });
+    const published = path.join(records, 'published', 'answerable.md');
+    const out = {
+      ...r,
+      sent: fs.existsSync(sent) ? JSON.parse(fs.readFileSync(sent, 'utf8')) : null,
+      published: fs.existsSync(published) ? fs.readFileSync(published, 'utf8') : null,
+    };
+    fs.rmSync(tmp, { recursive: true, force: true });
+    return out;
+  }
+
+  test('a run without --go plans on Batches and sends nothing', () => {
+    const out = run([]);
+    assert.strictEqual(out.status, 0, out.stderr);
+    assert.match(out.stdout, /claude-sonnet-5-5@batch/);
+    assert.match(out.stdout, /instrument: Batches API judge/);
+    assert.match(out.stdout, /worst case \$/);
+    assert.match(out.stdout, /plan only/);
+    assert.strictEqual(out.sent, null);
+    assert.strictEqual(out.published, null);
+  });
+
+  test('--cli plans the claude -p judge and builds no batch', () => {
+    const out = run(['--cli']);
+    assert.strictEqual(out.status, 0, out.stderr);
+    assert.match(out.stdout, /instrument: claude -p judge/);
+    assert.doesNotMatch(out.stdout, /@batch|worst case/);
+  });
+
+  test('a --go run sends the schema and labels rows, report and published file', () => {
+    const tmpRows = path.join(os.tmpdir(), `hush-answerable-rows-${process.pid}.jsonl`);
+    try {
+      const out = run(['--go', '--max-usd', '1', '--save', tmpRows], { STUB_GO: '1', ANTHROPIC_API_KEY: 'test-key' });
+      assert.strictEqual(out.status, 0, out.stderr);
+      assert.deepStrictEqual(out.sent.requests[0].params.output_config.format.schema, ANSWERS_SCHEMA);
+      assert.match(out.stdout, /judge: claude-sonnet-5-5@batch; instrument: Batches API judge/);
+      assert.match(out.published, /judged on claude-sonnet-5-5@batch/);
+      assert.match(out.published, /Instrument: Batches API judge/);
+      const row = JSON.parse(fs.readFileSync(tmpRows, 'utf8'));
+      assert.strictEqual(row.judge, 'claude-sonnet-5-5@batch');
+      assert.deepStrictEqual(row.perQuestion, [true, true, true]);
+    } finally {
+      fs.rmSync(tmpRows, { force: true });
+    }
+  });
+});
+
 describe('parity comparison', () => {
   test('agreement counts matching positions and skips missing verdicts', () => {
     const a = [[true, false], null, [true]];

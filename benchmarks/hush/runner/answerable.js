@@ -38,12 +38,16 @@
 // reachability, not a comprehension score, and `answered` is the judge's
 // opinion, one sample, on one model.
 //
-// COSTS MONEY. One extra session per record. Prints the plan and stops unless
-// --go is passed.
+// COSTS MONEY. One judge call per record, on the Message Batches API with
+// structured output, billed to ANTHROPIC_API_KEY instead of the Claude Code
+// plan. Prints the plan and stops unless --go is passed; --max-usd caps the
+// spend. --cli runs the old claude -p judge instead, one session per record.
+// The two are different instruments, so every row, report and published file
+// names its judge, and a figure from one is never compared with the other.
 //
 //   node runner/answerable.js --records ../../.private/benchmarks/hush/records/rm280-7e554675            # plan only
-//   node runner/answerable.js --records ../../.private/benchmarks/hush/records/rm280-7e554675 --go
-//   node runner/answerable.js --tag shp1 --arms shape,shapeplus --go
+//   node --env-file=<key file> runner/answerable.js --records <dir> --max-usd 1 --go
+//   node runner/answerable.js --tag shp1 --arms shape,shapeplus --cli --go    (the old claude -p judge)
 
 const fs = require('node:fs');
 const os = require('node:os');
@@ -98,10 +102,29 @@ function judgePrompt(taskPrompt, finalText) {
   ].join('\n');
 }
 
-/** Pull A1/A2/A3 out of the judge's reply. A missing line reads as absent. */
+// The Batches judge must answer in this shape; the API enforces it, so the
+// three answers come back as JSON fields named like the prompt's lines.
+const ANSWERS_SCHEMA = {
+  type: 'object',
+  properties: Object.fromEntries(QUESTIONS.map((_, i) => [`A${i + 1}`, { type: 'string' }])),
+  required: QUESTIONS.map((_, i) => `A${i + 1}`),
+  additionalProperties: false,
+};
+
+/**
+ * Pull A1/A2/A3 out of the judge's reply: the schema's JSON object, or the
+ * prompt's three lines from claude -p. A missing answer reads as absent.
+ */
 function parseAnswers(text) {
+  let json = null;
+  try { json = JSON.parse(text); } catch { /* the line format */ }
   const out = [];
   for (let i = 1; i <= QUESTIONS.length; i++) {
+    if (json && typeof json === 'object') {
+      const a = json[`A${i}`];
+      out.push(typeof a === 'string' && a.trim() ? a.trim() : ABSENT);
+      continue;
+    }
     const m = String(text || '').match(new RegExp(`^\\s*A${i}\\s*:\\s*(.+?)\\s*$`, 'm'));
     out.push(m ? m[1] : ABSENT);
   }
@@ -223,15 +246,15 @@ async function main() {
   const only = (at('--arms') || '').split(',').filter(Boolean);
   const save = at('--save');
   const go = argv.includes('--go');
-  // --batch sends every judge prompt in one Message Batches job, billed to
-  // ANTHROPIC_API_KEY instead of the Claude Code plan; --max-usd caps it.
-  const batch = argv.includes('--batch');
+  // Every judge prompt goes in one Message Batches job unless --cli asks for
+  // the old claude -p judge; --max-usd caps a batch.
+  const batch = !argv.includes('--cli');
   const maxUsd = Number(at('--max-usd'));
   const dir = recordsArg
     ? path.resolve(ROOT, recordsArg)
     : tag ? path.join(RESULTS, tag, 'runs') : null;
   if (!dir) {
-    console.error('Usage: answerable.js --records <dir> | --tag <tag> [--arms a,b] [--model sonnet] [--batch --max-usd <usd>] --go');
+    console.error('Usage: answerable.js --records <dir> | --tag <tag> [--arms a,b] [--model sonnet] [--max-usd <usd> | --cli] --go');
     process.exit(1);
   }
 
@@ -242,18 +265,23 @@ async function main() {
     return {
       r,
       prompt: judgePrompt(taskPrompt, r.finalText),
+      schema: ANSWERS_SCHEMA,
       patterns: task?.check?.type === 'keywords' ? task.check.patterns : [],
     };
   });
-  const judgedOn = batch ? `${modelId(model)} (Batches API)` : model;
+  // The same label retention.js caches under: `<model id>@batch` or the alias.
+  const judge = batch ? `${modelId(model)}@batch` : model;
+  const instrument = batch ? 'Batches API judge; compare only with other Batches figures'
+    : 'claude -p judge; compare only with other claude -p figures';
   console.log(`answerable — ${path.relative(ROOT, dir)}`);
-  console.log(`${records.length} judge calls on ${judgedOn}, one per record, three fixed questions each.`);
+  console.log(`${records.length} judge calls on ${judge}, one per record, three fixed questions each.`);
+  console.log(`instrument: ${instrument}`);
   if (batch) {
     const { plan } = await runBatch(jobs, { model });
     console.log(`worst case $${plan.worstUsd.toFixed(2)} for ~${plan.inputTokens} input tokens; cap --max-usd ${maxUsd || 'unset'}`);
   }
   if (!go) {
-    console.log('\nplan only — nothing was spawned and nothing was billed. Re-run with --go to spend.');
+    console.log('\nplan only — nothing was sent and nothing was billed. Re-run with --go to spend.');
     return;
   }
 
@@ -268,7 +296,7 @@ async function main() {
   for (const [i, { r, prompt, patterns }] of jobs.entries()) {
     const res = replies ? replies[i] : await runJudge(prompt, model, cwd);
     if (res.error) {
-      rows.push({ arm: r.arm, task: r.task, error: res.error });
+      rows.push({ arm: r.arm, task: r.task, judge, error: res.error });
       console.log(`ERR  ${r.task}__${r.arm}  ${res.error}`);
       continue;
     }
@@ -276,7 +304,7 @@ async function main() {
     const scored = scoreAnswers(answers, patterns);
     // The judge's literal answers ride along so a --save file shows WHAT a
     // reader got out, not just how much.
-    rows.push({ arm: r.arm, task: r.task, costUsd: res.costUsd, answers, ...scored });
+    rows.push({ arm: r.arm, task: r.task, judge, costUsd: res.costUsd, answers, ...scored });
     console.log(`${scored.answerable ? 'OK  ' : 'GAP '} ${r.task}__${r.arm}  `
       + `q=${scored.perQuestion.map((b) => (b ? 'Y' : 'n')).join('')}  `
       + `answered=${scored.answered}/${QUESTIONS.length}  recovered=${n1(scored.recoveredPct)}%  `
@@ -286,7 +314,8 @@ async function main() {
   const report = answerableReport(rows);
   const arms = Object.keys(report.arms).sort(
     (a, b) => (a === 'baseline' ? -1 : b === 'baseline' ? 1 : a.localeCompare(b)));
-  console.log('\narm\truns\tjudged\tanswered/3\tq1%\tq2%\tq3%\tfully answerable%\trubric recovered%\t$');
+  console.log(`\njudge: ${judge}; instrument: ${instrument}`);
+  console.log('arm\truns\tjudged\tanswered/3\tq1%\tq2%\tq3%\tfully answerable%\trubric recovered%\t$');
   for (const a of arms) {
     const x = report.arms[a];
     console.log([a, x.runs, x.judged, n1(x.answered), ...x.qPct.map(n1), n1(x.answerablePct),
@@ -318,7 +347,9 @@ async function main() {
     fs.writeFileSync(out, [
       `# answerable — batch ${path.basename(dir)}`,
       '',
-      `${rows.length} judged replies, three fixed questions each, judged on ${judgedOn}.`,
+      `${rows.length} judged replies, three fixed questions each, judged on ${judge}.`,
+      '',
+      `Instrument: ${instrument}.`,
       '',
       '| Arm | runs | q1 what happened | q2 what to open | q3 what next | all three | task facts recovered |',
       '|---|---|---|---|---|---|---|',
@@ -333,7 +364,7 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = {
-  QUESTIONS, ABSENT, judgePrompt, parseAnswers, isAbsent, scoreAnswers, answerableReport,
+  QUESTIONS, ABSENT, ANSWERS_SCHEMA, judgePrompt, parseAnswers, isAbsent, scoreAnswers, answerableReport,
   // retold.js runs the same second-stage judge over a retelling instead of the
   // reply, so it needs the same spawn and the same success guards.
   runJudge,
