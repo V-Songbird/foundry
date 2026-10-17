@@ -136,6 +136,31 @@ heuristic, wrong on some words in every English text and wrong the same way for
 every arm. The numbers compare two texts scored by the same version. They are not
 a literacy verdict.
 
+## Do the message settings hold?
+
+`conformance.js` checks real sessions against the settings `/hush:config` saved. It reads
+Claude Code transcripts, recovers each session's settings from the text hush's SessionStart
+hook sent, and checks every turn's final message against them. It starts no session and
+sends nothing anywhere:
+
+```bash
+node runner/conformance.js --hush <hush checkout> ~/.claude/projects
+```
+
+The argument is one transcript, a project folder of transcripts, or a folder of project
+folders. `--hush` names a checkout with `modules/`, the texts the settings come from; it
+defaults to Foundry's `hush/`. `--settings next=off,box=text` scores every turn under fixed
+settings instead. `--skip <regex>` leaves out replies whose format the prompt dictated.
+`--json <file>` keeps every verdict.
+
+Each check reports `pass`, `fail`, `warn` or `na`. A `fail` is a breach a regex can prove,
+such as a "Next:" line under `next=off`. A `warn` is a soft rule, such as the word budget,
+or a heuristic, such as a records line under `records=off`. `why`, `caveats` and `terms`
+need judgement, so they are always `na`. Turns that ended waiting on a background event and
+synthetic error replies are counted and left out. The base rules changed between hush
+releases, so the report splits the main checks by style text: a breach under an older style
+may have been no breach then.
+
 ## Records you can audit
 
 Every run leaves two copies, both under `.private/benchmarks/hush/` at the Foundry root. `results/<tag>/` holds raw transcripts and reports as a local working copy; publishing any of it needs its own review. `records/<batch>/` is the auditable copy — the same numbers with absolute paths, usernames, machine names, env values and anything secret-shaped scrubbed out before the file is written. Records are written once and stamped with a content hash: a second write to the same name is refused, and an edited record is caught on read rather than quietly published. They land read-only, so on Windows a batch you no longer want needs its read-only attribute cleared before it will delete — `attrib -R <Foundry root>\.private\benchmarks\hush\records\<batch>\*.* /S` and then remove the folder.
