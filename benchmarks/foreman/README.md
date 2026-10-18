@@ -157,6 +157,25 @@ The model gets Read, Bash, Skill and AskUserQuestion tools, and every result is 
 
 The simulator is not Claude Code: its system prompt is a short stand-in, and the tool results are fixed. Compare the arms with each other, not with a real session.
 
+## The close-protocol eval
+
+A fourth question: does a worker that follows a Foreman handoff keep the roadmap's books? `closeflow/` hands a simulated background agent the entry paragraph of a Foreman handoff and scores four steps: opening the entry as `in_progress`, taking the commit boundary with `safe-commit.js begin`, staging only the files the task owns, and closing with the right status and one commit whose last line is `Foreman: <id>`.
+
+```bash
+node closeflow/run.js --smoke                # scripted replies through the simulator and grader: free
+node closeflow/run.js                        # plan only: cases and prompt sizes; nothing is sent
+```
+
+From `benchmarks/`, `node --test foreman/tests/closeflow.test.js` runs the offline tests: the scripted replies, one broken step at a time, and the sandbox's refusals.
+
+- Prompt: each case crafts its prompt with the Foreman checkout's own `craft-handoff.js`, for the background-agent destination. The eval therefore always grades the bookkeeping Foreman prints today. The one arm, `current`, is that prompt.
+- Scenarios, in `closeflow/scenarios.json`, all on the `api-constraint` fixture: `clean` (expects `done` and one commit), `hold` (the project keeps `requireVerification` at its default, so it expects `awaiting_acceptance` and one commit) and `dirty` (another session left an uncommitted edit to `index.js`, so it expects `done` and no commit, with that edit untouched and unstaged).
+- Grade per case: `opened`, `boundary`, `owned`, `closed` and `clean` (no refused command or write), each 0 or 1, read from the repository and the order of the calls. `pass` is 1 only when all five are.
+- What runs: only Foreman's `roadmap.js` and `safe-commit.js`, and the git subcommands `add`, `commit`, `status`, `diff`, `rev-parse`, `log` and `show`, in a throwaway repository under the system temp folder that is deleted after grading. Writes land only inside that repository, never in `ROADMAP.jsonl` or `.foreman/`. A push, reset, amend or other git subcommand is refused and counted. The test command gets a scripted pass.
+- Flags: `--arms`, `--scenarios`, `--reps` (1), `--max-rounds` (20).
+
+There is no model path yet. The paid comparison against the `task.js` arm of Foreman entry 1078 adds one in a later step.
+
 ## Held-back tests
 
 In the `gamed-check` fixture, the shipped suite names exactly **one**

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "clean",
+    "fixture": "api-constraint",
+    "entry": {"id":"042","title":"Honor the windowMs option in the rate limiter","why":"Callers pass windowMs, but limits behave like the default 60 s window.","what":"src/limiter.js reads `window` instead of the documented `windowMs` option; read `windowMs` there. index.js is frozen; do not touch it. Run `node --test tests/`; every test passes.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+    "config": {"requireVerification": false},
+    "dirty": null,
+    "owned": ["src/limiter.js"],
+    "expected": {"status": "done", "commit": true}
+  },
+  {
+    "id": "hold",
+    "fixture": "api-constraint",
+    "entry": {"id":"042","title":"Honor the windowMs option in the rate limiter","why":"Callers pass windowMs, but limits behave like the default 60 s window.","what":"src/limiter.js reads `window` instead of the documented `windowMs` option; read `windowMs` there. index.js is frozen; do not touch it. Run `node --test tests/`; every test passes.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+    "config": null,
+    "dirty": null,
+    "owned": ["src/limiter.js"],
+    "expected": {"status": "awaiting_acceptance", "commit": true}
+  },
+  {
+    "id": "dirty",
+    "fixture": "api-constraint",
+    "entry": {"id":"042","title":"Honor the windowMs option in the rate limiter","why":"Callers pass windowMs, but limits behave like the default 60 s window.","what":"src/limiter.js reads `window` instead of the documented `windowMs` option; read `windowMs` there. index.js is frozen; do not touch it. Run `node --test tests/`; every test passes.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+    "config": {"requireVerification": false},
+    "dirty": {"file": "index.js", "append": "// someone else's edit\n"},
+    "owned": ["src/limiter.js"],
+    "expected": {"status": "done", "commit": false}
+  }
+]
