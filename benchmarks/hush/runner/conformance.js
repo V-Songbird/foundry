@@ -217,34 +217,55 @@ function bodyBlocks(text) {
     .filter((b) => !RULE.test(b) && !FOOTNOTE.test(b) && b !== '&nbsp;');
 }
 
-// A passed check in prose: a clause that names a check, by a command or file in
-// inline code or by a word such as "tests" or "lint", with a pass word or a
-// full count and no fail word. Clauses split at commas and conjunctions, so
-// "`npm test` passes, but I did not run the app" still reports a passed check.
-// A negated pass ("does not pass", "I could not make it pass", "passes no
-// longer"), a partial count ("3 of 4 tests pass") and a pass followed by a
-// fail of the same check ("passed before and fails now") report a failed check.
+// A passed check in prose. The rule, in one sentence: each clause is read
+// alone, and it reports a passed check when it names a check and holds a pass
+// word or a full count, but no fail word, no negation ahead of the pass word,
+// no partial word and no past-time word. Clauses split at commas, semicolons
+// and conjunctions; a bare count ("4 of 4") joins the clause before it. A check
+// is named by a command or file in inline code or by a word such as "tests" or
+// "lint". So "`npm test` passes, but I did not run the app" reports a passed
+// check, while "does not pass", "I could not make it pass", "no tests pass",
+// "passes no longer", "stopped passing", "3 of 4 tests pass", "fails while
+// some tests pass" and "passed before the change and fails now" report none.
+// "no errors" and "0 failures" are pass idioms, dropped before the fail words
+// are read.
 // The word after a full count decides what it counts: a plural noun other than
 // a check noun, as in "`node probe.js` shows 8 of 8 retries fire at once",
 // makes it evidence; anything else ("8 of 8.", "4 of 4 in 0.3 s", "4 of 4 OK",
 // "8 of 8, all at once") makes it a passed check of the command it names.
 // The bold result may name the outcome, as the style's "The login test passes
-// again." does; it reports a passed check only when it names the check by
-// inline code, a count, or a word such as "tests" (plural) or "lint".
+// again." does; it reports a passed check only when it names the check by a
+// command in inline code, a count, or a plural word such as "tests" or "lint".
 const COMMAND = /`[^`\n]* [^`\n]*`/g;
 const CHECK_NAME = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b(?:tests?|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs?)\b/i;
-const RESULT_CHECK = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b\d+ of \d+\b|\b(?:tests|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs)\b/i;
+const RESULT_CHECK = /`[^`\n]* [^`\n]*`|\b\d+(?: of |\/)\d+\b|\b(?:tests|lint(?:s|er|ing)?|checks|suites|builds|type-?checks|specs)\b/i;
 const PASS_WORD = /\b(?:pass(?:es|ed|ing)?|green|succeed(?:s|ed)?|clean)\b/i;
-const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run|no longer|any ?more)\b|(?:\bnot|\bnever|n't)\b.*?\b(?:pass|green|succeed|clean)/i;
-const COUNT = /\b(\d+) of (\d+)\b(?! +(?!(?:tests|checks|specs|cases|assertions|suites|runs|pass\w*|succeed\w*|was|has|does|its|this|thus|plus|yes|unless|across|always)\b)[a-z]+s\b)/gi;
-const UNDO = /\b(?:fail(?:s|ed|ing)?|broke|breaks|no longer)\b|(?:\bnot|n't)\b.*?\bpass/i;
+const CLEAN_IDIOM = /\b(?:no|without|zero|0) (?:errors?|failures?|fail\w*)\b/gi;
+const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|breaks?|did not|didn't|not run|no longer|any ?more)\b/i;
+const NEGATED = /(?:\b(?:not|never|cannot|none|unable|stop(?:s|ped)?|no (?:\w+ )?(?:tests?|checks?|suites?|specs?))|n't)\b.*?\b(?:pass|green|succeed|clean)/i;
+const PARTIAL = /\b(?:some|most|several|few|other|rest|remaining|half|partly|partially)\b/i;
+const PAST = /\b(?:before|previously|earlier|formerly|until|used to)\b/i;
+const COUNT = /\b(\d+)(?: of |\/)(\d+)\b(?! +(?!(?:tests|checks|specs|cases|assertions|suites|pass\w*|succeed\w*|was|has|does|its|this|thus|plus|yes|unless|across|always)\b)[a-z]+s\b)/gi;
+const BARE_COUNT = /^\W*\d+(?: of |\/)\d+\W*$/;
 const CLAUSE = /[,;]|\b(?:and|but|while|though|although|yet)\b/i;
 const BULLET = /^(?:[-*+]|\d+\.)\s+/;
 
 function reportsPass(clause, name) {
-  const counts = [...clause.matchAll(COUNT)];
-  return name.test(clause) && (PASS_WORD.test(clause) || counts.length > 0) && !FAIL_WORD.test(clause)
-    && counts.every((m) => m[1] === m[2]);
+  const c = clause.replace(CLEAN_IDIOM, '');
+  const counts = [...c.matchAll(COUNT)];
+  return name.test(c) && (PASS_WORD.test(c) || counts.length > 0) && counts.every((m) => m[1] === m[2])
+    && ![FAIL_WORD, NEGATED, PARTIAL, PAST].some((re) => re.test(c));
+}
+
+/** The clauses of a sentence, a bare count joined to the clause before it: "`node probe.js` confirms it, 8 of 8." is one clause. */
+function clausesOf(sentence) {
+  const out = [];
+  for (const c of sentence.split(CLAUSE)) {
+    if (!c.trim()) continue;
+    if (BARE_COUNT.test(c) && out.length) out[out.length - 1] += ` ${c}`;
+    else out.push(c);
+  }
+  return out;
 }
 
 /** Each sentence or list item outside code that reports a passed check. The Next line is left out, and the bold result unless withResult. */
@@ -254,12 +275,7 @@ function passedItems(nonEmpty, withResult = false) {
     if ((i === 0 && !withResult) || isNextLine(line)) return;
     const name = i === 0 ? RESULT_CHECK : CHECK_NAME;
     for (const sentence of unitsOf(line)) {
-      // A clause that is only a count, as in "`node probe.js` confirms it, 8 of 8.", counts the check its sentence names.
-      const counted = (c) => name.test(sentence) && /^\W*\d+ of \d+\W*$/.test(c) && reportsPass(c, /\d/);
-      // A fail clause with no check of its own, as in "passed before and fails now", takes back the pass before it.
-      const clauses = sentence.split(CLAUSE);
-      const undone = (k) => clauses[k + 1] !== undefined && UNDO.test(clauses[k + 1]) && !name.test(clauses[k + 1]);
-      if (clauses.some((c, k) => (reportsPass(c, name) || counted(c)) && !undone(k))) {
+      if (clausesOf(sentence).some((c) => reportsPass(c, name))) {
         out.push({ text: sentence, commands: (sentence.match(COMMAND) || []).length, bullet: BULLET.test(line) });
       }
     }

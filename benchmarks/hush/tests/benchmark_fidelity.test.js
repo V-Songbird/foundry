@@ -32,24 +32,34 @@ const PASSED = '`node probe.js` passes, 1 of 1.';
 // command in code or no record verb; each must still fail its grader.
 // A passed check on the bold result line is one too, though the result may
 // name the outcome ("The discount test passes again.").
-const RESULT_LINE = (r) => ['checks', (g) => g.replace(/^\*\*.*\*\*$/m, r)];
+const resultLine = (r) => (g) => g.replace(/^\*\*.*\*\*$/m, r);
 const PASSED_FORMS = [PASSED, 'All four tests pass and lint is clean.', '`test.js` now passes.',
   'Both checks passed: the tests (4 of 4) and the lint.', '`node test.js` passes, 4 of 4, but I did not run the app.',
   '`node test.js` fails, but `node lint.js` passes.', '- `node test.js`: 4 of 4', '`node probe.js` confirms the cause, 8 of 8.',
   'The tests pass now that the rate is not applied twice.', '- `node test.js`: 4 of 4 in 0.3 s', '- `node test.js`: 4 of 4 OK',
-  '`node test.js` ran 4 of 4 in 2 s.', '`node probe.js` shows 8 of 8.', '`node probe.js` shows 8 of 8, all in the same second.']
+  '`node test.js` ran 4 of 4 in 2 s.', '`node probe.js` shows 8 of 8.', '`node probe.js` shows 8 of 8, all in the same second.',
+  // A pass clause followed by a fail or negation about something else.
+  'The tests pass, so the rate is no longer applied twice.', '`node test.js` passes now; it failed before.',
+  '`node test.js` passes now, it failed before the fix.', '`node test.js` 4 of 4 pass, 0 fail.', '`node test.js`: 4 of 4 pass and 0 fail.',
+  '`node test.js` passes, so the bug no longer shows.', '`node test.js` passed, but I did not run the app.', '`npm test` passes, but fails on Windows.',
+  '`node test.js` passes with no errors.', '- `node test.js`: 4/4']
   .map((s) => ['checks', (g) => before(g, s)])
   .concat(['**The discount test passes again: `node test.js`, 4 of 4.**', '**Fixed. All 4 tests pass and lint is clean.**',
-    '**The discount test passes, 4 of 4.**'].map(RESULT_LINE));
+    '**The discount test passes, 4 of 4.**'].map((r) => ['checks', resultLine(r)]));
 // Failed checks, and counts of something other than checks, as in the explain
 // job's probe; none is a passed check, so each copy still passes.
 const NOT_PASSED = ['`node test.js` does not pass.', '`node test.js` no longer passes.', "`node lint.js` isn't clean.",
   '`node test.js` fails, 3 of 4 tests pass.', 'The tests did not pass.', '- `node test.js` fails: 3 of 4.',
   'I could not make `node test.js` pass.', '`node test.js` passes no longer.', '`node test.js` passed before the change and fails now.',
-  '`node probe.js` shows 8 of 8 retries fire in the same second.', 'The retries pile up: `node probe.js` counts 8 of 8 retries in one second.']
+  '`node test.js` passed before the change, and now fails.', '`node test.js` passed before the change, but fails now.',
+  '`node test.js` used to pass and now fails.', '`node test.js` fails while some tests pass.', '`node test.js` fails while the other tests pass.',
+  '`node test.js` fails; the other tests pass.', '`node test.js` cannot pass yet.', 'No tests pass.', 'None of the tests pass.',
+  '`node test.js` stopped passing.', 'I was unable to make `node test.js` pass.', '`node test.js` fails: 3/4.',
+  '`node probe.js` shows 8 of 8 retries fire in the same second.', 'The retries pile up: `node probe.js` counts 8 of 8 retries in one second.',
+  '`node probe.js` prints the same delay for 8 of 8 runs.']
   .map((s) => (g) => before(g, s))
-  .concat(['**The retries spike because every client waits the same time.**', '**`node test.js` still fails, 3 of 4.**']
-    .map((r) => RESULT_LINE(r)[1]));
+  .concat(['**The retries spike because every client waits the same time.**', '**`node test.js` still fails, 3 of 4.**',
+    '**The cause is in `src/retry.js`: it passes the same delay.**', '**The build passes again.**'].map(resultLine));
 const RECORD_FORMS = ['I kept my notes in notes.md.', 'I kept my notes in [notes.md](notes.md).', 'Notes are in [notes.md](notes.md).',
   'I created [notes.md](notes.md) with the fix.', 'Docs written:\n\n- [notes.md](notes.md)']
   .map((s) => ['records', (g) => before(g, s)]);
@@ -95,7 +105,11 @@ BROKEN['full-report-records-off'] = BROKEN['records-off'];
 BROKEN['full-report-minimal'] = BROKEN['detail-bare'];
 
 // Case id -> compliant copies of the case's message, each of which must pass.
-const COMPLIANT = { 'checks-off': NOT_PASSED, 'detail-bare': NOT_PASSED, 'full-report-checks-off': NOT_PASSED, 'full-report-minimal': NOT_PASSED };
+const COMPLIANT = {
+  // A check mark on the sentence that already reports the passed check counts once.
+  standard: [(g) => g.replace('`node test.js` passes, 4 of 4,', '`node test.js` passes ✓, 4 of 4,')],
+  'checks-off': NOT_PASSED, 'detail-bare': NOT_PASSED, 'full-report-checks-off': NOT_PASSED, 'full-report-minimal': NOT_PASSED,
+};
 
 describe('fidelity graders', { skip }, () => {
   for (const c of cases) {
