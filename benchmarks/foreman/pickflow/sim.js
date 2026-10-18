@@ -29,12 +29,14 @@ const REAL = process.env.PICKFLOW_REAL_DIR
   : path.resolve(HERE, '..', '..', '..', '.private', 'foreman-step-pick');
 const ARMS = {
   // `prose` is frozen at foreman 4200026 (4.1.0), before entry 1076 moved pick.md
-  // to action codes; `p1` reads Foreman's current destination-question.md.
-  prose: {
-    'skills/roadmap/pick.md': path.join(HERE, 'arms', 'prose', 'pick.md'),
-    'skills/roadmap/destination-question.md': path.join(HERE, 'arms', 'prose', 'destination-question.md'),
-  },
-  p1: { 'skills/roadmap/pick.md': path.join(HERE, 'arms', 'p1', 'pick.md') },
+  // to action codes: pick.md, destination-question.md and the sibling files they
+  // link, which changed in the same move. `p1` swaps nothing: it reads Foreman's
+  // current code-table files, with the `step pick` prototype below.
+  prose: Object.fromEntries(
+    ['pick', 'destination-question', 'accept', 'resume', 'defer', 'hint', 'reconcile', 'prepare-increments', 'prompt-template', 'questions']
+      .map((f) => [`skills/roadmap/${f}.md`, path.join(HERE, 'arms', 'prose', `${f}.md`)])
+  ),
+  p1: {},
   real: { root: REAL },
 };
 

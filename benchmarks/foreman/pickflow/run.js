@@ -2,8 +2,9 @@
 'use strict';
 // Pick-flow eval on the Claude API: Foreman's Fast pick, from "what's next"
 // to the destination question, in a simulated Claude Code session (sim.js).
-// The `prose` arm reads today's skill files; the `p1` arm swaps pick.md for
-// arms/p1/pick.md, whose `roadmap.js step pick` returns action codes. The
+// The `prose` arm reads the skill files frozen at foreman 4.1.0 in arms/prose/;
+// the `p1` arm reads Foreman's current code-table files, whose `roadmap.js step
+// pick` returns action codes (the prototype in sim.js stands in for it). The
 // `real` arm reads and runs a whole Foreman checkout with the real step
 // (PICKFLOW_REAL_DIR, default the root's .private/foreman-step-pick).
 //

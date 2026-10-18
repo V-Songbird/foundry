@@ -29,14 +29,23 @@ test('a model that only answers in text fails every scenario', async () => {
   for (const c of await offline('null')) assert.strictEqual(sim.grade(c.st).pass, 0, `${c.arm} ${c.scenario.id}`);
 });
 
-test('the P1 arm reads the swapped pick.md and the prose arm reads the pinned 4.1.0 files', () => {
+test('the P1 arm reads Foreman\'s current files and the prose arm reads the pinned 4.1.0 files', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const frozen = (f) => fs.readFileSync(path.join(__dirname, '..', 'pickflow', 'arms', 'prose', f), 'utf8');
+  const current = (f) => fs.readFileSync(path.join(sim.FOREMAN, 'skills', 'roadmap', f), 'utf8');
+  assert.deepStrictEqual(sim.ARMS.p1, {});
+  for (const f of ['pick.md', 'destination-question.md', 'accept.md', 'resume.md']) {
+    assert.strictEqual(sim.skillFile('p1', `skills/roadmap/${f}`), current(f), `p1 ${f}`);
+  }
   assert.match(sim.skillFile('p1', 'skills/roadmap/pick.md'), /\| `ask_q1` \|/);
   assert.doesNotMatch(sim.skillFile('prose', 'skills/roadmap/pick.md'), /\| `ask_q1` \|/);
-  assert.strictEqual(sim.skillFile('prose', 'skills/roadmap/pick.md'), frozen('pick.md'));
-  assert.strictEqual(sim.skillFile('prose', 'skills/roadmap/destination-question.md'), frozen('destination-question.md'));
+  for (const f of Object.keys(sim.ARMS.prose)) {
+    assert.strictEqual(sim.skillFile('prose', f), frozen(path.posix.basename(f)), `prose ${f}`);
+  }
+  for (const f of ['accept', 'resume', 'defer', 'hint', 'reconcile', 'prepare-increments']) {
+    assert.ok(`skills/roadmap/${f}.md` in sim.ARMS.prose, `prose freezes ${f}.md`);
+  }
 });
 
 test('a moved (Recommended) on the destination question fails Q2 only', async () => {
