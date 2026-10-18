@@ -235,6 +235,26 @@ the same second." and "`node test.js` ran 4 of 4 in 2 s." each fail the case. To
 probe count as evidence, name what it counts. An unequal count is a failure whatever it
 counts: "`node test.js` passes in 3 of 4 runs" is no passed check.
 
+The live run and `--smoke` grade this passed-check question with the rule above, and the
+rule misgrades known forms. For example, "`node test.js`: 3 passed, 1 failed." and "Neither
+`node test.js` nor `node lint.js` passes." each grade as a passed check. A regrade can ask a
+model judge instead. With `--go` and `--max-usd`, `--regrade` sends every stored
+`checks=off` or `detail=bare` row to a Sonnet judge on the Message Batches API through
+[`../batch-judge.js`](../batch-judge.js), twice per row, one request for each regrade pass.
+It prints the worst case before it sends anything, and it refuses a worst case above the cap.
+Without `--go`, it prints the worst case and lists those rows as `SKIP`. A judge error or a
+missing reply is also a `SKIP`, never a pass. A `FLIP` against the recorded grade marks a
+regex misgrade, so a judged regrade exits 1 whenever the judge disagrees with the grade the
+live run recorded. Every other case, and every check mark line, keeps the regex rule.
+
+```bash
+node --env-file=<key file> runner/hillclimb.js --variant baseline --flow <Foundry root>/.claude/hillclimb/hush-fidelity --regrade --go --max-usd 1
+```
+
+A `--reps 2` grid has 88 cells. 16 of them are `checks=off` or `detail=bare`, so a regrade
+sends 32 requests, worst case $0.67 (every reply at 4096 tokens), from the prices in
+`batch-judge.js`. The real cost is lower and has not been measured.
+
 The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
 from the flow's name and the default flow's tag belongs to the main suite:
 

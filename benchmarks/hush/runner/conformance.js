@@ -10,7 +10,9 @@
 //
 // Each check reports pass, fail, warn or na. fail is a breach a regex can
 // prove: a "Next:" line under next=off, a passed check under checks=off, an
-// emoji outside the emoji=on map. warn is a soft rule ("most messages fit in
+// emoji outside the emoji=on map. The fidelity eval's --regrade hands the
+// strict passed-check question to a model judge through opts.passedCheck; the
+// regex stays the rule everywhere else. warn is a soft rule ("most messages fit in
 // 150 words") or a heuristic: a cause word under why=off, a footnote under
 // terms=inline. na means the setting asks for judgement this file cannot
 // make: why=on, caveats, terms=footnote, headers=off, box=decisions.
@@ -217,6 +219,7 @@ function bodyBlocks(text) {
     .filter((b) => !RULE.test(b) && !FOOTNOTE.test(b) && b !== '&nbsp;');
 }
 
+// Under checks=off and detail=bare, the fidelity eval's --regrade asks a model judge instead (opts.passedCheck); the live run, --smoke and this CLI keep the regex.
 // A passed check in prose. The rule, in one sentence: each clause is read
 // alone, and it reports a passed check when it names a check and holds a pass
 // word or a full count, but no fail word, no negation ahead of the pass word
@@ -305,7 +308,7 @@ const leadOf = (block) => block.replace(/^\*\*/, '').match(/^((?![©®™])\p{Ex
 
 const result = (status, why = '') => ({ status, why });
 
-function checkMessage(text, s, turn, contract) {
+function checkMessage(text, s, turn, contract, opts = {}) {
   const lines = linesOf(text);
   const nonEmpty = lines.filter(Boolean);
   const rules = nonEmpty.filter((l) => RULE.test(l)).length;
@@ -370,7 +373,11 @@ function checkMessage(text, s, turn, contract) {
   if (loose) {
     out.checks = result('fail', `${loose} check line(s) outside a diff block`);
   } else if (strict) {
-    out.checks = n ? result('fail', `${n} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, such as "${(passed[0]?.text || checkLines[0]).slice(0, 60)}"`) : result('pass');
+    // A judge verdict ({passed, quote}) answers the prose question; mark lines stay the regex's.
+    const j = opts.passedCheck;
+    const count = j ? checkLines.length + (j.passed ? 1 : 0) : n;
+    const example = j ? (j.passed ? j.quote : checkLines[0]) : passed[0]?.text || checkLines[0];
+    out.checks = count ? result('fail', `${count} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, such as "${String(example).slice(0, 60)}"`) : result('pass');
   } else if (s.checks === 'each') {
     const shared = checkLines.filter((l) => (l.match(/✓/g) || []).length > 1).length + passed.filter((p) => p.commands > 1).length;
     const prose = passed.filter((p) => !p.bullet).length;

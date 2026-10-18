@@ -10,10 +10,14 @@
 //   node runner/hillclimb.js --smoke                     # oracle and null through the grader
 //   node runner/hillclimb.js --variant baseline --flow <Foundry>/.claude/hillclimb/hush-fidelity -- --fidelity --reps 2
 //                                                        # the message-settings fidelity eval
+//   node --env-file=<key file> runner/hillclimb.js --variant v1 --flow <Foundry>/.claude/hillclimb/hush-fidelity --regrade --go --max-usd 1
+//                                                        # regrade, the checks=off and detail=bare rows by a model judge
 //
 // Flags after -- go to run.js. --flow defaults to <Foundry>/.claude/hillclimb/hush.
 // Give the fidelity eval its own --flow: the tag comes from the flow's name,
 // so the default flow would collide with the main suite's batch.
+// --go and --max-usd are taken only with --regrade. Without them a judged row
+// prints the worst case and is listed as SKIP; a judge error is a SKIP too.
 
 const fs = require('node:fs');
 const os = require('node:os');
@@ -29,6 +33,7 @@ const ROOT = path.resolve(__dirname, '..');
 const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));
 const prompts = (task) => task.prompts || [task.prompt];
 const grade = (check) => ({ pass: check.pass ? 1 : 0, score: check.score });
+const judged = new Map(); // meta.run -> the judge's verdicts for the two regrade passes, in call order
 
 function adapt(tag, arm) {
   const out = path.join(dataDir('hush'), 'results', tag);
@@ -74,6 +79,11 @@ function live(tag, arm, extra) {
 function gradeStored(meta) {
   const task = TASKS.get(meta.task);
   const rec = JSON.parse(fs.readFileSync(meta.run, 'utf8'));
+  if (task.check.type === 'conformance' && fidelity.needsJudge(task.check)) {
+    const v = judged.get(meta.run);
+    if (!v?.length) throw new Error('the passed-check question needs the judge: add --go --max-usd <usd>, with the key loaded through node --env-file');
+    return grade(fidelity.grade(task.check, rec.finalText || '', v.shift()));
+  }
   const ws = hc.scratchCopy(meta.workDir);
   try {
     if ((task.check.type === 'tests' || task.check.orFiles) && !ws) throw new Error(`workspace ${meta.workDir} is gone`);
@@ -105,6 +115,52 @@ function smoke() {
   return cases;
 }
 
-const suite = { name: 'hush', arm: 'hush', adapt, live, gradeStored, smoke };
+// Asks the judge about every stored row of a checks=off or detail=bare case,
+// twice, one request per regrade pass, and keeps the verdicts for gradeStored.
+// A row whose run file is gone is left out; gradeStored then lists it as SKIP.
+async function judgeStored(rows, { go, maxUsd, log = console.log } = {}) {
+  judged.clear();
+  const picked = [];
+  const texts = [];
+  for (const row of rows) {
+    const task = TASKS.get(row.meta?.task);
+    if (task?.check.type !== 'conformance' || !fidelity.needsJudge(task.check)) continue;
+    let text;
+    try { text = JSON.parse(fs.readFileSync(row.meta.run, 'utf8')).finalText || ''; } catch { continue; }
+    picked.push(row.meta.run);
+    texts.push(text, text);
+  }
+  const r = await fidelity.judge(texts, { go, maxUsd, log });
+  if (r.verdicts?.length) picked.forEach((run, i) => judged.set(run, [r.verdicts[2 * i], r.verdicts[2 * i + 1]]));
+  if (r.spentUsd !== undefined) log(`judge spent $${r.spentUsd.toFixed(3)}`);
+  return r;
+}
+
+// hc.main with --go and --max-usd taken off a --regrade call; any other call
+// keeps them, so hc.main still refuses them.
+async function cli(argv = process.argv.slice(2)) {
+  const sep = argv.indexOf('--');
+  let own = sep < 0 ? argv : argv.slice(0, sep);
+  const tail = sep < 0 ? [] : argv.slice(sep);
+  const valueOf = (n) => { const i = own.indexOf(n); return i < 0 ? null : own[i + 1] ?? null; };
+  if (!own.includes('--regrade')) return hc.main(suite, argv);
+  const go = own.includes('--go');
+  const maxUsd = valueOf('--max-usd');
+  own = own.filter((a, i) => a !== '--go' && a !== '--max-usd' && own[i - 1] !== '--max-usd');
+  const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
+  const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
+  if (fs.existsSync(file)) {
+    const rows = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    try {
+      await judgeStored(rows, { go, maxUsd: maxUsd === null ? undefined : Number(maxUsd) });
+    } catch (err) {
+      console.log(err.message);
+      return 1;
+    }
+  }
+  return hc.main(suite, [...own, ...tail]);
+}
+
+const suite = { name: 'hush', arm: 'hush', adapt, live, gradeStored, smoke, cli, judgeStored };
 module.exports = suite;
-if (require.main === module) hc.main(suite).then((code) => { process.exitCode = code; });
+if (require.main === module) cli().then((code) => { process.exitCode = code; });

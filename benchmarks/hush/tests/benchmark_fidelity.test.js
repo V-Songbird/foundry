@@ -6,12 +6,13 @@
 // case. The graders read hush's modules, so those parts skip on a hush
 // checkout without modules/.
 
-const { test, describe } = require('node:test');
+const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 
-const { tasks, grade, hasContract } = require('../runner/fidelity.js');
+const { tasks, grade, hasContract, judgePrompt, parseJudge, judge, JUDGE_SCHEMA } = require('../runner/fidelity.js');
 const { pluginDir } = require('../../paths.js');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -189,5 +190,161 @@ describe('fidelity tasks', () => {
       if (t.overlay) assert.deepStrictEqual(fs.readdirSync(path.join(ROOT, t.overlay)), ['CLAUDE.md']);
     }
     assert.strictEqual(all.filter((t) => t.overlay).length, 6);
+  });
+});
+
+// The judge that --regrade asks under checks=off and detail=bare. Offline:
+// fetch is replaced, so any network call the test did not stub fails it.
+describe('fidelity judge', { skip }, () => {
+  const caseOf = (id) => cases.find((c) => c.id === id);
+  const reply = (id, text, stop = 'end_turn') => JSON.stringify({ custom_id: id, result: { type: 'succeeded',
+    message: { stop_reason: stop, content: [{ type: 'text', text }], usage: { input_tokens: 500, output_tokens: 50 } } } });
+  // A Batches API that ends at once and answers with these result lines; posts collects each POST body.
+  const batchApi = (lines, posts) => async (url, init = {}) => {
+    if (init.method === 'POST') {
+      posts.push(JSON.parse(init.body));
+      return new Response(JSON.stringify({ id: 'msgbatch_test', processing_status: 'ended' }));
+    }
+    if (url.endsWith('/results')) return new Response(lines.join('\n'));
+    throw new Error(`unexpected call ${url}`);
+  };
+  let realFetch, savedKey;
+  beforeEach(() => {
+    realFetch = global.fetch;
+    global.fetch = () => { throw new Error('network call in an offline test'); };
+    savedKey = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+  });
+  afterEach(() => {
+    global.fetch = realFetch;
+    if (savedKey === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = savedKey;
+  });
+
+  test('the prompt holds the message verbatim, the result-line exception, and names no setting', () => {
+    const msg = '**Done.**\n\n`node test.js` passes.';
+    const p = judgePrompt(msg);
+    assert.ok(p.includes(`--- MESSAGE ---\n${msg}\n--- END ---`));
+    assert.match(p, /that alone reports no passed check/);
+    assert.doesNotMatch(p, /hush|checks=off|detail=bare/i);
+  });
+
+  test('the reply parser takes the JSON object and refuses anything without a boolean passed', () => {
+    assert.deepStrictEqual(parseJudge('{"passed":true,"quote":"x"}'), { passed: true, quote: 'x' });
+    assert.deepStrictEqual(parseJudge('Here: {"passed": false, "quote": ""} done'), { passed: false, quote: '' });
+    assert.throws(() => parseJudge('It passed.'), /no JSON object/);
+    assert.throws(() => parseJudge('{"passed":"yes"}'), /boolean passed/);
+    assert.throws(() => parseJudge('{}'), /boolean passed/);
+  });
+
+  test('a verdict decides the passed-check question of a strict case, and an error throws', () => {
+    for (const id of ['checks-off', 'detail-bare']) {
+      const c = caseOf(id);
+      const g = gold(c);
+      assert.strictEqual(grade(checkOf(c), g, { passed: false, quote: '' }).pass, true);
+      const hit = grade(checkOf(c), g, { passed: true, quote: '`node test.js` passes.' });
+      assert.strictEqual(hit.pass, false);
+      assert.match(hit.detail, /(?:^|; )checks /);
+      assert.match(hit.detail, /`node test\.js` passes\./);
+      assert.throws(() => grade(checkOf(c), g, { error: 'no result returned' }), /fidelity judge/);
+      // A check mark in a diff block stays the regex's to catch.
+      assert.strictEqual(grade(checkOf(c), before(g, '```diff\n+ ✓ `node test.js`\n```'), { passed: false, quote: '' }).pass, false);
+    }
+    const std = caseOf('standard');
+    const broken = before(gold(std), PASSED);
+    assert.deepStrictEqual(grade(checkOf(std), broken, { passed: false, quote: '' }), grade(checkOf(std), broken));
+  });
+
+  test('a mixed count the regex reads as a passed check passes when the judge says none', () => {
+    const c = caseOf('checks-off');
+    const copy = before(gold(c), '`node test.js`: 3 passed, 1 failed.');
+    assert.strictEqual(grade(checkOf(c), copy).pass, false, 'the regex no longer misgrades this form; pick another');
+    assert.strictEqual(grade(checkOf(c), copy, { passed: false, quote: '' }).pass, true);
+  });
+
+  test('judge plans without sending, needs a cap, and refuses a worst case above it', async () => {
+    const logs = [];
+    const plan = await judge(['a', 'b'], { log: (l) => logs.push(l) });
+    assert.strictEqual(plan.verdicts, null);
+    assert.strictEqual(plan.plan.requests, 2);
+    assert.match(logs[0], /worst case \$\d+\.\d\d; cap --max-usd unset/);
+    await assert.rejects(judge(['a'], { go: true, log: () => {} }), /max-usd is required/);
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    await assert.rejects(judge(['a'], { go: true, maxUsd: 0.0001, log: () => {} }), /nothing was sent/);
+    assert.deepStrictEqual(await judge([], { go: true }), { plan: null, verdicts: [] });
+  });
+
+  test('judge turns every result that is not a JSON verdict into an error', async () => {
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    const posts = [];
+    global.fetch = batchApi([
+      reply('j0', '{"passed":true,"quote":"`node test.js` passes."}'),
+      JSON.stringify({ custom_id: 'j1', result: { type: 'errored', error: { type: 'overloaded' } } }),
+      reply('j2', '{"passed":', 'max_tokens'),
+      reply('j4', 'It reports a passed check.'),
+    ], posts);
+    const r = await judge(['m0', 'm1', 'm2', 'm3', 'm4'], { go: true, maxUsd: 1, log: () => {} });
+    assert.deepStrictEqual(r.verdicts[0], { passed: true, quote: '`node test.js` passes.' });
+    assert.match(r.verdicts[1].error, /^errored/);
+    assert.match(r.verdicts[2].error, /max_tokens/);
+    assert.match(r.verdicts[3].error, /no result/);
+    assert.match(r.verdicts[4].error, /no JSON object/);
+    assert.strictEqual(posts.length, 1);
+    assert.deepStrictEqual(posts[0].requests[0].params.output_config.format.schema, JUDGE_SCHEMA);
+  });
+
+  test('--regrade sends each strict row twice, and lists a missing or failed verdict as SKIP', async (t) => {
+    const suite = require('../runner/hillclimb.js');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-judge-'));
+    t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+    const FLOW = path.join(tmp, 'flow');
+    const run = path.join(tmp, 'run.json');
+    const c = caseOf('checks-off');
+    fs.writeFileSync(run, JSON.stringify({ finalText: gold(c) }));
+    fs.mkdirSync(path.join(FLOW, 'baseline'), { recursive: true });
+    const recorded = { pass: 1, score: grade(checkOf(c), gold(c)).score };
+    fs.writeFileSync(path.join(FLOW, 'baseline', 'results.jsonl'), `${JSON.stringify({ prompt_id: 'fid-fix-checks-off', rep: 0,
+      grade: recorded, meta: { task: 'fid-fix-checks-off', run, workDir: path.join(tmp, 'gone') } })}\n`);
+    const log = t.mock.method(console, 'log', () => {});
+    const call = async (...extra) => {
+      log.mock.resetCalls();
+      const code = await suite.cli(['--variant', 'baseline', '--flow', FLOW, '--regrade', ...extra]);
+      return { code, out: log.mock.calls.map((x) => x.arguments.join(' ')).join('\n') };
+    };
+
+    let r = await call();
+    assert.match(r.out, /worst case \$/);
+    assert.match(r.out, /SKIP fid-fix-checks-off_rep0: .*--go --max-usd/);
+    assert.match(r.out, /regraded 0 rows/);
+    assert.strictEqual(r.code, 1);
+
+    r = await call('--go', '--max-usd', '0.0001');
+    assert.match(r.out, /nothing was sent/);
+    assert.doesNotMatch(r.out, /regraded/);
+    assert.strictEqual(r.code, 1);
+
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    const posts = [];
+    global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}'),
+      reply('j1', '{"passed":true,"quote":"The discount test passes again."}')], posts);
+    r = await call('--go', '--max-usd', '1');
+    assert.match(r.out, /FLIP fid-fix-checks-off_rep0 pass: recorded 1, then 1, then 0/);
+    assert.match(r.out, /judge spent \$/);
+    assert.strictEqual(r.code, 1);
+    assert.strictEqual(posts.length, 1);
+    assert.strictEqual(posts[0].requests.length, 2);
+    assert.strictEqual(posts[0].requests[0].params.messages[0].content, judgePrompt(gold(c)));
+
+    global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}'),
+      JSON.stringify({ custom_id: 'j1', result: { type: 'errored', error: {} } })], []);
+    r = await call('--go', '--max-usd', '1');
+    assert.match(r.out, /SKIP fid-fix-checks-off_rep0: fidelity judge: errored/);
+    assert.doesNotMatch(r.out, /FLIP/);
+    assert.strictEqual(r.code, 1);
+
+    // Without --regrade, --go stays an unknown flag.
+    const err = t.mock.method(console, 'error', () => {});
+    assert.strictEqual(await suite.cli(['--variant', 'baseline', '--flow', FLOW, '--from', 'x', '--go']), 2);
+    assert.match(err.mock.calls[0].arguments[0], /unknown flag --go/);
   });
 });
