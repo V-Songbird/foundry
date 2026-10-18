@@ -9,9 +9,14 @@
 // checks the message against the settings that can be checked by machine.
 //
 // Each check reports pass, fail, warn or na. fail is a breach a regex can
-// prove: a "Next:" line under next=off, a ✓ line under checks=off. warn is a
-// soft rule ("most messages fit in 150 words") or a heuristic. na means the
-// setting asks for judgement this file cannot make: why, caveats, terms.
+// prove: a "Next:" line under next=off, a passed check under checks=off, an
+// emoji outside the emoji=on map. warn is a soft rule ("most messages fit in
+// 150 words") or a heuristic: a cause word under why=off, a footnote under
+// terms=inline. na means the setting asks for judgement this file cannot
+// make: why=on, caveats, terms=footnote, headers=off, box=decisions.
+//
+// turn.noCards marks a session with no file-card tool, as in claude -p: every
+// file is then a link, whatever the files setting.
 // Like caps.js, this is a second reading of the contract, never its
 // definition; where the two disagree, the module text wins.
 //
@@ -56,7 +61,21 @@ function loadContract(hushDir) {
       modules.push({ knob, value, text: fs.readFileSync(file, 'utf8').trim() });
     }
   }
-  return { KNOBS, DEFAULTS, modules, caps: readCaps(style), budget: Number(budget[1]) };
+  return { KNOBS, DEFAULTS, modules, caps: readCaps(style), budget: Number(budget[1]), ...emojiMapOf(modules) };
+}
+
+/** The emoji=on module's map: every emoji it allows, and the ones a bold result may open with. */
+function emojiMapOf(modules) {
+  const text = modules.find((m) => m.knob === 'emoji' && m.value === 'on')?.text;
+  if (!text) return {};
+  const emojiMap = new Set(), resultEmoji = new Set();
+  for (const [, block, cell] of text.matchAll(/^\|([^|\n]+)\|\s*([^|\n]+?)\s*\|$/gm)) {
+    if (!EMOJI.test(cell)) continue;
+    const e = cell.replace(/️/g, '');
+    emojiMap.add(e);
+    if (/bold result/i.test(block)) resultEmoji.add(e);
+  }
+  return { emojiMap, resultEmoji };
 }
 
 /** Settings named by one SessionStart context, plus paragraphs no module matched. */
@@ -198,6 +217,31 @@ function bodyBlocks(text) {
     .filter((b) => !RULE.test(b) && !FOOTNOTE.test(b) && b !== '&nbsp;');
 }
 
+// A passed check in prose: a command in inline code, a pass word, no fail word.
+const COMMAND = /`[^`\n]* [^`\n]*`/g;
+const PASS_WORD = /\b(?:pass(?:es|ed)?|green|succeed(?:s|ed)?|clean|\d+ of \d+)\b/i;
+const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run)\b/i;
+const BULLET = /^(?:[-*+]|\d+\.)\s+/;
+
+/** Each sentence or list item outside code that reports a passed check. The Next line is left out. */
+function passedItems(nonEmpty) {
+  const out = [];
+  for (const line of nonEmpty) {
+    if (isNextLine(line)) continue;
+    for (const sentence of unitsOf(line)) {
+      const commands = (sentence.match(COMMAND) || []).length;
+      if (commands && PASS_WORD.test(sentence) && !FAIL_WORD.test(sentence)) out.push({ text: sentence, commands, bullet: BULLET.test(line) });
+    }
+  }
+  return out;
+}
+
+// A file named in inline code, where the setting wants a link.
+const FILE_CODE = /^[\w./-]*\w\.(?:[cm]?js|jsx|tsx?|json|md|py|sh|ps1|txt|log|ya?ml|toml|csv|html?|css|go|rs|rb|java)(?::\d+(?:-\d+)?)?$/;
+const CAUSE = /\b(?:because|caused|due to|since|which made|that is why|the cause)\b/i;
+const RECORD = /\b(?:updated|wrote|added|saved|recorded|logged|noted|kept)\b[^.\n]*(?:\.md\b|\bnotes?\b|\bmemory\b)/i;
+const leadOf = (block) => block.replace(/^\*\*/, '').match(/^((?![©®™])\p{Extended_Pictographic})/u)?.[1];
+
 const result = (status, why = '') => ({ status, why });
 
 function checkMessage(text, s, turn, contract) {
@@ -252,19 +296,27 @@ function checkMessage(text, s, turn, contract) {
   out.length = !budget ? result('na', 'detail=bare has no word number')
     : words <= budget ? result('pass') : result('warn', `${words} words outside code, budget ${budget}`);
 
-  // Checks live in a diff block: "+ ✓" passed, "- ✗" failed, "  ○" not checked.
+  // The style writes passed checks as one plain sentence with no marks, such
+  // as "`npm test` passes, 212 of 212." Older styles marked them in a diff
+  // block: "+ ✓" passed, "- ✗" failed, "  ○" not checked. Both are read.
   const diffLines = [...text.matchAll(DIFF)].flatMap((m) => m[1].split('\n'));
   const checkLines = [...nonEmpty.filter((l) => l.includes('✓')), ...diffLines.filter((l) => /^\+\s*✓/.test(l))];
+  const passed = passedItems(nonEmpty);
   const loose = nonEmpty.filter((l) => /^(?:[-*]\s+)?[✓✗○]\s/.test(l)).length;
   if (loose) {
     out.checks = result('fail', `${loose} check line(s) outside a diff block`);
   } else if (s.checks === 'off' || s.detail === 'bare') {
-    out.checks = checkLines.length ? result('fail', `${checkLines.length} passed-check line(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}`) : result('pass');
+    const n = checkLines.length + passed.length;
+    out.checks = n ? result('fail', `${n} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, such as "${(passed[0]?.text || checkLines[0]).slice(0, 60)}"`) : result('pass');
   } else if (s.checks === 'each') {
-    const shared = checkLines.filter((l) => (l.match(/✓/g) || []).length > 1).length;
-    out.checks = shared ? result('fail', `${shared} line(s) share several ✓`) : result('pass');
+    const shared = checkLines.filter((l) => (l.match(/✓/g) || []).length > 1).length + passed.filter((p) => p.commands > 1).length;
+    const prose = passed.filter((p) => !p.bullet).length;
+    out.checks = shared ? result('fail', `${shared} line(s) share several passed checks`)
+      : prose ? result('fail', `${prose} passed check(s) in prose, not a bullet`) : result('pass');
   } else {
-    out.checks = checkLines.length > 1 ? result('fail', `${checkLines.length} ✓ lines, the setting allows one`) : result('pass');
+    const n = checkLines.length + passed.length;
+    // detail=full lets a check that is part of the evidence take its own sentence.
+    out.checks = n > 1 ? result(s.detail === 'full' ? 'warn' : 'fail', `${n} sentences or lines hold passed checks, the setting allows one`) : result('pass');
   }
 
   const blocks = bodyBlocks(text);
@@ -273,8 +325,19 @@ function checkMessage(text, s, turn, contract) {
     out.emoji = hit ? result('fail', `emoji under emoji=off: "${hit.slice(0, 60)}"`) : result('pass');
   } else {
     const all = [nonEmpty[0] || '', ...blocks];
-    const bare = all.filter((b) => !LEAD_EMOJI.test(b)).length;
-    out.emoji = bare ? result('warn', `${bare} of ${all.length} block(s) open without an emoji; a block of another kind may rightly have none`) : result('pass');
+    const bare = all.filter((b) => !leadOf(b)).length;
+    const errs = [];
+    if (contract.emojiMap) {
+      const found = all.map((b) => [...b.replace(/`[^`\n]+`/g, '').matchAll(new RegExp(EMOJI.source, 'gu'))].map((m) => m[0]));
+      const off = [...new Set(found.flat().filter((e) => !contract.emojiMap.has(e)))];
+      if (off.length) errs.push(`emoji outside the map: ${off.join(' ')}`);
+      const inside = all.filter((b, i) => found[i].length > (leadOf(b) ? 1 : 0)).length;
+      if (inside) errs.push(`${inside} block(s) hold an emoji that does not open them`);
+      const lead = leadOf(nonEmpty[0] || '');
+      if (!contract.resultEmoji.has(lead)) errs.push(`the bold result opens with ${lead || 'no emoji'}, not ${[...contract.resultEmoji].join(' ')}`);
+    }
+    out.emoji = errs.length ? result('fail', errs.join('; '))
+      : bare ? result('warn', `${bare} of ${all.length} block(s) open without an emoji; a block of another kind may rightly have none`) : result('pass');
   }
 
   if (s.headers === 'on') {
@@ -297,9 +360,15 @@ function checkMessage(text, s, turn, contract) {
   const found = forbidden.filter(([re]) => re.test(outside)).map(([, name]) => name);
   out.markdown = found.length ? result('fail', `markdown=${s.markdown} forbids ${found.join(', ')}`) : result('pass');
 
+  // Under files=link, or in a session with no file-card tool, every file
+  // is a link: a file name in inline code outside a link is a breach.
+  if (s.markdown !== 'plain' && (s.files === 'link' || turn.noCards)) {
+    const named = [...text.replace(FENCE, '\n').replace(/\[[^\]\n]*\]\([^)\s]*\)/g, '').matchAll(/`([^`\n]+)`/g)]
+      .map((m) => m[1]).filter((t) => FILE_CODE.test(t));
+    out.files = named.length ? result('fail', `${named.length} file(s) in inline code, not a link, such as ${named[0]}`) : result('pass');
   // A warn, not a fail: the meter cannot see whether the session had the
   // file-card tool, and without it every file is rightly a link.
-  if (s.files === 'card' && s.markdown === 'rich') {
+  } else if (s.files === 'card' && s.markdown === 'rich') {
     const whole = [...text.replace(FENCE, '\n').matchAll(/\[[^\]\n]+\]\(([^)\s#][^)\s]*)\)/g).map((m) => m[1])]
       .filter((t) => !/^[a-z][\w+.-]*:\/\//i.test(t) && !/:\d+(?:-\d+)?$/.test(t) && /\.\w+$/.test(t));
     out.files = whole.length ? result('warn', `${whole.length} whole-file link(s), such as ${whole[0]}`) : result('pass');
@@ -308,7 +377,8 @@ function checkMessage(text, s, turn, contract) {
   }
 
   if (s.records === 'off' || s.detail === 'bare') {
-    const hit = nonEmpty.find((l) => /📝/.test(l) || /\b(?:memory|memoria|task note|nota de tarea)\b/i.test(l));
+    // The Next line may still link a doc the next step needs.
+    const hit = nonEmpty.find((l) => /📝/.test(l) || /\b(?:memory|memoria|task note|nota de tarea)\b/i.test(l) || (!isNextLine(l) && RECORD.test(l)));
     out.records = hit ? result('warn', `may be a records line: "${hit.slice(0, 60)}"`) : result('pass');
   } else {
     out.records = result('na', 'records=line is optional');
@@ -318,7 +388,21 @@ function checkMessage(text, s, turn, contract) {
   else if (s.box === 'work') out.box = turn.ask && !turn.work ? result('fail', 'the box asked on a turn with no edit or command') : result('pass');
   else out.box = result('na', 'box=decisions needs judgement');
 
-  for (const k of ['why', 'caveats', 'terms']) out[k] = result('na', 'needs judgement');
+  // Heuristics, so warns: a cause word opening the body, a footnote with no link.
+  if (s.why === 'off') {
+    const first = blocks.find((b) => !isNextLine(b.split('\n')[0]))?.split('\n').filter((l) => !/^\*\*[^*\n]+\*\*$/.test(l)).join(' ') || '';
+    const sentence = unitsOf(first)[0] || '';
+    out.why = CAUSE.test(sentence) ? result('warn', `the body may open with a cause sentence: "${sentence.slice(0, 60)}"`) : result('pass');
+  } else {
+    out.why = result('na', 'needs judgement');
+  }
+  if (s.terms === 'inline' || s.terms === 'none') {
+    const notes = nonEmpty.filter((l) => FOOTNOTE.test(l) && !/\]\(|https?:\/\//.test(l));
+    out.terms = notes.length ? result('warn', `${notes.length} footnote(s) with no source link may explain a term: "${notes[0].slice(0, 60)}"`) : result('pass');
+  } else {
+    out.terms = result('na', 'needs judgement');
+  }
+  out.caveats = result('na', 'needs judgement');
   return out;
 }
 

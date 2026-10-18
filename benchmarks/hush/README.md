@@ -156,12 +156,56 @@ settings instead. `--skip <regex>` leaves out replies whose format the prompt di
 `--json <file>` keeps every verdict.
 
 Each check reports `pass`, `fail`, `warn` or `na`. A `fail` is a breach a regex can prove,
-such as a "Next:" line under `next=off`. A `warn` is a soft rule, such as the word budget,
-or a heuristic, such as a records line under `records=off`. `why`, `caveats` and `terms`
-need judgement, so they are always `na`. Turns that ended waiting on a background event and
-synthetic error replies are counted and left out. The base rules changed between hush
-releases, so the report splits the main checks by style text: a breach under an older style
-may have been no breach then.
+such as a "Next:" line under `next=off`, a passed check under `checks=off`, or an emoji
+outside the `emoji=on` map. A `warn` is a soft rule, such as the word budget, or a
+heuristic, such as a records line under `records=off`, a cause word opening the body under
+`why=off`, or a footnote with no source link under `terms=inline`. `caveats`, and `why`,
+`terms` and `headers` at their defaults, need judgement, so they are always `na`. Turns
+that ended waiting on a background event and synthetic error replies are counted and left
+out. The base rules changed between hush releases, so the report splits the main checks by
+style text: a breach under an older style may have been no breach then.
+
+### The fidelity eval
+
+The fidelity eval checks whether a live session keeps the settings it was given. Two fixed
+jobs run once per case: `fidelity-fix`, a one-line bug fix with two checks to run, and
+`fidelity-explain`, an explanation that changes no code. Both ask the session to keep notes,
+so every case has passed checks, a written doc, file names and a cause to report.
+
+[fidelity/cases.json](fidelity/cases.json) holds 22 cases, so one rep is 44 sessions:
+
+- The `standard` case runs on the defaults.
+- 18 cases each move one setting.
+- Three cases add a `CLAUDE.md` that asks for a full report, every passed check and every
+  doc written included. They move `checks=off`, `records=off` or the `minimal` preset, to see
+  whether the setting still holds when a project instruction asks for the opposite.
+
+Each case names the `conformance.js` checks its setting owns. A case passes when the bold
+result and each of those checks pass. A `warn` on one of them counts as a miss. Every file
+must be a link, because `claude -p` has no file-card tool. Each session reads its settings
+from its own file through `HUSH_CONFIG_FILE`, never from your saved `/hush:config` settings.
+
+Some values have no grader, and `cases.json` lists each one with its reason under
+`ungraded`. `why=on`, the two `caveats` values, `terms=footnote`, `headers=off` and
+`records=line` need judgement. The three `box` values cannot be measured, because `claude -p`
+has no `wrap_up` tool, so the next-step box never asks.
+
+Check the grader and the plan for free. `--smoke` grades each case's reference message in
+`anchors/fidelity/` and an empty reply. `--dry-run` lists the 44 runs and starts none:
+
+```bash
+node runner/hillclimb.js --smoke
+node runner/run.js --tag fid-plan --fidelity --arms hush --reps 1 --dry-run
+```
+
+The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
+from the flow's name and the default flow's tag belongs to the main suite:
+
+```bash
+node runner/hillclimb.js --variant baseline --flow <Foundry root>/.claude/hillclimb/hush-fidelity -- --fidelity --reps 2
+```
+
+`--fidelity` alone runs only the fidelity cases. Add `--tasks fid-fix-checks-off` to run one case on one job.
 
 ## Records you can audit
 

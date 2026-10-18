@@ -8,8 +8,12 @@
 //   node runner/hillclimb.js --variant v1 --from <tag>   # adapt a finished run, start nothing
 //   node runner/hillclimb.js --variant v1 --regrade      # grade stored output twice, list flips
 //   node runner/hillclimb.js --smoke                     # oracle and null through the grader
+//   node runner/hillclimb.js --variant baseline --flow <Foundry>/.claude/hillclimb/hush-fidelity -- --fidelity --reps 2
+//                                                        # the message-settings fidelity eval
 //
 // Flags after -- go to run.js. --flow defaults to <Foundry>/.claude/hillclimb/hush.
+// Give the fidelity eval its own --flow: the tag comes from the flow's name,
+// so the default flow would collide with the main suite's batch.
 
 const fs = require('node:fs');
 const os = require('node:os');
@@ -18,10 +22,11 @@ const { spawnSync } = require('node:child_process');
 const hc = require('../../hillclimb.js');
 const { runCheck, checkTask } = require('./metrics.js');
 const { workspaceName } = require('./provenance.js');
+const fidelity = require('./fidelity.js');
 const { dataDir } = require('../../paths.js');
 
 const ROOT = path.resolve(__dirname, '..');
-const TASKS = new Map(JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')).map((t) => [t.id, t]));
+const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));
 const prompts = (task) => task.prompts || [task.prompt];
 const grade = (check) => ({ pass: check.pass ? 1 : 0, score: check.score });
 
@@ -78,14 +83,19 @@ function gradeStored(meta) {
   }
 }
 
-// Oracle: a keyword task's reference answer under anchors/, where one exists;
-// the tests tasks ship no reference solution. Null: an empty reply in the
-// untouched fixture, so the fixture alone must not satisfy the grader.
+// Oracle: a keyword task's reference answer under anchors/, where one exists,
+// and a fidelity case's message under anchors/fidelity/; the tests tasks ship
+// no reference solution. Null: an empty reply in the untouched fixture, so the
+// fixture alone must not satisfy the grader.
 function smoke() {
   const cases = [];
+  const graded = fidelity.hasContract();
+  if (!graded) console.warn('fidelity cases left out: the hush checkout has no modules/, so their grader cannot load');
   for (const task of TASKS.values()) {
-    const gold = path.join(ROOT, 'anchors', task.id, 'gold.md');
-    if (task.check.type === 'keywords' && fs.existsSync(gold)) {
+    const conformance = task.check.type === 'conformance';
+    if (conformance && !graded) continue;
+    const gold = conformance ? path.join(ROOT, 'anchors', 'fidelity', `${task.check.gold}.md`) : path.join(ROOT, 'anchors', task.id, 'gold.md');
+    if ((conformance || task.check.type === 'keywords') && fs.existsSync(gold)) {
       cases.push({ id: task.id, kind: 'oracle', pass: grade(runCheck(task.check, fs.readFileSync(gold, 'utf8'), null)).pass });
     }
     const ws = hc.scratchCopy(path.join(ROOT, 'fixtures', task.fixture));

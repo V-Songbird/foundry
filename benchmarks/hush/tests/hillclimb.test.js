@@ -18,6 +18,7 @@ const hc = require('../../hillclimb.js');
 const suite = require('../runner/hillclimb.js');
 const { workspaceName } = require('../runner/provenance.js');
 const { runCheck, checkTask } = require('../runner/metrics.js');
+const { tasks: fidelityTasks, hasContract } = require('../runner/fidelity.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'));
@@ -109,14 +110,18 @@ test('a keyword task that reads files is not regraded without its workspace', ()
 
 test('the oracle passes and the null fails on every task', async () => {
   const cases = await suite.smoke();
-  assert.deepStrictEqual(cases.filter((c) => c.kind === 'oracle').map((c) => c.id).sort(), ['crash-origin', 'locale-gaps', 'log-triage', 'rate-import', 'style-forge']);
-  assert.strictEqual(cases.filter((c) => c.kind === 'null').length, TASKS.length);
+  // The fidelity cases join when the hush checkout has the modules their grader reads.
+  const fidelity = hasContract() ? fidelityTasks().map((t) => t.id) : [];
+  assert.deepStrictEqual(cases.filter((c) => c.kind === 'oracle').map((c) => c.id).sort(),
+    ['crash-origin', 'locale-gaps', 'log-triage', 'rate-import', 'style-forge', ...fidelity].sort());
+  assert.strictEqual(cases.filter((c) => c.kind === 'null').length, TASKS.length + fidelity.length);
   for (const c of cases) assert.strictEqual(c.pass, c.kind === 'oracle' ? 1 : 0, `${c.kind} ${c.id}`);
 });
 
 test('no fixture a session works in holds a reference answer', () => {
-  const golds = fs.readdirSync(path.join(ROOT, 'anchors'))
-    .map((d) => path.join(ROOT, 'anchors', d, 'gold.md')).filter((f) => fs.existsSync(f))
+  const fidelityDir = path.join(ROOT, 'anchors', 'fidelity');
+  const golds = [...fs.readdirSync(path.join(ROOT, 'anchors')).map((d) => path.join(ROOT, 'anchors', d, 'gold.md')),
+    ...fs.readdirSync(fidelityDir).map((f) => path.join(fidelityDir, f))].filter((f) => fs.existsSync(f))
     .map((f) => fs.readFileSync(f, 'utf8').trim());
   (function walk(dir) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

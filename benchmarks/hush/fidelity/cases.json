@@ -1,0 +1,49 @@
+{
+  "jobs": {
+    "fix": {
+      "fixture": "fidelity-fix",
+      "segment": "noisy-output",
+      "prompt": "The discount test fails. Fix the bug in src/discount.js so that `node test.js` passes, then run `node lint.js` as well. Keep your notes on the fix in notes.md."
+    },
+    "explain": {
+      "fixture": "fidelity-explain",
+      "segment": "search-heavy",
+      "prompt": "When the payments API is down, our clients' retries pile up into spikes instead of spreading out. Explain why, from src/retry.js, and confirm it with `node probe.js`. Change no code. Keep your notes on the cause in notes.md."
+    }
+  },
+  "cases": [
+    { "id": "standard", "settings": {}, "targets": ["next", "rules", "checks", "sentences", "blocks", "emoji", "markdown", "files", "length"] },
+    { "id": "next-top", "settings": { "next": "top" }, "targets": ["next", "rules"] },
+    { "id": "next-off", "settings": { "next": "off" }, "targets": ["next"] },
+    { "id": "rules-off", "settings": { "rules": "off" }, "targets": ["rules"] },
+    { "id": "detail-short", "settings": { "detail": "short" }, "targets": ["length"] },
+    { "id": "detail-full", "settings": { "detail": "full" }, "targets": ["length"] },
+    { "id": "detail-bare", "settings": { "detail": "bare" }, "targets": ["checks", "records"] },
+    { "id": "why-off", "settings": { "why": "off" }, "targets": ["why"] },
+    { "id": "checks-each", "settings": { "checks": "each" }, "targets": ["checks"] },
+    { "id": "checks-off", "settings": { "checks": "off" }, "targets": ["checks"] },
+    { "id": "records-off", "settings": { "records": "off" }, "targets": ["records"] },
+    { "id": "terms-inline", "settings": { "terms": "inline" }, "targets": ["terms"] },
+    { "id": "terms-none", "settings": { "terms": "none" }, "targets": ["terms"] },
+    { "id": "markdown-basic", "settings": { "markdown": "basic" }, "targets": ["markdown"] },
+    { "id": "markdown-plain", "settings": { "markdown": "plain" }, "targets": ["markdown", "rules"] },
+    { "id": "files-link", "settings": { "files": "link" }, "targets": ["files"] },
+    { "id": "sentences-20", "settings": { "sentences": "20" }, "targets": ["sentences", "blocks"] },
+    { "id": "emoji-on", "settings": { "emoji": "on" }, "targets": ["emoji"] },
+    { "id": "headers-on", "settings": { "headers": "on" }, "targets": ["headers"] },
+    { "id": "full-report-checks-off", "overlay": "fidelity/full-report", "gold": "checks-off", "settings": { "checks": "off" }, "targets": ["checks"] },
+    { "id": "full-report-records-off", "overlay": "fidelity/full-report", "gold": "records-off", "settings": { "records": "off" }, "targets": ["records"] },
+    { "id": "full-report-minimal", "overlay": "fidelity/full-report", "gold": "detail-bare", "settings": { "detail": "bare", "why": "off", "checks": "off", "caveats": "floor", "records": "off" }, "targets": ["checks", "records"] }
+  ],
+  "ungraded": {
+    "why=on": "needs judgement",
+    "caveats=each": "needs judgement",
+    "caveats=floor": "needs judgement",
+    "terms=footnote": "needs judgement",
+    "headers=off": "needs judgement",
+    "records=line": "needs judgement",
+    "box=decisions": "claude -p has no wrap_up tool, so the box never asks",
+    "box=work": "claude -p has no wrap_up tool, so the box never asks",
+    "box=text": "claude -p has no wrap_up tool, so the box never asks"
+  }
+}

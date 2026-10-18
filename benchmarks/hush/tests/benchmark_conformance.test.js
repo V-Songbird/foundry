@@ -15,13 +15,15 @@ const { settingsFromContext, parseSettings, readTranscript, checkMessage, score,
   require('../runner/conformance.js');
 
 const KNOBS = {
-  next: ['end', 'top', 'off'], rules: ['on', 'off'], detail: ['normal', 'short', 'full', 'bare'],
-  checks: ['line', 'each', 'off'], records: ['line', 'off'], markdown: ['rich', 'basic', 'plain'], files: ['card', 'link'],
+  next: ['end', 'top', 'off'], rules: ['on', 'off'], detail: ['normal', 'short', 'full', 'bare'], why: ['on', 'off'],
+  checks: ['line', 'each', 'off'], caveats: ['each', 'floor'], records: ['line', 'off'], terms: ['footnote', 'inline', 'none'],
+  markdown: ['rich', 'basic', 'plain'], files: ['card', 'link'],
   sentences: ['12', '20'], emoji: ['off', 'on'], headers: ['off', 'on'], box: ['decisions', 'work', 'text'],
 };
 const DEFAULTS = Object.fromEntries(Object.entries(KNOBS).map(([k, v]) => [k, v[0]]));
 const CONTRACT = {
   KNOBS, DEFAULTS, caps: { wordCap: 12, blockCap: 40 }, budget: 150,
+  emojiMap: new Set(['✅', '❌', '🛑', '💡', '🔧', '🧪', '⚠', '🧭', '📝', '👉']), resultEmoji: new Set(['✅', '❌', '🛑']),
   modules: [
     { knob: 'next', value: 'off', text: 'No next step. The message has no "Next:" line.' },
     { knob: 'records', value: 'off', text: 'No records line.' },
@@ -168,12 +170,73 @@ describe('checkMessage: parts', () => {
     assert.strictEqual(check('**Done.**\n\nOne fact.', { records: 'off' }).records.status, 'pass');
   });
 
+  test('records=off also warns on a written doc or notes, but not on the Next line', () => {
+    assert.strictEqual(check('**Done.**\n\nI kept my notes in [notes.md](notes.md).', { records: 'off' }).records.status, 'warn');
+    assert.strictEqual(check('**Done.**\n\nUpdated docs/setup.md with the new flag.', { detail: 'bare' }).records.status, 'warn');
+    assert.strictEqual(check('**Done.**\n\n---\n\n**Next:** read what I noted in [notes.md](notes.md).', { records: 'off' }).records.status, 'pass');
+  });
+
+  test('a plain passed-check sentence counts as a passed check', () => {
+    const one = '**Done.**\n\n---\n\nI changed one line.\n\n`npm test` passes, 212 of 212, and `npm run lint` is clean.';
+    const two = one.replace(', and `npm run lint` is clean.', '.\n\n`npm run lint` passes too.');
+    const failed = '**Done.**\n\n---\n\n`npm run lint` fails with 3 errors.\n\n> src/a.js:1:1 error';
+    assert.strictEqual(check(one).checks.status, 'pass');
+    assert.match(check(two).checks.why, /2 sentences or lines hold passed checks/);
+    assert.strictEqual(check(two, { detail: 'full' }).checks.status, 'warn');
+    assert.match(check(one, { checks: 'off' }).checks.why, /1 passed check\(s\) under checks=off/);
+    assert.strictEqual(check(one, { detail: 'bare' }).checks.status, 'fail');
+    assert.strictEqual(check(failed, { checks: 'off' }).checks.status, 'pass');
+    assert.strictEqual(check(one + '\n\n---\n\n**Next:** run `npm test` and see it pass.', { checks: 'off' }).checks.status, 'fail', 'the body sentence still counts');
+    assert.strictEqual(check('**Done.**\n\n---\n\n**Next:** run `npm test` and see it pass.', { checks: 'off' }).checks.status, 'pass', 'the Next line is no check report');
+  });
+
+  test('checks=each wants one passed check per bullet', () => {
+    const each = '**Done.**\n\n---\n\n- `npm test`: 212 of 212 pass.\n- `npm run lint`: clean.';
+    assert.strictEqual(check(each, { checks: 'each' }).checks.status, 'pass');
+    assert.match(check('**Done.**\n\n---\n\n- `npm test` and `npm run lint` pass.', { checks: 'each' }).checks.why, /share several passed checks/);
+    assert.match(check('**Done.**\n\n---\n\n`npm test` passes, 212 of 212.', { checks: 'each' }).checks.why, /in prose, not a bullet/);
+  });
+
+  test('emoji=on fails on an emoji outside the map, inside a sentence, or a result without a result emoji', () => {
+    const good = '✅ **Done.**\n\n---\n\n💡 The cause.\n\n**🔧 Changes**\nOne line.\n\n⚠️ One risk.';
+    assert.strictEqual(check(good, { emoji: 'on' }).emoji.status, 'pass');
+    assert.match(check(good.replace('💡', '🎉'), { emoji: 'on' }).emoji.why, /outside the map: 🎉/);
+    assert.match(check(good.replace('The cause.', 'The cause 🔧 here.'), { emoji: 'on' }).emoji.why, /does not open them/);
+    assert.match(check(good.replace('✅', '💡'), { emoji: 'on' }).emoji.why, /bold result opens with 💡/);
+    assert.strictEqual(checkMessage(good.replace('💡', '🎉'), { ...DEFAULTS, emoji: 'on' }, TURN, { ...CONTRACT, emojiMap: undefined }).emoji.status, 'pass',
+      'with no map read, only the bare-block warn applies');
+  });
+
+  test('why=off warns when the body opens with a cause sentence', () => {
+    assert.strictEqual(check('**Fixed.**\n\n---\n\nI removed one line.', { why: 'off' }).why.status, 'pass');
+    assert.match(check('**Fixed.**\n\n---\n\nIt broke because the rate ran twice.', { why: 'off' }).why.why, /cause sentence/);
+    assert.strictEqual(check('**Fixed.**\n\n**Next:** read it.\n\n---\n\nThe cause was a double step.', { why: 'off', next: 'top' }).why.status, 'warn');
+    assert.strictEqual(check('**Fixed.**\n\n---\n\nIt broke because the rate ran twice.').why.status, 'na');
+  });
+
+  test('terms=inline and terms=none warn on a footnote with no source link', () => {
+    const noted = '**Done.**\n\nRetries lack *jitter*.[^1]\n\n[^1]: Jitter is a random delay.';
+    assert.strictEqual(check(noted, { terms: 'inline' }).terms.status, 'warn');
+    assert.strictEqual(check(noted, { terms: 'none' }).terms.status, 'warn');
+    assert.strictEqual(check(noted.replace('Jitter is a random delay.', 'See [the AWS post](https://aws.amazon.com/blogs/).'), { terms: 'inline' }).terms.status, 'pass');
+    assert.strictEqual(check(noted).terms.status, 'na');
+  });
+
   test('files=card warns on a whole-file link and lets line, web and app links through', () => {
     const msg = '**Done.**\n\nSee [auth.js:58](src/auth.js:58), [docs](https://x.dev/a.html), [tab](#terminal/1) and [notes.md](docs/notes.md).';
     assert.match(check(msg).files.why, /1 whole-file link\(s\), such as docs\/notes\.md/);
     assert.strictEqual(check(msg.replace(' and [notes.md](docs/notes.md)', '')).files.status, 'pass');
-    assert.strictEqual(check(msg, { files: 'link' }).files.status, 'na');
     assert.strictEqual(check(msg, { markdown: 'basic' }).files.status, 'na');
+  });
+
+  test('files=link, or a session with no file cards, fails on a file name in inline code outside a link', () => {
+    const msg = '**Done.**\n\nI changed [`discount.js:12`](src/discount.js:12) and ran `node test.js`.';
+    assert.strictEqual(check(msg, { files: 'link' }).files.status, 'pass');
+    assert.strictEqual(check(msg, {}, { ...TURN, noCards: true }).files.status, 'pass');
+    const coded = msg.replace('ran `node test.js`', 'kept `src/discount.js` and `0.5`');
+    assert.match(check(coded, { files: 'link' }).files.why, /1 file\(s\) in inline code, not a link, such as src\/discount\.js/);
+    assert.strictEqual(check(coded, { markdown: 'basic' }, { ...TURN, noCards: true }).files.status, 'fail');
+    assert.strictEqual(check(coded, { markdown: 'plain', files: 'link' }).files.status, 'na');
   });
 
   test('box=text fails when the box asked, box=work when it asked on a plain answer', () => {
@@ -287,5 +350,7 @@ describe('loadContract', () => {
     assert.ok(c.modules.length > 0);
     assert.strictEqual(c.caps.wordCap, 12);
     assert.strictEqual(c.budget, 150);
+    assert.strictEqual(c.emojiMap.size, 10);
+    assert.deepStrictEqual([...c.resultEmoji], ['✅', '❌', '🛑']);
   });
 });

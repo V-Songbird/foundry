@@ -9,6 +9,7 @@
 //   node runner/run.js --tag abl   --ablations   # add Core-only and Quiet-only arms
 //   node runner/run.js --tag rep   --seed 12345  # replay an earlier run's arm order
 //   node runner/run.js --tag dbg   --hush-debug  # attach hush's decision manifest to each hush-arm record
+//   node runner/run.js --tag fid   --fidelity --arms hush  # the message-settings fidelity eval
 //
 // Two arms ship by default: `baseline` (plain Claude Code) and `hush` (this
 // plugin). The hush plugin dir is resolved RELATIVE to this harness — no
@@ -75,6 +76,10 @@ const effort = flag('effort', null);
 // README counts tied to tasks.json, stay exactly as they are.
 const extraTasks = flag('extra-tasks', null);
 if (extraTasks) TASKS.push(...JSON.parse(fs.readFileSync(path.resolve(ROOT, extraTasks), 'utf8')).tasks);
+// The fidelity eval's job x case tasks (runner/fidelity.js). Alone, the flag
+// runs only them.
+const fidelity = argv.includes('--fidelity');
+if (fidelity) TASKS.push(...require('./fidelity.js').tasks());
 
 // --- arms -------------------------------------------------------------------
 // The hush plugin checks out as a sibling of benchmarks/ in the marketplace
@@ -178,11 +183,11 @@ if (argv.includes('--ablations')) {
 const armNames = (flag('arms', Object.keys(ARMS).join(','))).split(',');
 
 // --- task selection ---------------------------------------------------------
-// No --tasks -> the task set config.json declares.
+// No --tasks -> the task set config.json declares, or the fidelity tasks.
 const taskIds = flag('tasks', null);
 const tasks = taskIds
   ? TASKS.filter((t) => taskIds.split(',').includes(t.id))
-  : TASKS.filter((t) => CONFIG.defaultTasks.includes(t.id));
+  : TASKS.filter((t) => (fidelity ? t.check.type === 'conformance' : CONFIG.defaultTasks.includes(t.id)));
 
 // Segments are what the report groups by; a task without a known one would
 // quietly land in an "unsegmented" bucket, so fail here instead.
@@ -397,6 +402,7 @@ async function oneRun(task, arm, rep, orderIndex) {
   fs.mkdirSync(workDir, { recursive: true });
   if (task.fixture) fs.cpSync(path.join(ROOT, 'fixtures', task.fixture), workDir, { recursive: true });
   if (ARMS[arm].overlay) fs.cpSync(ARMS[arm].overlay, workDir, { recursive: true });
+  if (task.overlay) fs.cpSync(path.join(ROOT, task.overlay), workDir, { recursive: true });
   // A grader the prompt never names is a spoiler. Sessions read it, find it
   // says more than the prompt did, and either implement its answer or stop to
   // ask about the contradiction — measured on feature-drift, where it cost the
@@ -410,6 +416,12 @@ async function oneRun(task, arm, rep, orderIndex) {
 
   const prompts = task.prompts || [task.prompt];
   const env = cleanEnv(ARMS[arm].env, arm);
+  // A fidelity task's own hush settings, in a file outside the workspace.
+  // Without it hush reads the operator's saved ~/.claude/hush/config.json.
+  if (task.hushSettings) {
+    env.HUSH_CONFIG_FILE = `${workDir}.hush-config.json`;
+    fs.writeFileSync(env.HUSH_CONFIG_FILE, JSON.stringify(task.hushSettings));
+  }
   const started = Date.now();
   const calls = [];
   let stderrAll = '';

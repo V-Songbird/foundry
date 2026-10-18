@@ -132,6 +132,8 @@ function runCheck(check, finalText, workDir) {
       detail: r.status === 0 ? 'tests pass' : `tests exit ${r.status}`,
     };
   }
+  // The fidelity eval: the final message against the hush settings it ran under.
+  if (check.type === 'conformance') return require('./fidelity.js').grade(check, finalText);
   throw new Error(`unknown check type ${check.type}`);
 }
 
