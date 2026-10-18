@@ -33,7 +33,7 @@ const ARMS = {
   // link, which changed in the same move. `p1` swaps nothing: it reads Foreman's
   // current code-table files, with the `step pick` prototype below.
   prose: Object.fromEntries(
-    ['pick', 'destination-question', 'accept', 'resume', 'defer', 'hint', 'reconcile', 'prepare-increments', 'prompt-template', 'questions']
+    ['pick', 'destination-question', 'accept', 'resume', 'defer', 'hint', 'reconcile', 'prepare-increments']
       .map((f) => [`skills/roadmap/${f}.md`, path.join(HERE, 'arms', 'prose', `${f}.md`)])
   ),
   p1: {},

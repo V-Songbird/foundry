@@ -41,7 +41,9 @@ test('the P1 arm reads Foreman\'s current files and the prose arm reads the pinn
   assert.match(sim.skillFile('p1', 'skills/roadmap/pick.md'), /\| `ask_q1` \|/);
   assert.doesNotMatch(sim.skillFile('prose', 'skills/roadmap/pick.md'), /\| `ask_q1` \|/);
   for (const f of Object.keys(sim.ARMS.prose)) {
-    assert.strictEqual(sim.skillFile('prose', f), frozen(path.posix.basename(f)), `prose ${f}`);
+    const copy = frozen(path.posix.basename(f));
+    assert.ok(copy.length > 0, `prose ${f} is frozen as an empty file`);
+    assert.strictEqual(sim.skillFile('prose', f), copy, `prose ${f}`);
   }
   for (const f of ['accept', 'resume', 'defer', 'hint', 'reconcile', 'prepare-increments']) {
     assert.ok(`skills/roadmap/${f}.md` in sim.ARMS.prose, `prose freezes ${f}.md`);
