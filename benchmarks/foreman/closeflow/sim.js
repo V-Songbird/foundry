@@ -23,9 +23,12 @@ const ROOT = `/home/dev/.claude/plugins/cache/foundry/foreman/${VERSION}`;
 const PROJECT = '/home/dev/app';
 const INSTALLED = '/home/dev/.claude/plugins/installed_plugins.json';
 const VERIFY = 'node --test tests/';
-// The bookkeeping under test is the current entry paragraph. Entry 1078 adds
-// its task.js arm here.
-const ARMS = { current: {} };
+// The bookkeeping under test is the prompt's entry paragraph. `current` is the
+// paragraph today's craft-handoff.js prints (task.js start and finish).
+// `frozen` is the update-status and safe-commit paragraph foreman 10fef19
+// printed before entry 1078, spliced into today's prompt so only the
+// paragraph differs.
+const ARMS = { current: {}, frozen: JSON.parse(fs.readFileSync(path.join(HERE, 'arms', 'frozen', 'entry-paragraph.json'), 'utf8')) };
 
 const SYSTEM = `You are Claude Code, Anthropic's official CLI for Claude. You are an agent that helps users with software engineering tasks. Use the instructions below and the tools available to you to complete the task.
 
@@ -84,6 +87,10 @@ function scratchProject(scenario, { dirty = true } = {}) {
     fs.writeFileSync(path.join(dir, '.foreman', 'config.json'), JSON.stringify(scenario.config) + '\n');
   }
   gitIn(dir, ['init', '-q']);
+  // task.js commits without the -c flags gitIn passes.
+  gitIn(dir, ['config', 'user.email', 'eval@example.com']);
+  gitIn(dir, ['config', 'user.name', 'eval']);
+  gitIn(dir, ['config', 'commit.gpgsign', 'false']);
   gitIn(dir, ['add', '-A']);
   gitIn(dir, ['commit', '-q', '-m', 'fixture']);
   const head = gitOut(dir, 'rev-parse', 'HEAD');
@@ -93,9 +100,24 @@ function scratchProject(scenario, { dirty = true } = {}) {
 
 const removeDir = (dir) => fs.rmSync(dir, { recursive: true, force: true });
 
+// The entry paragraph: one part of the prompt, from its opening line to the
+// next blank line or the end.
+function entryParagraph(prompt) {
+  const from = prompt.indexOf('This task is ROADMAP.jsonl entry');
+  if (from < 0) throw new Error('the prompt has no entry paragraph');
+  const to = prompt.indexOf('\n\n', from);
+  return prompt.slice(from, to < 0 ? undefined : to);
+}
+
 // Every case of a scenario gets the same prompt, so it is crafted once.
 const prompts = new Map();
-function craftPrompt(scenario) {
+function craftPrompt(scenario, arm = 'current') {
+  if (arm === 'frozen') {
+    // The frozen text bakes in the entry id it was rendered for.
+    if (scenario.entry.id !== '042') throw new Error(`the frozen paragraph is entry 042's, not ${scenario.entry.id}'s`);
+    const current = craftPrompt(scenario);
+    return current.replace(entryParagraph(current), () => ARMS.frozen[scenario.config?.requireVerification === false ? 'plain' : 'hold']);
+  }
   if (prompts.has(scenario.id)) return prompts.get(scenario.id);
   const { dir } = scratchProject(scenario, { dirty: false });
   try {
@@ -121,12 +143,12 @@ function craftPrompt(scenario) {
 
 function newCase(scenario, arm) {
   if (!ARMS[arm]) throw new Error(`unknown arm ${arm}`);
-  const prompt = craftPrompt(scenario);
+  const prompt = craftPrompt(scenario, arm);
   const { dir, head } = scratchProject(scenario);
   return { scenario, arm, prompt, project: dir, head0: head, events: [], violations: [], stop: null };
 }
 
-const firstMessage = (scenario) => ({ role: 'user', content: [{ type: 'text', text: craftPrompt(scenario) }] });
+const firstMessage = (scenario, arm) => ({ role: 'user', content: [{ type: 'text', text: craftPrompt(scenario, arm) }] });
 
 // --- tool results -----------------------------------------------------------
 
@@ -240,23 +262,32 @@ function segments(cmd) {
 }
 
 const GIT_RUN = new Set(['add', 'commit', 'status', 'diff', 'rev-parse', 'log', 'show']);
-const SCRIPT = /^node\s+["']?(.+?)\/scripts\/(roadmap|safe-commit)\.js["']?(?:\s+([\s\S]*))?$/;
+const SCRIPT = /^node\s+["']?(.+?)\/scripts\/(roadmap|safe-commit|task)\.js["']?(?:\s+([\s\S]*))?$/;
 const PIPED = /^(?:echo|printf)\s+('[^']*'|"(?:[^"\\]|\\.)*")\s*\|\s*([\s\S]*)$/;
 const parse = (text) => { try { return JSON.parse(text); } catch { return null; } };
 
 function runScript(st, script, args, input) {
   const r = spawnSync(process.execPath, [path.join(FOREMAN, 'scripts', `${script}.js`), ...args], { input, cwd: st.project, encoding: 'utf8', timeout: 60000, env: childEnv(st.project) });
-  const out = ((r.stdout || '') + (r.stderr || '')).trim().replaceAll(FOREMAN_POSIX, ROOT).replaceAll(FOREMAN, ROOT);
+  const rewrite = (text) => text.replaceAll(FOREMAN_POSIX, ROOT).replaceAll(FOREMAN, ROOT);
+  const out = rewrite(((r.stdout || '') + (r.stderr || '')).trim());
   const verb = args[0];
   const sent = parse(input) || {};
   const res = parse(r.stdout) || {};
+  const at = args.indexOf('--baseline');
+  const baseline = at >= 0 ? args[at + 1] : null;
   if (script === 'roadmap' && verb === 'update-status') {
     st.events.push(sent.status === 'in_progress' ? { kind: 'open', ok: r.status === 0 } : { kind: 'close', status: sent.status, staged: sent.staged === true, ok: r.status === 0 });
   } else if (script === 'safe-commit' && verb === 'begin') {
-    st.events.push({ kind: 'begin', dirty: res.dirty === true, head: res.baseline?.head ?? null });
+    st.events.push({ kind: 'begin', via: 'safe-commit', dirty: res.dirty === true, head: res.baseline?.head ?? null });
   } else if (script === 'safe-commit' && verb === 'finish') {
-    const at = args.indexOf('--baseline');
-    st.events.push({ kind: 'finish', baseline: at >= 0 ? args[at + 1] : null, noCommit: args.includes('--no-commit'), expected: sent.expected, ok: res.ok === true });
+    st.events.push({ kind: 'finish', via: 'safe-commit', baseline, noCommit: args.includes('--no-commit'), expected: sent.expected, ok: res.ok === true });
+  } else if (script === 'task' && verb === 'start') {
+    // start opens the entry, then takes the boundary; its then names ROOT.
+    st.events.push({ kind: 'open', ok: r.status === 0 && res.ok === true });
+    if (res.ok === true) st.events.push({ kind: 'begin', via: 'task', dirty: res.next === 'report_dirty', head: res.baseline ?? null, then: parse(rewrite(r.stdout || ''))?.then ?? null });
+  } else if (script === 'task' && verb === 'finish') {
+    st.events.push({ kind: 'finish', via: 'task', baseline, noCommit: false, expected: sent.files, ok: res.ok === true });
+    st.events.push({ kind: 'close', status: sent.status, staged: false, ok: r.status === 0 });
   }
   return out;
 }
@@ -280,13 +311,18 @@ function doBash(st, input) {
   const docs = [];
   // `-m "$(cat <<'EOF' ... EOF)"` becomes one word holding the heredoc body.
   let cmd = String(input.command || '').replace(/"\$\(cat\s+<<-?\s*['"]?(\w+)['"]?\n([\s\S]*?)\n\s*\1\s*\)"/g, (all, tag, body) => `\u0000${docs.push(body) - 1}\u0000`);
+  // A bare `<<'EOF' ... EOF` becomes a placeholder, so its body is the
+  // command's stdin and its newlines split nothing.
+  const heredocs = [];
+  cmd = cmd.replace(/<<-?\s*(['"]?)(\w+)\1([^\n]*)\n([\s\S]*?)\n\2(?=\n|$)/g, (all, q, tag, tail, body) => `<<\u0001${heredocs.push(body) - 1}\u0001${tail}`);
   cmd = expandVars(cmd).replace(/\$\{CLAUDE_PLUGIN_ROOT\}|\$CLAUDE_PLUGIN_ROOT\b/g, ROOT);
   const out = [];
   for (const raw of segments(cmd)) {
-    const seg = raw.replace(/\s+\d?>&\d|\s+\d?>\s*\/dev\/null/g, '');
+    const doc = /\s*<<\u0001(\d+)\u0001/.exec(raw);
+    const seg = raw.replace(/\s*<<\u0001\d+\u0001/, '').replace(/\s+\d?>&\d|\s+\d?>\s*\/dev\/null/g, '').trim();
     const piped = PIPED.exec(seg);
     const rest = piped ? piped[2].trim() : seg;
-    const stdin = piped ? words(piped[1])[0] : '';
+    const stdin = piped ? words(piped[1])[0] : doc ? heredocs[doc[1]] : '';
     const script = SCRIPT.exec(rest);
     if (script && [ROOT, FOREMAN_POSIX].includes(script[1].replaceAll('\\', '/'))) {
       out.push(runScript(st, script[2], words(script[3] || ''), stdin));
@@ -341,7 +377,8 @@ function grade(st) {
 
   const opened = firstBookkeeping?.kind === 'open' && openAt < firstEdit && openAt < beginAt && row && row.status !== 'planned';
   const boundary = Boolean(begin) && beginAt < firstEdit && (begin.dirty
-    ? !finishes.length && head === st.head0
+    // A dirty tree: no commit, and no finish but task.js's, which has no baseline.
+    ? head === st.head0 && finishes.every((f) => f.via === 'task' && f.baseline === null)
     : finishes.every((f) => f.baseline === begin.head));
 
   let owned;
@@ -371,5 +408,5 @@ const cleanup = (st) => removeDir(st.project);
 
 module.exports = {
   SCENARIOS, ARMS, ROOT, PROJECT, FOREMAN, SYSTEM, TOOLS, VERIFY,
-  craftPrompt, newCase, firstMessage, handleTool, grade, cleanup, expandVars,
+  craftPrompt, entryParagraph, newCase, firstMessage, handleTool, grade, cleanup, expandVars,
 };

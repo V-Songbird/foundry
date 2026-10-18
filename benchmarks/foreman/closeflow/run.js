@@ -3,9 +3,10 @@
 // Close-protocol eval: does a worker that follows the Foreman entry paragraph
 // open the entry, take the commit boundary, stage only its own files and close
 // with the right status and a `Foreman: <id>` commit? Each case runs in a
-// simulated Claude Code session (sim.js) on a throwaway git repository. There
-// is no model path yet; the paid comparison against entry 1078's task.js arm
-// adds one.
+// simulated Claude Code session (sim.js) on a throwaway git repository. Two
+// arms: `current`, today's task.js paragraph, and `frozen`, the update-status
+// and safe-commit paragraph from before entry 1078. There is no model path
+// yet; the paid comparison of the two arms adds one.
 //
 //   node closeflow/run.js            # plan only: cases and prompt sizes, nothing sent
 //   node closeflow/run.js --smoke    # oracle and null replies through sim and grader
@@ -17,7 +18,7 @@ const sim = require('./sim.js');
 function parseArgs(argv) {
   const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   return {
-    arms: v('arms', 'current').split(','),
+    arms: v('arms', 'current,frozen').split(','),
     scenarios: v('scenarios', null)?.split(',') ?? null,
     reps: Number(v('reps', 1)),
     maxRounds: Number(v('max-rounds', 20)),
@@ -81,14 +82,46 @@ function promptCommands(prompt) {
   };
 }
 
-// What a model that follows the crafted paragraph exactly would send next.
+// What a model that follows the current paragraph exactly would send next:
+// task.js start, the work, then the close JSON to start's `then` through a
+// quoted heredoc. mutate add-all stages everything before the close.
+function currentTurn(c, mutate = null) {
+  const s = c.scenario;
+  const st = c.st;
+  const n = c.rounds;
+  const bash = (command, k = n) => toolUse('Bash', { command }, k);
+  const lines = st.prompt.split('\n');
+  const start = [...st.prompt.matchAll(/^`([^`]+)`$/gm)].map((m) => m[1]).find((l) => /task\.js start/.test(l));
+  const template = lines.find((l) => l.startsWith('{"status":"<status>"'));
+  if (!start) throw new Error('current paragraph lacks the task.js start line');
+  if (!template) throw new Error('current paragraph lacks the close JSON template');
+  const close = () => {
+    const begin = st.events.find((e) => e.kind === 'begin' && e.via === 'task');
+    if (!begin?.then) throw new Error('task.js start returned no then');
+    // task.js records an earned done as awaiting_acceptance where the project holds finished work.
+    const payload = { ...JSON.parse(template), status: 'done', files: s.owned, message: 'Fix the limiter', notes: 'Read windowMs in src/limiter.js; node --test tests/ passes.', model: 'opus' };
+    return [bash(`${begin.then} <<'EOF'\n${JSON.stringify(payload)}\nEOF`)];
+  };
+  const steps = [
+    () => [bash(start)],
+    () => [toolUse('Write', { file_path: `${sim.PROJECT}/src/limiter.js`, content: SOLUTION(s) }, n),
+      ...(mutate === 'add-all' ? [toolUse('Write', { file_path: `${sim.PROJECT}/notes.txt`, content: 'scratch notes\n' }, `${n}b`)] : [])],
+    () => [bash(sim.VERIFY)],
+    mutate === 'add-all' && (() => [bash('git add -A')]),
+    close,
+  ].filter(Boolean);
+  return n < steps.length ? steps[n]() : [{ type: 'text', text: 'Done: entry 042 is closed.' }];
+}
+
+// What a model that follows the frozen paragraph exactly would send next.
 // mutate breaks one step: add-all, no-begin, wrong-status, no-trailer, skip-open,
 // wrong-open.
-function oracleTurn(c, mutate = null) {
+function frozenTurn(c, mutate = null) {
   const s = c.scenario;
   const st = c.st;
   const n = c.rounds;
   const cmd = promptCommands(st.prompt);
+  for (const k of ['open', 'begin', 'finish', 'close']) if (!cmd[k]) throw new Error(`frozen paragraph lacks ${k}`);
   const bash = (command, k = n) => toolUse('Bash', { command }, k);
   const begin = st.events.find((e) => e.kind === 'begin');
   const dirty = begin?.dirty === true;
@@ -108,6 +141,8 @@ function oracleTurn(c, mutate = null) {
   ].filter(Boolean);
   return n < steps.length ? steps[n]() : [{ type: 'text', text: 'Done: entry 042 is closed.' }];
 }
+
+const oracleTurn = (c, mutate = null) => (c.arm === 'frozen' ? frozenTurn : currentTurn)(c, mutate);
 
 const offlineSender = (kind, mutate = null) => async (reqs, round, active) =>
   new Map(active.map((c) => [c.key, kind === 'null' ? reply([{ type: 'text', text: 'I cannot help with that.' }]) : reply(oracleTurn(c, mutate))]));
@@ -134,11 +169,9 @@ async function smoke(o) {
 function plan(o) {
   const scenarios = pickScenarios(o);
   console.log(`${scenarios.length * o.arms.length * o.reps} cases: ${o.arms.join(', ')} x ${scenarios.length} scenarios x ${o.reps} reps, up to ${o.maxRounds} rounds`);
-  for (const s of scenarios) {
-    const lines = sim.craftPrompt(s).split('\n');
-    const from = lines.findIndex((l) => l.startsWith('This task is ROADMAP.jsonl entry'));
-    const to = lines.findIndex((l, i) => i > from && l.startsWith('Also add `model`'));
-    console.log(`${s.id}: prompt ${lines.join('\n').length} chars, entry paragraph ${to - from + 1} lines; expects ${s.expected.status}, ${s.expected.commit ? 'one commit' : 'no commit'}`);
+  for (const arm of o.arms) for (const s of scenarios) {
+    const prompt = sim.craftPrompt(s, arm);
+    console.log(`${arm} ${s.id}: prompt ${prompt.length} chars, entry paragraph ${sim.entryParagraph(prompt).split('\n').length} lines; expects ${s.expected.status}, ${s.expected.commit ? 'one commit' : 'no commit'}`);
   }
   console.log('plan only: nothing was sent. This eval has no model path yet.');
   return 0;
@@ -150,5 +183,5 @@ async function main(argv = process.argv.slice(2)) {
   return o.smoke ? smoke(o) : plan(o);
 }
 
-module.exports = { parseArgs, makeCases, runCases, oracleTurn, offlineSender, smoke, promptCommands };
+module.exports = { parseArgs, makeCases, runCases, oracleTurn, currentTurn, frozenTurn, offlineSender, smoke, promptCommands };
 if (require.main === module) main().then((code) => { process.exitCode = code; }, (err) => { console.error(err.message); process.exitCode = 1; });
