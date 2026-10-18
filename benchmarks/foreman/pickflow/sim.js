@@ -28,7 +28,12 @@ const REAL = process.env.PICKFLOW_REAL_DIR
   ? path.resolve(process.env.PICKFLOW_REAL_DIR)
   : path.resolve(HERE, '..', '..', '..', '.private', 'foreman-step-pick');
 const ARMS = {
-  prose: {},
+  // `prose` is frozen at foreman 4200026 (4.1.0), before entry 1076 moved pick.md
+  // to action codes; `p1` reads Foreman's current destination-question.md.
+  prose: {
+    'skills/roadmap/pick.md': path.join(HERE, 'arms', 'prose', 'pick.md'),
+    'skills/roadmap/destination-question.md': path.join(HERE, 'arms', 'prose', 'destination-question.md'),
+  },
   p1: { 'skills/roadmap/pick.md': path.join(HERE, 'arms', 'p1', 'pick.md') },
   real: { root: REAL },
 };
