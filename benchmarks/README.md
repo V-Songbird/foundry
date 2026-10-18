@@ -25,8 +25,8 @@ node --test foreman/tests/*.test.js
 Expected output, last lines:
 
 ```text
-# tests 74
-# pass 74
+# tests 97
+# pass 97
 # fail 0
 ```
 

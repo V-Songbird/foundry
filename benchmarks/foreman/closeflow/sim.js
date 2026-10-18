@@ -141,7 +141,7 @@ const norm = (p) => path.posix.normalize(String(p || '').replaceAll('\\', '/').r
 // project's, as the working directory is the project root.
 function projectPath(file) {
   const p = norm(file);
-  const rel = p.startsWith(`${PROJECT}/`) ? p.slice(PROJECT.length + 1) : p.startsWith('/') ? null : p;
+  const rel = p.startsWith(`${PROJECT}/`) ? p.slice(PROJECT.length + 1) : p.startsWith('/') || /^[a-z]:/i.test(p) ? null : p;
   return rel && rel !== '.' && !rel.startsWith('../') && rel !== '..' ? rel : null;
 }
 
@@ -180,12 +180,18 @@ function writable(st, file, verb) {
   return rel;
 }
 
+// A path the host filesystem refuses (a directory, a name it cannot hold)
+// answers the model with an error, as the real tools do, instead of throwing.
+const fsFailed = (e) => ({ content: `<tool_use_error>${e.code === 'EISDIR' ? 'Path is a directory, not a file.' : 'Cannot access that path.'}</tool_use_error>` });
+
 function doWrite(st, input) {
   const rel = writable(st, input.file_path, 'write');
   if (!rel) return { content: '<tool_use_error>Permission denied: this path is outside the files the task may write.</tool_use_error>' };
   const file = path.join(st.project, rel);
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, String(input.content ?? ''));
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, String(input.content ?? ''));
+  } catch (e) { return fsFailed(e); }
   st.events.push({ kind: 'edit', file: rel });
   return { content: `File created successfully at: ${norm(input.file_path)}` };
 }
@@ -195,12 +201,15 @@ function doEdit(st, input) {
   if (!rel) return { content: '<tool_use_error>Permission denied: this path is outside the files the task may write.</tool_use_error>' };
   const file = path.join(st.project, rel);
   if (!fs.existsSync(file)) return { content: '<tool_use_error>File does not exist.</tool_use_error>' };
-  const text = fs.readFileSync(file, 'utf8');
+  let text;
+  try { text = fs.readFileSync(file, 'utf8'); } catch (e) { return fsFailed(e); }
   const old = String(input.old_string ?? '');
   const hits = old ? text.split(old).length - 1 : 0;
   if (!hits) return { content: '<tool_use_error>String to replace not found in file.</tool_use_error>' };
   if (hits > 1 && !input.replace_all) return { content: `<tool_use_error>Found ${hits} matches of the string to replace, but replace_all is false.</tool_use_error>` };
-  fs.writeFileSync(file, input.replace_all ? text.split(old).join(String(input.new_string ?? '')) : text.replace(old, () => String(input.new_string ?? '')));
+  try {
+    fs.writeFileSync(file, input.replace_all ? text.split(old).join(String(input.new_string ?? '')) : text.replace(old, () => String(input.new_string ?? '')));
+  } catch (e) { return fsFailed(e); }
   st.events.push({ kind: 'edit', file: rel });
   return { content: `The file ${norm(input.file_path)} has been updated.` };
 }

@@ -114,3 +114,19 @@ test('a push, a write outside the project, a roadmap or .foreman write in any ca
     sim.cleanup(st);
   }
 });
+
+test('a Write or Edit on a directory, a Windows absolute path or an invalid file name answers with a tool_use_error instead of throwing', () => {
+  const st = sim.newCase(scenario('clean'), 'current');
+  try {
+    const bad = [`${sim.PROJECT}/src`, 'C:/Windows/x.txt', `${sim.PROJECT}/a<b.txt`, `${sim.PROJECT}/a\u0000b.txt`];
+    for (const file_path of bad) {
+      for (const [name, input] of [['Write', { file_path, content: 'x' }], ['Edit', { file_path, old_string: 'a', new_string: 'b' }]]) {
+        const r = sim.handleTool(st, { name, input });
+        assert.match(r.content, /^<tool_use_error>/, `${name} ${file_path}`);
+      }
+    }
+    assert.ok(!st.events.some((e) => e.kind === 'edit'));
+  } finally {
+    sim.cleanup(st);
+  }
+});
