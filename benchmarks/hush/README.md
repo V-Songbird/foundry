@@ -184,6 +184,8 @@ Each case names the `conformance.js` checks its setting owns. A case passes when
 result and each of those checks pass. A `warn` on one of them counts as a miss. Every file
 must be a link, because `claude -p` has no file-card tool. Each session reads its settings
 from its own file through `HUSH_CONFIG_FILE`, never from your saved `/hush:config` settings.
+The main suite does the same: every cell of an arm that loads a plugin gets an empty
+settings file, so hush runs on its defaults whatever `~/.claude/hush/config.json` holds.
 
 Some values have no grader, and `cases.json` lists each one with its reason under
 `ungraded`. `why=on`, the two `caveats` values, `terms=footnote`, `headers=off` and

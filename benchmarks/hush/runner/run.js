@@ -418,9 +418,12 @@ async function oneRun(task, arm, rep, orderIndex) {
   const env = cleanEnv(ARMS[arm].env, arm);
   // A fidelity task's own hush settings, in a file outside the workspace.
   // Without it hush reads the operator's saved ~/.claude/hush/config.json.
-  if (task.hushSettings) {
+  // Every other cell of an arm that loads a plugin gets an empty file (hush's
+  // defaults), unless the arm's own env names one, so a figure never depends on
+  // whoever ran it.
+  if (task.hushSettings || (ARMS[arm].pluginDirs.length && !env.HUSH_CONFIG_FILE)) {
     env.HUSH_CONFIG_FILE = `${workDir}.hush-config.json`;
-    fs.writeFileSync(env.HUSH_CONFIG_FILE, JSON.stringify(task.hushSettings));
+    fs.writeFileSync(env.HUSH_CONFIG_FILE, JSON.stringify(task.hushSettings || {}));
   }
   const started = Date.now();
   const calls = [];
