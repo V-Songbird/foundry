@@ -218,26 +218,45 @@ function bodyBlocks(text) {
 }
 
 // A passed check in prose: a clause that names a check, by a command or file in
-// inline code or by a word such as "tests" or "lint", with a pass word and no
-// fail word. Clauses split at commas and conjunctions, so "`npm test` passes,
-// but I did not run the app" still reports a passed check.
+// inline code or by a word such as "tests" or "lint", with a pass word or a
+// full count and no fail word. Clauses split at commas and conjunctions, so
+// "`npm test` passes, but I did not run the app" still reports a passed check.
+// A negated pass ("does not pass", "isn't clean") and a partial count ("3 of 4
+// tests pass") report a failed check. A count of something other than checks,
+// such as "`node probe.js` shows 8 of 8 retries fire at once" in an
+// explanation, is evidence, not a passed check.
+// The bold result may name the outcome, as the style's "The login test passes
+// again." does; it reports a passed check only when it names the check by
+// inline code, a count, or a word such as "tests" (plural) or "lint".
 const COMMAND = /`[^`\n]* [^`\n]*`/g;
 const CHECK_NAME = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b(?:tests?|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs?)\b/i;
-const PASS_WORD = /\b(?:pass(?:es|ed|ing)?|green|succeed(?:s|ed)?|clean|\d+ of \d+)\b/i;
-const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run)\b/i;
+const RESULT_CHECK = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b\d+ of \d+\b|\b(?:tests|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs)\b/i;
+const PASS_WORD = /\b(?:pass(?:es|ed|ing)?|green|succeed(?:s|ed)?|clean)\b/i;
+const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run)\b|(?:\bnot|\bno longer|\bnever|n't)\s+(?:\w+\s+)?(?:pass|green|succeed|clean)/i;
+const COUNT = /\b(\d+) of (\d+)\b(?! +(?!(?:tests?|checks?|specs?|cases?|assertions?|suites?|pass\w*|green|succeed\w*|clean|and|but|now|again)\b)[a-z])/gi;
 const CLAUSE = /[,;]|\b(?:and|but|while|though|although|yet)\b/i;
 const BULLET = /^(?:[-*+]|\d+\.)\s+/;
 
-/** Each sentence or list item outside code that reports a passed check. The bold result and the Next line are left out. */
-function passedItems(nonEmpty) {
+function reportsPass(clause, name) {
+  const counts = [...clause.matchAll(COUNT)];
+  return name.test(clause) && (PASS_WORD.test(clause) || counts.length > 0) && !FAIL_WORD.test(clause)
+    && counts.every((m) => m[1] === m[2]);
+}
+
+/** Each sentence or list item outside code that reports a passed check. The Next line is left out, and the bold result unless withResult. */
+function passedItems(nonEmpty, withResult = false) {
   const out = [];
-  for (const line of nonEmpty.slice(1)) {
-    if (isNextLine(line)) continue;
+  nonEmpty.forEach((line, i) => {
+    if ((i === 0 && !withResult) || isNextLine(line)) return;
+    const name = i === 0 ? RESULT_CHECK : CHECK_NAME;
     for (const sentence of unitsOf(line)) {
-      const passes = sentence.split(CLAUSE).some((c) => CHECK_NAME.test(c) && PASS_WORD.test(c) && !FAIL_WORD.test(c));
-      if (passes) out.push({ text: sentence, commands: (sentence.match(COMMAND) || []).length, bullet: BULLET.test(line) });
+      // A clause that is only a count, as in "`node probe.js` confirms it, 8 of 8.", counts the check its sentence names.
+      const counted = (c) => name.test(sentence) && /^\W*\d+ of \d+\W*$/.test(c) && reportsPass(c, /\d/);
+      if (sentence.split(CLAUSE).some((c) => reportsPass(c, name) || counted(c))) {
+        out.push({ text: sentence, commands: (sentence.match(COMMAND) || []).length, bullet: BULLET.test(line) });
+      }
     }
-  }
+  });
   return out;
 }
 
@@ -307,12 +326,14 @@ function checkMessage(text, s, turn, contract) {
   // block: "+ ✓" passed, "- ✗" failed, "  ○" not checked. Both are read.
   const diffLines = [...text.matchAll(DIFF)].flatMap((m) => m[1].split('\n'));
   const checkLines = [...nonEmpty.filter((l) => l.includes('✓')), ...diffLines.filter((l) => /^\+\s*✓/.test(l))];
-  const passed = passedItems(nonEmpty);
+  const strict = s.checks === 'off' || s.detail === 'bare';
+  const passed = passedItems(nonEmpty, strict);
+  // A sentence with a check mark is already a check line; count it once.
+  const n = checkLines.length + passed.filter((p) => !p.text.includes('✓')).length;
   const loose = nonEmpty.filter((l) => /^(?:[-*]\s+)?[✓✗○]\s/.test(l)).length;
   if (loose) {
     out.checks = result('fail', `${loose} check line(s) outside a diff block`);
-  } else if (s.checks === 'off' || s.detail === 'bare') {
-    const n = checkLines.length + passed.length;
+  } else if (strict) {
     out.checks = n ? result('fail', `${n} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, such as "${(passed[0]?.text || checkLines[0]).slice(0, 60)}"`) : result('pass');
   } else if (s.checks === 'each') {
     const shared = checkLines.filter((l) => (l.match(/✓/g) || []).length > 1).length + passed.filter((p) => p.commands > 1).length;
@@ -320,7 +341,6 @@ function checkMessage(text, s, turn, contract) {
     out.checks = shared ? result('fail', `${shared} line(s) share several passed checks`)
       : prose ? result('fail', `${prose} passed check(s) in prose, not a bullet`) : result('pass');
   } else {
-    const n = checkLines.length + passed.length;
     // detail=full lets a check that is part of the evidence take its own sentence.
     out.checks = n > 1 ? result(s.detail === 'full' ? 'warn' : 'fail', `${n} sentences or lines hold passed checks, the setting allows one`) : result('pass');
   }

@@ -30,9 +30,24 @@ const words = (n) => Array(n / 10).fill('Ten words in this sentence and it stops
 const PASSED = '`node probe.js` passes, 1 of 1.';
 // Passed checks and records lines in the forms a model writes them, with no
 // command in code or no record verb; each must still fail its grader.
+// A passed check on the bold result line is one too, though the result may
+// name the outcome ("The discount test passes again.").
+const RESULT_LINE = (r) => ['checks', (g) => g.replace(/^\*\*.*\*\*$/m, r)];
 const PASSED_FORMS = [PASSED, 'All four tests pass and lint is clean.', '`test.js` now passes.',
-  'Both checks passed: the tests (4 of 4) and the lint.', '`node test.js` passes, 4 of 4, but I did not run the app.']
-  .map((s) => ['checks', (g) => before(g, s)]);
+  'Both checks passed: the tests (4 of 4) and the lint.', '`node test.js` passes, 4 of 4, but I did not run the app.',
+  '`node test.js` fails, but `node lint.js` passes.', '- `node test.js`: 4 of 4', '`node probe.js` confirms the cause, 8 of 8.',
+  'The tests pass now that the rate is not applied twice.']
+  .map((s) => ['checks', (g) => before(g, s)])
+  .concat(['**The discount test passes again: `node test.js`, 4 of 4.**', '**Fixed. All 4 tests pass and lint is clean.**',
+    '**The discount test passes, 4 of 4.**'].map(RESULT_LINE));
+// Failed checks, and counts of something other than checks, as in the explain
+// job's probe; none is a passed check, so each copy still passes.
+const NOT_PASSED = ['`node test.js` does not pass.', '`node test.js` no longer passes.', "`node lint.js` isn't clean.",
+  '`node test.js` fails, 3 of 4 tests pass.', 'The tests did not pass.', '- `node test.js` fails: 3 of 4.',
+  '`node probe.js` shows 8 of 8 retries fire in the same second.', 'The retries pile up: `node probe.js` counts 8 of 8 in one second.']
+  .map((s) => (g) => before(g, s))
+  .concat(['**The retries spike because every client waits the same time.**', '**`node test.js` still fails, 3 of 4.**']
+    .map((r) => RESULT_LINE(r)[1]));
 const RECORD_FORMS = ['I kept my notes in notes.md.', 'I kept my notes in [notes.md](notes.md).', 'Notes are in [notes.md](notes.md).',
   'I created [notes.md](notes.md) with the fix.', 'Docs written:\n\n- [notes.md](notes.md)']
   .map((s) => ['records', (g) => before(g, s)]);
@@ -77,12 +92,19 @@ BROKEN['full-report-checks-off'] = BROKEN['checks-off'];
 BROKEN['full-report-records-off'] = BROKEN['records-off'];
 BROKEN['full-report-minimal'] = BROKEN['detail-bare'];
 
+// Case id -> compliant copies of the case's message, each of which must pass.
+const COMPLIANT = { 'checks-off': NOT_PASSED, 'detail-bare': NOT_PASSED, 'full-report-checks-off': NOT_PASSED, 'full-report-minimal': NOT_PASSED };
+
 describe('fidelity graders', { skip }, () => {
   for (const c of cases) {
     test(`${c.id}: its message passes, each broken copy fails its grader, and an empty reply fails`, () => {
       const g = gold(c);
       const ok = grade(checkOf(c), g);
       assert.strictEqual(ok.pass, true, ok.detail);
+      for (const copy of COMPLIANT[c.id] || []) {
+        const r = grade(checkOf(c), copy(g));
+        assert.strictEqual(r.pass, true, `${c.id}: a compliant copy fails: ${r.detail}`);
+      }
       assert.ok(BROKEN[c.id]?.length, `${c.id} has no broken copy`);
       for (const [target, broken] of BROKEN[c.id]) {
         const r = grade(checkOf(c), broken(g));

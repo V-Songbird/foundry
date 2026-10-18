@@ -59,7 +59,7 @@ Claude Code's `/claude-api build-eval` and `/claude-api hillclimb` commands run 
    Expected output, last line, from `benchmarks/hush/`:
 
    ```text
-   oracle 5/5 pass (want all), null 0/13 pass (want none)
+   oracle 49/49 pass (want all), null 0/57 pass (want none)
    ```
 
 2. Run one variant. This starts paid sessions through the suite's own `runner/run.js`:
@@ -118,7 +118,7 @@ Set these as environment variables. Where a script reads a per-plugin variable, 
 - Published figures keep the model, plugin revision and limits of the run that produced them. A figure measured on one host says nothing about another.
 - Hush's readiness gate cannot pass a batch whose `batch.json` does not record the hush build, so point 2 finds no build, and such a batch cannot serve as the previous release that points 6, 7 and 8 compare against. The runner records the build, commit included, in every batch it writes.
 - `--regrade` needs the workspace a session left in the system temp folder. Once that folder is cleared, only Hush's keyword tasks that do not read files can be graded again.
-- Only Hush tasks with a reference answer under `anchors/<id>/gold.md` and a keyword check get an oracle: 5 of 13 today. `--smoke` checks only the null case of the rest.
+- Only Hush tasks with a reference answer under `anchors/<id>/gold.md` and a keyword check, and the 44 fidelity runs, whose reference messages sit in `anchors/fidelity/`, get an oracle: 49 of 57 today. `--smoke` checks only the null case of the rest.
 - Foreman's `foreman-std` prompts are files that `foreman/defaultarm/gen.js` writes from the Foreman checkout. After a change to Foreman, run that generator before the next variant. A row whose prompt file changed since its run carries `meta.prompt_changed`, and the call prints a warning. A record written before runs stored a prompt hash is compared by length only, so a same-length change goes unflagged.
 - While a check runs, its held-back tests or grader sit in a randomly named folder in the system temp folder. A concurrent session that searches the whole temp folder could find them in that window.
 - Foreman's runner never clears a tag, so a second live call on the same variant stops before it starts a session. Adapt the earlier run with `--from hc-<flow>-<variant>`, or move its records aside.

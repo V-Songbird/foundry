@@ -198,6 +198,15 @@ node runner/hillclimb.js --smoke
 node runner/run.js --tag fid-plan --fidelity --arms hush --reps 1 --dry-run
 ```
 
+`--smoke` ends with `oracle 49/49 pass (want all), null 0/57 pass (want none)`: the 13
+main-suite tasks and the 44 fidelity runs.
+
+Under `checks=off` and `detail=bare`, a passed check fails the case wherever it sits, the
+bold result included. The result may still name the outcome, as in "The discount test passes
+again." A failed check, such as "`node test.js` does not pass" or "3 of 4 tests pass", is
+not a passed check. Neither is a count of something other than checks: in the explain job,
+"`node probe.js` shows 8 of 8 retries fire in the same second" is evidence.
+
 The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
 from the flow's name and the default flow's tag belongs to the main suite:
 
