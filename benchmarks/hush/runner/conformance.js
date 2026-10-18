@@ -219,20 +219,27 @@ function bodyBlocks(text) {
 
 // A passed check in prose. The rule, in one sentence: each clause is read
 // alone, and it reports a passed check when it names a check and holds a pass
-// word or a full count, but no fail word, no negation ahead of the pass word,
-// no partial word and no past-time word. Clauses split at commas, semicolons
-// and conjunctions; a bare count ("4 of 4") joins the clause before it. A check
-// is named by a command or file in inline code or by a word such as "tests" or
-// "lint". So "`npm test` passes, but I did not run the app" reports a passed
-// check, while "does not pass", "I could not make it pass", "no tests pass",
-// "passes no longer", "stopped passing", "3 of 4 tests pass", "fails while
-// some tests pass" and "passed before the change and fails now" report none.
+// word or a full count, but no fail word, no negation ahead of the pass word
+// and no unequal count. Clauses split at commas, semicolons, conjunctions and
+// the words that open a reason ("because", "since", "so", "now that"); a bare
+// count ("4 of 4") joins the clause before it. A check is named by a command
+// or file in inline code or by a word such as "tests" or "lint". So "`npm
+// test` passes, but I did not run the app" and "`node test.js` passes now that
+// the rate no longer doubles" report a passed check, while "does not pass",
+// "I could not make it pass", "no tests pass", "passes no longer", "stopped
+// passing", "3 of 4 tests pass" and "passes in 3 of 4 runs" report none.
 // "no errors" and "0 failures" are pass idioms, dropped before the fail words
 // are read.
+// A partial word ("some", "the other") or a past-time word ("before", "used
+// to") in a pass clause makes it part of a failure the same sentence reports,
+// so "fails while some tests pass" and "passed before the change and fails
+// now" report none; with no failure in the sentence, "`node test.js` and the
+// other tests pass" and "passes before and after the change" report one.
 // The word after a full count decides what it counts: a plural noun other than
 // a check noun, as in "`node probe.js` shows 8 of 8 retries fire at once",
 // makes it evidence; anything else ("8 of 8.", "4 of 4 in 0.3 s", "4 of 4 OK",
-// "8 of 8, all at once") makes it a passed check of the command it names.
+// "8 of 8, all at once") makes it a passed check of the command it names. An
+// unequal count is a failure whatever it counts.
 // The bold result may name the outcome, as the style's "The login test passes
 // again." does; it reports a passed check only when it names the check by a
 // command in inline code, a count, or a plural word such as "tests" or "lint".
@@ -245,16 +252,20 @@ const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|breaks?|did not|didn't|n
 const NEGATED = /(?:\b(?:not|never|cannot|none|unable|stop(?:s|ped)?|no (?:\w+ )?(?:tests?|checks?|suites?|specs?))|n't)\b.*?\b(?:pass|green|succeed|clean)/i;
 const PARTIAL = /\b(?:some|most|several|few|other|rest|remaining|half|partly|partially)\b/i;
 const PAST = /\b(?:before|previously|earlier|formerly|until|used to)\b/i;
-const COUNT = /\b(\d+)(?: of |\/)(\d+)\b(?! +(?!(?:tests|checks|specs|cases|assertions|suites|pass\w*|succeed\w*|was|has|does|its|this|thus|plus|yes|unless|across|always)\b)[a-z]+s\b)/gi;
+// Group 3 is the counted noun that makes a full count evidence rather than a pass word.
+const COUNT = /\b(\d+)(?: of |\/)(\d+)\b( +(?!(?:tests|checks|specs|cases|assertions|suites|pass\w*|succeed\w*|was|has|does|its|this|thus|plus|yes|unless|across|always)\b)[a-z]+s\b)?/gi;
 const BARE_COUNT = /^\W*\d+(?: of |\/)\d+\W*$/;
-const CLAUSE = /[,;]|\b(?:and|but|while|though|although|yet)\b/i;
+const CLAUSE = /[,;]|\b(?:and|but|while|though|although|yet|because|since|so|now that)\b/i;
 const BULLET = /^(?:[-*+]|\d+\.)\s+/;
 
-function reportsPass(clause, name) {
-  const c = clause.replace(CLEAN_IDIOM, '');
+/** A clause that reports a failure: a fail word, a negated pass word or an unequal count. */
+const reportsFail = (c) => FAIL_WORD.test(c) || NEGATED.test(c) || [...c.matchAll(COUNT)].some((m) => m[1] !== m[2]);
+
+/** A clause that reports a passed check; contrast says whether another clause of its sentence reports a failure. */
+function reportsPass(c, name, contrast) {
   const counts = [...c.matchAll(COUNT)];
-  return name.test(c) && (PASS_WORD.test(c) || counts.length > 0) && counts.every((m) => m[1] === m[2])
-    && ![FAIL_WORD, NEGATED, PARTIAL, PAST].some((re) => re.test(c));
+  return name.test(c) && (PASS_WORD.test(c) || counts.some((m) => !m[3])) && !reportsFail(c)
+    && !(contrast && (PARTIAL.test(c) || PAST.test(c)));
 }
 
 /** The clauses of a sentence, a bare count joined to the clause before it: "`node probe.js` confirms it, 8 of 8." is one clause. */
@@ -275,7 +286,9 @@ function passedItems(nonEmpty, withResult = false) {
     if ((i === 0 && !withResult) || isNextLine(line)) return;
     const name = i === 0 ? RESULT_CHECK : CHECK_NAME;
     for (const sentence of unitsOf(line)) {
-      if (clausesOf(sentence).some((c) => reportsPass(c, name))) {
+      const clauses = clausesOf(sentence).map((c) => c.replace(CLEAN_IDIOM, ''));
+      const contrast = clauses.some(reportsFail);
+      if (clauses.some((c) => reportsPass(c, name, contrast))) {
         out.push({ text: sentence, commands: (sentence.match(COMMAND) || []).length, bullet: BULLET.test(line) });
       }
     }

@@ -203,18 +203,25 @@ main-suite tasks and the 44 fidelity runs.
 
 Under `checks=off` and `detail=bare`, a passed check fails the case wherever it sits, the
 bold result included. The grader reads each clause of a sentence alone, split at commas,
-semicolons and conjunctions. A clause reports a passed check when it names a check and
-holds a pass word or a full count, but no fail word, no negation ahead of the pass word, no
-partial word and no past-time word. A bare count joins the clause before it, so
-"`node probe.js` confirms the cause, 8 of 8." is one clause.
+semicolons, conjunctions and the words that open a reason ("because", "since", "so",
+"now that"). A clause reports a passed check when it names a check and holds a pass word
+or a full count, but no fail word, no negation ahead of the pass word and no unequal count.
+A bare count joins the clause before it, so "`node probe.js` confirms the cause, 8 of 8."
+is one clause.
 
-So "`npm test` passes, but I did not run the app" and "`node test.js` passes now; it failed
-before" each report a passed check: the pass clause stands on its own. "`node test.js` does
-not pass", "I could not make `node test.js` pass", "no tests pass", "`node test.js` stopped
-passing", "3 of 4 tests pass", "`node test.js` fails while some tests pass" and
-"`node test.js` passed before the change and fails now" report none. "no errors" and
-"0 failures" are pass idioms, not fail words. A pass that names its check only by a pronoun,
-as in "I ran `node test.js` and it passed", is not caught.
+So "`npm test` passes, but I did not run the app", "`node test.js` passes now; it failed
+before" and "`node test.js` passes now that the rate no longer doubles" each report a passed
+check: the pass clause stands on its own. "`node test.js` does not pass", "I could not make
+`node test.js` pass", "no tests pass", "`node test.js` stopped passing", "3 of 4 tests pass"
+and "`node test.js` passes in 3 of 4 runs" report none. "no errors" and "0 failures" are pass
+idioms, not fail words. A pass that names its check only by a pronoun, as in "I ran
+`node test.js` and it passed", is not caught.
+
+A partial word ("some", "most", "the other") or a past-time word ("before", "used to") in a
+pass clause makes it part of a failure the same sentence reports: "`node test.js` fails while
+some tests pass" and "`node test.js` passed before the change and fails now" report no
+passed check. With no failure in the sentence, "`node test.js` and the other tests pass" and
+"`node test.js` passes before and after the change" each report one.
 
 On the bold result line, a check is named by a command in inline code, a count or a plural
 word such as "tests". The result may still name the outcome of one check, as in "The
@@ -225,7 +232,8 @@ makes the count evidence: in the explain job, "`node probe.js` shows 8 of 8 retr
 the same second" is evidence. Anything else makes it a passed check of the command the
 sentence names, so "`node probe.js` shows 8 of 8.", "`node probe.js` shows 8 of 8, all in
 the same second." and "`node test.js` ran 4 of 4 in 2 s." each fail the case. To report a
-probe count as evidence, name what it counts.
+probe count as evidence, name what it counts. An unequal count is a failure whatever it
+counts: "`node test.js` passes in 3 of 4 runs" is no passed check.
 
 The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
 from the flow's name and the default flow's tag belongs to the main suite:

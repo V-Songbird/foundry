@@ -42,7 +42,10 @@ const PASSED_FORMS = [PASSED, 'All four tests pass and lint is clean.', '`test.j
   'The tests pass, so the rate is no longer applied twice.', '`node test.js` passes now; it failed before.',
   '`node test.js` passes now, it failed before the fix.', '`node test.js` 4 of 4 pass, 0 fail.', '`node test.js`: 4 of 4 pass and 0 fail.',
   '`node test.js` passes, so the bug no longer shows.', '`node test.js` passed, but I did not run the app.', '`npm test` passes, but fails on Windows.',
-  '`node test.js` passes with no errors.', '- `node test.js`: 4/4']
+  '`node test.js` passes with no errors.', '- `node test.js`: 4/4',
+  // A fail, partial or past-time word that does not take back the pass.
+  '`node test.js` passes now that the rate no longer doubles.', '`node test.js` and the other tests pass.',
+  '`node test.js` passes before and after the change.']
   .map((s) => ['checks', (g) => before(g, s)])
   .concat(['**The discount test passes again: `node test.js`, 4 of 4.**', '**Fixed. All 4 tests pass and lint is clean.**',
     '**The discount test passes, 4 of 4.**'].map((r) => ['checks', resultLine(r)]));
@@ -56,7 +59,9 @@ const NOT_PASSED = ['`node test.js` does not pass.', '`node test.js` no longer p
   '`node test.js` fails; the other tests pass.', '`node test.js` cannot pass yet.', 'No tests pass.', 'None of the tests pass.',
   '`node test.js` stopped passing.', 'I was unable to make `node test.js` pass.', '`node test.js` fails: 3/4.',
   '`node probe.js` shows 8 of 8 retries fire in the same second.', 'The retries pile up: `node probe.js` counts 8 of 8 retries in one second.',
-  '`node probe.js` prints the same delay for 8 of 8 runs.']
+  '`node probe.js` prints the same delay for 8 of 8 runs.',
+  // An unequal count is a failure whatever it counts.
+  '`node test.js` passes in 3 of 4 runs.', '`node test.js`: 3 of 4 runs pass.', '`node lint.js`: 3 of 4 files pass.']
   .map((s) => (g) => before(g, s))
   .concat(['**The retries spike because every client waits the same time.**', '**`node test.js` still fails, 3 of 4.**',
     '**The cause is in `src/retry.js`: it passes the same delay.**', '**The build passes again.**'].map(resultLine));
