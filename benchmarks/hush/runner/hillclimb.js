@@ -174,8 +174,15 @@ async function adaptJudged(source, arm, opts) {
 // The suite hc.main runs from the CLI. A regrade sends one batch, two requests
 // per judged row in file order, at its first judged row, after hc.main has
 // checked every argument; a judge error or a missing verdict is that row's SKIP.
+// Verdicts are kept per run, so a row whose first pass throws leaves its second
+// verdict behind without shifting any later row's.
 function judgedSuite(opts, file) {
   let verdicts = null;
+  const byRun = async () => {
+    const runs = judgedRows(file).map((m) => m.run);
+    const v = await judgeRuns(runs, 2, opts);
+    return v && runs.reduce((m, run, i) => m.set(run, [...(m.get(run) || []), v[2 * i], v[2 * i + 1]]), new Map());
+  };
   return {
     ...suite,
     live(tag, arm, extra) {
@@ -186,8 +193,8 @@ function judgedSuite(opts, file) {
     async gradeStored(meta) {
       if (!judgedCase(meta)) return gradeStored(meta);
       const text = finalText(meta.run);
-      verdicts ||= judgeRuns(judgedRows(file).map((m) => m.run), 2, opts);
-      const v = (await verdicts)?.shift();
+      verdicts ||= byRun();
+      const v = (await verdicts)?.get(meta.run)?.shift();
       if (!v) throw new Error(NEEDS_JUDGE);
       return grade(fidelity.grade(TASKS.get(meta.task).check, text, v));
     },

@@ -267,11 +267,13 @@ starts. To keep the sessions on the plan, run the grid without `--go`, then judg
 node --env-file=<key file> runner/hillclimb.js --variant baseline --flow <Foundry root>/.claude/hillclimb/hush-fidelity --from <tag> --go --max-usd 1
 ```
 
-On a judged regrade, a `FLIP` is a disagreement to inspect, not proof of a misgrade. The two
-regrade passes are independent judge requests, so judge noise also shows as a `FLIP`, as
-does a variant written without the judge. When both passes agree against the recorded
-grade, the recorded grade is the likely regex misgrade; when the passes disagree with each
-other, the judge is. Read the message before changing `conformance.js` or the judge prompt.
+On a judged regrade, a `FLIP` is a disagreement to inspect, not proof of a misgrade. The
+recorded grade and the two regrade passes are separate judge requests, so judge noise shows
+as a `FLIP`. In a variant this CLI wrote, every recorded strict grade already comes from
+the judge, so both passes agreeing against it means the judge disagrees with its earlier
+verdict, not that the regex misgraded. Only in a variant written before the judge, whose
+strict grades come from the regex rule, does that pattern point at a likely regex misgrade.
+Read the message before changing `conformance.js` or the judge prompt.
 
 A `--reps 2` grid has 88 cells. 16 of them are `checks=off` or `detail=bare`, so writing
 the variant sends 16 requests, bound $0.39, and a regrade sends 32, bound $0.78, at

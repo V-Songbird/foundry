@@ -365,6 +365,20 @@ describe('fidelity judge', { skip }, () => {
     assert.doesNotMatch(r.out, /FLIP/);
     assert.strictEqual(r.code, 1);
 
+    // A second row keeps its own two verdicts when the first row's first pass errors.
+    const bare = caseOf('detail-bare');
+    const run2 = path.join(tmp, 'run2.json');
+    fs.writeFileSync(run2, JSON.stringify({ finalText: gold(bare) }));
+    fs.appendFileSync(path.join(FLOW, 'baseline', 'results.jsonl'), `${JSON.stringify({ prompt_id: 'fid-fix-detail-bare', rep: 0,
+      grade: { pass: 1, score: grade(checkOf(bare), gold(bare)).score },
+      meta: { task: 'fid-fix-detail-bare', run: run2, workDir: path.join(tmp, 'gone') } })}\n`);
+    global.fetch = batchApi([JSON.stringify({ custom_id: 'j0', result: { type: 'errored', error: {} } }),
+      reply('j1', '{"passed":true,"quote":"The discount test passes again."}'),
+      reply('j2', '{"passed":false,"quote":""}'), reply('j3', '{"passed":false,"quote":""}')], []);
+    r = await call('--go', '--max-usd', '1');
+    assert.match(r.out, /SKIP fid-fix-checks-off_rep0: fidelity judge: errored/);
+    assert.doesNotMatch(r.out, /FLIP/);
+    assert.match(r.out, /regraded 1 rows/);
   });
 
   test('every argument is checked before the judge sends anything or a run starts', async (t) => {
