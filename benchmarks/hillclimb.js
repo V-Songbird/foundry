@@ -29,6 +29,9 @@ const USAGE = 'usage: hillclimb.js --smoke\n'
   + '       hillclimb.js --variant <baseline|vN> [--flow <dir>] --regrade\n'
   + '       hillclimb.js --variant <baseline|vN> [--flow <dir>] [--arm <name>] [--from <source> | -- <runner flags>]';
 
+// A row's case and rep, as a regrade names it and a trace file is named.
+const rowKey = (row) => `${row?.prompt_id}_rep${row?.rep}`;
+
 function toolText(content) {
   if (typeof content === 'string') return content;
   return (Array.isArray(content) ? content : [])
@@ -133,7 +136,7 @@ function writeVariant(flowDir, variant, attempts) {
       model: s.model, usage: s.usage, latency_s: s.latency_s,
       stop_reason: s.stop_reason, status: s.status, tool_calls: s.toolCalls, meta: a.meta,
     });
-    fs.writeFileSync(path.join(dir, 'traces', `${a.prompt_id}_rep${a.rep}.json`), JSON.stringify(s.trace, null, 2));
+    fs.writeFileSync(path.join(dir, 'traces', `${rowKey(a)}.json`), JSON.stringify(s.trace, null, 2));
   }
   const order = (x, y) => x.prompt_id.localeCompare(y.prompt_id) || x.rep - y.rep;
   const jsonl = (list) => list.sort(order).map((r) => JSON.stringify(r) + '\n').join('');
@@ -161,7 +164,7 @@ async function regrade(flowDir, variant, gradeStored) {
   const flips = [];
   const skipped = [];
   for (const row of rows) {
-    const at = `${row.prompt_id}_rep${row.rep}`;
+    const at = rowKey(row);
     let a, b;
     try {
       a = await gradeStored(row.meta, row);
@@ -230,11 +233,19 @@ async function main(suite, argv = process.argv.slice(2)) {
   }
 
   const arm = flag('arm') || suite.arm;
-  const source = 'from' in opts ? opts.from : await suite.live(`hc-${path.basename(flow)}-${variant}`, arm, extra);
+  // A live run that fails ends the same way; one that finished before its adapt
+  // failed names its source, so a retry with --from starts no session.
+  let source = opts.from;
+  if (!('from' in opts)) {
+    try { source = await suite.live(`hc-${path.basename(flow)}-${variant}`, arm, extra); } catch (err) { return failed(err); }
+  }
   let out;
-  try { out = writeVariant(flow, variant, await suite.adapt(source, arm)); } catch (err) { return failed(err); }
+  try { out = writeVariant(flow, variant, await suite.adapt(source, arm)); } catch (err) {
+    if (!('from' in opts)) console.error(`the live run finished; adapt it again with --from ${source}`);
+    return failed(err);
+  }
   console.log(`${suite.name} ${variant}: ${out.rows} rows, ${out.errors} errors -> ${out.dir}`);
   return out.rows ? 0 : 1;
 }
 
-module.exports = { readStream, loginLost, writeVariant, scratchCopy, regrade, main, FOUNDRY };
+module.exports = { readStream, loginLost, writeVariant, scratchCopy, rowKey, regrade, main, FOUNDRY };

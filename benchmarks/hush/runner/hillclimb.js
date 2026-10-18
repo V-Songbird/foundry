@@ -126,7 +126,7 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
 // The stored rows of a variant that a regrade sends to the judge, in file order.
 const judgedRows = (file) => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean) : [])
   .map((l) => JSON.parse(l)).filter((r) => judgedCase(r.meta) && fs.existsSync(r.meta.run));
-const rowKey = (row) => `${row?.prompt_id}_rep${row?.rep}`;
+const { rowKey } = hc;
 
 // One judge batch over the stored final message of each run, `times` requests
 // per run in a row. Returns the verdicts in request order, or null without --go.
@@ -242,4 +242,8 @@ async function cli(argv = process.argv.slice(2)) {
 
 const suite = { name: 'hush', arm: 'hush', adapt, live, gradeStored, smoke, cli };
 module.exports = suite;
-if (require.main === module) cli().then((code) => { process.exitCode = code; });
+// A throw outside hc.main's own catch, such as a malformed results.jsonl line
+// while --go counts the judge bound, ends with its message and exit code 1.
+if (require.main === module) {
+  cli().catch((err) => { console.error(`hush: ${err.message}`); return 1; }).then((code) => { process.exitCode = code; });
+}

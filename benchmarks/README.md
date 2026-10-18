@@ -1,6 +1,6 @@
 # Foundry benchmarks
 
-These harnesses measure the Foreman, Hush and Razor plugins in real headless sessions, each plugin against a no-plugin baseline. The exception is Foreman's pick-flow eval, a simulated session on the Claude API. The folder holds the runners, scorers, fixtures and offline tests; run history stays out of the repository.
+These harnesses measure the Foreman, Hush and Razor plugins in real headless sessions, each plugin against a no-plugin baseline. The exceptions are Foreman's pick-flow eval, a simulated session on the Claude API, and its close-protocol eval, a simulated session that has no model path yet. The folder holds the runners, scorers, fixtures and offline tests; run history stays out of the repository.
 
 | Suite | Measures | Hosts |
 | --- | --- | --- |
@@ -80,7 +80,7 @@ Claude Code's `/claude-api build-eval` and `/claude-api hillclimb` commands run 
 | `--regrade` | Grades each stored attempt twice and lists every verdict that changes. Exits 1 on a change, or when nothing could be graded. Local, except Hush's fidelity rows under `checks=off` or `detail=bare`: with `--go --max-usd <usd>`, Hush sends those to a model judge on the API key, two requests per row; see [the Hush README](hush/README.md). |
 | `--smoke` | Grades a reference answer (oracle) and an empty result (null) for each task. Exits 1 unless every oracle passes and every null fails. |
 
-An unknown flag, a flag with no value or a stray argument stops the call with exit code 2 before any session starts, as does a Hush `--go` problem. A failed `--from` or adapt (a missing run or tag), and a `--regrade` with no `results.jsonl`, print a message and exit 1. A call that writes no rows also exits 1. Only a call without `--from` starts a live run.
+An unknown flag, a flag with no value, a stray argument or a `--variant` other than `baseline` or `v<N>` stops the call with exit code 2 before any session starts, as does a Hush `--go` problem. A failed live run, `--from` or adapt (a missing run or tag), and a `--regrade` with no `results.jsonl`, print a message and exit 1; when the adapt fails after a live run, the message names the run's source to pass to `--from`. A call that writes no rows also exits 1. Only a call without `--from` starts a live run.
 
 Each call writes three things under `<flow>/<variant>/`:
 

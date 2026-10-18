@@ -111,6 +111,30 @@ test('a regrade without results.jsonl or an adapt without its run ends with exit
   assert.match(err.mock.calls.at(-1).arguments[0], /^hush v8: ENOENT.*no-such-tag/);
 });
 
+test('a live run that throws exits 1, and an adapt that fails after it names the run to retry with --from', async (t) => {
+  const err = t.mock.method(console, 'error', () => {});
+  const broken = { ...suite, live: () => { throw new Error('run.js exited 3'); } };
+  assert.strictEqual(await hc.main(broken, ['--variant', 'v8', '--flow', FLOW]), 1);
+  assert.match(err.mock.calls.at(-1).arguments[0], /^hush v8: run\.js exited 3/);
+  const finished = { ...suite, live: (tag) => tag, adapt: () => { throw new Error('bad record'); } };
+  assert.strictEqual(await hc.main(finished, ['--variant', 'v8', '--flow', FLOW]), 1);
+  const said = err.mock.calls.map((c) => c.arguments[0]);
+  assert.ok(said.includes(`the live run finished; adapt it again with --from hc-${path.basename(FLOW)}-v8`), said.join('\n'));
+  assert.match(said.at(-1), /^hush v8: bad record/);
+});
+
+test('a throw before hc.main, such as a malformed results.jsonl while --go counts the bound, exits 1 with its message', () => {
+  fs.mkdirSync(path.join(FLOW, 'v7'), { recursive: true });
+  fs.writeFileSync(path.join(FLOW, 'v7', 'results.jsonl'), 'not json\n');
+  // The key is a placeholder: the count throws first, and a cap this low refuses any batch.
+  const r = require('node:child_process').spawnSync(process.execPath,
+    [path.join(ROOT, 'runner', 'hillclimb.js'), '--variant', 'v7', '--flow', FLOW, '--regrade', '--go', '--max-usd', '0.000001'],
+    { encoding: 'utf8', env: { ...process.env, BENCH_DATA_DIR: DATA, ANTHROPIC_API_KEY: 'placeholder' } });
+  assert.strictEqual(r.status, 1, r.stderr);
+  assert.match(r.stderr, /^hush: .*JSON/);
+  assert.doesNotMatch(r.stderr, /\n\s+at /);
+});
+
 test('a keyword task that reads files is not regraded without its workspace', () => {
   const run = path.join(out, 'runs', `${addRun('release-digest', 'hush', 1, { check: { pass: true, score: 1 }, finalText: 'See digest.md.' }, '')}.json`);
   assert.throws(() => suite.gradeStored({ task: 'release-digest', run, workDir: path.join(FLOW, 'gone') }), /is gone/);

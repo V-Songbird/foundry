@@ -376,8 +376,8 @@ function checkMessage(text, s, turn, contract, opts = {}) {
     // A judge verdict ({passed, quote}) answers the prose question; mark lines stay the regex's.
     const j = opts.passedCheck;
     const count = j ? checkLines.length + (j.passed ? 1 : 0) : n;
-    const example = j ? (j.passed ? j.quote : checkLines[0]) : passed[0]?.text || checkLines[0];
-    // A judge that says passed but quotes nothing leaves no example to show.
+    const example = j ? (j.passed && j.quote) || checkLines[0] : passed[0]?.text || checkLines[0];
+    // A judge that says passed but quotes nothing shows a check line, or no example.
     const such = example ? `such as "${String(example).slice(0, 60)}"` : 'the judge quoted no sentence';
     out.checks = count ? result('fail', `${count} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, ${such}`) : result('pass');
   } else if (s.checks === 'each') {

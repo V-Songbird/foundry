@@ -261,6 +261,9 @@ describe('fidelity judge', { skip }, () => {
       assert.throws(() => grade(checkOf(c), g, { error: 'no result returned' }), /fidelity judge/);
       // A check mark in a diff block stays the regex's to catch.
       assert.strictEqual(grade(checkOf(c), before(g, '```diff\n+ ✓ `node test.js`\n```'), { passed: false, quote: '' }).pass, false);
+      // A passed verdict with no quote shows that check line instead.
+      const marked = grade(checkOf(c), before(g, '```diff\n+ ✓ `node test.js`\n```'), { passed: true, quote: '' });
+      assert.match(marked.detail, /2 passed check\(s\) under \S+, such as "\+ ✓ `node test\.js`"/);
     }
     const std = caseOf('standard');
     const broken = before(gold(std), PASSED);
@@ -469,7 +472,9 @@ describe('fidelity judge', { skip }, () => {
     assert.strictEqual(await cli('0.01', '--tasks', 'fid-fix-checks-off,fid-fix-standard', '--reps', '1'), 2);
     assert.strictEqual(started.mock.callCount(), 0);
 
-    await assert.rejects(cli('1', '--fidelity', '--reps', '2'), /stopped by the test/);
+    // A live run that throws ends with its message and exit code 1, not a rejection.
+    assert.strictEqual(await cli('1', '--fidelity', '--reps', '2'), 1);
+    assert.match(err.mock.calls.at(-1).arguments[0], /^hush baseline: live run stopped by the test/);
     assert.strictEqual(started.mock.callCount(), 1);
     assert.ok(log.mock.calls.some((c) => /bill that key too; --max-usd caps only the judge batch/.test(c.arguments[0])));
   });
