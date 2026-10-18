@@ -248,7 +248,8 @@ key, and refuses `--go` with `--smoke`. It then counts the judge requests the ca
 and prints their bound: each request at the input bound of 12,000 characters plus a reply
 of 4,096 tokens. The bound is `batch-judge.js`'s estimate, not a hard limit: it counts
 three characters per token and leaves out the tokens of the reply schema, so a message
-that packs more tokens into its characters can cost more. A bound above `--max-usd` stops the call with exit code 2. A message
+that packs more tokens into its characters can cost more.
+A bound above `--max-usd` stops the call with exit code 2. A message
 whose judge prompt is longer than the input bound is never sent and counts as a judge
 error. The batch itself goes out only after every other argument has passed its check.
 
@@ -279,8 +280,10 @@ Read the message before changing `conformance.js` or the judge prompt.
 A `--reps 2` grid has 88 cells. 16 of them are `checks=off` or `detail=bare`, so writing
 the variant sends 16 requests, bound $0.39, and a regrade sends 32, bound $0.78, at
 $0.0245 per request from the Sonnet prices in `batch-judge.js` at the Batches discount.
-A `--max-usd 1` covers either. The real cost is lower, because real messages are shorter
-than the input bound and replies rarely reach 4,096 tokens, but it has not been measured.
+A `--max-usd 1` covers either. The real cost is usually lower, because real messages are
+shorter than the input bound and replies rarely reach 4,096 tokens. A dense message can
+cost more than the estimate, and no run has measured the difference. The call prints
+`judge spent $<usd>` when the batch ends.
 
 The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
 from the flow's name and the default flow's tag belongs to the main suite:
