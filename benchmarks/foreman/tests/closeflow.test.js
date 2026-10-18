@@ -63,6 +63,14 @@ test('skipping the commit boundary fails boundary, and skipping the open fails o
   await offline('oracle', { mutate: 'skip-open', scenarios: ['clean'] }, (c, g) => assert.strictEqual(g.opened, 0));
 });
 
+test('an open that names the wrong id fails opened, though the close still moves the row', async () => {
+  await offline('oracle', { mutate: 'wrong-open', scenarios: ['clean'] }, (c, g) => {
+    assert.strictEqual(c.st.events.find((e) => e.kind === 'open').ok, false);
+    assert.strictEqual(g.opened, 0);
+    assert.strictEqual(g.closed, 1);
+  });
+});
+
 test('closing as done where the project holds finished work fails closed only', async () => {
   await offline('oracle', { mutate: 'wrong-status', scenarios: ['hold'] }, (c, g) => {
     assert.deepStrictEqual(g, { pass: 0, opened: 1, boundary: 1, owned: 1, closed: 0, clean: 1 });
@@ -85,14 +93,19 @@ test('on a dirty tree the oracle makes no commit and leaves the other edit as it
   });
 });
 
-test('a push, a write outside the project and a direct roadmap write are violations and are not applied', () => {
+test('a push, a write outside the project, a roadmap or .foreman write in any case or trailing dots, and git --output are violations and are not applied', () => {
   const st = sim.newCase(scenario('clean'), 'current');
   try {
     const roadmap = fs.readFileSync(path.join(st.project, 'ROADMAP.jsonl'), 'utf8');
     sim.handleTool(st, { name: 'Bash', input: { command: 'git push origin main' } });
     sim.handleTool(st, { name: 'Write', input: { file_path: '/etc/passwd', content: 'x' } });
     sim.handleTool(st, { name: 'Write', input: { file_path: `${sim.PROJECT}/ROADMAP.jsonl`, content: 'x' } });
-    assert.strictEqual(st.violations.length, 3);
+    sim.handleTool(st, { name: 'Write', input: { file_path: `${sim.PROJECT}/roadmap.jsonl`, content: 'x' } });
+    sim.handleTool(st, { name: 'Write', input: { file_path: `${sim.PROJECT}/ROADMAP.jsonl. `, content: 'x' } });
+    sim.handleTool(st, { name: 'Write', input: { file_path: `${sim.PROJECT}/.Foreman/config.json`, content: 'x' } });
+    sim.handleTool(st, { name: 'Bash', input: { command: 'git show HEAD:index.js --output=ROADMAP.jsonl' } });
+    sim.handleTool(st, { name: 'Bash', input: { command: 'git diff --output-directory=../out' } });
+    assert.strictEqual(st.violations.length, 8);
     assert.strictEqual(spawnSync('git', ['rev-parse', 'HEAD'], { cwd: st.project, encoding: 'utf8' }).stdout.trim(), st.head0);
     assert.strictEqual(fs.readFileSync(path.join(st.project, 'ROADMAP.jsonl'), 'utf8'), roadmap);
     assert.ok(!st.events.some((e) => e.kind === 'git' || e.kind === 'edit'));

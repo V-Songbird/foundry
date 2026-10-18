@@ -82,7 +82,8 @@ function promptCommands(prompt) {
 }
 
 // What a model that follows the crafted paragraph exactly would send next.
-// mutate breaks one step: add-all, no-begin, wrong-status, no-trailer, skip-open.
+// mutate breaks one step: add-all, no-begin, wrong-status, no-trailer, skip-open,
+// wrong-open.
 function oracleTurn(c, mutate = null) {
   const s = c.scenario;
   const st = c.st;
@@ -95,7 +96,7 @@ function oracleTurn(c, mutate = null) {
   let close = cmd.close.replace('"<status>"', JSON.stringify(status)).replace('"<findings>"', '"Read windowMs in src/limiter.js; node --test tests/ passes.","model":"opus"');
   if (dirty) close = close.replace(',"staged":true', '');
   const steps = [
-    mutate !== 'skip-open' && (() => [bash(cmd.open)]),
+    mutate !== 'skip-open' && (() => [bash(mutate === 'wrong-open' ? cmd.open.replace(`"${s.entry.id}"`, '"42"') : cmd.open)]),
     mutate !== 'no-begin' && (() => [bash(cmd.begin)]),
     () => [toolUse('Write', { file_path: `${sim.PROJECT}/src/limiter.js`, content: SOLUTION(s) }, n),
       ...(mutate === 'add-all' ? [toolUse('Write', { file_path: `${sim.PROJECT}/notes.txt`, content: 'scratch notes\n' }, `${n}b`)] : [])],
