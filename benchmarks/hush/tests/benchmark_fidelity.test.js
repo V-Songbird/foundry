@@ -28,6 +28,14 @@ const before = (g, block) => (g.includes('\n\n---\n\n**Next')
   ? g.replace('\n\n---\n\n**Next', `\n\n${block}\n\n---\n\n**Next`) : `${g.trimEnd()}\n\n${block}\n`);
 const words = (n) => Array(n / 10).fill('Ten words in this sentence and it stops right here.').join('\n\n');
 const PASSED = '`node probe.js` passes, 1 of 1.';
+// Passed checks and records lines in the forms a model writes them, with no
+// command in code or no record verb; each must still fail its grader.
+const PASSED_FORMS = [PASSED, 'All four tests pass and lint is clean.', '`test.js` now passes.',
+  'Both checks passed: the tests (4 of 4) and the lint.', '`node test.js` passes, 4 of 4, but I did not run the app.']
+  .map((s) => ['checks', (g) => before(g, s)]);
+const RECORD_FORMS = ['I kept my notes in notes.md.', 'I kept my notes in [notes.md](notes.md).', 'Notes are in [notes.md](notes.md).',
+  'I created [notes.md](notes.md) with the fix.', 'Docs written:\n\n- [notes.md](notes.md)']
+  .map((s) => ['records', (g) => before(g, s)]);
 const CODE_FILE = (g) => g.replace('[discount.js:7](src/discount.js:7)', '`src/discount.js`');
 const FOOTNOTE = (g) => before(g, '[^1]: A compound discount applies the rate twice.');
 
@@ -49,12 +57,12 @@ const BROKEN = {
   'rules-off': [['rules', GOLDS.standard]],
   'detail-short': [['length', (g) => before(g, words(100))]],
   'detail-full': [['length', (g) => before(g, words(320))]],
-  'detail-bare': [['checks', (g) => before(g, PASSED)], ['records', (g) => before(g, 'I kept my notes in [notes.md](notes.md).')]],
+  'detail-bare': [...PASSED_FORMS, ...RECORD_FORMS],
   'why-off': [['why', (g) => g.replace('---\n\n', '---\n\nThe total was wrong because the rate ran twice.\n\n')]],
   'checks-each': [['checks', (g) => g.replace(/- `node test\.js`.*\n- `node lint\.js`.*/, '- `node test.js` and `node lint.js` pass.')],
     ['checks', GOLDS.standard]],
-  'checks-off': [['checks', (g) => before(g, PASSED)]],
-  'records-off': [['records', (g) => before(g, 'I kept my notes in notes.md.')]],
+  'checks-off': PASSED_FORMS,
+  'records-off': RECORD_FORMS,
   'terms-inline': [['terms', FOOTNOTE]],
   'terms-none': [['terms', FOOTNOTE]],
   'markdown-basic': [['markdown', FOOTNOTE]],

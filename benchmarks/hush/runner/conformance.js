@@ -217,20 +217,25 @@ function bodyBlocks(text) {
     .filter((b) => !RULE.test(b) && !FOOTNOTE.test(b) && b !== '&nbsp;');
 }
 
-// A passed check in prose: a command in inline code, a pass word, no fail word.
+// A passed check in prose: a clause that names a check, by a command or file in
+// inline code or by a word such as "tests" or "lint", with a pass word and no
+// fail word. Clauses split at commas and conjunctions, so "`npm test` passes,
+// but I did not run the app" still reports a passed check.
 const COMMAND = /`[^`\n]* [^`\n]*`/g;
-const PASS_WORD = /\b(?:pass(?:es|ed)?|green|succeed(?:s|ed)?|clean|\d+ of \d+)\b/i;
+const CHECK_NAME = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b(?:tests?|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs?)\b/i;
+const PASS_WORD = /\b(?:pass(?:es|ed|ing)?|green|succeed(?:s|ed)?|clean|\d+ of \d+)\b/i;
 const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run)\b/i;
+const CLAUSE = /[,;]|\b(?:and|but|while|though|although|yet)\b/i;
 const BULLET = /^(?:[-*+]|\d+\.)\s+/;
 
-/** Each sentence or list item outside code that reports a passed check. The Next line is left out. */
+/** Each sentence or list item outside code that reports a passed check. The bold result and the Next line are left out. */
 function passedItems(nonEmpty) {
   const out = [];
-  for (const line of nonEmpty) {
+  for (const line of nonEmpty.slice(1)) {
     if (isNextLine(line)) continue;
     for (const sentence of unitsOf(line)) {
-      const commands = (sentence.match(COMMAND) || []).length;
-      if (commands && PASS_WORD.test(sentence) && !FAIL_WORD.test(sentence)) out.push({ text: sentence, commands, bullet: BULLET.test(line) });
+      const passes = sentence.split(CLAUSE).some((c) => CHECK_NAME.test(c) && PASS_WORD.test(c) && !FAIL_WORD.test(c));
+      if (passes) out.push({ text: sentence, commands: (sentence.match(COMMAND) || []).length, bullet: BULLET.test(line) });
     }
   }
   return out;
@@ -239,7 +244,8 @@ function passedItems(nonEmpty) {
 // A file named in inline code, where the setting wants a link.
 const FILE_CODE = /^[\w./-]*\w\.(?:[cm]?js|jsx|tsx?|json|md|py|sh|ps1|txt|log|ya?ml|toml|csv|html?|css|go|rs|rb|java)(?::\d+(?:-\d+)?)?$/;
 const CAUSE = /\b(?:because|caused|due to|since|which made|that is why|the cause)\b/i;
-const RECORD = /\b(?:updated|wrote|added|saved|recorded|logged|noted|kept)\b[^.\n]*(?:\.md\b|\bnotes?\b|\bmemory\b)/i;
+const RECORD = /\b(?:updated|wrote|written|added|created|saved|recorded|logged|noted|kept)\b[^.\n]*(?:\.md\b|\bnotes?\b|\bmemory\b)/i;
+const DOC_NAME = /[\w-]\.(?:md|mdx|rst|txt)\b/i;
 const leadOf = (block) => block.replace(/^\*\*/, '').match(/^((?![©®™])\p{Extended_Pictographic})/u)?.[1];
 
 const result = (status, why = '') => ({ status, why });
@@ -377,8 +383,9 @@ function checkMessage(text, s, turn, contract) {
   }
 
   if (s.records === 'off' || s.detail === 'bare') {
-    // The Next line may still link a doc the next step needs.
-    const hit = nonEmpty.find((l) => /📝/.test(l) || /\b(?:memory|memoria|task note|nota de tarea)\b/i.test(l) || (!isNextLine(l) && RECORD.test(l)));
+    // The Next line may still link a doc the next step needs; anywhere else, a
+    // doc named by link, code or plain name is likely a record of what was written.
+    const hit = nonEmpty.find((l) => /📝/.test(l) || /\b(?:memory|memoria|task note|nota de tarea)\b/i.test(l) || (!isNextLine(l) && (RECORD.test(l) || DOC_NAME.test(l))));
     out.records = hit ? result('warn', `may be a records line: "${hit.slice(0, 60)}"`) : result('pass');
   } else {
     out.records = result('na', 'records=line is optional');
