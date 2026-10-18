@@ -203,9 +203,16 @@ main-suite tasks and the 44 fidelity runs.
 
 Under `checks=off` and `detail=bare`, a passed check fails the case wherever it sits, the
 bold result included. The result may still name the outcome, as in "The discount test passes
-again." A failed check, such as "`node test.js` does not pass" or "3 of 4 tests pass", is
-not a passed check. Neither is a count of something other than checks: in the explain job,
-"`node probe.js` shows 8 of 8 retries fire in the same second" is evidence.
+again." A failed check, such as "`node test.js` does not pass", "I could not make
+`node test.js` pass", "`node test.js` passed before the change and fails now" or "3 of 4
+tests pass", is not a passed check.
+
+The word after a full count decides what it counts. A plural noun other than a check noun
+makes the count evidence: in the explain job, "`node probe.js` shows 8 of 8 retries fire in
+the same second" is evidence. Anything else makes it a passed check of the command the
+sentence names, so "`node probe.js` shows 8 of 8.", "`node probe.js` shows 8 of 8, all in
+the same second." and "`node test.js` ran 4 of 4 in 2 s." each fail the case. To report a
+probe count as evidence, name what it counts.
 
 The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
 from the flow's name and the default flow's tag belongs to the main suite:

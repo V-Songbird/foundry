@@ -36,7 +36,8 @@ const RESULT_LINE = (r) => ['checks', (g) => g.replace(/^\*\*.*\*\*$/m, r)];
 const PASSED_FORMS = [PASSED, 'All four tests pass and lint is clean.', '`test.js` now passes.',
   'Both checks passed: the tests (4 of 4) and the lint.', '`node test.js` passes, 4 of 4, but I did not run the app.',
   '`node test.js` fails, but `node lint.js` passes.', '- `node test.js`: 4 of 4', '`node probe.js` confirms the cause, 8 of 8.',
-  'The tests pass now that the rate is not applied twice.']
+  'The tests pass now that the rate is not applied twice.', '- `node test.js`: 4 of 4 in 0.3 s', '- `node test.js`: 4 of 4 OK',
+  '`node test.js` ran 4 of 4 in 2 s.', '`node probe.js` shows 8 of 8.', '`node probe.js` shows 8 of 8, all in the same second.']
   .map((s) => ['checks', (g) => before(g, s)])
   .concat(['**The discount test passes again: `node test.js`, 4 of 4.**', '**Fixed. All 4 tests pass and lint is clean.**',
     '**The discount test passes, 4 of 4.**'].map(RESULT_LINE));
@@ -44,7 +45,8 @@ const PASSED_FORMS = [PASSED, 'All four tests pass and lint is clean.', '`test.j
 // job's probe; none is a passed check, so each copy still passes.
 const NOT_PASSED = ['`node test.js` does not pass.', '`node test.js` no longer passes.', "`node lint.js` isn't clean.",
   '`node test.js` fails, 3 of 4 tests pass.', 'The tests did not pass.', '- `node test.js` fails: 3 of 4.',
-  '`node probe.js` shows 8 of 8 retries fire in the same second.', 'The retries pile up: `node probe.js` counts 8 of 8 in one second.']
+  'I could not make `node test.js` pass.', '`node test.js` passes no longer.', '`node test.js` passed before the change and fails now.',
+  '`node probe.js` shows 8 of 8 retries fire in the same second.', 'The retries pile up: `node probe.js` counts 8 of 8 retries in one second.']
   .map((s) => (g) => before(g, s))
   .concat(['**The retries spike because every client waits the same time.**', '**`node test.js` still fails, 3 of 4.**']
     .map((r) => RESULT_LINE(r)[1]));

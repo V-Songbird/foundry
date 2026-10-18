@@ -221,10 +221,13 @@ function bodyBlocks(text) {
 // inline code or by a word such as "tests" or "lint", with a pass word or a
 // full count and no fail word. Clauses split at commas and conjunctions, so
 // "`npm test` passes, but I did not run the app" still reports a passed check.
-// A negated pass ("does not pass", "isn't clean") and a partial count ("3 of 4
-// tests pass") report a failed check. A count of something other than checks,
-// such as "`node probe.js` shows 8 of 8 retries fire at once" in an
-// explanation, is evidence, not a passed check.
+// A negated pass ("does not pass", "I could not make it pass", "passes no
+// longer"), a partial count ("3 of 4 tests pass") and a pass followed by a
+// fail of the same check ("passed before and fails now") report a failed check.
+// The word after a full count decides what it counts: a plural noun other than
+// a check noun, as in "`node probe.js` shows 8 of 8 retries fire at once",
+// makes it evidence; anything else ("8 of 8.", "4 of 4 in 0.3 s", "4 of 4 OK",
+// "8 of 8, all at once") makes it a passed check of the command it names.
 // The bold result may name the outcome, as the style's "The login test passes
 // again." does; it reports a passed check only when it names the check by
 // inline code, a count, or a word such as "tests" (plural) or "lint".
@@ -232,8 +235,9 @@ const COMMAND = /`[^`\n]* [^`\n]*`/g;
 const CHECK_NAME = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b(?:tests?|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs?)\b/i;
 const RESULT_CHECK = /`[^`\n]* [^`\n]*`|`[\w./-]*\w\.\w+`|\b\d+ of \d+\b|\b(?:tests|lint(?:s|er|ing)?|checks?|suites?|builds?|type-?checks?|specs)\b/i;
 const PASS_WORD = /\b(?:pass(?:es|ed|ing)?|green|succeed(?:s|ed)?|clean)\b/i;
-const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run)\b|(?:\bnot|\bno longer|\bnever|n't)\s+(?:\w+\s+)?(?:pass|green|succeed|clean)/i;
-const COUNT = /\b(\d+) of (\d+)\b(?! +(?!(?:tests?|checks?|specs?|cases?|assertions?|suites?|pass\w*|green|succeed\w*|clean|and|but|now|again)\b)[a-z])/gi;
+const FAIL_WORD = /\b(?:fail(?:s|ed|ing)?|errors?|broke|did not|didn't|not run|no longer|any ?more)\b|(?:\bnot|\bnever|n't)\b.*?\b(?:pass|green|succeed|clean)/i;
+const COUNT = /\b(\d+) of (\d+)\b(?! +(?!(?:tests|checks|specs|cases|assertions|suites|runs|pass\w*|succeed\w*|was|has|does|its|this|thus|plus|yes|unless|across|always)\b)[a-z]+s\b)/gi;
+const UNDO = /\b(?:fail(?:s|ed|ing)?|broke|breaks|no longer)\b|(?:\bnot|n't)\b.*?\bpass/i;
 const CLAUSE = /[,;]|\b(?:and|but|while|though|although|yet)\b/i;
 const BULLET = /^(?:[-*+]|\d+\.)\s+/;
 
@@ -252,7 +256,10 @@ function passedItems(nonEmpty, withResult = false) {
     for (const sentence of unitsOf(line)) {
       // A clause that is only a count, as in "`node probe.js` confirms it, 8 of 8.", counts the check its sentence names.
       const counted = (c) => name.test(sentence) && /^\W*\d+ of \d+\W*$/.test(c) && reportsPass(c, /\d/);
-      if (sentence.split(CLAUSE).some((c) => reportsPass(c, name) || counted(c))) {
+      // A fail clause with no check of its own, as in "passed before and fails now", takes back the pass before it.
+      const clauses = sentence.split(CLAUSE);
+      const undone = (k) => clauses[k + 1] !== undefined && UNDO.test(clauses[k + 1]) && !name.test(clauses[k + 1]);
+      if (clauses.some((c, k) => (reportsPass(c, name) || counted(c)) && !undone(k))) {
         out.push({ text: sentence, commands: (sentence.match(COMMAND) || []).length, bullet: BULLET.test(line) });
       }
     }
