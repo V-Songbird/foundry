@@ -11,9 +11,10 @@
 // case's overlay, such as a CLAUDE.md that asks for a full report, over the
 // fixture.
 //
-// Under checks=off and detail=bare, the live run and --smoke grade the
-// passed-check question with conformance.js's regex. runner/hillclimb.js
-// --regrade --go --max-usd asks a model judge (judge() below) instead.
+// Under checks=off and detail=bare, run.js's own report and --smoke grade the
+// passed-check question with conformance.js's regex. runner/hillclimb.js,
+// given --go and --max-usd, asks a model judge (judge() below) instead when it
+// writes or regrades a variant.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -43,7 +44,7 @@ function tasks() {
 let contract = null;
 const strict = (s) => s.checks === 'off' || s.detail === 'bare';
 
-/** A case whose passed-check question goes to the judge on regrade: checks=off or detail=bare. */
+/** A case whose passed-check question goes to the judge: checks=off or detail=bare. */
 function needsJudge(check) {
   contract ||= loadContract(pluginDir('hush'));
   return check.targets.includes('checks') && strict({ ...contract.DEFAULTS, ...check.settings });

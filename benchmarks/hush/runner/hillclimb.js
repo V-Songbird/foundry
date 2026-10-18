@@ -10,14 +10,16 @@
 //   node runner/hillclimb.js --smoke                     # oracle and null through the grader
 //   node runner/hillclimb.js --variant baseline --flow <Foundry>/.claude/hillclimb/hush-fidelity -- --fidelity --reps 2
 //                                                        # the message-settings fidelity eval
-//   node --env-file=<key file> runner/hillclimb.js --variant v1 --flow <Foundry>/.claude/hillclimb/hush-fidelity --regrade --go --max-usd 1
-//                                                        # regrade, the checks=off and detail=bare rows by a model judge
+//   node --env-file=<key file> runner/hillclimb.js --variant v1 --flow <Foundry>/.claude/hillclimb/hush-fidelity --from <tag> --go --max-usd 1
+//                                                        # the fidelity eval, checks=off and detail=bare graded by a model judge
 //
 // Flags after -- go to run.js. --flow defaults to <Foundry>/.claude/hillclimb/hush.
 // Give the fidelity eval its own --flow: the tag comes from the flow's name,
 // so the default flow would collide with the main suite's batch.
-// --go and --max-usd are taken only with --regrade. Without them a judged row
-// prints the worst case and is listed as SKIP; a judge error is a SKIP too.
+// --go and --max-usd let the CLI send the fidelity eval's checks=off and
+// detail=bare rows to the judge, whether it writes the variant (a live run or
+// --from) or regrades it. Without them the CLI prints the worst case, writes
+// those rows to errors.jsonl and lists them as SKIP on a regrade.
 
 const fs = require('node:fs');
 const os = require('node:os');
@@ -33,7 +35,6 @@ const ROOT = path.resolve(__dirname, '..');
 const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));
 const prompts = (task) => task.prompts || [task.prompt];
 const grade = (check) => ({ pass: check.pass ? 1 : 0, score: check.score });
-const judged = new Map(); // meta.run -> the judge's verdicts for the two regrade passes, in call order
 
 function adapt(tag, arm) {
   const out = path.join(dataDir('hush'), 'results', tag);
@@ -79,11 +80,6 @@ function live(tag, arm, extra) {
 function gradeStored(meta) {
   const task = TASKS.get(meta.task);
   const rec = JSON.parse(fs.readFileSync(meta.run, 'utf8'));
-  if (task.check.type === 'conformance' && fidelity.needsJudge(task.check)) {
-    const v = judged.get(meta.run);
-    if (!v?.length) throw new Error('the passed-check question needs the judge: add --go --max-usd <usd>, with the key loaded through node --env-file');
-    return grade(fidelity.grade(task.check, rec.finalText || '', v.shift()));
-  }
   const ws = hc.scratchCopy(meta.workDir);
   try {
     if ((task.check.type === 'tests' || task.check.orFiles) && !ws) throw new Error(`workspace ${meta.workDir} is gone`);
@@ -115,52 +111,85 @@ function smoke() {
   return cases;
 }
 
-// Asks the judge about every stored row of a checks=off or detail=bare case,
-// twice, one request per regrade pass, and keeps the verdicts for gradeStored.
-// A row whose run file is gone is left out; gradeStored then lists it as SKIP.
-async function judgeStored(rows, { go, maxUsd, log = console.log } = {}) {
-  judged.clear();
-  const picked = [];
-  const texts = [];
-  for (const row of rows) {
-    const task = TASKS.get(row.meta?.task);
-    if (task?.check.type !== 'conformance' || !fidelity.needsJudge(task.check)) continue;
-    let text;
-    try { text = JSON.parse(fs.readFileSync(row.meta.run, 'utf8')).finalText || ''; } catch { continue; }
-    picked.push(row.meta.run);
-    texts.push(text, text);
-  }
-  const r = await fidelity.judge(texts, { go, maxUsd, log });
-  if (r.verdicts?.length) picked.forEach((run, i) => judged.set(run, [r.verdicts[2 * i], r.verdicts[2 * i + 1]]));
+// The checks=off and detail=bare cases of the fidelity eval, whose passed-check
+// question the model judge answers when the CLI writes or regrades a variant.
+const NEEDS_JUDGE = 'the passed-check question needs the judge: add --go --max-usd <usd>, with the key loaded through node --env-file';
+const judgedCase = (meta) => { const t = TASKS.get(meta?.task); return t?.check.type === 'conformance' && fidelity.needsJudge(t.check); };
+const finalText = (run) => JSON.parse(fs.readFileSync(run, 'utf8')).finalText || '';
+
+// One judge batch over the stored final message of each run, `times` requests
+// per run. Returns run -> verdicts in request order, or null without --go.
+async function judgeRuns(runs, times, { go, maxUsd, log = console.log }) {
+  const r = await fidelity.judge(runs.flatMap((run) => Array(times).fill(finalText(run))), { go, maxUsd, log });
   if (r.spentUsd !== undefined) log(`judge spent $${r.spentUsd.toFixed(3)}`);
-  return r;
+  return r.verdicts && new Map(runs.map((run, i) => [run, r.verdicts.slice(i * times, (i + 1) * times)]));
 }
 
-// hc.main with --go and --max-usd taken off a --regrade call; any other call
-// keeps them, so hc.main still refuses them.
-async function cli(argv = process.argv.slice(2)) {
-  const sep = argv.indexOf('--');
-  let own = sep < 0 ? argv : argv.slice(0, sep);
-  const tail = sep < 0 ? [] : argv.slice(sep);
-  const valueOf = (n) => { const i = own.indexOf(n); return i < 0 ? null : own[i + 1] ?? null; };
-  if (!own.includes('--regrade')) return hc.main(suite, argv);
-  const go = own.includes('--go');
-  const maxUsd = valueOf('--max-usd');
-  own = own.filter((a, i) => a !== '--go' && a !== '--max-usd' && own[i - 1] !== '--max-usd');
-  const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
-  const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
-  if (fs.existsSync(file)) {
-    const rows = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+// adapt, with each judged case graded again with the judge's verdict in place
+// of the regex grade the run recorded. An unjudged row, a judge error or a
+// refused batch goes to errors.jsonl as judge_error, never to results.jsonl.
+async function adaptJudged(source, arm, opts) {
+  const attempts = adapt(source, arm);
+  const picked = attempts.filter((a) => a.grade && !a.stream.failure && judgedCase(a.meta));
+  let verdicts = null;
+  let refused = null;
+  try { verdicts = await judgeRuns(picked.map((a) => a.meta.run), 1, opts); } catch (err) { refused = err.message; console.log(refused); }
+  for (const a of picked) {
     try {
-      await judgeStored(rows, { go, maxUsd: maxUsd === null ? undefined : Number(maxUsd) });
+      const v = verdicts?.get(a.meta.run)[0];
+      if (!v) throw new Error(refused || NEEDS_JUDGE);
+      a.grade = grade(fidelity.grade(TASKS.get(a.meta.task).check, finalText(a.meta.run), v));
     } catch (err) {
-      console.log(err.message);
-      return 1;
+      Object.assign(a, { grade: null, error: err.message });
+      a.stream.failure = 'judge_error';
     }
   }
-  return hc.main(suite, [...own, ...tail]);
+  return attempts;
 }
 
-const suite = { name: 'hush', arm: 'hush', adapt, live, gradeStored, smoke, cli, judgeStored };
+// The suite hc.main runs from the CLI. A regrade sends one batch, two requests
+// per judged row, at its first judged row, after hc.main has checked every
+// argument; a judge error or a missing verdict is that row's SKIP.
+function judgedSuite(opts, file) {
+  let verdicts = null;
+  return {
+    ...suite,
+    adapt: (source, arm) => adaptJudged(source, arm, opts),
+    async gradeStored(meta) {
+      if (!judgedCase(meta)) return gradeStored(meta);
+      const text = finalText(meta.run);
+      verdicts ||= judgeRuns(fs.readFileSync(file, 'utf8').split('\n').filter(Boolean)
+        .map((l) => JSON.parse(l).meta).filter((m) => judgedCase(m) && fs.existsSync(m.run)).map((m) => m.run), 2, opts);
+      const v = (await verdicts)?.get(meta.run)?.shift();
+      if (!v) throw new Error(NEEDS_JUDGE);
+      return grade(fidelity.grade(TASKS.get(meta.task).check, text, v));
+    },
+  };
+}
+
+// hc.main with --go and --max-usd taken off and checked first: --go needs a
+// positive --max-usd and the key, so a live run never starts with a judge
+// that cannot answer.
+async function cli(argv = process.argv.slice(2)) {
+  const sep = argv.indexOf('--');
+  const own = sep < 0 ? argv : argv.slice(0, sep);
+  const at = own.indexOf('--max-usd');
+  const go = own.includes('--go');
+  const maxUsd = at < 0 ? undefined : Number(own[at + 1]);
+  const problem = (at >= 0 && !(maxUsd > 0) && `--max-usd needs a positive number of USD, got ${own[at + 1]}`)
+    || (go && at < 0 && '--go needs --max-usd <usd>')
+    || (go && !process.env.ANTHROPIC_API_KEY && '--go needs ANTHROPIC_API_KEY; run with node --env-file=<key file>');
+  if (problem) {
+    console.error(problem);
+    return 2;
+  }
+  const kept = own.filter((a, i) => a !== '--go' && (at < 0 || (i !== at && i !== at + 1)));
+  const valueOf = (n) => { const i = kept.indexOf(n); return i < 0 ? null : kept[i + 1]; };
+  const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
+  const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
+  return hc.main(judgedSuite({ go, maxUsd }, file), [...kept, ...(sep < 0 ? [] : argv.slice(sep))]);
+}
+
+const suite = { name: 'hush', arm: 'hush', adapt, live, gradeStored, smoke, cli };
 module.exports = suite;
 if (require.main === module) cli().then((code) => { process.exitCode = code; });

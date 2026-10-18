@@ -10,8 +10,8 @@
 //
 // Each check reports pass, fail, warn or na. fail is a breach a regex can
 // prove: a "Next:" line under next=off, a passed check under checks=off, an
-// emoji outside the emoji=on map. The fidelity eval's --regrade hands the
-// strict passed-check question to a model judge through opts.passedCheck; the
+// emoji outside the emoji=on map. The fidelity eval's hillclimb entry point hands
+// the strict passed-check question to a model judge through opts.passedCheck; the
 // regex stays the rule everywhere else. warn is a soft rule ("most messages fit in
 // 150 words") or a heuristic: a cause word under why=off, a footnote under
 // terms=inline. na means the setting asks for judgement this file cannot
@@ -219,7 +219,7 @@ function bodyBlocks(text) {
     .filter((b) => !RULE.test(b) && !FOOTNOTE.test(b) && b !== '&nbsp;');
 }
 
-// Under checks=off and detail=bare, the fidelity eval's --regrade asks a model judge instead (opts.passedCheck); the live run, --smoke and this CLI keep the regex.
+// Under checks=off and detail=bare, runner/hillclimb.js asks a model judge instead (opts.passedCheck); run.js's own report, --smoke and this CLI keep the regex.
 // A passed check in prose. The rule, in one sentence: each clause is read
 // alone, and it reports a passed check when it names a check and holds a pass
 // word or a full count, but no fail word, no negation ahead of the pass word

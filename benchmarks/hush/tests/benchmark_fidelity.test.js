@@ -6,11 +6,16 @@
 // case. The graders read hush's modules, so those parts skip on a hush
 // checkout without modules/.
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
+const { test, describe, after, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+
+// The judge tests adapt a synthetic run from here; paths.js reads it on load.
+const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-data-'));
+process.env.BENCH_DATA_DIR = DATA;
+after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
 const { tasks, grade, hasContract, judgePrompt, parseJudge, judge, JUDGE_SCHEMA } = require('../runner/fidelity.js');
 const { pluginDir } = require('../../paths.js');
@@ -318,12 +323,12 @@ describe('fidelity judge', { skip }, () => {
     assert.match(r.out, /regraded 0 rows/);
     assert.strictEqual(r.code, 1);
 
+    process.env.ANTHROPIC_API_KEY = 'test-key';
     r = await call('--go', '--max-usd', '0.0001');
-    assert.match(r.out, /nothing was sent/);
-    assert.doesNotMatch(r.out, /regraded/);
+    assert.match(r.out, /SKIP fid-fix-checks-off_rep0: .*nothing was sent/);
+    assert.match(r.out, /regraded 0 rows/);
     assert.strictEqual(r.code, 1);
 
-    process.env.ANTHROPIC_API_KEY = 'test-key';
     const posts = [];
     global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}'),
       reply('j1', '{"passed":true,"quote":"The discount test passes again."}')], posts);
@@ -342,9 +347,93 @@ describe('fidelity judge', { skip }, () => {
     assert.doesNotMatch(r.out, /FLIP/);
     assert.strictEqual(r.code, 1);
 
-    // Without --regrade, --go stays an unknown flag.
+  });
+
+  test('every argument is checked before the judge sends anything or a run starts', async (t) => {
+    const suite = require('../runner/hillclimb.js');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-args-'));
+    t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+    const FLOW = path.join(tmp, 'flow');
+    const run = path.join(tmp, 'run.json');
+    fs.writeFileSync(run, JSON.stringify({ finalText: gold(caseOf('checks-off')) }));
+    for (const v of ['baseline', 'v-bad']) {
+      fs.mkdirSync(path.join(FLOW, v), { recursive: true });
+      fs.writeFileSync(path.join(FLOW, v, 'results.jsonl'), `${JSON.stringify({ prompt_id: 'fid-fix-checks-off', rep: 0,
+        grade: { pass: 1, score: 1 }, meta: { task: 'fid-fix-checks-off', run } })}\n`);
+    }
+    const calls = [];
+    global.fetch = async (url) => { calls.push(url); throw new Error('sent'); };
+    t.mock.method(console, 'log', () => {});
     const err = t.mock.method(console, 'error', () => {});
-    assert.strictEqual(await suite.cli(['--variant', 'baseline', '--flow', FLOW, '--from', 'x', '--go']), 2);
-    assert.match(err.mock.calls[0].arguments[0], /unknown flag --go/);
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    const regrade = ['--flow', FLOW, '--regrade', '--go', '--max-usd', '1'];
+    for (const argv of [['--variant', 'baseline', ...regrade, '--bogus'], ['--variant', 'v-bad', ...regrade],
+      ['--variant', 'baseline', ...regrade, '--arm'], ['--variant', 'baseline', '--flow', FLOW, '--regrade', '--go'],
+      ['--variant', 'baseline', '--flow', FLOW, '--regrade', '--max-usd', '--go'],
+      ['--variant', 'baseline', '--flow', FLOW, '--from', 'none', '--go', '--max-usd', '0']]) {
+      assert.strictEqual(await suite.cli(argv), 2, argv.join(' '));
+    }
+    // The same check stands in front of a live run; --from keeps a regression here from starting one.
+    delete process.env.ANTHROPIC_API_KEY;
+    assert.strictEqual(await suite.cli(['--variant', 'baseline', '--flow', FLOW, '--from', 'none', '--go', '--max-usd', '1']), 2);
+    assert.match(err.mock.calls.at(-1).arguments[0], /ANTHROPIC_API_KEY/);
+    assert.deepStrictEqual(calls, []);
+  });
+
+  test('writing a variant grades each strict row by one verdict, and files a missing one as judge_error', async (t) => {
+    const suite = require('../runner/hillclimb.js');
+    const tag = 'hc-fidelity-judge';
+    const out = path.join(DATA, 'hush', 'results', tag);
+    const FLOW = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-flow-'));
+    t.after(() => fs.rmSync(FLOW, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(out, 'runs'), { recursive: true });
+    fs.mkdirSync(path.join(out, 'transcripts'), { recursive: true });
+    // A mixed count the regex misread as a passed check, a strict case, and a case the judge never sees.
+    const mixed = before(gold(caseOf('checks-off')), '`node test.js`: 3 passed, 1 failed.');
+    const records = [['fid-fix-checks-off', mixed], ['fid-fix-detail-bare', gold(caseOf('detail-bare'))],
+      ['fid-fix-standard', gold(caseOf('standard'))]];
+    for (const [task, finalText] of records) {
+      const key = `${task}__hush__r1`;
+      const id = task.replace('fid-fix-', '');
+      fs.writeFileSync(path.join(out, 'runs', `${key}.json`), JSON.stringify({ key, batchId: 'b', task, arm: 'hush', rep: 1,
+        segment: 'noisy-output', finalText, check: grade(checkOf(caseOf(id)), finalText) }));
+      fs.writeFileSync(path.join(out, 'transcripts', `${key}.jsonl`), [
+        { type: 'system', subtype: 'init', model: 'sonnet' },
+        { type: 'assistant', message: { model: 'claude-test', content: [{ type: 'text', text: finalText }] } },
+        { type: 'result', subtype: 'success', result: finalText, duration_ms: 1000, usage: {} },
+      ].map((e) => JSON.stringify(e)).join('\n'));
+    }
+    const read = (f) => fs.readFileSync(path.join(FLOW, 'baseline', f), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    const log = t.mock.method(console, 'log', () => {});
+    const cli = (...extra) => suite.cli(['--variant', 'baseline', '--flow', FLOW, '--from', tag, ...extra]);
+
+    // Without --go: the worst case is printed, nothing is sent, and the strict rows wait in errors.jsonl.
+    assert.strictEqual(await cli(), 0);
+    assert.ok(log.mock.calls.some((c) => /judge: 2 request\(s\).*worst case \$/.test(c.arguments[0])));
+    assert.deepStrictEqual(read('results.jsonl').map((r) => r.prompt_id), ['fid-fix-standard']);
+    assert.deepStrictEqual(read('errors.jsonl').map((e) => [e.prompt_id, e.failure_class]),
+      [['fid-fix-checks-off', 'judge_error'], ['fid-fix-detail-bare', 'judge_error']]);
+    assert.match(read('errors.jsonl')[0].error, /--go --max-usd/);
+
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    const posts = [];
+    global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}'),
+      JSON.stringify({ custom_id: 'j1', result: { type: 'errored', error: {} } })], posts);
+    assert.strictEqual(await cli('--go', '--max-usd', '1'), 0);
+    assert.strictEqual(posts.length, 1);
+    assert.deepStrictEqual(posts[0].requests.map((q) => q.params.messages[0].content),
+      [judgePrompt(mixed), judgePrompt(gold(caseOf('detail-bare')))]);
+    const rows = read('results.jsonl');
+    assert.deepStrictEqual(rows.map((r) => [r.prompt_id, r.grade.pass]), [['fid-fix-checks-off', 1], ['fid-fix-standard', 1]]);
+    const errors = read('errors.jsonl');
+    assert.deepStrictEqual(errors.map((e) => [e.prompt_id, e.failure_class]), [['fid-fix-detail-bare', 'judge_error']]);
+    assert.match(errors[0].error, /fidelity judge: errored/);
+
+    // A refused batch sends nothing and writes no strict row as a pass.
+    posts.length = 0;
+    assert.strictEqual(await cli('--go', '--max-usd', '0.0001'), 0);
+    assert.strictEqual(posts.length, 0);
+    assert.deepStrictEqual(read('results.jsonl').map((r) => r.prompt_id), ['fid-fix-standard']);
+    assert.match(read('errors.jsonl')[0].error, /nothing was sent/);
   });
 });
