@@ -84,12 +84,15 @@ function parseJudge(text) {
 }
 
 // The input bound of one judge request: a prompt longer than this is never
-// sent and comes back as an error, so judgeBoundUsd holds for any message.
-// 12,000 characters is 4,000 tokens at batch-judge.js's three per token.
+// sent and comes back as an error. 12,000 characters is 4,000 tokens at
+// batch-judge.js's estimate of three per token, so judgeBoundUsd is that
+// estimate's worst case, not a hard limit: a message that packs more tokens
+// into its characters, and the schema's tokens, which estimate() leaves out,
+// can cost more.
 const JUDGE_INPUT_CHARS = 12000;
 const TOO_LONG = `judge prompt longer than ${JUDGE_INPUT_CHARS} characters; not sent`;
 
-/** Worst case of n judge requests for any messages: each at the input bound plus MAX_TOKENS out. */
+/** batch-judge.js's estimated worst case of n judge requests: each at the input bound plus MAX_TOKENS out. */
 const judgeBoundUsd = (n, model = 'sonnet') => n * estimate([{ prompt: 'x'.repeat(JUDGE_INPUT_CHARS) }], modelId(model)).worstUsd;
 
 /**

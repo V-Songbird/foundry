@@ -19,7 +19,9 @@
 // --go and --max-usd let the CLI send the fidelity eval's checks=off and
 // detail=bare rows to the judge, whether it writes the variant (a live run or
 // --from) or regrades it. Before any session or batch starts, the CLI refuses
-// a judge bound for any message above --max-usd. Without them the CLI prints
+// a judge bound above --max-usd: batch-judge.js's estimate for every request
+// at the input bound, at three characters per token and without the schema's
+// tokens, so an estimate, not a hard limit. Without them the CLI prints
 // the worst case, writes those rows to errors.jsonl and lists them as SKIP on
 // a regrade. With the key loaded, a live run's claude -p sessions bill that
 // key too; --max-usd caps only the judge batch.
@@ -123,7 +125,8 @@ const finalText = (run) => JSON.parse(fs.readFileSync(run, 'utf8')).finalText ||
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
 // The stored rows of a variant that a regrade sends to the judge, in file order.
 const judgedRows = (file) => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean) : [])
-  .map((l) => JSON.parse(l).meta).filter((m) => judgedCase(m) && fs.existsSync(m.run));
+  .map((l) => JSON.parse(l)).filter((r) => judgedCase(r.meta) && fs.existsSync(r.meta.run));
+const rowKey = (row) => `${row?.prompt_id}_rep${row?.rep}`;
 
 // One judge batch over the stored final message of each run, `times` requests
 // per run in a row. Returns the verdicts in request order, or null without --go.
@@ -174,14 +177,15 @@ async function adaptJudged(source, arm, opts) {
 // The suite hc.main runs from the CLI. A regrade sends one batch, two requests
 // per judged row in file order, at its first judged row, after hc.main has
 // checked every argument; a judge error or a missing verdict is that row's SKIP.
-// Verdicts are kept per run, so a row whose first pass throws leaves its second
-// verdict behind without shifting any later row's.
+// Verdicts are kept per row (prompt_id and rep), so a row whose first pass
+// throws leaves its second verdict behind without shifting any later row's,
+// even one that shares its run file.
 function judgedSuite(opts, file) {
   let verdicts = null;
-  const byRun = async () => {
-    const runs = judgedRows(file).map((m) => m.run);
-    const v = await judgeRuns(runs, 2, opts);
-    return v && runs.reduce((m, run, i) => m.set(run, [...(m.get(run) || []), v[2 * i], v[2 * i + 1]]), new Map());
+  const byRow = async () => {
+    const rows = judgedRows(file);
+    const v = await judgeRuns(rows.map((r) => r.meta.run), 2, opts);
+    return v && new Map(rows.map((r, i) => [rowKey(r), [v[2 * i], v[2 * i + 1]]]));
   };
   return {
     ...suite,
@@ -190,11 +194,11 @@ function judgedSuite(opts, file) {
       return suite.live(tag, arm, extra);
     },
     adapt: (source, arm) => adaptJudged(source, arm, opts),
-    async gradeStored(meta) {
+    async gradeStored(meta, row) {
       if (!judgedCase(meta)) return gradeStored(meta);
       const text = finalText(meta.run);
-      verdicts ||= byRun();
-      const v = (await verdicts)?.get(meta.run)?.shift();
+      verdicts ||= byRow();
+      const v = (await verdicts)?.get(rowKey(row))?.shift();
       if (!v) throw new Error(NEEDS_JUDGE);
       return grade(fidelity.grade(TASKS.get(meta.task).check, text, v));
     },
@@ -204,10 +208,10 @@ function judgedSuite(opts, file) {
 const BILLING = 'ANTHROPIC_API_KEY is loaded, so the claude -p sessions this run starts bill that key too; --max-usd caps only the judge batch';
 
 // hc.main with --go and --max-usd taken off and checked first: --go needs a
-// positive --max-usd, the key and no --smoke, and the judge's bound for any
-// message must fit the cap, so a session or a batch never starts with a judge
-// that cannot answer. hc.main then checks every other argument before the
-// batch goes out.
+// positive --max-usd, the key and no --smoke, and the judge's estimated bound
+// must fit the cap, so a session or a batch never starts with a judge that
+// cannot answer. hc.main then checks every other argument before the batch
+// goes out. A flag given twice is read at its last value, as hc.main reads it.
 async function cli(argv = process.argv.slice(2)) {
   const sep = argv.indexOf('--');
   const own = sep < 0 ? argv : argv.slice(0, sep);
@@ -216,7 +220,7 @@ async function cli(argv = process.argv.slice(2)) {
   const go = own.includes('--go');
   const maxUsd = at < 0 ? undefined : Number(own[at + 1]);
   const kept = own.filter((a, i) => a !== '--go' && (at < 0 || (i !== at && i !== at + 1)));
-  const valueOf = (n) => { const i = kept.indexOf(n); return i < 0 ? null : kept[i + 1]; };
+  const valueOf = (n) => { const i = kept.lastIndexOf(n); return i < 0 ? null : kept[i + 1]; };
   const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
   const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
   let problem = (at >= 0 && !(maxUsd > 0) && `--max-usd needs a positive number of USD, got ${own[at + 1]}`)
@@ -226,7 +230,7 @@ async function cli(argv = process.argv.slice(2)) {
   if (!problem && go) {
     const n = judgeRequests({ regrade: kept.includes('--regrade'), from: valueOf('--from'), arm: valueOf('--arm') || suite.arm }, extra, file);
     const bound = fidelity.judgeBoundUsd(n);
-    console.log(`judge bound: ${n} request(s), $${bound.toFixed(2)} for any messages (input up to ${fidelity.JUDGE_INPUT_CHARS} characters, reply up to ${MAX_TOKENS} tokens); cap --max-usd ${maxUsd}`);
+    console.log(`judge bound: ${n} request(s), $${bound.toFixed(2)} estimated by batch-judge.js (input up to ${fidelity.JUDGE_INPUT_CHARS} characters, reply up to ${MAX_TOKENS} tokens); cap --max-usd ${maxUsd}`);
     if (bound > maxUsd) problem = `judge bound $${bound.toFixed(2)} is above --max-usd ${maxUsd}; no session started and nothing was sent`;
   }
   if (problem) {

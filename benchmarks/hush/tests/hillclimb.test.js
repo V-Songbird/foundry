@@ -103,6 +103,14 @@ test('regrade grades stored output twice and lists a flipped verdict', async () 
   assert.strictEqual(await hc.main(suite, [...flow, '--regrade']), 1);
 });
 
+test('a regrade without results.jsonl or an adapt without its run ends with exit code 1, not a rejection', async (t) => {
+  const err = t.mock.method(console, 'error', () => {});
+  assert.strictEqual(await hc.main(suite, ['--variant', 'v8', '--flow', FLOW, '--regrade']), 1);
+  assert.match(err.mock.calls.at(-1).arguments[0], /^hush v8: ENOENT.*results\.jsonl/);
+  assert.strictEqual(await hc.main(suite, ['--variant', 'v8', '--flow', FLOW, '--from', 'no-such-tag']), 1);
+  assert.match(err.mock.calls.at(-1).arguments[0], /^hush v8: ENOENT.*no-such-tag/);
+});
+
 test('a keyword task that reads files is not regraded without its workspace', () => {
   const run = path.join(out, 'runs', `${addRun('release-digest', 'hush', 1, { check: { pass: true, score: 1 }, finalText: 'See digest.md.' }, '')}.json`);
   assert.throws(() => suite.gradeStored({ task: 'release-digest', run, workDir: path.join(FLOW, 'gone') }), /is gone/);

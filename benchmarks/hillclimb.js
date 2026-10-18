@@ -10,7 +10,7 @@
 // A suite supplies four functions and this module does the rest:
 //   adapt(source, arm)  -> attempts   read a finished run (a tag or a run folder)
 //   live(tag, arm, extra) -> source   start that run with the suite's own runner
-//   gradeStored(meta)   -> grade      grade one stored attempt again, offline
+//   gradeStored(meta, row) -> grade   grade one stored attempt again, offline
 //   smoke()             -> cases      oracle and null outputs through the grader
 //
 // Split, noise floor, headroom and the report belong to the native commands;
@@ -164,8 +164,8 @@ async function regrade(flowDir, variant, gradeStored) {
     const at = `${row.prompt_id}_rep${row.rep}`;
     let a, b;
     try {
-      a = await gradeStored(row.meta);
-      b = await gradeStored(row.meta);
+      a = await gradeStored(row.meta, row);
+      b = await gradeStored(row.meta, row);
     } catch (err) {
       skipped.push({ at, reason: err.message });
       continue;
@@ -217,8 +217,12 @@ async function main(suite, argv = process.argv.slice(2)) {
   }
   const flow = path.resolve(flag('flow') || path.join(FOUNDRY, '.claude', 'hillclimb', suite.name));
 
+  // A regrade or an adapt that throws, such as on a missing results.jsonl or
+  // run folder, ends with its message and exit code 1, not a rejection.
+  const failed = (err) => { console.error(`${suite.name} ${variant}: ${err.message}`); return 1; };
   if (opts.regrade) {
-    const r = await regrade(flow, variant, suite.gradeStored);
+    let r;
+    try { r = await regrade(flow, variant, suite.gradeStored); } catch (err) { return failed(err); }
     for (const f of r.flips) console.log(`FLIP ${f.at} ${f.metric}: recorded ${f.recorded}, then ${f.first}, then ${f.second}`);
     for (const s of r.skipped) console.log(`SKIP ${s.at}: ${s.reason}`);
     console.log(`regraded ${r.graded} rows twice: ${r.flips.length} flipped verdicts, ${r.skipped.length} not regradable`);
@@ -227,7 +231,8 @@ async function main(suite, argv = process.argv.slice(2)) {
 
   const arm = flag('arm') || suite.arm;
   const source = 'from' in opts ? opts.from : await suite.live(`hc-${path.basename(flow)}-${variant}`, arm, extra);
-  const out = writeVariant(flow, variant, await suite.adapt(source, arm));
+  let out;
+  try { out = writeVariant(flow, variant, await suite.adapt(source, arm)); } catch (err) { return failed(err); }
   console.log(`${suite.name} ${variant}: ${out.rows} rows, ${out.errors} errors -> ${out.dir}`);
   return out.rows ? 0 : 1;
 }

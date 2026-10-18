@@ -245,9 +245,10 @@ row when it writes the variant, two per row on `--regrade`, one for each regrade
 
 Before it starts a session or sends anything, the CLI checks `--go`, `--max-usd` and the
 key, and refuses `--go` with `--smoke`. It then counts the judge requests the call can send
-and prints their bound, which holds for any message: each request at the input bound of
-12,000 characters (4,000 tokens at `batch-judge.js`'s three characters per token) plus a
-reply of 4,096 tokens. A bound above `--max-usd` stops the call with exit code 2. A message
+and prints their bound: each request at the input bound of 12,000 characters plus a reply
+of 4,096 tokens. The bound is `batch-judge.js`'s estimate, not a hard limit: it counts
+three characters per token and leaves out the tokens of the reply schema, so a message
+that packs more tokens into its characters can cost more. A bound above `--max-usd` stops the call with exit code 2. A message
 whose judge prompt is longer than the input bound is never sent and counts as a judge
 error. The batch itself goes out only after every other argument has passed its check.
 

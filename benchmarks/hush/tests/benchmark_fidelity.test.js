@@ -253,6 +253,11 @@ describe('fidelity judge', { skip }, () => {
       assert.strictEqual(hit.pass, false);
       assert.match(hit.detail, /(?:^|; )checks /);
       assert.match(hit.detail, /`node test\.js` passes\./);
+      // A passed verdict with no quote still fails, and says so instead of quoting "".
+      const bare = grade(checkOf(c), g, { passed: true, quote: '' });
+      assert.strictEqual(bare.pass, false);
+      assert.match(bare.detail, /1 passed check\(s\) under \S+, the judge quoted no sentence/);
+      assert.doesNotMatch(bare.detail, /such as ""/);
       assert.throws(() => grade(checkOf(c), g, { error: 'no result returned' }), /fidelity judge/);
       // A check mark in a diff block stays the regex's to catch.
       assert.strictEqual(grade(checkOf(c), before(g, '```diff\n+ ✓ `node test.js`\n```'), { passed: false, quote: '' }).pass, false);
@@ -300,7 +305,7 @@ describe('fidelity judge', { skip }, () => {
     assert.deepStrictEqual(posts[0].requests[0].params.output_config.format.schema, JUDGE_SCHEMA);
   });
 
-  test('a message past the input bound is never sent, so the bound holds for any message', async () => {
+  test('a message past the input bound is never sent, and the bound is the estimate at that bound', async () => {
     process.env.ANTHROPIC_API_KEY = 'test-key';
     const posts = [];
     global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}')], posts);
@@ -379,6 +384,38 @@ describe('fidelity judge', { skip }, () => {
     assert.match(r.out, /SKIP fid-fix-checks-off_rep0: fidelity judge: errored/);
     assert.doesNotMatch(r.out, /FLIP/);
     assert.match(r.out, /regraded 1 rows/);
+
+    // A row that shares the first row's run file keeps its own two verdicts too.
+    fs.appendFileSync(path.join(FLOW, 'baseline', 'results.jsonl'), `${JSON.stringify({ prompt_id: 'fid-fix-checks-off', rep: 1,
+      grade: recorded, meta: { task: 'fid-fix-checks-off', run, workDir: path.join(tmp, 'gone') } })}\n`);
+    global.fetch = batchApi([JSON.stringify({ custom_id: 'j0', result: { type: 'errored', error: {} } }),
+      reply('j1', '{"passed":true,"quote":"The discount test passes again."}'),
+      ...['j2', 'j3', 'j4', 'j5'].map((id) => reply(id, '{"passed":false,"quote":""}'))], []);
+    r = await call('--go', '--max-usd', '1');
+    assert.match(r.out, /SKIP fid-fix-checks-off_rep0: fidelity judge: errored/);
+    assert.doesNotMatch(r.out, /FLIP/);
+    assert.match(r.out, /regraded 2 rows/);
+  });
+
+  test('a flag given twice is read at its last value, as hc.main reads it', async (t) => {
+    const suite = require('../runner/hillclimb.js');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-twice-'));
+    t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+    const FLOW = path.join(tmp, 'flow');
+    const run = path.join(tmp, 'run.json');
+    fs.writeFileSync(run, JSON.stringify({ finalText: gold(caseOf('checks-off')) }));
+    fs.mkdirSync(path.join(FLOW, 'baseline'), { recursive: true });
+    fs.writeFileSync(path.join(FLOW, 'baseline', 'results.jsonl'), `${JSON.stringify({ prompt_id: 'fid-fix-checks-off', rep: 0,
+      grade: { pass: 1, score: 1 }, meta: { task: 'fid-fix-checks-off', run } })}\n`);
+    global.fetch = async () => { throw new Error('sent'); };
+    const log = t.mock.method(console, 'log', () => {});
+    t.mock.method(console, 'error', () => {});
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    // hc.main regrades baseline in FLOW, so the bound counts its two requests and refuses the cap.
+    const argv = ['--variant', 'v7', '--variant', 'baseline', '--flow', path.join(tmp, 'other'), '--flow', FLOW,
+      '--regrade', '--go', '--max-usd', '0.04'];
+    assert.strictEqual(await suite.cli(argv), 2);
+    assert.ok(log.mock.calls.some((c) => /judge bound: 2 request\(s\)/.test(c.arguments[0])));
   });
 
   test('every argument is checked before the judge sends anything or a run starts', async (t) => {

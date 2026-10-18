@@ -377,7 +377,9 @@ function checkMessage(text, s, turn, contract, opts = {}) {
     const j = opts.passedCheck;
     const count = j ? checkLines.length + (j.passed ? 1 : 0) : n;
     const example = j ? (j.passed ? j.quote : checkLines[0]) : passed[0]?.text || checkLines[0];
-    out.checks = count ? result('fail', `${count} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, such as "${String(example).slice(0, 60)}"`) : result('pass');
+    // A judge that says passed but quotes nothing leaves no example to show.
+    const such = example ? `such as "${String(example).slice(0, 60)}"` : 'the judge quoted no sentence';
+    out.checks = count ? result('fail', `${count} passed check(s) under ${s.detail === 'bare' ? 'detail=bare' : 'checks=off'}, ${such}`) : result('pass');
   } else if (s.checks === 'each') {
     const shared = checkLines.filter((l) => (l.match(/✓/g) || []).length > 1).length + passed.filter((p) => p.commands > 1).length;
     const prose = passed.filter((p) => !p.bullet).length;
