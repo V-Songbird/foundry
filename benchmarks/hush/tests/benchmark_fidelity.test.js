@@ -17,7 +17,7 @@ const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-data-'));
 process.env.BENCH_DATA_DIR = DATA;
 after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
-const { tasks, grade, hasContract, judgePrompt, parseJudge, judge, JUDGE_SCHEMA } = require('../runner/fidelity.js');
+const { tasks, grade, hasContract, judgePrompt, parseJudge, judge, judgeBoundUsd, JUDGE_SCHEMA, JUDGE_INPUT_CHARS } = require('../runner/fidelity.js');
 const { pluginDir } = require('../../paths.js');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -198,7 +198,7 @@ describe('fidelity tasks', () => {
   });
 });
 
-// The judge that --regrade asks under checks=off and detail=bare. Offline:
+// The judge that runner/hillclimb.js asks under checks=off and detail=bare. Offline:
 // fetch is replaced, so any network call the test did not stub fails it.
 describe('fidelity judge', { skip }, () => {
   const caseOf = (id) => cases.find((c) => c.id === id);
@@ -231,6 +231,8 @@ describe('fidelity judge', { skip }, () => {
     const p = judgePrompt(msg);
     assert.ok(p.includes(`--- MESSAGE ---\n${msg}\n--- END ---`));
     assert.match(p, /that alone reports no passed check/);
+    assert.match(p, /partly failed \("3 of 4 runs pass", "3 passed, 1 failed"\)/);
+    assert.match(p, /a count measures something other than a check outcome, as in "8 of 8 retries fire/);
     assert.doesNotMatch(p, /hush|checks=off|detail=bare/i);
   });
 
@@ -298,6 +300,20 @@ describe('fidelity judge', { skip }, () => {
     assert.deepStrictEqual(posts[0].requests[0].params.output_config.format.schema, JUDGE_SCHEMA);
   });
 
+  test('a message past the input bound is never sent, so the bound holds for any message', async () => {
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    const posts = [];
+    global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}')], posts);
+    const r = await judge(['short', 'x'.repeat(JUDGE_INPUT_CHARS)], { go: true, maxUsd: 1, log: () => {} });
+    assert.strictEqual(posts[0].requests.length, 1);
+    assert.deepStrictEqual(r.verdicts[0], { passed: false, quote: '' });
+    assert.match(r.verdicts[1].error, /longer than 12000 characters; not sent/);
+    // 4,000 tokens in and 4,096 out on Sonnet, at half the list price.
+    assert.ok(Math.abs(judgeBoundUsd(1) - 0.02448) < 1e-9);
+    const sent = await judge(['x'.repeat(JUDGE_INPUT_CHARS - judgePrompt('').length)], { log: () => {} });
+    assert.ok(sent.plan.worstUsd <= judgeBoundUsd(1));
+  });
+
   test('--regrade sends each strict row twice, and lists a missing or failed verdict as SKIP', async (t) => {
     const suite = require('../runner/hillclimb.js');
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-judge-'));
@@ -324,10 +340,12 @@ describe('fidelity judge', { skip }, () => {
     assert.strictEqual(r.code, 1);
 
     process.env.ANTHROPIC_API_KEY = 'test-key';
-    r = await call('--go', '--max-usd', '0.0001');
-    assert.match(r.out, /SKIP fid-fix-checks-off_rep0: .*nothing was sent/);
-    assert.match(r.out, /regraded 0 rows/);
-    assert.strictEqual(r.code, 1);
+    const err = t.mock.method(console, 'error', () => {});
+    r = await call('--go', '--max-usd', '0.04');
+    assert.match(r.out, /judge bound: 2 request\(s\), \$0\.05/);
+    assert.match(err.mock.calls.at(-1).arguments[0], /above --max-usd 0\.04; no session started and nothing was sent/);
+    assert.doesNotMatch(r.out, /regraded/);
+    assert.strictEqual(r.code, 2);
 
     const posts = [];
     global.fetch = batchApi([reply('j0', '{"passed":false,"quote":""}'),
@@ -370,7 +388,8 @@ describe('fidelity judge', { skip }, () => {
     for (const argv of [['--variant', 'baseline', ...regrade, '--bogus'], ['--variant', 'v-bad', ...regrade],
       ['--variant', 'baseline', ...regrade, '--arm'], ['--variant', 'baseline', '--flow', FLOW, '--regrade', '--go'],
       ['--variant', 'baseline', '--flow', FLOW, '--regrade', '--max-usd', '--go'],
-      ['--variant', 'baseline', '--flow', FLOW, '--from', 'none', '--go', '--max-usd', '0']]) {
+      ['--variant', 'baseline', '--flow', FLOW, '--from', 'none', '--go', '--max-usd', '0'],
+      ['--variant', 'baseline', '--flow', FLOW, '--smoke', '--go', '--max-usd', '1']]) {
       assert.strictEqual(await suite.cli(argv), 2, argv.join(' '));
     }
     // The same check stands in front of a live run; --from keeps a regression here from starting one.
@@ -378,6 +397,30 @@ describe('fidelity judge', { skip }, () => {
     assert.strictEqual(await suite.cli(['--variant', 'baseline', '--flow', FLOW, '--from', 'none', '--go', '--max-usd', '1']), 2);
     assert.match(err.mock.calls.at(-1).arguments[0], /ANTHROPIC_API_KEY/);
     assert.deepStrictEqual(calls, []);
+  });
+
+  test('a live run is refused before it starts when the judge bound passes the cap, and names its billing', async (t) => {
+    const suite = require('../runner/hillclimb.js');
+    const FLOW = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-fidelity-live-'));
+    t.after(() => fs.rmSync(FLOW, { recursive: true, force: true }));
+    // A stand-in for the live run, so no check here can start a session.
+    const started = t.mock.method(suite, 'live', () => { throw new Error('live run stopped by the test'); });
+    const log = t.mock.method(console, 'log', () => {});
+    const err = t.mock.method(console, 'error', () => {});
+    global.fetch = async () => { throw new Error('sent'); };
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    const cli = (usd, ...extra) => suite.cli(['--variant', 'baseline', '--flow', FLOW, '--go', '--max-usd', usd, '--', ...extra]);
+
+    // 8 strict tasks x 2 reps, each at the input bound plus 4096 tokens out.
+    assert.strictEqual(await cli('0.3', '--fidelity', '--reps', '2'), 2);
+    assert.ok(log.mock.calls.some((c) => /judge bound: 16 request\(s\), \$0\.39/.test(c.arguments[0])));
+    assert.match(err.mock.calls.at(-1).arguments[0], /no session started/);
+    assert.strictEqual(await cli('0.01', '--tasks', 'fid-fix-checks-off,fid-fix-standard', '--reps', '1'), 2);
+    assert.strictEqual(started.mock.callCount(), 0);
+
+    await assert.rejects(cli('1', '--fidelity', '--reps', '2'), /stopped by the test/);
+    assert.strictEqual(started.mock.callCount(), 1);
+    assert.ok(log.mock.calls.some((c) => /bill that key too; --max-usd caps only the judge batch/.test(c.arguments[0])));
   });
 
   test('writing a variant grades each strict row by one verdict, and files a missing one as judge_error', async (t) => {
@@ -429,11 +472,13 @@ describe('fidelity judge', { skip }, () => {
     assert.deepStrictEqual(errors.map((e) => [e.prompt_id, e.failure_class]), [['fid-fix-detail-bare', 'judge_error']]);
     assert.match(errors[0].error, /fidelity judge: errored/);
 
-    // A refused batch sends nothing and writes no strict row as a pass.
+    // A bound above the cap is refused before anything is sent or written.
     posts.length = 0;
-    assert.strictEqual(await cli('--go', '--max-usd', '0.0001'), 0);
+    t.mock.method(console, 'error', () => {});
+    assert.strictEqual(await cli('--go', '--max-usd', '0.04'), 2);
+    assert.ok(log.mock.calls.some((c) => /judge bound: 2 request\(s\)/.test(c.arguments[0])));
     assert.strictEqual(posts.length, 0);
-    assert.deepStrictEqual(read('results.jsonl').map((r) => r.prompt_id), ['fid-fix-standard']);
-    assert.match(read('errors.jsonl')[0].error, /nothing was sent/);
+    assert.deepStrictEqual(read('results.jsonl'), rows);
+    assert.deepStrictEqual(read('errors.jsonl'), errors);
   });
 });

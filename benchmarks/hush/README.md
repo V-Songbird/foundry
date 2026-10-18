@@ -241,15 +241,27 @@ the `checks=off` and `detail=bare` cases, `runner/hillclimb.js` asks a model jud
 question instead, whenever it writes a variant (a live run or `--from`) or regrades one.
 Given `--go` and `--max-usd`, it sends each such row's final message to a Sonnet judge on
 the Message Batches API through [`../batch-judge.js`](../batch-judge.js): one request per
-row when it writes the variant, two per row on `--regrade`, one for each regrade pass. It
-checks every argument and the key before it starts a run or sends anything, prints the
-worst case, and refuses a worst case above the cap. Without `--go`, it prints the worst case
-and sends nothing. A row with no verdict, because `--go` was missing, the judge failed or
-the batch was refused, goes to `errors.jsonl` as `judge_error` when the variant is written,
-and shows as a `SKIP` on a regrade. It is never a pass. Every other case, every check mark
-line, `--smoke` and `run.js`'s own report keep the regex rule. A live run without `--go`
-therefore leaves these rows in `errors.jsonl`; `--from <tag> --go --max-usd <usd>` writes
-the variant again from the same run without starting a session.
+row when it writes the variant, two per row on `--regrade`, one for each regrade pass.
+
+Before it starts a session or sends anything, the CLI checks `--go`, `--max-usd` and the
+key, and refuses `--go` with `--smoke`. It then counts the judge requests the call can send
+and prints their bound, which holds for any message: each request at the input bound of
+12,000 characters (4,000 tokens at `batch-judge.js`'s three characters per token) plus a
+reply of 4,096 tokens. A bound above `--max-usd` stops the call with exit code 2. A message
+whose judge prompt is longer than the input bound is never sent and counts as a judge
+error. The batch itself goes out only after every other argument has passed its check.
+
+A row with no verdict, because `--go` was missing, the judge failed or the message was too
+long, goes to `errors.jsonl` as `judge_error` when the variant is written, and shows as a
+`SKIP` on a regrade. It is never a pass. Every other case, every check mark line, `--smoke`
+and `run.js`'s own report keep the regex rule. A live run without `--go` therefore leaves
+these rows in `errors.jsonl`; `--from <tag> --go --max-usd <usd>` writes the variant again
+from the same run without starting a session.
+
+`--max-usd` caps only the judge batch. With the key loaded, the `claude -p` sessions of a
+live run bill that key too, not your Claude Code plan, and the CLI says so when the run
+starts. To keep the sessions on the plan, run the grid without `--go`, then judge it with
+`--from`.
 
 ```bash
 node --env-file=<key file> runner/hillclimb.js --variant baseline --flow <Foundry root>/.claude/hillclimb/hush-fidelity --from <tag> --go --max-usd 1
@@ -258,14 +270,14 @@ node --env-file=<key file> runner/hillclimb.js --variant baseline --flow <Foundr
 On a judged regrade, a `FLIP` is a disagreement to inspect, not proof of a misgrade. The two
 regrade passes are independent judge requests, so judge noise also shows as a `FLIP`, as
 does a variant written without the judge. When both passes agree against the recorded
-grade, the recorded grade is the likely error; when the passes disagree with each other,
-the judge is. Read the message before changing `conformance.js` or the judge prompt.
+grade, the recorded grade is the likely regex misgrade; when the passes disagree with each
+other, the judge is. Read the message before changing `conformance.js` or the judge prompt.
 
 A `--reps 2` grid has 88 cells. 16 of them are `checks=off` or `detail=bare`, so writing
-the variant sends 16 requests, worst case $0.34, and a regrade sends 32, worst case $0.67.
-Both assume every reply runs to 4096 tokens, at the prices in `batch-judge.js`, with the
-case messages in `anchors/fidelity/` as the input. The real cost is lower and has not been
-measured.
+the variant sends 16 requests, bound $0.39, and a regrade sends 32, bound $0.78, at
+$0.0245 per request from the Sonnet prices in `batch-judge.js` at the Batches discount.
+A `--max-usd 1` covers either. The real cost is lower, because real messages are shorter
+than the input bound and replies rarely reach 4,096 tokens, but it has not been measured.
 
 The live run starts paid sessions. Give it its own flow folder, because the run's tag comes
 from the flow's name and the default flow's tag belongs to the main suite:

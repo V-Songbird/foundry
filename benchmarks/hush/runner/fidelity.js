@@ -19,7 +19,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadContract, checkMessage } = require('./conformance.js');
-const { runBatch } = require('../../batch-judge.js');
+const { runBatch, estimate, modelId } = require('../../batch-judge.js');
 const { pluginDir } = require('../../paths.js');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -83,20 +83,32 @@ function parseJudge(text) {
   return { passed, quote: typeof quote === 'string' ? quote : '' };
 }
 
+// The input bound of one judge request: a prompt longer than this is never
+// sent and comes back as an error, so judgeBoundUsd holds for any message.
+// 12,000 characters is 4,000 tokens at batch-judge.js's three per token.
+const JUDGE_INPUT_CHARS = 12000;
+const TOO_LONG = `judge prompt longer than ${JUDGE_INPUT_CHARS} characters; not sent`;
+
+/** Worst case of n judge requests for any messages: each at the input bound plus MAX_TOKENS out. */
+const judgeBoundUsd = (n, model = 'sonnet') => n * estimate([{ prompt: 'x'.repeat(JUDGE_INPUT_CHARS) }], modelId(model)).worstUsd;
+
 /**
  * One judge request per text on the Message Batches API. Without go it
  * returns the plan only. Each verdict is {passed, quote} or {error}.
  */
 async function judge(texts, { model = 'sonnet', maxUsd, go = false, log = console.log } = {}) {
   if (!texts.length) return { plan: null, verdicts: [] };
-  const items = texts.map((t) => ({ prompt: judgePrompt(t), schema: JUDGE_SCHEMA }));
+  const prompts = texts.map(judgePrompt);
+  const sent = prompts.map((p, i) => i).filter((i) => prompts[i].length <= JUDGE_INPUT_CHARS);
+  const items = sent.map((i) => ({ prompt: prompts[i], schema: JUDGE_SCHEMA }));
   const { plan } = await runBatch(items, { model });
   log(`judge: ${plan.requests} request(s) on ${plan.model}, worst case $${plan.worstUsd.toFixed(2)}; cap --max-usd ${maxUsd ?? 'unset'}`);
   if (!go) return { plan, verdicts: null };
-  const out = await runBatch(items, { model, maxUsd, go: true, log });
-  const verdicts = out.results.map((r) => {
-    if (r.error) return { error: r.error };
-    try { return parseJudge(r.text); } catch (e) { return { error: e.message }; }
+  const out = items.length ? await runBatch(items, { model, maxUsd, go: true, log }) : { results: [], spentUsd: 0 };
+  const verdicts = prompts.map(() => ({ error: TOO_LONG }));
+  out.results.forEach((r, k) => {
+    if (r.error) verdicts[sent[k]] = { error: r.error };
+    else try { verdicts[sent[k]] = parseJudge(r.text); } catch (e) { verdicts[sent[k]] = { error: e.message }; }
   });
   return { plan, verdicts, spentUsd: out.spentUsd };
 }
@@ -112,12 +124,11 @@ function grade(check, finalText, verdict) {
   for (const n of names) if (!out[n]) throw new Error(`fidelity: unknown check "${n}"`);
   const missed = names.filter((n) => out[n].status !== 'pass');
   const scored = Object.values(out).filter((r) => r.status !== 'na');
-  const detail = missed.length ? missed.map((n) => `${n} ${out[n].status}: ${out[n].why}`).join('; ') : `${names.length} checks pass`;
   return {
     pass: missed.length === 0,
     score: scored.length ? scored.filter((r) => r.status === 'pass').length / scored.length : 0,
-    detail: judged ? `${detail} (judged)` : detail,
+    detail: missed.length ? missed.map((n) => `${n} ${out[n].status}: ${out[n].why}`).join('; ') : `${names.length} checks pass`,
   };
 }
 
-module.exports = { tasks, grade, hasContract, needsJudge, judgePrompt, parseJudge, judge, JUDGE_SCHEMA };
+module.exports = { tasks, grade, hasContract, needsJudge, judgePrompt, parseJudge, judge, judgeBoundUsd, JUDGE_SCHEMA, JUDGE_INPUT_CHARS };
