@@ -4,7 +4,7 @@ These harnesses measure the Foreman, Hush and Razor plugins in real headless ses
 
 | Suite | Measures | Hosts |
 | --- | --- | --- |
-| [Foreman](foreman/README.md) | Handoff prompts against hand-written ones on fixed bug-fix tasks, plus the picks replay | Claude Code |
+| [Foreman](foreman/README.md) | Handoff prompts against hand-written ones on fixed bug-fix tasks, plus the picks replay, the pick-flow eval (`pickflow/`, a simulated pick from "what's next" to the destination question) and the close-protocol eval (`closeflow/`, whether a worker keeps the roadmap's books) | Claude Code |
 | [Hush](hush/README.md) | Final-message shape, cost and retained facts across engineering tasks | Claude Code |
 | [Razor](razor/README.md) | Added dependencies and code size on tasks where cutting is right, and on tasks where adding is right | Claude Code and Codex, each against its own baseline |
 
