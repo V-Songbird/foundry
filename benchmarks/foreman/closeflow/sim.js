@@ -261,7 +261,8 @@ function segments(cmd) {
   return out.map((s) => s.trim()).filter(Boolean);
 }
 
-const GIT_RUN = new Set(['add', 'commit', 'status', 'diff', 'rev-parse', 'log', 'show']);
+// ls-files and grep only read the index and the tree.
+const GIT_RUN = new Set(['add', 'commit', 'status', 'diff', 'rev-parse', 'log', 'show', 'ls-files', 'grep']);
 const SCRIPT = /^node\s+["']?(.+?)["']?\/scripts\/(roadmap|safe-commit|task)\.js["']?(?:\s+([\s\S]*))?$/;
 const PIPED = /^(?:echo|printf)\s+('[^']*'|"(?:[^"\\]|\\.)*")\s*\|\s*([\s\S]*)$/;
 const parse = (text) => { try { return JSON.parse(text); } catch { return null; } };
@@ -297,8 +298,8 @@ function runScript(st, script, args, input) {
 
 function runGit(st, w) {
   const [sub, ...args] = w;
-  // --output and --output-directory write a file wherever they point.
-  if (!GIT_RUN.has(sub) || args.some((a) => a === '--amend' || a === '--no-verify' || /^--out/.test(a))) {
+  // --output and --output-directory write a file wherever they point; grep -O runs a pager command.
+  if (!GIT_RUN.has(sub) || args.some((a) => a === '--amend' || a === '--no-verify' || /^--out/.test(a) || (sub === 'grep' && /^(?:-[a-zA-Z]*O|--open-files-in-pager)/.test(a)))) {
     st.violations.push(`git ${w.join(' ').slice(0, 120)}`);
     return `git ${sub}: not allowed in this environment`;
   }
