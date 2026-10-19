@@ -16,13 +16,15 @@ const BENCH = path.resolve(__dirname, '..');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-value-flags-'));
 after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
-function run(...args) {
-  const env = { ...process.env, BENCH_DATA_DIR: DATA };
+// A dry run of the given tasks under its own tag; `extraEnv` overrides the environment.
+function plan(tag, tasks, extraEnv, ...args) {
+  const env = { ...process.env, BENCH_DATA_DIR: DATA, ...extraEnv };
   for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
   return spawnSync(process.execPath,
-    [path.join(BENCH, 'runner', 'run.js'), '--tag', 'value-flags', '--dry-run', '--tasks', 'log-triage', ...args],
+    [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', tasks, ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });
 }
+const run = (...args) => plan('value-flags', 'log-triage', {}, ...args);
 
 describe('value flags', () => {
   test('a trailing --arms is refused with a usage line, not a TypeError', () => {
@@ -43,6 +45,22 @@ describe('value flags', () => {
     const r = run('--rival-dir');
     assert.notStrictEqual(r.status, 0);
     assert.match(r.stderr, /usage: --rival-dir needs a value/);
+  });
+
+  test('a --tasks id that names no task is refused with exit 2, naming it', () => {
+    for (const tasks of ['log-triage,explain-rebase', 'explain-rebase']) {
+      const r = plan('value-flags-unknown', tasks, {});
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.match(r.stderr, /usage: --tasks names no task called explain-rebase/);
+      assert.doesNotMatch(r.stdout, /runs \(/);
+    }
+  });
+
+  test('a dry run creates no work folder in the temp directory', () => {
+    const tmp = fs.mkdtempSync(path.join(DATA, 'tmp-'));
+    const r = plan('value-flags-tmp', 'log-triage', { TEMP: tmp, TMP: tmp, TMPDIR: tmp });
+    assert.strictEqual(r.status, 0, r.stderr);
+    assert.deepStrictEqual(fs.readdirSync(tmp), []);
   });
 
   test('a valid --arms value plans exactly those arms', () => {

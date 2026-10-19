@@ -194,6 +194,15 @@ const taskIds = flag('tasks', null);
 const tasks = taskIds
   ? TASKS.filter((t) => taskIds.split(',').includes(t.id))
   : TASKS.filter((t) => (fidelity ? t.check.type === 'conformance' : CONFIG.defaultTasks.includes(t.id)));
+// A typo in --tasks would otherwise plan a smaller batch, or an empty one, with
+// no sign of it.
+if (taskIds) {
+  const unknown = taskIds.split(',').filter((id) => !TASKS.some((t) => t.id === id));
+  if (unknown.length) {
+    console.error(`usage: --tasks names no task called ${unknown.join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
+    process.exit(2);
+  }
+}
 
 // Segments are what the report groups by; a task without a known one would
 // quietly land in an "unsegmented" bucket, so fail here instead.
@@ -284,9 +293,9 @@ if (resume && plan && plan.hush && JSON.stringify(plan.hush) !== JSON.stringify(
 // nested under a git repo silently leaks that repo's history into every
 // session, and a weak model goes chasing it well past what the task needs.
 // The path names neither the harness, the tag, the task nor the arm: see
-// workspaceName().
+// workspaceName(). Not created here: a dry run starts no cell, and oneRun's
+// mkdirSync of the workspace creates it with the first live cell.
 const workRoot = path.join(os.tmpdir(), 'work');
-fs.mkdirSync(workRoot, { recursive: true });
 
 // --- environment ------------------------------------------------------------
 // Strip nested-session and hush-tuning vars so each arm starts clean; the

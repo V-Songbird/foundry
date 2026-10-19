@@ -27,21 +27,22 @@ const STREAM = [
 
 // Logs the options a session would get, never options.env, which carries this
 // process's environment.
-function writePreload(dir, log) {
+// With `missing`, loadSdk rejects the way a missing package does.
+function writePreload(dir, log, missing = false) {
   const file = path.join(dir, 'fake-sdk.js');
   fs.writeFileSync(file, `const fs = require('fs');
 const s = require(${JSON.stringify(SDK_SESSION)});
-s.loadSdk = async () => ({ query: async function* ({ prompt, options: o }) {
+s.loadSdk = ${missing ? "async () => { throw new Error('Cannot find package'); }" : `async () => ({ query: async function* ({ prompt, options: o }) {
   fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({ prompt, cwd: o.cwd, model: o.model, maxTurns: o.maxTurns,
     permissionMode: o.permissionMode, settingSources: o.settingSources, plugins: o.plugins, settings: o.settings,
     hasKey: Boolean(o.env && o.env.ANTHROPIC_API_KEY) }) + '\\n');
   for (const m of ${JSON.stringify(STREAM)}) yield m;
-} });
+} })`};
 `);
   return file;
 }
 
-function runHush(name, key, args) {
+function runHush(name, key, args, missing = false) {
   const dir = path.join(FIXTURE, name);
   const bin = path.join(dir, 'bin');
   const config = path.join(dir, 'config');
@@ -62,7 +63,7 @@ function runHush(name, key, args) {
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
-  const r = spawnSync(process.execPath, ['-r', writePreload(dir, log), RUN, ...args],
+  const r = spawnSync(process.execPath, ['-r', writePreload(dir, log, missing), RUN, ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 120000 });
   assert.ifError(r.error);
   return { r, data, calls, log };
@@ -93,6 +94,15 @@ test('the hush runner refuses --sdk without ANTHROPIC_API_KEY and leaves no tag 
   assert.strictEqual(r.status, 2, r.stderr);
   assert.match(r.stderr, /ANTHROPIC_API_KEY/);
   assert.ok(!fs.existsSync(log), 'a session started without the key');
+  assert.ok(!fs.existsSync(calls), 'claude -p was spawned under --sdk');
+  assert.ok(!fs.existsSync(path.join(data, 'hush', 'results', TAG)), 'the refusal left a tag folder');
+});
+
+test('the hush runner stops at exit 2 when the Agent SDK package is missing, before any session', () => {
+  const { r, data, calls, log } = runHush('nosdk', 'test-not-a-key', LIVE, true);
+  assert.strictEqual(r.status, 2, r.stderr);
+  assert.match(r.stderr, /needs @anthropic-ai\/claude-agent-sdk/);
+  assert.ok(!fs.existsSync(log), 'a session started without the SDK');
   assert.ok(!fs.existsSync(calls), 'claude -p was spawned under --sdk');
   assert.ok(!fs.existsSync(path.join(data, 'hush', 'results', TAG)), 'the refusal left a tag folder');
 });
