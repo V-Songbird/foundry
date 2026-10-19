@@ -105,16 +105,21 @@ test('a script path held in a shell variable expands before the command is match
   assert.strictEqual(sim.expandVars('node $HOME/x.js'), 'node $HOME/x.js');
 });
 
-test('a trial-log or step call at another path, or quoted inside another command, records no event', () => {
+test('a trial-log or step call the shell would not run records no event, and one it would run does', () => {
   const s = sim.SCENARIOS[0];
   const st = sim.newCase(s, 'p1');
   const bash = (command) => sim.handleTool(st, { name: 'Bash', input: { command } }).content;
   assert.match(bash(`node /wrong/scripts/trial-log.js question_asked '{"flow":"pick"}'`), /Cannot find module/);
   assert.match(bash(`node ~/elsewhere/scripts/roadmap.js step pick --chose ${s.choose} --after q1`), /Cannot find module/);
   bash(`echo "node ${sim.ROOT}/scripts/trial-log.js question_asked"`);
+  bash(`echo "a; node ${sim.ROOT}/scripts/trial-log.js question_asked"`);
+  bash(`true || node ${sim.ROOT}/scripts/trial-log.js question_asked '{"flow":"pick"}'`);
+  bash(`echo "node ${sim.ROOT}/scripts/roadmap.js step pick --chose ${s.choose} --after q1"`);
+  bash(`true # node ${sim.ROOT}/scripts/roadmap.js step pick --chose ${s.choose} --after q1`);
   assert.deepStrictEqual(st.events, []);
-  bash(`node \${CLAUDE_PLUGIN_ROOT}/scripts/trial-log.js question_asked '{"flow":"pick"}'`);
+  bash(`node "$CLAUDE_PLUGIN_ROOT"/scripts/trial-log.js question_asked '{"flow":"pick"}' 2>&1`);
   assert.deepStrictEqual(st.events, [{ event: 'question_asked', flow: 'pick' }]);
+  assert.match(bash(`cd ${sim.ROOT} && node ./scripts/roadmap.js next-candidates --menu`), /"candidates"/);
   assert.deepStrictEqual(st.violations, []);
 });
 

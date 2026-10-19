@@ -262,7 +262,7 @@ function segments(cmd) {
 }
 
 const GIT_RUN = new Set(['add', 'commit', 'status', 'diff', 'rev-parse', 'log', 'show']);
-const SCRIPT = /^node\s+["']?(.+?)\/scripts\/(roadmap|safe-commit|task)\.js["']?(?:\s+([\s\S]*))?$/;
+const SCRIPT = /^node\s+["']?(.+?)["']?\/scripts\/(roadmap|safe-commit|task)\.js["']?(?:\s+([\s\S]*))?$/;
 const PIPED = /^(?:echo|printf)\s+('[^']*'|"(?:[^"\\]|\\.)*")\s*\|\s*([\s\S]*)$/;
 const parse = (text) => { try { return JSON.parse(text); } catch { return null; } };
 
@@ -290,6 +290,8 @@ function runScript(st, script, args, input) {
     st.events.push({ kind: 'finish', via: 'task', baseline, noCommit: false, expected: sent.files, ok: res.ok === true });
     st.events.push({ kind: 'close', status: sent.status, staged: false, ok: r.status === 0 });
   }
+  // A flow built on this handler, such as discoveryflow, records its own events here.
+  st.onScript?.(script, args, res);
   return out;
 }
 

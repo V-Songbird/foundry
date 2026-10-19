@@ -40,8 +40,6 @@ const TOOLS = [
 ];
 
 const SCRIPT_PATH = path.join(FOREMAN, 'scripts', 'roadmap.js');
-const CHECK = /roadmap\.js["']?\s+check-duplicate\b/;
-const ADD = /roadmap\.js["']?\s+add\b/;
 
 const git = (dir, ...args) => spawnSync('git', args, { cwd: dir, encoding: 'utf8' });
 const head = (dir) => (git(dir, 'rev-parse', 'HEAD').stdout || '').trim();
@@ -83,22 +81,8 @@ function handle(st, block) {
   }
   if (block.name !== 'Bash') return close.handleTool(st, block);
   const command = String(input.command || '');
-  const found = [...command.matchAll(new RegExp(`${CHECK.source}|${ADD.source}`, 'g'))]
-    .map((m) => (CHECK.test(m[0]) ? { kind: 'check', duplicate: null, matches: [] } : { kind: 'add' }));
-  st.events.push(...found);
   const before = head(st.project);
   const r = close.handleTool(st, block);
-  const check = found.find((e) => e.kind === 'check');
-  if (check) {
-    for (const line of String(r.content || '').split('\n')) {
-      let j = null;
-      try { j = JSON.parse(line); } catch { continue; }
-      if (j && 'duplicate' in j) { check.duplicate = j.duplicate; check.matches = j.matches || []; break; }
-    }
-  }
-  // A check counts only when the script ran and answered: a wrong path, a
-  // failed run or a comment leaves no check.
-  for (const e of found) if (e.kind === 'check' && e.duplicate === null) st.events.splice(st.events.indexOf(e), 1);
   if (/\bgit\s+commit\b/.test(command) && head(st.project) !== before) {
     const text = runHook(st, command);
     if (text) r.content = `${r.content || ''}\n\n<system-reminder>\nPostToolUse:Bash hook additional context: ${text}\n</system-reminder>`;
@@ -124,6 +108,14 @@ function newCase(scenario, arm) {
   git(project, 'add', '-A');
   git(project, 'commit', '-q', '-m', 'fixture');
   const st = { scenario, arm, project, dir, head0: head(project), events: [], violations: [], hooks: [], liveFrom: 0, liveViolations: 0, stop: null };
+  // Events come from the scripts closeflow's handler ran, never from command
+  // text: a check counts only when it answered with a verdict, and an add is
+  // any run of it but a help request.
+  st.onScript = (script, args, res) => {
+    if (script !== 'roadmap') return;
+    if (args[0] === 'check-duplicate' && typeof res.duplicate === 'boolean') st.events.push({ kind: 'check', duplicate: res.duplicate, matches: res.matches || [] });
+    if (args[0] === 'add' && !args.some((a) => a === '--help' || a === '-h')) st.events.push({ kind: 'add' });
+  };
   const messages = [{ role: 'user', content: [{ type: 'text', text: scenario.request }] }];
   try {
     scenario.steps.forEach((step, s) => {

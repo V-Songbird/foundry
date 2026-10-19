@@ -112,6 +112,25 @@ test('on tracked, a check whose wording misses entry 003 followed by the questio
   }
 });
 
+test('an add or a check the shell would not run, or a help request, records no event', () => {
+  const st = sim.newCase(sim.SCENARIOS[0], 'new');
+  try {
+    const from = st.events.length;
+    const bash = (command) => sim.handle(st, { name: 'Bash', input: { command } });
+    const flow = () => st.events.slice(from).filter((e) => e.kind === 'add' || e.kind === 'check').map((e) => e.kind);
+    bash('node /wrong/place/roadmap.js add --help');
+    bash(`echo "node ${sim.ROOT}/scripts/roadmap.js add"`);
+    bash(`git status # node ${sim.ROOT}/scripts/roadmap.js add`);
+    bash(`node "${sim.ROOT}/scripts/roadmap.js" add --help`);
+    bash(`echo '{"title":"x","why":"y"}' | node /wrong/scripts/roadmap.js check-duplicate`);
+    assert.deepStrictEqual(flow(), []);
+    bash(`echo '{"title":"x","why":"y"}' | node "$CLAUDE_PLUGIN_ROOT"/scripts/roadmap.js check-duplicate`);
+    assert.deepStrictEqual(flow(), ['check']);
+  } finally {
+    sim.cleanup(st);
+  }
+});
+
 test('each broken rule fails its own dimension', async () => {
   const only = (dims) => ({ pass: 0, checked: 1, found: 1, asked: 1, menu: 1, held: 1, clean: 1, ...dims });
   await offline('oracle', { mutate: 'no-check', scenarios: ['finding'] }, (c, g) => assert.deepStrictEqual(g, only({ checked: 0 }), c.arm));

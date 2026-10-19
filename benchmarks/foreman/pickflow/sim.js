@@ -170,11 +170,6 @@ function scratchProject(scenario) {
   return dir;
 }
 
-// Shell words, enough for the commands the step prints: quotes and spaces.
-function words(cmd) {
-  return [...cmd.matchAll(/"((?:[^"\\]|\\.)*)"|'([^']*)'|(\S+)/g)].map((m) => m[1] ?? m[2] ?? m[3]);
-}
-
 // A skill file as the model would see it: an arm's swap, or Foreman's own.
 function skillFile(arm, rel) {
   const p = ARMS[arm][rel] || path.join(ARMS[arm].root || FOREMAN, ...rel.split('/'));
@@ -342,10 +337,39 @@ function doSkill(st, input) {
   return { content: `Base directory for this skill: ${ROOT}/skills/roadmap\n\n${skillBody(st.arm, 'skills/roadmap/SKILL.md')}${input.args ? `\n\nARGUMENTS: ${input.args}` : ''}` };
 }
 
-// A trial-log call that starts a command, not one quoted inside another.
-const TRIAL = /(?:^|[;&|\n])\s*node\s+\S*trial-log\.js["']?\s+([a-z_]+)(?:\s+(?:'([^']*)'|"((?:[^"\\]|\\.)*)"))?/g;
-// The folder a command names a Foreman script in.
-const SCRIPT_AT = /["']?([^\s"']*)\/scripts\/(?:roadmap|trial-log|safe-commit)\.js/g;
+// The commands a shell line runs: split on ; & && || | and newlines outside
+// quotes, each a list of words with quotes joined and removed, comments and
+// redirections dropped. `op` is the operator before the command.
+function commands(cmd) {
+  const out = [];
+  let cur = { op: null, words: [] };
+  let word = null;
+  let q = null;
+  const end = () => { if (word !== null) cur.words.push(word); word = null; };
+  for (let i = 0; i < cmd.length; i++) {
+    const ch = cmd[i];
+    if (q === "'") { if (ch === "'") q = null; else word += ch; continue; }
+    if (q === '"') {
+      if (ch === '"') q = null;
+      else word += ch === '\\' && /["\\$`]/.test(cmd[i + 1] ?? '') ? cmd[++i] : ch;
+      continue;
+    }
+    if (ch === '"' || ch === "'") { q = ch; word ??= ''; continue; }
+    if (ch === '\\') { word = (word ?? '') + (cmd[++i] ?? ''); continue; }
+    if (ch === '#' && word === null) { while (i + 1 < cmd.length && cmd[i + 1] !== '\n') i++; continue; }
+    if (ch === ' ' || ch === '\t') { end(); continue; }
+    const two = cmd.slice(i, i + 2);
+    const op = two === '&&' || two === '||' ? two : /[;|\n]/.test(ch) || (ch === '&' && cmd[i - 1] !== '>') ? ch : null;
+    if (op) { end(); out.push(cur); cur = { op, words: [] }; i += op.length - 1; continue; }
+    word = (word ?? '') + ch;
+  }
+  end();
+  out.push(cur);
+  for (const c of out) c.words = c.words.filter((w, i, a) => !/^\d*>/.test(w) && !/^\d*>>?$/.test(a[i - 1] ?? ''));
+  return out.filter((c) => c.words.length);
+}
+
+const home = (p) => p.replace(/^~(?=\/|$)/, '/home/dev');
 
 // `P=<dir>; node $P/roadmap.js ...` names the plugin through a variable: the
 // assignments are dropped and their uses expanded, as the shell would.
@@ -366,7 +390,6 @@ function doBash(st, input) {
   const cmd = expandVars(String(input.command || '')).replace(/\$\{CLAUDE_PLUGIN_ROOT\}|\$CLAUDE_PLUGIN_ROOT\b/g, ROOT);
   const out = [];
   let stop = null;
-  let handled = false;
   if (/craft-handoff\.js/.test(cmd)) {
     st.violations.push('craft before the destination question');
     return { content: '{"ok":false,"error":"stopped by the evaluation"}', stop: 'crafted' };
@@ -376,28 +399,40 @@ function doBash(st, input) {
     return { content: '{"ok":true}' };
   }
   // An attempt above is a violation wherever it points; a call that earns an
-  // event or an answer must name the install's own scripts, as the shell would.
-  const elsewhere = [...cmd.matchAll(SCRIPT_AT)].map((m) => m[1].replace(/^~(?=\/)/, '/home/dev')).find((dir) => dir !== ROOT);
-  if (elsewhere !== undefined) return { content: `node:internal/modules/cjs/loader: Error: Cannot find module '${elsewhere}/scripts/'` };
-  for (const m of cmd.matchAll(TRIAL)) {
-    handled = true;
-    const payload = m[2] ?? (m[3] != null ? m[3].replace(/\\(.)/g, '$1') : undefined);
-    const r = runScript(st.scenario, 'trial-log.js', payload === undefined ? [m[1]] : [m[1], payload], st.project ? st : null);
-    // The real arm reads every event back from the project's log at grading.
-    if (r.code === 0 && !st.project) {
-      let fields = {};
-      try { fields = JSON.parse(payload || '{}'); } catch { /* the script accepted it */ }
-      st.events.push({ event: m[1], ...fields });
-    }
-    out.push(r.out.trim());
+  // event or an answer is one the shell would run: a command of its own, not
+  // text quoted in another or a comment, after no `||` (the sim's commands
+  // succeed), naming the install's own script from the folder it runs in.
+  const calls = [];
+  let cwd = PROJECT;
+  for (const c of commands(cmd)) {
+    if (c.op === '||') continue;
+    const [bin, file, ...args] = c.words;
+    if (bin === 'cd') { cwd = path.posix.resolve(cwd, home(file ?? '~')); continue; }
+    const m = bin === 'node' && /(?:^|\/)scripts\/(roadmap|trial-log|safe-commit)\.js$/.exec(file || '');
+    if (!m) continue;
+    const at = path.posix.resolve(cwd, home(file));
+    if (at === `${ROOT}/scripts/${m[1]}.js`) calls.push({ script: m[1], args });
+    else out.push(`node:internal/modules/cjs/loader: Error: Cannot find module '${at}'`);
   }
   const realSt = st.project ? st : null;
-  if (/roadmap\.js["']?\s+step\b/.test(cmd) && realSt) {
-    handled = true;
-    for (const seg of cmd.split(/\s*(?:;|&&|\|\||\n)\s*/).filter((s) => /roadmap\.js["']?\s+step\b/.test(s))) {
-      const w = words(seg);
-      const at = w.findIndex((x) => /roadmap\.js$/.test(x));
-      const text = runScript(st.scenario, 'roadmap.js', w.slice(at + 1), realSt).out.trim()
+  for (const { script, args } of calls) {
+    const verb = args[0];
+    if (script === 'trial-log') {
+      const r = runScript(st.scenario, 'trial-log.js', args, realSt);
+      // The real arm reads every event back from the project's log at grading.
+      if (r.code === 0 && !realSt) {
+        let fields = {};
+        try { fields = JSON.parse(args[1] || '{}'); } catch { /* the script accepted it */ }
+        st.events.push({ event: verb, ...fields });
+      }
+      out.push(r.out.trim());
+    } else if (script === 'safe-commit') {
+      if (verb === 'begin') {
+        out.push(st.scenario.dirty ? '{"ok":true,"dirty":true,"reason":"working_tree_has_changes"}'
+          : '{"ok":true,"dirty":false,"baseline":{"head":"9f2c41d0b6a7e3f5c8d1a2b4e6f7091827364554","state_hash":"e3b0c44298fc1c14"}}');
+      }
+    } else if (verb === 'step' && realSt) {
+      const text = runScript(st.scenario, 'roadmap.js', args, realSt).out.trim()
         .replaceAll(path.join(st.root, 'scripts', 'roadmap.js').replaceAll('\\', '/'), `${ROOT}/scripts/roadmap.js`);
       out.push(text);
       let next = null;
@@ -406,31 +441,21 @@ function doBash(st, input) {
         st.contextSent = true;
         out.push(CONTEXT_READING_REAL.trim());
       }
+    } else if (verb === 'step') {
+      out.push(st.arm === 'p1' ? JSON.stringify(p1Step(st, args.join(' '))) : 'roadmap.js: unknown command "step". Run roadmap.js --help.');
+    } else if (verb && args.includes('--help')) {
+      out.push(runScript(st.scenario, 'roadmap.js', [verb, '--help'], realSt).out.trim());
+    } else if (verb === 'next-candidates') {
+      out.push(realSt ? runScript(st.scenario, 'roadmap.js', ['next-candidates', '--menu'], realSt).out.trim() : st.menuOut.trim());
+    } else if (verb === 'list') {
+      const ids = (args.join(' ').match(/--ids[=\s]+([\w,]+)/) || [])[1];
+      out.push(runScript(st.scenario, 'roadmap.js', ids ? ['list', '--ids', ids] : ['list'], realSt).out.trim());
+      if (ids) st.loaded = ids;
+      if (st.scenario.contextHigh && st.arm === 'prose' && ids && !st.contextSent) {
+        st.contextSent = true;
+        out.push(CONTEXT_READING.trim());
+      }
     }
-  } else if (/roadmap\.js["']?\s+step\b/.test(cmd)) {
-    handled = true;
-    out.push(st.arm === 'p1' ? JSON.stringify(p1Step(st, cmd)) : 'roadmap.js: unknown command "step". Run roadmap.js --help.');
-  } else if (/roadmap\.js["']?\s+\S+.*--help/.test(cmd)) {
-    handled = true;
-    const verb = cmd.match(/roadmap\.js["']?\s+([\w-]+)/)[1];
-    out.push(runScript(st.scenario, 'roadmap.js', [verb, '--help'], realSt).out.trim());
-  } else if (/roadmap\.js["']?\s+next-candidates/.test(cmd)) {
-    handled = true;
-    out.push(realSt ? runScript(st.scenario, 'roadmap.js', ['next-candidates', '--menu'], realSt).out.trim() : st.menuOut.trim());
-  } else if (/roadmap\.js["']?\s+list\b/.test(cmd)) {
-    handled = true;
-    const ids = (cmd.match(/--ids[=\s]+["']?([\w,]+)/) || [])[1];
-    out.push(runScript(st.scenario, 'roadmap.js', ids ? ['list', '--ids', ids] : ['list'], realSt).out.trim());
-    if (ids) st.loaded = ids;
-    if (st.scenario.contextHigh && st.arm === 'prose' && ids && !st.contextSent) {
-      st.contextSent = true;
-      out.push(CONTEXT_READING.trim());
-    }
-  }
-  if (/safe-commit\.js["']?\s+begin/.test(cmd)) {
-    handled = true;
-    out.push(st.scenario.dirty ? '{"ok":true,"dirty":true,"reason":"working_tree_has_changes"}'
-      : '{"ok":true,"dirty":false,"baseline":{"head":"9f2c41d0b6a7e3f5c8d1a2b4e6f7091827364554","state_hash":"e3b0c44298fc1c14"}}');
   }
   // The roadmap skill's pre-check, `test -f ROADMAP.jsonl && echo A || echo B`: the file exists.
   const said = /^\s*(?:test\s+-[ef]|\[\s+-[ef])\s+\S*ROADMAP\.jsonl\b[^;|&]*&&\s*echo\s+["']?([\w-]+)["']?\s*(?:\|\|\s*echo\s+["']?[\w-]+["']?\s*)?$/.exec(cmd);
