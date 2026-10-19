@@ -6,8 +6,9 @@ the release procedure, the README contract the plugins share, the brand kit thei
 from and the benchmark harness that measures them. Foreman and Razor also run on Antigravity,
 which has no catalog: its users install a plugin directory from a Foundry clone, which checks the
 plugin out at its pinned commit, and Antigravity reads that plugin's own root `plugin.json` and
-`hooks.json`. Nothing is installed here, and the only build is the artwork under `brand/`. The
-plugins run their hooks and tests with Node.js 22 or later and Git.
+`hooks.json`. Nothing is installed here except one package in `benchmarks/`, the Agent SDK that
+live `--sdk` runs need, and the only build is the artwork under `brand/`. The plugins run their
+hooks and tests with Node.js 22 or later and Git.
 
 ## Start here
 
@@ -43,6 +44,7 @@ Run from the repository root unless a row names another directory.
 | `node brand/identity/build.cjs` | Rebuild icons, README banners, wordmarks and social cards | Local; needs Segoe UI and Sharp at the `sharp.sharp` version in `brand/identity/build-environment.json`, resolved normally or through `NODE_PATH`; the repository installs neither |
 | `node brand/identity/build-review.cjs` | Refresh the review gallery `brand/identity/index.html` | Local |
 | `node brand/check-timing.js <svg>` | Check the SMIL timing lists of an animated SVG | Local |
+| `npm ci` from `benchmarks/` | Install the Agent SDK pinned in `benchmarks/package.json`, which only a live `--sdk` run loads | Network, once per checkout; the offline tests and `claude -p` runs do not need it |
 | `node --test foreman/tests/*.test.js`, `hush/tests/*.test.js` or `razor/tests/*.test.js` from `benchmarks/` | One benchmark suite's offline tests: runners, scorers and fixtures, with no model session | Local; reads the plugin checkouts, so CI, which checks out no submodules, cannot run them. From a worktree, set `BENCH_PLUGINS_DIR` and `BENCH_DATA_DIR` as [the benchmarks configuration](benchmarks/README.md#configuration) says |
 | `node runner/hillclimb.js --smoke`, `--variant <variant> --from <run>` or `--variant <variant> --regrade` from `benchmarks/<suite>/` | The suite's entry point for `/claude-api build-eval` and `/claude-api hillclimb`, called once per variant: it writes `results.jsonl`, `traces/` and `errors.jsonl` under the ignored `.claude/hillclimb/<suite>/<variant>/`. `--smoke` grades oracle and null answers; `--regrade` grades stored output twice and lists changed verdicts | Local with `--smoke`, `--from` or `--regrade`, under the same rules as the row above, except that Hush's `--go --max-usd <usd>` sends its fidelity judge to the Message Batches API, billed to `ANTHROPIC_API_KEY`. `--variant` alone starts the suite's live run, which starts paid model sessions; read [Hill-climb a suite](benchmarks/README.md#hill-climb-a-suite) first |
 
@@ -71,7 +73,7 @@ and CI checks out no submodules.
 | `scripts/check-shared-copies.js` | The check that the plugins' hand-copied files agree, with its own test |
 | `scripts/cut-release-block.test.js` | The test that runs cut-release step 4's bash block as written |
 | `brand/` | The brand kit: sources, generators and the exported images each plugin copies into its `assets/` |
-| `benchmarks/` | The benchmark harness: per-plugin runners, fixtures and offline tests; `paths.js` resolves the plugin checkouts and the ignored `.private/benchmarks/<plugin>/` folder that holds run history and output; `bench-config-dir.js` resolves `BENCH_CONFIG_DIR`, the scratch Claude state folder a live run needs; `hillclimb.js` writes the per-variant files that each suite's `runner/hillclimb.js` hands to `/claude-api hillclimb` |
+| `benchmarks/` | The benchmark harness: per-plugin runners, fixtures and offline tests; `paths.js` resolves the plugin checkouts and the ignored `.private/benchmarks/<plugin>/` folder that holds run history and output; `bench-config-dir.js` resolves `BENCH_CONFIG_DIR`, the scratch Claude state folder a live run needs; `sdk-session.js` runs a live session through the Agent SDK when a runner gets `--sdk`, and `package.json` with its lockfile pins that SDK; `hillclimb.js` writes the per-variant files that each suite's `runner/hillclimb.js` hands to `/claude-api hillclimb` |
 | `docs/knowledge/` | Public documentation: the plugin README contract and the brand guide |
 
 ## Conventions
