@@ -10,6 +10,7 @@
 //   node runner/run.js --tag rep   --seed 12345  # replay an earlier run's arm order
 //   node runner/run.js --tag dbg   --hush-debug  # attach hush's decision manifest to each hush-arm record
 //   node runner/run.js --tag fid   --fidelity --arms hush  # the message-settings fidelity eval
+//   node --env-file=<file> runner/run.js --tag api --sdk  # sessions through the Agent SDK on ANTHROPIC_API_KEY
 //
 // Two arms ship by default: `baseline` (plain Claude Code) and `hush` (this
 // plugin). The hush plugin dir is resolved RELATIVE to this harness — no
@@ -28,6 +29,7 @@ const { makeRng, shuffled, hashSeed } = require('./stats.js');
 const { writeRecord } = require('./records.js');
 const { workspaceName, pluginProvenance } = require('./provenance.js');
 const { readStream } = require('../../hillclimb.js');
+const { runSession, requireApiKey } = require('../../sdk-session.js');
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/hush
 const { pluginDir, dataDir } = require('../../paths.js');
@@ -64,6 +66,10 @@ const resume = argv.includes('--resume');
 // without spawning a single billable session. The way to check your flags,
 // your ablation arms and your seed before you spend anything.
 const dryRun = argv.includes('--dry-run');
+// Every session goes through the Agent SDK on ANTHROPIC_API_KEY instead of
+// claude -p. Such a batch gets its own batch id, so it never splices with a
+// claude -p batch.
+const sdk = argv.includes('--sdk');
 // Arm order is shuffled inside every task+rep block so no arm always runs
 // first into a cold cache. The seed is printed, recorded, and replayable with
 // --seed, so "randomized" never means "unreproducible". Resolved below, once
@@ -225,7 +231,7 @@ const seed = seedFlag != null ? String(seedFlag) : resume ? resumeSeed() : Strin
 // carries the batch it came from and the claim generator refuses a mix. The id
 // is derived, not stamped with the clock, so a --resume on the same tag lands
 // back in the same batch instead of forking a new one.
-const batchKey = [tag, seed, model, effort || 'default', reps, armNames.join('+'), tasks.map((t) => t.id).join('+')].join('|');
+const batchKey = [tag, seed, model, effort || 'default', reps, armNames.join('+'), tasks.map((t) => t.id).join('+'), ...(sdk ? ['agent-sdk'] : [])].join('|');
 const batchId = `${tag}-${hashSeed(batchKey).toString(16).padStart(8, '0')}`;
 const recordDir = path.join(dataDir('hush'), 'records', batchId);
 
@@ -431,7 +437,9 @@ async function oneRun(task, arm, rep, orderIndex) {
   for (let i = 0; i < prompts.length; i++) {
     const args = buildArgs(arm);
     if (i > 0) args.push('--continue');
-    const r = await spawnClaude(args, workDir, env, prompts[i]);
+    const r = sdk
+      ? await runSession({ args, prompt: prompts[i], cwd: workDir, env, timeoutMs: CONFIG.runTimeoutMs })
+      : await spawnClaude(args, workDir, env, prompts[i]);
     calls.push(r.stdout);
     stderrAll += r.stderr;
     if (r.code !== 0 && !r.stdout.trim()) break; // hard spawn failure: stop the chain
@@ -444,7 +452,8 @@ async function oneRun(task, arm, rep, orderIndex) {
 
   let record;
   let parsed;
-  const provenance = { key, batchId, seed, orderIndex, task: task.id, segment: task.segment, arm, rep, effort };
+  const provenance = { key, batchId, seed, orderIndex, task: task.id, segment: task.segment, arm, rep, effort,
+    ...(sdk ? { session: 'agent-sdk' } : {}) };
   try {
     parsed = calls.map((s) => parseTranscript(s));
     const last = parsed[parsed.length - 1];
@@ -507,12 +516,16 @@ async function main() {
     order: queue.map(([t, a, r]) => `${t.id}__${a}__r${r}`),
     startedAt: new Date().toISOString(),
     hush: hushBuild,
+    ...(sdk ? { session: 'agent-sdk' } : {}),
   };
   // The tag-scoped copy is what a later --resume reads the seed back from, so
   // it is written on a dry run too: planning a batch is how you get its seed.
   // A live run checks its config folder first, so a refusal leaves no tag
   // folder behind for a retry to trip over.
-  if (!dryRun) benchConfigDir();
+  if (!dryRun) {
+    if (sdk) requireApiKey();
+    benchConfigDir();
+  }
   for (const d of ['runs', 'transcripts']) fs.mkdirSync(path.join(outDir, d), { recursive: true });
   fs.writeFileSync(planFile, JSON.stringify(manifest, null, 2));
   if (!dryRun) retain('batch', manifest);

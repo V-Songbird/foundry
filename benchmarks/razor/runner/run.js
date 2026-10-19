@@ -26,6 +26,7 @@
 //   node runner/run.js --default --rival-dir /path/to/some/other/plugin
 //   node runner/run.js --default --arm-dir cut=/path/to/a/cut-down/build --arms baseline,razor,cut
 //   node runner/run.js --full --runs 3 --seed 12345   # replay an earlier run's arm order
+//   node runner/run.js --default --sdk       # sessions through the Agent SDK on ANTHROPIC_API_KEY
 //   node runner/run.js --rescore <run-dir>   # recompute metrics offline, no API
 //   node runner/report.js <run-dir>          # tables + SVG charts -> report.md
 
@@ -36,6 +37,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
+const { runSession, requireApiKey, sdkVersion } = require('../../sdk-session.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
   selfcheckSplit,
@@ -129,10 +131,12 @@ function flag(name, dflt) {
 // Every flag this runner reads. `has`/`flag` ignore anything else, and a
 // silently-ignored typo starts a real billed run instead of erroring out.
 const KNOWN_FLAGS = ['selftest', 'smoke', 'default', 'full', 'counter', 'note', 'task', 'arms',
-  'runs', 'models', 'effort', 'workers', 'seed', 'rescore', 'arm-dir', 'rival-dir', 'rival-name', 'max-cost'];
+  'runs', 'models', 'effort', 'workers', 'seed', 'rescore', 'arm-dir', 'rival-dir', 'rival-name', 'max-cost', 'sdk'];
 function unknownFlags(args) {
   return args.filter((a) => a.startsWith('--') && !KNOWN_FLAGS.includes(a.slice(2)));
 }
+// Every session goes through the Agent SDK on ANTHROPIC_API_KEY instead of claude -p.
+const SDK = has('sdk');
 
 // --max-cost <usd>: null when absent, the cap when it is a positive number,
 // NaN when the value is not one (the caller refuses to start).
@@ -411,8 +415,13 @@ function killTree(child) {
 
 // One headless turn, appended to the cell's single stream file so marker
 // counting and extractResult keep seeing the whole conversation.
-function runTurn({ args, ws, shimDir, prompt, resume }) {
+async function runTurn({ args, ws, shimDir, prompt, resume }) {
   const turnArgs = resume ? [...args, '--resume', resume] : args;
+  if (SDK) {
+    const r = await runSession({ args: turnArgs, prompt, cwd: ws, env: cellEnv(shimDir), timeoutMs: CELL_TIMEOUT_MS });
+    fs.appendFileSync(path.join(ws, '_claude.stream.jsonl'), r.stdout);
+    return { stderr: r.stderr + (r.timedOut ? `\n[KILLED after ${CELL_TIMEOUT_MS / 1000}s timeout]` : '') };
+  }
   return new Promise((resolve) => {
     const child = spawnClaude(turnArgs, { cwd: ws, env: cellEnv(shimDir) });
     const outFd = fs.createWriteStream(path.join(ws, '_claude.stream.jsonl'), { flags: 'a' });
@@ -463,7 +472,7 @@ async function runCell(taskId, arm, model, ws) {
   const shimDir = task.shims ? writeShims(ws) : null;
   if (task.git) gitSnapshot(ws);
 
-  if (!CLAUDE) throw new Error('claude CLI not found on PATH');
+  if (!CLAUDE && !SDK) throw new Error('claude CLI not found on PATH');
   const args = buildArgs(task, arm, model);
 
   // Most tasks are one prompt. A task with `followups` is a conversation: the
@@ -744,6 +753,7 @@ async function main() {
 
   // From here on the runner starts Claude sessions: keep their registry and
   // transcripts in the scratch state dir, before any cell copies process.env.
+  if (SDK) requireApiKey();
   benchConfigDir();
 
   const models = flag('models', 'sonnet').split(',').map((m) => m.trim());
@@ -776,7 +786,8 @@ async function main() {
     max_cost: maxCost,
     stopped: stopReason(),
     cost_total: totalCost(results),
-    claude: claudeVersion(),
+    claude: SDK ? `agent-sdk ${sdkVersion()}` : claudeVersion(),
+    session: SDK ? 'agent-sdk' : 'claude-p',
     arms: Object.fromEntries(arms.map((a) => [a, ARM_DIRS[a] || 'none'])),
     results,
   }, null, 2));

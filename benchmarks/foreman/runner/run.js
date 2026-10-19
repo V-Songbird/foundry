@@ -10,6 +10,7 @@
 //   node runner/run.js --tag smoke --tasks api-constraint --reps 1 --model sonnet --arms vibe,foreman
 //   node runner/run.js --tag full --reps 4 --model sonnet
 //   node runner/run.js --tag trio --reps 4 --model sonnet --arms foreman,trio
+//   node --env-file=<file> runner/run.js --sdk --tag api ...   # sessions through the Agent SDK on ANTHROPIC_API_KEY
 //
 // Every arm's prompt is a hand-authored frozen file at
 // fixtures/<id>/prompts/<name>.md, piped to claude -p via stdin.
@@ -21,6 +22,7 @@ const { spawn } = require('node:child_process');
 // Keeps every cell's temp cwd out of the real ~/.claude registry and
 // transcript store; main() calls it before the first session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
+const { runSession, requireApiKey } = require('../../sdk-session.js');
 const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun, textSha256 } = require('./metrics.js');
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/foreman
@@ -39,6 +41,7 @@ const model = flag('model', CONFIG.model);
 const reps = Number(flag('reps', CONFIG.reps));
 const concurrency = Number(flag('concurrency', CONFIG.concurrency));
 const dryRun = argv.includes('--dry-run');
+const sdk = argv.includes('--sdk');
 
 // --- arms -------------------------------------------------------------------
 // An arm is a prompt filename plus (optionally) a plugged destination —
@@ -248,25 +251,9 @@ function oneRun(task, arm, rep) {
 
   return new Promise((resolve) => {
     const started = Date.now();
-    const child = spawn('claude', buildArgs(arm), {
-      cwd: workDir,
-      env: cleanEnv(),
-      // shell:true resolves claude.cmd on Windows. Base args are space-free;
-      // per-arm plugin/settings paths resolve inside this repo, which has no
-      // spaces in its path — the fail-fast existence check above already ran.
-      shell: true,
-    });
-
     let stdout = '', stderr = '';
-    child.stdout.on('data', (d) => { stdout += d; });
-    child.stderr.on('data', (d) => { stderr += d; });
-    child.stdin.write(prompt);
-    child.stdin.end();
 
-    const killer = setTimeout(() => child.kill('SIGKILL'), CONFIG.runTimeoutMs);
-
-    child.on('close', (code) => {
-      clearTimeout(killer);
+    function finish(code) {
       const wallMs = Date.now() - started;
       fs.writeFileSync(path.join(outDir, 'transcripts', `${key}.jsonl`), stdout);
       let record;
@@ -297,6 +284,7 @@ function oneRun(task, arm, rep) {
           narrationWords: m.narrationWords, finalWords: m.finalWords,
           finalText: m.finalText,
           stderr: stderr.slice(0, 2000),
+          ...(sdk ? { session: 'agent-sdk' } : {}),
         };
       } catch (err) {
         record = { key, task: task.id, arm, rep, exitCode: code, wallMs, error: String(err), stderr: stderr.slice(0, 2000) };
@@ -305,7 +293,29 @@ function oneRun(task, arm, rep) {
       const ok = record.check ? (record.check.pass ? 'PASS' : 'FAIL') : 'ERR ';
       console.log(`${ok} ${key}  cost=$${record.costUsd ?? '?'}  out=${record.usage?.output_tokens ?? '?'}tok  reads=${record.readsBeforeFirstEdit ?? '?'}  verify=${record.verificationRan ?? '?'}  ${Math.round(wallMs / 1000)}s`);
       resolve(record);
+    }
+
+    if (sdk) {
+      runSession({ args: buildArgs(arm), prompt, cwd: workDir, env: cleanEnv(), timeoutMs: CONFIG.runTimeoutMs })
+        .then((r) => { stdout = r.stdout; stderr = r.stderr; finish(r.code); });
+      return;
+    }
+
+    const child = spawn('claude', buildArgs(arm), {
+      cwd: workDir,
+      env: cleanEnv(),
+      // shell:true resolves claude.cmd on Windows. Base args are space-free;
+      // per-arm plugin/settings paths resolve inside this repo, which has no
+      // spaces in its path — the fail-fast existence check above already ran.
+      shell: true,
     });
+    child.stdout.on('data', (d) => { stdout += d; });
+    child.stderr.on('data', (d) => { stderr += d; });
+    child.stdin.write(prompt);
+    child.stdin.end();
+
+    const killer = setTimeout(() => child.kill('SIGKILL'), CONFIG.runTimeoutMs);
+    child.on('close', (code) => { clearTimeout(killer); finish(code); });
   });
 }
 
@@ -315,6 +325,7 @@ function oneRun(task, arm, rep) {
 function dryRunAll(queue) {
   console.log(`DRY RUN — ${queue.length} planned runs (${tasks.length} tasks x ${armNames.length} arms x ${reps} reps), model=${model}, tag=${tag}`);
   console.log(`arms: ${armNames.join(', ')}`);
+  console.log(`session: ${sdk ? 'agent-sdk (ANTHROPIC_API_KEY)' : 'claude -p'}`);
   console.log(`claude args (base, every arm): claude ${baseArgs().join(' ')}`);
   for (const a of armNames) {
     const extra = armArgs(a);
@@ -344,6 +355,7 @@ async function main() {
   for (const task of tasks) for (const arm of armNames) for (let r = 1; r <= reps; r++) queue.push([task, arm, r]);
 
   if (dryRun) return dryRunAll(queue);
+  if (sdk) requireApiKey();
   benchConfigDir();
 
   for (const d of ['runs', 'transcripts']) fs.mkdirSync(path.join(outDir, d), { recursive: true });

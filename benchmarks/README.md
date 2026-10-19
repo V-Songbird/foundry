@@ -13,6 +13,7 @@ These harnesses measure the Foreman, Hush and Razor plugins in real headless ses
 - Node.js 22 or later and Git.
 - The plugin checkouts: run `git submodule update --init` from the Foundry root.
 - A live run also needs the `claude` or `codex` CLI with a signed-in account. Foreman's pick-flow, close-protocol and discovery-reminder evals and some Hush judges need an `ANTHROPIC_API_KEY` instead; see [Configuration](#configuration). Live runs and judges can cost money; the offline tests start none.
+- A live run with `--sdk` needs `npm ci`, run once from this folder, and an `ANTHROPIC_API_KEY` instead of the signed-in CLI. See [Run sessions on the API key](#run-sessions-on-the-api-key).
 
 ## Quick start
 
@@ -25,8 +26,8 @@ node --test foreman/tests/*.test.js
 Expected output, last lines:
 
 ```text
-# tests 115
-# pass 115
+# tests 119
+# pass 119
 # fail 0
 ```
 
@@ -95,6 +96,32 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 - Foreman's held-back tests and Hush's held-out graders run in a randomly named copy of the session's folder, deleted when the check ends.
 - Razor deletes every file its scorer writes into a cell, such as a test input, once the cell is scored.
 
+## Run sessions on the API key
+
+Each suite's `runner/run.js` takes `--sdk`. It runs every session through the Agent SDK, `@anthropic-ai/claude-agent-sdk`, instead of `claude -p`. Without the flag, the runners start `claude -p` as before.
+
+An `--sdk` session gets the same model, turn cap, tools, permission mode, setting sources, plugins and settings file as a `claude -p` session. The SDK loads each plugin as a local plugin. The session runs the Claude Code build bundled with the SDK version pinned in [package.json](package.json), not the `claude` on your PATH.
+
+1. Install the pinned SDK once, from this folder:
+
+   ```shell
+   npm ci
+   ```
+
+2. Run a suite with the key loaded for that one command, from the suite's folder, such as `benchmarks/razor/`:
+
+   ```shell
+   node --env-file=<file> runner/run.js --sdk --default
+   ```
+
+   Replace `<file>` with the path of a file that holds `ANTHROPIC_API_KEY=<key>`.
+
+The sessions bill `ANTHROPIC_API_KEY`. Without it, the runner exits 2 before any session starts. `BENCH_CONFIG_DIR` is still required, so session state stays out of your own `~/.claude`.
+
+Through the hill-climb entry point, pass the flag after `--`, as in `node runner/hillclimb.js --variant baseline -- --sdk --reps 2`.
+
+Every result names the path it took. Hush records and `batch.json`, Foreman records and Razor's `results.json` carry `session: "agent-sdk"`. A Hush `--sdk` batch gets its own batch id, so it never mixes with a `claude -p` batch.
+
 ## Configuration
 
 | Name | Required | Default | What it does |
@@ -110,7 +137,7 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 | `RAZOR_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Foreman's `trio` arm. |
 | `TYPESAFE_API_KEY` | For Hush's `runner/judge.js`, `duel.js` and `criteria.js` | None | The key for the TypeSafe judge. These scripts send each run's final message to that external, paid service; nothing else in the harness does. |
 | `TYPESAFE_API_URL` | No | `https://api.typesafe.ai/v1/systemone` | Another endpoint for the same three scripts. |
-| `ANTHROPIC_API_KEY` | For Foreman's `pickflow/run.js`, `closeflow/run.js` and `discoveryflow/run.js` and Hush's `runner/retention.js` and `runner/answerable.js` (each unless `--cli`), `runner/judge-parity.js --go`, and `runner/hillclimb.js --go`, whose fidelity judge spends up to $0.0245 a request, $0.78 for a regrade of an 88-cell grid | None | The Claude API key that [batch-judge.js](batch-judge.js) bills. Those paths send judge prompts to the Message Batches API at `api.anthropic.com` instead of starting `claude -p`, so they spend this key, not your Claude Code plan. Each needs `--go` and a `--max-usd` cap, and refuses a worst case above the cap before it sends anything. Load the key for one command, as in `node --env-file=<file> runner/retention.js ...`; a key set for your whole shell makes Claude Code bill it too. A Hush `runner/hillclimb.js` live run with the key loaded bills its `claude -p` sessions to the key as well, beyond the judge's `--max-usd`; judge such a grid afterwards with `--from` to keep the sessions on the plan. Foreman's three simulated evals read the same variable through `pickflow/api.js` and need `--go` and `--max-usd` too, and sends Message Batches by default, or Messages requests with `--api messages`. The Batches judges (retention, answerable and the fidelity judge) answer in a fixed JSON schema. Retention's reads more claims as kept than the `claude -p` judge does. Each report, saved row and `published/answerable.md` names its judge, so compare a figure only with figures from the same judge. |
+| `ANTHROPIC_API_KEY` | For each suite's `runner/run.js --sdk`, which bills every session to it (see [Run sessions on the API key](#run-sessions-on-the-api-key)), and for Foreman's `pickflow/run.js`, `closeflow/run.js` and `discoveryflow/run.js` and Hush's `runner/retention.js` and `runner/answerable.js` (each unless `--cli`), `runner/judge-parity.js --go`, and `runner/hillclimb.js --go`, whose fidelity judge spends up to $0.0245 a request, $0.78 for a regrade of an 88-cell grid | None | The Claude API key that [batch-judge.js](batch-judge.js) bills. Those paths send judge prompts to the Message Batches API at `api.anthropic.com` instead of starting `claude -p`, so they spend this key, not your Claude Code plan. Each needs `--go` and a `--max-usd` cap, and refuses a worst case above the cap before it sends anything. Load the key for one command, as in `node --env-file=<file> runner/retention.js ...`; a key set for your whole shell makes Claude Code bill it too. A Hush `runner/hillclimb.js` live run with the key loaded bills its `claude -p` sessions to the key as well, beyond the judge's `--max-usd`; judge such a grid afterwards with `--from` to keep the sessions on the plan. Foreman's three simulated evals read the same variable through `pickflow/api.js` and need `--go` and `--max-usd` too, and sends Message Batches by default, or Messages requests with `--api messages`. The Batches judges (retention, answerable and the fidelity judge) answer in a fixed JSON schema. Retention's reads more claims as kept than the `claude -p` judge does. Each report, saved row and `published/answerable.md` names its judge, so compare a figure only with figures from the same judge. |
 
 Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`. The seed copies `settings.json`, `plugins` and the stored login, and no `CLAUDE.md`, so the bench folder carries none. Every runner starts Claude with `--setting-sources project` or `project,local`, never `user`, which should keep the seeded `settings.json` out of a bench session; the stored login still reaches it. Claude Code's documentation does not say that flag also gates a user `CLAUDE.md`, which is why the seed omits it. A folder seeded before this change may still hold a copy: delete `<BENCH_CONFIG_DIR>/CLAUDE.md`, or delete the whole folder before reseeding, because a seed never removes files. The recorded hush b31 answers are in English although that copy asked for Spanish, which suggests it did not load there; that is a hint about past runs, not proof for every runner.
 
@@ -124,6 +151,7 @@ Set these as environment variables. Where a script reads a per-plugin variable, 
 - While a check runs, its held-back tests or grader sit in a randomly named folder in the system temp folder. A concurrent session that searches the whole temp folder could find them in that window.
 - Foreman's runner never clears a tag, so a second live call on the same variant stops before it starts a session. Adapt the earlier run with `--from hc-<flow>-<variant>`, or move its records aside.
 - A multi-prompt attempt with fewer results than calls goes to `errors.jsonl` as `no_result`. Hush takes the call count from the record's `turnsRun`, so a later change to a task's prompts leaves older attempts alone. A Razor cell stores its call count in `_sent.json`. A cell written before that file existed takes the count from the current `followups` in `tasks.js`: after a followup is added to a task, every such older attempt of that task goes to `errors.jsonl` with no warning.
+- The `--sdk` path has not yet been compared with `claude -p` on a paid run. Until that comparison, do not compare its figures with `claude -p` figures.
 - Hush rows cover only tasks in `tasks.json`. The call names any task added with `-- --extra-tasks` and leaves its records out.
 
 ## Support
