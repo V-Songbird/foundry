@@ -1,0 +1,64 @@
+[
+  {
+    "id": "finding",
+    "roadmap": [
+      {"id":"001","title":"Document the RateLimiter options in the README","why":"Callers have no written reference for limit and windowMs.","what":"Add a README section listing the RateLimiter options and their defaults.","status":"planned","source":"user","depends_on":[],"planned_touches":["README.md"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+      {"id":"002","title":"Add a burst option to the rate limiter","why":"Some callers need a short burst above the steady limit.","what":"Accept a burst option in src/limiter.js that allows extra calls at the start of a window.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""}
+    ],
+    "request": "src/limiter.js reads `window` instead of the documented `windowMs` option. Fix it in two commits: first a test that fails today, then the fix. index.js is frozen; do not touch it.",
+    "steps": [
+      {"tools": [{"name": "Write", "input": {"file_path": "/home/dev/app/tests/window.test.js", "content": "'use strict';\nconst test = require('node:test');\nconst assert = require('node:assert');\nconst { RateLimiter } = require('../index.js');\n\ntest('a key is allowed again once windowMs has passed', () => {\n  const rl = new RateLimiter({ limit: 1, windowMs: 1000 });\n  assert.strictEqual(rl.allow('a', 0), true);\n  assert.strictEqual(rl.allow('a', 1), false);\n  assert.strictEqual(rl.allow('a', 1000), true);\n});\n"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add tests/window.test.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Add a failing windowMs test\""}}]},
+      {"tools": [{"name": "Read", "input": {"file_path": "/home/dev/app/src/limiter.js"}}]},
+      {"text": "Side note, outside this task: SlidingCounter adds a window to this.windows for every key and never deletes one, so memory grows with each distinct key (src/limiter.js, allow, lines 13-17).", "tools": [{"name": "Edit", "input": {"file_path": "/home/dev/app/src/limiter.js", "old_string": "constructor({ limit = 5, window = 60000 } = {}) {\n    this.limit = limit;\n    this.windowMs = window;", "new_string": "constructor({ limit = 5, windowMs = 60000 } = {}) {\n    this.limit = limit;\n    this.windowMs = windowMs;"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "node --test tests/"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add src/limiter.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Read windowMs in the limiter\""}}]}
+    ],
+    "expected": {"duplicate": false, "commits": 2}
+  },
+  {
+    "id": "tracked",
+    "roadmap": [
+      {"id":"001","title":"Document the RateLimiter options in the README","why":"Callers have no written reference for limit and windowMs.","what":"Add a README section listing the RateLimiter options and their defaults.","status":"planned","source":"user","depends_on":[],"planned_touches":["README.md"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+      {"id":"002","title":"Add a burst option to the rate limiter","why":"Some callers need a short burst above the steady limit.","what":"Accept a burst option in src/limiter.js that allows extra calls at the start of a window.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+      {"id":"003","title":"Evict expired keys from the rate limiter window map","why":"SlidingCounter keeps a window for every key forever, so memory grows with each distinct key.","what":"Delete a key's window in src/limiter.js once it has expired.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""}
+    ],
+    "request": "src/limiter.js reads `window` instead of the documented `windowMs` option. Fix it in two commits: first a test that fails today, then the fix. index.js is frozen; do not touch it.",
+    "steps": [
+      {"tools": [{"name": "Write", "input": {"file_path": "/home/dev/app/tests/window.test.js", "content": "'use strict';\nconst test = require('node:test');\nconst assert = require('node:assert');\nconst { RateLimiter } = require('../index.js');\n\ntest('a key is allowed again once windowMs has passed', () => {\n  const rl = new RateLimiter({ limit: 1, windowMs: 1000 });\n  assert.strictEqual(rl.allow('a', 0), true);\n  assert.strictEqual(rl.allow('a', 1), false);\n  assert.strictEqual(rl.allow('a', 1000), true);\n});\n"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add tests/window.test.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Add a failing windowMs test\""}}]},
+      {"tools": [{"name": "Read", "input": {"file_path": "/home/dev/app/src/limiter.js"}}]},
+      {"text": "Side note, outside this task: SlidingCounter adds a window to this.windows for every key and never deletes one, so memory grows with each distinct key (src/limiter.js, allow, lines 13-17).", "tools": [{"name": "Edit", "input": {"file_path": "/home/dev/app/src/limiter.js", "old_string": "constructor({ limit = 5, window = 60000 } = {}) {\n    this.limit = limit;\n    this.windowMs = window;", "new_string": "constructor({ limit = 5, windowMs = 60000 } = {}) {\n    this.limit = limit;\n    this.windowMs = windowMs;"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "node --test tests/"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add src/limiter.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Read windowMs in the limiter\""}}]}
+    ],
+    "expected": {"duplicate": true, "commits": 2}
+  },
+  {
+    "id": "third",
+    "roadmap": [
+      {"id":"001","title":"Document the RateLimiter options in the README","why":"Callers have no written reference for limit and windowMs.","what":"Add a README section listing the RateLimiter options and their defaults.","status":"planned","source":"user","depends_on":[],"planned_touches":["README.md"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""},
+      {"id":"002","title":"Add a burst option to the rate limiter","why":"Some callers need a short burst above the steady limit.","what":"Accept a burst option in src/limiter.js that allows extra calls at the start of a window.","status":"planned","source":"user","depends_on":[],"planned_touches":["src/limiter.js"],"observed_touches":[],"commits":[],"created_at":"2026-03-01","updated_at":"2026-03-01","notes":""}
+    ],
+    "request": "src/limiter.js reads `window` instead of the documented `windowMs` option. Fix it in three commits: first a test that fails today, then the fix, then a test that remaining() resets at the window edge. index.js is frozen; do not touch it.",
+    "steps": [
+      {"tools": [{"name": "Write", "input": {"file_path": "/home/dev/app/tests/window.test.js", "content": "'use strict';\nconst test = require('node:test');\nconst assert = require('node:assert');\nconst { RateLimiter } = require('../index.js');\n\ntest('a key is allowed again once windowMs has passed', () => {\n  const rl = new RateLimiter({ limit: 1, windowMs: 1000 });\n  assert.strictEqual(rl.allow('a', 0), true);\n  assert.strictEqual(rl.allow('a', 1), false);\n  assert.strictEqual(rl.allow('a', 1000), true);\n});\n"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add tests/window.test.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Add a failing windowMs test\""}}]},
+      {"tools": [{"name": "Read", "input": {"file_path": "/home/dev/app/src/limiter.js"}}]},
+      {"tools": [{"name": "Edit", "input": {"file_path": "/home/dev/app/src/limiter.js", "old_string": "constructor({ limit = 5, window = 60000 } = {}) {\n    this.limit = limit;\n    this.windowMs = window;", "new_string": "constructor({ limit = 5, windowMs = 60000 } = {}) {\n    this.limit = limit;\n    this.windowMs = windowMs;"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "node --test tests/"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add src/limiter.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Read windowMs in the limiter\""}}]},
+      {"text": "Side note, outside this task: SlidingCounter adds a window to this.windows for every key and never deletes one, so memory grows with each distinct key (src/limiter.js, allow, lines 13-17).", "tools": [{"name": "Write", "input": {"file_path": "/home/dev/app/tests/remaining.test.js", "content": "'use strict';\nconst test = require('node:test');\nconst assert = require('node:assert');\nconst { RateLimiter } = require('../index.js');\n\ntest('remaining resets exactly at the window edge', () => {\n  const rl = new RateLimiter({ limit: 2, windowMs: 1000 });\n  rl.allow('a', 0);\n  assert.strictEqual(rl.remaining('a', 999), 1);\n  assert.strictEqual(rl.remaining('a', 1000), 2);\n});\n"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "node --test tests/"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git add tests/remaining.test.js"}}]},
+      {"tools": [{"name": "Bash", "input": {"command": "git commit -m \"Test remaining() at the window edge\""}}]}
+    ],
+    "expected": {"duplicate": false, "commits": 3}
+  }
+]

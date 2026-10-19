@@ -176,6 +176,25 @@ From `benchmarks/`, `node --test foreman/tests/closeflow.test.js` runs the offli
 
 There is no model path yet. A later step adds the paid comparison of the two arms.
 
+## The discovery-reminder eval
+
+A fifth question: after a session's first commit, Foreman's post-commit hook sends Claude Code a one-line reminder that points back to the discovery rules instead of repeating them. Does a model that noticed an unrelated defect still check it against the roadmap and ask before adding it? `discoveryflow/` replays a scripted session that fixes a bug in two or three commits and notices, on the way, that `SlidingCounter` never deletes a key's window. The model then answers the turn after the last commit, and only that turn is graded.
+
+```bash
+node discoveryflow/run.js --smoke            # scripted replies through the simulator and grader: free
+node discoveryflow/run.js                    # plan only: cases and hook block sizes; nothing is sent
+```
+
+From `benchmarks/`, `node --test foreman/tests/discoveryflow.test.js` runs the offline tests: the replay, both arms' hook text, the scripted replies, one broken rule at a time, and the cleanup.
+
+- Arms: both run the Foreman checkout's own `hooks/post-commit.js` after each commit. `old` sends the hook no session id or transcript path, so every commit gets the full discovery rules, as every Claude Code commit did before entry 1077. `new` sends both, so the first commit gets the full rules and later commits get the one-line reminder. The two arms differ only in the discovery block of the commits after the first.
+- Scenarios, in `discoveryflow/scenarios.json`, all on the `api-constraint` fixture: `finding` (two commits, the defect is not on the roadmap), `tracked` (the same session, with a planned entry for the defect, so the duplicate check finds it) and `third` (three commits, with the defect noticed between the second and the third).
+- Grade per case, from the live turn only: `checked` (a `check-duplicate` call before any question or `add`), `asked` (a question when the check found no match, and none when it found one), `menu` (the question offers Add, Execute here, a background Agent and Reject), `held` (no `add`, background Agent or session chip before the user answers) and `clean` (no refused command or write), each 0 or 1. `pass` is 1 only when all five are.
+- What runs: Foreman's `roadmap.js` and `post-commit.js`, and closeflow's allowlisted git subcommands, in a throwaway folder under the system temp folder that holds the repository, the hook's own temp folder and a transcript, and is deleted after grading. A question to the user ends the case.
+- Flags: `--arms` (`old,new`), `--scenarios`, `--reps` (1), `--max-rounds` (12).
+
+There is no model path yet.
+
 ## Held-back tests
 
 In the `gamed-check` fixture, the shipped suite names exactly **one**
