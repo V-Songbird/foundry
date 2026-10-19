@@ -37,7 +37,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
-const { runSession, requireApiKey, sdkVersion } = require('../../sdk-session.js');
+const { runSession, prepareSdk, sdkVersion } = require('../../sdk-session.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
   selfcheckSplit,
@@ -753,10 +753,9 @@ async function main() {
 
   // From here on the runner starts Claude sessions: keep their registry and
   // transcripts in the scratch state dir, before any cell copies process.env.
-  if (SDK) requireApiKey();
-  benchConfigDir();
-
   const models = flag('models', 'sonnet').split(',').map((m) => m.trim());
+  if (SDK) await prepareSdk(taskIds.flatMap((t) => arms.flatMap((a) => models.map((m) => buildArgs(TASKS[t], a, m)))));
+  benchConfigDir();
   const workers = Number(flag('workers', 4));
   const stamp = stampNow();
   const outDir = path.join(RUNS_DIR, stamp);

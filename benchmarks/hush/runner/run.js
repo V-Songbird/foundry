@@ -29,7 +29,7 @@ const { makeRng, shuffled, hashSeed } = require('./stats.js');
 const { writeRecord } = require('./records.js');
 const { workspaceName, pluginProvenance } = require('./provenance.js');
 const { readStream } = require('../../hillclimb.js');
-const { runSession, requireApiKey } = require('../../sdk-session.js');
+const { runSession, prepareSdk } = require('../../sdk-session.js');
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/hush
 const { pluginDir, dataDir } = require('../../paths.js');
@@ -523,7 +523,7 @@ async function main() {
   // A live run checks its config folder first, so a refusal leaves no tag
   // folder behind for a retry to trip over.
   if (!dryRun) {
-    if (sdk) requireApiKey();
+    if (sdk) await prepareSdk(armNames.map(buildArgs));
     benchConfigDir();
   }
   for (const d of ['runs', 'transcripts']) fs.mkdirSync(path.join(outDir, d), { recursive: true });

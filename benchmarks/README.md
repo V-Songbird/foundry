@@ -116,7 +116,7 @@ An `--sdk` session gets the same model, turn cap, tools, permission mode, settin
 
    Replace `<file>` with the path of a file that holds `ANTHROPIC_API_KEY=<key>`.
 
-The sessions bill `ANTHROPIC_API_KEY`. Without it, the runner exits 2 before any session starts. `BENCH_CONFIG_DIR` is still required, so session state stays out of your own `~/.claude`.
+The sessions bill `ANTHROPIC_API_KEY`. Without it, without `npm ci`, or with a session flag the SDK path cannot map, the runner exits 2 before any session starts. `BENCH_CONFIG_DIR` is still required, so session state stays out of your own `~/.claude`.
 
 Through the hill-climb entry point, pass the flag after `--`, as in `node runner/hillclimb.js --variant baseline -- --sdk --reps 2`.
 

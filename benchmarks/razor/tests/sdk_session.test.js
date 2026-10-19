@@ -3,7 +3,8 @@
 // sdk-session.js runs a session through the Agent SDK for the runners' --sdk
 // flag. These tests replace its loadSdk() with a fake query, so no SDK session
 // starts and nothing is billed: the helper's flag mapping and output, then the
-// razor runner's --sdk path and its refusal without ANTHROPIC_API_KEY. A fake
+// razor runner's --sdk path and its stop, before any cell, without
+// ANTHROPIC_API_KEY, the SDK package or a mapping for a flag. A fake
 // claude first on PATH proves claude -p is never spawned under --sdk.
 
 const { test, after } = require('node:test');
@@ -28,7 +29,8 @@ const STREAM = [
 
 // A preload that swaps the SDK for a fake query. It logs the options a session
 // would get, never options.env, which carries this process's environment.
-function writePreload(dir, log) {
+// With noSdk, loadSdk fails as the import does before npm ci.
+function writePreload(dir, log, noSdk) {
   const file = path.join(dir, 'fake-sdk.js');
   fs.writeFileSync(file, `const fs = require('fs');
 const s = require(${JSON.stringify(SDK_SESSION)});
@@ -39,6 +41,7 @@ s.loadSdk = async () => ({ query: async function* ({ prompt, options: o }) {
     resume: o.resume, continue: o.continue, hasKey: Boolean(o.env && o.env.ANTHROPIC_API_KEY) }) + '\\n');
   for (const m of ${JSON.stringify(STREAM)}) yield m;
 } });
+${noSdk ? 's.loadSdk = async () => { throw new Error("Cannot find package \'@anthropic-ai/claude-agent-sdk\'"); };' : ''}
 `);
   return file;
 }
@@ -127,7 +130,7 @@ test('--sdk is a flag the razor runner reads', () => {
   assert.deepStrictEqual(require('../runner/run.js').unknownFlags(['--sdk']), []);
 });
 
-function runRazor(name, key) {
+function runRazor(name, key, noSdk) {
   const dir = path.join(FIXTURE, name);
   const bin = path.join(dir, 'bin');
   const config = path.join(dir, 'config');
@@ -141,7 +144,7 @@ function runRazor(name, key) {
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
-  const r = spawnSync(process.execPath, ['-r', writePreload(dir, log), path.join(BENCH, 'runner', 'run.js'), '--sdk',
+  const r = spawnSync(process.execPath, ['-r', writePreload(dir, log, noSdk), path.join(BENCH, 'runner', 'run.js'), '--sdk',
     '--task', 'oh-question', '--arms', 'baseline,razor', '--runs', '1', '--workers', '1'],
   { cwd: BENCH, encoding: 'utf8', env, timeout: 120000 });
   assert.ifError(r.error);
@@ -174,4 +177,29 @@ test('the razor runner refuses --sdk without ANTHROPIC_API_KEY before any sessio
   assert.ok(!fs.existsSync(log), 'a session started without the key');
   assert.ok(!fs.existsSync(calls), 'claude -p was spawned under --sdk');
   assert.ok(!fs.existsSync(path.join(dir, 'runs')), 'the refusal left a run folder');
+});
+
+test('the razor runner stops --sdk without the SDK package before any cell', () => {
+  const { r, dir, calls } = runRazor('nosdk', 'test-not-a-key', true);
+  assert.strictEqual(r.status, 2, r.stderr);
+  assert.match(r.stderr, /npm ci .*Cannot find package '@anthropic-ai\/claude-agent-sdk'/);
+  assert.ok(!fs.existsSync(calls), 'claude -p was spawned under --sdk');
+  assert.ok(!fs.existsSync(path.join(dir, 'runs')), 'the stop left a run folder');
+});
+
+test('prepareSdk stops on a flag with no mapping before any session', async () => {
+  const [exit, error] = [process.exit, console.error];
+  const said = [];
+  let code = null;
+  let queried = false;
+  process.exit = (c) => { code = c; };
+  console.error = (m) => said.push(m);
+  try {
+    await withFakeSdk(async function* () { queried = true; }, () => session.prepareSdk(
+      [['-p', '--model', 'sonnet'], ['-p', '--add-dir', '/x']], { ANTHROPIC_API_KEY: 'test-not-a-key' }));
+  } finally {
+    [process.exit, console.error] = [exit, error];
+  }
+  assert.deepStrictEqual([code, queried], [2, false]);
+  assert.match(said.join('\n'), /no Agent SDK mapping for --add-dir/);
 });

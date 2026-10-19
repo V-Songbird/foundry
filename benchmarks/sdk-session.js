@@ -8,8 +8,10 @@
 // runner adds later cannot be dropped silently. runSession() returns stdout as
 // the same stream-json lines `claude -p --output-format stream-json --verbose`
 // prints, so each suite's existing parser reads it unchanged. The session bills
-// ANTHROPIC_API_KEY. The SDK loads only inside runSession(), through loadSdk(),
-// so the claude -p path and the offline tests never need node_modules.
+// ANTHROPIC_API_KEY. The SDK loads only under --sdk, through loadSdk(), so the
+// claude -p path and the offline tests never need node_modules. prepareSdk()
+// runs once before any session: a missing key, a missing SDK package or an
+// unmapped flag stops the run there, never as a failed cell.
 
 const SDK = '@anthropic-ai/claude-agent-sdk';
 
@@ -81,15 +83,22 @@ async function runSession({ args, prompt, cwd, env, timeoutMs }) {
   };
 }
 
-function requireApiKey(env = process.env) {
-  if (env.ANTHROPIC_API_KEY) return;
-  console.error('--sdk bills the Claude API key: load ANTHROPIC_API_KEY for this one command, '
-    + 'as in node --env-file=<file> runner/run.js --sdk ...');
-  process.exit(2);
+// argLists: every claude -p arg list the run will pass, so each is mapped once
+// here; the --resume and --continue a later turn adds are mapped flags.
+async function prepareSdk(argLists, env = process.env) {
+  const stop = (why) => { console.error(why); process.exit(2); };
+  if (!env.ANTHROPIC_API_KEY) {
+    return stop('--sdk bills the Claude API key: load ANTHROPIC_API_KEY for this one command, '
+      + 'as in node --env-file=<file> runner/run.js --sdk ...');
+  }
+  try { await module.exports.loadSdk(); } catch (e) {
+    return stop(`--sdk needs ${SDK}: run npm ci in benchmarks/ first (${e.message})`);
+  }
+  try { for (const args of argLists) sdkOptions(args); } catch (e) { return stop(e.message); }
 }
 
 function sdkVersion() {
   return require('./package.json').dependencies[SDK];
 }
 
-module.exports = { sdkOptions, runSession, requireApiKey, sdkVersion, loadSdk };
+module.exports = { sdkOptions, runSession, prepareSdk, sdkVersion, loadSdk };

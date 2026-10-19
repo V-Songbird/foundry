@@ -22,7 +22,7 @@ const { spawn } = require('node:child_process');
 // Keeps every cell's temp cwd out of the real ~/.claude registry and
 // transcript store; main() calls it before the first session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
-const { runSession, requireApiKey } = require('../../sdk-session.js');
+const { runSession, prepareSdk } = require('../../sdk-session.js');
 const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun, textSha256 } = require('./metrics.js');
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/foreman
@@ -355,7 +355,7 @@ async function main() {
   for (const task of tasks) for (const arm of armNames) for (let r = 1; r <= reps; r++) queue.push([task, arm, r]);
 
   if (dryRun) return dryRunAll(queue);
-  if (sdk) requireApiKey();
+  if (sdk) await prepareSdk(armNames.map(buildArgs));
   benchConfigDir();
 
   for (const d of ['runs', 'transcripts']) fs.mkdirSync(path.join(outDir, d), { recursive: true });
