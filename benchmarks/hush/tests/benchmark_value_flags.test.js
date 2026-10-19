@@ -56,6 +56,13 @@ describe('value flags', () => {
     }
   });
 
+  test('an empty --tasks value is refused with exit 2, not widened to the default set', () => {
+    const r = plan('value-flags-empty', '', {});
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /usage: --tasks names no task called/);
+    assert.doesNotMatch(r.stdout, /runs \(/);
+  });
+
   test('a dry run creates no work folder in the temp directory', () => {
     const tmp = fs.mkdtempSync(path.join(DATA, 'tmp-'));
     const r = plan('value-flags-tmp', 'log-triage', { TEMP: tmp, TMP: tmp, TMPDIR: tmp });

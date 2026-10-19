@@ -191,12 +191,12 @@ const armNames = (flag('arms', Object.keys(ARMS).join(','))).split(',');
 // --- task selection ---------------------------------------------------------
 // No --tasks -> the task set config.json declares, or the fidelity tasks.
 const taskIds = flag('tasks', null);
-const tasks = taskIds
+const tasks = taskIds !== null
   ? TASKS.filter((t) => taskIds.split(',').includes(t.id))
   : TASKS.filter((t) => (fidelity ? t.check.type === 'conformance' : CONFIG.defaultTasks.includes(t.id)));
 // A typo in --tasks would otherwise plan a smaller batch, or an empty one, with
 // no sign of it.
-if (taskIds) {
+if (taskIds !== null) {
   const unknown = taskIds.split(',').filter((id) => !TASKS.some((t) => t.id === id));
   if (unknown.length) {
     console.error(`usage: --tasks names no task called ${unknown.join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
