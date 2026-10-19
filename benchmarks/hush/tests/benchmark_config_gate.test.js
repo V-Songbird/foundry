@@ -47,11 +47,13 @@ describe('without BENCH_CONFIG_DIR', () => {
     assert.match(r.stdout, /plan only/);
   });
 
-  test('run.js --dry-run plans and writes the tag manifest', () => {
+  test('run.js --dry-run plans and writes nothing under results/<tag>', () => {
     const tag = `gate-dry-${process.pid}`;
     const r = run('run.js', '--tag', tag, '--dry-run', '--tasks', 'log-triage');
     assert.strictEqual(r.status, 0, r.stderr);
-    assert.ok(fs.existsSync(path.join(DATA, 'hush', 'results', tag, 'batch.json')));
+    assert.match(r.stdout, /batch \S+ · seed \S+ \(replay this order with --seed/);
+    assert.ok(!fs.existsSync(path.join(DATA, 'hush', 'results', tag)),
+      'a dry run left a tag folder behind');
   });
 
   test('a live run.js refuses before it creates the tag folder', () => {
@@ -63,10 +65,10 @@ describe('without BENCH_CONFIG_DIR', () => {
       'a refused run left a tag folder behind');
   });
 
-  test('a live run.js takes over a tag that only a dry run planned', () => {
+  test('a dry run leaves its tag free for a live run with another seed', () => {
     const tag = `gate-dry-then-live-${process.pid}`;
-    assert.strictEqual(run('run.js', '--tag', tag, '--dry-run', '--tasks', 'log-triage').status, 0);
-    const r = run('run.js', '--tag', tag, '--tasks', 'log-triage');
+    assert.strictEqual(run('run.js', '--tag', tag, '--dry-run', '--tasks', 'log-triage', '--seed', '1').status, 0);
+    const r = run('run.js', '--tag', tag, '--tasks', 'log-triage', '--seed', '2');
     // Past the tag check it reaches the config gate, which refuses with 2.
     assert.strictEqual(r.status, 2, r.stderr);
     assert.match(r.stderr, /Set BENCH_CONFIG_DIR/);

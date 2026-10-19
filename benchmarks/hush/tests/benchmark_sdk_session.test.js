@@ -86,7 +86,10 @@ test('the hush runner sends every session through the Agent SDK under --sdk', ()
   const results = path.join(data, 'hush', 'results', TAG);
   const rec = JSON.parse(fs.readFileSync(path.join(results, 'runs', 'log-triage__hush__r1.json'), 'utf8'));
   assert.deepStrictEqual([rec.costUsd, rec.session], [0.25, 'agent-sdk'], JSON.stringify(rec).slice(0, 400));
-  assert.strictEqual(JSON.parse(fs.readFileSync(path.join(results, 'batch.json'), 'utf8')).session, 'agent-sdk');
+  const batch = JSON.parse(fs.readFileSync(path.join(results, 'batch.json'), 'utf8'));
+  assert.strictEqual(batch.session, 'agent-sdk');
+  // The manifest names the hush build, which a --resume later compares.
+  assert.deepStrictEqual(Object.keys(batch.hush).sort(), ['dirty', 'head', 'version']);
 });
 
 test('the hush runner refuses --sdk without ANTHROPIC_API_KEY and leaves no tag folder', () => {

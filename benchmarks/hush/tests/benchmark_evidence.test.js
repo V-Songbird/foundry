@@ -45,6 +45,23 @@ function rmTree(dir) {
 }
 after(() => rmTree(DATA));
 
+/**
+ * A --dry-run writes nothing under results/<tag>. The resume tests need a tag
+ * that already carries a batch, so they plant the manifest a live run would
+ * have written for the dry run's batch id and seed (default flags).
+ */
+function plantBatch(tag, dryRunResult, extra = {}) {
+  const [batchId, seed] = (dryRunResult.stdout.match(/batch (\S+) · seed (\S+)/) || []).slice(1, 3);
+  assert.ok(batchId && seed, `no batch line in: ${dryRunResult.stdout}`);
+  const dir = path.join(RESULTS, tag);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'batch.json'), JSON.stringify({
+    batchId, seed, model: CONFIG.model, effort: null, reps: CONFIG.reps,
+    arms: ['baseline', 'hush'], tasks: [{ id: 'log-triage' }], ...extra,
+  }));
+  return [batchId, seed];
+}
+
 // ---------------------------------------------------------------- segments
 
 describe('segments: every task is placed, every segment is populated', () => {
@@ -813,9 +830,10 @@ describe('batch provenance makes a splice detectable', () => {
     assert.ok(line && !/Date\.now|toISOString/.test(line), 'batchId must be reproducible across a --resume');
   });
 
-  // --dry-run resolves the seed, prints the batch id and writes the tag's
-  // manifest without spawning a single billable session, so the whole resume
-  // contract is checkable for free.
+  // --dry-run resolves the seed and prints the batch id without spawning a
+  // billable session or writing a file; plantBatch then stands in for the
+  // manifest a live run writes, so the whole resume contract is checkable for
+  // free.
   const planRun = (tag, ...args) => {
     const env = { ...process.env };
     delete env.NODE_TEST_CONTEXT;
@@ -834,13 +852,15 @@ describe('batch provenance makes a splice detectable', () => {
       assert.strictEqual(first.status, 0, first.stderr);
       const [batch1, seed1] = batchLine(first);
       assert.ok(batch1 && seed1, `no batch line in: ${first.stdout}`);
+      assert.ok(!fs.existsSync(resDir), 'a dry run wrote under results/<tag>');
+      plantBatch(tag, first);
 
       const resumed = planRun(tag, '--resume');
       assert.strictEqual(resumed.status, 0, resumed.stderr);
       const [batch2, seed2] = batchLine(resumed);
       assert.strictEqual(seed2, seed1, '--resume invented a new seed');
       assert.strictEqual(batch2, batch1, '--resume forked the batch — its records would split in two');
-      assert.ok(fs.existsSync(path.join(resDir, 'batch.json')), 'the tag-scoped manifest was not written');
+      assert.deepStrictEqual(fs.readdirSync(resDir), ['batch.json'], 'a dry run --resume wrote under results/<tag>');
     } finally { rmTree(resDir); }
   });
 
@@ -848,7 +868,7 @@ describe('batch provenance makes a splice detectable', () => {
     const tag = `resume-drift-${process.pid}`;
     const resDir = path.join(RESULTS, tag);
     try {
-      const [batch1] = batchLine(planRun(tag));
+      const [batch1] = plantBatch(tag, planRun(tag));
       assert.ok(batch1, 'no batch to drift from');
 
       // More reps: same seed, different batch key. Resuming here would write
@@ -880,12 +900,13 @@ describe('batch provenance makes a splice detectable', () => {
     const tag = `resume-clobber-${process.pid}`;
     const resDir = path.join(RESULTS, tag);
     try {
-      const [batch1, seed1] = batchLine(planRun(tag));
+      const [batch1, seed1] = plantBatch(tag, planRun(tag));
       assert.ok(batch1 && seed1);
 
       // A second fresh plan on the same tag is a different batch (here pinned
       // with an explicit seed rather than left to the clock). Writing its
-      // manifest would strand batch1's seed.
+      // manifest would strand batch1's seed. A dry run is refused too, so a
+      // preview never hides that the tag is taken.
       const clobber = planRun(tag, '--seed', '999');
       assert.strictEqual(clobber.status, 2, 'the refusal is a clean usage exit, not an uncaught error');
       assert.doesNotMatch(clobber.stderr, /\n\s+at /, 'the refusal printed a stack trace');
@@ -906,6 +927,7 @@ describe('batch provenance makes a splice detectable', () => {
     try {
       const orphan = planRun(tag, '--resume');
       assert.notStrictEqual(orphan.status, 0, 'a resume with no findable seed must not quietly fork');
+      assert.ok(!fs.existsSync(resDir), 'the refused resume wrote under results/<tag>');
       assert.match(orphan.stderr, /--resume cannot find the seed/);
       assert.match(orphan.stderr, /--seed/);
     } finally { rmTree(resDir); }
@@ -1041,7 +1063,9 @@ describe('a workspace name gives nothing away, and a batch names its hush build'
     } finally { rmTree(dir); }
   });
 
-  test('the batch manifest carries the hush build, and a resume refuses another one', () => {
+  // The live run writes the manifest with the build (benchmark_sdk_session.test.js
+  // reads it back); a dry run writes nothing, so the manifest is planted here.
+  test('a resume of a batch that recorded a hush build refuses another one', () => {
     const { dir, commit } = pluginRepo();
     const tag = `prov-probe-${process.pid}`;
     const resDir = path.join(RESULTS, tag);
@@ -1055,8 +1079,8 @@ describe('a workspace name gives nothing away, and a batch names its hush build'
     try {
       const r = plan();
       assert.strictEqual(r.status, 0, r.stderr);
-      const batch = JSON.parse(fs.readFileSync(path.join(resDir, 'batch.json'), 'utf8'));
-      assert.deepStrictEqual(batch.hush, { head: commit, dirty: false, version: '9.8.7' });
+      assert.ok(!fs.existsSync(resDir), 'a dry run wrote under results/<tag>');
+      plantBatch(tag, r, { hush: { head: commit, dirty: false, version: '9.8.7' } });
 
       const original = fs.readFileSync(manifest, 'utf8');
       fs.writeFileSync(manifest, '{"name":"hush","version":"9.8.8"}\n');

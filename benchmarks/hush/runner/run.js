@@ -269,10 +269,7 @@ function batchDrift() {
     .join('; ') || 'the batch key differs';
 }
 
-// A manifest a --dry-run wrote only recorded a plan, so a live run that starts a
-// new batch may take its tag over; --resume and another dry run still honour it.
-const planIsDryRun = plan && plan.dryRun === true && !dryRun && !resume;
-if (plan && plan.batchId && plan.batchId !== batchId && !planIsDryRun) {
+if (plan && plan.batchId && plan.batchId !== batchId) {
   // A usage-level refusal: a clean exit 2 with the message, not a stack trace.
   console.error(resume
     ? `--resume does not reproduce batch ${plan.batchId} — these flags compute ${batchId}. ${batchDrift()}. `
@@ -532,27 +529,27 @@ async function main() {
     startedAt: new Date().toISOString(),
     hush: hushBuild,
     ...(sdk ? { session: 'agent-sdk' } : {}),
-    ...(dryRun ? { dryRun: true } : {}),
   };
-  // The tag-scoped copy is what a later --resume reads the seed back from, so
-  // it is written on a dry run too: planning a batch is how you get its seed.
-  // A live run checks its config folder first, so a refusal leaves no tag
-  // folder behind for a retry to trip over.
-  if (!dryRun) {
-    if (sdk) await prepareSdk(armNames.map(buildArgs));
-    benchConfigDir();
-  }
-  for (const d of ['runs', 'transcripts']) fs.mkdirSync(path.join(outDir, d), { recursive: true });
-  fs.writeFileSync(planFile, JSON.stringify(manifest, null, 2));
-  if (!dryRun) retain('batch', manifest);
 
   if (dryRun) {
+    // Writes nothing under results/<tag>: the seed printed above is what
+    // --seed replays, and a manifest left by a dry run could be mistaken for a
+    // live batch's.
     console.log('\ndry run — nothing was spawned, nothing was billed. Arms:');
     for (const a of armNames) console.log(`  arm ${a} ${JSON.stringify(ARMS[a])}`);
     console.log('Planned order:');
     queue.forEach(([t, a, r], i) => console.log(`  ${String(i).padStart(3)} ${t.id} [${t.segment}] ${a} r${r}`));
     return;
   }
+
+  // The tag-scoped copy is what a later --resume reads the seed back from. A
+  // live run checks its config folder first, so a refusal leaves no tag folder
+  // behind for a retry to trip over.
+  if (sdk) await prepareSdk(armNames.map(buildArgs));
+  benchConfigDir();
+  for (const d of ['runs', 'transcripts']) fs.mkdirSync(path.join(outDir, d), { recursive: true });
+  fs.writeFileSync(planFile, JSON.stringify(manifest, null, 2));
+  retain('batch', manifest);
 
   const results = [];
   let idx = 0;
