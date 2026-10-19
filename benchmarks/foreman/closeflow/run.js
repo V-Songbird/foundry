@@ -5,24 +5,26 @@
 // with the right status and a `Foreman: <id>` commit? Each case runs in a
 // simulated Claude Code session (sim.js) on a throwaway git repository. Two
 // arms: `current`, today's task.js paragraph, and `frozen`, the update-status
-// and safe-commit paragraph from before entry 1078. There is no model path
-// yet; the paid comparison of the two arms adds one.
+// and safe-commit paragraph from before entry 1078. The model path and its
+// billing guards are ../pickflow/api.js's.
 //
-//   node closeflow/run.js            # plan only: cases and prompt sizes, nothing sent
+//   node closeflow/run.js            # plan only: cases, prompt sizes and cost bounds, nothing sent
 //   node closeflow/run.js --smoke    # oracle and null replies through sim and grader
+//   node --env-file=<key file> closeflow/run.js --go --max-usd 5 --tag mine
 
 const fs = require('node:fs');
 const path = require('node:path');
 const sim = require('./sim.js');
+const api = require('../pickflow/api.js');
+
+const FLOW = { SYSTEM: sim.SYSTEM, TOOLS: sim.TOOLS, handle: sim.handleTool };
 
 function parseArgs(argv) {
   const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   return {
+    ...api.apiArgs(argv, { reps: 1, maxRounds: 20 }),
     arms: v('arms', 'current,frozen').split(','),
     scenarios: v('scenarios', null)?.split(',') ?? null,
-    reps: Number(v('reps', 1)),
-    maxRounds: Number(v('max-rounds', 20)),
-    smoke: argv.includes('--smoke'),
   };
 }
 
@@ -35,34 +37,13 @@ function pickScenarios(o) {
 function makeCases(o) {
   const cases = [];
   for (const s of pickScenarios(o)) for (const arm of o.arms) for (let rep = 0; rep < o.reps; rep++) {
-    cases.push({ key: `c${cases.length}`, arm, rep, scenario: s, st: sim.newCase(s, arm), messages: [sim.firstMessage(s, arm)], rounds: 0, toolCalls: 0, stop: null, error: null });
+    cases.push({ key: `c${cases.length}`, arm, rep, scenario: s, st: sim.newCase(s, arm), messages: [sim.firstMessage(s, arm)], ...api.meter(), rounds: 0, toolCalls: 0, stop: null, error: null });
   }
   return cases;
 }
 
 // send(requests, round, activeCases) -> Map(key -> {message} | {error})
-async function runCases(cases, send, o) {
-  for (let round = 1; round <= o.maxRounds; round++) {
-    const active = cases.filter((c) => !c.stop);
-    if (!active.length) break;
-    const replies = await send(active.map((c) => ({ id: c.key })), round, active);
-    for (const c of active) {
-      const r = replies.get(c.key);
-      c.rounds++;
-      if (!r || r.error) { c.stop = 'error'; c.error = r?.error || 'no result'; continue; }
-      const msg = r.message;
-      c.messages.push({ role: 'assistant', content: msg.content });
-      const uses = msg.content.filter((b) => b.type === 'tool_use');
-      if (msg.stop_reason !== 'tool_use' || !uses.length) { c.stop = 'end_turn'; continue; }
-      const results = uses.map((u) => {
-        c.toolCalls++;
-        return { type: 'tool_result', tool_use_id: u.id, content: sim.handleTool(c.st, u).content || '(no output)' };
-      });
-      c.messages.push({ role: 'user', content: results });
-    }
-  }
-  for (const c of cases) if (!c.stop) c.stop = 'round_cap';
-}
+const runCases = (cases, send, o, log = () => {}) => api.runCases(cases, send, o, FLOW, log);
 
 // --- offline replies ------------------------------------------------------------
 
@@ -152,7 +133,7 @@ async function smoke(o) {
   for (const kind of ['oracle', 'null']) {
     const cases = makeCases({ ...o, reps: 1 });
     try {
-      await runCases(cases, offlineSender(kind), o);
+      await runCases(cases, offlineSender(kind), { ...o, maxUsd: null });
       for (const c of cases) {
         const g = sim.grade(c.st);
         const ok = kind === 'oracle' ? g.pass === 1 : g.pass === 0;
@@ -166,22 +147,30 @@ async function smoke(o) {
   return wrong ? 1 : 0;
 }
 
-function plan(o) {
+async function plan(o, log = console.log) {
   const scenarios = pickScenarios(o);
-  console.log(`${scenarios.length * o.arms.length * o.reps} cases: ${o.arms.join(', ')} x ${scenarios.length} scenarios x ${o.reps} reps, up to ${o.maxRounds} rounds`);
+  log(`${scenarios.length * o.arms.length * o.reps} cases: ${o.arms.join(', ')} x ${scenarios.length} scenarios x ${o.reps} reps, ${o.model}, ${o.api} API, up to ${o.maxRounds} rounds`);
   for (const arm of o.arms) for (const s of scenarios) {
     const prompt = sim.craftPrompt(s, arm);
-    console.log(`${arm} ${s.id}: prompt ${prompt.length} chars, entry paragraph ${sim.entryParagraph(prompt).split('\n').length} lines; expects ${s.expected.status}, ${s.expected.commit ? 'one commit' : 'no commit'}`);
+    log(`${arm} ${s.id}: prompt ${prompt.length} chars, entry paragraph ${sim.entryParagraph(prompt).split('\n').length} lines; expects ${s.expected.status}, ${s.expected.commit ? 'one commit' : 'no commit'}`);
   }
-  console.log('plan only: nothing was sent. This eval has no model path yet.');
-  return 0;
+  const probe = makeCases({ ...o, reps: 1 });
+  try {
+    const { round1, oracleUsd } = await api.costPlan(probe, offlineSender('oracle'), o, FLOW);
+    log(`round 1 worst case $${round1.toFixed(2)}; oracle-path estimate without cache, 1500 output tokens a round: $${oracleUsd.toFixed(2)}`);
+  } finally {
+    for (const c of probe) sim.cleanup(c.st);
+  }
 }
 
-async function main(argv = process.argv.slice(2)) {
+async function main(argv = process.argv.slice(2), log = console.log, outRoot) {
   const o = parseArgs(argv);
-  for (const a of o.arms) if (!sim.ARMS[a]) { console.error(`unknown arm ${a}; valid: ${Object.keys(sim.ARMS).join(', ')}`); return 2; }
-  return o.smoke ? smoke(o) : plan(o);
+  for (const a of o.arms) if (!sim.ARMS[a]) { log(`unknown arm ${a}; valid: ${Object.keys(sim.ARMS).join(', ')}`); return 2; }
+  if (!['batches', 'messages'].includes(o.api)) { log('--api must be batches or messages'); return 2; }
+  if (o.smoke) return smoke(o);
+  await plan(o, log);
+  return api.live({ name: 'closeflow', title: 'Close-protocol eval', o, makeCases, flow: FLOW, grade: sim.grade, cleanup: sim.cleanup, outRoot, log });
 }
 
-module.exports = { parseArgs, makeCases, runCases, oracleTurn, currentTurn, frozenTurn, offlineSender, smoke, promptCommands };
+module.exports = { parseArgs, makeCases, runCases, oracleTurn, currentTurn, frozenTurn, offlineSender, smoke, promptCommands, main };
 if (require.main === module) main().then((code) => { process.exitCode = code; }, (err) => { console.error(err.message); process.exitCode = 1; });

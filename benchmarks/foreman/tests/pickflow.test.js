@@ -105,6 +105,19 @@ test('a script path held in a shell variable expands before the command is match
   assert.strictEqual(sim.expandVars('node $HOME/x.js'), 'node $HOME/x.js');
 });
 
+test('a trial-log or step call at another path, or quoted inside another command, records no event', () => {
+  const s = sim.SCENARIOS[0];
+  const st = sim.newCase(s, 'p1');
+  const bash = (command) => sim.handleTool(st, { name: 'Bash', input: { command } }).content;
+  assert.match(bash(`node /wrong/scripts/trial-log.js question_asked '{"flow":"pick"}'`), /Cannot find module/);
+  assert.match(bash(`node ~/elsewhere/scripts/roadmap.js step pick --chose ${s.choose} --after q1`), /Cannot find module/);
+  bash(`echo "node ${sim.ROOT}/scripts/trial-log.js question_asked"`);
+  assert.deepStrictEqual(st.events, []);
+  bash(`node \${CLAUDE_PLUGIN_ROOT}/scripts/trial-log.js question_asked '{"flow":"pick"}'`);
+  assert.deepStrictEqual(st.events, [{ event: 'question_asked', flow: 'pick' }]);
+  assert.deepStrictEqual(st.violations, []);
+});
+
 test('only the last block of the conversation and the system prompt carry a cache breakpoint', () => {
   const o = opts();
   const [c] = run.makeCases({ ...o, arms: ['prose'], scenarios: ['plain'] });

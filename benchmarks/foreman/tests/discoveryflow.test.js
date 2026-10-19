@@ -42,7 +42,7 @@ function replayed(check) {
 
 test('a model that follows the discovery rules passes every scenario on both arms', async () => {
   await offline('oracle', {}, (c, g) => {
-    assert.deepStrictEqual(g, { pass: 1, checked: 1, asked: 1, menu: 1, held: 1, clean: 1 }, `${c.arm} ${c.scenario.id}`);
+    assert.deepStrictEqual(g, { pass: 1, checked: 1, found: 1, asked: 1, menu: 1, held: 1, clean: 1 }, `${c.arm} ${c.scenario.id}`);
     assert.strictEqual(c.stop, c.scenario.id === 'tracked' ? 'end_turn' : 'asked', `${c.arm} ${c.scenario.id}`);
   });
 });
@@ -87,16 +87,33 @@ test('the old arm gets the full rules on every commit; the new arm gets them onc
   });
 });
 
-test('the oracle\'s duplicate check matches the tracked entry and nothing in the other scenarios', async () => {
+test('the oracle\'s duplicate check, in its own words, matches the tracked entry and nothing in the other scenarios', async () => {
+  const entry = sim.SCENARIOS.find((s) => s.id === 'tracked').roadmap.find((e) => e.id === '003');
   await offline('oracle', {}, (c) => {
     const check = c.st.events.slice(c.st.liveFrom).find((e) => e.kind === 'check');
     assert.strictEqual(check.duplicate, c.scenario.expected.duplicate, `${c.arm} ${c.scenario.id}`);
     if (check.duplicate) assert.strictEqual(check.matches[0].id, '003');
+    const sent = c.messages.slice(c.st.messages.length).flatMap((m) => m.content).find((b) => b.type === 'tool_use').input.command;
+    assert.ok(!sent.includes(entry.title) && !sent.includes(entry.why), sent);
   });
 });
 
+test('on tracked, a check whose wording misses entry 003 followed by the question fails found and asked', () => {
+  const st = sim.newCase(sim.SCENARIOS.find((s) => s.id === 'tracked'), 'new');
+  try {
+    const candidate = { title: 'Fix unbounded memory growth in SlidingCounter', why: 'this.windows keeps an entry for every key forever; nothing removes expired windows.' };
+    sim.handle(st, { name: 'Bash', input: { command: `echo '${JSON.stringify(candidate)}' | node "${sim.ROOT}/scripts/roadmap.js" check-duplicate` } });
+    assert.strictEqual(st.events.at(-1).duplicate, false);
+    const options = ['Add to roadmap', 'Execute here', 'Execute with a background Agent', 'Reject'].map((label) => ({ label, description: label }));
+    sim.handle(st, { name: 'AskUserQuestion', input: { questions: [{ question: 'What should I do with it?', header: 'Foreman', multiSelect: false, options }] } });
+    assert.deepStrictEqual(sim.grade(st), { pass: 0, checked: 1, found: 0, asked: 0, menu: 1, held: 1, clean: 1 });
+  } finally {
+    sim.cleanup(st);
+  }
+});
+
 test('each broken rule fails its own dimension', async () => {
-  const only = (dims) => ({ pass: 0, checked: 1, asked: 1, menu: 1, held: 1, clean: 1, ...dims });
+  const only = (dims) => ({ pass: 0, checked: 1, found: 1, asked: 1, menu: 1, held: 1, clean: 1, ...dims });
   await offline('oracle', { mutate: 'no-check', scenarios: ['finding'] }, (c, g) => assert.deepStrictEqual(g, only({ checked: 0 }), c.arm));
   await offline('oracle', { mutate: 'add-first', scenarios: ['finding'] }, (c, g) => assert.deepStrictEqual(g, only({ held: 0 }), c.arm));
   await offline('oracle', { mutate: 'short-menu', scenarios: ['finding'] }, (c, g) => assert.deepStrictEqual(g, only({ menu: 0 }), c.arm));
@@ -106,7 +123,7 @@ test('each broken rule fails its own dimension', async () => {
 
 test('a duplicate check that never ran, followed by silence, fails every scenario on both arms', async () => {
   await offline('oracle', { mutate: 'bad-check' }, (c, g) => {
-    assert.deepStrictEqual(g, { pass: 0, checked: 0, asked: 0, menu: 1, held: 1, clean: 1 }, `${c.arm} ${c.scenario.id}`);
+    assert.deepStrictEqual(g, { pass: 0, checked: 0, found: 0, asked: 0, menu: 1, held: 1, clean: 1 }, `${c.arm} ${c.scenario.id}`);
     assert.ok(!c.st.events.slice(c.st.liveFrom).some((e) => e.kind === 'check'), `${c.arm} ${c.scenario.id}`);
   });
 });
@@ -132,4 +149,41 @@ test('a hook block names the simulated install\'s roadmap.js, not the checkout\'
       assert.ok(!h.text.includes(sim.FOREMAN) && !h.text.includes(sim.FOREMAN.replaceAll('\\', '/')), `${c.arm} ${c.scenario.id}`);
     }
   });
+});
+
+test('a live run on a fake Message Batches API grades the live turn and stops at the question', async () => {
+  const candidate = { title: 'SlidingCounter never deletes per-key windows', why: 'Memory grows with each distinct key.' };
+  const options = ['Add to roadmap', 'Execute here', 'Execute with a background Agent', 'Reject'].map((label) => ({ label, description: label }));
+  const turns = [
+    [{ type: 'tool_use', id: 'toolu_c', name: 'Bash', input: { command: `echo '${JSON.stringify(candidate)}' | node "${sim.ROOT}/scripts/roadmap.js" check-duplicate` } }],
+    [{ type: 'tool_use', id: 'toolu_q', name: 'AskUserQuestion', input: { questions: [{ question: 'Add it?', header: 'Foreman', multiSelect: false, options }] } }],
+  ];
+  const batches = [];
+  const saved = { fetch: globalThis.fetch, key: process.env.ANTHROPIC_API_KEY };
+  const answer = (body) => ({ ok: true, status: 200, text: async () => body });
+  globalThis.fetch = async (url, init = {}) => {
+    assert.ok(url.startsWith('https://api.anthropic.com/v1/messages/batches'), url);
+    if (init.method === 'POST') return answer(JSON.stringify({ id: `b${batches.push(JSON.parse(init.body).requests) - 1}`, processing_status: 'ended' }));
+    const reqs = batches[Number(/batches\/b(\d+)\/results$/.exec(url)[1])];
+    return answer(reqs.map((r) => JSON.stringify({ custom_id: r.custom_id, result: { type: 'succeeded', message: {
+      model: 'claude-opus-5-5', content: turns[batches.indexOf(reqs)], stop_reason: 'tool_use', usage: { input_tokens: 10, output_tokens: 10 },
+    } } })).join('\n'));
+  };
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'discoveryflow-live-'));
+  try {
+    assert.strictEqual(await run.main(['--scenarios', 'finding', '--arms', 'new', '--tag', 't', '--go', '--max-usd', '3'], () => {}, out), 0);
+    assert.strictEqual(batches.length, 2);
+    const first = batches[0][0].params;
+    assert.deepStrictEqual(first.tools.map((t) => t.name), sim.TOOLS.map((t) => t.name));
+    assert.match(JSON.stringify(first.messages.at(-1)), /PostToolUse:Bash hook additional context/);
+    const [rec] = JSON.parse(fs.readFileSync(path.join(out, 'discoveryflow', 't', 'records.json'), 'utf8'));
+    assert.strictEqual(rec.stop, 'asked');
+    assert.deepStrictEqual(rec.grade, { pass: 1, checked: 1, found: 1, asked: 1, menu: 1, held: 1, clean: 1 });
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = saved.key;
+    fs.rmSync(out, { recursive: true, force: true });
+  }
 });

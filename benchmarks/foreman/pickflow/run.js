@@ -12,39 +12,28 @@
 //   node pickflow/run.js --smoke               # oracle and null replies through sim and grader
 //   node --env-file=<key file> pickflow/run.js --go --max-usd 3 --tag p1-a
 //
-// Billing guards, as in ../../batch-judge.js: the key comes only from
-// ANTHROPIC_API_KEY, loaded for one command with --env-file; the endpoint is
-// fixed; --go and --max-usd are required to send; before every round the
-// worst case (every reply at max_tokens, no cache) is checked against the cap.
+// The API path and its billing guards are api.js's, shared with closeflow and
+// discoveryflow.
 
 const fs = require('node:fs');
 const path = require('node:path');
 const sim = require('./sim.js');
+const api = require('./api.js');
 const hc = require('../../hillclimb.js');
-const { modelId, PRICES } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
 
-const API = 'https://api.anthropic.com/v1';
-const HEADERS = { 'content-type': 'application/json', 'anthropic-version': '2023-06-01' };
-// Cache writes bill 1.25x input and reads 0.1x (prompt-caching docs).
-const CACHE_WRITE = 1.25;
-const CACHE_READ = 0.1;
-const CHARS_PER_TOKEN = 3; // over-counts, so worst cases err high
+const { costOf, worstUsd, price, apiKey } = api;
+// A question or a craft ends the case, and the round's later calls are not run.
+const FLOW = { SYSTEM: sim.SYSTEM, TOOLS: sim.TOOLS, handle: sim.handleTool, noteText: sim.noteText, stopAtFirst: true };
+const CHARS_PER_TOKEN = 3;
+const discount = (o) => (o.api === 'batches' ? 0.5 : 1);
 
 function parseArgs(argv) {
   const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   return {
-    tag: v('tag', 'dev'),
-    model: modelId(v('model', 'opus')),
-    api: v('api', 'batches'),
+    ...api.apiArgs(argv, { reps: 3, maxRounds: 14 }),
     arms: v('arms', 'prose,p1').split(','),
     scenarios: v('scenarios', null)?.split(',') ?? null,
-    reps: Number(v('reps', 3)),
-    maxRounds: Number(v('max-rounds', 14)),
-    maxTokens: Number(v('max-tokens', 8192)),
-    maxUsd: v('max-usd', null) === null ? null : Number(v('max-usd')),
-    go: argv.includes('--go'),
-    smoke: argv.includes('--smoke'),
   };
 }
 
@@ -54,161 +43,13 @@ function makeCases(o) {
   const cases = [];
   for (const s of scenarios) for (const arm of o.arms) for (let rep = 0; rep < o.reps; rep++) {
     cases.push({ key: `c${cases.length}`, arm, rep, scenario: s, st: sim.newCase(s, arm), messages: [sim.firstMessage(s, arm)],
-      usage: { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
-      costUsd: 0, rounds: 0, toolCalls: 0, stop: null, error: null, model: null, latencyMs: 0 });
+      ...api.meter(), rounds: 0, toolCalls: 0, stop: null, error: null });
   }
   return cases;
 }
 
-// Only the last block of the conversation carries a breakpoint, so each round
-// reads the previous round's prefix from the cache and writes its own.
-function request(c, o) {
-  const last = c.messages.length - 1;
-  const messages = c.messages.map((m, i) => {
-    if (i !== last) return m;
-    const blocks = typeof m.content === 'string' ? [{ type: 'text', text: m.content }] : m.content;
-    return { ...m, content: blocks.map((b, j) => (j === blocks.length - 1 ? { ...b, cache_control: { type: 'ephemeral' } } : b)) };
-  });
-  return {
-    model: o.model, max_tokens: o.maxTokens, tools: sim.TOOLS,
-    system: [{ type: 'text', text: sim.SYSTEM, cache_control: { type: 'ephemeral' } }],
-    messages,
-  };
-}
-
-function price(model) {
-  const p = PRICES[model];
-  if (!p) throw new Error(`no price for ${model}; add it to PRICES in batch-judge.js`);
-  return p;
-}
-const discount = (o) => (o.api === 'batches' ? 0.5 : 1);
-
-function costOf(u, o) {
-  const [pin, pout] = price(o.model);
-  return ((u.input_tokens || 0) * pin + (u.cache_creation_input_tokens || 0) * pin * CACHE_WRITE
-    + (u.cache_read_input_tokens || 0) * pin * CACHE_READ + (u.output_tokens || 0) * pout) / 1e6 * discount(o);
-}
-
-function worstUsd(params, o) {
-  const [pin, pout] = price(o.model);
-  return params.reduce((n, p) => n + (JSON.stringify(p).length / CHARS_PER_TOKEN * pin + o.maxTokens * pout) / 1e6, 0) * discount(o);
-}
-
-// --- senders: requests [{id, params}] -> Map(id -> {message} | {error}) -------
-
-async function call(url, key, init = {}) {
-  for (let attempt = 1; ; attempt++) {
-    const res = await fetch(url, { ...init, headers: { ...HEADERS, 'x-api-key': key } });
-    const body = await res.text();
-    if (res.ok) return body;
-    if (attempt < 4 && [429, 500, 529].includes(res.status)) {
-      await new Promise((r) => setTimeout(r, 15000 * attempt));
-      continue;
-    }
-    throw new Error(`API ${res.status}: ${body.slice(0, 300)}`);
-  }
-}
-
-function apiKey() {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) throw new Error('ANTHROPIC_API_KEY is not set; run with node --env-file=<file>');
-  return key;
-}
-
-function batchSender(outDir, log) {
-  return async (reqs, round) => {
-    const key = apiKey();
-    const created = JSON.parse(await call(`${API}/messages/batches`, key, {
-      method: 'POST', body: JSON.stringify({ requests: reqs.map((r) => ({ custom_id: r.id, params: r.params })) }),
-    }));
-    log(`round ${round}: batch ${created.id}, ${reqs.length} requests`);
-    let batch = created;
-    while (batch.processing_status !== 'ended') {
-      await new Promise((r) => setTimeout(r, 20000));
-      batch = JSON.parse(await call(`${API}/messages/batches/${created.id}`, key));
-    }
-    const jsonl = await call(`${API}/messages/batches/${created.id}/results`, key);
-    fs.writeFileSync(path.join(outDir, 'rounds', `round-${round}.jsonl`), jsonl);
-    const out = new Map();
-    for (const line of jsonl.split('\n').filter((l) => l.trim())) {
-      const row = JSON.parse(line);
-      const r = row.result || {};
-      out.set(row.custom_id, r.type === 'succeeded' ? { message: r.message } : { error: `${r.type}: ${JSON.stringify(r.error || {}).slice(0, 200)}` });
-    }
-    return out;
-  };
-}
-
-function messagesSender(outDir, log) {
-  return async (reqs, round) => {
-    const key = apiKey();
-    const out = new Map();
-    const rows = [];
-    let next = 0;
-    async function worker() {
-      while (next < reqs.length) {
-        const r = reqs[next++];
-        const started = Date.now();
-        try {
-          const message = JSON.parse(await call(`${API}/messages`, key, { method: 'POST', body: JSON.stringify(r.params) }));
-          out.set(r.id, { message, latencyMs: Date.now() - started });
-          rows.push(JSON.stringify({ custom_id: r.id, message }));
-        } catch (err) {
-          out.set(r.id, { error: String(err.message) });
-        }
-      }
-    }
-    await Promise.all(Array.from({ length: Math.min(4, reqs.length) }, worker));
-    fs.writeFileSync(path.join(outDir, 'rounds', `round-${round}.jsonl`), rows.join('\n') + '\n');
-    log(`round ${round}: ${reqs.length} messages`);
-    return out;
-  };
-}
-
-// --- the loop -----------------------------------------------------------------
-
-async function runCases(cases, send, o, log = console.log) {
-  let spent = 0;
-  for (let round = 1; round <= o.maxRounds; round++) {
-    const active = cases.filter((c) => !c.stop);
-    if (!active.length) break;
-    const reqs = active.map((c) => ({ id: c.key, params: request(c, o) }));
-    const worst = worstUsd(reqs.map((r) => r.params), o);
-    if (o.maxUsd != null && spent + worst > o.maxUsd) {
-      for (const c of active) { c.stop = 'cap'; c.error = `round ${round} worst case $${worst.toFixed(2)} would pass --max-usd ${o.maxUsd}`; }
-      log(`stopped before round ${round}: spent $${spent.toFixed(2)}, worst case $${worst.toFixed(2)}, cap $${o.maxUsd}`);
-      break;
-    }
-    const replies = await send(reqs, round, active);
-    for (const c of active) {
-      const r = replies.get(c.key);
-      c.rounds++;
-      if (!r || r.error) { c.stop = 'error'; c.error = r?.error || 'no result'; continue; }
-      const msg = r.message;
-      for (const k of Object.keys(c.usage)) c.usage[k] += msg.usage?.[k] || 0;
-      const cost = costOf(msg.usage || {}, o);
-      c.costUsd += cost;
-      spent += cost;
-      c.model = msg.model || c.model;
-      c.latencyMs += r.latencyMs || 0;
-      c.messages.push({ role: 'assistant', content: msg.content });
-      for (const b of msg.content) if (b.type === 'text') sim.noteText(c.st, b.text);
-      if (msg.stop_reason === 'max_tokens') { c.stop = 'error'; c.error = 'stop_reason max_tokens'; continue; }
-      const uses = msg.content.filter((b) => b.type === 'tool_use');
-      if (msg.stop_reason !== 'tool_use' || !uses.length) { c.stop = 'end_turn'; continue; }
-      const results = [];
-      for (const u of uses) {
-        c.toolCalls++;
-        const t = sim.handleTool(c.st, u);
-        results.push({ type: 'tool_result', tool_use_id: u.id, content: t.content || '(no output)' });
-        if (t.stop) { c.stop = t.stop; break; }
-      }
-      c.messages.push({ role: 'user', content: results });
-    }
-  }
-  for (const c of cases) if (!c.stop) c.stop = 'round_cap';
-  return spent;
-}
+const request = (c, o) => api.request(c, o, FLOW);
+const runCases = (cases, send, o, log = console.log) => api.runCases(cases, send, o, FLOW, log);
 
 // --- offline replies ------------------------------------------------------------
 
@@ -407,7 +248,7 @@ async function main(argv = process.argv.slice(2)) {
   const outDir = path.join(dataDir('foreman'), 'pickflow', o.tag);
   if (fs.existsSync(path.join(outDir, 'records.json'))) { console.error(`${outDir} already holds a run; pick another --tag`); return 2; }
   fs.mkdirSync(path.join(outDir, 'rounds'), { recursive: true });
-  const send = o.api === 'batches' ? batchSender(outDir, console.log) : messagesSender(outDir, console.log);
+  const send = o.api === 'batches' ? api.batchSender(outDir, console.log) : api.messagesSender(outDir, console.log);
   const spent = await runCases(cases, send, o);
   const records = cases.map(record);
   fs.writeFileSync(path.join(outDir, 'records.json'), JSON.stringify(records, null, 2));

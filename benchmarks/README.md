@@ -1,10 +1,10 @@
 # Foundry benchmarks
 
-These harnesses measure the Foreman, Hush and Razor plugins in real headless sessions, each plugin against a no-plugin baseline. The exceptions are Foreman's pick-flow eval, a simulated session on the Claude API, and its close-protocol eval, a simulated session that has no model path yet. The folder holds the runners, scorers, fixtures and offline tests; run history stays out of the repository.
+These harnesses measure the Foreman, Hush and Razor plugins in real headless sessions, each plugin against a no-plugin baseline. The exceptions are Foreman's pick-flow, close-protocol and discovery-reminder evals, simulated sessions on the Claude API. The folder holds the runners, scorers, fixtures and offline tests; run history stays out of the repository.
 
 | Suite | Measures | Hosts |
 | --- | --- | --- |
-| [Foreman](foreman/README.md) | Handoff prompts against hand-written ones on fixed bug-fix tasks, plus the picks replay, the pick-flow eval (`pickflow/`, a simulated pick from "what's next" to the destination question) and the close-protocol eval (`closeflow/`, whether a worker keeps the roadmap's books) | Claude Code; the pick-flow eval bills the Claude API key |
+| [Foreman](foreman/README.md) | Handoff prompts against hand-written ones on fixed bug-fix tasks, plus the picks replay, the pick-flow eval (`pickflow/`, a simulated pick from "what's next" to the destination question), the close-protocol eval (`closeflow/`, whether a worker keeps the roadmap's books) and the discovery-reminder eval (`discoveryflow/`, whether a model still checks and asks about a defect it noticed after the post-commit hook's one-line reminder) | Claude Code; the three simulated evals bill the Claude API key |
 | [Hush](hush/README.md) | Final-message shape, cost and retained facts across engineering tasks | Claude Code |
 | [Razor](razor/README.md) | Added dependencies and code size on tasks where cutting is right, and on tasks where adding is right | Claude Code and Codex, each against its own baseline |
 
@@ -12,7 +12,7 @@ These harnesses measure the Foreman, Hush and Razor plugins in real headless ses
 
 - Node.js 22 or later and Git.
 - The plugin checkouts: run `git submodule update --init` from the Foundry root.
-- A live run also needs the `claude` or `codex` CLI with a signed-in account. Foreman's pick-flow eval and some Hush judges need an `ANTHROPIC_API_KEY` instead; see [Configuration](#configuration). Live runs and judges can cost money; the offline tests start none.
+- A live run also needs the `claude` or `codex` CLI with a signed-in account. Foreman's pick-flow, close-protocol and discovery-reminder evals and some Hush judges need an `ANTHROPIC_API_KEY` instead; see [Configuration](#configuration). Live runs and judges can cost money; the offline tests start none.
 
 ## Quick start
 
@@ -25,8 +25,8 @@ node --test foreman/tests/*.test.js
 Expected output, last lines:
 
 ```text
-# tests 97
-# pass 97
+# tests 115
+# pass 115
 # fail 0
 ```
 
@@ -110,7 +110,7 @@ Answer keys, reference solutions and held-back tests stay in this folder. A sess
 | `RAZOR_PLUGIN_DIR` | No | From `BENCH_PLUGINS_DIR` | Another Razor checkout for Foreman's `trio` arm. |
 | `TYPESAFE_API_KEY` | For Hush's `runner/judge.js`, `duel.js` and `criteria.js` | None | The key for the TypeSafe judge. These scripts send each run's final message to that external, paid service; nothing else in the harness does. |
 | `TYPESAFE_API_URL` | No | `https://api.typesafe.ai/v1/systemone` | Another endpoint for the same three scripts. |
-| `ANTHROPIC_API_KEY` | For Foreman's `pickflow/run.js` and Hush's `runner/retention.js` and `runner/answerable.js` (each unless `--cli`), `runner/judge-parity.js --go`, and `runner/hillclimb.js --go`, whose fidelity judge spends up to $0.0245 a request, $0.78 for a regrade of an 88-cell grid | None | The Claude API key that [batch-judge.js](batch-judge.js) bills. Those paths send judge prompts to the Message Batches API at `api.anthropic.com` instead of starting `claude -p`, so they spend this key, not your Claude Code plan. Each needs `--go` and a `--max-usd` cap, and refuses a worst case above the cap before it sends anything. Load the key for one command, as in `node --env-file=<file> runner/retention.js ...`; a key set for your whole shell makes Claude Code bill it too. A Hush `runner/hillclimb.js` live run with the key loaded bills its `claude -p` sessions to the key as well, beyond the judge's `--max-usd`; judge such a grid afterwards with `--from` to keep the sessions on the plan. Foreman's `pickflow/run.js` reads the same variable and needs `--go` and `--max-usd` too, and sends Message Batches by default, or Messages requests with `--api messages`. The Batches judges (retention, answerable and the fidelity judge) answer in a fixed JSON schema. Retention's reads more claims as kept than the `claude -p` judge does. Each report, saved row and `published/answerable.md` names its judge, so compare a figure only with figures from the same judge. |
+| `ANTHROPIC_API_KEY` | For Foreman's `pickflow/run.js`, `closeflow/run.js` and `discoveryflow/run.js` and Hush's `runner/retention.js` and `runner/answerable.js` (each unless `--cli`), `runner/judge-parity.js --go`, and `runner/hillclimb.js --go`, whose fidelity judge spends up to $0.0245 a request, $0.78 for a regrade of an 88-cell grid | None | The Claude API key that [batch-judge.js](batch-judge.js) bills. Those paths send judge prompts to the Message Batches API at `api.anthropic.com` instead of starting `claude -p`, so they spend this key, not your Claude Code plan. Each needs `--go` and a `--max-usd` cap, and refuses a worst case above the cap before it sends anything. Load the key for one command, as in `node --env-file=<file> runner/retention.js ...`; a key set for your whole shell makes Claude Code bill it too. A Hush `runner/hillclimb.js` live run with the key loaded bills its `claude -p` sessions to the key as well, beyond the judge's `--max-usd`; judge such a grid afterwards with `--from` to keep the sessions on the plan. Foreman's three simulated evals read the same variable through `pickflow/api.js` and need `--go` and `--max-usd` too, and sends Message Batches by default, or Messages requests with `--api messages`. The Batches judges (retention, answerable and the fidelity judge) answer in a fixed JSON schema. Retention's reads more claims as kept than the `claude -p` judge does. Each report, saved row and `published/answerable.md` names its judge, so compare a figure only with figures from the same judge. |
 
 Set these as environment variables. Where a script reads a per-plugin variable, it wins over `BENCH_PLUGINS_DIR`. `BENCH_CONFIG_DIR` receives a copy of your login, so treat that folder as a secret, like `TYPESAFE_API_KEY`. The seed copies `settings.json`, `plugins` and the stored login, and no `CLAUDE.md`, so the bench folder carries none. Every runner starts Claude with `--setting-sources project` or `project,local`, never `user`, which should keep the seeded `settings.json` out of a bench session; the stored login still reaches it. Claude Code's documentation does not say that flag also gates a user `CLAUDE.md`, which is why the seed omits it. A folder seeded before this change may still hold a copy: delete `<BENCH_CONFIG_DIR>/CLAUDE.md`, or delete the whole folder before reseeding, because a seed never removes files. The recorded hush b31 answers are in English although that copy asked for Spanish, which suggests it did not load there; that is a hint about past runs, not proof for every runner.
 

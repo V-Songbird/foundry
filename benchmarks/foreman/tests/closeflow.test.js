@@ -1,11 +1,13 @@
 'use strict';
 
 // closeflow/ grades the close protocol of a Foreman entry handoff in a throwaway
-// git repository. Every case here uses scripted replies; nothing calls the network.
+// git repository. Every case here uses scripted replies; nothing calls the
+// network: the live-path tests replace fetch with a fake Message Batches API.
 
 const { test } = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
@@ -13,6 +15,44 @@ const sim = require('../closeflow/sim.js');
 const run = require('../closeflow/run.js');
 
 const scenario = (id) => sim.SCENARIOS.find((s) => s.id === id);
+
+// A fake Message Batches API: every batch ends at once, and replyFor(request)
+// is each request's message. Runs fn with it in place of fetch and a test key,
+// then restores both.
+async function withFakeApi(replyFor, fn) {
+  const calls = [];
+  const batches = new Map();
+  const saved = { fetch: globalThis.fetch, key: process.env.ANTHROPIC_API_KEY };
+  const answer = (body) => ({ ok: true, status: 200, text: async () => (typeof body === 'string' ? body : JSON.stringify(body)) });
+  globalThis.fetch = async (url, init = {}) => {
+    calls.push({ url, method: init.method || 'GET', headers: init.headers, body: init.body ? JSON.parse(init.body) : null });
+    if (url === 'https://api.anthropic.com/v1/messages/batches' && init.method === 'POST') {
+      const id = `msgbatch_${batches.size}`;
+      batches.set(id, JSON.parse(init.body).requests);
+      return answer({ id, processing_status: 'ended' });
+    }
+    const m = /^https:\/\/api\.anthropic\.com\/v1\/messages\/batches\/(\w+)\/results$/.exec(url);
+    if (m && batches.has(m[1])) {
+      return answer(batches.get(m[1]).map((r) => JSON.stringify({ custom_id: r.custom_id, result: { type: 'succeeded', message: replyFor(r) } })).join('\n'));
+    }
+    return { ok: false, status: 404, text: async () => `unexpected ${url}` };
+  };
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'closeflow-live-'));
+  try {
+    await fn({ calls, out });
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = saved.key;
+    fs.rmSync(out, { recursive: true, force: true });
+  }
+}
+
+const message = (content) => ({
+  model: 'claude-opus-5-5', content, stop_reason: content.some((b) => b.type === 'tool_use') ? 'tool_use' : 'end_turn',
+  usage: { input_tokens: 1000, output_tokens: 100, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
+});
 
 // Runs the offline sender and hands the graded cases to check, then removes
 // every scratch repository.
@@ -159,4 +199,63 @@ test('a Write or Edit on a directory, a Windows absolute path or an invalid file
   } finally {
     sim.cleanup(st);
   }
+});
+
+test('a safe-commit begin the script refuses takes no boundary; one it answers does', () => {
+  const st = sim.newCase(scenario('clean'), 'frozen');
+  try {
+    const r = sim.handleTool(st, { name: 'Bash', input: { command: `node ${sim.ROOT}/scripts/safe-commit.js begin --baseline HEAD` } });
+    assert.match(r.content, /"ok":false/);
+    assert.ok(!st.events.some((e) => e.kind === 'begin'));
+    sim.handleTool(st, { name: 'Bash', input: { command: `node ${sim.ROOT}/scripts/safe-commit.js begin` } });
+    assert.deepStrictEqual(st.events.filter((e) => e.kind === 'begin').map((e) => e.head), [st.head0]);
+  } finally {
+    sim.cleanup(st);
+  }
+});
+
+const ARGS = ['--scenarios', 'clean', '--arms', 'current', '--tag', 't'];
+
+test('the plan, a --go without --max-usd and a round whose worst case passes the cap send nothing', async () => {
+  await withFakeApi(() => assert.fail('no request expected'), async ({ calls, out }) => {
+    const lines = [];
+    const log = (l) => lines.push(l);
+    assert.strictEqual(await run.main(ARGS, log, out), 0);
+    assert.ok(lines.some((l) => /^round 1 worst case \$\d+\.\d\d; oracle-path estimate/.test(l)), lines.join('\n'));
+    assert.ok(lines.some((l) => /plan only: nothing was sent/.test(l)));
+    assert.strictEqual(await run.main([...ARGS, '--go'], log, out), 2);
+    assert.strictEqual(await run.main([...ARGS, '--go', '--max-usd', '0.0001'], log, out), 0);
+    assert.strictEqual(calls.length, 0);
+    const [rec] = JSON.parse(fs.readFileSync(path.join(out, 'closeflow', 't', 'records.json'), 'utf8'));
+    assert.strictEqual(rec.stop, 'cap');
+    assert.strictEqual(rec.grade, null);
+  });
+});
+
+test('a live run sends each round as one batch, feeds tool results back and writes graded records', async () => {
+  const reply = (r) => (r.params.messages.length === 1
+    ? message([{ type: 'tool_use', id: 'toolu_1', name: 'Bash', input: { command: 'git status --short' } }])
+    : message([{ type: 'text', text: 'Done.' }]));
+  await withFakeApi(reply, async ({ calls, out }) => {
+    assert.strictEqual(await run.main([...ARGS, '--go', '--max-usd', '5'], () => {}, out), 0);
+    assert.deepStrictEqual(calls.map((c) => `${c.method} ${c.url.replace('https://api.anthropic.com/v1/', '')}`), [
+      'POST messages/batches', 'GET messages/batches/msgbatch_0/results', 'POST messages/batches', 'GET messages/batches/msgbatch_1/results',
+    ]);
+    assert.ok(calls.every((c) => c.headers['x-api-key'] === 'test-key' && c.headers['anthropic-version'] === '2023-06-01'));
+    const [first, second] = calls.filter((c) => c.method === 'POST').map((c) => c.body.requests[0].params);
+    assert.strictEqual(first.model, 'claude-opus-5-5');
+    assert.deepStrictEqual(first.tools.map((t) => t.name), sim.TOOLS.map((t) => t.name));
+    assert.ok(first.system[0].cache_control);
+    assert.deepStrictEqual(second.messages.at(-1).content.map((b) => [b.type, b.tool_use_id]), [['tool_result', 'toolu_1']]);
+    const dir = path.join(out, 'closeflow', 't');
+    const [rec] = JSON.parse(fs.readFileSync(path.join(dir, 'records.json'), 'utf8'));
+    assert.strictEqual(rec.stop, 'end_turn');
+    assert.strictEqual(rec.rounds, 2);
+    assert.strictEqual(rec.toolCalls, 1);
+    assert.deepStrictEqual(rec.grade, { pass: 0, opened: 0, boundary: 0, owned: 0, closed: 0, clean: 1 });
+    // Two replies of 1000 input and 100 output tokens at Opus list price, batches at half.
+    assert.ok(Math.abs(rec.costUsd - (2 * 1000 * 4 + 2 * 100 * 20) / 1e6 / 2) < 1e-12);
+    assert.ok(fs.existsSync(path.join(dir, 'rounds', 'round-2.jsonl')));
+    assert.match(fs.readFileSync(path.join(dir, 'report.md'), 'utf8'), /\| current \| 1\/1 \| 0\/1 \|/);
+  });
 });

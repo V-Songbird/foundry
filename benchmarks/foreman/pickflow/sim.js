@@ -342,7 +342,10 @@ function doSkill(st, input) {
   return { content: `Base directory for this skill: ${ROOT}/skills/roadmap\n\n${skillBody(st.arm, 'skills/roadmap/SKILL.md')}${input.args ? `\n\nARGUMENTS: ${input.args}` : ''}` };
 }
 
-const TRIAL = /trial-log\.js["']?\s+([a-z_]+)(?:\s+(?:'([^']*)'|"((?:[^"\\]|\\.)*)"))?/g;
+// A trial-log call that starts a command, not one quoted inside another.
+const TRIAL = /(?:^|[;&|\n])\s*node\s+\S*trial-log\.js["']?\s+([a-z_]+)(?:\s+(?:'([^']*)'|"((?:[^"\\]|\\.)*)"))?/g;
+// The folder a command names a Foreman script in.
+const SCRIPT_AT = /["']?([^\s"']*)\/scripts\/(?:roadmap|trial-log|safe-commit)\.js/g;
 
 // `P=<dir>; node $P/roadmap.js ...` names the plugin through a variable: the
 // assignments are dropped and their uses expanded, as the shell would.
@@ -360,7 +363,7 @@ function expandVars(cmd) {
 }
 
 function doBash(st, input) {
-  const cmd = expandVars(String(input.command || ''));
+  const cmd = expandVars(String(input.command || '')).replace(/\$\{CLAUDE_PLUGIN_ROOT\}|\$CLAUDE_PLUGIN_ROOT\b/g, ROOT);
   const out = [];
   let stop = null;
   let handled = false;
@@ -372,6 +375,10 @@ function doBash(st, input) {
     st.violations.push('status change');
     return { content: '{"ok":true}' };
   }
+  // An attempt above is a violation wherever it points; a call that earns an
+  // event or an answer must name the install's own scripts, as the shell would.
+  const elsewhere = [...cmd.matchAll(SCRIPT_AT)].map((m) => m[1].replace(/^~(?=\/)/, '/home/dev')).find((dir) => dir !== ROOT);
+  if (elsewhere !== undefined) return { content: `node:internal/modules/cjs/loader: Error: Cannot find module '${elsewhere}/scripts/'` };
   for (const m of cmd.matchAll(TRIAL)) {
     handled = true;
     const payload = m[2] ?? (m[3] != null ? m[3].replace(/\\(.)/g, '$1') : undefined);

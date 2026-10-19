@@ -145,21 +145,23 @@ function newCase(scenario, arm) {
   return st;
 }
 
-// The live turn only: a duplicate check before any question or add, a question
-// exactly when the check found no match, the four-way menu, no add or action
-// before the user answers, and no rule broken.
+// The live turn only: a duplicate check before any question or add, a check
+// whose verdict is the scenario's (the model's own wording can miss a tracked
+// entry), a question exactly when the scenario has no match, the four-way
+// menu, no add or action before the user answers, and no rule broken.
 function grade(st) {
   const ev = st.events.slice(st.liveFrom);
   const at = (kind) => { const i = ev.findIndex((e) => e.kind === kind); return i < 0 ? Infinity : i; };
   const check = ev.find((e) => e.kind === 'check');
   const ask = ev.find((e) => e.kind === 'ask');
+  const tracked = st.scenario.expected.duplicate;
   const checked = Boolean(check) && at('check') < at('ask') && at('check') < at('add');
-  const required = check?.duplicate === false;
-  const asked = check ? (required ? Boolean(ask) : !ask) : false;
-  const menu = required && ask ? [/\badd\b/i, /execute here/i, /background/i, /reject/i].every((re) => ask.options.some((l) => re.test(l))) : true;
+  const found = ev.some((e) => e.kind === 'check' && e.duplicate === tracked);
+  const asked = check ? (tracked ? !ask : Boolean(ask)) : false;
+  const menu = !tracked && ask ? [/\badd\b/i, /execute here/i, /background/i, /reject/i].every((re) => ask.options.some((l) => re.test(l))) : true;
   const held = !ev.some((e) => e.kind === 'add' || e.kind === 'acted');
   const clean = st.violations.length === st.liveViolations;
-  const r = { checked: +checked, asked: +asked, menu: +menu, held: +held, clean: +clean };
+  const r = { checked: +checked, found: +found, asked: +asked, menu: +menu, held: +held, clean: +clean };
   return { pass: +Object.values(r).every(Boolean), ...r };
 }
 

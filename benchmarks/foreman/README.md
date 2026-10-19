@@ -150,7 +150,7 @@ The model gets Read, Bash, Skill and AskUserQuestion tools, and every result is 
 
 - Arms: `prose` reads `pick.md`, `destination-question.md` and the sibling files they link (`accept.md`, `resume.md`, `defer.md`, `hint.md`, `reconcile.md`, `prepare-increments.md`) as Foreman 4.1.0 (commit 4200026) shipped them, frozen in `pickflow/arms/prose/` (the prose baseline, before `pick.md` moved to action codes). `p1` reads Foreman's current files, whose `pick.md` is the code table, with a prototype in which `roadmap.js step pick` returns an action code and the skill holds one row per code. That `step` command is the prototype in `pickflow/sim.js`. `real` reads every file from another Foreman checkout, `PICKFLOW_REAL_DIR` (default `.private/foreman-step-pick`), and runs that checkout's own `step pick` on a scratch git copy of the fixture with the trial log on; its events are read back from that log.
 - Scenarios, in `pickflow/scenarios.json`: a plain menu, a finished entry waiting for acceptance, a single option, other work in progress, a full session, and a task the user names.
-- Grade per case: the Q1 options, order and labels; the destination options with their `(Recommended)` and `(Caution)`; the trial events; and no file read, command or status change outside the flow. Cost: input, cached and output tokens, tool calls and rounds.
+- Grade per case: the Q1 options, order and labels; the destination options with their `(Recommended)` and `(Caution)`; the trial events, from calls that start a command and name the install's own scripts; and no file read, command or status change outside the flow. Cost: input, cached and output tokens, tool calls and rounds.
 - Flags: `--arms`, `--scenarios`, `--reps` (3), `--model` (`opus`), `--api batches|messages` (`batches`, half price), `--max-rounds` (14), `--max-tokens` (8192).
 - Billing guards: the key is read only from `ANTHROPIC_API_KEY`, so load it for one command with `--env-file`. `--go` and `--max-usd` are required to send. Before each round, the worst case (every reply at `--max-tokens`, nothing cached) must fit under the cap, or the run stops there.
 - Output: `records.json`, `report.md` and the raw replies under the ignored `.private/benchmarks/foreman/pickflow/<tag>/`; the hill-climb files under `.claude/hillclimb/foreman-pickflow/`, `baseline` for `prose`, `v1` for `p1` and `v2` for `real`.
@@ -163,18 +163,18 @@ A fourth question: does a worker that follows a Foreman handoff keep the roadmap
 
 ```bash
 node closeflow/run.js --smoke                # scripted replies through the simulator and grader: free
-node closeflow/run.js                        # plan only: cases and prompt sizes; nothing is sent
+node closeflow/run.js                        # plan only: cases, prompt sizes and cost bounds; nothing is sent
+node --env-file=<key file> closeflow/run.js --go --max-usd 5 --tag mine
 ```
 
-From `benchmarks/`, `node --test foreman/tests/closeflow.test.js` runs the offline tests: the scripted replies, one broken step at a time, and the sandbox's refusals.
+A live run bills the API key, not a Claude Code plan. From `benchmarks/`, `node --test foreman/tests/closeflow.test.js` runs the offline tests: the scripted replies, one broken step at a time, the sandbox's refusals, and the live path against a fake Message Batches API.
 
 - Prompt: each case crafts its prompt with the Foreman checkout's own `craft-handoff.js`, for the background-agent destination. There are two arms. `current` is that prompt as is: its entry paragraph runs `task.js start`, then sends the close JSON to `task.js finish` through a quoted heredoc. `frozen` is the update-status and safe-commit paragraph Foreman printed at commit 10fef19, before entry 1078. It is kept in `closeflow/arms/frozen/entry-paragraph.json` and spliced into today's prompt, so the two arms differ only in that paragraph. The frozen arm still runs today's `roadmap.js` and `safe-commit.js`, so a later change to those scripts can fail it even though its paragraph is unchanged.
 - Scenarios, in `closeflow/scenarios.json`, all on the `api-constraint` fixture: `clean` (expects `done` and one commit), `hold` (the project keeps `requireVerification` at its default, so it expects `awaiting_acceptance` and one commit) and `dirty` (another session left an uncommitted edit to `index.js`, so it expects `done` and no commit, with that edit untouched and unstaged).
 - Grade per case: `opened`, `boundary`, `owned`, `closed` and `clean` (no refused command or write), each 0 or 1, read from the repository and the order of the calls. `pass` is 1 only when all five are.
 - What runs: only Foreman's `roadmap.js`, `safe-commit.js` and `task.js`, and the git subcommands `add`, `commit`, `status`, `diff`, `rev-parse`, `log` and `show`, in a throwaway repository under the system temp folder that is deleted after grading. That repository sets its own git identity and turns off commit signing, so the commits `task.js` makes do not depend on the machine's git settings. Writes land only inside that repository, never in `ROADMAP.jsonl` or `.foreman/`. A push, reset, amend, `--output` or other git subcommand is refused and counted, and the roadmap and `.foreman/` stay guarded whatever the path's case or trailing dots. The test command gets a scripted pass.
-- Flags: `--arms` (`current,frozen`), `--scenarios`, `--reps` (1), `--max-rounds` (20).
-
-There is no model path yet. A later step adds the paid comparison of the two arms.
+- A `safe-commit.js begin` that the script refuses, such as one with an unknown flag, takes no commit boundary.
+- Flags: `--arms` (`current,frozen`), `--scenarios`, `--reps` (1), `--max-rounds` (20), and the [live-run flags](#live-runs-of-the-close-protocol-and-discovery-reminder-evals).
 
 ## The discovery-reminder eval
 
@@ -182,18 +182,28 @@ A fifth question: after a session's first commit, Foreman's post-commit hook sen
 
 ```bash
 node discoveryflow/run.js --smoke            # scripted replies through the simulator and grader: free
-node discoveryflow/run.js                    # plan only: cases and hook block sizes; nothing is sent
+node discoveryflow/run.js                    # plan only: cases, hook block sizes and cost bounds; nothing is sent
+node --env-file=<key file> discoveryflow/run.js --go --max-usd 3 --tag mine
 ```
 
-From `benchmarks/`, `node --test foreman/tests/discoveryflow.test.js` runs the offline tests: the replay, both arms' hook text, the scripted replies, one broken rule at a time, and the cleanup.
+A live run bills the API key, not a Claude Code plan. From `benchmarks/`, `node --test foreman/tests/discoveryflow.test.js` runs the offline tests: the replay, both arms' hook text, the scripted replies, one broken rule at a time, the cleanup, and the live path against a fake Message Batches API.
 
 - Arms: both run the Foreman checkout's own `hooks/post-commit.js` after each commit. `old` sends the hook no session id or transcript path, so every commit gets the full discovery rules, as every Claude Code commit did before entry 1077. `new` sends both, so the first commit gets the full rules and later commits get the one-line reminder. The two arms differ only in the discovery block of the commits after the first.
-- Scenarios, in `discoveryflow/scenarios.json`, all on the `api-constraint` fixture: `finding` (two commits, the defect is not on the roadmap), `tracked` (the same session, with a planned entry for the defect, so the duplicate check finds it) and `third` (three commits, with the defect noticed between the second and the third).
-- Grade per case, from the live turn only: `checked` (a `check-duplicate` call that ran and answered, before any question or `add`), `asked` (a question when the check found no match, and none when it found one), `menu` (the question offers Add, Execute here, a background Agent and Reject), `held` (no `add`, background Agent or session chip before the user answers) and `clean` (no refused command or write), each 0 or 1. `pass` is 1 only when all five are.
+- Scenarios, in `discoveryflow/scenarios.json`, all on the `api-constraint` fixture: `finding` (two commits, the defect is not on the roadmap), `tracked` (the same session, with a planned entry for the defect, worded the way the session described it, so that a check in similar words finds it) and `third` (three commits, with the defect noticed between the second and the third).
+- Grade per case, from the live turn only: `checked` (a `check-duplicate` call that ran and answered, before any question or `add`), `found` (a check whose verdict is the scenario's: a match in `tracked`, none in the others), `asked` (a question in `finding` and `third`, and none in `tracked`), `menu` (the question offers Add, Execute here, a background Agent and Reject), `held` (no `add`, background Agent or session chip before the user answers) and `clean` (no refused command or write), each 0 or 1. `pass` is 1 only when all six are. The check is word overlap, so a model whose wording misses the tracked entry fails `found` even when it then follows its check's verdict.
 - What runs: Foreman's `roadmap.js` and `post-commit.js`, and closeflow's allowlisted git subcommands, in a throwaway folder under the system temp folder that holds the repository, the hook's own temp folder and a transcript, and is deleted after grading. A question to the user ends the case.
-- Flags: `--arms` (`old,new`), `--scenarios`, `--reps` (1), `--max-rounds` (12).
+- Flags: `--arms` (`old,new`), `--scenarios`, `--reps` (1), `--max-rounds` (12), and the [live-run flags](#live-runs-of-the-close-protocol-and-discovery-reminder-evals).
 
-There is no model path yet.
+## Live runs of the close-protocol and discovery-reminder evals
+
+`closeflow/run.js` and `discoveryflow/run.js` send their cases through the pick-flow eval's API path, `pickflow/api.js`. Each round of every live case goes out as one Message Batch, or as plain Messages calls with `--api messages`.
+
+- Flags: `--go` and `--max-usd <usd>` (both required to send), `--tag` (`dev`), `--model` (`opus`), `--api batches|messages` (`batches`, half price) and `--max-tokens` (8192).
+- Billing guards: the key is read only from `ANTHROPIC_API_KEY`, so load it for one command with `--env-file`. Before each round, the spend so far plus the round's worst case must fit under `--max-usd`, or the run stops there and the remaining cases are recorded with the stop `cap` and no grade. The worst case counts every request at three characters a token, uncached, and every reply at `--max-tokens`. Cache writes bill 1.25 times the input price, so that worst case holds while a token averages more than 3.75 characters, as English text and JSON usually do.
+- Cost plan: without `--go`, each runner prints round 1's worst case and an estimate of the oracle path (the scripted model's rounds, uncached, 1500 output tokens a round), then stops. Use them to choose `--max-usd`.
+- Output: `records.json` (each case's grade, stop, tokens, cost and events), `report.md` (pass rates and cost per arm and scenario) and the raw replies under `rounds/`, all in the ignored `.private/benchmarks/foreman/closeflow/<tag>/` or `.private/benchmarks/foreman/discoveryflow/<tag>/`. A tag that already holds a run is refused.
+
+The simulators are not Claude Code: their system prompts are short stand-ins, and most tool results are scripted. Compare the arms with each other, not with a real session.
 
 ## Held-back tests
 

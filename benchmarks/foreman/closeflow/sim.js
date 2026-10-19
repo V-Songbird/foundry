@@ -278,7 +278,8 @@ function runScript(st, script, args, input) {
   if (script === 'roadmap' && verb === 'update-status') {
     st.events.push(sent.status === 'in_progress' ? { kind: 'open', ok: r.status === 0 } : { kind: 'close', status: sent.status, staged: sent.staged === true, ok: r.status === 0 });
   } else if (script === 'safe-commit' && verb === 'begin') {
-    st.events.push({ kind: 'begin', via: 'safe-commit', dirty: res.dirty === true, head: res.baseline?.head ?? null });
+    // A refused begin, such as one with an unknown flag, takes no boundary.
+    if (res.ok === true) st.events.push({ kind: 'begin', via: 'safe-commit', dirty: res.dirty === true, head: res.baseline?.head ?? null });
   } else if (script === 'safe-commit' && verb === 'finish') {
     st.events.push({ kind: 'finish', via: 'safe-commit', baseline, noCommit: args.includes('--no-commit'), expected: sent.expected, ok: res.ok === true });
   } else if (script === 'task' && verb === 'start') {
