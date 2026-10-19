@@ -257,6 +257,7 @@ function oneRun(task, arm, rep) {
       const wallMs = Date.now() - started;
       fs.writeFileSync(path.join(outDir, 'transcripts', `${key}.jsonl`), stdout);
       let record;
+      const session = sdk ? { session: 'agent-sdk' } : {};
       try {
         const m = parseTranscript(stdout);
         const check = scoreRun(task, workDir, pristine);
@@ -284,10 +285,10 @@ function oneRun(task, arm, rep) {
           narrationWords: m.narrationWords, finalWords: m.finalWords,
           finalText: m.finalText,
           stderr: stderr.slice(0, 2000),
-          ...(sdk ? { session: 'agent-sdk' } : {}),
+          ...session,
         };
       } catch (err) {
-        record = { key, task: task.id, arm, rep, exitCode: code, wallMs, error: String(err), stderr: stderr.slice(0, 2000) };
+        record = { key, task: task.id, arm, rep, exitCode: code, wallMs, error: String(err), stderr: stderr.slice(0, 2000), ...session };
       }
       fs.writeFileSync(path.join(outDir, 'runs', `${key}.json`), JSON.stringify(record, null, 2));
       const ok = record.check ? (record.check.pass ? 'PASS' : 'FAIL') : 'ERR ';

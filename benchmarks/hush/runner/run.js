@@ -254,6 +254,7 @@ function batchDrift() {
     ['reps', plan.reps, reps],
     ['arms', (plan.arms || []).join(','), armNames.join(',')],
     ['tasks', (plan.tasks || []).map((t) => t.id).join(','), tasks.map((t) => t.id).join(',')],
+    ['session', plan.session || 'claude -p', sdk ? 'agent-sdk' : 'claude -p'],
   ].filter(([, was, now]) => String(was) !== String(now));
   return differs.map(([name, was, now]) => `${name} was ${was || '(none)'}, this run has ${now || '(none)'}`)
     .join('; ') || 'the batch key differs';

@@ -20,7 +20,7 @@ function run(...args) {
   const env = { ...process.env, BENCH_DATA_DIR: DATA };
   for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
   return spawnSync(process.execPath,
-    [path.join(BENCH, 'runner', 'run.js'), '--tag', 'value-flags', '--dry-run', '--tasks', 'explain-rebase', ...args],
+    [path.join(BENCH, 'runner', 'run.js'), '--tag', 'value-flags', '--dry-run', '--tasks', 'log-triage', ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });
 }
 

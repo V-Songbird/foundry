@@ -36,8 +36,15 @@ function benchConfigDir() {
   // The registry is written last, so its absence means the dir was never seeded,
   // or a seed stopped partway, and the seed runs (again).
   if (!fs.existsSync(path.join(dir, '.claude.json'))) {
-    // Read the registry first: a missing ~/.claude.json fails before any copy.
-    const reg = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));
+    // Read the registry first: a missing ~/.claude.json stops the run before any
+    // copy. An --sdk run needs it too, because its sessions read this dir.
+    const home = path.join(os.homedir(), '.claude.json');
+    if (!fs.existsSync(home)) {
+      console.error(`BENCH_CONFIG_DIR ${dir} is seeded from ${home}, which does not exist.`
+        + ' Run claude once so it writes that file, then rerun.');
+      process.exit(2);
+    }
+    const reg = JSON.parse(fs.readFileSync(home, 'utf8'));
     fs.mkdirSync(dir, { recursive: true });
     // The stored login is copied too: without it every cell returns a zero-cost
     // non-answer in ~3s, which the runner rejects as an unusable data point.

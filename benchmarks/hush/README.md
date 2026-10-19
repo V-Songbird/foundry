@@ -52,7 +52,7 @@ That writes `report.md` and `report.html` under `.private/benchmarks/hush/result
 node runner/run.js --tag big --model opus
 ```
 
-Flags: `--tasks a,b` (pick tasks) · `--extra-tasks a,b` (add tasks outside the default set) · `--reps N` · `--model sonnet|opus` · `--effort LEVEL` · `--arms baseline,hush` · `--concurrency N` · `--tag NAME` · `--seed N` (the arm order is shuffled inside every task-and-rep block so no arm always meets a cold cache; pass the seed a run printed to replay its exact order) · `--ablations` (see below) · `--resume` (re-read completed runs from disk instead of paying for them again — a rate-limited or interrupted run records as an error and re-runs) · `--hush-debug` (attach hush's per-decision manifest to each hush-arm record, surfaced in `report.md` as a "hush decisions" line per task).
+Flags: `--tasks a,b` (pick tasks) · `--extra-tasks a,b` (add tasks outside the default set) · `--reps N` · `--model sonnet|opus` · `--effort LEVEL` · `--arms baseline,hush` · `--concurrency N` · `--tag NAME` · `--seed N` (the arm order is shuffled inside every task-and-rep block so no arm always meets a cold cache; pass the seed a run printed to replay its exact order) · `--ablations` (see below) · `--resume` (re-read completed runs from disk instead of paying for them again — a rate-limited or interrupted run records as an error and re-runs) · `--hush-debug` (attach hush's per-decision manifest to each hush-arm record, surfaced in `report.md` as a "hush decisions" line per task) · `--sdk` (run every session through the Agent SDK on `ANTHROPIC_API_KEY` instead of `claude -p`, as its own batch; see [Run sessions on the API key](../README.md#run-sessions-on-the-api-key)).
 
 ## Which half of hush is doing the work?
 

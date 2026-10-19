@@ -49,14 +49,14 @@ describe('without BENCH_CONFIG_DIR', () => {
 
   test('run.js --dry-run plans and writes the tag manifest', () => {
     const tag = `gate-dry-${process.pid}`;
-    const r = run('run.js', '--tag', tag, '--dry-run', '--tasks', 'explain-rebase');
+    const r = run('run.js', '--tag', tag, '--dry-run', '--tasks', 'log-triage');
     assert.strictEqual(r.status, 0, r.stderr);
     assert.ok(fs.existsSync(path.join(DATA, 'hush', 'results', tag, 'batch.json')));
   });
 
   test('a live run.js refuses before it creates the tag folder', () => {
     const tag = `gate-live-${process.pid}`;
-    const r = run('run.js', '--tag', tag, '--tasks', 'explain-rebase');
+    const r = run('run.js', '--tag', tag, '--tasks', 'log-triage');
     assert.strictEqual(r.status, 2, r.stderr);
     assert.match(r.stderr, /Set BENCH_CONFIG_DIR/);
     assert.ok(!fs.existsSync(path.join(DATA, 'hush', 'results', tag)),
@@ -83,5 +83,22 @@ test('bench-config-dir.js seeds a folder that exists but has no registry', () =>
     assert.ok(fs.existsSync(path.join(dir, 'settings.json')));
   } finally {
     for (const d of [home, dir]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
+
+// A home with no ~/.claude.json, such as an API-key user who never ran claude,
+// stops with exit 2 and a message, not an uncaught ENOENT.
+test('bench-config-dir.js refuses a home with no ~/.claude.json before it seeds', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-config-seed-nohome-'));
+  const dir = path.join(home, 'bench');
+  try {
+    const env = { ...process.env, HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir };
+    const r = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(path.join(BENCH, '..', 'bench-config-dir.js'))})()`],
+      { encoding: 'utf8', env, timeout: 60000 });
+    assert.strictEqual(r.status, 2, r.stderr);
+    assert.match(r.stderr, /\.claude\.json, which does not exist/);
+    assert.ok(!fs.existsSync(dir), 'the refusal created the config dir');
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
   }
 });

@@ -821,7 +821,7 @@ describe('batch provenance makes a splice detectable', () => {
     delete env.NODE_TEST_CONTEXT;
     delete env.NODE_CHANNEL_FD;
     return spawnSync(process.execPath,
-      [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'explain-rebase', ...args],
+      [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],
       { cwd: BENCH, encoding: 'utf8', env });
   };
   const batchLine = (r) => (r.stdout.match(/batch (\S+) · seed (\S+)/) || []).slice(1, 3);
@@ -864,6 +864,11 @@ describe('batch provenance makes a splice detectable', () => {
       const ablated = planRun(tag, '--resume', '--ablations');
       assert.notStrictEqual(ablated.status, 0, '--resume forked the batch when an arm was added');
       assert.match(ablated.stderr, /arms was baseline,hush, this run has baseline,hush,hush-core-only,hush-quiet-only/);
+
+      // So is switching the session path.
+      const sdk = planRun(tag, '--resume', '--sdk');
+      assert.notStrictEqual(sdk.status, 0, '--resume forked the batch under --sdk');
+      assert.match(sdk.stderr, /session was claude -p, this run has agent-sdk/);
 
       // And the original flags still resume cleanly.
       const [batch2] = batchLine(planRun(tag, '--resume'));
@@ -1043,7 +1048,7 @@ describe('a workspace name gives nothing away, and a batch names its hush build'
     delete env.NODE_TEST_CONTEXT;
     delete env.NODE_CHANNEL_FD;
     const plan = (...args) => spawnSync(process.execPath,
-      [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'explain-rebase', ...args],
+      [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],
       { cwd: BENCH, encoding: 'utf8', env });
     const manifest = path.join(dir, '.claude-plugin', 'plugin.json');
     try {

@@ -60,7 +60,7 @@ That writes `.private/benchmarks/foreman/results/mine/report.md` at the Foundry 
 node runner/run.js --tag big --model opus --arms vibe,freeform,webtemplate,foreman-std
 ```
 
-Flags: `--tasks a,b` · `--reps N` · `--model sonnet|opus` · `--arms vibe,freeform,webtemplate,foreman-std,foreman,trio,cut-on,cut-wrong` · `--concurrency N` · `--tag NAME`.
+Flags: `--tasks a,b` · `--reps N` · `--model sonnet|opus` · `--arms vibe,freeform,webtemplate,foreman-std,foreman,trio,cut-on,cut-wrong` · `--concurrency N` · `--tag NAME` · `--sdk` (run every session through the Agent SDK on `ANTHROPIC_API_KEY` instead of `claude -p`; see [Run sessions on the API key](../README.md#run-sessions-on-the-api-key)).
 
 ## The arms
 

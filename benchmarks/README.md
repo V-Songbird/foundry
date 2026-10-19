@@ -13,7 +13,7 @@ These harnesses measure the Foreman, Hush and Razor plugins in real headless ses
 - Node.js 22 or later and Git.
 - The plugin checkouts: run `git submodule update --init` from the Foundry root.
 - A live run also needs the `claude` or `codex` CLI with a signed-in account. Foreman's pick-flow, close-protocol and discovery-reminder evals and some Hush judges need an `ANTHROPIC_API_KEY` instead; see [Configuration](#configuration). Live runs and judges can cost money; the offline tests start none.
-- A live run with `--sdk` needs `npm ci`, run once from this folder, and an `ANTHROPIC_API_KEY` instead of the signed-in CLI. See [Run sessions on the API key](#run-sessions-on-the-api-key).
+- A live run with `--sdk` needs `npm ci`, run once from this folder, and an `ANTHROPIC_API_KEY`, which its sessions bill instead of your Claude Code plan. Its scratch state folder is still seeded from `~/.claude`, so `~/.claude.json` must exist. See [Run sessions on the API key](#run-sessions-on-the-api-key).
 
 ## Quick start
 
@@ -26,8 +26,8 @@ node --test foreman/tests/*.test.js
 Expected output, last lines:
 
 ```text
-# tests 119
-# pass 119
+# tests 121
+# pass 121
 # fail 0
 ```
 
@@ -63,13 +63,13 @@ Claude Code's `/claude-api build-eval` and `/claude-api hillclimb` commands run 
    oracle 49/49 pass (want all), null 0/57 pass (want none)
    ```
 
-2. Run one variant. This starts paid sessions through the suite's own `runner/run.js`:
+2. Run one variant. This starts paid sessions through the suite's own `runner/run.js`. From `benchmarks/hush/` or `benchmarks/foreman/`:
 
    ```shell
    node runner/hillclimb.js --variant baseline -- --reps 2
    ```
 
-   Flags after `--` go to `runner/run.js`. Razor's runner also needs a task selector, such as `-- --default --runs 2`.
+   Flags after `--` go to `runner/run.js`. Razor's runner takes `--runs`, not `--reps`, and also needs a task selector, so from `benchmarks/razor/` pass `-- --default --runs 2`.
 
 | Flag | What it does |
 | --- | --- |
@@ -116,9 +116,9 @@ An `--sdk` session gets the same model, turn cap, tools, permission mode, settin
 
    Replace `<file>` with the path of a file that holds `ANTHROPIC_API_KEY=<key>`.
 
-The sessions bill `ANTHROPIC_API_KEY`. Without it, without `npm ci`, or with a session flag the SDK path cannot map, the runner exits 2 before any session starts. `BENCH_CONFIG_DIR` is still required, so session state stays out of your own `~/.claude`.
+The sessions bill `ANTHROPIC_API_KEY`. Without it, without `npm ci`, or with a session flag the SDK path cannot map, the runner exits 2 before any session starts. `BENCH_CONFIG_DIR` is still required, so session state stays out of your own `~/.claude`. It is still seeded from `~/.claude`, so a first run with no `~/.claude.json` exits 2 too: run `claude` once to write that file.
 
-Through the hill-climb entry point, pass the flag after `--`, as in `node runner/hillclimb.js --variant baseline -- --sdk --reps 2`.
+Through the hill-climb entry point, pass the flag after `--`, as in `node runner/hillclimb.js --variant baseline -- --sdk --reps 2` for Hush and Foreman, or `-- --sdk --default --runs 2` for Razor.
 
 Every result names the path it took. Hush records and `batch.json`, Foreman records and Razor's `results.json` carry `session: "agent-sdk"`. A Hush `--sdk` batch gets its own batch id, so it never mixes with a `claude -p` batch.
 

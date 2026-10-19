@@ -33,7 +33,7 @@ const STREAM = [
 
 // Logs the options a session would get, never options.env, which carries this
 // process's environment.
-function writePreload(dir, log) {
+function writePreload(dir, log, stream = STREAM) {
   const file = path.join(dir, 'fake-sdk.js');
   fs.writeFileSync(file, `const fs = require('fs');
 const s = require(${JSON.stringify(SDK_SESSION)});
@@ -41,13 +41,13 @@ s.loadSdk = async () => ({ query: async function* ({ prompt, options: o }) {
   fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({ prompt, cwd: o.cwd, model: o.model, maxTurns: o.maxTurns,
     permissionMode: o.permissionMode, settingSources: o.settingSources, plugins: o.plugins, settings: o.settings,
     hasKey: Boolean(o.env && o.env.ANTHROPIC_API_KEY) }) + '\\n');
-  for (const m of ${JSON.stringify(STREAM)}) yield m;
+  for (const m of ${JSON.stringify(stream)}) yield m;
 } });
 `);
   return file;
 }
 
-function runForeman(name, key, args) {
+function runForeman(name, key, args, stream) {
   const dir = path.join(FIXTURE, name);
   const bin = path.join(dir, 'bin');
   const config = path.join(dir, 'config');
@@ -67,7 +67,7 @@ function runForeman(name, key, args) {
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
-  const r = spawnSync(process.execPath, ['-r', writePreload(dir, log), RUN, ...args],
+  const r = spawnSync(process.execPath, ['-r', writePreload(dir, log, stream), RUN, ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 300000 });
   assert.ifError(r.error);
   return { r, data, calls, log };
@@ -94,6 +94,26 @@ test('the foreman runner sends every session through the Agent SDK under --sdk',
   // The fake session edits nothing, so the record's check fails; it still names the SDK path.
   const rec = JSON.parse(fs.readFileSync(path.join(data, 'foreman', 'results', TAG, 'runs', 'api-constraint__trio__r1.json'), 'utf8'));
   assert.deepStrictEqual([rec.costUsd, rec.session], [0.25, 'agent-sdk'], JSON.stringify(rec).slice(0, 400));
+});
+
+test('a foreman --sdk record that fails to parse still names the session path', () => {
+  // A null content block makes parseTranscript throw, so the runner writes its error record.
+  const broken = [STREAM[0], { type: 'assistant', message: { content: [null] } }, STREAM[2]];
+  const { r, data } = runForeman('broken', 'test-not-a-key', LIVE, broken);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const rec = JSON.parse(fs.readFileSync(path.join(data, 'foreman', 'results', TAG, 'runs', 'api-constraint__trio__r1.json'), 'utf8'));
+  assert.ok(rec.error, JSON.stringify(rec).slice(0, 400));
+  assert.strictEqual(rec.session, 'agent-sdk');
+});
+
+test('sdkVersion names the installed SDK build, not the package.json pin', () => {
+  const dir = path.join(FIXTURE, 'version');
+  const pkg = path.join(dir, 'node_modules', '@anthropic-ai', 'claude-agent-sdk');
+  fs.mkdirSync(pkg, { recursive: true });
+  fs.copyFileSync(SDK_SESSION, path.join(dir, 'sdk-session.js'));
+  fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ dependencies: { '@anthropic-ai/claude-agent-sdk': '0.0.1' } }));
+  fs.writeFileSync(path.join(pkg, 'package.json'), JSON.stringify({ name: '@anthropic-ai/claude-agent-sdk', version: '0.0.2' }));
+  assert.strictEqual(require(path.join(dir, 'sdk-session.js')).sdkVersion(), '0.0.2');
 });
 
 test('the foreman runner refuses --sdk without ANTHROPIC_API_KEY before any session', () => {

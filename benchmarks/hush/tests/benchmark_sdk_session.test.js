@@ -56,7 +56,8 @@ function runHush(name, key, args) {
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
 
   const data = path.join(dir, 'data');
-  const env = { ...process.env, BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config };
+  // The temp variables put the cell's workspace under this fixture, removed after the suite.
+  const env = { ...process.env, BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config, TEMP: dir, TMP: dir, TMPDIR: dir };
   for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
@@ -102,8 +103,9 @@ test('an --sdk batch gets its own batch id, and a claude -p batch keeps its id',
     assert.strictEqual(r.status, 0, r.stderr);
     return (r.stdout.match(/batch (\S+) · seed/) || [])[1];
   };
+  // The id the claude -p formula gave before --sdk existed, under this
+  // config.json: a change to it would strand every existing tag's --resume.
   const cli = plan('plan-cli');
-  assert.ok(cli, 'no batch line');
-  assert.strictEqual(plan('plan-cli-again'), cli);
+  assert.strictEqual(cli, 'ids-ab2c8ed5');
   assert.notStrictEqual(plan('plan-sdk', '--sdk'), cli);
 });

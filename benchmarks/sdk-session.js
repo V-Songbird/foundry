@@ -13,6 +13,9 @@
 // runs once before any session: a missing key, a missing SDK package or an
 // unmapped flag stops the run there, never as a failed cell.
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const SDK = '@anthropic-ai/claude-agent-sdk';
 
 function loadSdk() {
@@ -97,8 +100,12 @@ async function prepareSdk(argLists, env = process.env) {
   try { for (const args of argLists) sdkOptions(args); } catch (e) { return stop(e.message); }
 }
 
+// The SDK build loadSdk() resolves, so a node_modules left stale after a pin
+// bump is recorded as what ran; the package.json pin only when none is
+// installed, as under the offline tests' fake SDK.
 function sdkVersion() {
-  return require('./package.json').dependencies[SDK];
+  const installed = require.resolve.paths(SDK).map((d) => path.join(d, SDK, 'package.json')).find((f) => fs.existsSync(f));
+  return installed ? JSON.parse(fs.readFileSync(installed, 'utf8')).version : require('./package.json').dependencies[SDK];
 }
 
 module.exports = { sdkOptions, runSession, prepareSdk, sdkVersion, loadSdk };

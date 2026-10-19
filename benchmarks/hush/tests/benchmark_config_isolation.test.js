@@ -34,7 +34,7 @@ test('hush and baseline cells never see the home config', () => {
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
 
   const env = { ...process.env, BENCH_DATA_DIR: path.join(FIXTURE, 'data'), BENCH_CONFIG_DIR: config,
-    HOME: home, USERPROFILE: home };
+    HOME: home, USERPROFILE: home, TEMP: FIXTURE, TMP: FIXTURE, TMPDIR: FIXTURE }; // the cells' workspaces land in this fixture
   for (const k of ['CLAUDE_CONFIG_DIR', 'HUSH_CONFIG_FILE', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
