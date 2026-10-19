@@ -31,4 +31,12 @@ test('a task with no arm prompts is refused by name before anything is planned',
 test('a task with arm prompts still plans', () => {
   const r = dryRun('api-constraint');
   assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  assert.ok(!fs.existsSync(WORK), 'a dry run left workdirs in the temp dir');
+});
+
+test('a --tasks id that names no task is a usage error that plans nothing', () => {
+  const r = dryRun('api-constraint,no-such-task');
+  assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+  assert.match(r.stderr, /--tasks names no task called no-such-task; known tasks: .*api-constraint/);
+  assert.ok(!fs.existsSync(WORK), 'a refused run still made workdirs');
 });

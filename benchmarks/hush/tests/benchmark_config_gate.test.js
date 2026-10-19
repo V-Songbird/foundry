@@ -62,6 +62,16 @@ describe('without BENCH_CONFIG_DIR', () => {
     assert.ok(!fs.existsSync(path.join(DATA, 'hush', 'results', tag)),
       'a refused run left a tag folder behind');
   });
+
+  test('a live run.js takes over a tag that only a dry run planned', () => {
+    const tag = `gate-dry-then-live-${process.pid}`;
+    assert.strictEqual(run('run.js', '--tag', tag, '--dry-run', '--tasks', 'log-triage').status, 0);
+    const r = run('run.js', '--tag', tag, '--tasks', 'log-triage');
+    // Past the tag check it reaches the config gate, which refuses with 2.
+    assert.strictEqual(r.status, 2, r.stderr);
+    assert.match(r.stderr, /Set BENCH_CONFIG_DIR/);
+    assert.doesNotMatch(r.stderr, /already carries batch/);
+  });
 });
 
 // The seed runs whenever <dir>/.claude.json is missing, so a folder made in

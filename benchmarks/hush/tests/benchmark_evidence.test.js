@@ -887,7 +887,8 @@ describe('batch provenance makes a splice detectable', () => {
       // with an explicit seed rather than left to the clock). Writing its
       // manifest would strand batch1's seed.
       const clobber = planRun(tag, '--seed', '999');
-      assert.notStrictEqual(clobber.status, 0, 'a fresh plan overwrote an existing batch manifest');
+      assert.strictEqual(clobber.status, 2, 'the refusal is a clean usage exit, not an uncaught error');
+      assert.doesNotMatch(clobber.stderr, /\n\s+at /, 'the refusal printed a stack trace');
       assert.match(clobber.stderr, new RegExp(`already carries batch ${batch1}`));
       assert.match(clobber.stderr, /Use a different --tag/);
       assert.strictEqual(JSON.parse(fs.readFileSync(path.join(resDir, 'batch.json'), 'utf8')).seed, seed1,

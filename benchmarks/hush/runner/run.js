@@ -269,14 +269,19 @@ function batchDrift() {
     .join('; ') || 'the batch key differs';
 }
 
-if (plan && plan.batchId && plan.batchId !== batchId) {
-  throw new Error(resume
+// A manifest a --dry-run wrote only recorded a plan, so a live run that starts a
+// new batch may take its tag over; --resume and another dry run still honour it.
+const planIsDryRun = plan && plan.dryRun === true && !dryRun && !resume;
+if (plan && plan.batchId && plan.batchId !== batchId && !planIsDryRun) {
+  // A usage-level refusal: a clean exit 2 with the message, not a stack trace.
+  console.error(resume
     ? `--resume does not reproduce batch ${plan.batchId} — these flags compute ${batchId}. ${batchDrift()}. `
       + 'Re-run --resume with the flags the batch was planned under, or drop --resume to start a new batch on a new tag.'
     : `tag "${tag}" already carries batch ${plan.batchId}, and this run is batch ${batchId}. ${batchDrift()}. `
       + `Overwriting ${path.relative(ROOT, planFile)} would leave the first batch's seed unreachable through the tag `
       + `and re-point every later --resume. Use a different --tag, add --resume to continue ${plan.batchId}, `
       + `or delete ${path.relative(ROOT, planFile)} to reuse the tag.`);
+  process.exit(2);
 }
 
 // The hush build every hush arm loads, as it stood when the batch started. A
@@ -527,6 +532,7 @@ async function main() {
     startedAt: new Date().toISOString(),
     hush: hushBuild,
     ...(sdk ? { session: 'agent-sdk' } : {}),
+    ...(dryRun ? { dryRun: true } : {}),
   };
   // The tag-scoped copy is what a later --resume reads the seed back from, so
   // it is written on a dry run too: planning a batch is how you get its seed.

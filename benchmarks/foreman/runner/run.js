@@ -133,6 +133,15 @@ const taskIds = flag('tasks', null);
 const tasks = taskIds
   ? TASKS.filter((t) => taskIds.split(',').includes(t.id))
   : TASKS.filter((t) => !t.measurementOnly);
+// A typo in --tasks would otherwise plan a smaller batch, or an empty one, with
+// no sign of it.
+if (taskIds) {
+  const unknown = taskIds.split(',').filter((id) => !TASKS.some((t) => t.id === id));
+  if (unknown.length) {
+    console.error(`usage: --tasks names no task called ${unknown.join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
+    process.exit(2);
+  }
+}
 for (const t of tasks) {
   if (!fs.existsSync(path.join(ROOT, 'fixtures', t.fixture, 'prompts'))) {
     console.error(`task "${t.id}" has no arm prompts (fixtures/${t.fixture}/prompts/ does not exist), so no arm can run it; it is a test fixture, not a runnable task`);
@@ -147,8 +156,9 @@ const outDir = path.join(dataDir('foreman'), 'results', tag);
 // inside a git working tree, regardless of tool restrictions — a workdir
 // nested under a git repo silently leaks that repo's history into every
 // session, and a weak model goes chasing it well past what the task needs.
+// Not created here: a dry run or a refused run starts no cell, and
+// makeWorkDir's mkdirSync creates it with the first live cell.
 const workRoot = path.join(os.tmpdir(), 'foreman-bench', tag);
-fs.mkdirSync(workRoot, { recursive: true });
 
 // --- environment ------------------------------------------------------------
 // Strip nested-session vars so each run starts clean. CLAUDE_PROJECT_DIR is
@@ -237,6 +247,8 @@ function pristineFor(task) {
 function makeWorkDir(task, arm, rep) {
   const key = `${task.id}__${arm}__r${rep}`;
   const workDir = path.join(workRoot, key);
+  // A dry run only names the workdir; it writes nothing under the temp dir.
+  if (dryRun) return { key, workDir };
   fs.rmSync(workDir, { recursive: true, force: true });
   fs.mkdirSync(workDir, { recursive: true });
   fs.cpSync(path.join(ROOT, 'fixtures', task.fixture, 'app'), workDir, { recursive: true });
@@ -321,8 +333,8 @@ function oneRun(task, arm, rep) {
 }
 
 // --- dry run ----------------------------------------------------------------
-// Assembles workdirs, resolves prompts, prints the planned run matrix.
-// Invokes NOTHING — no claude, no tests.
+// Resolves workdir names and prompts, prints the planned run matrix.
+// Invokes NOTHING — no claude, no tests — and writes nothing to disk.
 function dryRunAll(queue) {
   console.log(`DRY RUN — ${queue.length} planned runs (${tasks.length} tasks x ${armNames.length} arms x ${reps} reps), model=${model}, tag=${tag}`);
   console.log(`arms: ${armNames.join(', ')}`);
