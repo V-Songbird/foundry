@@ -93,10 +93,11 @@ const ask = (labels, n) => toolUse('AskUserQuestion', {
 // check-duplicate, then the four-way question when nothing matches, or a text
 // reply naming the match. mutate breaks one rule: no-check (ask before the
 // check), add-first (add before asking), short-menu (two options), spawn (offer
-// a chip as well), ask-tracked (ask though the check found a match).
+// a chip as well), ask-tracked (ask though the check found a match), bad-check
+// (call the script at a wrong path, then answer in text).
 function oracleTurn(c, mutate = null) {
   const n = c.rounds;
-  const checkCmd = `echo '${JSON.stringify(CANDIDATE)}' | ${SCRIPT} check-duplicate`;
+  const checkCmd = `echo '${JSON.stringify(CANDIDATE)}' | ${mutate === 'bad-check' ? 'node "/wrong/scripts/roadmap.js"' : SCRIPT} check-duplicate`;
   const check = () => toolUse('Bash', { command: checkCmd }, `${n}c`);
   if (n === 0) return mutate === 'no-check' ? [ask(LABELS, n), check()] : [check()];
   if (n > 1) return [{ type: 'text', text: 'Done.' }];

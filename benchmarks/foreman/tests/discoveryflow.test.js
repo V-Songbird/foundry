@@ -104,6 +104,13 @@ test('each broken rule fails its own dimension', async () => {
   await offline('oracle', { mutate: 'ask-tracked', scenarios: ['tracked'] }, (c, g) => assert.deepStrictEqual(g, only({ asked: 0 }), c.arm));
 });
 
+test('a duplicate check that never ran, followed by silence, fails every scenario on both arms', async () => {
+  await offline('oracle', { mutate: 'bad-check' }, (c, g) => {
+    assert.deepStrictEqual(g, { pass: 0, checked: 0, asked: 0, menu: 1, held: 1, clean: 1 }, `${c.arm} ${c.scenario.id}`);
+    assert.ok(!c.st.events.slice(c.st.liveFrom).some((e) => e.kind === 'check'), `${c.arm} ${c.scenario.id}`);
+  });
+});
+
 test('the new arm keeps the hook\'s discovery state in the case folder, and cleanup removes the folder', () => {
   const { discoveryStatePath } = require(path.join(sim.FOREMAN, 'hooks', 'post-commit.js'));
   const st = sim.newCase(sim.SCENARIOS[0], 'new');

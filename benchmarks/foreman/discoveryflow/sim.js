@@ -96,6 +96,9 @@ function handle(st, block) {
       if (j && 'duplicate' in j) { check.duplicate = j.duplicate; check.matches = j.matches || []; break; }
     }
   }
+  // A check counts only when the script ran and answered: a wrong path, a
+  // failed run or a comment leaves no check.
+  for (const e of found) if (e.kind === 'check' && e.duplicate === null) st.events.splice(st.events.indexOf(e), 1);
   if (/\bgit\s+commit\b/.test(command) && head(st.project) !== before) {
     const text = runHook(st, command);
     if (text) r.content = `${r.content || ''}\n\n<system-reminder>\nPostToolUse:Bash hook additional context: ${text}\n</system-reminder>`;
