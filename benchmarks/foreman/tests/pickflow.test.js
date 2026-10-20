@@ -152,3 +152,37 @@ test('cache reads and writes are priced apart, and batches bill half', () => {
   near(run.costOf(u, { ...o, api: 'messages' }), 2 + 2.5 + 0.2 + 10);
   near(run.costOf(u, o), (2 + 2.5 + 0.2 + 10) / 2);
 });
+
+test('the host git config reaches neither the real arm\'s scratch repository nor the scripts it runs', () => {
+  const fs = require('node:fs');
+  const { hostGitTrace } = require('./host-git.js');
+  const arm = sim.ARMS.real;
+  sim.ARMS.real = { root: sim.FOREMAN };
+  try {
+    const { seen, control } = hostGitTrace(() => {
+      const st = sim.newCase(sim.SCENARIOS[0], 'real');
+      try {
+        sim.handleTool(st, { name: 'Bash', input: { command: `node ${sim.ROOT}/scripts/roadmap.js next-candidates --menu` } });
+      } finally {
+        fs.rmSync(st.project, { recursive: true, force: true });
+      }
+    });
+    assert.match(control, /git/);
+    assert.strictEqual(seen, '');
+  } finally {
+    sim.ARMS.real = arm;
+  }
+});
+
+test('a script and its git get the scratch project and no host git settings', () => {
+  process.env.GIT_DIR = '/elsewhere';
+  try {
+    const env = sim.childEnv('/p');
+    assert.strictEqual(env.GIT_DIR, undefined);
+    assert.strictEqual(env.GIT_CONFIG_GLOBAL, '/dev/null');
+    assert.strictEqual(env.GIT_CONFIG_NOSYSTEM, '1');
+    assert.strictEqual(env.CLAUDE_PROJECT_DIR, '/p');
+  } finally {
+    delete process.env.GIT_DIR;
+  }
+});

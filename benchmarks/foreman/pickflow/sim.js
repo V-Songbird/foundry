@@ -145,12 +145,26 @@ const CONTEXT_READING_REAL = CONTEXT_READING.replace(
 
 const fixtureDir = (s) => path.join(HERE, 'fixtures', s.fixture);
 
+// Foreman's scripts and git see the scratch project and no host of their own:
+// no system or global git config or attributes, whose hooks, textconv, filter
+// or fsmonitor commands would run on the host, and an editor that fails.
+// GIT_ATTR_NOSYSTEM cuts only the system attributes file; the global one
+// (~/.config/git/attributes) is cut by pointing core.attributesFile at nothing.
+// Every flow's sim spawns through this, so the cut lives here once.
+function childEnv(project) {
+  const env = {};
+  for (const [k, v] of Object.entries(process.env)) if (!/^(FOREMAN_|CODEX_|CLAUDE|ANTIGRAVITY_|GIT_|PLUGIN_ROOT$)/.test(k)) env[k] = v;
+  Object.assign(env, {
+    CLAUDE_PROJECT_DIR: project, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_ATTR_NOSYSTEM: '1', GIT_EDITOR: 'false',
+    GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.attributesFile', GIT_CONFIG_VALUE_0: '/dev/null',
+  });
+  return env;
+}
+
 // `st` (a case) points a real-arm run at that arm's checkout and the case's
 // scratch project; without it the script reads the fixture in place.
 function runScript(scenario, script, args, st = null) {
-  const env = {};
-  for (const [k, v] of Object.entries(process.env)) if (!/^(FOREMAN_|CODEX_|CLAUDE|ANTIGRAVITY_|PLUGIN_ROOT$)/.test(k)) env[k] = v;
-  env.CLAUDE_PROJECT_DIR = st?.project || fixtureDir(scenario);
+  const env = childEnv(st?.project || fixtureDir(scenario));
   const r = spawnSync(process.execPath, [path.join(st?.root || FOREMAN, 'scripts', script), ...args], { env, encoding: 'utf8', timeout: 30000 });
   return { out: (r.stdout || '') + (r.stderr || ''), code: r.status };
 }
@@ -162,7 +176,7 @@ function scratchProject(scenario) {
   fs.cpSync(fixtureDir(scenario), dir, { recursive: true });
   fs.mkdirSync(path.join(dir, '.foreman'), { recursive: true });
   fs.writeFileSync(path.join(dir, '.foreman', 'config.json'), '{"trialLog":true}\n');
-  const git = (...a) => spawnSync('git', ['-c', 'user.email=eval@example.com', '-c', 'user.name=eval', ...a], { cwd: dir, encoding: 'utf8' });
+  const git = (...a) => spawnSync('git', ['-c', 'user.email=eval@example.com', '-c', 'user.name=eval', ...a], { cwd: dir, encoding: 'utf8', env: childEnv(dir) });
   git('init', '-q');
   git('add', '-A');
   git('commit', '-q', '-m', 'fixture');
@@ -577,5 +591,5 @@ function grade(st) {
 module.exports = {
   SCENARIOS, ROOT, PROJECT, FOREMAN, ARMS, SYSTEM, TOOLS, Q2_NAMES,
   firstMessage, newCase, handleTool, noteText, grade, q1Options, q2Options, p1Step, entryRow, skillFile, baseLabel, idOf,
-  expandVars,
+  expandVars, childEnv,
 };

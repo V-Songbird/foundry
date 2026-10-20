@@ -13,6 +13,7 @@ const { spawnSync } = require('node:child_process');
 
 const sim = require('../discoveryflow/sim.js');
 const run = require('../discoveryflow/run.js');
+const { hostGitTrace } = require('./host-git.js');
 
 const FULL = /CONFIRMED opportunities/;
 const REMINDER = /full discovery rules given earlier in this session/;
@@ -175,6 +176,20 @@ test('the new arm keeps the hook\'s discovery state in the case folder, and clea
     sim.cleanup(st);
   }
   assert.ok(!fs.existsSync(st.dir));
+});
+
+test('the host git config reaches neither the scratch repository\'s git nor the post-commit hook', () => {
+  const { seen, control } = hostGitTrace(() => {
+    const st = sim.newCase(sim.SCENARIOS[0], 'new');
+    try {
+      assert.ok(st.hooks.length > 0);
+      sim.handle(st, { name: 'Bash', input: { command: 'git ls-files' } });
+    } finally {
+      sim.cleanup(st);
+    }
+  });
+  assert.match(control, /git/);
+  assert.strictEqual(seen, '');
 });
 
 test('a hook block names the simulated install\'s roadmap.js, not the checkout\'s', () => {

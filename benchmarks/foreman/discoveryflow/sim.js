@@ -41,14 +41,13 @@ const TOOLS = [
 
 const SCRIPT_PATH = path.join(FOREMAN, 'scripts', 'roadmap.js');
 
-const git = (dir, ...args) => spawnSync('git', args, { cwd: dir, encoding: 'utf8' });
+const git = (dir, ...args) => spawnSync('git', args, { cwd: dir, encoding: 'utf8', env: pick.childEnv(dir) });
 const head = (dir) => (git(dir, 'rev-parse', 'HEAD').stdout || '').trim();
 
+// The hook, like the git it runs, sees no host git config or attributes.
 function hookEnv(st) {
-  const env = {};
-  for (const [k, v] of Object.entries(process.env)) if (!/^(FOREMAN_|CODEX_|CLAUDE|ANTIGRAVITY_|GIT_|PLUGIN_ROOT$)/.test(k)) env[k] = v;
   const tmp = path.join(st.dir, 'tmp');
-  return { ...env, CLAUDE_PROJECT_DIR: st.project, FOREMAN_HOST: 'claude', TEMP: tmp, TMP: tmp, TMPDIR: tmp };
+  return { ...pick.childEnv(st.project), FOREMAN_HOST: 'claude', TEMP: tmp, TMP: tmp, TMPDIR: tmp };
 }
 
 // Foreman's post-commit hook for one commit; its text names the simulated
