@@ -138,7 +138,7 @@ const tasks = taskIds
 if (taskIds) {
   const unknown = taskIds.split(',').filter((id) => !TASKS.some((t) => t.id === id));
   if (unknown.length) {
-    console.error(`usage: --tasks names no task called ${unknown.join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
+    console.error(`usage: --tasks names no task called ${unknown.map((id) => id || '(empty id)').join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
     process.exit(2);
   }
 }

@@ -48,6 +48,11 @@ function flagValue(name, i) {
   }
   return v;
 }
+// A usage-level refusal: the message alone and exit 2, never a stack trace.
+function refuse(message) {
+  console.error(message);
+  process.exit(2);
+}
 function flag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
   return i >= 0 ? flagValue(name, i) : dflt;
@@ -157,7 +162,7 @@ const rivalLists = { 'rival-dir': rivalDirs, 'rival-name': rivalNames, 'rival-se
 const rivalCount = Math.max(rivalDirs.length, rivalNames.length, rivalSettingsList.length, rivalOverlays.length, rivalEnvs.length);
 for (const [flagName, list] of Object.entries(rivalLists)) {
   if (list.length && list.length !== rivalCount) {
-    throw new Error(`--${flagName} appears ${list.length} time(s) but ${rivalCount} rivals are described. `
+    refuse(`--${flagName} appears ${list.length} time(s) but ${rivalCount} rivals are described. `
       + `Give --${flagName} once per rival, in the same order as the other --rival-* flags, `
       + `and pass an empty value ("") for a rival that has none.`);
   }
@@ -169,7 +174,7 @@ const rivalArmNames = new Set();
 for (let i = 0; i < rivalCount; i++) {
   const name = rivalNames[i] || (rivalCount > 1 ? `rival${i + 1}` : 'rival');
   if (BUILT_IN_ARMS.includes(name) || rivalArmNames.has(name)) {
-    throw new Error(`--rival-name ${name} ${rivalArmNames.has(name) ? 'is given to more than one rival' : 'is a built-in arm'}. `
+    refuse(`--rival-name ${name} ${rivalArmNames.has(name) ? 'is given to more than one rival' : 'is a built-in arm'}. `
       + `Give each rival its own name, other than ${BUILT_IN_ARMS.join(', ')}.`);
   }
   rivalArmNames.add(name);
@@ -199,15 +204,14 @@ const tasks = taskIds !== null
 if (taskIds !== null) {
   const unknown = taskIds.split(',').filter((id) => !TASKS.some((t) => t.id === id));
   if (unknown.length) {
-    console.error(`usage: --tasks names no task called ${unknown.join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
-    process.exit(2);
+    refuse(`usage: --tasks names no task called ${unknown.map((id) => id || '(empty id)').join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
   }
 }
 
 // Segments are what the report groups by; a task without a known one would
 // quietly land in an "unsegmented" bucket, so fail here instead.
 for (const t of tasks) {
-  if (!CONFIG.segments[t.segment]) throw new Error(`task ${t.id} has unknown segment "${t.segment}"`);
+  if (!CONFIG.segments[t.segment]) refuse(`task ${t.id} has unknown segment "${t.segment}"`);
 }
 
 const outDir = path.join(dataDir('hush'), 'results', tag);
@@ -228,7 +232,7 @@ const plan = readPlan();
 
 function resumeSeed() {
   if (plan && plan.seed != null) return String(plan.seed);
-  throw new Error(
+  refuse(
     `--resume cannot find the seed of the batch it is resuming (${path.relative(ROOT, planFile)} is missing or `
     + 'unreadable). Pass --seed <seed> from the original run\'s output, or start a fresh batch without --resume.');
 }
@@ -285,7 +289,7 @@ if (plan && plan.batchId && plan.batchId !== batchId) {
 // resume on a different build would splice two plugins into one batch.
 const hushBuild = pluginProvenance(HUSH_DIR);
 if (resume && plan && plan.hush && JSON.stringify(plan.hush) !== JSON.stringify(hushBuild)) {
-  throw new Error(`--resume would mix hush builds: batch ${plan.batchId} started on ${JSON.stringify(plan.hush)}, `
+  refuse(`--resume would mix hush builds: batch ${plan.batchId} started on ${JSON.stringify(plan.hush)}, `
     + `the checkout is now ${JSON.stringify(hushBuild)}. Restore that build, or start a new batch on a new tag.`);
 }
 
