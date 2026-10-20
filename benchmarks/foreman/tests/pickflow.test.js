@@ -186,3 +186,27 @@ test('a script and its git get the scratch project and no host git settings', ()
     delete process.env.GIT_DIR;
   }
 });
+
+test('a --go with a cap that is not a finite number above 0 sends nothing', async () => {
+  const saved = { fetch: globalThis.fetch, key: process.env.ANTHROPIC_API_KEY, log: console.log, error: console.error };
+  const calls = [];
+  const errors = [];
+  globalThis.fetch = async (url) => { calls.push(url); throw new Error('no request expected'); };
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  console.log = () => {};
+  console.error = (m) => errors.push(m);
+  try {
+    for (const cap of ['Infinity', '1e999', 'NaN', '0', '-1', 'abc']) {
+      assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--reps', '1', '--go', '--max-usd', cap]), 2, cap);
+    }
+    assert.strictEqual(calls.length, 0);
+    assert.strictEqual(errors.length, 6);
+    assert.ok(errors.every((m) => /--max-usd is required with --go/.test(m)), errors.join('\n'));
+  } finally {
+    globalThis.fetch = saved.fetch;
+    console.log = saved.log;
+    console.error = saved.error;
+    if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = saved.key;
+  }
+});

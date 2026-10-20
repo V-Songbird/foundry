@@ -35,7 +35,7 @@ test('native runner accepts explicit paired model settings and refuses unknown l
     assert.throws(() => options([flag, '--probe']), /Missing value:/);
   }
   for (const args of [['--runs', '0'], ['--runs', '11'], ['--workers', '5'], ['--workers', '1.5'],
-    ['--timeout', '0'], ['--timeout', '1801'], ['--effort', 'unknown'], ['--suite', 'unknown']]) {
+    ['--timeout', '0'], ['--timeout', '1801'], ['--runs', 'Infinity'], ['--timeout', '1e999'], ['--workers', 'NaN'], ['--effort', 'unknown'], ['--suite', 'unknown']]) {
     assert.throws(() => options(args), /Invalid/);
   }
 });

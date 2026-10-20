@@ -253,7 +253,7 @@ async function live({ name, title, o, makeCases, flow, grade, cleanup, outRoot =
     log('plan only: nothing was sent. Add --go and --max-usd <usd>, with the key loaded through node --env-file.');
     return 0;
   }
-  if (!(o.maxUsd > 0)) { log('--max-usd is required with --go'); return 2; }
+  if (!(Number.isFinite(o.maxUsd) && o.maxUsd > 0)) { log('--max-usd is required with --go: a finite number of USD above 0'); return 2; }
   apiKey();
   const outDir = path.join(outRoot, name, o.tag);
   if (fs.existsSync(path.join(outDir, 'records.json'))) { log(`${outDir} already holds a run; pick another --tag`); return 2; }

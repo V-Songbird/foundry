@@ -55,7 +55,7 @@ function count(name, raw) {
   return n;
 }
 const reps = count('reps', flag('reps', 5));
-const sizes = flag('sizes', '10,50,150').split(',').map((s) => count('sizes', s));
+const sizes = String(flag('sizes', '10,50,150')).split(',').map((s) => count('sizes', s));
 const arms = flag('arms', 'markdown,foreman').split(',');
 const dryRun = argv.includes('--dry-run');
 

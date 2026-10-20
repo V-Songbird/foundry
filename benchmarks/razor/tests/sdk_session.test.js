@@ -92,6 +92,13 @@ test('sdkOptions refuses a flag it has no mapping for', () => {
   assert.throws(() => session.sdkOptions(['-p', '--add-dir', '/x']), /no Agent SDK mapping for --add-dir/);
 });
 
+test('sdkOptions refuses a --max-turns that is not a whole number of at least 1', () => {
+  for (const bad of ['Infinity', '1e999', 'NaN', 'abc', '0', '-1', '1.5', '']) {
+    assert.throws(() => session.sdkOptions(['-p', '--max-turns', bad]), /--max-turns needs a whole number of at least 1/, bad);
+  }
+  assert.throws(() => session.sdkOptions(['-p', '--max-turns']), /--max-turns needs a whole number of at least 1, got undefined/);
+});
+
 test('runSession returns the stream as stream-json lines plus the result fields', async () => {
   const seen = [];
   const r = await withFakeSdk(async function* ({ prompt, options }) {

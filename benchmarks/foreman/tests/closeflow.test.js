@@ -313,6 +313,16 @@ test('the plan, a --go without --max-usd and a round whose worst case passes the
   });
 });
 
+test('a --go with a cap that is not a finite number above 0 sends nothing', async () => {
+  await withFakeApi(() => assert.fail('no request expected'), async ({ calls, out }) => {
+    for (const cap of ['Infinity', '1e999', 'NaN', '0', '-1', 'abc']) {
+      assert.strictEqual(await run.main([...ARGS, '--go', '--max-usd', cap], () => {}, out), 2, cap);
+    }
+    assert.strictEqual(await run.main([...ARGS, '--go', '--max-usd'], () => {}, out), 2);
+    assert.strictEqual(calls.length, 0);
+  });
+});
+
 test('a live run sends each round as one batch, feeds tool results back and writes graded records', async () => {
   const reply = (r) => (r.params.messages.length === 1
     ? message([{ type: 'tool_use', id: 'toolu_1', name: 'Bash', input: { command: 'git status --short' } }])

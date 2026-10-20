@@ -121,7 +121,8 @@ async function runBatch(items, { model: alias = 'sonnet', maxUsd, go = false, ra
   const model = modelId(alias);
   const plan = { model, ...estimate(items, model) };
   if (!go) return { plan };
-  if (!(maxUsd > 0)) throw new Error('--max-usd is required for a paid batch');
+  // Infinity and 1e999 are refused too: no worst case is above them, so the cap would not cap.
+  if (!(Number.isFinite(maxUsd) && maxUsd > 0)) throw new Error('--max-usd is required for a paid batch: a finite number of USD above 0');
   if (plan.worstUsd > maxUsd) {
     throw new Error(`worst case $${plan.worstUsd.toFixed(2)} is above --max-usd ${maxUsd}; nothing was sent`);
   }

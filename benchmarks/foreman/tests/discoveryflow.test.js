@@ -237,3 +237,22 @@ test('a live run on a fake Message Batches API grades the live turn and stops at
     fs.rmSync(out, { recursive: true, force: true });
   }
 });
+
+test('a --go with a cap that is not a finite number above 0 sends nothing', async () => {
+  const saved = { fetch: globalThis.fetch, key: process.env.ANTHROPIC_API_KEY };
+  const calls = [];
+  globalThis.fetch = async (url) => { calls.push(url); throw new Error('no request expected'); };
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'discoveryflow-cap-'));
+  try {
+    for (const cap of ['Infinity', '1e999', 'NaN', '0', '-1', 'abc']) {
+      assert.strictEqual(await run.main(['--scenarios', 'finding', '--arms', 'new', '--tag', 't', '--go', '--max-usd', cap], () => {}, out), 2, cap);
+    }
+    assert.strictEqual(calls.length, 0);
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = saved.key;
+    fs.rmSync(out, { recursive: true, force: true });
+  }
+});

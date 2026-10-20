@@ -224,7 +224,7 @@ async function cli(argv = process.argv.slice(2)) {
   const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
   const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
   // Infinity is refused too: batch-judge.js's cap test passes it, so the cap would not cap.
-  let problem = (at >= 0 && !(Number.isFinite(maxUsd) && maxUsd > 0) &&`--max-usd needs a positive number of USD, got ${own[at + 1]}`)
+  let problem = (at >= 0 && !(Number.isFinite(maxUsd) && maxUsd > 0) && `--max-usd needs a positive number of USD, got ${own[at + 1]}`)
     || (go && at < 0 && '--go needs --max-usd <usd>')
     || (go && kept.includes('--smoke') && '--go has no use with --smoke, which never asks the judge')
     || (go && !process.env.ANTHROPIC_API_KEY && '--go needs ANTHROPIC_API_KEY; run with node --env-file=<key file>');

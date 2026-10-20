@@ -32,7 +32,15 @@ function sdkOptions(args) {
       case '-p': case '--verbose': break;
       case '--output-format': v(); break;
       case '--model': o.model = v(); break;
-      case '--max-turns': o.maxTurns = Number(v()); break;
+      case '--max-turns': {
+        // Infinity or NaN would leave the session without a turn limit.
+        const raw = v();
+        o.maxTurns = Number(raw);
+        if (raw === '' || !Number.isInteger(o.maxTurns) || o.maxTurns < 1) {
+          throw new Error(`sdk-session: --max-turns needs a whole number of at least 1, got ${raw}`);
+        }
+        break;
+      }
       case '--setting-sources': o.settingSources = list(v()); break;
       case '--strict-mcp-config': o.strictMcpConfig = true; break;
       case '--permission-mode':

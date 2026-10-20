@@ -68,6 +68,14 @@ describe('runBatch guards', () => {
     await assert.rejects(runBatch(items, { go: true }), /max-usd is required/);
   });
 
+  test('a cap that is not a finite number above 0 is refused before any request', async () => {
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    global.fetch = async () => { throw new Error('no request expected'); };
+    for (const maxUsd of [Infinity, 1e999, NaN, 0, -1]) {
+      await assert.rejects(runBatch(items, { go: true, maxUsd }), /max-usd is required/, String(maxUsd));
+    }
+  });
+
   test('a worst case above the cap is refused before any request', async () => {
     process.env.ANTHROPIC_API_KEY = 'test-key';
     await assert.rejects(runBatch(items, { go: true, maxUsd: 0.001 }), /nothing was sent/);

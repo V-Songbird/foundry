@@ -242,7 +242,7 @@ async function main(argv = process.argv.slice(2)) {
     console.log('plan only: nothing was sent. Add --go and --max-usd <usd>, with the key loaded through node --env-file.');
     return 0;
   }
-  if (!(o.maxUsd > 0)) { console.error('--max-usd is required with --go'); return 2; }
+  if (!(Number.isFinite(o.maxUsd) && o.maxUsd > 0)) { console.error('--max-usd is required with --go: a finite number of USD above 0'); return 2; }
   apiKey();
 
   const outDir = path.join(dataDir('foreman'), 'pickflow', o.tag);
@@ -258,5 +258,5 @@ async function main(argv = process.argv.slice(2)) {
   return 0;
 }
 
-module.exports = { parseArgs, makeCases, request, costOf, worstUsd, runCases, oracleTurn, offlineSender, traceOf, record, report };
+module.exports = { parseArgs, makeCases, request, costOf, worstUsd, runCases, oracleTurn, offlineSender, traceOf, record, report, main };
 if (require.main === module) main().then((code) => { process.exitCode = code; }, (err) => { console.error(err.message); process.exitCode = 1; });
