@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
+const { flagOr, throwUsage } = require('../../flags.js');
 const fs = require("fs");
 const path = require("path");
 const { readEntries, cmdNextCandidates } = require(path.join(require("../../paths.js").pluginDir("foreman"), "scripts", "roadmap"));
@@ -115,8 +116,7 @@ function replay(root, options = {}) {
 }
 
 function flag(argv, name) {
-  const index = argv.indexOf(`--${name}`);
-  return index >= 0 ? argv[index + 1] : undefined;
+  return flagOr(argv, name, undefined, throwUsage);
 }
 
 function main() {

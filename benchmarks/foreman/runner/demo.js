@@ -16,6 +16,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { flagOr, throwUsage } = require('../../flags.js');
 
 const W = 700, PAD = 28;
 const COL = W - 2 * PAD;
@@ -186,7 +187,7 @@ function demoSvg(exchange, turns) {
 
 function main() {
   const argv = process.argv.slice(2);
-  const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
+  const flag = (n, d) => flagOr(argv, n, d, throwUsage);
   const { pluginDir, dataDir } = require('../../paths.js');
   const exchangePath = path.resolve(flag('exchange', path.join(dataDir('foreman'), 'records', 'demo-2026-09-04', 'exchange.json')));
   const out = path.resolve(flag('out', path.join(pluginDir('foreman'), 'assets', 'demo.svg')));

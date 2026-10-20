@@ -15,6 +15,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { readRecords } = require('./records.js');
+const { flagOr, throwUsage } = require('../../flags.js');
 
 const W = 700, PAD = 28, GAP = 22;
 const COL = Math.floor((W - 2 * PAD - GAP) / 2);
@@ -134,7 +135,7 @@ function medianRun(runs) {
 
 function main() {
   const argv = process.argv.slice(2);
-  const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
+  const flag = (n, d) => flagOr(argv, n, d, throwUsage);
   const { pluginDir, dataDir } = require('../../paths.js');
   const dir = path.resolve(flag('records', path.join(dataDir('hush'), 'records')));
   const taskId = flag('task', 'failing-suite');

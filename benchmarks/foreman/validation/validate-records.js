@@ -24,6 +24,7 @@ const path = require("path");
 const crypto = require("crypto");
 
 const { pluginDir, dataDir } = require('../../paths.js');
+const { flagOr, throwUsage } = require('../../flags.js');
 const RECORDS_DIR = path.join(dataDir('foreman'), 'records');
 // Fixture and prompt paths are repo-relative, so they read the same in a
 // record as in the README sentence the record supports.
@@ -263,8 +264,7 @@ function validateRecords(dir = RECORDS_DIR) {
 }
 
 function flag(argv, name) {
-  const index = argv.indexOf(`--${name}`);
-  return index >= 0 ? argv[index + 1] : undefined;
+  return flagOr(argv, name, undefined, throwUsage);
 }
 
 function main() {

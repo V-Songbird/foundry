@@ -17,6 +17,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { RAZOR_TASKS } = require('./tasks.js');
+const { flagOr, throwUsage } = require('../../flags.js');
 
 const W = 700, PAD = 28, GAP = 22;
 const COL = Math.floor((W - 2 * PAD - GAP) / 2);
@@ -174,7 +175,7 @@ function newestRunWith(taskId) {
 
 function main() {
   const argv = process.argv.slice(2);
-  const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
+  const flag = (n, d) => flagOr(argv, n, d, throwUsage);
   const taskId = flag('task', 'dep-querystring');
   const task = RAZOR_TASKS[taskId];
   if (!task) throw new Error(`no task ${taskId} in tasks.js`);

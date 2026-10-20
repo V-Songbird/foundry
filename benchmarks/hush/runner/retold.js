@@ -27,6 +27,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { flagOr } = require('../../flags.js');
 
 const {
   QUESTIONS, ABSENT, judgePrompt, parseAnswers, scoreAnswers, answerableReport, runJudge,
@@ -81,10 +82,7 @@ function readRecordsDir(dir) {
     .filter((r) => r && !r.error && r.finalText);
 }
 
-const flag = (name, fallback = null) => {
-  const i = process.argv.indexOf(`--${name}`);
-  return i === -1 ? fallback : process.argv[i + 1];
-};
+const flag = (name, fallback = null) => flagOr(process.argv, name, fallback);
 
 async function main() {
   const dir = flag('records');

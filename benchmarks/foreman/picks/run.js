@@ -27,7 +27,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { parseTranscript } = require('../runner/metrics.js');
 const { pluginDir, dataDir } = require('../../paths.js');
-const { wholeNumber } = require('../../flags.js');
+const { wholeNumber, flagValue } = require('../../flags.js');
 
 const ROOT = path.join(__dirname);                       // picks/
 // The foreman arm shells out to the plugin's own roadmap.js — the plugin
@@ -39,7 +39,13 @@ const FOREMAN_ROOT = process.env.FOREMAN_DIR
 const ROADMAP_JS = path.join(FOREMAN_ROOT, 'scripts', 'roadmap.js');
 
 const argv = process.argv.slice(2);
+// A text flag with a missing value, or another flag as its value, is a usage refusal.
 function flag(name, dflt) {
+  const i = argv.indexOf(`--${name}`);
+  return i >= 0 ? flagValue(argv, name, i) : dflt;
+}
+// A count flag is read as typed: wholeNumber refuses a missing value in its own words.
+function rawFlag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
   return i >= 0 ? argv[i + 1] : dflt;
 }
@@ -47,8 +53,8 @@ const tag = flag('tag', 'dev');
 const model = flag('model', 'sonnet');
 // A count must be a whole number of at least 1; anything else (abc, 0, 1.5, a
 // missing value) is a usage refusal, not a NaN plan.
-const reps = wholeNumber('reps', flag('reps', 5));
-const sizes = (flag('sizes', '10,50,150') ?? '').split(',').map((s) => wholeNumber('sizes', s));
+const reps = wholeNumber('reps', rawFlag('reps', 5));
+const sizes = (rawFlag('sizes', '10,50,150') ?? '').split(',').map((s) => wholeNumber('sizes', s));
 const arms = flag('arms', 'markdown,foreman').split(',');
 const dryRun = argv.includes('--dry-run');
 

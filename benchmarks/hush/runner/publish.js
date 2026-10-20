@@ -12,6 +12,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { readRecords } = require('./records.js');
+const { flagOr, throwUsage } = require('../../flags.js');
 const { segmentReport, armNames, summarize, METRICS, quantile } = require('./stats.js');
 const { barChartSvg, waveformSvg, armColors } = require('./chart.js');
 
@@ -218,7 +219,7 @@ function buildClaims(allRuns, batches = []) {
 
 function main() {
   const argv = process.argv.slice(2);
-  const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
+  const flag = (n, d) => flagOr(argv, n, d, throwUsage);
   const recordsDir = path.resolve(flag('records', path.join(require('../../paths.js').dataDir('hush'), 'records')));
   const outDir = path.resolve(flag('out', path.join(recordsDir, 'published')));
 

@@ -37,7 +37,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
-const { wholeNumber } = require('../../flags.js');
+const { wholeNumber, flagOr } = require('../../flags.js');
 const { runSession, prepareSdk, sdkVersion } = require('../../sdk-session.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
@@ -124,10 +124,8 @@ const NO_RUN = 'Write the implementation (include tests if you normally would fo
 // --- CLI args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
 function has(name) { return argv.includes(`--${name}`); }
-function flag(name, dflt) {
-  const i = argv.indexOf(`--${name}`);
-  return i >= 0 && i + 1 < argv.length ? argv[i + 1] : dflt;
-}
+// A value flag with a missing value, or another flag as its value, is a usage refusal (exit 2).
+function flag(name, dflt) { return flagOr(argv, name, dflt); }
 
 // Every flag this runner reads. `has`/`flag` ignore anything else, and a
 // silently-ignored typo starts a real billed run instead of erroring out.
@@ -662,7 +660,9 @@ function stampNow() {
 }
 
 async function main() {
-  const maxCost = parseMaxCost(flag('max-cost', null));
+  // Read as typed, not through flag(): its refusals exit 1 below, as parseMaxCost's do.
+  const costAt = argv.indexOf('--max-cost');
+  const maxCost = parseMaxCost(costAt >= 0 && costAt + 1 < argv.length ? argv[costAt + 1] : null);
   if (Number.isNaN(maxCost) || (has('max-cost') && maxCost === null)) { console.error('--max-cost wants a positive number of US dollars'); process.exit(1); }
   const bad = unknownFlags(argv);
   if (bad.length) {

@@ -20,7 +20,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { wholeNumber } = require('../../flags.js');
+const { wholeNumber, flagOr } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -28,10 +28,7 @@ const API = process.env.TYPESAFE_API_URL || 'https://api.typesafe.ai/v1/systemon
 const KEY = process.env.TYPESAFE_API_KEY;
 
 const argv = process.argv.slice(2);
-const flag = (name, dflt = null) => {
-  const i = argv.indexOf(`--${name}`);
-  return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : dflt;
-};
+const flag = (name, dflt = null) => flagOr(argv, name, dflt);
 const has = (name) => argv.includes(`--${name}`);
 
 const tag = flag('tag');

@@ -51,6 +51,23 @@ function flagValue(argv, name, i) {
 }
 
 /**
+ * The value of the flag `name` in argv: `dflt` when the flag is absent, otherwise its
+ * value, or `fail(usage line)` when the value is missing or is another flag. `fail`
+ * defaults to the exit-2 refusal; a reader whose failures exit 1 passes throwUsage.
+ */
+function flagOr(argv, name, dflt, fail = refuse) {
+  const i = argv.indexOf(dashed(name));
+  if (i < 0) return dflt;
+  const bad = valueUsage(name, argv[i + 1]);
+  return bad ? fail(bad) : argv[i + 1];
+}
+
+/** A `fail` for flagOr that throws, for a script that reports a usage error through its own catch or an uncaught exit 1. */
+function throwUsage(message) {
+  throw new Error(message);
+}
+
+/**
  * The usage line for the USD cap after `name` in argv, or null when the flag is
  * absent or its value is a finite number above 0. A missing value, another flag,
  * abc, 0, a negative and Infinity are refused: batch-judge.js's cap test passes
@@ -84,4 +101,4 @@ function usdCap(argv, name = '--max-usd') {
   return i < 0 ? null : Number(argv[i + 1]);
 }
 
-module.exports = { refuse, flagValue, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };
+module.exports = { refuse, flagValue, flagOr, throwUsage, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };
