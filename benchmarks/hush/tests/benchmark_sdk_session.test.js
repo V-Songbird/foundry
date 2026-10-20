@@ -59,7 +59,7 @@ function runHush(name, key, args, missing = false) {
   const data = path.join(dir, 'data');
   // The temp variables put the cell's workspace under this fixture, removed after the suite.
   const env = { ...process.env, BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config, TEMP: dir, TMP: dir, TMPDIR: dir };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
+  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;

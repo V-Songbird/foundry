@@ -18,7 +18,7 @@ after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
 function run(script, ...args) {
   const env = { ...process.env, BENCH_DATA_DIR: DATA };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
+  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
   return spawnSync(process.execPath, [path.join(BENCH, script), ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });
 }
@@ -50,6 +50,15 @@ describe('exit 2 readers', () => {
       assert.match(r.stderr, new RegExp(`usage: ${name} needs a value, got --go`));
     });
   }
+});
+
+describe('an empty --tag', () => {
+  // An empty tag would put the run's directory at the results root itself.
+  test('hush/runner/run.js refuses --tag "", exit 2', () => {
+    const r = run('hush/runner/run.js', '--dry-run', '--tag', '');
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /usage: --tag needs a value, got nothing/);
+  });
 });
 
 describe('readiness-gate.js', () => {

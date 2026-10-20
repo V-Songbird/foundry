@@ -135,6 +135,14 @@ test('a throw before hc.main, such as a malformed results.jsonl while --go count
   assert.doesNotMatch(r.stderr, /\n\s+at /);
 });
 
+test('a --reps that is not a whole number is refused with exit 2 before any bound is counted', () => {
+  const r = require('node:child_process').spawnSync(process.execPath,
+    [path.join(ROOT, 'runner', 'hillclimb.js'), '--variant', 'v7', '--flow', FLOW, '--', '--reps', 'abc'],
+    { encoding: 'utf8', env: { ...process.env, BENCH_DATA_DIR: DATA } });
+  assert.strictEqual(r.status, 2, r.stderr);
+  assert.match(r.stderr, /usage: --reps needs a whole number of at least 1, got abc/);
+});
+
 test('a keyword task that reads files is not regraded without its workspace', () => {
   const run = path.join(out, 'runs', `${addRun('release-digest', 'hush', 1, { check: { pass: true, score: 1 }, finalText: 'See digest.md.' }, '')}.json`);
   assert.throws(() => suite.gradeStored({ task: 'release-digest', run, workDir: path.join(FLOW, 'gone') }), /is gone/);

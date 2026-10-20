@@ -36,7 +36,7 @@ const { workspaceName } = require('./provenance.js');
 const fidelity = require('./fidelity.js');
 const { MAX_TOKENS } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
-const { usdCapUsage, valueUsage } = require('../../flags.js');
+const { usdCapUsage, valueUsage, wholeNumberUsage } =require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));
@@ -226,7 +226,7 @@ async function cli(argv = process.argv.slice(2)) {
   const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
   // The cap rule is flags.js's, shared with the judge scripts; it refuses Infinity too.
   // The two run.js flags the bound reads, checked before anything is counted; run.js refuses the rest.
-  const extraUsage = ['tasks', 'reps'].map((n) => { const i = extra.indexOf(`--${n}`); return i < 0 ? null : valueUsage(n, extra[i + 1]); }).find(Boolean);
+  const extraUsage = ['tasks', 'reps'].map((n) => { const i = extra.indexOf(`--${n}`); return i < 0 ? null : valueUsage(n, extra[i + 1]) || (n === 'reps' ? wholeNumberUsage(n, extra[i + 1]) : null); }).find(Boolean);
   // --flow and --variant name the results file the bound counts, so under --go they are checked before the path is built; hc.main refuses the rest.
   const flowUsage = ['--flow', '--variant', '--from', '--arm'].map((n) => { const i = kept.lastIndexOf(n); return i < 0 ? null : valueUsage(n, kept[i + 1], false); }).find(Boolean);
   let problem = usdCapUsage(own)

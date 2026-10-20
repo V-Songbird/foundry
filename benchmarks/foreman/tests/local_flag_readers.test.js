@@ -18,7 +18,7 @@ after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
 function run(script, ...args) {
   const env = { ...process.env, BENCH_DATA_DIR: DATA };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
+  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
   return spawnSync(process.execPath, [path.join(BENCH, script), ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });
 }
@@ -59,6 +59,17 @@ describe('API flows', () => {
         assert.match(r.stdout + r.stderr, pattern);
       });
     }
+  }
+});
+
+describe('an empty --tag', () => {
+  // An empty tag would put a run's directory at the results root itself.
+  for (const script of ['foreman/runner/run.js', 'foreman/picks/run.js', 'foreman/pickflow/run.js', 'foreman/closeflow/run.js', 'foreman/discoveryflow/run.js']) {
+    test(`${script} refuses --tag "", exit 2`, () => {
+      const r = run(script, '--dry-run', '--tag', '');
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.match(r.stdout + r.stderr, /usage: --tag needs a value, got nothing/);
+    });
   }
 });
 

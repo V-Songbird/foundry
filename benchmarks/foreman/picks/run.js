@@ -46,7 +46,7 @@ function rawFlag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
   return i >= 0 ? argv[i + 1] : dflt;
 }
-const tag = flag('tag', 'dev');
+const tag = flagOr(argv, 'tag', 'dev', undefined, false);   // an empty tag would put the results at the root
 const model = flag('model', 'sonnet');
 // A count must be a whole number of at least 1; anything else (abc, 0, 1.5, a
 // missing value) is a usage refusal, not a NaN plan.

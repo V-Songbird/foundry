@@ -40,12 +40,12 @@ const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'))
 // --- CLI args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
 // A value flag is refused with a usage line naming it when its value is missing or is
-// itself another flag. An empty value ("") is allowed.
-function flag(name, dflt) {
+// itself another flag. An empty value ("") is allowed, except for --tag, which names a directory.
+function flag(name, dflt, allowEmpty = true) {
   const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? flagValue(argv, name, i) : dflt;
+  return i >= 0 ? flagValue(argv, name, i, allowEmpty) : dflt;
 }
-const tag = flag('tag', 'dev');
+const tag = flag('tag', 'dev', false);
 const model = flag('model', CONFIG.model);
 // A count flag must be a whole number of at least 1; anything else (abc, 0, 1.5)
 // is a usage refusal, not a NaN plan.

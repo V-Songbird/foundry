@@ -25,8 +25,9 @@ const CHARS_PER_TOKEN = 3; // over-counts, so worst cases err high
 // A reader for a flow's value flags that never exits: a flag with no value, or another
 // flag as its value, reads as its default and leaves the first usage line in `o.usage`,
 // which the flow's main prints before it plans or sends anything.
+// Pass allowEmpty false to refuse an empty value too.
 function flagReader(argv, o) {
-  return (n, d) => flagOr(argv, n, d, (message) => { o.usage ??= message; return d; });
+  return (n, d, allowEmpty = true) => flagOr(argv, n, d, (message) => { o.usage ??= message; return d; }, allowEmpty);
 }
 
 // The flags every live flow reads, with its own defaults.
@@ -37,7 +38,7 @@ function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
   const typed = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   const raw = { reps: typed('reps', reps), 'max-rounds': typed('max-rounds', maxRounds), 'max-tokens': typed('max-tokens', maxTokens), 'max-usd': typed('max-usd') };
   return Object.assign(o, {
-    tag: v('tag', 'dev'),
+    tag: v('tag', 'dev', false),
     model: modelId(v('model', 'opus')),
     api: v('api', 'batches'),
     reps: Number(raw.reps),

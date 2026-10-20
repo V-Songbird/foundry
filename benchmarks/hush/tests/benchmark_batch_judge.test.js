@@ -168,7 +168,7 @@ describe('answerable on Batches', () => {
         return { ok: true, status: 200, text: async () => body };
       };`);
     const full = { ...process.env, BENCH_DATA_DIR: tmp, ...env };
-    for (const k of ['NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', ...(env.ANTHROPIC_API_KEY ? [] : ['ANTHROPIC_API_KEY'])]) delete full[k];
+    for (const k of ['NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'TYPESAFE_API_KEY', ...(env.ANTHROPIC_API_KEY ? [] : ['ANTHROPIC_API_KEY'])]) delete full[k];
     const r = spawnSync(process.execPath, ['--require', preload, path.join(BENCH, 'runner', 'answerable.js'), '--records', records, ...args],
       { cwd: BENCH, encoding: 'utf8', env: full, timeout: 60000 });
     const published = path.join(records, 'published', 'answerable.md');

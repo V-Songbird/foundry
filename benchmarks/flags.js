@@ -53,9 +53,9 @@ function valueAt(argv, name, i, fail, allowEmpty = true) {
   return bad ? fail(bad) : argv[i + 1];
 }
 
-/** The value after the flag at argv[i], otherwise a refusal naming the flag. */
-function flagValue(argv, name, i) {
-  return valueAt(argv, name, i, refuse);
+/** The value after the flag at argv[i], otherwise a refusal naming the flag; an empty value too when `allowEmpty` is false. */
+function flagValue(argv, name, i, allowEmpty = true) {
+  return valueAt(argv, name, i, refuse, allowEmpty);
 }
 
 /**
