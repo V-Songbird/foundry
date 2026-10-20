@@ -679,11 +679,12 @@ async function main() {
 
   // Repeatable --arm-dir <name>=<path>: an ablation needs several cut-down
   // builds in ONE batch, and --rival-dir only ever names a single extra arm.
-  for (let i = 0; i < argv.length - 1; i++) {
+  for (let i = 0; i < argv.length; i++) {
     if (argv[i] !== '--arm-dir') continue;
-    const eq = argv[i + 1].indexOf('=');
-    if (eq < 1) { console.error(`--arm-dir wants <name>=<path>, got ${argv[i + 1]}`); process.exit(1); }
-    ARM_DIRS[argv[i + 1].slice(0, eq)] = path.resolve(argv[i + 1].slice(eq + 1));
+    const spec = argv[i + 1] ?? '';
+    const eq = spec.indexOf('=');
+    if (eq < 1) { console.error(`--arm-dir wants <name>=<path>, got ${spec || 'nothing'}`); process.exit(1); }
+    ARM_DIRS[spec.slice(0, eq)] = path.resolve(spec.slice(eq + 1));
   }
 
   if (has('selftest')) process.exit((await selftest()) ? 1 : 0);

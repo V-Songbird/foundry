@@ -31,6 +31,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
+const { flagOr, throwUsage } = require('../../flags.js');
 // The same hush checkout metrics.js reads.
 const STYLE = path.join(require('../../paths.js').pluginDir('hush'), 'output-styles', 'hush.md');
 
@@ -233,7 +234,7 @@ function readRecordsDir(dir) {
 
 function main() {
   const argv = process.argv.slice(2);
-  const at = (flag) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : null);
+  const at = (flag) => flagOr(argv, flag, null, throwUsage);
   const tag = at('--tag');
   const recordsArg = at('--records');
   const dir = recordsArg

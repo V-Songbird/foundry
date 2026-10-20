@@ -56,7 +56,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const { judgeOnce, readRecordsDir, keysHash } = require('./retention.js');
-const { wholeNumber } = require('../../flags.js');
+const { wholeNumberFlag, flagOr, throwUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -153,10 +153,10 @@ function truthReport(scored) {
 
 async function main() {
   const argv = process.argv.slice(2);
-  const at = (flag, dflt) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : dflt);
+  const at = (flag, dflt) => flagOr(argv, flag, dflt, throwUsage);
   const recordsArg = at('--records', null);
   const model = at('--judge-model', 'sonnet');
-  const concurrency = wholeNumber('concurrency', at('--concurrency', 4));
+  const concurrency = wholeNumberFlag(argv, 'concurrency', 4);
   if (!recordsArg) {
     console.error('Usage: truth.js --records <dir> [--judge-model sonnet] [--concurrency 4]');
     process.exit(1);

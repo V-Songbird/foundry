@@ -27,6 +27,13 @@ describe('exit 2 readers', () => {
   const cases = [
     ['hush/runner/judge.js', '--rubric'],
     ['hush/runner/retold.js', '--records'],
+    // Repeatable and positional readers: a trailing flag was skipped, or the next flag was taken as its value.
+    ['hush/runner/criteria.js', '--tag'],
+    ['hush/runner/duel.js', '--tag'],
+    ['hush/runner/pool.js', '--tag'],
+    ['hush/runner/shape.js', '--tag'],
+    ['hush/runner/conformance.js', '--json'],
+    ['hush/runner/judge-parity.js', '--records'],
   ];
   for (const [script, ...args] of cases) {
     const name = args[args.length - 1];
@@ -53,10 +60,31 @@ describe('retold --save', () => {
   });
 });
 
+describe('hillclimb.js flags after --', () => {
+  // The judge bound reads --tasks and --reps from the run.js flags, so a missing value refuses before it counts.
+  for (const [extra, pattern] of [[['--reps'], /usage: --reps needs a value but none was given/], [['--tasks', '--reps', '2'], /usage: --tasks needs a value, got --reps/]]) {
+    test(`hush/runner/hillclimb.js refuses ${extra.join(' ')} after --, exit 2`, () => {
+      const r = run('hush/runner/hillclimb.js', '--variant', 'v1', '--flow', path.join(DATA, 'flow'), '--go', '--max-usd', '1', '--', ...extra);
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.match(r.stderr, pattern);
+    });
+  }
+});
+
 describe('exit 1 readers', () => {
   const cases = [
     ['hush/runner/demo.js', '--out'],
     ['hush/runner/publish.js', '--out'],
+    // These read argv[argv.indexOf(flag) + 1] or took the next argument unchecked; each keeps its Usage exit 1.
+    ['hush/runner/report.js', '--tag'],
+    ['hush/runner/answerable.js', '--tag'],
+    ['hush/runner/caps.js', '--records'],
+    ['hush/runner/readability.js', '--records'],
+    ['hush/runner/structure.js', '--records'],
+    ['hush/runner/retention.js', '--records'],
+    ['hush/runner/truth.js', '--records'],
+    ['hush/runner/mutate.js', '--records'],
+    ['hush/runner/mutate.js', '--copy-to'],
   ];
   for (const [script, name] of cases) {
     test(`${script} refuses ${name} with no value, exit 1`, () => {

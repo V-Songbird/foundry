@@ -19,12 +19,12 @@ const api = require('../pickflow/api.js');
 const FLOW = { SYSTEM: sim.SYSTEM, TOOLS: sim.TOOLS, handle: sim.handle };
 
 function parseArgs(argv) {
-  const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
-  return {
-    ...api.apiArgs(argv, { reps: 1, maxRounds: 12 }),
+  const o = api.apiArgs(argv, { reps: 1, maxRounds: 12 });
+  const v = api.flagReader(argv, o);
+  return Object.assign(o, {
     arms: v('arms', 'old,new').split(','),
     scenarios: v('scenarios', null)?.split(',') ?? null,
-  };
+  });
 }
 
 function pickScenarios(o) {

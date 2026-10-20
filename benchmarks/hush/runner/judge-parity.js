@@ -24,7 +24,7 @@ const path = require('node:path');
 const answerable = require('./answerable.js');
 const retention = require('./retention.js');
 const { runBatch } = require('../../batch-judge.js');
-const { wholeNumber, usdCap } = require('../../flags.js');
+const { wholeNumberFlag, usdCap, flagOr } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -86,12 +86,12 @@ const n1 = (x) => (x == null ? '-' : x.toFixed(1));
 
 async function main() {
   const argv = process.argv.slice(2);
-  const at = (flag, dflt) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : dflt);
+  const at = (flag, dflt) => flagOr(argv, flag, dflt);
   const recordsArg = at('--records', null);
   const ansArg = at('--answerable', null);
   const model = at('--model', 'sonnet');
   const cliModel = at('--cli-model', 'sonnet');
-  const reps = wholeNumber('reps', at('--reps', 2));
+  const reps = wholeNumberFlag(argv, 'reps', 2);
   const maxUsd = usdCap(argv);
   const go = argv.includes('--go');
   if (!recordsArg || !ansArg || !(reps >= 2)) {

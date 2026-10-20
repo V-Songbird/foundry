@@ -18,6 +18,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const { flagAll } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -25,7 +26,7 @@ const API = process.env.TYPESAFE_API_URL || 'https://api.typesafe.ai/v1/systemon
 const KEY = process.env.TYPESAFE_API_KEY;
 
 const argv = process.argv.slice(2);
-const many = (n) => argv.reduce((a, x, i) => (x === `--${n}` && argv[i + 1] ? [...a, argv[i + 1]] : a), []);
+const many = (n) => flagAll(argv, n);
 const one = (n, d = null) => (many(n)[0] ?? d);
 
 const tags = many('tag');

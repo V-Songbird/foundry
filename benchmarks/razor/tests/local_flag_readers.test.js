@@ -66,6 +66,17 @@ describe('run.js --seed', () => {
   });
 });
 
+describe('run.js --arm-dir', () => {
+  // A trailing --arm-dir was skipped by a loop that stopped one short; a flag after it was refused only by chance.
+  for (const args of [['--arm-dir'], ['--arm-dir', '--full']]) {
+    test(`razor/runner/run.js refuses ${args.join(' ')} before making a run folder, exit 1`, () => {
+      const r = run('razor/runner/run.js', '--smoke', ...args);
+      assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+      assert.match(r.stderr, /--arm-dir wants <name>=<path>, got (nothing|--full)/);
+    });
+  }
+});
+
 describe('exit 1 readers', () => {
   const cases = [
     ['razor/runner/demo.js', '--task'],

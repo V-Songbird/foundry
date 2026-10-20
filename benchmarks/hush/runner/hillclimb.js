@@ -36,7 +36,7 @@ const { workspaceName } = require('./provenance.js');
 const fidelity = require('./fidelity.js');
 const { MAX_TOKENS } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
-const { usdCapUsage } = require('../../flags.js');
+const { usdCapUsage, valueUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));
@@ -225,7 +225,10 @@ async function cli(argv = process.argv.slice(2)) {
   const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
   const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
   // The cap rule is flags.js's, shared with the judge scripts; it refuses Infinity too.
+  // The two run.js flags the bound reads, checked before anything is counted; run.js refuses the rest.
+  const extraUsage = ['tasks', 'reps'].map((n) => { const i = extra.indexOf(`--${n}`); return i < 0 ? null : valueUsage(n, extra[i + 1]); }).find(Boolean);
   let problem = usdCapUsage(own)
+    || extraUsage
     || (go && at < 0 && '--go needs --max-usd <usd>')
     || (go && kept.includes('--smoke') && '--go has no use with --smoke, which never asks the judge')
     || (go && !process.env.ANTHROPIC_API_KEY && '--go needs ANTHROPIC_API_KEY; run with node --env-file=<key file>');

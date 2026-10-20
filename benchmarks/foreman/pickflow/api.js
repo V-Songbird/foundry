@@ -13,7 +13,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { modelId, PRICES } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
-const { wholeNumberUsage, usdCapValueUsage } = require('../../flags.js');
+const { flagOr, wholeNumberUsage, usdCapValueUsage } = require('../../flags.js');
 
 const API = 'https://api.anthropic.com/v1';
 const HEADERS = { 'content-type': 'application/json', 'anthropic-version': '2023-06-01' };
@@ -22,12 +22,21 @@ const CACHE_WRITE = 1.25;
 const CACHE_READ = 0.1;
 const CHARS_PER_TOKEN = 3; // over-counts, so worst cases err high
 
+// A reader for a flow's value flags that never exits: a flag with no value, or another
+// flag as its value, reads as its default and leaves the first usage line in `o.usage`,
+// which the flow's main prints before it plans or sends anything.
+function flagReader(argv, o) {
+  return (n, d) => flagOr(argv, n, d, (message) => { o.usage ??= message; return d; });
+}
+
 // The flags every live flow reads, with its own defaults.
 function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
-  const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
-  // `raw` keeps the count flags as given, so countUsage prints what the user typed.
-  const raw = { reps: v('reps', reps), 'max-rounds': v('max-rounds', maxRounds), 'max-tokens': v('max-tokens', maxTokens), 'max-usd': v('max-usd') };
-  return {
+  const o = { usage: null };
+  const v = flagReader(argv, o);
+  // The count flags and the cap are read as typed, so countUsage and capUsage print what the user typed.
+  const typed = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
+  const raw = { reps: typed('reps', reps), 'max-rounds': typed('max-rounds', maxRounds), 'max-tokens': typed('max-tokens', maxTokens), 'max-usd': typed('max-usd') };
+  return Object.assign(o, {
     tag: v('tag', 'dev'),
     model: modelId(v('model', 'opus')),
     api: v('api', 'batches'),
@@ -35,16 +44,17 @@ function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
     maxRounds: Number(raw['max-rounds']),
     maxTokens: Number(raw['max-tokens']),
     raw,
-    maxUsd: v('max-usd', null) === null ? null : Number(v('max-usd')),
+    maxUsd: typed('max-usd', null) === null ? null : Number(raw['max-usd']),
     go: argv.includes('--go'),
     smoke: argv.includes('--smoke'),
-  };
+  });
 }
 
-// A usage line for a count flag that is not a whole number of at least 1, or null,
-// by the rule the judge scripts share (flags.js), with the value as typed.
-// A NaN --max-tokens would turn the round guard off; Infinity would never end a loop.
+// A usage line for a text flag with no value, or for a count flag that is not a whole number
+// of at least 1, or null, by the rule the judge scripts share (flags.js), with the value
+// as typed. A NaN --max-tokens would turn the round guard off; Infinity would never end a loop.
 function countUsage(o) {
+  if (o.usage) return o.usage;
   for (const flag of ['reps', 'max-rounds', 'max-tokens']) {
     const bad = wholeNumberUsage(flag, o.raw[flag]);
     if (bad) return bad;
@@ -295,6 +305,6 @@ async function live({ name, title, o, makeCases, flow, grade, cleanup, outRoot =
 }
 
 module.exports = {
-  apiArgs, countUsage, capUsage, meter, request, price, costOf, worstUsd, apiKey, batchSender, messagesSender, runCases,
+  apiArgs, flagReader, countUsage, capUsage, meter, request, price, costOf, worstUsd, apiKey, batchSender, messagesSender, runCases,
   costPlan, record, report, live,
 };

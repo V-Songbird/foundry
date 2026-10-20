@@ -6,8 +6,9 @@
 // prints it and returns 2 (hillclimb's cli, the foreman API flows) or throws it
 // (batch-judge.js, sdk-session.js); wholeNumber and usdCap are the same checks
 // for a script that refuses with exit 2. flagOr reads a text flag with the same
-// missing-value check and a default; throwUsage is its `fail` for a script whose
-// failures exit 1 through a throw.
+// missing-value check and a default, and flagAll does the same for a repeatable flag;
+// throwUsage is their `fail` for a script whose failures exit 1 through a throw.
+// wholeNumberFlag reads a count flag as typed, so its refusal words a missing value.
 
 // A flag name is taken with or without its dashes ('reps' or '--reps'); messages always print it with them.
 const dashed = (name) => (name.startsWith('--') ? name : `--${name}`);
@@ -45,11 +46,15 @@ function valueUsage(name, v, allowEmpty = true) {
     : null;
 }
 
+/** The value after the flag at argv[i], or `fail(usage line)` when it is missing or is another flag. */
+function valueAt(argv, name, i, fail) {
+  const bad = valueUsage(name, argv[i + 1]);
+  return bad ? fail(bad) : argv[i + 1];
+}
+
 /** The value after the flag at argv[i], otherwise a refusal naming the flag. */
 function flagValue(argv, name, i) {
-  const bad = valueUsage(name, argv[i + 1]);
-  if (bad) refuse(bad);
-  return argv[i + 1];
+  return valueAt(argv, name, i, refuse);
 }
 
 /**
@@ -59,9 +64,19 @@ function flagValue(argv, name, i) {
  */
 function flagOr(argv, name, dflt, fail = refuse) {
   const i = argv.indexOf(dashed(name));
-  if (i < 0) return dflt;
-  const bad = valueUsage(name, argv[i + 1]);
-  return bad ? fail(bad) : argv[i + 1];
+  return i < 0 ? dflt : valueAt(argv, name, i, fail);
+}
+
+/** Every value of a repeatable flag, each checked as flagOr checks one; [] when the flag is absent. */
+function flagAll(argv, name, fail = refuse) {
+  const flag = dashed(name);
+  return argv.flatMap((a, i) => (a === flag ? [valueAt(argv, name, i, fail)] : []));
+}
+
+/** A count flag in argv: `dflt` when absent, otherwise a whole number of at least 1 or a refusal. It reads the value as typed, so wholeNumber words a missing one. */
+function wholeNumberFlag(argv, name, dflt) {
+  const i = argv.indexOf(dashed(name));
+  return wholeNumber(name, i < 0 ? dflt : argv[i + 1]);
 }
 
 /** A `fail` for flagOr that throws, for a script that reports a usage error through its own catch or an uncaught exit 1. */
@@ -103,4 +118,4 @@ function usdCap(argv, name = '--max-usd') {
   return i < 0 ? null : Number(argv[i + 1]);
 }
 
-module.exports = { refuse, flagValue, flagOr, throwUsage, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };
+module.exports = { refuse, flagValue, flagOr, flagAll, wholeNumberFlag, throwUsage, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };

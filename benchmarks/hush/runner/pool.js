@@ -17,11 +17,12 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const { flagAll } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
 const argv = process.argv.slice(2);
-const tags = argv.reduce((a, x, i) => (x === '--tag' && argv[i + 1] ? [...a, argv[i + 1]] : a), []);
+const tags = flagAll(argv, 'tag');
 if (!tags.length) { console.error('usage: node runner/pool.js --tag NAME [--tag NAME2 ...]'); process.exit(2); }
 
 const rubric = JSON.parse(fs.readFileSync(path.join(ROOT, 'rubric.json'), 'utf8'));

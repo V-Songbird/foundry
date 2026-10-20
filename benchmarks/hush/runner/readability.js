@@ -35,6 +35,7 @@ const { unitsOf, countWords } = require('./caps.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
+const { flagOr, throwUsage } = require('../../flags.js');
 const FENCE = /```[\s\S]*?(?:```|$)/g;
 
 // --- syllables ---------------------------------------------------------------
@@ -173,7 +174,7 @@ const n1 = (x) => (x == null ? '-' : x.toFixed(1));
 
 function main() {
   const argv = process.argv.slice(2);
-  const at = (flag) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : null);
+  const at = (flag) => flagOr(argv, flag, null, throwUsage);
   const tag = at('--tag');
   const recordsArg = at('--records');
   const bySegment = argv.includes('--by-segment');

@@ -40,6 +40,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { readCaps, analyzeMessage, unitsOf, countWords } = require('./caps.js');
+const { flagValue } = require('../../flags.js');
 
 const SETTINGS_LEAD = 'hush settings, chosen by the user';
 const WORK_TOOLS = new Set(['Edit', 'Write', 'NotebookEdit', 'Bash', 'PowerShell']);
@@ -538,7 +539,7 @@ function main() {
   const flags = {};
   const targets = [];
   for (let i = 0; i < argv.length; i++) {
-    if (['--hush', '--settings', '--json', '--examples', '--skip'].includes(argv[i])) flags[argv[i].slice(2)] = argv[++i];
+    if (['--hush', '--settings', '--json', '--examples', '--skip'].includes(argv[i])) { flags[argv[i].slice(2)] = flagValue(argv, argv[i], i); i++; }
     else if (argv[i].startsWith('--')) { console.error(`unknown flag ${argv[i]}`); process.exit(2); }
     else targets.push(argv[i]);
   }

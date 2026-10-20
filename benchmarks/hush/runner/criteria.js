@@ -28,6 +28,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const checks = require('./criteria-checks.js');
+const { flagAll } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -35,7 +36,7 @@ const API = process.env.TYPESAFE_API_URL || 'https://api.typesafe.ai/v1/systemon
 const KEY = process.env.TYPESAFE_API_KEY;
 
 const argv = process.argv.slice(2);
-const many = (n) => argv.reduce((a, x, i) => (x === `--${n}` && argv[i + 1] ? [...a, argv[i + 1]] : a), []);
+const many = (n) => flagAll(argv, n);
 const has = (n) => argv.includes(`--${n}`);
 const one = (n, d = null) => many(n)[0] ?? d;
 
@@ -668,6 +669,8 @@ function goalReport(allRuns, armName, controlName) {
 }
 
 async function main() {
+  // Every value flag is read before the first judge call, so a missing value refuses while nothing is billed.
+  for (const n of ['task', 'arm', 'concurrency', 'anchors-dir', 'show-picks', 'goal', 'control']) many(n);
   const tags = many('tag');
   if (!has('anchors') && !tags.length) { console.error('usage: node runner/criteria.js --tag NAME [--tag NAME2] [--report] [--by-task] [--arm NAME] [--show-picks ARM@model] | --anchors'); process.exit(2); }
   if (!has('report') && !KEY) { console.error('TYPESAFE_API_KEY is not set in this process env.'); process.exit(2); }

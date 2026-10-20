@@ -45,6 +45,7 @@ const checks = require('./criteria-checks.js');
 const caps = require('./caps.js');
 const readability = require('./readability.js');
 const structure = require('./structure.js');
+const { flagAll, flagOr, throwUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const TASKS = [
@@ -322,8 +323,8 @@ const pct = (x) => (x == null ? '-' : `${(100 * x).toFixed(1)}%`);
 
 function main() {
   const argv = process.argv.slice(2);
-  const dirs = argv.flatMap((a, i) => (a === '--records' && argv[i + 1] ? [path.resolve(ROOT, argv[i + 1])] : []));
-  const copyArg = argv.includes('--copy-to') ? argv[argv.indexOf('--copy-to') + 1] : null;
+  const dirs = flagAll(argv, 'records', throwUsage).map((d) => path.resolve(ROOT, d));
+  const copyArg = flagOr(argv, 'copy-to', null, throwUsage);
   if (!dirs.length) {
     console.error('Usage: mutate.js --records <dir> [--records <dir>] [--by-task] [--copy-to <empty dir>]');
     process.exit(1);

@@ -42,11 +42,33 @@ describe('exit 2 readers', () => {
   }
 });
 
+describe('API flows', () => {
+  // Each prints the usage line and returns 2 before any plan or send; no key is loaded.
+  const flows = ['foreman/pickflow/run.js', 'foreman/closeflow/run.js', 'foreman/discoveryflow/run.js'];
+  const cases = [
+    [['--tag'], /usage: --tag needs a value but none was given/],
+    [['--model', '--go'], /usage: --model needs a value, got --go/],
+    [['--arms', '--go'], /usage: --arms needs a value, got --go/],
+    [['--scenarios'], /usage: --scenarios needs a value but none was given/],
+  ];
+  for (const script of flows) {
+    for (const [args, pattern] of cases) {
+      test(`${script} refuses ${args.join(' ')}, exit 2`, () => {
+        const r = run(script, ...args);
+        assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+        assert.match(r.stdout + r.stderr, pattern);
+      });
+    }
+  }
+});
+
 describe('exit 1 readers', () => {
   const cases = [
     ['foreman/validation/validate-records.js', '--records'],
     ['foreman/picks/ranking-replay.js', '--roadmap'],
     ['foreman/runner/demo.js', '--out'],
+    // It read argv[argv.indexOf('--tag') + 1], so a missing --tag read the first argument.
+    ['foreman/runner/report.js', '--tag'],
   ];
   for (const [script, name] of cases) {
     test(`${script} refuses ${name} with no value, exit 1`, () => {

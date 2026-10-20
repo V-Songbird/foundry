@@ -29,12 +29,12 @@ const CHARS_PER_TOKEN = 3;
 const discount = (o) => (o.api === 'batches' ? 0.5 : 1);
 
 function parseArgs(argv) {
-  const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
-  return {
-    ...api.apiArgs(argv, { reps: 3, maxRounds: 14 }),
+  const o = api.apiArgs(argv, { reps: 3, maxRounds: 14 });
+  const v = api.flagReader(argv, o);
+  return Object.assign(o, {
     arms: v('arms', 'prose,p1').split(','),
     scenarios: v('scenarios', null)?.split(',') ?? null,
-  };
+  });
 }
 
 function makeCases(o) {

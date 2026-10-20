@@ -57,7 +57,7 @@ const { spawn } = require('node:child_process');
 // transcript store; runJudge calls it before each session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
 const { runBatch, modelId } = require('../../batch-judge.js');
-const { usdCap } = require('../../flags.js');
+const { usdCap, flagOr, throwUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -240,7 +240,7 @@ const n1 = (x) => (x == null ? '-' : x.toFixed(1));
 
 async function main() {
   const argv = process.argv.slice(2);
-  const at = (flag) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : null);
+  const at = (flag) => flagOr(argv, flag, null, throwUsage);
   const tag = at('--tag');
   const recordsArg = at('--records');
   const model = at('--model') || 'sonnet';

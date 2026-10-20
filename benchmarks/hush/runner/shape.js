@@ -12,13 +12,11 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const { flagAll } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
-const tags = process.argv.slice(2).reduce((acc, a, i, arr) => {
-  if (a === '--tag' && arr[i + 1]) acc.push(arr[i + 1]);
-  return acc;
-}, []);
+const tags = flagAll(process.argv.slice(2), 'tag');
 if (!tags.length) { console.error('usage: node runner/shape.js --tag NAME [--tag NAME2]'); process.exit(2); }
 
 const rows = [];

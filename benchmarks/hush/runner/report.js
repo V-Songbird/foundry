@@ -7,11 +7,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { segmentReport } = require('./stats.js');
 const { barChartSvg, armColors, esc } = require('./chart.js');
+const { flagOr, throwUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
 const argv = process.argv.slice(2);
-const tag = argv[argv.indexOf('--tag') + 1] || 'dev';
+const tag = flagOr(argv, 'tag', 'dev', throwUsage);
 const dir = path.join(RESULTS, tag);
 
 const runs = fs.readdirSync(path.join(dir, 'runs'))
