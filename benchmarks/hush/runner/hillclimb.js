@@ -227,7 +227,10 @@ async function cli(argv = process.argv.slice(2)) {
   // The cap rule is flags.js's, shared with the judge scripts; it refuses Infinity too.
   // The two run.js flags the bound reads, checked before anything is counted; run.js refuses the rest.
   const extraUsage = ['tasks', 'reps'].map((n) => { const i = extra.indexOf(`--${n}`); return i < 0 ? null : valueUsage(n, extra[i + 1]); }).find(Boolean);
+  // --flow and --variant name the results file the bound counts, so under --go they are checked before the path is built; hc.main refuses the rest.
+  const flowUsage = ['--flow', '--variant', '--from', '--arm'].map((n) => { const i = kept.lastIndexOf(n); return i < 0 ? null : valueUsage(n, kept[i + 1], false); }).find(Boolean);
   let problem = usdCapUsage(own)
+    || (go && flowUsage)
     || extraUsage
     || (go && at < 0 && '--go needs --max-usd <usd>')
     || (go && kept.includes('--smoke') && '--go has no use with --smoke, which never asks the judge')

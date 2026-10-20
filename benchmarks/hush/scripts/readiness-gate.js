@@ -56,6 +56,7 @@ const { analyzeMessage: readability } = require('../runner/readability.js');
 const { METRICS, quantile } = require('../runner/stats.js');
 const { pluginProvenance } = require('../runner/provenance.js');
 const { pluginDir: pluginDirOf } = require('../../paths.js');
+const { flagOr } = require('../../flags.js');
 const { execFileSync } = require('node:child_process');
 
 const HUSH = 'hush';
@@ -456,9 +457,8 @@ function render(report) {
 
 function main() {
   const argv = process.argv.slice(2);
-  const value = (flag) => { const i = argv.indexOf(flag); return i < 0 ? null : argv[i + 1]; };
-  const records = value('--records');
-  const previous = value('--previous');
+  const records = flagOr(argv, '--records', null);
+  const previous = flagOr(argv, '--previous', null);
   if (!records || !previous || argv.length !== 4) {
     console.error('Usage: node scripts/readiness-gate.js --records <batch folder> --previous <batch folder>');
     process.exit(2);

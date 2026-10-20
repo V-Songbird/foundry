@@ -7,7 +7,8 @@
 // (batch-judge.js, sdk-session.js); wholeNumber and usdCap are the same checks
 // for a script that refuses with exit 2. flagOr reads a text flag with the same
 // missing-value check and a default, and flagAll does the same for a repeatable flag;
-// throwUsage is their `fail` for a script whose failures exit 1 through a throw.
+// throwUsage is their `fail` for a script whose failures exit 1 through a throw, and
+// exitUsage for a top-level reader with no catch, which prints the line and exits 1.
 // wholeNumberFlag reads a count flag as typed, so its refusal words a missing value.
 
 // A flag name is taken with or without its dashes ('reps' or '--reps'); messages always print it with them.
@@ -84,6 +85,12 @@ function throwUsage(message) {
   throw new Error(message);
 }
 
+/** A `fail` for flagOr that prints the usage line and exits 1, for a top-level reader that has no catch around it (no uncaught-exception banner). */
+function exitUsage(message) {
+  console.error(message);
+  process.exit(1);
+}
+
 /**
  * The usage line for the USD cap after `name` in argv, or null when the flag is
  * absent or its value is a finite number above 0. A missing value, another flag,
@@ -118,4 +125,4 @@ function usdCap(argv, name = '--max-usd') {
   return i < 0 ? null : Number(argv[i + 1]);
 }
 
-module.exports = { refuse, flagValue, flagOr, flagAll, wholeNumberFlag, throwUsage, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };
+module.exports = { refuse, flagValue, flagOr, flagAll, wholeNumberFlag, throwUsage, exitUsage, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };

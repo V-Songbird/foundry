@@ -27,7 +27,7 @@ after(() => {
 
 function run(script, ...args) {
   const env = { ...process.env, BENCH_DATA_DIR: DATA };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${STUB}${path.delimiter}${env[pathKey] || ''}`;
   return spawnSync(process.execPath, [path.join(BENCH, 'runner', script), ...args],

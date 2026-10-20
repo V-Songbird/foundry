@@ -20,7 +20,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { wholeNumber, flagOr } = require('../../flags.js');
+const { wholeNumberFlag, flagOr } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -33,8 +33,8 @@ const has = (name) => argv.includes(`--${name}`);
 
 const tag = flag('tag');
 const rubricPath = path.resolve(ROOT, flag('rubric', 'rubric.json') || 'rubric.json');
-// Read raw, not through flag(), so wholeNumber keeps its own refusal wording for a missing or non-number value.
-const concurrency = wholeNumber('concurrency', argv.includes('--concurrency') ? argv[argv.indexOf('--concurrency') + 1] : 4);
+// Read as typed, so a missing or non-number value gets the whole-number refusal.
+const concurrency = wholeNumberFlag(argv, 'concurrency', 4);
 const force = has('force');
 
 if (!tag) { console.error('usage: node runner/judge.js --tag NAME'); process.exit(2); }

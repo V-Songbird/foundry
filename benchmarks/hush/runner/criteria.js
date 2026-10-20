@@ -28,7 +28,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const checks = require('./criteria-checks.js');
-const { flagAll } = require('../../flags.js');
+const { flagAll, wholeNumberFlag } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -39,6 +39,8 @@ const argv = process.argv.slice(2);
 const many = (n) => flagAll(argv, n);
 const has = (n) => argv.includes(`--${n}`);
 const one = (n, d = null) => many(n)[0] ?? d;
+// How many judge calls run at once: a whole number of at least 1, otherwise a refusal.
+const concurrency = () => wholeNumberFlag(argv, 'concurrency', 3);
 
 const RUBRIC_FILE = path.join(ROOT, 'rubric-criteria.json');
 const STUDY_FILE = path.join(ROOT, 'tasks-criteria.json');
@@ -379,7 +381,7 @@ async function rejudgeHonesty(file, textOf, eventsOf) {
   const refusal = rejudgeRefusal(j, 'honesty', onlyTasks.length > 0);
   if (refusal) throw new Error(`${file}: ${refusal}`);
   let failed = 0;
-  await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), Number(one('concurrency', 3)), async ([key, run]) => {
+  await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), concurrency(), async ([key, run]) => {
     try {
       const files = fixtureList(TASKS.find((t) => t.id === run.task));
       const req = honestyRequest(textOf(key, run), eventsOf(key, run), overlayFor(run.task), files);
@@ -409,7 +411,7 @@ async function rejudgeQuiz(file, textOf) {
   const refusal = rejudgeRefusal(j, 'quiz', onlyTasks.length > 0);
   if (refusal) throw new Error(`${file}: ${refusal}`);
   let failed = 0;
-  await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), Number(one('concurrency', 3)), async ([key, run]) => {
+  await pool(Object.entries(j.runs).filter(([, run]) => !onlyTasks.length || onlyTasks.includes(run.task)), concurrency(), async ([key, run]) => {
     try {
       const quizDef = overlayFor(run.task).quiz;
       // A task whose quiz was removed asks nothing and keeps no quiz score.
@@ -468,7 +470,7 @@ async function judgeTag(tag) {
   }
   console.log(`${tag}: ${keys.length} runs, ${todo.length} to judge`);
   let failed = 0;
-  await pool(todo, Number(one('concurrency', 3)), async ({ key, run }) => {
+  await pool(todo, concurrency(), async ({ key, run }) => {
     try {
       const events = readEvents(path.join(outDir, 'transcripts', `${key}.jsonl`));
       const j = await judgeMessage({ taskId: run.task, finalText: run.finalText, events });
@@ -512,7 +514,7 @@ async function judgeAnchors() {
   }
   console.log(`anchors: ${todo.length} to judge`);
   let failed = 0;
-  await pool(todo, Number(one('concurrency', 3)), async ({ key, taskId, arm, text, textHash }) => {
+  await pool(todo, concurrency(), async ({ key, taskId, arm, text, textHash }) => {
     try {
       const j = await judgeMessage({ taskId, finalText: text, events: null });
       prior.runs[key] = { task: taskId, arm, rep: 0, model: 'hand', costUsd: 0, textHash, ...j };
@@ -670,7 +672,8 @@ function goalReport(allRuns, armName, controlName) {
 
 async function main() {
   // Every value flag is read before the first judge call, so a missing value refuses while nothing is billed.
-  for (const n of ['task', 'arm', 'concurrency', 'anchors-dir', 'show-picks', 'goal', 'control']) many(n);
+  for (const n of ['task', 'arm', 'anchors-dir', 'show-picks', 'goal', 'control']) many(n);
+  concurrency();
   const tags = many('tag');
   if (!has('anchors') && !tags.length) { console.error('usage: node runner/criteria.js --tag NAME [--tag NAME2] [--report] [--by-task] [--arm NAME] [--show-picks ARM@model] | --anchors'); process.exit(2); }
   if (!has('report') && !KEY) { console.error('TYPESAFE_API_KEY is not set in this process env.'); process.exit(2); }

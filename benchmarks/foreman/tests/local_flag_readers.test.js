@@ -18,7 +18,7 @@ after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
 function run(script, ...args) {
   const env = { ...process.env, BENCH_DATA_DIR: DATA };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
   return spawnSync(process.execPath, [path.join(BENCH, script), ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });
 }
@@ -60,6 +60,14 @@ describe('API flows', () => {
       });
     }
   }
+});
+
+describe('report.js usage line', () => {
+  test('foreman/runner/report.js prints the usage line alone, with no uncaught-exception banner', () => {
+    const r = run('foreman/runner/report.js', '--tag');
+    assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+    assert.strictEqual(r.stderr.trim(), 'usage: --tag needs a value but none was given');
+  });
 });
 
 describe('exit 1 readers', () => {

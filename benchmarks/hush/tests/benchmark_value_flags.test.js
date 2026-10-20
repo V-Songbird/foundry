@@ -19,7 +19,7 @@ after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 // A dry run of the given tasks under its own tag; `extraEnv` overrides the environment.
 function plan(tag, tasks, extraEnv, ...args) {
   const env = { ...process.env, BENCH_DATA_DIR: DATA, ...extraEnv };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY']) delete env[k];
   return spawnSync(process.execPath,
     [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', tasks, ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });
