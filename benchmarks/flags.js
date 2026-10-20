@@ -7,6 +7,9 @@
 // (batch-judge.js, sdk-session.js); wholeNumber and usdCap are the same checks
 // for a script that refuses with exit 2.
 
+// What a refusal prints for the value it got: a missing one is the word "nothing", not undefined or null.
+const shown = (raw) => (raw === undefined || raw === null || raw === '' ? 'nothing' : raw);
+
 function refuse(message) {
   console.error(message);
   process.exit(2);
@@ -16,7 +19,7 @@ function refuse(message) {
 function wholeNumberUsage(name, raw) {
   const n = Number(raw);
   return raw === undefined || raw === '' || !Number.isInteger(n) || n < 1
-    ? `usage: --${name} needs a whole number of at least 1, got ${raw}`
+    ? `usage: --${name} needs a whole number of at least 1, got ${shown(raw)}`
     : null;
 }
 
@@ -46,7 +49,7 @@ function usdCapUsage(argv, name = '--max-usd') {
 function usdCapValueUsage(name, raw) {
   const n = Number(raw);
   return raw === undefined || raw === null || raw === '' || !Number.isFinite(n) || n <= 0
-    ? `usage: ${name} needs a positive number of USD, got ${raw}`
+    ? `usage: ${name} needs a positive number of USD, got ${shown(raw)}`
     : null;
 }
 

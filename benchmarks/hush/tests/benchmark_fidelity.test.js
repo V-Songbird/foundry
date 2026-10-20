@@ -283,7 +283,7 @@ describe('fidelity judge', { skip }, () => {
     assert.strictEqual(plan.verdicts, null);
     assert.strictEqual(plan.plan.requests, 2);
     assert.match(logs[0], /worst case \$\d+\.\d\d; cap --max-usd unset/);
-    await assert.rejects(judge(['a'], { go: true, log: () => {} }), /usage: --max-usd needs a positive number of USD, got undefined/);
+    await assert.rejects(judge(['a'], { go: true, log: () => {} }), /usage: --max-usd needs a positive number of USD, got nothing/);
     process.env.ANTHROPIC_API_KEY = 'test-key';
     await assert.rejects(judge(['a'], { go: true, maxUsd: 0.0001, log: () => {} }), /nothing was sent/);
     assert.deepStrictEqual(await judge([], { go: true }), { plan: null, verdicts: [] });

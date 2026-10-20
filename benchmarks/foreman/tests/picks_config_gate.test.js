@@ -45,9 +45,9 @@ test("picks/run.js refuses a --reps or --sizes that is not a whole number of at 
   }
   const bareSizes = picks("--sizes");
   assert.equal(bareSizes.status, 2, bareSizes.stdout + bareSizes.stderr);
-  assert.match(bareSizes.stderr, /usage: --sizes needs a whole number of at least 1, got undefined/);
+  assert.match(bareSizes.stderr, /usage: --sizes needs a whole number of at least 1, got nothing/);
   assert.doesNotMatch(bareSizes.stderr, /TypeError/);
   const bare = picks("--reps");
   assert.equal(bare.status, 2, bare.stdout + bare.stderr);
-  assert.match(bare.stderr, /usage: --reps needs a whole number of at least 1, got undefined/);
+  assert.match(bare.stderr, /usage: --reps needs a whole number of at least 1, got nothing/);
 });

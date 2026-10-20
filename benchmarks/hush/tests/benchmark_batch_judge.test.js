@@ -65,7 +65,7 @@ describe('runBatch guards', () => {
   });
 
   test('a paid run needs a cap', async () => {
-    await assert.rejects(runBatch(items, { go: true }), /usage: --max-usd needs a positive number of USD, got undefined/);
+    await assert.rejects(runBatch(items, { go: true }), /usage: --max-usd needs a positive number of USD, got nothing/);
   });
 
   test('a cap that is not a finite number above 0 is refused before any request', async () => {

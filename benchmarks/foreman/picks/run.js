@@ -48,7 +48,7 @@ const model = flag('model', 'sonnet');
 // A count must be a whole number of at least 1; anything else (abc, 0, 1.5, a
 // missing value) is a usage refusal, not a NaN plan.
 const reps = wholeNumber('reps', flag('reps', 5));
-const sizes = String(flag('sizes', '10,50,150')).split(',').map((s) => wholeNumber('sizes', s));
+const sizes = (flag('sizes', '10,50,150') ?? '').split(',').map((s) => wholeNumber('sizes', s));
 const arms = flag('arms', 'markdown,foreman').split(',');
 const dryRun = argv.includes('--dry-run');
 

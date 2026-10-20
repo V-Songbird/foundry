@@ -43,7 +43,7 @@ describe('count flags', () => {
       for (const bad of ['abc', '0', '1.5', '']) {
         refused(run(script, ...base, `--${name}`, bad), new RegExp(`usage: --${name} needs a whole number of at least 1`), `${script} ${bad}`);
       }
-      refused(run(script, ...base, `--${name}`), new RegExp(`usage: --${name} needs a whole number of at least 1, got undefined`), `${script} no value`);
+      refused(run(script, ...base, `--${name}`), new RegExp(`usage: --${name} needs a whole number of at least 1, got nothing`), `${script} no value`);
     });
   }
 });
@@ -59,7 +59,7 @@ describe('--max-usd', () => {
       for (const bad of ['abc', '0', '-1', 'Infinity', '1e999', '']) {
         refused(run(script, ...base, '--go', '--max-usd', bad), /usage: --max-usd needs a positive number of USD/, `${script} ${bad}`);
       }
-      refused(run(script, ...base, '--go', '--max-usd'), /usage: --max-usd needs a positive number of USD, got undefined/, `${script} no value`);
+      refused(run(script, ...base, '--go', '--max-usd'), /usage: --max-usd needs a positive number of USD, got nothing/, `${script} no value`);
       refused(run(script, ...base, '--max-usd', '--go'), /usage: --max-usd needs a positive number of USD, got --go/, `${script} flag as value`);
     });
   }
@@ -81,16 +81,16 @@ describe('the non-exiting forms', () => {
     t.mock.method(console, 'error', () => { throw new Error('printed'); });
     assert.strictEqual(flags.wholeNumberUsage('reps', 3), null);
     assert.strictEqual(flags.wholeNumberUsage('reps', '2.5'), 'usage: --reps needs a whole number of at least 1, got 2.5');
-    assert.strictEqual(flags.wholeNumberUsage('reps', undefined), 'usage: --reps needs a whole number of at least 1, got undefined');
+    assert.strictEqual(flags.wholeNumberUsage('reps', undefined), 'usage: --reps needs a whole number of at least 1, got nothing');
     assert.strictEqual(flags.usdCapUsage(['--go']), null);
     assert.strictEqual(flags.usdCapUsage(['--max-usd', '0.5']), null);
     assert.strictEqual(flags.usdCapUsage(['--max-usd', 'Infinity']), 'usage: --max-usd needs a positive number of USD, got Infinity');
     assert.strictEqual(flags.usdCapUsage(['--max-usd', '--go']), 'usage: --max-usd needs a positive number of USD, got --go');
-    assert.strictEqual(flags.usdCapUsage(['--max-usd']), 'usage: --max-usd needs a positive number of USD, got undefined');
+    assert.strictEqual(flags.usdCapUsage(['--max-usd']), 'usage: --max-usd needs a positive number of USD, got nothing');
     assert.strictEqual(flags.usdCapValueUsage('--max-usd', 0.5), null);
     assert.strictEqual(flags.usdCapValueUsage('--max-usd', 1e999), 'usage: --max-usd needs a positive number of USD, got Infinity');
-    assert.strictEqual(flags.usdCapValueUsage('--max-usd', undefined), 'usage: --max-usd needs a positive number of USD, got undefined');
-    assert.strictEqual(flags.usdCapValueUsage('--max-usd', null), 'usage: --max-usd needs a positive number of USD, got null');
+    assert.strictEqual(flags.usdCapValueUsage('--max-usd', undefined), 'usage: --max-usd needs a positive number of USD, got nothing');
+    assert.strictEqual(flags.usdCapValueUsage('--max-usd', null), 'usage: --max-usd needs a positive number of USD, got nothing');
     assert.strictEqual(exit.mock.callCount(), 0);
   });
 

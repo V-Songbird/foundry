@@ -207,7 +207,7 @@ test('a --go with a cap that is not a finite number above 0 sends nothing', asyn
     assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--reps', '1', '--go'], out), 2);
     assert.strictEqual(calls.length, 0);
     assert.deepStrictEqual(fs.readdirSync(out), []);
-    assert.deepStrictEqual(errors, [...caps, undefined].map((c) => `usage: --max-usd needs a positive number of USD, got ${c}`));
+    assert.deepStrictEqual(errors, [...caps, 'nothing'].map((c) => `usage: --max-usd needs a positive number of USD, got ${c}`));
   } finally {
     globalThis.fetch = saved.fetch;
     console.log = saved.log;
@@ -256,6 +256,6 @@ test('a refused count flag prints the value as typed, by the rule flags.js holds
   assert.strictEqual(line('--reps', 'abc'), 'usage: --reps needs a whole number of at least 1, got abc');
   assert.strictEqual(line('--max-rounds', '1.5'), 'usage: --max-rounds needs a whole number of at least 1, got 1.5');
   assert.strictEqual(line('--max-tokens', '-100000000'), 'usage: --max-tokens needs a whole number of at least 1, got -100000000');
-  assert.strictEqual(line('--reps'), 'usage: --reps needs a whole number of at least 1, got undefined');
-  assert.strictEqual(line('--reps', ''), 'usage: --reps needs a whole number of at least 1, got ');
+  assert.strictEqual(line('--reps'), 'usage: --reps needs a whole number of at least 1, got nothing');
+  assert.strictEqual(line('--reps', ''), 'usage: --reps needs a whole number of at least 1, got nothing');
 });

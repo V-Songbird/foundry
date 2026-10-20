@@ -96,7 +96,7 @@ test('sdkOptions refuses a --max-turns that is not a whole number of at least 1'
   for (const bad of ['Infinity', '1e999', 'NaN', 'abc', '0', '-1', '1.5', '']) {
     assert.throws(() => session.sdkOptions(['-p', '--max-turns', bad]), /--max-turns needs a whole number of at least 1/, bad);
   }
-  assert.throws(() => session.sdkOptions(['-p', '--max-turns']), /--max-turns needs a whole number of at least 1, got undefined/);
+  assert.throws(() => session.sdkOptions(['-p', '--max-turns']), /--max-turns needs a whole number of at least 1, got nothing/);
 });
 
 test('runSession returns the stream as stream-json lines plus the result fields', async () => {
