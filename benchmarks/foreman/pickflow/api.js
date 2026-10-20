@@ -37,6 +37,15 @@ function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
   };
 }
 
+// A usage line for a count flag that is not a whole number of at least 1, or null.
+// A NaN --max-tokens would turn the round guard off; Infinity would never end a loop.
+function countUsage(o) {
+  for (const [flag, n] of [['reps', o.reps], ['max-rounds', o.maxRounds], ['max-tokens', o.maxTokens]]) {
+    if (!(Number.isInteger(n) && n >= 1)) return `usage: --${flag} needs a whole number of at least 1, got ${n}`;
+  }
+  return null;
+}
+
 // The cost fields a live case carries beside its flow's own.
 const meter = () => ({ usage: { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }, costUsd: 0, model: null, latencyMs: 0 });
 
@@ -274,6 +283,6 @@ async function live({ name, title, o, makeCases, flow, grade, cleanup, outRoot =
 }
 
 module.exports = {
-  apiArgs, meter, request, price, costOf, worstUsd, apiKey, batchSender, messagesSender, runCases,
+  apiArgs, countUsage, meter, request, price, costOf, worstUsd, apiKey, batchSender, messagesSender, runCases,
   costPlan, record, report, live,
 };

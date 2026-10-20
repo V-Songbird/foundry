@@ -256,3 +256,30 @@ test('a --go with a cap that is not a finite number above 0 sends nothing', asyn
     fs.rmSync(out, { recursive: true, force: true });
   }
 });
+
+test('a count flag that is not a whole number of at least 1 is refused before any plan or send', async () => {
+  const saved = { fetch: globalThis.fetch, key: process.env.ANTHROPIC_API_KEY };
+  const calls = [];
+  const lines = [];
+  globalThis.fetch = async (url) => { calls.push(url); throw new Error('no request expected'); };
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'discoveryflow-count-'));
+  const base = ['--scenarios', 'finding', '--arms', 'new', '--tag', 't', '--go', '--max-usd', '1'];
+  try {
+    const bad = [['reps', 'abc'], ['reps', '0'], ['reps', '2.5'], ['max-rounds', 'abc'], ['max-rounds', '0'], ['max-rounds', '1.5'],
+      ['max-tokens', 'abc'], ['max-tokens', '-100000000'], ['max-tokens', '0'], ['max-tokens', 'Infinity']];
+    for (const [flag, value] of bad) {
+      assert.strictEqual(await run.main([...base, `--${flag}`, value], (l) => lines.push(l), out), 2, `${flag} ${value}`);
+    }
+    assert.strictEqual(await run.main([...base, '--reps'], (l) => lines.push(l), out), 2);
+    assert.strictEqual(calls.length, 0);
+    assert.strictEqual(lines.length, bad.length + 1);
+    assert.ok(lines.every((l) => /^usage: --(reps|max-rounds|max-tokens) needs a whole number of at least 1/.test(l)), lines.join('\n'));
+    assert.deepStrictEqual(fs.readdirSync(out), []);
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = saved.key;
+    fs.rmSync(out, { recursive: true, force: true });
+  }
+});

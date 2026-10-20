@@ -133,6 +133,8 @@ async function plan(o, log = console.log) {
 
 async function main(argv = process.argv.slice(2), log = console.log, outRoot) {
   const o = parseArgs(argv);
+  const bad = api.countUsage(o);
+  if (bad) { log(bad); return 2; }
   for (const a of o.arms) if (!sim.ARMS[a]) { log(`unknown arm ${a}; valid: ${Object.keys(sim.ARMS).join(', ')}`); return 2; }
   if (!['batches', 'messages'].includes(o.api)) { log('--api must be batches or messages'); return 2; }
   if (o.smoke) return smoke(o);

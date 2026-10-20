@@ -212,8 +212,10 @@ async function smoke(o) {
   return wrong ? 1 : 0;
 }
 
-async function main(argv = process.argv.slice(2)) {
+async function main(argv = process.argv.slice(2), outRoot = dataDir('foreman')) {
   const o = parseArgs(argv);
+  const bad = api.countUsage(o);
+  if (bad) { console.error(bad); return 2; }
   for (const a of o.arms) if (!sim.ARMS[a]) { console.error(`unknown arm ${a}; valid: ${Object.keys(sim.ARMS).join(', ')}`); return 2; }
   if (!['batches', 'messages'].includes(o.api)) { console.error('--api must be batches or messages'); return 2; }
   if (!fs.existsSync(path.join(sim.FOREMAN, 'scripts', 'roadmap.js'))) { console.error(`no Foreman checkout at ${sim.FOREMAN}; set FOREMAN_DIR`); return 2; }
@@ -245,7 +247,7 @@ async function main(argv = process.argv.slice(2)) {
   if (!(Number.isFinite(o.maxUsd) && o.maxUsd > 0)) { console.error('--max-usd is required with --go: a finite number of USD above 0'); return 2; }
   apiKey();
 
-  const outDir = path.join(dataDir('foreman'), 'pickflow', o.tag);
+  const outDir = path.join(outRoot, 'pickflow', o.tag);
   if (fs.existsSync(path.join(outDir, 'records.json'))) { console.error(`${outDir} already holds a run; pick another --tag`); return 2; }
   fs.mkdirSync(path.join(outDir, 'rounds'), { recursive: true });
   const send = o.api === 'batches' ? api.batchSender(outDir, console.log) : api.messagesSender(outDir, console.log);

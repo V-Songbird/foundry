@@ -323,6 +323,23 @@ test('a --go with a cap that is not a finite number above 0 sends nothing', asyn
   });
 });
 
+test('a count flag that is not a whole number of at least 1 is refused before any plan or send', async () => {
+  await withFakeApi(() => assert.fail('no request expected'), async ({ calls, out }) => {
+    const lines = [];
+    const log = (l) => lines.push(l);
+    const bad = [['reps', 'abc'], ['reps', '0'], ['reps', '2.5'], ['max-rounds', 'abc'], ['max-rounds', '0'], ['max-rounds', '1.5'],
+      ['max-tokens', 'abc'], ['max-tokens', '-100000000'], ['max-tokens', '0'], ['max-tokens', 'Infinity']];
+    for (const [flag, value] of bad) {
+      assert.strictEqual(await run.main([...ARGS, '--go', '--max-usd', '1', `--${flag}`, value], log, out), 2, `${flag} ${value}`);
+    }
+    assert.strictEqual(await run.main([...ARGS, '--go', '--max-usd', '1', '--reps'], log, out), 2);
+    assert.strictEqual(calls.length, 0);
+    assert.strictEqual(lines.length, bad.length + 1);
+    assert.ok(lines.every((l) => /^usage: --(reps|max-rounds|max-tokens) needs a whole number of at least 1/.test(l)), lines.join('\n'));
+    assert.deepStrictEqual(fs.readdirSync(out), []);
+  });
+});
+
 test('a live run sends each round as one batch, feeds tool results back and writes graded records', async () => {
   const reply = (r) => (r.params.messages.length === 1
     ? message([{ type: 'tool_use', id: 'toolu_1', name: 'Bash', input: { command: 'git status --short' } }])

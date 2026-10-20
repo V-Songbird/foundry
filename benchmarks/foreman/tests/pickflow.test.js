@@ -5,6 +5,9 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 const sim = require('../pickflow/sim.js');
 const run = require('../pickflow/run.js');
@@ -195,17 +198,50 @@ test('a --go with a cap that is not a finite number above 0 sends nothing', asyn
   process.env.ANTHROPIC_API_KEY = 'test-key';
   console.log = () => {};
   console.error = (m) => errors.push(m);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'pickflow-cap-'));
   try {
     for (const cap of ['Infinity', '1e999', 'NaN', '0', '-1', 'abc']) {
-      assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--reps', '1', '--go', '--max-usd', cap]), 2, cap);
+      assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--reps', '1', '--go', '--max-usd', cap], out), 2, cap);
     }
     assert.strictEqual(calls.length, 0);
+    assert.deepStrictEqual(fs.readdirSync(out), []);
     assert.strictEqual(errors.length, 6);
     assert.ok(errors.every((m) => /--max-usd is required with --go/.test(m)), errors.join('\n'));
   } finally {
     globalThis.fetch = saved.fetch;
     console.log = saved.log;
     console.error = saved.error;
+    fs.rmSync(out, { recursive: true, force: true });
+    if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = saved.key;
+  }
+});
+
+test('a count flag that is not a whole number of at least 1 is refused before any plan or send', async () => {
+  const saved = { fetch: globalThis.fetch, key: process.env.ANTHROPIC_API_KEY, log: console.log, error: console.error };
+  const calls = [];
+  const errors = [];
+  globalThis.fetch = async (url) => { calls.push(url); throw new Error('no request expected'); };
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  console.log = () => {};
+  console.error = (m) => errors.push(m);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'pickflow-count-'));
+  try {
+    const bad = [['reps', 'abc'], ['reps', '0'], ['reps', '2.5'], ['max-rounds', 'abc'], ['max-rounds', '0'], ['max-rounds', '1.5'],
+      ['max-tokens', 'abc'], ['max-tokens', '-100000000'], ['max-tokens', '0'], ['max-tokens', 'Infinity']];
+    for (const [flag, value] of bad) {
+      assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--go', '--max-usd', '1', `--${flag}`, value], out), 2, `${flag} ${value}`);
+    }
+    assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--go', '--max-usd', '1', '--reps'], out), 2);
+    assert.strictEqual(calls.length, 0);
+    assert.deepStrictEqual(fs.readdirSync(out), []);
+    assert.strictEqual(errors.length, bad.length + 1);
+    assert.ok(errors.every((m) => /^usage: --(reps|max-rounds|max-tokens) needs a whole number of at least 1/.test(m)), errors.join('\n'));
+  } finally {
+    globalThis.fetch = saved.fetch;
+    console.log = saved.log;
+    console.error = saved.error;
+    fs.rmSync(out, { recursive: true, force: true });
     if (saved.key === undefined) delete process.env.ANTHROPIC_API_KEY;
     else process.env.ANTHROPIC_API_KEY = saved.key;
   }
