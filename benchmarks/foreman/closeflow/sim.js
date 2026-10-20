@@ -68,10 +68,15 @@ const TOOLS = [
 // Foreman's scripts and git see the scratch project and no host of their own:
 // no system or global git config or attributes, whose hooks, textconv, filter
 // or fsmonitor commands would run on the host, and an editor that fails.
+// GIT_ATTR_NOSYSTEM cuts only the system attributes file; the global one
+// (~/.config/git/attributes) is cut by pointing core.attributesFile at nothing.
 function childEnv(project) {
   const env = {};
   for (const [k, v] of Object.entries(process.env)) if (!/^(FOREMAN_|CODEX_|CLAUDE|ANTIGRAVITY_|GIT_|PLUGIN_ROOT$)/.test(k)) env[k] = v;
-  Object.assign(env, { CLAUDE_PROJECT_DIR: project, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_ATTR_NOSYSTEM: '1', GIT_EDITOR: 'false' });
+  Object.assign(env, {
+    CLAUDE_PROJECT_DIR: project, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_ATTR_NOSYSTEM: '1', GIT_EDITOR: 'false',
+    GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.attributesFile', GIT_CONFIG_VALUE_0: '/dev/null',
+  });
   return env;
 }
 

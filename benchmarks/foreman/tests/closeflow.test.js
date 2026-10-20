@@ -233,6 +233,25 @@ test('the host git config, attributes and editor run nothing in the scratch repo
   }
 });
 
+test('the host global attributes file does not reach the scratch repository', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'closeflow-home-'));
+  const saved = { HOME: process.env.HOME, USERPROFILE: process.env.USERPROFILE, XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME };
+  fs.mkdirSync(path.join(home, 'git'));
+  fs.writeFileSync(path.join(home, 'git', 'attributes'), '*.js text eol=crlf\n');
+  Object.assign(process.env, { HOME: home, USERPROFILE: home, XDG_CONFIG_HOME: home });
+  let st;
+  try {
+    st = sim.newCase(scenario('clean'), 'current');
+    const out = sim.handleTool(st, { name: 'Bash', input: { command: 'git ls-files --eol index.js' } }).content;
+    assert.match(out, /index\.js/);
+    assert.doesNotMatch(out, /eol=crlf/);
+  } finally {
+    for (const [k, v] of Object.entries(saved)) if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    if (st) sim.cleanup(st);
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+});
+
 test('git add --al and a cluster holding -A count as broad staging; git commit -m with an n or S in its message does not', () => {
   const st = sim.newCase(scenario('clean'), 'current');
   try {
