@@ -178,3 +178,17 @@ test('the app a session works in holds no solution or held-back test', () => {
     }
   }
 });
+
+test('main refuses a missing or empty flag value before any suite code runs', async (t) => {
+  const never = new Proxy({}, { get() { throw new Error('the suite ran'); } });
+  const err = t.mock.method(console, 'error', () => {});
+  for (const [argv, line] of [
+    [['--variant'], 'usage: --variant needs a value but none was given'],
+    [['--variant', '--smoke'], 'usage: --variant needs a value, got --smoke'],
+    [['--variant', 'baseline', '--arm', ''], 'usage: --arm needs a value, got nothing'],
+  ]) {
+    err.mock.resetCalls();
+    assert.strictEqual(await hc.main(never, argv), 2, argv.join(' '));
+    assert.strictEqual(err.mock.calls[0].arguments[0].split('\n')[0], line);
+  }
+});
