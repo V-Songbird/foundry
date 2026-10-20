@@ -6,6 +6,7 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert');
 const { unknownFlags, KNOWN_FLAGS } = require('../runner/run.js');
+const { keylessEnv } = require('../../test-env.js');
 
 describe('benchmark CLI flags', () => {
   test('a documented flag set passes', () => {
@@ -49,8 +50,7 @@ test('--max-cost refuses a non-positive or missing value before any session star
   const { spawnSync } = require('child_process');
   const emptyBin = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-maxcost-bin-'));
   try {
-    const env = { ...process.env, PATH: emptyBin };
-    delete env.BENCH_CONFIG_DIR;
+    const env = keylessEnv({ PATH: emptyBin });
     for (const args of [['--max-cost', '0'], ['--max-cost']]) {
       const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke', ...args],
         { encoding: 'utf8', timeout: 30000, env });
@@ -72,8 +72,7 @@ test('--runs and --workers refuse a value that is not a whole number of at least
   const { spawnSync } = require('child_process');
   const emptyBin = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-count-bin-'));
   try {
-    const env = { ...process.env, PATH: emptyBin };
-    delete env.BENCH_CONFIG_DIR;
+    const env = keylessEnv({ PATH: emptyBin });
     for (const name of ['runs', 'workers']) {
       for (const args of [['abc'], ['0'], ['1.5'], [''], []]) {
         const run = spawnSync(process.execPath,
@@ -111,8 +110,7 @@ function fakeClaude(fixture) {
     + `process.stdout.write(${JSON.stringify(stream)});\n`);
   fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
-  const env = { ...process.env, RAZOR_BENCH_RUNS: path.join(fixture, 'runs'), RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  const env = keylessEnv({ RAZOR_BENCH_RUNS: path.join(fixture, 'runs'), RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config });
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
   return env;
@@ -280,7 +278,7 @@ test('the Claude live runner refuses native Codex hooks before starting a model 
   try {
     const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
       encoding: 'utf8', timeout: 30000,
-      env: { ...process.env, RAZOR_DIR: fixture, RAZOR_BENCH_RUNS: results },
+      env: keylessEnv({ RAZOR_DIR: fixture, RAZOR_BENCH_RUNS: results }),
     });
     assert.ifError(run.error);
     assert.equal(run.status, 1);
@@ -306,8 +304,7 @@ test('a live run refuses temp run folders unless RAZOR_BENCH_ALLOW_TEMP opts in'
   const emptyBin = path.join(fixture, 'bin');
   fs.mkdirSync(emptyBin);
   const smoke = (extra) => {
-    const env = { ...process.env, RAZOR_DIR: razor, PATH: emptyBin, ...extra };
-    delete env.BENCH_CONFIG_DIR;
+    const env = keylessEnv({ RAZOR_DIR: razor, PATH: emptyBin, ...extra });
     if (!extra.RAZOR_BENCH_RUNS) delete env.RAZOR_BENCH_RUNS;
     if (!extra.RAZOR_BENCH_ALLOW_TEMP) delete env.RAZOR_BENCH_ALLOW_TEMP;
     const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
@@ -343,7 +340,7 @@ test('offline instruments work from the razor package', () => {
   const root = process.env.RAZOR_DIR ? path.resolve(process.env.RAZOR_DIR) : require('../../paths.js').pluginDir('razor');
   const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--selftest'], {
     encoding: 'utf8', timeout: 30000,
-    env: { ...process.env, RAZOR_DIR: root },
+    env: keylessEnv({ RAZOR_DIR: root }),
   });
   assert.ifError(run.error);
   assert.equal(run.status, 0, run.stdout + run.stderr);

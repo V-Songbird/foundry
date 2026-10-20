@@ -13,6 +13,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.resolve(__dirname, '..');
 const FIXTURE = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-login-lost-'));
@@ -43,8 +44,7 @@ test('a lost login stops the conversation and the batch after one turn', async (
   fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
 
-  const env = { ...process.env, RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  const env = keylessEnv({ RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config });
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
   // note-drift is a conversation: without the stop it resumes for every

@@ -131,6 +131,7 @@ describe('answerable on Batches', () => {
   const os = require('node:os');
   const path = require('node:path');
   const { spawnSync } = require('node:child_process');
+  const { keylessEnv } = require('../../test-env.js');
   const BENCH = path.resolve(__dirname, '..');
   const TASK = JSON.parse(fs.readFileSync(path.join(BENCH, 'tasks.json'), 'utf8'))[0].id;
 
@@ -167,8 +168,7 @@ describe('answerable on Batches', () => {
           content: [{ type: 'text', text: ${JSON.stringify(reply)} }], usage: { input_tokens: 500, output_tokens: 50 } } } });
         return { ok: true, status: 200, text: async () => body };
       };`);
-    const full = { ...process.env, BENCH_DATA_DIR: tmp, ...env };
-    for (const k of ['NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'TYPESAFE_API_KEY', ...(env.ANTHROPIC_API_KEY ? [] : ['ANTHROPIC_API_KEY'])]) delete full[k];
+    const full = keylessEnv({ BENCH_DATA_DIR: tmp, ...env });
     const r = spawnSync(process.execPath, ['--require', preload, path.join(BENCH, 'runner', 'answerable.js'), '--records', records, ...args],
       { cwd: BENCH, encoding: 'utf8', env: full, timeout: 60000 });
     const published = path.join(records, 'published', 'answerable.md');

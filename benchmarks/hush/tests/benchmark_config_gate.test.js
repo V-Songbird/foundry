@@ -12,6 +12,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.resolve(__dirname, '..');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-config-gate-'));
@@ -26,8 +27,7 @@ after(() => {
 });
 
 function run(script, ...args) {
-  const env = { ...process.env, BENCH_DATA_DIR: DATA };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: DATA });
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${STUB}${path.delimiter}${env[pathKey] || ''}`;
   return spawnSync(process.execPath, [path.join(BENCH, 'runner', script), ...args],
@@ -86,7 +86,7 @@ test('bench-config-dir.js seeds a folder that exists but has no registry', () =>
     fs.mkdirSync(path.join(home, '.claude'));
     fs.writeFileSync(path.join(home, '.claude', 'settings.json'), '{}');
     fs.writeFileSync(path.join(home, '.claude.json'), JSON.stringify({ onboarded: true, projects: { x: {} } }));
-    const env = { ...process.env, HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir };
+    const env = keylessEnv({ HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir });
     const r = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(path.join(BENCH, '..', 'bench-config-dir.js'))})()`],
       { encoding: 'utf8', env, timeout: 60000 });
     assert.strictEqual(r.status, 0, r.stderr);
@@ -104,7 +104,7 @@ test('bench-config-dir.js refuses a home with no ~/.claude.json before it seeds'
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-config-seed-nohome-'));
   const dir = path.join(home, 'bench');
   try {
-    const env = { ...process.env, HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir };
+    const env = keylessEnv({ HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir });
     const r = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(path.join(BENCH, '..', 'bench-config-dir.js'))})()`],
       { encoding: 'utf8', env, timeout: 60000 });
     assert.strictEqual(r.status, 2, r.stderr);

@@ -12,6 +12,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.join(__dirname, '..');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(BENCH, 'config.json'), 'utf8'));
@@ -280,9 +281,7 @@ describe('a built-in output style can be raced as an arm', () => {
   test('--rival-settings with no --rival-dir still builds a named arm', () => {
     const tag = `native-probe-${process.pid}`;
     const resDir = path.join(RESULTS, tag);
-    const env = { ...process.env };
-    delete env.NODE_TEST_CONTEXT;
-    delete env.NODE_CHANNEL_FD;
+    const env = keylessEnv();
     try {
       const r = spawnSync(process.execPath, [
         path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run',
@@ -835,9 +834,7 @@ describe('batch provenance makes a splice detectable', () => {
   // manifest a live run writes, so the whole resume contract is checkable for
   // free.
   const planRun = (tag, ...args) => {
-    const env = { ...process.env };
-    delete env.NODE_TEST_CONTEXT;
-    delete env.NODE_CHANNEL_FD;
+    const env = keylessEnv();
     return spawnSync(process.execPath,
       [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],
       { cwd: BENCH, encoding: 'utf8', env });
@@ -961,9 +958,7 @@ describe('ablation arms reuse the rival plumbing', () => {
   test('a rival with no plugin directory gets an arm next to the ablation arms', () => {
     // How a built-in output style is raced: settings only, no plugin to load.
     const tag = `abl-rival-probe-${process.pid}`;
-    const env = { ...process.env };
-    delete env.NODE_TEST_CONTEXT;
-    delete env.NODE_CHANNEL_FD;
+    const env = keylessEnv();
     try {
       const r = spawnSync(process.execPath, [
         path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', '--ablations',
@@ -1069,9 +1064,7 @@ describe('a workspace name gives nothing away, and a batch names its hush build'
     const { dir, commit } = pluginRepo();
     const tag = `prov-probe-${process.pid}`;
     const resDir = path.join(RESULTS, tag);
-    const env = { ...process.env, HUSH_PLUGIN_DIR: dir };
-    delete env.NODE_TEST_CONTEXT;
-    delete env.NODE_CHANNEL_FD;
+    const env = keylessEnv({ HUSH_PLUGIN_DIR: dir });
     const plan = (...args) => spawnSync(process.execPath,
       [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],
       { cwd: BENCH, encoding: 'utf8', env });

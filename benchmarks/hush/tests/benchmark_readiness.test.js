@@ -10,6 +10,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const gate = require('../scripts/readiness-gate.js');
 const { writeRecord, readRecords } = require('../runner/records.js');
@@ -390,9 +391,7 @@ describe('the readiness gate', () => {
   });
 
   test('exits 0 on a ready batch, 1 naming each failed point, and 2 without both batches', () => {
-    const env = { ...process.env };
-    delete env.NODE_TEST_CONTEXT;
-    delete env.NODE_CHANNEL_FD;
+    const env = keylessEnv();
     const cli = (f) => spawnSync(process.execPath, [GATE, '--records', f.recordsDir, '--previous', f.previousDir],
       { encoding: 'utf8', env: { ...env, BENCH_PLUGINS_DIR: f.root } });
 

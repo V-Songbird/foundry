@@ -17,6 +17,7 @@ const BENCH = path.resolve(__dirname, '..');
 const RUN = path.join(BENCH, 'runner', 'run.js');
 const SDK_SESSION = path.resolve(__dirname, '../../sdk-session.js');
 const { pluginDir } = require('../../paths.js');
+const { keylessEnv } = require('../../test-env.js');
 const FIXTURE = fs.mkdtempSync(path.join(os.tmpdir(), 'foreman-sdk-session-'));
 const TAG = `sdk-${process.pid}`;
 after(() => {
@@ -63,8 +64,7 @@ function runForeman(name, key, args, stream, missing = false) {
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
 
   const data = path.join(dir, 'data');
-  const env = { ...process.env, BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config });
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;

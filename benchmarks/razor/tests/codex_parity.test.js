@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 const { CASES, evaluateCase, parseArgs, readChildModels } = require('../runner/codex-parity');
 
 const event = (event, more = {}) => ({ event, exit: 0, error: false, elapsed_ms: 1,
@@ -177,7 +178,7 @@ test('offline process failure checkpoints derived failures and cleans every prob
   fs.mkdirSync(sourceHome);
   fs.mkdirSync(temp);
   const report = path.join(dir, 'result.json');
-  const env = { ...process.env, CODEX_HOME: sourceHome, TEMP: temp, TMP: temp, TMPDIR: temp, BENCH_DATA_DIR: path.join(dir, 'data') };
+  const env = keylessEnv({ CODEX_HOME: sourceHome, TEMP: temp, TMP: temp, TMPDIR: temp, BENCH_DATA_DIR: path.join(dir, 'data') });
   delete env.NODE_OPTIONS;
   const result = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/codex-parity.js'),
     '--codex-bin', process.execPath, '--cases', 'import', '--report', report], {

@@ -129,7 +129,7 @@ test('a throw before hc.main, such as a malformed results.jsonl while --go count
   // The key is a placeholder: the count throws first, and a cap this low refuses any batch.
   const r = require('node:child_process').spawnSync(process.execPath,
     [path.join(ROOT, 'runner', 'hillclimb.js'), '--variant', 'v7', '--flow', FLOW, '--regrade', '--go', '--max-usd', '0.000001'],
-    { encoding: 'utf8', env: { ...process.env, BENCH_DATA_DIR: DATA, ANTHROPIC_API_KEY: 'placeholder' } });
+    { encoding: 'utf8', env: require('../../test-env.js').keylessEnv({ BENCH_DATA_DIR: DATA, ANTHROPIC_API_KEY: 'placeholder' }) });
   assert.strictEqual(r.status, 1, r.stderr);
   assert.match(r.stderr, /^hush: .*JSON/);
   assert.doesNotMatch(r.stderr, /\n\s+at /);

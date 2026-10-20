@@ -13,6 +13,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.resolve(__dirname, '..');
 const SDK_SESSION = path.resolve(__dirname, '../../sdk-session.js');
@@ -146,8 +147,7 @@ function runRazor(name, key, noSdk) {
   writeFakeClaude(bin, calls);
   fs.mkdirSync(config);
   fs.writeFileSync(path.join(config, '.claude.json'), '{}'); // already seeded: nothing is copied from ~/.claude
-  const env = { ...process.env, RAZOR_BENCH_RUNS: path.join(dir, 'runs'), RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
+  const env = keylessEnv({ RAZOR_BENCH_RUNS: path.join(dir, 'runs'), RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config });
   if (key) env.ANTHROPIC_API_KEY = key;
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;

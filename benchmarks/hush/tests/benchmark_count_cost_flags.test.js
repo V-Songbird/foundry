@@ -15,14 +15,14 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const RUNNER = path.resolve(__dirname, '..', 'runner');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-count-cost-'));
 after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
 function run(script, ...args) {
-  const env = { ...process.env, BENCH_DATA_DIR: DATA, ANTHROPIC_API_KEY: 'placeholder', TYPESAFE_API_KEY: 'placeholder' };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: DATA, ANTHROPIC_API_KEY: 'placeholder', TYPESAFE_API_KEY: 'placeholder' });
   return spawnSync(process.execPath, [path.join(RUNNER, script), ...args], { encoding: 'utf8', env, timeout: 60000 });
 }
 const refused = (r, pattern, label) => {

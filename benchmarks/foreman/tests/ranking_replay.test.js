@@ -129,7 +129,7 @@ describe("the shipped picks fixtures, replayed", () => {
   before(() => {
     const missing = NAMES.some((n) => !fs.existsSync(path.join(FIXTURES, n, "ROADMAP.jsonl")));
     if (!missing) return;
-    const result = spawnSync("node", [path.join(PICKS, "gen.js")], { encoding: "utf-8" });
+    const result = spawnSync("node", [path.join(PICKS, "gen.js")], { encoding: "utf-8", env: require("../../test-env.js").keylessEnv() });
     assert.equal(result.status, 0, `picks/gen.js failed: ${result.stderr}`);
   });
 

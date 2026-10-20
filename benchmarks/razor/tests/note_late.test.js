@@ -12,6 +12,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 const { RAZOR_TASKS } = require('../runner/tasks.js');
 const { NOTE_TASKS, FULL_TASKS } = require('../runner/run.js');
 
@@ -83,8 +84,7 @@ test('runCell sends all four turns and scores the last', () => {
     + `process.stdout.write(JSON.stringify({ type: 'result', session_id: 's1', result, total_cost_usd: 0.1, num_turns: 1 }) + '\\n');\n`);
   fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
-  const env = { ...process.env };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  const env = keylessEnv();
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = bin;
   const driver = `require(${JSON.stringify(path.resolve(__dirname, '../runner/run.js'))})`

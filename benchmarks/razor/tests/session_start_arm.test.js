@@ -11,6 +11,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 const { buildSessionStartArm } = require('../runner/run.js');
 
 const BENCH = path.resolve(__dirname, '..');
@@ -22,7 +23,7 @@ const { RULESET, DRIFT_NOTE } = require(path.join(RAZOR, 'hooks', 'razor-lib.js'
 
 function hook(root, name, input, extra = {}) {
   const env = { CLAUDE_PLUGIN_DATA: path.join(FIXTURE, 'state'), ...extra };
-  for (const [k, v] of Object.entries(process.env)) {
+  for (const [k, v] of Object.entries(keylessEnv())) {
     if (!/^(RAZOR_|CLAUDE_PLUGIN_|NODE_TEST_CONTEXT$)/.test(k) && !(k in env)) env[k] = v;
   }
   const r = spawnSync(process.execPath, [path.join(root, 'hooks', name)],
@@ -83,8 +84,7 @@ test('--arms razor-start builds the copy in the run folder and loads it', () => 
     + `process.stdout.write(${JSON.stringify(stream)});\n`);
   fs.writeFileSync(path.join(bin, 'claude.cmd'), `@"${process.execPath}" "${fake}" %*\r\n`);
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
-  const env = { ...process.env, RAZOR_DIR: RAZOR, RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  const env = keylessEnv({ RAZOR_DIR: RAZOR, RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1', BENCH_CONFIG_DIR: config });
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
 

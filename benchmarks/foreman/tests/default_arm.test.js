@@ -11,6 +11,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const gen = require(path.join(ROOT, 'defaultarm', 'gen.js'));
@@ -31,6 +32,7 @@ function gate(file) {
     // declared, which is not what is being asserted.
     cwd: require('node:os').tmpdir(),
     timeout: 30000,
+    env: keylessEnv(),
   });
   return JSON.parse(r.stdout.trim().split('\n').pop());
 }

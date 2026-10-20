@@ -10,6 +10,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const RUN = path.resolve(__dirname, '..', 'runner', 'run.js');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'foreman-run-data-'));
@@ -20,7 +21,7 @@ after(() => { for (const d of [DATA, WORK]) fs.rmSync(d, { recursive: true, forc
 const PLUGINS = path.dirname(require('../../paths.js').pluginDir('foreman'));
 const dryRun = (tasks) => spawnSync(process.execPath,
   [RUN, '--dry-run', '--tag', TAG, '--tasks', tasks, '--arms', 'foreman-std'],
-  { env: { ...process.env, BENCH_DATA_DIR: DATA }, encoding: 'utf8' });
+  { env: keylessEnv({ BENCH_DATA_DIR: DATA }), encoding: 'utf8' });
 
 test('a task with no arm prompts is refused by name before anything is planned', () => {
   const r = dryRun('gamed-check');
@@ -58,7 +59,7 @@ test('a --tasks id that names no task is a usage error that plans nothing', () =
 // used to crash at .split on undefined (--tasks, --arms) or swallow the next
 // flag. Each is now a usage line naming the flag and exit 2, never a stack trace.
 const dryArgs = (...args) => spawnSync(process.execPath, [RUN, '--dry-run', ...args],
-  { env: { ...process.env, BENCH_DATA_DIR: DATA }, encoding: 'utf8' });
+  { env: keylessEnv({ BENCH_DATA_DIR: DATA }), encoding: 'utf8' });
 
 for (const name of ['tasks', 'arms', 'tag', 'model', 'reps']) {
   test(`a trailing --${name} is refused with a usage line, not a stack trace`, () => {
@@ -94,7 +95,7 @@ test('--tasks followed by another flag is refused, naming both', () => {
 // an arm whose plugin checkout is missing, an arm whose settings file is missing.
 const armsRun = (value, env = {}, run = RUN) => spawnSync(process.execPath,
   [run, '--dry-run', '--tag', TAG, '--tasks', 'api-constraint', '--arms', value],
-  { env: { ...process.env, BENCH_DATA_DIR: DATA, ...env }, encoding: 'utf8' });
+  { env: keylessEnv({ BENCH_DATA_DIR: DATA, ...env }), encoding: 'utf8' });
 
 for (const arm of ['nope', 'constructor']) {
   test(`an unknown arm ${arm} is a usage error that plans nothing`, () => {

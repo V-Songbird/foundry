@@ -14,6 +14,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const RESULT = {
   type: 'result', session_id: 's1', result: 'turn one', total_cost_usd: 0.5, num_turns: 1,
@@ -45,7 +46,7 @@ test('a dead second turn ends the conversation without repeating the first resul
     + '.then((r) => console.log(JSON.stringify(r)));';
   try {
     const run = spawnSync(process.execPath, ['-e', driver], {
-      encoding: 'utf8', timeout: 60000, env: { ...process.env, PATH: bin },
+      encoding: 'utf8', timeout: 60000, env: keylessEnv({ PATH: bin }),
     });
     assert.ifError(run.error);
     assert.equal(run.status, 0, run.stderr);

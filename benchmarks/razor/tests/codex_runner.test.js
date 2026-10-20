@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 const { options, selectTasks, contained, removeOwned, buildArgs, reportText, sumUsage, loadResume, checkpoint } = require('../runner/codex-run');
 const { RAZOR_TASKS } = require('../runner/tasks');
 
@@ -177,7 +178,7 @@ test('a failed native process leaves no session homes or projects and reports fa
   const runner = path.resolve(__dirname, '../runner/codex-run.js');
   // Node can satisfy --version but rejects Codex exec arguments. This invokes no
   // model and cannot copy real credentials: the only source home is empty.
-  const env = { ...process.env, CODEX_HOME: sourceHome, TEMP: isolatedTemp, TMP: isolatedTemp, TMPDIR: isolatedTemp, BENCH_DATA_DIR: path.join(dir, 'data') };
+  const env = keylessEnv({ CODEX_HOME: sourceHome, TEMP: isolatedTemp, TMP: isolatedTemp, TMPDIR: isolatedTemp, BENCH_DATA_DIR: path.join(dir, 'data') });
   delete env.NODE_OPTIONS;
   const result = spawnSync(process.execPath, [runner, '--codex-bin', process.execPath,
     '--probe', '--model', 'gpt-5.6-sol', '--effort', 'high', '--report', report], {

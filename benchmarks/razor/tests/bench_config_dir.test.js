@@ -15,14 +15,14 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 function smoke(fixture, env) {
   const razor = path.join(fixture, 'razor');
   fs.mkdirSync(path.join(razor, '.claude-plugin'), { recursive: true });
   fs.writeFileSync(path.join(razor, '.claude-plugin', 'plugin.json'), '{"name":"razor"}');
   // The fixtures sit in the temp dir, which a live run refuses without this.
-  const full = { ...process.env, RAZOR_DIR: razor, RAZOR_BENCH_ALLOW_TEMP: '1', ...env };
-  delete full.BENCH_CONFIG_DIR;
+  const full = keylessEnv({ RAZOR_DIR: razor, RAZOR_BENCH_ALLOW_TEMP: '1', ...env });
   const run = spawnSync(process.execPath, [path.resolve(__dirname, '../runner/run.js'), '--smoke'], {
     encoding: 'utf8', timeout: 60000, env: full,
   });
@@ -93,7 +93,7 @@ test('seeding the bench config folder copies settings and login but never CLAUDE
     const code = `require(${JSON.stringify(path.resolve(__dirname, '../../bench-config-dir.js'))})()`;
     const run = spawnSync(process.execPath, ['-e', code], {
       encoding: 'utf8', timeout: 60000,
-      env: { ...process.env, HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir },
+      env: keylessEnv({ HOME: home, USERPROFILE: home, BENCH_CONFIG_DIR: dir }),
     });
     assert.ifError(run.error);
     assert.equal(run.status, 0, run.stderr);

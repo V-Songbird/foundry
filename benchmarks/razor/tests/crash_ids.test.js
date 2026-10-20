@@ -12,6 +12,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const RUN = path.resolve(__dirname, '../runner/run.js');
 
@@ -51,8 +52,7 @@ test('a cell whose scorer threw keeps its run index and calls sent', () => {
     + `RAZOR_TASKS['note-once'].score = async () => { throw new Error('scorer broke'); };\n`
     + `runCell('note-once', 'baseline', 'sonnet', ${JSON.stringify(ws)}).then((r) => console.log(JSON.stringify(r)));`;
   try {
-    const env = { ...process.env, PATH: bin };
-    delete env.BENCH_CONFIG_DIR;
+    const env = keylessEnv({ PATH: bin });
     const run = spawnSync(process.execPath, ['-e', driver], { encoding: 'utf8', timeout: 60000, env });
     assert.ifError(run.error);
     assert.equal(run.status, 0, run.stderr);

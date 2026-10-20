@@ -13,6 +13,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.resolve(__dirname, '..');
 const FIXTURE = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-login-lost-'));
@@ -43,8 +44,7 @@ test('a lost login stops the chain and the batch after one call', () => {
   fs.writeFileSync(path.join(bin, 'claude'), `#!/bin/sh\nexec "${process.execPath}" "${fake}" "$@"\n`, { mode: 0o755 });
 
   // The temp variables put the cell's workspace under this fixture, removed after the suite.
-  const env = { ...process.env, BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config, TEMP: FIXTURE, TMP: FIXTURE, TMPDIR: FIXTURE };
-  for (const k of ['CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: data, BENCH_CONFIG_DIR: config, TEMP: FIXTURE, TMP: FIXTURE, TMPDIR: FIXTURE });
   const pathKey = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
   env[pathKey] = `${bin}${path.delimiter}${env[pathKey] || ''}`;
   // Two multi-prompt tasks: without the stop, the first sends all its prompts

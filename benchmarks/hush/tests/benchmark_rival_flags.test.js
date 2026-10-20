@@ -13,14 +13,14 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.resolve(__dirname, '..');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-rival-flags-'));
 after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
 function dryRun(tag, ...args) {
-  const env = { ...process.env, BENCH_DATA_DIR: DATA };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: DATA });
   return spawnSync(process.execPath,
     [path.join(BENCH, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],
     { cwd: BENCH, encoding: 'utf8', env, timeout: 60000 });

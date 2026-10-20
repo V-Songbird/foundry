@@ -10,6 +10,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const BENCH = path.resolve(__dirname, '..');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-usage-refusals-'));
@@ -22,8 +23,7 @@ after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 const PLUGINS = path.dirname(require('../../paths.js').pluginDir('hush'));
 
 function run(tag, args, root = BENCH) {
-  const env = { ...process.env, BENCH_DATA_DIR: DATA, BENCH_PLUGINS_DIR: PLUGINS };
-  for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY']) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: DATA, BENCH_PLUGINS_DIR: PLUGINS });
   return spawnSync(process.execPath,
     [path.join(root, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],
     { cwd: root, encoding: 'utf8', env, timeout: 60000 });

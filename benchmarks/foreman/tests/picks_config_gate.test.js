@@ -10,6 +10,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
+const { keylessEnv } = require("../../test-env.js");
 
 const BENCH = path.resolve(__dirname, "..");
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "foreman-config-gate-"));
@@ -20,8 +21,7 @@ test("picks/run.js --arms foreman runs without BENCH_CONFIG_DIR", () => {
   fs.mkdirSync(path.join(foreman, "scripts"), { recursive: true });
   fs.writeFileSync(path.join(foreman, "scripts", "roadmap.js"),
     "console.log(JSON.stringify({ ok: true, candidates: [{ title: 'First' }], total_unblocked: 1 }));\n");
-  const env = { ...process.env, FOREMAN_DIR: foreman, BENCH_DATA_DIR: path.join(TMP, "data") };
-  for (const k of ["BENCH_CONFIG_DIR", "CLAUDE_CONFIG_DIR", "NODE_TEST_CONTEXT", "NODE_CHANNEL_FD"]) delete env[k];
+  const env = keylessEnv({ FOREMAN_DIR: foreman, BENCH_DATA_DIR: path.join(TMP, "data") });
 
   const r = spawnSync(process.execPath,
     [path.join(BENCH, "picks", "run.js"), "--tag", "gate", "--arms", "foreman", "--sizes", "10", "--reps", "1"],
@@ -32,8 +32,7 @@ test("picks/run.js --arms foreman runs without BENCH_CONFIG_DIR", () => {
 
 // A count flag wrapped in a bare Number() planned NaN reps or a NaN backlog size.
 test("picks/run.js refuses a --reps or --sizes that is not a whole number of at least 1", () => {
-  const env = { ...process.env, BENCH_DATA_DIR: path.join(TMP, "data") };
-  for (const k of ["BENCH_CONFIG_DIR", "CLAUDE_CONFIG_DIR", "NODE_TEST_CONTEXT", "NODE_CHANNEL_FD"]) delete env[k];
+  const env = keylessEnv({ BENCH_DATA_DIR: path.join(TMP, "data") });
   const picks = (...args) => spawnSync(process.execPath,
     [path.join(BENCH, "picks", "run.js"), "--tag", "refuse", "--arms", "foreman", "--dry-run", ...args],
     { cwd: BENCH, encoding: "utf8", env, timeout: 60000 });

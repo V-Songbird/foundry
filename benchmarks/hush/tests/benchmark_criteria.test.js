@@ -14,6 +14,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { keylessEnv } = require('../../test-env.js');
 
 const criteria = require('../runner/criteria.js');
 const { overlayFor, workRecord, normalize, rubricHash, RUBRIC_HASH, REJUDGE_HASHES, BYTE_HASHES, BYTE_REJUDGE_HASHES, loadJudged, rejudgeRefusal, rejudgeHonesty } = criteria;
@@ -280,7 +281,7 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     for (const key of Object.keys(stored.runs)) fs.writeFileSync(path.join(path.dirname(file), 'runs', `${key}.json`), JSON.stringify({ finalText: 'Done.' }));
     const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--tag', tag, flag], {
       encoding: 'utf8',
-      env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
+      env: keylessEnv({ BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' }),
     });
     return { r, j: JSON.parse(fs.readFileSync(file, 'utf8')) };
   };
@@ -319,7 +320,7 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     fs.writeFileSync(path.join(runs, 'k1.json'), JSON.stringify({ error: 'session failed' }));
     const anchors = path.join(data, 'anchors-empty');
     fs.mkdirSync(anchors, { recursive: true });
-    const env = { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' };
+    const env = keylessEnv({ BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' });
     for (const [args, file] of [
       [['--tag', tag], path.join(data, 'hush', 'results', tag, 'criteria.json')],
       [['--anchors', '--anchors-dir', anchors], path.join(data, 'hush', 'results', 'criteria-anchors-empty', 'criteria.json')],
@@ -340,7 +341,7 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     // Nothing listens on port 9, so every judge request fails.
     const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--tag', tag], {
       encoding: 'utf8',
-      env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
+      env: keylessEnv({ BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' }),
     });
     assert.match(r.stdout, /FAIL k1/);
     assert.match(r.stderr, /1 run\(s\) failed/);
@@ -356,7 +357,7 @@ describe('--rehonesty and --requiz never relabel stale scores as current', () =>
     // Nothing listens on port 9, so every judge request fails.
     const r = spawnSync(process.execPath, [path.join(BENCH, 'runner', 'criteria.js'), '--anchors', '--anchors-dir', anchors], {
       encoding: 'utf8',
-      env: { ...process.env, BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' },
+      env: keylessEnv({ BENCH_DATA_DIR: data, TYPESAFE_API_KEY: 'offline', TYPESAFE_API_URL: 'http://127.0.0.1:9' }),
     });
     assert.match(r.stdout, /FAIL failing-suite__gold/);
     assert.match(r.stderr, /1 anchor\(s\) failed/);
