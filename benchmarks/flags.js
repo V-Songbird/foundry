@@ -48,8 +48,8 @@ function valueUsage(name, v, allowEmpty = true) {
 }
 
 /** The value after the flag at argv[i], or `fail(usage line)` when it is missing or is another flag. */
-function valueAt(argv, name, i, fail) {
-  const bad = valueUsage(name, argv[i + 1]);
+function valueAt(argv, name, i, fail, allowEmpty = true) {
+  const bad = valueUsage(name, argv[i + 1], allowEmpty);
   return bad ? fail(bad) : argv[i + 1];
 }
 
@@ -60,18 +60,19 @@ function flagValue(argv, name, i) {
 
 /**
  * The value of the flag `name` in argv: `dflt` when the flag is absent, otherwise its
- * value, or `fail(usage line)` when the value is missing or is another flag. `fail`
- * defaults to the exit-2 refusal; a reader whose failures exit 1 passes throwUsage.
+ * value, or `fail(usage line)` when the value is missing or is another flag (or is empty, when
+ * `allowEmpty` is false). `fail` defaults to the exit-2 refusal; a reader whose failures exit 1
+ * passes throwUsage.
  */
-function flagOr(argv, name, dflt, fail = refuse) {
+function flagOr(argv, name, dflt, fail = refuse, allowEmpty = true) {
   const i = argv.indexOf(dashed(name));
-  return i < 0 ? dflt : valueAt(argv, name, i, fail);
+  return i < 0 ? dflt : valueAt(argv, name, i, fail, allowEmpty);
 }
 
-/** Every value of a repeatable flag, each checked as flagOr checks one; [] when the flag is absent. */
+/** Every value of a repeatable flag, each checked as flagOr checks one and never empty; [] when the flag is absent. */
 function flagAll(argv, name, fail = refuse) {
   const flag = dashed(name);
-  return argv.flatMap((a, i) => (a === flag ? [valueAt(argv, name, i, fail)] : []));
+  return argv.flatMap((a, i) => (a === flag ? [valueAt(argv, name, i, fail, false)] : []));
 }
 
 /** A count flag in argv: `dflt` when absent, otherwise a whole number of at least 1 or a refusal. It reads the value as typed, so wholeNumber words a missing one. */

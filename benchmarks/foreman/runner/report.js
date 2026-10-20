@@ -5,11 +5,11 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { flagOr, exitUsage } =require('../../flags.js');
+const { flagOr, exitUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const argv = process.argv.slice(2);
-const tag = flagOr(argv, 'tag', 'dev', exitUsage);
+const tag = flagOr(argv, 'tag', 'dev', exitUsage, false);
 const dir = path.join(require('../../paths.js').dataDir('foreman'), 'results', tag);
 const CONFIG = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8'));
 

@@ -68,6 +68,12 @@ describe('report.js usage line', () => {
     assert.strictEqual(r.status, 1, r.stdout + r.stderr);
     assert.strictEqual(r.stderr.trim(), 'usage: --tag needs a value but none was given');
   });
+
+  test('foreman/runner/report.js refuses --tag "", exit 1, with no stack trace', () => {
+    const r = run('foreman/runner/report.js', '--tag', '');
+    assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+    assert.strictEqual(r.stderr.trim(), 'usage: --tag needs a value, got nothing');
+  });
 });
 
 describe('exit 1 readers', () => {

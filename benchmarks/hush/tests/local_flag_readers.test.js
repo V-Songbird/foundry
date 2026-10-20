@@ -81,6 +81,29 @@ describe('report.js usage line', () => {
   });
 });
 
+describe('empty --tag value', () => {
+  // The old readers read an empty --tag as 'dev' (report.js) or skipped it (pool.js, shape.js); none may take it as a folder name.
+  test('hush/runner/report.js refuses --tag "", exit 1, with no stack trace', () => {
+    const r = run('hush/runner/report.js', '--tag', '');
+    assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+    assert.strictEqual(r.stderr.trim(), 'usage: --tag needs a value, got nothing');
+  });
+  for (const script of ['hush/runner/pool.js', 'hush/runner/shape.js', 'hush/runner/criteria.js', 'hush/runner/duel.js']) {
+    test(`${script} refuses --tag "", exit 2`, () => {
+      const r = run(script, '--tag', '');
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.match(r.stderr, /usage: --tag needs a value, got nothing/);
+    });
+  }
+  test('flagAll refuses an empty value, flagOr keeps it unless told otherwise', () => {
+    const flags = require('../../flags.js');
+    const fail = (m) => { throw new Error(m); };
+    assert.throws(() => flags.flagAll(['--tag', 'a', '--tag', ''], 'tag', fail), /--tag needs a value, got nothing/);
+    assert.strictEqual(flags.flagOr(['--tag', ''], 'tag', 'dev', fail), '');
+    assert.throws(() => flags.flagOr(['--tag', ''], 'tag', 'dev', fail, false), /--tag needs a value, got nothing/);
+  });
+});
+
 describe('retold --save', () => {
   // Read before the paid loop: without --go the plan-only path used to return before it was ever read.
   test('hush/runner/retold.js refuses --save with no value before any call', () => {
