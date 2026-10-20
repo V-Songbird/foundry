@@ -42,6 +42,15 @@ describe('exit 2 readers', () => {
   }
 });
 
+describe('codex-run.js --effort', () => {
+  // codex-run requires run.js, whose own --effort read must not pre-empt codex-run's exit 1.
+  test('razor/runner/codex-run.js keeps exit 1 for --effort with no value', () => {
+    const r = run('razor/runner/codex-run.js', '--effort');
+    assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+    assert.match(r.stdout + r.stderr, /Missing value: --effort/);
+  });
+});
+
 describe('exit 1 readers', () => {
   const cases = [
     ['razor/runner/demo.js', '--task'],

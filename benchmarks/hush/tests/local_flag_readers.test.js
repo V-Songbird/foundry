@@ -43,6 +43,16 @@ describe('exit 2 readers', () => {
   }
 });
 
+describe('retold --save', () => {
+  // Read before the paid loop: without --go the plan-only path used to return before it was ever read.
+  test('hush/runner/retold.js refuses --save with no value before any call', () => {
+    const dir = fs.mkdtempSync(path.join(DATA, 'records-'));
+    const r = run('hush/runner/retold.js', '--records', dir, '--save');
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /usage: --save needs a value but none was given/);
+  });
+});
+
 describe('exit 1 readers', () => {
   const cases = [
     ['hush/runner/demo.js', '--out'],

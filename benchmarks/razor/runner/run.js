@@ -162,7 +162,8 @@ function costCapReached(results, cap) {
 // Reasoning effort for every cell in the run; omitted entirely when unset so a
 // run without it keeps whatever the CLI defaults to. Recorded in results.json,
 // because a run at a different effort is not comparable to one without it.
-const EFFORT = flag('effort', null);
+// Only the CLI reads it: codex-run.js requires this module with its own --effort, which it checks itself.
+const EFFORT = require.main === module ? flag('effort', null) : null;
 
 // --- run order --------------------------------------------------------------
 //

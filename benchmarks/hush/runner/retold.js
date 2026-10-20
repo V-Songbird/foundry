@@ -89,6 +89,7 @@ async function main() {
   if (!dir) { console.error('usage: node runner/retold.js --records <dir> [--go]'); process.exit(2); }
   const go = process.argv.includes('--go');
   const model = flag('model', 'sonnet');
+  const save = flag('save'); // before any paid call, so a bad value refuses while nothing is billed
   const records = readRecordsDir(dir);
 
   console.log(`retold — ${dir}`);
@@ -127,7 +128,6 @@ async function main() {
     console.log([a, x.runs, x.judged, n1(x.answered), ...x.qPct.map(n1), n1(x.answerablePct),
       n1(x.recoveredPct), n1(copy), x.costUsd.toFixed(3)].join('\t'));
   }
-  const save = flag('save');
   if (save) fs.writeFileSync(save, rows.map((r) => JSON.stringify(r)).join('\n') + '\n');
 }
 
