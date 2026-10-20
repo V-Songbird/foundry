@@ -36,6 +36,7 @@ const { workspaceName } = require('./provenance.js');
 const fidelity = require('./fidelity.js');
 const { MAX_TOKENS } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
+const { usdCapUsage } = require('./flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));
@@ -223,8 +224,8 @@ async function cli(argv = process.argv.slice(2)) {
   const valueOf = (n) => { const i = kept.lastIndexOf(n); return i < 0 ? null : kept[i + 1]; };
   const flow = path.resolve(valueOf('--flow') || path.join(hc.FOUNDRY, '.claude', 'hillclimb', suite.name));
   const file = path.join(flow, String(valueOf('--variant')), 'results.jsonl');
-  // Infinity is refused too: batch-judge.js's cap test passes it, so the cap would not cap.
-  let problem = (at >= 0 && !(Number.isFinite(maxUsd) && maxUsd > 0) && `--max-usd needs a positive number of USD, got ${own[at + 1]}`)
+  // The cap rule is flags.js's, shared with the judge scripts; it refuses Infinity too.
+  let problem = usdCapUsage(own)
     || (go && at < 0 && '--go needs --max-usd <usd>')
     || (go && kept.includes('--smoke') && '--go has no use with --smoke, which never asks the judge')
     || (go && !process.env.ANTHROPIC_API_KEY && '--go needs ANTHROPIC_API_KEY; run with node --env-file=<key file>');

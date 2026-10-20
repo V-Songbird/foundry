@@ -27,6 +27,7 @@ const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/foreman
 const { pluginDir, dataDir } = require('../../paths.js');
+const { wholeNumber } = require('../../hush/runner/flags.js');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8'));
 const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'));
 
@@ -51,15 +52,7 @@ const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
 // A count flag must be a whole number of at least 1; anything else (abc, 0, 1.5)
 // is a usage refusal, not a NaN plan.
-function count(name, dflt) {
-  const raw = flag(name, dflt);
-  const n = Number(raw);
-  if (raw === '' || !Number.isInteger(n) || n < 1) {
-    console.error(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
-    process.exit(2);
-  }
-  return n;
-}
+const count = (name, dflt) => wholeNumber(name, flag(name, dflt));
 const reps = count('reps', CONFIG.reps);
 const concurrency = count('concurrency', CONFIG.concurrency);
 const dryRun = argv.includes('--dry-run');

@@ -37,6 +37,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
+const { wholeNumber } = require('../../hush/runner/flags.js');
 const { runSession, prepareSdk, sdkVersion } = require('../../sdk-session.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
@@ -150,13 +151,7 @@ function parseMaxCost(raw) {
 // usage refusal (exit 2), not a NaN plan.
 function count(name, dflt) {
   const i = argv.indexOf(`--${name}`);
-  const raw = i < 0 ? dflt : argv[i + 1];
-  const n = Number(raw);
-  if (raw === undefined || raw === '' || !Number.isInteger(n) || n < 1) {
-    console.error(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
-    process.exit(2);
-  }
-  return n;
+  return wholeNumber(name, i < 0 ? dflt : argv[i + 1]);
 }
 // The summed cost of the cells finished so far. A cell with no cost counts 0.
 function totalCost(results) {

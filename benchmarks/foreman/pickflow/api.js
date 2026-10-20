@@ -13,6 +13,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { modelId, PRICES } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
+const { wholeNumberUsage } = require('../../hush/runner/flags.js');
 
 const API = 'https://api.anthropic.com/v1';
 const HEADERS = { 'content-type': 'application/json', 'anthropic-version': '2023-06-01' };
@@ -24,24 +25,29 @@ const CHARS_PER_TOKEN = 3; // over-counts, so worst cases err high
 // The flags every live flow reads, with its own defaults.
 function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
   const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
+  // `raw` keeps the count flags as given, so countUsage prints what the user typed.
+  const raw = { reps: v('reps', reps), 'max-rounds': v('max-rounds', maxRounds), 'max-tokens': v('max-tokens', maxTokens) };
   return {
     tag: v('tag', 'dev'),
     model: modelId(v('model', 'opus')),
     api: v('api', 'batches'),
-    reps: Number(v('reps', reps)),
-    maxRounds: Number(v('max-rounds', maxRounds)),
-    maxTokens: Number(v('max-tokens', maxTokens)),
+    reps: Number(raw.reps),
+    maxRounds: Number(raw['max-rounds']),
+    maxTokens: Number(raw['max-tokens']),
+    raw,
     maxUsd: v('max-usd', null) === null ? null : Number(v('max-usd')),
     go: argv.includes('--go'),
     smoke: argv.includes('--smoke'),
   };
 }
 
-// A usage line for a count flag that is not a whole number of at least 1, or null.
+// A usage line for a count flag that is not a whole number of at least 1, or null,
+// by the rule the judge scripts share (hush/runner/flags.js), with the value as typed.
 // A NaN --max-tokens would turn the round guard off; Infinity would never end a loop.
 function countUsage(o) {
-  for (const [flag, n] of [['reps', o.reps], ['max-rounds', o.maxRounds], ['max-tokens', o.maxTokens]]) {
-    if (!(Number.isInteger(n) && n >= 1)) return `usage: --${flag} needs a whole number of at least 1, got ${n}`;
+  for (const flag of ['reps', 'max-rounds', 'max-tokens']) {
+    const bad = wholeNumberUsage(flag, o.raw[flag]);
+    if (bad) return bad;
   }
   return null;
 }

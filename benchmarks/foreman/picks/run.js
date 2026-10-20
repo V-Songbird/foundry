@@ -27,6 +27,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { parseTranscript } = require('../runner/metrics.js');
 const { pluginDir, dataDir } = require('../../paths.js');
+const { wholeNumber } = require('../../hush/runner/flags.js');
 
 const ROOT = path.join(__dirname);                       // picks/
 // The foreman arm shells out to the plugin's own roadmap.js — the plugin
@@ -46,16 +47,8 @@ const tag = flag('tag', 'dev');
 const model = flag('model', 'sonnet');
 // A count must be a whole number of at least 1; anything else (abc, 0, 1.5, a
 // missing value) is a usage refusal, not a NaN plan.
-function count(name, raw) {
-  const n = Number(raw);
-  if (raw === undefined || raw === '' || !Number.isInteger(n) || n < 1) {
-    console.error(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
-    process.exit(2);
-  }
-  return n;
-}
-const reps = count('reps', flag('reps', 5));
-const sizes = String(flag('sizes', '10,50,150')).split(',').map((s) => count('sizes', s));
+const reps = wholeNumber('reps', flag('reps', 5));
+const sizes = String(flag('sizes', '10,50,150')).split(',').map((s) => wholeNumber('sizes', s));
 const arms = flag('arms', 'markdown,foreman').split(',');
 const dryRun = argv.includes('--dry-run');
 

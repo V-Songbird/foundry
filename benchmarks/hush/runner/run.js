@@ -26,6 +26,7 @@ const { spawn } = require('node:child_process');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { parseTranscript, checkTask, readDebugManifest, assertUsableRun } = require('./metrics.js');
 const { makeRng, shuffled, hashSeed } = require('./stats.js');
+const { wholeNumber } = require('./flags.js');
 const { writeRecord } = require('./records.js');
 const { workspaceName, pluginProvenance } = require('./provenance.js');
 const { readStream } = require('../../hillclimb.js');
@@ -61,12 +62,7 @@ const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
 // A count flag must be a whole number of at least 1; anything else (abc, 0, 1.5)
 // is a usage refusal, not a NaN plan.
-function count(name, dflt) {
-  const raw = flag(name, dflt);
-  const n = Number(raw);
-  if (raw === '' || !Number.isInteger(n) || n < 1) refuse(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
-  return n;
-}
+const count = (name, dflt) => wholeNumber(name, flag(name, dflt));
 const reps = count('reps', CONFIG.reps);
 const concurrency = count('concurrency', CONFIG.concurrency);
 // Opt-in (Probe 9 Spec 1 ingestion): writes hush's per-decision debug

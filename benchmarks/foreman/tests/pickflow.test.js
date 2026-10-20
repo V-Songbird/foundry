@@ -246,3 +246,15 @@ test('a count flag that is not a whole number of at least 1 is refused before an
     else process.env.ANTHROPIC_API_KEY = saved.key;
   }
 });
+
+test('a refused count flag prints the value as typed, by the rule hush/runner/flags.js holds', () => {
+  const api = require('../pickflow/api.js');
+  const line = (...argv) => api.countUsage(run.parseArgs(argv));
+  assert.strictEqual(line(), null);
+  assert.strictEqual(line('--reps', '2', '--max-rounds', '5', '--max-tokens', '4096'), null);
+  assert.strictEqual(line('--reps', 'abc'), 'usage: --reps needs a whole number of at least 1, got abc');
+  assert.strictEqual(line('--max-rounds', '1.5'), 'usage: --max-rounds needs a whole number of at least 1, got 1.5');
+  assert.strictEqual(line('--max-tokens', '-100000000'), 'usage: --max-tokens needs a whole number of at least 1, got -100000000');
+  assert.strictEqual(line('--reps'), 'usage: --reps needs a whole number of at least 1, got undefined');
+  assert.strictEqual(line('--reps', ''), 'usage: --reps needs a whole number of at least 1, got ');
+});

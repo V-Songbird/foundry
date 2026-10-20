@@ -70,3 +70,34 @@ describe('--max-usd', () => {
     assert.match(r.stderr, /--max-usd needs a positive number of USD, got Infinity/);
   });
 });
+
+// The non-exiting forms: hillclimb's cli() and the foreman API flows run in-process
+// and return 2, so the shared rule hands them its usage line instead of exiting.
+describe('the non-exiting forms', () => {
+  const flags = require(path.join(RUNNER, 'flags.js'));
+
+  test('wholeNumberUsage and usdCapUsage return the usage line, or null, and never exit', (t) => {
+    const exit = t.mock.method(process, 'exit', () => { throw new Error('exited'); });
+    t.mock.method(console, 'error', () => { throw new Error('printed'); });
+    assert.strictEqual(flags.wholeNumberUsage('reps', 3), null);
+    assert.strictEqual(flags.wholeNumberUsage('reps', '2.5'), 'usage: --reps needs a whole number of at least 1, got 2.5');
+    assert.strictEqual(flags.wholeNumberUsage('reps', undefined), 'usage: --reps needs a whole number of at least 1, got undefined');
+    assert.strictEqual(flags.usdCapUsage(['--go']), null);
+    assert.strictEqual(flags.usdCapUsage(['--max-usd', '0.5']), null);
+    assert.strictEqual(flags.usdCapUsage(['--max-usd', 'Infinity']), 'usage: --max-usd needs a positive number of USD, got Infinity');
+    assert.strictEqual(flags.usdCapUsage(['--max-usd', '--go']), 'usage: --max-usd needs a positive number of USD, got --go');
+    assert.strictEqual(flags.usdCapUsage(['--max-usd']), 'usage: --max-usd needs a positive number of USD, got undefined');
+    assert.strictEqual(exit.mock.callCount(), 0);
+  });
+
+  test('hillclimb cli() returns 2 with the shared usage line and the value as typed', async (t) => {
+    const suite = require(path.join(RUNNER, 'hillclimb.js'));
+    const err = t.mock.method(console, 'error', () => {});
+    for (const [value, rest] of [['Infinity', []], ['0', []], ['abc', []], ['-1', ['--go']]]) {
+      err.mock.resetCalls();
+      const code = await suite.cli(['--variant', 'v1', '--flow', path.join(DATA, 'flow'), '--max-usd', value, ...rest]);
+      assert.strictEqual(code, 2, value);
+      assert.strictEqual(err.mock.calls.at(-1).arguments[0], `usage: --max-usd needs a positive number of USD, got ${value}`);
+    }
+  });
+});
