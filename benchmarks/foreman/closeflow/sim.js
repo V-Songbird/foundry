@@ -65,11 +65,13 @@ const TOOLS = [
   },
 ];
 
-// Foreman's scripts see the scratch project and no host of their own.
+// Foreman's scripts and git see the scratch project and no host of their own:
+// no system or global git config or attributes, whose hooks, textconv, filter
+// or fsmonitor commands would run on the host, and an editor that fails.
 function childEnv(project) {
   const env = {};
   for (const [k, v] of Object.entries(process.env)) if (!/^(FOREMAN_|CODEX_|CLAUDE|ANTIGRAVITY_|GIT_|PLUGIN_ROOT$)/.test(k)) env[k] = v;
-  env.CLAUDE_PROJECT_DIR = project;
+  Object.assign(env, { CLAUDE_PROJECT_DIR: project, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_ATTR_NOSYSTEM: '1', GIT_EDITOR: 'false' });
   return env;
 }
 
@@ -264,14 +266,17 @@ function segments(cmd) {
 // ls-files, ls-tree, grep, blame and cat-file only read the index and the tree.
 const GIT_RUN = new Set(['add', 'commit', 'status', 'diff', 'rev-parse', 'log', 'show', 'ls-files', 'ls-tree', 'grep', 'blame', 'cat-file']);
 // The options each subcommand refuses. --output and --output-directory write a file wherever they
-// point; commit --amend rewrites the fixture's commit, -n and --no-verify skip its hooks and -S and
-// --gpg-sign run gpg; grep -O runs a pager command; cat-file --textconv and --filters run configured
-// filter commands. Git takes any unique prefix of a long option (--am, --no-veri, --op, --te), and
-// a short option anywhere in a cluster (-anm, -3Ocat) up to the first one that takes an argument,
-// so these match prefixes and clusters, not the full spelling.
+// point; commit --amend rewrites the fixture's commit, -n and --no-verify skip its hooks, -S and
+// --gpg-sign run gpg, and -e, --edit, -c and --reedit-message run the editor, as add -e and --edit
+// do; grep -O runs a pager command; cat-file --textconv and --filters run configured filter
+// commands. Git takes any unique prefix of a long option (--am, --g, --ree, --op, --te), and a short
+// option anywhere in a cluster (-anm, -3Ocat) up to the first one that takes an argument, so these
+// match prefixes and clusters, not the full spelling. childEnv also keeps the host's git config
+// and attributes out and makes the editor fail, for the routes no option names.
 const shortIn = (letters, args) => new RegExp(`^-(?:(?![${args}])[a-zA-Z0-9])*[${letters}]`);
 const REFUSED = {
-  commit: [/^--(?:am|no-veri|gp)/, shortIn('nS', 'mFcCtu')],
+  add: [/^--e/, shortIn('e', '')],
+  commit: [/^--(?:am|no-veri|g|e|ree)/, shortIn('nSec', 'mFcCtu')],
   grep: [/^--op/, shortIn('O', 'efABCm')],
   'cat-file': [/^--(?:t|fi)/],
 };
