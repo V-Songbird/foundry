@@ -244,7 +244,8 @@ async function main(argv = process.argv.slice(2), outRoot = dataDir('foreman')) 
     console.log('plan only: nothing was sent. Add --go and --max-usd <usd>, with the key loaded through node --env-file.');
     return 0;
   }
-  if (!(Number.isFinite(o.maxUsd) && o.maxUsd > 0)) { console.error('--max-usd is required with --go: a finite number of USD above 0'); return 2; }
+  const badCap = api.capUsage(o);
+  if (badCap) { console.error(badCap); return 2; }
   apiKey();
 
   const outDir = path.join(outRoot, 'pickflow', o.tag);

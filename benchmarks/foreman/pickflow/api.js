@@ -13,7 +13,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { modelId, PRICES } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
-const { wholeNumberUsage } = require('../../hush/runner/flags.js');
+const { wholeNumberUsage, usdCapValueUsage } = require('../../flags.js');
 
 const API = 'https://api.anthropic.com/v1';
 const HEADERS = { 'content-type': 'application/json', 'anthropic-version': '2023-06-01' };
@@ -26,7 +26,7 @@ const CHARS_PER_TOKEN = 3; // over-counts, so worst cases err high
 function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
   const v = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   // `raw` keeps the count flags as given, so countUsage prints what the user typed.
-  const raw = { reps: v('reps', reps), 'max-rounds': v('max-rounds', maxRounds), 'max-tokens': v('max-tokens', maxTokens) };
+  const raw = { reps: v('reps', reps), 'max-rounds': v('max-rounds', maxRounds), 'max-tokens': v('max-tokens', maxTokens), 'max-usd': v('max-usd') };
   return {
     tag: v('tag', 'dev'),
     model: modelId(v('model', 'opus')),
@@ -42,7 +42,7 @@ function apiArgs(argv, { reps = 1, maxRounds = 20, maxTokens = 8192 } = {}) {
 }
 
 // A usage line for a count flag that is not a whole number of at least 1, or null,
-// by the rule the judge scripts share (hush/runner/flags.js), with the value as typed.
+// by the rule the judge scripts share (flags.js), with the value as typed.
 // A NaN --max-tokens would turn the round guard off; Infinity would never end a loop.
 function countUsage(o) {
   for (const flag of ['reps', 'max-rounds', 'max-tokens']) {
@@ -50,6 +50,11 @@ function countUsage(o) {
     if (bad) return bad;
   }
   return null;
+}
+
+// The usage line for a --go without a finite --max-usd above 0, or null, by the same rule.
+function capUsage(o) {
+  return usdCapValueUsage('--max-usd', o.raw['max-usd']);
 }
 
 // The cost fields a live case carries beside its flow's own.
@@ -268,7 +273,8 @@ async function live({ name, title, o, makeCases, flow, grade, cleanup, outRoot =
     log('plan only: nothing was sent. Add --go and --max-usd <usd>, with the key loaded through node --env-file.');
     return 0;
   }
-  if (!(Number.isFinite(o.maxUsd) && o.maxUsd > 0)) { log('--max-usd is required with --go: a finite number of USD above 0'); return 2; }
+  const badCap = capUsage(o);
+  if (badCap) { log(badCap); return 2; }
   apiKey();
   const outDir = path.join(outRoot, name, o.tag);
   if (fs.existsSync(path.join(outDir, 'records.json'))) { log(`${outDir} already holds a run; pick another --tag`); return 2; }
@@ -289,6 +295,6 @@ async function live({ name, title, o, makeCases, flow, grade, cleanup, outRoot =
 }
 
 module.exports = {
-  apiArgs, countUsage, meter, request, price, costOf, worstUsd, apiKey, batchSender, messagesSender, runCases,
+  apiArgs, countUsage, capUsage, meter, request, price, costOf, worstUsd, apiKey, batchSender, messagesSender, runCases,
   costPlan, record, report, live,
 };

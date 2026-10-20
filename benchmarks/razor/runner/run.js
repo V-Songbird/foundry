@@ -37,7 +37,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
-const { wholeNumber } = require('../../hush/runner/flags.js');
+const { wholeNumber } = require('../../flags.js');
 const { runSession, prepareSdk, sdkVersion } = require('../../sdk-session.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,

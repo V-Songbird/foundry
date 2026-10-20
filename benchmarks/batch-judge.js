@@ -17,6 +17,7 @@
 // - Every result that did not succeed is returned as an error, never as text.
 
 const fs = require('node:fs');
+const { usdCapValueUsage } = require('./flags.js');
 
 const API = 'https://api.anthropic.com/v1/messages/batches';
 const HEADERS = { 'content-type': 'application/json', 'anthropic-version': '2023-06-01' };
@@ -122,7 +123,8 @@ async function runBatch(items, { model: alias = 'sonnet', maxUsd, go = false, ra
   const plan = { model, ...estimate(items, model) };
   if (!go) return { plan };
   // Infinity and 1e999 are refused too: no worst case is above them, so the cap would not cap.
-  if (!(Number.isFinite(maxUsd) && maxUsd > 0)) throw new Error('--max-usd is required for a paid batch: a finite number of USD above 0');
+  const badCap = usdCapValueUsage('--max-usd', maxUsd);
+  if (badCap) throw new Error(badCap);
   if (plan.worstUsd > maxUsd) {
     throw new Error(`worst case $${plan.worstUsd.toFixed(2)} is above --max-usd ${maxUsd}; nothing was sent`);
   }

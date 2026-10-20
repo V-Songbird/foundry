@@ -74,7 +74,7 @@ describe('--max-usd', () => {
 // The non-exiting forms: hillclimb's cli() and the foreman API flows run in-process
 // and return 2, so the shared rule hands them its usage line instead of exiting.
 describe('the non-exiting forms', () => {
-  const flags = require(path.join(RUNNER, 'flags.js'));
+  const flags = require(path.join(RUNNER, '..', '..', 'flags.js'));
 
   test('wholeNumberUsage and usdCapUsage return the usage line, or null, and never exit', (t) => {
     const exit = t.mock.method(process, 'exit', () => { throw new Error('exited'); });
@@ -87,6 +87,10 @@ describe('the non-exiting forms', () => {
     assert.strictEqual(flags.usdCapUsage(['--max-usd', 'Infinity']), 'usage: --max-usd needs a positive number of USD, got Infinity');
     assert.strictEqual(flags.usdCapUsage(['--max-usd', '--go']), 'usage: --max-usd needs a positive number of USD, got --go');
     assert.strictEqual(flags.usdCapUsage(['--max-usd']), 'usage: --max-usd needs a positive number of USD, got undefined');
+    assert.strictEqual(flags.usdCapValueUsage('--max-usd', 0.5), null);
+    assert.strictEqual(flags.usdCapValueUsage('--max-usd', 1e999), 'usage: --max-usd needs a positive number of USD, got Infinity');
+    assert.strictEqual(flags.usdCapValueUsage('--max-usd', undefined), 'usage: --max-usd needs a positive number of USD, got undefined');
+    assert.strictEqual(flags.usdCapValueUsage('--max-usd', null), 'usage: --max-usd needs a positive number of USD, got null');
     assert.strictEqual(exit.mock.callCount(), 0);
   });
 

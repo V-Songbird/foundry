@@ -200,13 +200,14 @@ test('a --go with a cap that is not a finite number above 0 sends nothing', asyn
   console.error = (m) => errors.push(m);
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'pickflow-cap-'));
   try {
-    for (const cap of ['Infinity', '1e999', 'NaN', '0', '-1', 'abc']) {
+    const caps = ['Infinity', '1e999', 'NaN', '0', '-1', 'abc'];
+    for (const cap of caps) {
       assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--reps', '1', '--go', '--max-usd', cap], out), 2, cap);
     }
+    assert.strictEqual(await run.main(['--scenarios', 'plain', '--arms', 'prose', '--reps', '1', '--go'], out), 2);
     assert.strictEqual(calls.length, 0);
     assert.deepStrictEqual(fs.readdirSync(out), []);
-    assert.strictEqual(errors.length, 6);
-    assert.ok(errors.every((m) => /--max-usd is required with --go/.test(m)), errors.join('\n'));
+    assert.deepStrictEqual(errors, [...caps, undefined].map((c) => `usage: --max-usd needs a positive number of USD, got ${c}`));
   } finally {
     globalThis.fetch = saved.fetch;
     console.log = saved.log;
@@ -247,7 +248,7 @@ test('a count flag that is not a whole number of at least 1 is refused before an
   }
 });
 
-test('a refused count flag prints the value as typed, by the rule hush/runner/flags.js holds', () => {
+test('a refused count flag prints the value as typed, by the rule flags.js holds', () => {
   const api = require('../pickflow/api.js');
   const line = (...argv) => api.countUsage(run.parseArgs(argv));
   assert.strictEqual(line(), null);

@@ -3,8 +3,9 @@
 // Value checks for the benchmark scripts that read their own flags. A bad value is
 // a usage line, never a NaN plan or a cap that does not cap. The *Usage forms
 // return that line (or null) and never exit, so a caller that runs in-process
-// (hillclimb's cli, the foreman API flows) prints it and returns 2; wholeNumber
-// and usdCap are the same checks for a script that refuses with exit 2.
+// prints it and returns 2 (hillclimb's cli, the foreman API flows) or throws it
+// (batch-judge.js, sdk-session.js); wholeNumber and usdCap are the same checks
+// for a script that refuses with exit 2.
 
 function refuse(message) {
   console.error(message);
@@ -34,10 +35,17 @@ function wholeNumber(name, raw) {
  */
 function usdCapUsage(argv, name = '--max-usd') {
   const i = argv.indexOf(name);
-  if (i < 0) return null;
-  const raw = argv[i + 1];
+  return i < 0 ? null : usdCapValueUsage(name, argv[i + 1]);
+}
+
+/**
+ * The usage line for a cap value already read (a string as typed, a number, or
+ * undefined for a missing one), or null when it is a finite number above 0. For
+ * a caller that requires the cap, such as batch-judge.js and the live flows.
+ */
+function usdCapValueUsage(name, raw) {
   const n = Number(raw);
-  return raw === undefined || raw === '' || !Number.isFinite(n) || n <= 0
+  return raw === undefined || raw === null || raw === '' || !Number.isFinite(n) || n <= 0
     ? `usage: ${name} needs a positive number of USD, got ${raw}`
     : null;
 }
@@ -50,4 +58,4 @@ function usdCap(argv, name = '--max-usd') {
   return i < 0 ? null : Number(argv[i + 1]);
 }
 
-module.exports = { refuse, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage };
+module.exports = { refuse, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };

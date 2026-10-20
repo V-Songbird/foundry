@@ -57,7 +57,7 @@ const { spawn } = require('node:child_process');
 // transcript store; runJudge calls it before each session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
 const { runBatch, modelId } = require('../../batch-judge.js');
-const { usdCap } = require('./flags.js');
+const { usdCap } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');

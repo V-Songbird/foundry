@@ -56,7 +56,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const { judgeOnce, readRecordsDir, keysHash } = require('./retention.js');
-const { wholeNumber } = require('./flags.js');
+const { wholeNumber } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');

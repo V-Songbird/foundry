@@ -65,14 +65,14 @@ describe('runBatch guards', () => {
   });
 
   test('a paid run needs a cap', async () => {
-    await assert.rejects(runBatch(items, { go: true }), /max-usd is required/);
+    await assert.rejects(runBatch(items, { go: true }), /usage: --max-usd needs a positive number of USD, got undefined/);
   });
 
   test('a cap that is not a finite number above 0 is refused before any request', async () => {
     process.env.ANTHROPIC_API_KEY = 'test-key';
     global.fetch = async () => { throw new Error('no request expected'); };
     for (const maxUsd of [Infinity, 1e999, NaN, 0, -1]) {
-      await assert.rejects(runBatch(items, { go: true, maxUsd }), /max-usd is required/, String(maxUsd));
+      await assert.rejects(runBatch(items, { go: true, maxUsd }), new RegExp(`usage: --max-usd needs a positive number of USD, got ${maxUsd}$`), String(maxUsd));
     }
   });
 

@@ -15,6 +15,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { wholeNumberUsage } = require('./flags.js');
 
 const SDK = '@anthropic-ai/claude-agent-sdk';
 
@@ -35,10 +36,9 @@ function sdkOptions(args) {
       case '--max-turns': {
         // Infinity or NaN would leave the session without a turn limit.
         const raw = v();
+        const bad = wholeNumberUsage('max-turns', raw);
+        if (bad) throw new Error(bad);
         o.maxTurns = Number(raw);
-        if (raw === '' || !Number.isInteger(o.maxTurns) || o.maxTurns < 1) {
-          throw new Error(`sdk-session: --max-turns needs a whole number of at least 1, got ${raw}`);
-        }
         break;
       }
       case '--setting-sources': o.settingSources = list(v()); break;

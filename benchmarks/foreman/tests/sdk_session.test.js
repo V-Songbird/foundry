@@ -112,6 +112,7 @@ test('sdkVersion names the installed SDK build, not the package.json pin', () =>
   const pkg = path.join(dir, 'node_modules', '@anthropic-ai', 'claude-agent-sdk');
   fs.mkdirSync(pkg, { recursive: true });
   fs.copyFileSync(SDK_SESSION, path.join(dir, 'sdk-session.js'));
+  fs.copyFileSync(path.join(path.dirname(SDK_SESSION), 'flags.js'), path.join(dir, 'flags.js'));
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ dependencies: { '@anthropic-ai/claude-agent-sdk': '0.0.1' } }));
   fs.writeFileSync(path.join(pkg, 'package.json'), JSON.stringify({ name: '@anthropic-ai/claude-agent-sdk', version: '0.0.2' }));
   assert.strictEqual(require(path.join(dir, 'sdk-session.js')).sdkVersion(), '0.0.2');

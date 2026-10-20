@@ -35,7 +35,7 @@ const { spawn } = require('node:child_process');
 // caller that judges, truth.js included, gets the gate; keep the call there.
 const benchConfigDir = require('../../bench-config-dir.js');
 const { runBatch, modelId } = require('../../batch-judge.js');
-const { wholeNumber, usdCap } = require('./flags.js');
+const { wholeNumber, usdCap } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');

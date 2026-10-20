@@ -24,7 +24,7 @@ const path = require('node:path');
 const answerable = require('./answerable.js');
 const retention = require('./retention.js');
 const { runBatch } = require('../../batch-judge.js');
-const { wholeNumber, usdCap } = require('./flags.js');
+const { wholeNumber, usdCap } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');

@@ -36,7 +36,7 @@ const { workspaceName } = require('./provenance.js');
 const fidelity = require('./fidelity.js');
 const { MAX_TOKENS } = require('../../batch-judge.js');
 const { dataDir } = require('../../paths.js');
-const { usdCapUsage } = require('./flags.js');
+const { usdCapUsage } = require('../../flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const TASKS = new Map([...JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')), ...fidelity.tasks()].map((t) => [t.id, t]));

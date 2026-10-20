@@ -27,7 +27,7 @@ const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/foreman
 const { pluginDir, dataDir } = require('../../paths.js');
-const { wholeNumber } = require('../../hush/runner/flags.js');
+const { wholeNumber } = require('../../flags.js');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8'));
 const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'));
 

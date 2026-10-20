@@ -27,7 +27,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { parseTranscript } = require('../runner/metrics.js');
 const { pluginDir, dataDir } = require('../../paths.js');
-const { wholeNumber } = require('../../hush/runner/flags.js');
+const { wholeNumber } = require('../../flags.js');
 
 const ROOT = path.join(__dirname);                       // picks/
 // The foreman arm shells out to the plugin's own roadmap.js — the plugin

@@ -123,9 +123,6 @@ test('an arm whose settings file is missing is a usage error naming the file', (
     recursive: true,
     filter: (p) => !p.includes(`${path.sep}tests`) && path.basename(p) !== 'settings-trio.json',
   });
-  // The runner's flag checks come from hush/runner/flags.js, shared across suites.
-  fs.mkdirSync(path.join(bench, 'hush', 'runner'), { recursive: true });
-  fs.copyFileSync(path.join(top, 'hush', 'runner', 'flags.js'), path.join(bench, 'hush', 'runner', 'flags.js'));
   const env = { BENCH_PLUGINS_DIR: PLUGINS };
   for (const name of ['hush', 'razor']) {
     const dir = path.join(bench, 'plugins', name);
