@@ -1,9 +1,11 @@
 'use strict';
 
 // The judge scripts read --concurrency, --reps and --max-usd with a bare Number().
-// A non-numeric count planned NaN workers (truth.js and retention.js judged
-// nothing), and --max-usd Infinity passed batch-judge.js's cap test, so the batch
-// went out with no limit. Each script now refuses such a value with exit 2 before
+// A bad count did not fail loudly. judge.js started zero workers for abc or 0
+// (Array.from({ length: NaN })), truth.js and retention.js started zero for a
+// negative value and silently fell back to one worker for abc or 0 (their
+// `Math.min(...) || 1`). --max-usd Infinity passed batch-judge.js's cap test, so
+// the batch went out with no limit. Each script now refuses such a value with exit 2 before
 // it reads a record or reaches a judge. No case passes --go with a real key; the
 // key is a placeholder or absent, and the refusal comes first.
 
