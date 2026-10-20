@@ -82,3 +82,28 @@ describe('value flags', () => {
     assert.match(r.stdout, /arms: baseline, hush/);
   });
 });
+
+describe('arm names', () => {
+  test('an --arms name that is no arm is refused with exit 2 before anything is planned', () => {
+    const r = plan('value-flags-arm', 'log-triage', {}, '--arms', 'baseline,nope');
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /usage: --arms names no arm called nope; known arms: baseline, hush/);
+    assert.doesNotMatch(r.stdout, /runs \(|arm nope/);
+    assert.doesNotMatch(r.stderr, /TypeError/);
+    assert.ok(!fs.existsSync(path.join(DATA, 'hush', 'results', 'value-flags-arm')), 'a refused run still wrote a batch manifest');
+  });
+
+  test('an empty --arms value and an object-prototype name are refused as arms', () => {
+    for (const [arms, named] of [['', '(empty name)'], ['baseline,constructor', 'constructor']]) {
+      const r = run('--arms', arms);
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.ok(r.stderr.includes(`names no arm called ${named};`), r.stderr);
+    }
+  });
+
+  test('a rival arm is a known arm', () => {
+    const r = run('--rival-name', 'mine', '--rival-dir', '', '--arms', 'baseline,mine');
+    assert.strictEqual(r.status, 0, r.stderr);
+    assert.match(r.stdout, /arms: baseline, mine/);
+  });
+});

@@ -192,6 +192,12 @@ if (argv.includes('--ablations')) {
 }
 
 const armNames = (flag('arms', Object.keys(ARMS).join(','))).split(',');
+// An arm name that ARMS lacks would otherwise plan, and a live run would start
+// other cells' paid sessions before buildArgs threw on it.
+const unknownArms = armNames.filter((a) => !Object.hasOwn(ARMS, a));
+if (unknownArms.length) {
+  refuse(`usage: --arms names no arm called ${unknownArms.map((a) => a || '(empty name)').join(', ')}; known arms: ${Object.keys(ARMS).join(', ')}`);
+}
 
 // --- task selection ---------------------------------------------------------
 // No --tasks -> the task set config.json declares, or the fidelity tasks.

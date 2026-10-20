@@ -52,3 +52,27 @@ test('a --tasks id that names no task is a usage error that plans nothing', () =
   assert.match(r.stderr, /--tasks names no task called no-such-task; known tasks: .*api-constraint/);
   assert.ok(!fs.existsSync(WORK), 'a refused run still made workdirs');
 });
+
+// A value flag with no value, or with another flag where its value belongs,
+// used to crash at .split on undefined (--tasks, --arms) or swallow the next
+// flag. Each is now a usage line naming the flag and exit 2, never a stack trace.
+const dryArgs = (...args) => spawnSync(process.execPath, [RUN, '--dry-run', ...args],
+  { env: { ...process.env, BENCH_DATA_DIR: DATA }, encoding: 'utf8' });
+
+for (const name of ['tasks', 'arms', 'tag', 'model', 'reps']) {
+  test(`a trailing --${name} is refused with a usage line, not a stack trace`, () => {
+    const given = { tag: TAG, arms: 'foreman-std' };
+    delete given[name];
+    const r = dryArgs(...Object.entries(given).flatMap(([k, v]) => [`--${k}`, v]), `--${name}`);
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, new RegExp(`usage: --${name} needs a value but none was given`));
+    assert.doesNotMatch(r.stderr, /TypeError|\n\s+at /);
+  });
+}
+
+test('--tasks followed by another flag is refused, naming both', () => {
+  const r = dryArgs('--tag', TAG, '--tasks', '--reps', '1');
+  assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+  assert.match(r.stderr, /usage: --tasks needs a value, got --reps/);
+  assert.ok(!fs.existsSync(WORK), 'a refused run still made workdirs');
+});

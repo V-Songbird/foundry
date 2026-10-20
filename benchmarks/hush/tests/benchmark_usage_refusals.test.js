@@ -16,8 +16,13 @@ const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-usage-refusals-'));
 const CONFIG = JSON.parse(fs.readFileSync(path.join(BENCH, 'config.json'), 'utf8'));
 after(() => fs.rmSync(DATA, { recursive: true, force: true }));
 
+// The segment test runs a copy of the harness under DATA, where paths.js would
+// look for the plugins next to the copy; point the child at the folder this
+// process resolves them from, whatever BENCH_PLUGINS_DIR the parent has.
+const PLUGINS = path.dirname(require('../../paths.js').pluginDir('hush'));
+
 function run(tag, args, root = BENCH) {
-  const env = { ...process.env, BENCH_DATA_DIR: DATA };
+  const env = { ...process.env, BENCH_DATA_DIR: DATA, BENCH_PLUGINS_DIR: PLUGINS };
   for (const k of ['BENCH_CONFIG_DIR', 'CLAUDE_CONFIG_DIR', 'NODE_TEST_CONTEXT', 'NODE_CHANNEL_FD']) delete env[k];
   return spawnSync(process.execPath,
     [path.join(root, 'runner', 'run.js'), '--tag', tag, '--dry-run', '--tasks', 'log-triage', ...args],

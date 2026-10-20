@@ -32,9 +32,20 @@ const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'))
 
 // --- CLI args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
+// The value after a value flag: refused with a usage line naming the flag when
+// it is missing or is itself another flag, as hush's runner does. An empty value
+// ("") is allowed.
+function flagValue(name, i) {
+  const v = argv[i + 1];
+  if (v === undefined || v.startsWith('--')) {
+    console.error(`usage: --${name} needs a value${v === undefined ? ' but none was given' : `, got ${v}`}`);
+    process.exit(2);
+  }
+  return v;
+}
 function flag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? argv[i + 1] : dflt;
+  return i >= 0 ? flagValue(name, i) : dflt;
 }
 const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
