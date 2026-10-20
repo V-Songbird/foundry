@@ -59,8 +59,14 @@ describe('value flags', () => {
   test('an empty --tasks value is refused with exit 2, not widened to the default set', () => {
     const r = plan('value-flags-empty', '', {});
     assert.strictEqual(r.status, 2, r.stdout + r.stderr);
-    assert.match(r.stderr, /usage: --tasks names no task called/);
+    assert.match(r.stderr, /usage: --tasks names no task called \(empty id\);/);
     assert.doesNotMatch(r.stdout, /runs \(/);
+  });
+
+  test('a trailing comma in --tasks is refused with a named empty id', () => {
+    const r = plan('value-flags-trailing', 'log-triage,', {});
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /names no task called \(empty id\);/);
   });
 
   test('a dry run creates no work folder in the temp directory', () => {

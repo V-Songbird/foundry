@@ -40,6 +40,12 @@ test('a trailing comma in --tasks is refused with a named empty id, not a blank'
   assert.match(r.stderr, /names no task called \(empty id\);/);
 });
 
+test('an empty --tasks value is refused with a named empty id, not widened to the default set', () => {
+  const r = dryRun('');
+  assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+  assert.match(r.stderr, /names no task called \(empty id\);/);
+});
+
 test('a --tasks id that names no task is a usage error that plans nothing', () => {
   const r = dryRun('api-constraint,no-such-task');
   assert.strictEqual(r.status, 2, r.stdout + r.stderr);

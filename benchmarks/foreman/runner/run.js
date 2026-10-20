@@ -130,12 +130,12 @@ const taskIds = flag('tasks', null);
 // asked for by name. One of them, gamed-check, has no prompts at all: it is the
 // fixture tests/hillclimb.test.js scores held-back tests on, and naming it is
 // refused here rather than crashing mid-run on a missing prompt file.
-const tasks = taskIds
+const tasks = taskIds !== null
   ? TASKS.filter((t) => taskIds.split(',').includes(t.id))
   : TASKS.filter((t) => !t.measurementOnly);
 // A typo in --tasks would otherwise plan a smaller batch, or an empty one, with
 // no sign of it.
-if (taskIds) {
+if (taskIds !== null) {
   const unknown = taskIds.split(',').filter((id) => !TASKS.some((t) => t.id === id));
   if (unknown.length) {
     console.error(`usage: --tasks names no task called ${unknown.map((id) => id || '(empty id)').join(', ')}; known tasks: ${TASKS.map((t) => t.id).join(', ')}`);
