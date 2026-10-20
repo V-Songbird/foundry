@@ -20,6 +20,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const { wholeNumber } = require('./flags.js');
+
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
 const API = process.env.TYPESAFE_API_URL || 'https://api.typesafe.ai/v1/systemone';
@@ -34,7 +36,8 @@ const has = (name) => argv.includes(`--${name}`);
 
 const tag = flag('tag');
 const rubricPath = path.resolve(ROOT, flag('rubric', 'rubric.json'));
-const concurrency = Number(flag('concurrency', 4));
+// Read raw, not through flag(), which turns a missing or empty value into the default.
+const concurrency = wholeNumber('concurrency', argv.includes('--concurrency') ? argv[argv.indexOf('--concurrency') + 1] : 4);
 const force = has('force');
 
 if (!tag) { console.error('usage: node runner/judge.js --tag NAME'); process.exit(2); }

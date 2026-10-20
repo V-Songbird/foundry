@@ -145,6 +145,19 @@ function parseMaxCost(raw) {
   const n = Number(raw);
   return Number.isFinite(n) && n > 0 ? n : NaN;
 }
+// A count flag (--runs, --workers): its default when absent, otherwise a whole
+// number of at least 1. abc, 0, 1.5, an empty value and a missing one are a
+// usage refusal (exit 2), not a NaN plan.
+function count(name, dflt) {
+  const i = argv.indexOf(`--${name}`);
+  const raw = i < 0 ? dflt : argv[i + 1];
+  const n = Number(raw);
+  if (raw === undefined || raw === '' || !Number.isInteger(n) || n < 1) {
+    console.error(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
+    process.exit(2);
+  }
+  return n;
+}
 // The summed cost of the cells finished so far. A cell with no cost counts 0.
 function totalCost(results) {
   return results.reduce((s, r) => s + (Number(r.cost) || 0), 0);
@@ -662,6 +675,9 @@ async function main() {
     process.exit(1);
   }
 
+  const runsArg = count('runs', 2);
+  const workers = count('workers', 4);
+
   const rivalDir = flag('rival-dir', null);
   if (rivalDir) ARM_DIRS[flag('rival-name', 'rival')] = path.resolve(rivalDir);
 
@@ -684,7 +700,7 @@ async function main() {
   }
 
   let taskIds;
-  let runs = Number(flag('runs', 2));
+  let runs = runsArg;
   if (has('smoke')) { taskIds = ['oh-question']; runs = 1; }
   else if (has('default')) taskIds = DEFAULT_TASKS;
   else if (has('full')) taskIds = FULL_TASKS;
@@ -756,7 +772,6 @@ async function main() {
   const models = flag('models', 'sonnet').split(',').map((m) => m.trim());
   if (SDK) await prepareSdk(taskIds.flatMap((t) => arms.flatMap((a) => models.map((m) => buildArgs(TASKS[t], a, m)))));
   benchConfigDir();
-  const workers = Number(flag('workers', 4));
   const stamp = stampNow();
   const outDir = path.join(RUNS_DIR, stamp);
   fs.mkdirSync(outDir, { recursive: true });

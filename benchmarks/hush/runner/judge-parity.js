@@ -24,6 +24,7 @@ const path = require('node:path');
 const answerable = require('./answerable.js');
 const retention = require('./retention.js');
 const { runBatch } = require('../../batch-judge.js');
+const { wholeNumber, usdCap } = require('./flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -90,8 +91,8 @@ async function main() {
   const ansArg = at('--answerable', null);
   const model = at('--model', 'sonnet');
   const cliModel = at('--cli-model', 'sonnet');
-  const reps = Number(at('--reps', 2));
-  const maxUsd = Number(at('--max-usd', NaN));
+  const reps = wholeNumber('reps', at('--reps', 2));
+  const maxUsd = usdCap(argv);
   const go = argv.includes('--go');
   if (!recordsArg || !ansArg || !(reps >= 2)) {
     console.error('Usage: judge-parity.js --records <dir> --answerable <rows.jsonl> [--model sonnet] [--cli-model sonnet] [--reps 2] [--go --max-usd <usd>]');

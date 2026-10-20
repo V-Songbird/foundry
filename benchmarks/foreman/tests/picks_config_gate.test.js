@@ -29,3 +29,21 @@ test("picks/run.js --arms foreman runs without BENCH_CONFIG_DIR", () => {
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /foreman size=10 {2}top="First"/);
 });
+
+// A count flag wrapped in a bare Number() planned NaN reps or a NaN backlog size.
+test("picks/run.js refuses a --reps or --sizes that is not a whole number of at least 1", () => {
+  const env = { ...process.env, BENCH_DATA_DIR: path.join(TMP, "data") };
+  for (const k of ["BENCH_CONFIG_DIR", "CLAUDE_CONFIG_DIR", "NODE_TEST_CONTEXT", "NODE_CHANNEL_FD"]) delete env[k];
+  const picks = (...args) => spawnSync(process.execPath,
+    [path.join(BENCH, "picks", "run.js"), "--tag", "refuse", "--arms", "foreman", "--dry-run", ...args],
+    { cwd: BENCH, encoding: "utf8", env, timeout: 60000 });
+  for (const [name, bad] of [["reps", "abc"], ["reps", "0"], ["reps", "1.5"], ["reps", ""], ["sizes", "10,abc"], ["sizes", "0"]]) {
+    const r = picks(`--${name}`, bad);
+    assert.equal(r.status, 2, `${name} "${bad}": ${r.stdout}${r.stderr}`);
+    assert.match(r.stderr, new RegExp(`usage: --${name} needs a whole number of at least 1`));
+    assert.doesNotMatch(r.stdout, /NaN/);
+  }
+  const bare = picks("--reps");
+  assert.equal(bare.status, 2, bare.stdout + bare.stderr);
+  assert.match(bare.stderr, /usage: --reps needs a whole number of at least 1, got undefined/);
+});

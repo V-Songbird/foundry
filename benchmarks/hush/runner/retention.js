@@ -35,6 +35,7 @@ const { spawn } = require('node:child_process');
 // caller that judges, truth.js included, gets the gate; keep the call there.
 const benchConfigDir = require('../../bench-config-dir.js');
 const { runBatch, modelId } = require('../../batch-judge.js');
+const { wholeNumber, usdCap } = require('./flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -178,7 +179,7 @@ async function main() {
   const at = (flag, dflt) => (argv.includes(flag) ? argv[argv.indexOf(flag) + 1] : dflt);
   const recordsArg = at('--records', null);
   const model = at('--judge-model', 'sonnet');
-  const concurrency = Number(at('--concurrency', 4));
+  const concurrency = wholeNumber('concurrency', at('--concurrency', 4));
   // The judge is the Message Batches API with structured output, billed to
   // ANTHROPIC_API_KEY instead of the Claude Code plan. It prints the plan and
   // stops unless --go is passed; --max-usd caps the spend. --cli runs the old
@@ -188,7 +189,7 @@ async function main() {
   // figure from one is never compared with a figure from the other.
   const batch = !argv.includes('--cli');
   const go = argv.includes('--go');
-  const maxUsd = Number(at('--max-usd', NaN));
+  const maxUsd = usdCap(argv);
   const keyModel = batch ? `${modelId(model)}@batch` : model;
   if (!recordsArg) {
     console.error('Usage: retention.js --records <dir> [--judge-model sonnet] [--max-usd <usd> --go | --cli [--concurrency 4]]');

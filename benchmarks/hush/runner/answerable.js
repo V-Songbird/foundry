@@ -57,6 +57,7 @@ const { spawn } = require('node:child_process');
 // transcript store; runJudge calls it before each session starts.
 const benchConfigDir = require('../../bench-config-dir.js');
 const { runBatch, modelId } = require('../../batch-judge.js');
+const { usdCap } = require('./flags.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const RESULTS = path.join(require('../../paths.js').dataDir('hush'), 'results');
@@ -249,7 +250,7 @@ async function main() {
   // Every judge prompt goes in one Message Batches job unless --cli asks for
   // the old claude -p judge; --max-usd caps a batch.
   const batch = !argv.includes('--cli');
-  const maxUsd = Number(at('--max-usd'));
+  const maxUsd = usdCap(argv);
   const dir = recordsArg
     ? path.resolve(ROOT, recordsArg)
     : tag ? path.join(RESULTS, tag, 'runs') : null;

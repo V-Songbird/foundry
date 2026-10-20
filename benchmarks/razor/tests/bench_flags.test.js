@@ -63,6 +63,34 @@ test('--max-cost refuses a non-positive or missing value before any session star
   }
 });
 
+// A bare Number() planned NaN cells for --runs and NaN workers for --workers. The
+// same empty PATH and missing BENCH_CONFIG_DIR keep a regression from starting a session.
+test('--runs and --workers refuse a value that is not a whole number of at least 1 with exit 2', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const { spawnSync } = require('child_process');
+  const emptyBin = fs.mkdtempSync(path.join(os.tmpdir(), 'razor-count-bin-'));
+  try {
+    const env = { ...process.env, PATH: emptyBin };
+    delete env.BENCH_CONFIG_DIR;
+    for (const name of ['runs', 'workers']) {
+      for (const args of [['abc'], ['0'], ['1.5'], [''], []]) {
+        const run = spawnSync(process.execPath,
+          [path.resolve(__dirname, '../runner/run.js'), '--smoke', `--${name}`, ...args],
+          { encoding: 'utf8', timeout: 30000, env });
+        assert.ifError(run.error);
+        const label = `--${name} ${JSON.stringify(args)}: ${run.stdout}${run.stderr}`;
+        assert.equal(run.status, 2, label);
+        assert.match(run.stderr, new RegExp(`usage: --${name} needs a whole number of at least 1`), label);
+        assert.doesNotMatch(run.stdout, /NaN/, label);
+      }
+    }
+  } finally {
+    fs.rmSync(emptyBin, { recursive: true, force: true });
+  }
+});
+
 // A fake claude first on PATH bills USD 0.6 per call, and a scratch
 // BENCH_CONFIG_DIR stands in for the login, so no model session can start.
 function fakeClaude(fixture) {
