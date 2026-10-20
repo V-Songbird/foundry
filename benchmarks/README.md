@@ -33,6 +33,8 @@ Expected output, last lines:
 
 The Hush and Razor suites run the same way: `node --test hush/tests/*.test.js` and `node --test razor/tests/*.test.js`. The offline tests read no run history; they need only the plugin checkouts.
 
+A test that spawns a runner passes `keylessEnv()` from [test-env.js](test-env.js) as the child's `env`. It copies the parent environment without `ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`, `BENCH_CONFIG_DIR`, `CLAUDE_CONFIG_DIR`, `NODE_TEST_CONTEXT` and `NODE_CHANNEL_FD`, matched without regard to case, so the child can reach no paid provider and does not join the test run. Other provider `*_API_KEY` variables stay. A test that needs one of the six on purpose passes it as `keylessEnv({ NAME: value })`.
+
 Before publishing a Hush batch's figures, run its readiness gate from `benchmarks/hush/`. It reads the batch, the previous hush release's batch and the hush checkout. The checkout must be its own clean Git checkout, so the gate can compare its `HEAD` with the commit the batch measured. It starts no session, and exits 1 naming each unmet point:
 
 ```shell

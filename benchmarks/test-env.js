@@ -7,7 +7,8 @@ const STRIPPED = ['ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY', 'BENCH_CONFIG_DIR', '
 
 function keylessEnv(extra = {}) {
   const env = { ...process.env };
-  for (const k of STRIPPED) delete env[k];
+  // Windows ignores case in a variable name, so a spread copy can hold Typesafe_Api_Key; match without case.
+  for (const k of Object.keys(env)) if (STRIPPED.includes(k.toUpperCase())) delete env[k];
   return Object.assign(env, extra);
 }
 

@@ -18,3 +18,15 @@ for (const key of ['ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY', 'BENCH_CONFIG_DIR'])
     }
   });
 }
+
+test('keylessEnv strips a mixed-case spelling of a stripped name', () => {
+  const key = 'Typesafe_Api_Key';
+  const had = Object.prototype.hasOwnProperty.call(process.env, key);
+  const old = process.env[key];
+  process.env[key] = 'sentinel';
+  try {
+    assert.deepEqual(Object.keys(keylessEnv()).filter((k) => k.toUpperCase() === 'TYPESAFE_API_KEY'), []);
+  } finally {
+    if (had) process.env[key] = old; else delete process.env[key];
+  }
+});
