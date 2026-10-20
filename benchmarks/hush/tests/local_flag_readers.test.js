@@ -104,6 +104,13 @@ describe('empty --tag value', () => {
       assert.match(r.stderr, /usage: --tag needs a value, got nothing/);
     });
   }
+  for (const script of ['hush/runner/answerable.js', 'hush/runner/structure.js', 'hush/runner/readability.js']) {
+    test(`${script} refuses --tag "" with its usage line, exit 1`, () => {
+      const r = run(script, '--tag', '');
+      assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+      assert.match(r.stderr, /^Usage: \w+\.js /m);
+    });
+  }
   test('flagAll refuses an empty value, flagOr keeps it unless told otherwise', () => {
     const flags = require('../../flags.js');
     const fail = (m) => { throw new Error(m); };
