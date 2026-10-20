@@ -107,9 +107,9 @@ const ARMS = {
 // is opt-in, it runs only when named via --arms (e.g. --arms foreman,trio).
 const armNames = (flag('arms', CONFIG.arms.join(','))).split(',');
 for (const a of armNames) {
-  if (!ARMS[a]) {
+  if (!Object.hasOwn(ARMS, a)) {
     console.error(`unknown arm "${a}" — valid: ${Object.keys(ARMS).join(', ')}`);
-    process.exit(1);
+    process.exit(2);
   }
 }
 
@@ -125,12 +125,12 @@ for (const a of armNames) {
         `The trio arm expects hush and razor as sibling checkouts of the foreman plugin. ` +
         `If yours live elsewhere, point HUSH_PLUGIN_DIR and RAZOR_PLUGIN_DIR at their roots and re-run.`
       );
-      process.exit(1);
+      process.exit(2);
     }
   }
   if (ARMS[a].settings && !fs.existsSync(ARMS[a].settings)) {
     console.error(`arm "${a}": settings file missing: ${ARMS[a].settings}`);
-    process.exit(1);
+    process.exit(2);
   }
 }
 
@@ -156,7 +156,7 @@ if (taskIds !== null) {
 for (const t of tasks) {
   if (!fs.existsSync(path.join(ROOT, 'fixtures', t.fixture, 'prompts'))) {
     console.error(`task "${t.id}" has no arm prompts (fixtures/${t.fixture}/prompts/ does not exist), so no arm can run it; it is a test fixture, not a runnable task`);
-    process.exit(1);
+    process.exit(2);
   }
 }
 
