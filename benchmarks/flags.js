@@ -7,6 +7,9 @@
 // (batch-judge.js, sdk-session.js); wholeNumber and usdCap are the same checks
 // for a script that refuses with exit 2.
 
+// A flag name is taken with or without its dashes ('reps' or '--reps'); messages always print it with them.
+const dashed = (name) => (name.startsWith('--') ? name : `--${name}`);
+
 // What a refusal prints for the value it got: a missing one is the word "nothing", not undefined or null.
 const shown = (raw) => (raw === undefined || raw === null || raw === '' ? 'nothing' : raw);
 
@@ -19,7 +22,7 @@ function refuse(message) {
 function wholeNumberUsage(name, raw) {
   const n = Number(raw);
   return raw === undefined || raw === '' || !Number.isInteger(n) || n < 1
-    ? `usage: --${name} needs a whole number of at least 1, got ${shown(raw)}`
+    ? `usage: ${dashed(name)} needs a whole number of at least 1, got ${shown(raw)}`
     : null;
 }
 
@@ -31,12 +34,30 @@ function wholeNumber(name, raw) {
 }
 
 /**
+ * The usage line for a value flag whose value `v` (argv[i + 1]) is missing or is
+ * itself another flag, or null. An empty value is allowed unless `allowEmpty` is false.
+ */
+function valueUsage(name, v, allowEmpty = true) {
+  return v === undefined || v.startsWith('--') || (!allowEmpty && v === '')
+    ? `usage: ${dashed(name)} needs a value${v === undefined ? ' but none was given' : `, got ${shown(v)}`}`
+    : null;
+}
+
+/** The value after the flag at argv[i], otherwise a refusal naming the flag. */
+function flagValue(argv, name, i) {
+  const bad = valueUsage(name, argv[i + 1]);
+  if (bad) refuse(bad);
+  return argv[i + 1];
+}
+
+/**
  * The usage line for the USD cap after `name` in argv, or null when the flag is
  * absent or its value is a finite number above 0. A missing value, another flag,
  * abc, 0, a negative and Infinity are refused: batch-judge.js's cap test passes
  * Infinity, so an Infinity cap would send the batch with no limit.
  */
 function usdCapUsage(argv, name = '--max-usd') {
+  name = dashed(name);
   const i = argv.indexOf(name);
   return i < 0 ? null : usdCapValueUsage(name, argv[i + 1]);
 }
@@ -47,6 +68,7 @@ function usdCapUsage(argv, name = '--max-usd') {
  * a caller that requires the cap, such as batch-judge.js and the live flows.
  */
 function usdCapValueUsage(name, raw) {
+  name = dashed(name);
   const n = Number(raw);
   return raw === undefined || raw === null || raw === '' || !Number.isFinite(n) || n <= 0
     ? `usage: ${name} needs a positive number of USD, got ${shown(raw)}`
@@ -55,10 +77,11 @@ function usdCapValueUsage(name, raw) {
 
 /** The USD cap after `name` in argv: null when the flag is absent, the cap when valid, otherwise a refusal. */
 function usdCap(argv, name = '--max-usd') {
+  name = dashed(name);
   const bad = usdCapUsage(argv, name);
   if (bad) refuse(bad);
   const i = argv.indexOf(name);
   return i < 0 ? null : Number(argv[i + 1]);
 }
 
-module.exports = { refuse, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };
+module.exports = { refuse, flagValue, valueUsage, wholeNumber, wholeNumberUsage, usdCap, usdCapUsage, usdCapValueUsage };

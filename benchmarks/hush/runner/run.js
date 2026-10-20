@@ -26,7 +26,7 @@ const { spawn } = require('node:child_process');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { parseTranscript, checkTask, readDebugManifest, assertUsableRun } = require('./metrics.js');
 const { makeRng, shuffled, hashSeed } = require('./stats.js');
-const { wholeNumber } = require('../../flags.js');
+const { wholeNumber, flagValue, refuse } = require('../../flags.js');
 const { writeRecord } = require('./records.js');
 const { workspaceName, pluginProvenance } = require('./provenance.js');
 const { readStream } = require('../../hillclimb.js');
@@ -39,24 +39,11 @@ const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'))
 
 // --- CLI args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
-// The value after a value flag: refused with a usage line naming the flag when
-// it is missing or is itself another flag. An empty value ("") is allowed.
-function flagValue(name, i) {
-  const v = argv[i + 1];
-  if (v === undefined || v.startsWith('--')) {
-    console.error(`usage: --${name} needs a value${v === undefined ? ' but none was given' : `, got ${v}`}`);
-    process.exit(2);
-  }
-  return v;
-}
-// A usage-level refusal: the message alone and exit 2, never a stack trace.
-function refuse(message) {
-  console.error(message);
-  process.exit(2);
-}
+// A value flag is refused with a usage line naming it when its value is missing or is
+// itself another flag. An empty value ("") is allowed.
 function flag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? flagValue(name, i) : dflt;
+  return i >= 0 ? flagValue(argv, name, i) : dflt;
 }
 const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
@@ -134,7 +121,7 @@ const ARMS = {
 // styles are measured — see settings-concise.json.
 function flagAll(name) {
   const out = [];
-  for (let i = 0; i < argv.length; i++) if (argv[i] === `--${name}`) out.push(flagValue(name, i));
+  for (let i = 0; i < argv.length; i++) if (argv[i] === `--${name}`) out.push(flagValue(argv, name, i));
   return out;
 }
 function addArm(name, dir, settings, env, overlay) {

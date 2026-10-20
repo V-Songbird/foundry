@@ -123,7 +123,10 @@ async function runBatch(items, { model: alias = 'sonnet', maxUsd, go = false, ra
   const plan = { model, ...estimate(items, model) };
   if (!go) return { plan };
   // Infinity and 1e999 are refused too: no worst case is above them, so the cap would not cap.
-  const badCap = usdCapValueUsage('--max-usd', maxUsd);
+  // A string or boolean is refused, not coerced: '5' and true would read as a cap.
+  const badCap = maxUsd === undefined || maxUsd === null || typeof maxUsd === 'number'
+    ? usdCapValueUsage('--max-usd', maxUsd)
+    : `usage: --max-usd needs a positive number of USD, got ${String(maxUsd)}`;
   if (badCap) throw new Error(badCap);
   if (plan.worstUsd > maxUsd) {
     throw new Error(`worst case $${plan.worstUsd.toFixed(2)} is above --max-usd ${maxUsd}; nothing was sent`);

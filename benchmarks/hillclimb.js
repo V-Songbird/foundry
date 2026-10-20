@@ -19,6 +19,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { valueUsage } = require('./flags.js');
 
 const FOUNDRY = path.resolve(__dirname, '..');
 const VARIANT = /^(baseline|v\d+)$/;
@@ -194,8 +195,9 @@ async function main(suite, argv = process.argv.slice(2)) {
     if (SWITCHES.includes(name)) opts[name] = true;
     else if (VALUE_FLAGS.includes(name)) {
       const v = own[++i];
-      if (!v || v.startsWith('--')) problem = `--${name} needs a value`;
-      else opts[name] = v;
+      // An empty value is refused too: it would read as an absent flag and could start a live run.
+      problem = valueUsage(name, v, false);
+      if (!problem) opts[name] = v;
     } else problem = name ? `unknown flag ${own[i]}; pass the suite runner's own flags after --` : `unexpected argument ${own[i]}`;
     if (problem) {
       console.error(`${problem}\n${USAGE}`);

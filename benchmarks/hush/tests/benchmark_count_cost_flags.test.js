@@ -94,6 +94,15 @@ describe('the non-exiting forms', () => {
     assert.strictEqual(exit.mock.callCount(), 0);
   });
 
+  test('a flag name is taken with or without its dashes', () => {
+    assert.strictEqual(flags.wholeNumberUsage('--reps', 'x'), flags.wholeNumberUsage('reps', 'x'));
+    assert.strictEqual(flags.usdCapValueUsage('max-usd', 'x'), flags.usdCapValueUsage('--max-usd', 'x'));
+    assert.strictEqual(flags.valueUsage('arm', undefined), 'usage: --arm needs a value but none was given');
+    assert.strictEqual(flags.valueUsage('--arm', '--go'), 'usage: --arm needs a value, got --go');
+    assert.strictEqual(flags.valueUsage('arm', ''), null);
+    assert.strictEqual(flags.valueUsage('arm', '', false), 'usage: --arm needs a value, got nothing');
+  });
+
   test('hillclimb cli() returns 2 with the shared usage line and the value as typed', async (t) => {
     const suite = require(path.join(RUNNER, 'hillclimb.js'));
     const err = t.mock.method(console, 'error', () => {});

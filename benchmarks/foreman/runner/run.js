@@ -27,26 +27,17 @@ const { parseTranscript, findVerifyCommand, mismatchNamed, snapshotDir, scoreRun
 
 const ROOT = path.resolve(__dirname, '..');            // benchmarks/foreman
 const { pluginDir, dataDir } = require('../../paths.js');
-const { wholeNumber } = require('../../flags.js');
+const { wholeNumber, flagValue } = require('../../flags.js');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8'));
 const TASKS = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8'));
 
 // --- CLI args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
-// The value after a value flag: refused with a usage line naming the flag when
-// it is missing or is itself another flag, as hush's runner does. An empty value
-// ("") is allowed.
-function flagValue(name, i) {
-  const v = argv[i + 1];
-  if (v === undefined || v.startsWith('--')) {
-    console.error(`usage: --${name} needs a value${v === undefined ? ' but none was given' : `, got ${v}`}`);
-    process.exit(2);
-  }
-  return v;
-}
+// A value flag is refused with a usage line naming it when its value is missing or is
+// itself another flag, as hush's runner does. An empty value ("") is allowed.
 function flag(name, dflt) {
   const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? flagValue(name, i) : dflt;
+  return i >= 0 ? flagValue(argv, name, i) : dflt;
 }
 const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
