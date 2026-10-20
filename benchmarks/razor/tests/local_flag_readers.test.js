@@ -47,8 +47,18 @@ describe('codex-run.js --effort', () => {
   test('razor/runner/codex-run.js keeps exit 1 for --effort with no value', () => {
     const r = run('razor/runner/codex-run.js', '--effort');
     assert.strictEqual(r.status, 1, r.stdout + r.stderr);
-    assert.match(r.stdout + r.stderr, /Missing value: --effort/);
+    assert.match(r.stdout + r.stderr, /usage: --effort needs a value but none was given/);
   });
+});
+
+describe('codex-parity.js flags', () => {
+  for (const args of [['--model'], ['--model', '--effort']]) {
+    test(`razor/runner/codex-parity.js refuses ${args.join(' ')} with a usage line, exit 1`, () => {
+      const r = run('razor/runner/codex-parity.js', ...args);
+      assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+      assert.match(r.stderr, /usage: --model needs a value(?: but none was given|, got --effort)/);
+    });
+  }
 });
 
 describe('run.js --seed', () => {
@@ -67,12 +77,12 @@ describe('run.js --seed', () => {
 });
 
 describe('run.js --arm-dir', () => {
-  // A trailing --arm-dir was skipped by a loop that stopped one short; a flag after it was refused only by chance.
+  // A trailing --arm-dir was skipped by a loop that stopped one short, so the arm was never read and a run went ahead without it.
   for (const args of [['--arm-dir'], ['--arm-dir', '--full']]) {
     test(`razor/runner/run.js refuses ${args.join(' ')} before making a run folder, exit 1`, () => {
       const r = run('razor/runner/run.js', '--smoke', ...args);
       assert.strictEqual(r.status, 1, r.stdout + r.stderr);
-      assert.match(r.stderr, /--arm-dir wants <name>=<path>, got (nothing|--full)/);
+      assert.match(r.stderr, /usage: --arm-dir needs a value(?: but none was given|, got --full)/);
     });
   }
 });

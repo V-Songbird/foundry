@@ -31,8 +31,8 @@ test('native runner accepts explicit paired model settings and refuses unknown l
     assert.throws(() => options([flag]), /Unknown flag:/);
   }
   for (const flag of ['--model', '--effort', '--runs', '--report']) {
-    assert.throws(() => options([flag]), /Missing value:/);
-    assert.throws(() => options([flag, '--probe']), /Missing value:/);
+    assert.throws(() => options([flag]), new RegExp(`usage: ${flag} needs a value but none was given`));
+    assert.throws(() => options([flag, '--probe']), new RegExp(`usage: ${flag} needs a value, got --probe`));
   }
   for (const args of [['--runs', '0'], ['--runs', '11'], ['--workers', '5'], ['--workers', '1.5'],
     ['--timeout', '0'], ['--timeout', '1801'], ['--runs', 'Infinity'], ['--timeout', '1e999'], ['--workers', 'NaN'], ['--effort', 'unknown'], ['--suite', 'unknown']]) {

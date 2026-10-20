@@ -37,7 +37,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { RAZOR_TASKS, noteTurns } = require('./tasks.js');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { loginLost } = require('../../hillclimb.js');
-const { wholeNumber, flagOr } = require('../../flags.js');
+const { wholeNumber, flagOr, flagAll } = require('../../flags.js');
 const { runSession, prepareSdk, sdkVersion } = require('../../sdk-session.js');
 const {
   codeStats, gitSnapshot, gitDiffStats, gitNewFiles, pkgAddAttempts, extractResult,
@@ -679,11 +679,11 @@ async function main() {
 
   // Repeatable --arm-dir <name>=<path>: an ablation needs several cut-down
   // builds in ONE batch, and --rival-dir only ever names a single extra arm.
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i] !== '--arm-dir') continue;
-    const spec = argv[i + 1] ?? '';
+  // A missing value, or another flag as the value, is flags.js's usage line; both exit 1 here.
+  const exit1 = (message) => { console.error(message); process.exit(1); };
+  for (const spec of flagAll(argv, 'arm-dir', exit1)) {
     const eq = spec.indexOf('=');
-    if (eq < 1) { console.error(`--arm-dir wants <name>=<path>, got ${spec || 'nothing'}`); process.exit(1); }
+    if (eq < 1) exit1(`--arm-dir wants <name>=<path>, got ${spec}`);
     ARM_DIRS[spec.slice(0, eq)] = path.resolve(spec.slice(eq + 1));
   }
 

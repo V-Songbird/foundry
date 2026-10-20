@@ -12,6 +12,7 @@ const {
   traceSummary, readTrace, sumUsage, installEvidence, checkpoint,
 } = require('./codex-run');
 const { gitSnapshot, pkgAddAttempts } = require('./metrics');
+const { throwUsage, valueUsage } = require('../../flags.js');
 
 // Reports and run workspaces go to the ignored history folder; see benchmarks/paths.js.
 const { pluginDir, dataDir } = require('../../paths.js');
@@ -241,7 +242,8 @@ function parseArgs(argv) {
   const forwarded = [];
   for (let i = 0; i < argv.length; i += 2) {
     if (!allowed.has(argv[i])) throw new Error('Unknown parity flag: ' + argv[i]);
-    if (!argv[i + 1] || argv[i + 1].startsWith('-')) throw new Error('Missing value: ' + argv[i]);
+    const bad = valueUsage(argv[i], argv[i + 1], false);
+    if (bad) throwUsage(bad);
     if (argv[i] === '--cases') cases = argv[i + 1].split(',');
     else forwarded.push(argv[i], argv[i + 1]);
   }

@@ -11,6 +11,7 @@ const { spawn, spawnSync } = require('child_process');
 const { RAZOR_TASKS } = require('./tasks');
 const { gitSnapshot, pkgAddAttempts } = require('./metrics');
 const { buildQueue } = require('./run');
+const { flagOr, throwUsage, valueUsage } = require('../../flags.js');
 const { parseEvents, scoreCell, summarize } = require('./codex-metrics');
 
 // Reports and run workspaces go to the ignored history folder; see benchmarks/paths.js.
@@ -70,16 +71,12 @@ function options(argv) {
     const arg=argv[i];
     if(!allowed.has(arg)) throw new Error('Unknown flag: '+arg);
     if(!switches.has(arg)) {
-      if(!argv[i+1]||argv[i+1].startsWith('-')) throw new Error('Missing value: '+arg);
+      const bad = valueUsage(arg, argv[i + 1], false);
+      if (bad) throwUsage(bad);
       i++;
     }
   }
-  const value = (flag, fallback) => {
-    const at = argv.indexOf(flag);
-    if (at < 0) return fallback;
-    if (!argv[at + 1] || argv[at + 1].startsWith('--')) throw new Error('Missing value: ' + flag);
-    return argv[at + 1];
-  };
+  const value = (flag, fallback) => flagOr(argv, flag, fallback, throwUsage);
   const int = (flag, fallback, max) => {
     const n = Number(value(flag, String(fallback)));
     if (!Number.isInteger(n) || n < 1 || n > max) throw new Error('Invalid ' + flag);
