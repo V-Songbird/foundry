@@ -71,6 +71,17 @@ for (const name of ['tasks', 'arms', 'tag', 'model', 'reps']) {
   });
 }
 
+for (const name of ['reps', 'concurrency']) {
+  for (const bad of ['abc', '0', '1.5', '']) {
+    test(`--${name} "${bad}" is refused with a usage line and plans nothing`, () => {
+      const r = dryArgs('--tag', TAG, '--tasks', 'api-constraint', '--arms', 'foreman-std', `--${name}`, bad);
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.match(r.stderr, new RegExp(`usage: --${name} needs a whole number of at least 1`));
+      assert.doesNotMatch(r.stdout, /NaN|planned runs/);
+    });
+  }
+}
+
 test('--tasks followed by another flag is refused, naming both', () => {
   const r = dryArgs('--tag', TAG, '--tasks', '--reps', '1');
   assert.strictEqual(r.status, 2, r.stdout + r.stderr);

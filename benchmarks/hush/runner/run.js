@@ -59,8 +59,16 @@ function flag(name, dflt) {
 }
 const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
-const reps = Number(flag('reps', CONFIG.reps));
-const concurrency = Number(flag('concurrency', CONFIG.concurrency));
+// A count flag must be a whole number of at least 1; anything else (abc, 0, 1.5)
+// is a usage refusal, not a NaN plan.
+function count(name, dflt) {
+  const raw = flag(name, dflt);
+  const n = Number(raw);
+  if (raw === '' || !Number.isInteger(n) || n < 1) refuse(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
+  return n;
+}
+const reps = count('reps', CONFIG.reps);
+const concurrency = count('concurrency', CONFIG.concurrency);
 // Opt-in (Probe 9 Spec 1 ingestion): writes hush's per-decision debug
 // manifest for the hush arm and folds a summary into each run's record.
 // Off by default — the extra tmpdir I/O has no business skewing a cost/

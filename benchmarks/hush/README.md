@@ -81,7 +81,7 @@ To race several rivals at once, repeat the flags. The Nth value of each `--rival
 node runner/run.js --tag vs2 --rival-name a --rival-dir /path/to/plugin-a --rival-name b --rival-dir ""
 ```
 
-The runner refuses a flag given for only some rivals, a flag with no value, two rivals with the same name, and a rival named `baseline`, `hush`, `hush-core-only` or `hush-quiet-only`.
+The runner refuses a flag given for only some rivals, a flag with no value, an `--arms` name that is not a known arm, a `--reps` or `--concurrency` that is not a whole number of at least 1, two rivals with the same name, and a rival named `baseline`, `hush`, `hush-core-only` or `hush-quiet-only`.
 
 **Racing a built-in style.** Claude Code ships its own output styles, and one of them — `Concise` — sets out to do much of what hush's final message does. It needs no plugin loaded, so give it no plugin directory — leave `--rival-dir` out for a single rival, or pass `--rival-dir ""` next to other rivals — and point at a settings file instead:
 

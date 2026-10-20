@@ -47,6 +47,17 @@ describe('value flags', () => {
     assert.match(r.stderr, /usage: --rival-dir needs a value/);
   });
 
+  for (const name of ['reps', 'concurrency']) {
+    test(`a non-numeric or non-positive --${name} is refused with exit 2`, () => {
+      for (const bad of ['abc', '0', '1.5', '']) {
+        const r = run(`--${name}`, bad);
+        assert.strictEqual(r.status, 2, `${bad}: ${r.stdout}${r.stderr}`);
+        assert.match(r.stderr, new RegExp(`usage: --${name} needs a whole number of at least 1`));
+        assert.doesNotMatch(r.stdout, /NaN/);
+      }
+    });
+  }
+
   test('a --tasks id that names no task is refused with exit 2, naming it', () => {
     for (const tasks of ['log-triage,explain-rebase', 'explain-rebase']) {
       const r = plan('value-flags-unknown', tasks, {});

@@ -49,8 +49,19 @@ function flag(name, dflt) {
 }
 const tag = flag('tag', 'dev');
 const model = flag('model', CONFIG.model);
-const reps = Number(flag('reps', CONFIG.reps));
-const concurrency = Number(flag('concurrency', CONFIG.concurrency));
+// A count flag must be a whole number of at least 1; anything else (abc, 0, 1.5)
+// is a usage refusal, not a NaN plan.
+function count(name, dflt) {
+  const raw = flag(name, dflt);
+  const n = Number(raw);
+  if (raw === '' || !Number.isInteger(n) || n < 1) {
+    console.error(`usage: --${name} needs a whole number of at least 1, got ${raw}`);
+    process.exit(2);
+  }
+  return n;
+}
+const reps = count('reps', CONFIG.reps);
+const concurrency = count('concurrency', CONFIG.concurrency);
 const dryRun = argv.includes('--dry-run');
 const sdk = argv.includes('--sdk');
 
