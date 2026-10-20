@@ -125,7 +125,7 @@ describe('retold --save', () => {
 
 describe('hillclimb.js flags after --', () => {
   // The judge bound reads --tasks and --reps from the run.js flags, so a missing value refuses before it counts.
-  for (const [extra, pattern] of [[['--reps'], /usage: --reps needs a value but none was given/], [['--tasks', '--reps', '2'], /usage: --tasks needs a value, got --reps/]]) {
+  for (const [extra, pattern] of [[['--reps'], /usage: --reps needs a value but none was given/], [['--tasks', '--reps', '2'], /usage: --tasks needs a value, got --reps/], [['--reps', 'abc'], /usage: --reps needs a whole number of at least 1, got abc/]]) {
     test(`hush/runner/hillclimb.js refuses ${extra.join(' ')} after --, exit 2`, () => {
       const r = run('hush/runner/hillclimb.js', '--variant', 'v1', '--flow', path.join(DATA, 'flow'), '--go', '--max-usd', '1', '--', ...extra);
       assert.strictEqual(r.status, 2, r.stdout + r.stderr);
@@ -145,6 +145,18 @@ describe('hillclimb.js --variant under --go', () => {
 });
 
 describe('keyless runs', () => {
+  test('run() hands a script no TYPESAFE_API_KEY', () => {
+    const saved = process.env.TYPESAFE_API_KEY;
+    process.env.TYPESAFE_API_KEY = 'tsk-test-not-a-key';
+    try {
+      const r = run('hush/runner/judge.js', '--tag', 'x');
+      assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+      assert.match(r.stderr, /TYPESAFE_API_KEY is not set/);
+    } finally {
+      if (saved === undefined) delete process.env.TYPESAFE_API_KEY;
+      else process.env.TYPESAFE_API_KEY = saved;
+    }
+  });
   test('run() hands a script no ANTHROPIC_API_KEY', () => {
     const saved = process.env.ANTHROPIC_API_KEY;
     process.env.ANTHROPIC_API_KEY = 'sk-test-not-a-key';
