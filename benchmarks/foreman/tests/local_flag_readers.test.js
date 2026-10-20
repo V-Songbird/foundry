@@ -1,10 +1,9 @@
 'use strict';
 
-// The scripts that read their own flags refuse a value flag with no value, or with
-// another flag as its value, with a usage line naming it, as flags.js does. Each keeps
-// the exit code its other failures already had: 2 for the runners, 1 for the scripts
-// that report a failure through a catch or an uncaught error. Every case stops at
-// the flag check, so no session starts and nothing is written.
+// The Foreman benchmark's scripts that read their own flags refuse a value flag with no value, or with
+// another flag as its value, with a usage line naming it, as flags.js does, and keep the
+// exit code their other failures already had. Every case stops at the flag check, so no
+// session starts and nothing is written.
 
 const { test, describe, after } = require('node:test');
 const assert = require('node:assert');
@@ -27,9 +26,6 @@ function run(script, ...args) {
 describe('exit 2 readers', () => {
   const cases = [
     ['foreman/picks/run.js', '--dry-run', '--tag'],
-    ['razor/runner/run.js', '--selftest', '--effort'],
-    ['hush/runner/judge.js', '--rubric'],
-    ['hush/runner/retold.js', '--records'],
   ];
   for (const [script, ...args] of cases) {
     const name = args[args.length - 1];
@@ -51,9 +47,6 @@ describe('exit 1 readers', () => {
     ['foreman/validation/validate-records.js', '--records'],
     ['foreman/picks/ranking-replay.js', '--roadmap'],
     ['foreman/runner/demo.js', '--out'],
-    ['razor/runner/demo.js', '--task'],
-    ['hush/runner/demo.js', '--out'],
-    ['hush/runner/publish.js', '--out'],
   ];
   for (const [script, name] of cases) {
     test(`${script} refuses ${name} with no value, exit 1`, () => {

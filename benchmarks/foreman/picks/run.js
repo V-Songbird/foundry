@@ -27,7 +27,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const benchConfigDir = require('../../bench-config-dir.js');
 const { parseTranscript } = require('../runner/metrics.js');
 const { pluginDir, dataDir } = require('../../paths.js');
-const { wholeNumber, flagValue } = require('../../flags.js');
+const { wholeNumber, flagOr } = require('../../flags.js');
 
 const ROOT = path.join(__dirname);                       // picks/
 // The foreman arm shells out to the plugin's own roadmap.js — the plugin
@@ -40,10 +40,7 @@ const ROADMAP_JS = path.join(FOREMAN_ROOT, 'scripts', 'roadmap.js');
 
 const argv = process.argv.slice(2);
 // A text flag with a missing value, or another flag as its value, is a usage refusal.
-function flag(name, dflt) {
-  const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? flagValue(argv, name, i) : dflt;
-}
+const flag = (name, dflt) => flagOr(argv, name, dflt);
 // A count flag is read as typed: wholeNumber refuses a missing value in its own words.
 function rawFlag(name, dflt) {
   const i = argv.indexOf(`--${name}`);

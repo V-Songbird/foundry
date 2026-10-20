@@ -5,7 +5,9 @@
 // return that line (or null) and never exit, so a caller that runs in-process
 // prints it and returns 2 (hillclimb's cli, the foreman API flows) or throws it
 // (batch-judge.js, sdk-session.js); wholeNumber and usdCap are the same checks
-// for a script that refuses with exit 2.
+// for a script that refuses with exit 2. flagOr reads a text flag with the same
+// missing-value check and a default; throwUsage is its `fail` for a script whose
+// failures exit 1 through a throw.
 
 // A flag name is taken with or without its dashes ('reps' or '--reps'); messages always print it with them.
 const dashed = (name) => (name.startsWith('--') ? name : `--${name}`);

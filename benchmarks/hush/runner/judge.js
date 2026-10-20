@@ -32,8 +32,8 @@ const flag = (name, dflt = null) => flagOr(argv, name, dflt);
 const has = (name) => argv.includes(`--${name}`);
 
 const tag = flag('tag');
-const rubricPath = path.resolve(ROOT, flag('rubric', 'rubric.json'));
-// Read raw, not through flag(), which turns a missing or empty value into the default.
+const rubricPath = path.resolve(ROOT, flag('rubric', 'rubric.json') || 'rubric.json');
+// Read raw, not through flag(), so wholeNumber keeps its own refusal wording for a missing or non-number value.
 const concurrency = wholeNumber('concurrency', argv.includes('--concurrency') ? argv[argv.indexOf('--concurrency') + 1] : 4);
 const force = has('force');
 
