@@ -711,6 +711,9 @@ async function main() {
   const unknown = taskIds.filter((t) => !(t in TASKS));
   if (unknown.length) { console.error(`unknown tasks: ${unknown}`); process.exit(1); }
 
+  // Read next to the task ids, so a missing value refuses before any run folder is made.
+  const seed = flag('seed', null) ?? String(Date.now());
+
   const rivalName = rivalDir ? flag('rival-name', 'rival') : null;
   const defaultArms = ['baseline', 'razor', ...(rivalDir ? [rivalName] : [])];
   const arms = flag('arms', null) ? flag('arms').split(',').map((a) => a.trim()) : defaultArms;
@@ -776,7 +779,6 @@ async function main() {
     catch (e) { console.error(String(e.message || e)); process.exit(1); }
   }
 
-  const seed = flag('seed', null) ?? String(Date.now());
   const cells = buildQueue(taskIds, models, arms, runs, seed);
   const total = cells.length;
   const results = [];

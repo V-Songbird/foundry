@@ -51,6 +51,21 @@ describe('codex-run.js --effort', () => {
   });
 });
 
+describe('run.js --seed', () => {
+  test('razor/runner/run.js refuses --seed with no value before making a run folder', () => {
+    const runs = path.join(DATA, 'seed-runs');
+    const env = { RAZOR_BENCH_RUNS: runs, RAZOR_BENCH_ALLOW_TEMP: '1' };
+    const saved = {};
+    for (const k of Object.keys(env)) { saved[k] = process.env[k]; process.env[k] = env[k]; }
+    let r;
+    try { r = run('razor/runner/run.js', '--smoke', '--seed'); }
+    finally { for (const k of Object.keys(env)) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; } }
+    assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /usage: --seed needs a value but none was given/);
+    assert.strictEqual(fs.existsSync(runs) ? fs.readdirSync(runs).length : 0, 0);
+  });
+});
+
 describe('exit 1 readers', () => {
   const cases = [
     ['razor/runner/demo.js', '--task'],
