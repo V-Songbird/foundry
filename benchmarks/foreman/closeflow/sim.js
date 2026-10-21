@@ -304,15 +304,22 @@ function runScript(st, script, args, input) {
 }
 
 // Global options before the subcommand: -C <dir>, -c <k=v>, --no-pager. They are dropped, so the
-// command runs in the project with the sim's own config, and no pager or config value takes effect.
+// command runs in the project with the sim's own config, and no config value takes effect. A -c
+// whose key can name a program to run (diff.external, core.fsmonitor, alias.*, core.pager other
+// than cat) makes the command refused, as the REFUSED options above do; only the keys below pass.
+const SAFE_CONFIG = /^(?:core\.quotepath|color\.[^=]*|core\.pager=cat)(?:=|$)/i;
 function dropGlobals(w) {
   let i = 0;
+  let unsafe = false;
   while (i < w.length) {
-    if (w[i] === '-C' || w[i] === '-c') i += 2;
-    else if (w[i] === '--no-pager') i += 1;
+    if (w[i] === '-C') i += 2;
+    else if (w[i] === '-c') {
+      if (!SAFE_CONFIG.test(w[i + 1] || '')) unsafe = true;
+      i += 2;
+    } else if (w[i] === '--no-pager') i += 1;
     else break;
   }
-  return w.slice(i);
+  return { rest: w.slice(i), unsafe };
 }
 
 // `git archive <rev> | tar -x -C <dir>` reads the tree and writes to a dir outside the project. The
@@ -327,11 +334,11 @@ function archiveOk(args, tarCmd) {
 }
 
 function runGit(st, w0, tarCmd) {
-  const w = dropGlobals(w0);
+  const { rest: w, unsafe } = dropGlobals(w0);
   const [sub, ...args] = w;
-  const readOnly = (sub === 'stash' && args.length === 1 && args[0] === 'list') || (sub === 'archive' && tarCmd && archiveOk(args, tarCmd));
+  const readOnly = !unsafe && ((sub === 'stash' && args.length === 1 && args[0] === 'list') || (sub === 'archive' && tarCmd && archiveOk(args, tarCmd)));
   // The discoveryflow sim runs the commit hook only for a plain `git commit`, so a commit behind global options is refused.
-  if (!readOnly && (!GIT_RUN.has(sub) || (sub === 'commit' && w.length !== w0.length) || args.some((a) => /^--out/.test(a) || (REFUSED[sub] || []).some((re) => re.test(a))))) {
+  if (!readOnly && (unsafe || !GIT_RUN.has(sub) ||(sub === 'commit' && w.length !== w0.length) || args.some((a) => /^--out/.test(a) || (REFUSED[sub] || []).some((re) => re.test(a))))) {
     st.violations.push(`git ${w0.join(' ').slice(0, 120)}`);
     return `git ${sub}: not allowed in this environment`;
   }
