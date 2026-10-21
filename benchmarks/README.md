@@ -23,11 +23,11 @@ Run one suite's offline tests from this folder:
 node --test foreman/tests/*.test.js
 ```
 
-Expected output, last lines:
+Expected output, last lines; the test count grows as tests are added, so `# pass` equals `# tests` and `# fail` is 0:
 
 ```text
-# tests 121
-# pass 121
+# tests <count>
+# pass <count>
 # fail 0
 ```
 
