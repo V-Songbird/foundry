@@ -346,20 +346,22 @@ function farOk(cmd) {
   }
   if (/^(?:head|tail|wc|cat|cut)$/.test(w[0])) return true;
   if (w[0] !== 'tar') return false;
-  let dir = false, extract = false;
+  // A relative -C resolves against the previous -C, as in GNU tar, so cur tracks the running dir.
+  let dir = false, extract = false, cur = PROJECT;
+  const far = (v) => { cur = path.posix.resolve(cur, norm(v)); return !nearProject(cur); };
   for (let i = 1; i < w.length; i++) {
     const x = w[i];
     if (x === 'x' || x === '--extract') { extract = true; continue; }
     if (x === '--verbose' || x === '--file=-') continue;
     const eq = /^--directory=(.+)$/.exec(x);
-    if (eq) { if (nearProject(eq[1])) return false; dir = true; continue; }
+    if (eq) { if (!far(eq[1])) return false; dir = true; continue; }
     const m = /^(?:-([xv]*[fC]?)|(--directory|--file))$/.exec(x);
     if (!m || m[1] === '') return false;
     if (m[1] && m[1].includes('x')) extract = true;
     const takes = m[2] ? (m[2] === '--file' ? 'f' : 'C') : m[1].slice(-1);
     if (takes !== 'f' && takes !== 'C') continue;
     const val = w[++i];
-    if (!val || (takes === 'f' ? val !== '-' : nearProject(val))) return false;
+    if (!val || (takes === 'f' ? val !== '-' : !far(val))) return false;
     if (takes === 'C') dir = true;
   }
   return dir && extract;
