@@ -333,7 +333,7 @@ const nearProject = (p) => { const a = path.posix.resolve(PROJECT, norm(p)); ret
 // -o/--output and uniq's second operand write a file, and sort --compress-program runs one.
 function farOk(cmd) {
   const w = words(cmd);
-  if (w[0] === 'sort') return !w.some((x) => /^--(?:o|com)|^-[^-]*o/.test(x));
+  if (w[0] === 'sort') return !w.some((x) => /^--(?:o|co)|^-[^-]*o/.test(x));
   if (w[0] === 'uniq') {
     let operands = 0;
     for (let i = 1; i < w.length; i++) {

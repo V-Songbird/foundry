@@ -245,7 +245,7 @@ test('after an allowed git command, a tar extraction into the project, any other
       'git log 2>err.txt', 'git log | xargs rm', 'git log | head | sh', 'git show HEAD:a.tar | tar -x', 'git show HEAD:a.tar | tar -x -C ./sub',
       'git show HEAD:a.tar | tar -x -C /tmp/x -C /home/dev/app', 'git show HEAD:a.tar | tar -x -C /tmp/x --to-command=sh', 'git show HEAD:a.tar | tar -x -C /tmp/x --checkpoint-action=exec=sh',
       'git show HEAD:a.tar | tar -x -C /tmp/x -f a.tar', 'git show HEAD:a.tar | tar -x --directory=/home/dev/app',
-      'git log | sort -o out.txt', 'git log | sort --output=out.txt', 'git log | uniq - out.txt', 'git log >&out.txt',
+      'git log | sort -o out.txt', 'git log | sort --output=out.txt', 'git log | sort --co=sh','git log | uniq - out.txt', 'git log >&out.txt',
       'git archive --prefix=app/ HEAD | tar -x -C /home/dev', 'git archive --prefix=home/dev/app/ HEAD | tar -x -C /'];
     for (const command of bad) bash(command);
     assert.strictEqual(st.violations.length, bad.length);
