@@ -22,7 +22,7 @@ const KNOBS = {
 };
 const DEFAULTS = Object.fromEntries(Object.entries(KNOBS).map(([k, v]) => [k, v[0]]));
 const CONTRACT = {
-  KNOBS, DEFAULTS, caps: { wordCap: 12, blockCap: 40 }, budget: 250,
+  KNOBS, DEFAULTS, caps: { wordCap: 12, blockCap: 40 }, budget: 250, budgets: { short: 80, full: 400 },
   emojiMap: new Set(['✅', '❌', '🛑', '💡', '🔧', '🧪', '⚠', '🧭', '📝', '👉']), resultEmoji: new Set(['✅', '❌', '🛑']),
   modules: [
     { knob: 'next', value: 'off', text: 'No next step. The message has no "Next:" line.' },
@@ -359,5 +359,16 @@ describe('loadContract', () => {
     assert.deepStrictEqual(c.budgets, { short: 80, full: 400 });
     assert.strictEqual(c.emojiMap.size, 10);
     assert.deepStrictEqual([...c.resultEmoji], ['✅', '❌', '🛑']);
+  });
+
+  test('throws when a detail module states no word number', { skip: !hasModules && 'the hush checkout has no modules/ yet' }, () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hush-contract-'));
+    try {
+      for (const d of ['modules', 'hooks', 'output-styles']) fs.cpSync(path.join(hushDir, d), path.join(dir, d), { recursive: true });
+      fs.writeFileSync(path.join(dir, 'modules', 'detail-short.md'), 'Short messages, kept brief.');
+      assert.throws(() => loadContract(dir), /word budget from modules\/detail-short\.md/);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

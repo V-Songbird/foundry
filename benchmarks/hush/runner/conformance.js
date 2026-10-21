@@ -64,9 +64,13 @@ function loadContract(hushDir) {
       modules.push({ knob, value, text: fs.readFileSync(file, 'utf8').trim() });
     }
   }
-  // The detail modules state their own budget as the first "N words"; 80 and 400 are hush 2.3.0 numbers, used when a module names none.
-  const moduleBudget = (value, fallback) => Number(modules.find((m) => m.knob === 'detail' && m.value === value)?.text.match(/(\d+) words/)?.[1]) || fallback;
-  const budgets = { short: moduleBudget('short', 80), full: moduleBudget('full', 400) };
+  // The detail modules state their own budget as the first "N words"; a module that names none is a contract this scorer cannot follow.
+  const moduleBudget = (value) => {
+    const n = modules.find((m) => m.knob === 'detail' && m.value === value)?.text.match(/(\d+) words/)?.[1];
+    if (!n) throw new Error(`conformance.js: could not read the word budget from modules/detail-${value}.md`);
+    return Number(n);
+  };
+  const budgets = { short: moduleBudget('short'), full: moduleBudget('full') };
   return { KNOBS, DEFAULTS, modules, caps: readCaps(style), budget: Number(budget[1]), budgets, ...emojiMapOf(modules) };
 }
 
@@ -358,7 +362,7 @@ function checkMessage(text, s, turn, contract, opts = {}) {
   out.sentences = caps.overWordCap ? result('fail', `${caps.overWordCap} sentence(s) over ${wordCap} words, longest ${caps.longestWords}`) : result('pass');
   out.blocks = caps.overBlockCap ? result('fail', `${caps.overBlockCap} block(s) over ${blockCap} words, longest ${caps.longestBlockWords}`) : result('pass');
 
-  const budget = { normal: contract.budget, short: contract.budgets?.short ?? 80, full: contract.budgets?.full ?? 400 }[s.detail];
+  const budget = { normal: contract.budget, ...contract.budgets }[s.detail];
   const prose = text.replace(FENCE, '\n').replace(/\[([^\]\n]*)\]\(([^)\s]*)\)/g, '$1');
   const words = unitsOf(prose).reduce((n, u) => n + countWords(u), 0);
   out.length = !budget ? result('na', 'detail=bare has no word number')
