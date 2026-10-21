@@ -307,7 +307,7 @@ function runScript(st, script, args, input) {
 // command runs in the project with the sim's own config, and no config value takes effect. A -c
 // whose key can name a program to run (diff.external, core.fsmonitor, alias.*, core.pager other
 // than cat) makes the command refused, as the REFUSED options above do; only the keys below pass.
-const SAFE_CONFIG = /^(?:core\.quotepath|color\.[^=]*|core\.pager=cat)(?:=|$)/i;
+const SAFE_CONFIG = /^(?:(?:core\.quotepath|color\.[^=]*)(?:=|$)|core\.pager=cat$)/i;
 function dropGlobals(w) {
   let i = 0;
   let unsafe = false;
