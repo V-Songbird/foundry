@@ -228,10 +228,12 @@ function doEdit(st, input) {
   return { content: `The file ${norm(input.file_path)} has been updated.` };
 }
 
-// Shell words: quotes, escapes and the heredoc placeholders.
+// Shell words: quotes, escapes and the heredoc placeholders. A quote joins the text around it, as in
+// bash, so --format="%h | %s" is one word.
+const QUOTED = /"((?:[^"\\]|\\.)*)"|'([^']*)'/g;
 function words(cmd, docs = []) {
-  return [...cmd.matchAll(/"((?:[^"\\]|\\.)*)"|'([^']*)'|(\S+)/g)]
-    .map((m) => m[1] !== undefined ? m[1].replace(/\\(["\\$`])/g, '$1') : m[2] ?? m[3])
+  return (cmd.match(/(?:"(?:[^"\\]|\\.)*"|'[^']*'|\S)+/g) || [])
+    .map((w) => w.replace(QUOTED, (all, d, s) => d !== undefined ? d.replace(/\\(["\\$`])/g, '$1') : s))
     .map((w) => w.replace(/\u0000(\d+)\u0000/g, (all, i) => docs[i]));
 }
 

@@ -239,8 +239,14 @@ test('after an allowed git command, a tar extraction into the project, any other
   try {
     const bash = (command) => sim.handleTool(st, { name: 'Bash', input: { command } }).content;
     const good = ['git show HEAD:index.js | head -3', 'git log --format="%h | %s" | sort | uniq', 'git log --grep ">" | wc -l', 'git log | head -1 > /tmp/out.txt', 'git log >> /tmp/out.txt', 'git log | uniq -f 1 -'];
-    for (const command of good) bash(command);
+    const outs = good.map(bash);
     assert.deepStrictEqual(st.violations, []);
+    // A quote that starts mid-word stays in that word, so git gets one --format and prints its log.
+    const log = spawnSync('git', ['log', '--format=%h | %s'], { cwd: st.project, encoding: 'utf8' }).stdout.trim();
+    assert.ok(log.includes(' | '));
+    assert.strictEqual(outs[1], log);
+    assert.strictEqual(bash('git log --format="%h | %s"'), log);
+    assert.strictEqual(bash("git log --format='%h | '%s"), log);
     const bad = ['git show HEAD:archive.tar | tar -x -C /home/dev/app', 'git log archive | tar -x -C /home/dev/app', 'git log | head -1 > out.txt', 'git log >> /home/dev/app/out.txt',
       'git log 2>err.txt', 'git log | xargs rm', 'git log | head | sh', 'git show HEAD:a.tar | tar -x', 'git show HEAD:a.tar | tar -x -C ./sub',
       'git show HEAD:a.tar | tar -x -C /tmp/x -C /home/dev/app', 'git show HEAD:a.tar | tar -x -C /tmp/x --to-command=sh', 'git show HEAD:a.tar | tar -x -C /tmp/x --checkpoint-action=exec=sh',
