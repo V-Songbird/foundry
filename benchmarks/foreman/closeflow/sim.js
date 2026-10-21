@@ -324,13 +324,25 @@ function dropGlobals(w) {
 
 // Relative paths resolve against the project, the working directory.
 const inProject = (p) => { const a = path.posix.resolve(PROJECT, norm(p)); return a === PROJECT || a.startsWith(`${PROJECT}/`); };
+// A tar dir that holds the project, such as /home/dev or /, reaches it through the archive's paths.
+const nearProject = (p) => { const a = path.posix.resolve(PROJECT, norm(p)); return inProject(p) || `${PROJECT}/`.startsWith(a === '/' ? a : `${a}/`); };
 
 // The far side of a pipe after git: a text filter changes only what is shown, and tar may only
 // extract from stdin to a dir outside the project. Any other command, and any tar option outside
-// x, v, f - and C <dir>, is not allowed, since others can run a command or write elsewhere.
+// x, v, f - and C <dir>, is not allowed, since others can run a command or write elsewhere. sort
+// -o/--output and uniq's second operand write a file, and sort --compress-program runs one.
 function farOk(cmd) {
   const w = words(cmd);
-  if (/^(?:head|tail|wc|sort|uniq|cat|cut)$/.test(w[0])) return true;
+  if (w[0] === 'sort') return !w.some((x) => /^--(?:o|com)|^-[^-]*o/.test(x));
+  if (w[0] === 'uniq') {
+    let operands = 0;
+    for (let i = 1; i < w.length; i++) {
+      if (w[i] === '-' || !w[i].startsWith('-')) operands++;
+      else if (/^-[a-zA-Z]*[fsw]$|^--(?:sk|ch)[^=]*$/.test(w[i])) i++;
+    }
+    return operands < 2;
+  }
+  if (/^(?:head|tail|wc|cat|cut)$/.test(w[0])) return true;
   if (w[0] !== 'tar') return false;
   let dir = false, extract = false;
   for (let i = 1; i < w.length; i++) {
@@ -338,21 +350,22 @@ function farOk(cmd) {
     if (x === 'x' || x === '--extract') { extract = true; continue; }
     if (x === '--verbose' || x === '--file=-') continue;
     const eq = /^--directory=(.+)$/.exec(x);
-    if (eq) { if (inProject(eq[1])) return false; dir = true; continue; }
+    if (eq) { if (nearProject(eq[1])) return false; dir = true; continue; }
     const m = /^(?:-([xv]*[fC]?)|(--directory|--file))$/.exec(x);
     if (!m || m[1] === '') return false;
     if (m[1] && m[1].includes('x')) extract = true;
     const takes = m[2] ? (m[2] === '--file' ? 'f' : 'C') : m[1].slice(-1);
     if (takes !== 'f' && takes !== 'C') continue;
     const val = w[++i];
-    if (!val || (takes === 'f' ? val !== '-' : inProject(val))) return false;
+    if (!val || (takes === 'f' ? val !== '-' : nearProject(val))) return false;
     if (takes === 'C') dir = true;
   }
   return dir && extract;
 }
 
-// A redirect (>, >>) outside quotes, with its target; one into the project writes a project file.
-const REDIRECT = /"(?:[^"\\]|\\.)*"|'[^']*'|\d*>>?\s*("(?:[^"\\]|\\.)*"|'[^']*'|[^\s|&;<>]+)/g;
+// A redirect (>, >>, >&file) outside quotes, with its target; one into the project writes a project
+// file. >&1 and >&- name a descriptor, not a file.
+const REDIRECT = /"(?:[^"\\]|\\.)*"|'[^']*'|\d*>>?(?:&(?![\d-]))?\s*("(?:[^"\\]|\\.)*"|'[^']*'|[^\s|&;<>]+)/g;
 
 // `git archive <rev> | tar -x -C <dir>` reads the tree, and farOk keeps the dir outside the project.
 // The archive may not write a file (-o, --output, any unique prefix of it) or reach a remote.
