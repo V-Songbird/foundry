@@ -326,14 +326,29 @@ function dropGlobals(w) {
 const inProject = (p) => { const a = path.posix.resolve(PROJECT, norm(p)); return a === PROJECT || a.startsWith(`${PROJECT}/`); };
 
 // The far side of a pipe after git: a text filter changes only what is shown, and tar may only
-// extract to a dir outside the project. Any other command is not allowed.
+// extract from stdin to a dir outside the project. Any other command, and any tar option outside
+// x, v, f - and C <dir>, is not allowed, since others can run a command or write elsewhere.
 function farOk(cmd) {
   const w = words(cmd);
   if (/^(?:head|tail|wc|sort|uniq|cat|cut)$/.test(w[0])) return true;
-  const tar = w.slice(1);
-  const at = tar.findIndex((x) => /^-[a-zA-Z]*C$/.test(x) || x === '--directory');
-  return w[0] === 'tar' && at >= 0 && Boolean(tar[at + 1]) && !inProject(tar[at + 1])
-    && tar.some((x) => /^-[a-zA-Z]*x/.test(x) || x === '--extract' || x === 'x');
+  if (w[0] !== 'tar') return false;
+  let dir = false, extract = false;
+  for (let i = 1; i < w.length; i++) {
+    const x = w[i];
+    if (x === 'x' || x === '--extract') { extract = true; continue; }
+    if (x === '--verbose' || x === '--file=-') continue;
+    const eq = /^--directory=(.+)$/.exec(x);
+    if (eq) { if (inProject(eq[1])) return false; dir = true; continue; }
+    const m = /^(?:-([xv]*[fC]?)|(--directory|--file))$/.exec(x);
+    if (!m || m[1] === '') return false;
+    if (m[1] && m[1].includes('x')) extract = true;
+    const takes = m[2] ? (m[2] === '--file' ? 'f' : 'C') : m[1].slice(-1);
+    if (takes !== 'f' && takes !== 'C') continue;
+    const val = w[++i];
+    if (!val || (takes === 'f' ? val !== '-' : inProject(val))) return false;
+    if (takes === 'C') dir = true;
+  }
+  return dir && extract;
 }
 
 // A redirect (>, >>) outside quotes, with its target; one into the project writes a project file.
