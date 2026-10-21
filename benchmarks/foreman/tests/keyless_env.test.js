@@ -1,4 +1,5 @@
 'use strict';
+// The one test of test-env.js for all three suites; only the foreman suite runs it.
 // keylessEnv() must drop every *_API_KEY, *_AUTH_TOKEN and *_OAUTH_TOKEN and the named folders and markers whatever the parent
 // shell sets and however the name is cased, and keep what a test passes explicitly.
 const test = require('node:test');
@@ -26,6 +27,13 @@ test('keylessEnv strips a mixed-case *_API_KEY that no shell sets', () => {
     assert.deepEqual(Object.keys(keylessEnv()).filter((k) => k.toUpperCase() === 'BENCH_PROBE_API_KEY'), []);
   });
 });
+
+// GITHUB_TOKEN and GH_TOKEN pass through: neither reaches a paid model provider, and a spawned git or gh may need them.
+for (const key of ['GITHUB_TOKEN', 'GH_TOKEN']) {
+  test(`keylessEnv keeps ${key}`, () => {
+    withEnv(key, () => assert.equal(keylessEnv()[key], 'sentinel'));
+  });
+}
 
 test('keylessEnv leaves one spelling of a variable an extra replaces', () => {
   withEnv('Bench_Probe_Path', () => {
