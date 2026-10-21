@@ -13,7 +13,7 @@
 // emoji outside the emoji=on map. The fidelity eval's hillclimb entry point hands
 // the strict passed-check question to a model judge through opts.passedCheck; the
 // regex stays the rule everywhere else. warn is a soft rule ("most messages fit in
-// 150 words") or a heuristic: a cause word under why=off, a footnote under
+// 250 words") or a heuristic: a cause word under why=off, a footnote under
 // terms=inline. na means the setting asks for judgement this file cannot
 // make: why=on, caveats, terms=footnote, headers=off, box=decisions.
 //
@@ -64,7 +64,10 @@ function loadContract(hushDir) {
       modules.push({ knob, value, text: fs.readFileSync(file, 'utf8').trim() });
     }
   }
-  return { KNOBS, DEFAULTS, modules, caps: readCaps(style), budget: Number(budget[1]), ...emojiMapOf(modules) };
+  // The detail modules state their own budget as the first "N words"; 80 and 400 are hush 2.3.0 numbers, used when a module names none.
+  const moduleBudget = (value, fallback) => Number(modules.find((m) => m.knob === 'detail' && m.value === value)?.text.match(/(\d+) words/)?.[1]) || fallback;
+  const budgets = { short: moduleBudget('short', 80), full: moduleBudget('full', 400) };
+  return { KNOBS, DEFAULTS, modules, caps: readCaps(style), budget: Number(budget[1]), budgets, ...emojiMapOf(modules) };
 }
 
 /** The emoji=on module's map: every emoji it allows, and the ones a bold result may open with. */
@@ -355,7 +358,7 @@ function checkMessage(text, s, turn, contract, opts = {}) {
   out.sentences = caps.overWordCap ? result('fail', `${caps.overWordCap} sentence(s) over ${wordCap} words, longest ${caps.longestWords}`) : result('pass');
   out.blocks = caps.overBlockCap ? result('fail', `${caps.overBlockCap} block(s) over ${blockCap} words, longest ${caps.longestBlockWords}`) : result('pass');
 
-  const budget = { normal: contract.budget, short: 80, full: 300 }[s.detail];
+  const budget = { normal: contract.budget, short: contract.budgets?.short ?? 80, full: contract.budgets?.full ?? 400 }[s.detail];
   const prose = text.replace(FENCE, '\n').replace(/\[([^\]\n]*)\]\(([^)\s]*)\)/g, '$1');
   const words = unitsOf(prose).reduce((n, u) => n + countWords(u), 0);
   out.length = !budget ? result('na', 'detail=bare has no word number')

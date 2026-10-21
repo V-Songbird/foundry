@@ -22,7 +22,7 @@ const KNOBS = {
 };
 const DEFAULTS = Object.fromEntries(Object.entries(KNOBS).map(([k, v]) => [k, v[0]]));
 const CONTRACT = {
-  KNOBS, DEFAULTS, caps: { wordCap: 12, blockCap: 40 }, budget: 150,
+  KNOBS, DEFAULTS, caps: { wordCap: 12, blockCap: 40 }, budget: 250,
   emojiMap: new Set(['✅', '❌', '🛑', '💡', '🔧', '🧪', '⚠', '🧭', '📝', '👉']), resultEmoji: new Set(['✅', '❌', '🛑']),
   modules: [
     { knob: 'next', value: 'off', text: 'No next step. The message has no "Next:" line.' },
@@ -133,6 +133,12 @@ describe('checkMessage: layout settings', () => {
     const many = '**Done.**\n\n' + Array(20).fill('Ten words in this sentence and it stops right here.').join('\n\n');
     assert.strictEqual(check(many, { detail: 'short' }).length.status, 'warn');
     assert.strictEqual(check(many, { detail: 'bare' }).length.status, 'na');
+  });
+
+  test('detail=full allows 400 words, so 350 pass and 410 warn', () => {
+    const para = (n) => '**Done.**\n\n' + Array(n).fill('Ten words in this sentence and it stops right here.').join('\n\n');
+    assert.strictEqual(check(para(35), { detail: 'full' }).length.status, 'pass');
+    assert.strictEqual(check(para(41), { detail: 'full' }).length.status, 'warn');
   });
 });
 
@@ -349,7 +355,8 @@ describe('loadContract', () => {
     const c = loadContract(hushDir);
     assert.ok(c.modules.length > 0);
     assert.strictEqual(c.caps.wordCap, 12);
-    assert.strictEqual(c.budget, 150);
+    assert.strictEqual(c.budget, 250);
+    assert.deepStrictEqual(c.budgets, { short: 80, full: 400 });
     assert.strictEqual(c.emojiMap.size, 10);
     assert.deepStrictEqual([...c.resultEmoji], ['✅', '❌', '🛑']);
   });
