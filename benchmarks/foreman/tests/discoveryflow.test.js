@@ -86,10 +86,10 @@ test('discovery shares the closeflow git rules: leading global options, stash li
   replayed((cases) => {
     const st = cases[0].st;
     const bash = (command) => sim.handle(st, { name: 'Bash', input: { command } });
-    for (const command of ['git -C /home/dev/app show HEAD', 'git --no-pager show HEAD', 'git stash list', 'git archive HEAD | tar -x -C /tmp/check']) bash(command);
+    for (const command of ['git -C /home/dev/app show HEAD', 'git --no-pager show HEAD', 'git stash list', 'git archive HEAD | tar -x -C /tmp/check', 'git stash list | head -1', 'd=$(mktemp -d) && git archive HEAD | tar -x -C "$d"']) bash(command);
     assert.strictEqual(st.violations.length, st.liveViolations);
     assert.strictEqual(sim.grade(st).clean, 1);
-    const bad = ['git -C . stash push', 'git stash pop', 'git archive HEAD', 'git archive HEAD | tar -x -C .'];
+    const bad = ['git -C . stash push', 'git stash pop', 'git archive HEAD', 'git archive HEAD | tar -x -C .', 'git -C . commit -m x', 'git --no-pager commit -m x'];
     for (const command of bad) bash(command);
     assert.strictEqual(st.violations.length - st.liveViolations, bad.length);
     assert.strictEqual(sim.grade(st).clean, 0);

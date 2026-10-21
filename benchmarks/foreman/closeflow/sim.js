@@ -330,7 +330,8 @@ function runGit(st, w0, tarCmd) {
   const w = dropGlobals(w0);
   const [sub, ...args] = w;
   const readOnly = (sub === 'stash' && args.length === 1 && args[0] === 'list') || (sub === 'archive' && tarCmd && archiveOk(args, tarCmd));
-  if (!readOnly && (!GIT_RUN.has(sub) || args.some((a) => /^--out/.test(a) || (REFUSED[sub] || []).some((re) => re.test(a))))) {
+  // The discoveryflow sim runs the commit hook only for a plain `git commit`, so a commit behind global options is refused.
+  if (!readOnly && (!GIT_RUN.has(sub) || (sub === 'commit' && w.length !== w0.length) || args.some((a) => /^--out/.test(a) || (REFUSED[sub] || []).some((re) => re.test(a))))) {
     st.violations.push(`git ${w0.join(' ').slice(0, 120)}`);
     return `git ${sub}: not allowed in this environment`;
   }
@@ -352,6 +353,8 @@ function doBash(st, input) {
   // command's stdin and its newlines split nothing.
   const heredocs = [];
   cmd = cmd.replace(/<<-?\s*(['"]?)(\w+)\1([^\n]*)\n([\s\S]*?)\n\2(?=\n|$)/g, (all, q, tag, tail, body) => `<<\u0001${heredocs.push(body) - 1}\u0001${tail}`);
+  // `d=$(mktemp -d)` binds a folder outside the project; it is not run, so a fixed /tmp name stands for it.
+  cmd = cmd.replace(/(^|[;&|\n]\s*)((?:export\s+)?)([A-Za-z_]\w*)=(?:"?\$\(\s*mktemp(?:\s+-d)?\s*\)"?|`\s*mktemp(?:\s+-d)?\s*`)/g, (all, lead, exp, name) => `${lead}${exp}${name}=/tmp/mktemp-${name}`);
   cmd = expandVars(cmd).replace(/\$\{CLAUDE_PLUGIN_ROOT\}|\$CLAUDE_PLUGIN_ROOT\b/g, ROOT);
   const out = [];
   for (const raw of segments(cmd)) {
@@ -365,7 +368,9 @@ function doBash(st, input) {
       out.push(runScript(st, script[2], words(script[3] || ''), stdin));
     } else if (/^git\s/.test(rest)) {
       const pipe = /^(git\s[^|]*?\barchive\b[^|]*?)\s*\|\s*(tar\s[^|]*)$/.exec(rest);
-      out.push(runGit(st, words(pipe ? pipe[1] : rest, docs).slice(1), pipe?.[2]));
+      // A text filter after git changes only what is shown, so it is not run.
+      const filter = !pipe && /^(git\s[^|]*?)\s*\|\s*(?:head|tail|wc|sort|uniq|cat|cut)(?:\s[^|]*)?$/.exec(rest);
+      out.push(runGit(st, words(pipe ? pipe[1] : filter ? filter[1] : rest, docs).slice(1), pipe?.[2]));
     } else if (/^(?:node\s+--test\b|npm\s+(?:run\s+)?test\b)/.test(rest)) {
       out.push('TAP version 13\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0');
     } else if (/^cd\s/.test(rest) && norm(words(rest)[1]) === PROJECT) {
