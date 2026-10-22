@@ -118,6 +118,34 @@ test('sdkVersion names the installed SDK build, not the package.json pin', () =>
   assert.strictEqual(require(path.join(dir, 'sdk-session.js')).sdkVersion(), '0.0.2');
 });
 
+// A fake session reports a real child that starts a grandchild, as claude.exe
+// starts hooks and shells, then hangs until the timeout aborts it.
+test('a timed-out --sdk session ends its whole child tree on Windows', { skip: process.platform !== 'win32' }, async () => {
+  const s = require(SDK_SESSION);
+  const { spawn } = require('node:child_process');
+  const pidFile = path.join(FIXTURE, 'grandchild.pid');
+  const child = spawn(process.execPath, ['-e', `const g = require('child_process').spawn(process.execPath, ['-e', 'setTimeout(() => {}, 600000)']);
+require('fs').writeFileSync(${JSON.stringify(pidFile)}, String(g.pid)); setTimeout(() => {}, 600000);`], { stdio: 'ignore' });
+  const loadSdk = s.loadSdk;
+  s.loadSdk = async () => ({ query: async function* ({ options }) {
+    options.onProcessSpawned(child.pid);
+    await new Promise((resolve) => options.abortController.signal.addEventListener('abort', resolve));
+  } });
+  let grandchild = null;
+  try {
+    while (!fs.existsSync(pidFile)) await new Promise((r) => setTimeout(r, 50));
+    grandchild = Number(fs.readFileSync(pidFile, 'utf8'));
+    const r = await s.runSession({ args: [], prompt: 'x', cwd: FIXTURE, env: {}, timeoutMs: 500 });
+    assert.strictEqual(r.timedOut, true);
+    const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+    assert.deepStrictEqual([alive(child.pid), alive(grandchild)], [false, false]);
+  } finally {
+    s.loadSdk = loadSdk;
+    child.kill();
+    if (grandchild) try { process.kill(grandchild); } catch {}
+  }
+});
+
 test('the foreman runner refuses --sdk without ANTHROPIC_API_KEY before any session', () => {
   const { r, calls, log } = runForeman('nokey', null, LIVE);
   assert.strictEqual(r.status, 2, r.stderr);

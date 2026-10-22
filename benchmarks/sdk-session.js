@@ -15,6 +15,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const { wholeNumberUsage } = require('./flags.js');
 
 const SDK = '@anthropic-ai/claude-agent-sdk';
@@ -68,10 +69,19 @@ async function runSession({ args, prompt, cwd, env, timeoutMs }) {
   let timedOut = false;
   let result = null;
   let threw = false;
-  const timer = timeoutMs ? setTimeout(() => { timedOut = true; abortController.abort(); }, timeoutMs) : null;
+  let pid = null;
+  // On Windows the SDK's abort ends only claude.exe, so the hooks, shells and
+  // servers it started outlive the cell; taskkill /T ends that tree first, as
+  // razor's claude -p path does.
+  const timer = timeoutMs ? setTimeout(() => {
+    timedOut = true;
+    if (process.platform === 'win32' && pid) spawnSync('taskkill', ['/F', '/T', '/PID', String(pid)], { stdio: 'ignore' });
+    abortController.abort();
+  }, timeoutMs) : null;
   try {
     const { query } = await module.exports.loadSdk();
-    const options = { ...sdkOptions(args), cwd, env, abortController, stderr: (d) => err.push(String(d)) };
+    const options = { ...sdkOptions(args), cwd, env, abortController, stderr: (d) => err.push(String(d)),
+      onProcessSpawned: (p) => { pid = p; } };
     for await (const m of query({ prompt, options })) {
       out.push(JSON.stringify(m) + '\n');
       if (m.type === 'result') result = m;

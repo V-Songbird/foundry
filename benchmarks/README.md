@@ -120,6 +120,10 @@ An `--sdk` session gets the same model, turn cap, tools, permission mode, settin
 
 The sessions bill `ANTHROPIC_API_KEY`. Without it, without `npm ci`, or with a session flag the SDK path cannot map, the runner exits 2 before any session starts. `BENCH_CONFIG_DIR` is still required, so session state stays out of your own `~/.claude`. It is still seeded from `~/.claude`, so a first run with no `~/.claude.json` exits 2 too: run `claude` once to write that file.
 
+On Windows, a timed-out `--sdk` session ends the whole process tree it started, hooks and shells included.
+
+A paired run of both paths agreed on pass rate, turns and cost in all three suites, with SDK 0.3.303 against Claude Code 2.1.308 on Sonnet. It used 2 or 3 tasks per suite, with 3 or 4 reps per task. Cost depends on prompt-cache warmth: whichever path runs second on the same cells starts with a warm cache and costs less. Alternate the order, or wait out the cache, before you compare costs between paths.
+
 Through the hill-climb entry point, pass the flag after `--`, as in `node runner/hillclimb.js --variant baseline -- --sdk --reps 2` for Hush and Foreman, or `-- --sdk --default --runs 2` for Razor.
 
 Every result names the path it took. Hush records and `batch.json`, Foreman records and Razor's `results.json` carry `session: "agent-sdk"`. A Hush `--sdk` batch gets its own batch id, so it never mixes with a `claude -p` batch.
