@@ -93,8 +93,15 @@ git -C <plugin> commit -m "Release <plugin> <version>"
 git -C <plugin> push origin main
 ```
 
-Use a pull request instead when the repository requires one. Either way, the pin waits until the
-release commit is reachable from `origin/main`:
+Each plugin's `main`, like Foundry's, has a ruleset that requires a squash-only pull request and a
+status check. A squash merge lands the release under a new sha, so the local `main` and any pin
+taken from it no longer match `origin/main`. A direct push keeps the shas but succeeds only
+through the owner's admin bypass. Before either push, read the ruleset
+(`gh api repos/V-Songbird/<repo>/rulesets`) and ask the owner: name the bypassed rules and the
+required check next to the pull-request option.
+
+The pin waits until the release commit is reachable from `origin/main` and the plugin's CI passed
+on it; that CI is the suite's only Linux run:
 
 ```bash
 git -C <plugin> fetch origin
@@ -172,12 +179,15 @@ git push origin main
 
 Nothing here is pre-approved beyond reading and editing: every command in this skill goes through
 the usual permission prompt, and the two pushes are the ones you should read before allowing.
+Foundry's push meets the same ruleset as the plugin's, with the required `validate` check; ask
+about it as in step 3.
 
 ## Step 5 — install the release as a user would
 
 The pin is public now. Install from the catalog into a throwaway config home per host, so your own
 installs, settings and hook trust stay untouched. Each new home starts without a login: the lines
-marked `owner login` need the owner's account, so ask before running them. Keep both homes and a
+marked `owner login`, and every model session after them, bill the owner's account, so ask before
+running them and let the owner pick the account. Keep both homes and a
 disposable project in one scratch folder. The project holds one open roadmap entry, so Foreman's
 session hook has something to say. It is its own Git repository, because Codex otherwise reads
 the `AGENTS.md` of any repository that encloses the scratch folder:
