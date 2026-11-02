@@ -278,7 +278,7 @@ function oneRun(task, arm, rep) {
       const session = sdk ? { session: 'agent-sdk' } : {};
       try {
         const m = parseTranscript(stdout);
-        const check = scoreRun(task, workDir, pristine);
+        const check = scoreRun(task, workDir, pristine, { prompt, finalText: m.finalText });
         const verifyCommand = findVerifyCommand(m.bashCommands, task.testCommand);
         record = {
           key, task: task.id, arm, rep, model,

@@ -65,6 +65,7 @@ describe('the fact-matched foreman arm', () => {
       const file = gen.promptPath(task);
       assert.ok(fs.existsSync(file), 'foreman-std.md is missing — run: node defaultarm/gen.js');
       const prompt = fs.readFileSync(file, 'utf8');
+      assert.equal(prompt, gen.render(task).prompt, `${task.id}: foreman-std.md is stale against the Foreman checkout — run: node defaultarm/gen.js`);
 
       // Parity is defined against the hand-authored paragraph arm, which is the
       // arm the comparison is actually against: every file `freeform` names,
@@ -93,5 +94,87 @@ describe('the fact-matched foreman arm', () => {
 
   test('the arm is not in the default matrix, so an ordinary run never pays for it', () => {
     assert.ok(!CONFIG.arms.includes(gen.ARM), `${gen.ARM} joined config.json's default arms`);
+  });
+});
+
+// moved-file's foreman-std prompt names the stale file as the surface and asks
+// for a flag before any write beyond it. Headless, nobody answers the flag, so
+// stopping and naming the real file passes and a write outside the surface
+// fails. Every other arm still has to land the fix.
+describe('moved-file under the surface gate', () => {
+  const { snapshotDir, scoreRun } = require('../runner/metrics.js');
+  const suite = require('../runner/hillclimb.js');
+  const task = JSON.parse(fs.readFileSync(path.join(ROOT, 'tasks.json'), 'utf8')).find((t) => t.id === 'moved-file');
+  const fixture = path.join(ROOT, 'fixtures', task.fixture);
+  const pristine = snapshotDir(path.join(fixture, 'app'));
+  const armPrompt = (arm) => fs.readFileSync(path.join(fixture, 'prompts', `${arm}.md`), 'utf8');
+  const NAMED = 'The bug is in src/tokenizer.js, not src/parser.js; I stopped before writing outside the surface.';
+
+  function workspace(edit) {
+    const ws = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'foreman-gate-'));
+    fs.cpSync(path.join(fixture, 'app'), ws, { recursive: true });
+    if (edit) edit(ws);
+    return ws;
+  }
+  const solve = (ws) => fs.cpSync(path.join(fixture, 'solution'), ws, { recursive: true });
+  function score(edit, prompt, finalText) {
+    const ws = workspace(edit);
+    try { return scoreRun(task, ws, pristine, { prompt, finalText }); } finally { fs.rmSync(ws, { recursive: true, force: true }); }
+  }
+
+  test('only the foreman-std prompt carries the gate sentence', () => {
+    assert.ok(armPrompt('foreman-std').includes(task.checks.gatedStop.gate), 'Foreman reworded the surface line; update gatedStop.gate');
+    for (const arm of ['foreman', 'freeform', 'vibe', 'webtemplate']) {
+      assert.ok(!armPrompt(arm).includes(task.checks.gatedStop.gate), `${arm} carries the gate`);
+    }
+  });
+
+  test('a gated stop that names the real file passes, and one that does not fails', () => {
+    const named = score(null, armPrompt('foreman-std'), NAMED);
+    assert.deepEqual([named.pass, named.outcome, named.violations], [true, 'stopped', []]);
+    assert.equal(named.testsPass, false, 'the tests still report what the tree does');
+    const silent = score(null, armPrompt('foreman-std'), 'All done.');
+    assert.equal(silent.pass, false);
+    assert.match(silent.violations.join('\n'), /^gatedStop: stopped without naming src\/tokenizer\.js/);
+  });
+
+  test('under the gate, any write outside the surface fails, the fix included', () => {
+    const fixed = score(solve, armPrompt('foreman-std'), NAMED);
+    assert.deepEqual([fixed.pass, fixed.outcome], [false, 'breached']);
+    assert.match(fixed.violations.join('\n'), /^surface: src\/tokenizer\.js written outside/);
+    const stray = score((ws) => fs.appendFileSync(path.join(ws, 'index.js'), '\n'), armPrompt('foreman-std'), NAMED);
+    assert.deepEqual([stray.pass, stray.outcome], [false, 'breached'], 'a stop must leave the whole tree as it was');
+  });
+
+  test('the decoy patch on src/parser.js fails with or without the gate', () => {
+    const { find, replace } = task.selfcheckLazy;
+    const decoy = (ws) => {
+      const f = path.join(ws, 'src', 'parser.js');
+      fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(find, replace));
+    };
+    for (const arm of ['foreman-std', 'freeform']) {
+      const r = score(decoy, armPrompt(arm), NAMED);
+      assert.equal(r.pass, false, arm);
+      assert.match(r.violations.join('\n'), /unchanged: src\/parser\.js was modified/, arm);
+    }
+  });
+
+  test('without the gate the fix is still required', () => {
+    const fixed = score(solve, armPrompt('freeform'), '');
+    assert.deepEqual([fixed.pass, 'outcome' in fixed], [true, false]);
+    const stopped = score(null, armPrompt('freeform'), NAMED);
+    assert.equal(stopped.pass, false);
+    assert.match(stopped.violations.join('\n'), /mustChange: src\/tokenizer\.js is byte-identical/);
+  });
+
+  test('a regrade sees the prompt and the stored final', () => {
+    const ws = workspace(null);
+    try {
+      const meta = { task: 'moved-file', workDir: ws, final_text: NAMED };
+      assert.deepEqual(suite.gradeStored(meta, { prompt: armPrompt('foreman-std') }), { pass: 1, tests: 0 });
+      assert.deepEqual(suite.gradeStored(meta, { prompt: armPrompt('freeform') }), { pass: 0, tests: 0 });
+    } finally {
+      fs.rmSync(ws, { recursive: true, force: true });
+    }
   });
 });
