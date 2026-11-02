@@ -137,6 +137,18 @@ function assertParity(task, prompt) {
   }
 }
 
+// The arm prompt the current Foreman checkout writes for a task.
+function render(task) {
+  const project = stageProject(task);
+  try {
+    const { prompt, profile } = craft(task, project);
+    assertParity(task, prompt);
+    return { prompt, profile };
+  } finally {
+    fs.rmSync(project, { recursive: true, force: true });
+  }
+}
+
 function promptPath(task) {
   return path.join(ROOT, 'fixtures', task.fixture, 'prompts', `${ARM}.md`);
 }
@@ -145,8 +157,7 @@ function main() {
   const check = process.argv.includes('--check');
   let drifted = 0;
   for (const task of TASKS) {
-    const { prompt, profile } = craft(task, stageProject(task));
-    assertParity(task, prompt);
+    const { prompt, profile } = render(task);
     const target = promptPath(task);
     const current = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;
     if (current === prompt) continue;
@@ -172,4 +183,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { ARM, claimedFile, judgmentFor, promptPath };
+module.exports = { ARM, claimedFile, judgmentFor, promptPath, render };

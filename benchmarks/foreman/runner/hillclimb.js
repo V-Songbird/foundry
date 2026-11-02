@@ -51,6 +51,8 @@ function adapt(tag, arm) {
       meta: {
         task: rec.task, workDir: path.join(os.tmpdir(), 'foreman-bench', tag, rec.key),
         violations: rec.check?.violations, cli_cost_usd: rec.costUsd ?? null,
+        // A gated stop is graded on the final message, which the row does not otherwise keep.
+        final_text: rec.finalText ?? '',
         ...(promptChanged ? { prompt_changed: true } : {}),
       },
     });
@@ -76,7 +78,7 @@ function live(tag, arm, extra) {
 // copy. A workspace scored before held-back tests ran in a private copy still
 // holds them; they are removed from the copy first, or the shipped-tests step
 // would run them too.
-function gradeStored(meta) {
+function gradeStored(meta, row = {}) {
   const task = TASKS.get(meta.task);
   const ws = hc.scratchCopy(meta.workDir);
   if (!ws) throw new Error(`workspace ${meta.workDir} is gone`);
@@ -85,23 +87,31 @@ function gradeStored(meta) {
     for (const f of fs.existsSync(hidden) ? snapshotDir(hidden).keys() : []) {
       if (!fs.existsSync(path.join(appDir(task), f))) fs.rmSync(path.join(ws, f), { force: true });
     }
-    return grade(scoreRun(task, ws, snapshotDir(appDir(task))));
+    return grade(scoreRun(task, ws, snapshotDir(appDir(task)), { prompt: row.prompt, finalText: meta.final_text }));
   } finally {
     fs.rmSync(ws, { recursive: true, force: true });
   }
 }
 
-// Oracle: the fixture's solution over its app. Null: the app untouched.
+// Graded as the foreman-std arm sees each task. Oracle: the fixture's
+// solution over its app, or, where that arm's prompt gates writes beyond the
+// stated surface, the app untouched and a final naming the real file. Null:
+// the app untouched and an empty final.
 function smoke() {
   const cases = [];
   for (const task of TASKS.values()) {
+    const armPrompt = path.join(ROOT, 'fixtures', task.fixture, 'prompts', 'foreman-std.md');
+    const prompt = fs.existsSync(armPrompt) ? fs.readFileSync(armPrompt, 'utf8') : '';
+    const g = task.checks?.gatedStop;
+    const gated = Boolean(g && prompt.includes(g.gate));
     for (const kind of ['oracle', 'null']) {
       const ws = hc.scratchCopy(appDir(task));
       try {
-        if (kind === 'oracle') {
+        if (kind === 'oracle' && !gated) {
           fs.cpSync(path.join(ROOT, 'fixtures', task.fixture, task.solutionDir || 'solution'), ws, { recursive: true });
         }
-        cases.push({ id: task.id, kind, pass: grade(scoreRun(task, ws, snapshotDir(appDir(task)))).pass });
+        const finalText = kind === 'oracle' && gated ? `The bug is in ${g.names}, outside the stated surface; I stopped to flag it.` : '';
+        cases.push({ id: task.id, kind, pass: grade(scoreRun(task, ws, snapshotDir(appDir(task)), { prompt, finalText })).pass });
       } finally {
         fs.rmSync(ws, { recursive: true, force: true });
       }
