@@ -120,6 +120,15 @@ git -C <plugin> fetch origin
 git -C <plugin> branch -r --contains <release-sha>
 ```
 
+`branch -r --contains` proves only reachability. Read the CI result with:
+
+```bash
+gh run list --repo V-Songbird/<repo> --commit <release-sha> --json workflowName,status,conclusion
+```
+
+Pin only when every run listed shows `status` `completed` and `conclusion` `success`. An empty list
+means no run has started yet; wait and rerun it.
+
 ## Step 4 — pin the commit in Foundry
 
 1. `Edit` `source.sha` in the plugin's entry of `.claude-plugin/marketplace.json` and, when the
