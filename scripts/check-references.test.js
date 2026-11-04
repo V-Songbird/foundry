@@ -111,7 +111,6 @@ test("this repository has no hard break", { skip: absent.length ? `no checkout o
     // The same arguments as the command in AGENTS.md.
     "--exclude", "fixtures/",
     "--exclude", "^benchmarks/hush/anchors/",
-    "--exclude", "^benchmarks/foreman/pickflow/arms/",
     "--allow", "^src/auth\\.js",
     "--allow", "^src/legacy/cache\\.js",
   ]);
