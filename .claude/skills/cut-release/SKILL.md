@@ -188,6 +188,10 @@ staged, and names that commit; a checkout's branch and uncommitted edits do not 
 difference means one plugin ships a fix another lacks: land the missing change in that plugin
 before you push the pin. The check skips a plugin with no checkout and names it, fails when it
 compared nothing, and fails when a pinned commit is missing from its checkout.
+It also compares flint's `output-styles/hush.md`, at flint's gitlink, with Hush's at the commit
+flint's `README.md` names, not at Hush's pin, after cutting the plugin-only parts flint's
+`AGENTS.md` lists; any other difference, or a listed part Hush no longer has, fails. It skips
+flint, and names it, when flint or Hush has no checkout.
 
 `agy plugin validate <plugin>` checks the Antigravity package of a plugin that ships one, when
 the Antigravity CLI is installed; report it as not run otherwise.

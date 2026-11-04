@@ -25,6 +25,14 @@
 // gitlink, a pinned commit the checkout lacks, or a file missing at that
 // commit is a failure.
 //
+// Flint, a Foundry submodule outside the catalogs, ships output-styles/hush.md
+// as a copy of Hush's at the Hush commit flint's README.md names, minus the
+// plugin-only parts flint's AGENTS.md lists. The check reads flint at its
+// gitlink, or its HEAD under --heads, cuts those parts from Hush's copy at the
+// named commit, never Hush's pin, and fails on any other difference, or when a
+// listed part is no longer there to cut. Flint with no checkout, or Hush with
+// none, is skipped and named.
+//
 // --heads reads each checkout's HEAD instead of its pin, so a review can
 // compare two topic branches before any pin moves. The root is then any
 // directory that holds the plugin checkouts side by side, and a checkout
@@ -73,6 +81,36 @@ const SHARED = [
     "tests/fixtures/github-slugger-fixtures.json",
   ].map((file) => ({ file, plugins: ["foreman", "hush", "razor"], part: "whole file", extract: (source) => source })),
 ];
+
+/**
+ * Flint's copy of Hush's style, where flint's README names the Hush commit it
+ * copies, and the plugin-only parts it leaves out. The cuts mirror the list in
+ * flint's AGENTS.md; a change to one goes into both.
+ */
+const FLINT_STYLE = {
+  file: "output-styles/hush.md",
+  named: /hush \S+, at commit `([0-9a-f]{7,40})`/,
+  cuts: [
+    { what: "force-for-plugin frontmatter key", pattern: /^force-for-plugin: true\n/m },
+    {
+      what: "closing sentences about a setting that moves the \"Next:\" line",
+      pattern: / A setting that moves that line moves the check with it\. A setting that removes the line leaves the check unsaid\./,
+    },
+    { what: "/hush:config paragraph", pattern: /^The reader may reshape this message with `\/hush:config`.*\n\n/m },
+    { what: "[hush ...] note paragraph", pattern: /^A `\[hush \.\.\.\]` note.*\n\n/m },
+  ],
+};
+
+/** Hush's text with each cut removed once, and the cuts it does not contain. */
+function cutFlintParts(hushText, cuts = FLINT_STYLE.cuts) {
+  const missing = [];
+  let text = hushText;
+  for (const { what, pattern } of cuts) {
+    if (pattern.test(text)) text = text.replace(pattern, "");
+    else missing.push(what);
+  }
+  return { text, missing };
+}
 
 /** The source without its first run of `//` comment lines. */
 function afterHeader(source) {
@@ -218,6 +256,66 @@ function checkShared(root = path.join(__dirname, ".."), shared = SHARED, { heads
   return { problems, agreed, skipped, commits };
 }
 
+/**
+ * Compares flint's style copy, at the commit the index of the checkout at index
+ * pins for flint, or at its HEAD when heads is true, with Hush's at the commit
+ * flint's README names, after the plugin-only cuts. Hush's history is read from
+ * dirs.hush when given, else from root.
+ */
+function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dirs = {}, index = root } = {}) {
+  const problems = [];
+  const agreed = [];
+  const skipped = [];
+  const commits = new Map();
+  const flintDir = path.join(root, "flint");
+  const hushDir = Object.hasOwn(dirs, "hush") ? dirs.hush : path.join(root, "hush");
+  const { file } = FLINT_STYLE;
+  if (!checkedOut(flintDir) || !checkedOut(hushDir)) {
+    skipped.push("flint");
+    return { problems, agreed, skipped, commits };
+  }
+  const commit = heads ? headCommit(flintDir) : pinnedCommit(index, "flint");
+  if (!commit && heads) problems.push(`flint at ${flintDir} is not a Git checkout, so it has no HEAD to compare.`);
+  else if (!commit) problems.push(`flint has no gitlink in the index of ${index}, so it has no pinned copy to compare.`);
+  else if (!heads && git(flintDir, ["cat-file", "-e", `${commit}^{commit}`]) === null)
+    problems.push(`flint's pinned commit ${commit} is not in its checkout: fetch it there, then rerun.`);
+  if (problems.length) return { problems, agreed, skipped, commits };
+  commits.set("flint", commit);
+  const flint = readFiles(flintDir, commit, ["README.md", file]);
+  const named = FLINT_STYLE.named.exec(flint.get("README.md") || "");
+  if (!named) {
+    problems.push("flint/README.md names no hush commit, so flint's style copy has no source to compare.");
+    return { problems, agreed, skipped, commits };
+  }
+  const sha = (git(hushDir, ["rev-parse", "--verify", "--quiet", `${named[1]}^{commit}`]) || "").trim();
+  if (!sha) {
+    problems.push(`The hush commit ${named[1]} that flint/README.md names is not in hush's checkout at ${hushDir}: fetch it there, then rerun.`);
+    return { problems, agreed, skipped, commits };
+  }
+  const hushSource = readFiles(hushDir, sha, [file]).get(file);
+  const flintSource = flint.get(file);
+  if (flintSource === undefined) problems.push(`flint/${file} is missing at ${heads ? "its HEAD" : "the pinned commit"}, so its copy cannot be compared.`);
+  if (hushSource === undefined) problems.push(`hush/${file} is missing at ${sha}, so its copy cannot be compared.`);
+  if (problems.length) return { problems, agreed, skipped, commits };
+  const { text, missing } = cutFlintParts(hushSource.replace(/\r\n/g, "\n"));
+  for (const what of missing)
+    problems.push(`hush/${file} at ${sha} has no ${what} to cut: update the list in flint's AGENTS.md and FLINT_STYLE together.`);
+  if (missing.length) return { problems, agreed, skipped, commits };
+  const ours = text.split("\n");
+  const theirs = flintSource.replace(/\r\n/g, "\n").split("\n");
+  const line = theirs.findIndex((l, i) => l !== ours[i]);
+  if (line >= 0 || ours.length !== theirs.length) {
+    problems.push(
+      `flint/${file} differs from hush/${file} at ${sha.slice(0, 7)}, after its four plugin-only cuts, ` +
+      `first at line ${(line >= 0 ? line : theirs.length) + 1} of flint's copy. Flint copies Hush's voice: ` +
+      "carry the change into flint, or list a new cut in flint's AGENTS.md and FLINT_STYLE."
+    );
+  } else {
+    agreed.push(`${file}: flint's copy agrees with hush at ${sha}, after its four plugin-only cuts.`);
+  }
+  return { problems, agreed, skipped, commits };
+}
+
 function main(args = []) {
   const plugins = new Set(SHARED.flatMap((s) => s.plugins));
   const dirs = {};
@@ -235,7 +333,13 @@ function main(args = []) {
   }
   const root = rest[0] || path.join(__dirname, "..");
   for (const plugin in dirs) dirs[plugin] = path.resolve(root, dirs[plugin]);
-  const { problems, agreed, skipped, commits } = checkShared(path.resolve(root), SHARED, { heads, dirs, index: rest[0] ? process.cwd() : root });
+  const options = { heads, dirs, index: rest[0] ? process.cwd() : root };
+  const { problems, agreed, skipped, commits } = checkShared(path.resolve(root), SHARED, options);
+  const flint = checkFlintStyle(path.resolve(root), options);
+  problems.push(...flint.problems);
+  agreed.push(...flint.agreed);
+  skipped.push(...flint.skipped);
+  for (const [name, commit] of flint.commits) commits.set(name, commit);
   for (const plugin of skipped) console.log(`Skipped ${plugin}: no checkout at ${path.join(root, plugin)}.`);
   for (const [plugin, commit] of commits) {
     const where = dirs[plugin] ? `HEAD in ${dirs[plugin]}` : heads ? "HEAD" : "pinned commit";
@@ -253,4 +357,4 @@ if (require.main === module) {
   process.exit(main(process.argv.slice(2)));
 }
 
-module.exports = { main, afterHeader, fixturesArray, launcherLookup, checkShared, SHARED };
+module.exports = { main, afterHeader, fixturesArray, launcherLookup, checkShared, SHARED, checkFlintStyle, cutFlintParts, FLINT_STYLE };

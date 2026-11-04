@@ -16,7 +16,7 @@ const os = require("os");
 const path = require("path");
 const { execFileSync, spawnSync } = require("child_process");
 
-const { afterHeader, fixturesArray, launcherLookup, checkShared, SHARED } = require("./check-shared-copies");
+const { afterHeader, fixturesArray, launcherLookup, checkShared, SHARED, checkFlintStyle, cutFlintParts } = require("./check-shared-copies");
 
 const SCRIPT = path.join(__dirname, "check-shared-copies.js");
 const SAFE_WRITE = "hooks/lib/safe-write.js";
@@ -120,6 +120,60 @@ function tree(files, { pin = true } = {}) {
     if (pin) git(root, "update-index", "--add", "--cacheinfo", `160000,${sha},${plugin}`);
   }
   return root;
+}
+
+/** Hush's style with every part flint cuts, and flint's copy of it. */
+const HUSH_STYLE = [
+  "---",
+  "name: Hush",
+  "keep-coding-instructions: true",
+  "force-for-plugin: true",
+  "---",
+  "",
+  "Intro.",
+  "",
+  "This check rides on the \"Next:\" line. A setting that moves that line moves the check with it. A setting that removes the line leaves the check unsaid.",
+  "",
+  "The reader may reshape this message with `/hush:config`: its parts.",
+  "",
+  "Middle.",
+  "",
+  "A `[hush ...]` note says what a view left out.",
+  "",
+  "End.",
+  "",
+].join("\n");
+const FLINT_COPY = [
+  "---",
+  "name: Hush",
+  "keep-coding-instructions: true",
+  "---",
+  "",
+  "Intro.",
+  "",
+  "This check rides on the \"Next:\" line.",
+  "",
+  "Middle.",
+  "",
+  "End.",
+  "",
+].join("\n");
+const STYLE = "output-styles/hush.md";
+
+/**
+ * A Foundry tree whose hush carries hush's style and whose flint, pinned in the
+ * root's index, carries a copy and a README naming hush's commit.
+ */
+function flintTree({ hush = HUSH_STYLE, flint = FLINT_COPY, readme } = {}) {
+  const root = tree({ ...agreeing(), [`hush/${STYLE}`]: hush });
+  const hushSha = git(path.join(root, "hush"), "rev-parse", "HEAD");
+  const flintDir = path.join(root, "flint");
+  fs.mkdirSync(flintDir);
+  git(flintDir, "init", "-q");
+  const readmeText = readme ?? `It is a copy of the voice in hush 2.4.0, at commit \`${hushSha.slice(0, 7)}\`.\n`;
+  const flintSha = commit(flintDir, { "README.md": readmeText, [STYLE]: flint });
+  git(root, "update-index", "--add", "--cacheinfo", `160000,${flintSha},flint`);
+  return { root, hushSha, flintSha };
 }
 
 describe("afterHeader", () => {
@@ -290,6 +344,92 @@ describe("checkShared", () => {
   });
 });
 
+describe("cutFlintParts", () => {
+  test("cuts every plugin-only part, leaving flint's copy", () => {
+    assert.deepEqual(cutFlintParts(HUSH_STYLE), { text: FLINT_COPY, missing: [] });
+  });
+
+  test("names a part hush no longer has", () => {
+    const hush = HUSH_STYLE.replace("The reader may reshape this message with `/hush:config`: its parts.\n\n", "");
+    assert.deepEqual(cutFlintParts(hush).missing, ["/hush:config paragraph"]);
+  });
+});
+
+describe("checkFlintStyle", () => {
+  const DIFFERS = /^flint\/output-styles\/hush\.md differs from hush\/output-styles\/hush\.md at [0-9a-f]{7}, .* first at line \d+ of flint's copy/;
+
+  test("a faithful copy agrees", () => {
+    const { root, hushSha, flintSha } = flintTree();
+    const { problems, agreed, skipped, commits } = checkFlintStyle(root);
+    assert.deepEqual({ problems, skipped }, { problems: [], skipped: [] });
+    assert.deepEqual(agreed, [`${STYLE}: flint's copy agrees with hush at ${hushSha}, after its four plugin-only cuts.`]);
+    assert.equal(commits.get("flint"), flintSha);
+  });
+
+  test("an edit inside the copy fails", () => {
+    const { root } = flintTree({ flint: FLINT_COPY.replace("Middle.", "Middle, changed.") });
+    const { problems } = checkFlintStyle(root);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], DIFFERS);
+    assert.match(problems[0], /first at line 10 /);
+  });
+
+  test("a fifth, unlisted cut fails", () => {
+    const { root } = flintTree({ flint: FLINT_COPY.replace("Middle.\n\n", "") });
+    const { problems } = checkFlintStyle(root);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], DIFFERS);
+  });
+
+  test("a listed part gone from hush fails", () => {
+    const { root, hushSha } = flintTree({ hush: HUSH_STYLE.replace("force-for-plugin: true\n", "") });
+    assert.deepEqual(checkFlintStyle(root).problems, [
+      `hush/${STYLE} at ${hushSha} has no force-for-plugin frontmatter key to cut: update the list in flint's AGENTS.md and FLINT_STYLE together.`,
+    ]);
+  });
+
+  test("hush is read at the commit flint names, not at hush's pin", () => {
+    const { root, hushSha } = flintTree();
+    const hushDir = path.join(root, "hush");
+    const moved = commit(hushDir, { [STYLE]: HUSH_STYLE.replace("Middle.", "Middle, moved.") });
+    git(root, "update-index", "--cacheinfo", `160000,${moved},hush`);
+    const { problems, agreed } = checkFlintStyle(root);
+    assert.deepEqual(problems, []);
+    assert.match(agreed[0], new RegExp(`agrees with hush at ${hushSha}`));
+  });
+
+  test("a copy taken from a hush commit other than the one flint names fails", () => {
+    const { root } = flintTree();
+    const later = HUSH_STYLE.replace("Middle.", "Middle, later.");
+    commit(path.join(root, "hush"), { [STYLE]: later });
+    const flintDir = path.join(root, "flint");
+    const flintSha = commit(flintDir, { [STYLE]: cutFlintParts(later).text });
+    git(root, "update-index", "--cacheinfo", `160000,${flintSha},flint`);
+    const { problems } = checkFlintStyle(root);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], DIFFERS);
+  });
+
+  test("a README that names no commit, or one hush lacks, fails", () => {
+    assert.deepEqual(checkFlintStyle(flintTree({ readme: "A copy of hush.\n" }).root).problems, [
+      "flint/README.md names no hush commit, so flint's style copy has no source to compare.",
+    ]);
+    const { root } = flintTree({ readme: "A copy of the voice in hush 2.4.0, at commit `1111111`.\n" });
+    assert.deepEqual(checkFlintStyle(root).problems, [
+      `The hush commit 1111111 that flint/README.md names is not in hush's checkout at ${path.join(root, "hush")}: fetch it there, then rerun.`,
+    ]);
+  });
+
+  test("no flint checkout is skipped and named", () => {
+    assert.deepEqual(checkFlintStyle(tree(agreeing())), { problems: [], agreed: [], skipped: ["flint"], commits: new Map() });
+  });
+
+  test("CRLF line endings in flint's copy are not a difference", () => {
+    const { root } = flintTree({ flint: FLINT_COPY.replace(/\n/g, "\r\n") });
+    assert.deepEqual(checkFlintStyle(root).problems, []);
+  });
+});
+
 describe("checkShared with heads", () => {
   const heads = (root) => checkShared(root, SHARED, { heads: true });
 
@@ -450,6 +590,18 @@ describe("the command", () => {
     assert.match(run.stdout, new RegExp(`^Read razor at its pinned commit ${git(path.join(root, "razor"), "rev-parse", "HEAD")}\\.$`, "m"));
   });
 
+  test("compares flint's style copy, exiting 1 on drift and 0 when it agrees", () => {
+    const changed = flintTree({ flint: FLINT_COPY.replace("Middle.", "Middle, changed.") });
+    const run = spawnSync(process.execPath, [SCRIPT, changed.root], { encoding: "utf8", cwd: changed.root });
+    assert.equal(run.status, 1);
+    assert.match(run.stdout, new RegExp(`^Read flint at its pinned commit ${changed.flintSha}\\.$`, "m"));
+    assert.match(run.stderr, /flint\/output-styles\/hush\.md differs/);
+    const faithful = flintTree();
+    const ok = spawnSync(process.execPath, [SCRIPT, faithful.root], { encoding: "utf8", cwd: faithful.root });
+    assert.equal(ok.status, 0, ok.stderr);
+    assert.match(ok.stdout, /flint's copy agrees with hush/);
+  });
+
   test("exits 1 when it skipped every plugin, because it compared nothing", () => {
     const run = spawnSync(process.execPath, [SCRIPT, tree({}, { pin: false })], { encoding: "utf8" });
     assert.equal(run.status, 1);
@@ -473,6 +625,12 @@ describe("this repository", () => {
     assert.deepEqual(problems, []);
     // A checkout with no plugins, such as a worktree without submodules, compares nothing.
     if (agreed.length === 0) t.skip(`nothing compared here; skipped ${skipped.join(", ") || "none"}`);
+  });
+
+  test("flint's style copy checked out here agrees with hush", (t) => {
+    const { problems, agreed, skipped } = checkFlintStyle();
+    assert.deepEqual(problems, []);
+    if (agreed.length === 0) t.skip(`flint's style copy not compared here; skipped ${skipped.join(", ")}`);
   });
 
   test("safe-write, the turn-boundary fixtures, the launcher, the README nav files and the pre-commit files are all watched", () => {
