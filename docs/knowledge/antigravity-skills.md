@@ -38,7 +38,9 @@ no known Antigravity setting stops the model from using a listed skill.
 
 ## Repeat the check
 
-Use this to confirm the table above after a new `agy` release. It needs the `agy` CLI and
+Use this to confirm the first two rows of the table above and the frontmatter claims after a new
+`agy` release. The enclosing-folder row needs one more control skill in a folder that encloses
+the project, and the `.claude/skills/` row one more in that folder. It needs the `agy` CLI and
 starts one model session.
 
 1. Create an empty throwaway project folder outside any Foundry checkout.
@@ -46,12 +48,12 @@ starts one model session.
    `.agent/skills/heron-ledger/SKILL.md`. Give each the `name`, `description`, `license`,
    `compatibility` and `metadata` keys, so the run also shows whether the extra keys matter.
    Use a different word in each skill, so the answer shows which one was listed.
-3. Start `agy` from the project folder in print mode, with the folder passed through
+3. Remove the `CLAUDE*` variables from the environment of the run, and point `TEMP` and `TMP` at
+   a scratch folder.
+4. Start `agy` from the project folder in print mode, with the folder passed through
    `--add-dir`: `agy -p "<prompt>" --add-dir <project> --output-format stream-json`. The prompt
    forbids reading files and running commands, and asks the model to list the name and
    description of every skill it has, then to state whether each of the two skills is among them.
-4. Remove the `CLAUDE*` variables from the environment of the run, and point `TEMP` and `TMP` at
-   a scratch folder.
 5. Read the reply. A skill the model names is listed; a skill it does not name is not.
 
 To test another location, such as `.claude/skills/`, add one more control skill there.
