@@ -4,7 +4,7 @@ description: Bump a plugin's version and changelog in its own repo, then pin the
 argument-hint: "[plugin] [version]"
 disable-model-invocation: true
 license: MIT
-compatibility: Claude Code only. Requires git, Node 22 or later and the claude CLI. Step 5 also runs the codex CLI for a plugin that ships for Codex and the agy CLI for one that ships for Antigravity.
+compatibility: Claude Code only. Requires git, Node 22 or later, the claude and gh CLIs, and a POSIX bash, which on Windows is Git's own. Step 5 also runs the codex CLI for a plugin that ships for Codex and the agy CLI for one that ships for Antigravity.
 metadata:
   version: "1.0"
 ---
@@ -17,6 +17,18 @@ Foundry that pins that commit in every catalog listing the plugin.
 
 Which plugins exist is not written down here. Plugins get added and retired, so read the current
 set from the catalogs. Never assume a plugin name — list them.
+
+Copy this checklist into your reply and tick each step as it finishes:
+
+```
+- [ ] Step 0: plugin chosen, checkout state reported, suite green
+- [ ] Step 1: new version agreed
+- [ ] Step 2: changelog entry and every manifest bumped
+- [ ] Step 3: plugin release commit pushed and on origin/main, CI green
+- [ ] Step 4: pins, gitlink and checks agree; Foundry commit pushed
+- [ ] Step 5: release installed on each host it ships for, or marked not run
+- [ ] Step 6: results reported
+```
 
 ## Where the version lives, and where the pin lives
 

@@ -1,8 +1,8 @@
 ---
 name: brand
-description: Creates or revises the flat-ink artwork of Foundry and its plugins from the kit in brand/ (icons, README banners, wordmarks, social cards, host cards, the Ember scenes and the evidence graphics) and copies it into a plugin's assets/. Use for any change to that artwork, for a new host card, or when a plugin's images drifted from the kit. Not for other brands, interface design or benchmark data.
+description: Creates or revises the flat-ink artwork of Foundry and its plugins from the kit in brand/ (icons, README banners, wordmarks, social cards, host cards, the Ember scenes and the evidence graphics) and copies it into a plugin's assets/. Use when changing that artwork, adding a host card, or when a plugin's images drifted from the kit. Not for other brands, interface design or benchmark data.
 license: MIT
-compatibility: Claude Code and Codex in the Foundry checkout. Requires Node 22 or later; the identity build also needs Sharp and Segoe UI.
+compatibility: Claude Code, Codex and Antigravity in the Foundry checkout. Requires Node 22 or later; the identity build also needs Sharp and Segoe UI.
 metadata:
   version: "1.0"
 ---
@@ -36,6 +36,7 @@ The colors, symbols, deliverables and copy map live in
    straight from disk; a preview that loads only the page shows every image broken. The owner
    reviews both themes, with icons at 128, 64 and 32 px and changed host cards at 128, 80 and
    32 px, and that review is the final word. A passing build is not a visual review.
+   If anything fails, return to step 1.
 4. **Copy.** In the plugin's repository, on a topic branch, copy each file under the name the
    guide's copy map gives it. Place each image as
    [the README contract](../../../docs/knowledge/plugin-readme-template.md) says. Re-pinning the
