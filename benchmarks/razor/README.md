@@ -31,7 +31,7 @@ It drives **real headless Claude Code sessions** (`claude -p`) on the same fixed
 
 **What you should see:** razor landing **at or below baseline on cost and code size**, with **no new dependencies added** and every task still passing — the same *shape* as our published charts. You will **not** reproduce our exact figures, and that's expected. If razor is leaner and no pricier with correctness intact, the claim holds.
 
-A default run uses Sonnet. Razor's README shows Claude Opus 5 rows only, so compare against it with `--models opus`. `--models` accepts `sonnet`, `opus` and `opus55` (Claude Opus 5.5).
+A default run uses Sonnet. Razor's README has two Claude Code tables. Compare with its Claude Opus 5.5 table through `--models opus55`. Compare with its older Claude Opus 5 table through `--models opus`. `--models` accepts `sonnet`, `opus` and `opus55` (Claude Opus 5.5).
 
 ## Run it
 

@@ -45,6 +45,15 @@ kind of average it is, that `runs` has as many entries as `repetitions` claims,
 and that a `supersedes` pointer resolves. One JSON object on stdout; non-zero
 exit if any record is invalid. `--records <dir>` points it elsewhere.
 
+A valid folder prints `"ok": true` with an empty `errors` list:
+
+```json
+{ "records_dir": "<Foundry root>/.private/benchmarks/foreman/records", "ok": true, "records": [], "errors": [] }
+```
+
+Each problem in an invalid record adds a `<record id>: <reason>` line to
+`errors` and sets `"ok": false`.
+
 The hash check is the load-bearing one: it means a fixture cannot be edited out
 from under a claim quietly. Change `prompt-template.md` and the record measured
 against the old one fails, loudly, instead of going on supporting a sentence in

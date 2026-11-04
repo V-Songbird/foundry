@@ -3,7 +3,7 @@
 The native runner compares the same task seeds with Razor enabled and disabled,
 using the same explicit model, reasoning effort and permissions. It runs the
 13 original tasks, four counter-examples where adding code is necessary, and
-two multi-turn conversations. Arms are shuffled within each task/repetition.
+four multi-turn conversations. Arms are shuffled within each task/repetition.
 
 Before you start:
 
@@ -87,7 +87,7 @@ Interpret the measures separately:
 The native runner adapts the headless transport, not the historical task
 scorers. It allows shell reads in both arms because Codex uses shell tools to
 inspect source; non-shell coding tasks receive the same original instruction
-to write code without running it. Two-turn cases resume the exact session ID.
+to write code without running it. Multi-turn cases resume the exact session ID.
 
 Conversation notes are scored as rendered text: absolute Markdown file-link
 destinations are removed while their visible labels and narrative remain.

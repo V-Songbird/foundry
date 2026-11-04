@@ -14,7 +14,7 @@ Each plugin works on its own. Its page holds the commands, settings, limits and 
 ## Requirements
 
 - Claude Code, a Codex host with plugin support, or the Antigravity CLI.
-- Node.js 22 or later and Git on the PATH. The plugins run their hooks and tests with Node.js.
+- Node.js 22 or later and Git on the PATH; Foreman needs Git 2.25 or later. The plugins run their hooks and tests with Node.js.
 
 ## Install
 
