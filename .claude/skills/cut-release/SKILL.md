@@ -21,7 +21,7 @@ set from the catalogs. Never assume a plugin name — list them.
 Copy this checklist into your reply and tick each step as it finishes:
 
 ```
-- [ ] Step 0: plugin chosen, checkout state reported, suite green
+- [ ] Step 0: plugin chosen, checkout state reported, suite green or go-ahead recorded
 - [ ] Step 1: new version agreed
 - [ ] Step 2: changelog entry and every manifest bumped
 - [ ] Step 3: plugin release commit pushed and on origin/main, CI green
