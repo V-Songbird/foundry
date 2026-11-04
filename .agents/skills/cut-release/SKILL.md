@@ -1,8 +1,6 @@
 ---
 name: cut-release
 description: Release one Foundry plugin, only when the user invokes it by name. Bumps the version and changelog in the plugin repository, pushes, then pins the pushed commit in the Foundry catalogs.
-argument-hint: "[plugin] [version]"
-disable-model-invocation: true
 license: MIT
 compatibility: Codex in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
 metadata:
