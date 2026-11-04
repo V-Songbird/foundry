@@ -36,15 +36,16 @@ the user invokes it as `/cut-release`.
 - Antigravity shows each skill's `name` and `description`.
 - A `SKILL.md` that also carries `license`, `compatibility` and `metadata` is still listed.
 - A skill marked `disable-model-invocation: true` is left out of the list the model sees. The
-  user can still invoke it in a prompt as `/<name>`, which expands the skill's body, also in
-  print mode.
+  user can still invoke it in a prompt as `/<name>`; in print mode, that prompt expands the
+  skill's body.
 
 ## Repeat the check
 
-Use this to confirm the first two rows of the table above and the frontmatter claims after a new
-`agy` release. The enclosing-folder row needs one more control skill in a folder that encloses
-the project, and the `.claude/skills/` row one more in that folder. It needs the `agy` CLI and
-starts one model session.
+Steps 1-5 confirm the first two rows of the table above and the first two frontmatter claims
+after a new `agy` release. They need the `agy` CLI and start one model session. The
+enclosing-folder row needs one more control skill in a folder that encloses the project, and the
+`.claude/skills/` row one more in that folder. The `disable-model-invocation` claim needs the
+two further sessions described after the steps.
 
 1. Create an empty throwaway project folder outside any Foundry checkout.
 2. In it, add a skill at `.agents/skills/quokka-ledger/SKILL.md` and a control skill at
@@ -72,4 +73,6 @@ that word.
 ## Not verified
 
 - Whether Antigravity honors Codex's `agents/openai.yaml` policy.
+- Whether a `/<name>` prompt expands a skill marked `disable-model-invocation: true` in an
+  interactive `agy` session.
 - Whether the enclosing-folder lookup stops at the Git repository root or continues further up.
