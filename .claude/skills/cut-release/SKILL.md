@@ -126,8 +126,10 @@ git -C <plugin> branch -r --contains <release-sha>
 gh run list --repo V-Songbird/<repo> --commit <release-sha> --json workflowName,status,conclusion
 ```
 
-Pin only when every run listed shows `status` `completed` and `conclusion` `success`. An empty list
-means no run has started yet; wait and rerun it.
+Pin only when every run listed shows `status` `completed` and `conclusion` `success`. If a run ends
+`failure`, `cancelled` or `timed_out`, stop and report it; pin only on the user's explicit go-ahead.
+An empty list means no run has started yet: rerun it once after a short wait, and if it stays empty,
+check that `<release-sha>` is on `origin/main` and that `<repo>` is right, then stop and report.
 
 ## Step 4 — pin the commit in Foundry
 
