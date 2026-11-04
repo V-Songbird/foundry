@@ -2,7 +2,7 @@
 name: brand
 description: Creates or revises the flat-ink artwork of Foundry and its plugins from the kit in brand/ (icons, README banners, wordmarks, social cards, host cards, the Ember scenes and the evidence graphics) and copies it into a plugin's assets/. Use when changing that artwork, adding a host card, or when a plugin's images drifted from the kit. Not for other brands, interface design or benchmark data.
 license: MIT
-compatibility: Claude Code and Codex in the Foundry checkout. Requires Node 22 or later; the identity build also needs Sharp and Segoe UI.
+compatibility: Claude Code, Codex and Antigravity in the Foundry checkout. Requires Node 22 or later; the identity build also needs Sharp and Segoe UI.
 metadata:
   version: "1.0"
 ---

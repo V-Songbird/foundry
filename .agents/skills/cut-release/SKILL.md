@@ -2,7 +2,7 @@
 name: cut-release
 description: Release one Foundry plugin, only when the user invokes it by name. Bumps the version and changelog in the plugin repository, pushes, then pins the pushed commit in the Foundry catalogs.
 license: MIT
-compatibility: Codex and Antigravity in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
+compatibility: Codex in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
 metadata:
   version: "1.0"
 ---
@@ -10,9 +10,8 @@ metadata:
 # cut-release
 
 This is the Codex entrypoint for this repository's release procedure. Use it only
-when explicitly invoked as `$cut-release`, or on Antigravity when the user asks
-for it by name; take the plugin and requested version from the user's message.
-Codex's invocation policy lives in `agents/openai.yaml`.
+when explicitly invoked as `$cut-release`; take the plugin and requested version
+from the user's message. The invocation policy lives in `agents/openai.yaml`.
 
 Before taking release actions, read and follow the complete
 [canonical release procedure](../../../.claude/skills/cut-release/SKILL.md). The

@@ -26,7 +26,9 @@ Observed with `agy` 1.5.0 in print mode, with the folder passed through `--add-d
 Skills from enabled Antigravity plugins appear in the same list.
 
 In a Foundry checkout, Antigravity therefore lists `brand` and `cut-release` with the
-descriptions of their `.agents/skills/` copies.
+descriptions of their `.agents/skills/` copies. `brand` names Antigravity in its
+`compatibility` line. `cut-release` does not: it must run only when the user asks for it, and
+no known Antigravity setting stops the model from using a listed skill.
 
 ## Frontmatter
 
@@ -37,6 +39,5 @@ descriptions of their `.agents/skills/` copies.
 
 - Whether Antigravity honors `disable-model-invocation`, Codex's `agents/openai.yaml` policy or
   any other setting that limits when the model may use a skill. A listed skill is offered to the
-  model, so a skill that must run only on request, such as `cut-release`, states that rule in its
-  own text.
+  model.
 - Whether the enclosing-folder lookup stops at the Git repository root or continues further up.
