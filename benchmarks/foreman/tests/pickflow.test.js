@@ -51,6 +51,11 @@ test('the P1 arm reads Foreman\'s current files and the prose arm reads the pinn
   for (const f of ['accept', 'resume', 'defer', 'hint', 'reconcile', 'prepare-increments']) {
     assert.ok(`skills/roadmap/${f}.md` in sim.ARMS.prose, `prose freezes ${f}.md`);
   }
+  // The frozen link targets (delivery*.md, increment-review.md, ...) stay unserved: a Read of
+  // one returns Foreman's current text, so the prose arm's served inputs are exactly these eight.
+  assert.deepStrictEqual(Object.keys(sim.ARMS.prose).sort(), [
+    'accept', 'defer', 'destination-question', 'hint', 'pick', 'prepare-increments', 'reconcile', 'resume',
+  ].map((f) => `skills/roadmap/${f}.md`), 'prose serves only the eight frozen skill files');
 });
 
 test('a moved (Recommended) on the destination question fails Q2 only', async () => {
