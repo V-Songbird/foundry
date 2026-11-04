@@ -270,9 +270,11 @@ function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dir
   const flintDir = path.join(root, "flint");
   const hushDir = Object.hasOwn(dirs, "hush") ? dirs.hush : path.join(root, "hush");
   const { file } = FLINT_STYLE;
-  if (!checkedOut(flintDir) || !checkedOut(hushDir)) {
-    if (!checkedOut(flintDir)) skipped.push("flint");
-    if (!checkedOut(hushDir)) skipped.push("hush");
+  const absent = !checkedOut(flintDir) ? ["flint", flintDir] : !checkedOut(hushDir) ? ["hush", hushDir] : null;
+  if (absent) {
+    // A hush override that is no checkout is already a failure in checkShared, never a skip.
+    if (absent[0] === "flint" || !Object.hasOwn(dirs, "hush"))
+      skipped.push(`Skipped flint's style copy: ${absent[0]} has no checkout at ${absent[1]}.`);
     return { problems, agreed, skipped, commits };
   }
   const commit = heads ? headCommit(flintDir) : pinnedCommit(index, "flint");
@@ -340,8 +342,9 @@ function main(args = []) {
   problems.push(...flint.problems);
   agreed.push(...flint.agreed);
   for (const [name, commit] of flint.commits) commits.set(name, commit);
-  for (const plugin of new Set([...skipped, ...flint.skipped]))
+  for (const plugin of new Set(skipped))
     console.log(`Skipped ${plugin}: no checkout at ${dirs[plugin] || path.join(root, plugin)}.`);
+  for (const line of flint.skipped) console.log(line);
   for (const [plugin, commit] of commits) {
     const where = dirs[plugin] ? `HEAD in ${dirs[plugin]}` : heads ? "HEAD" : "pinned commit";
     console.log(`Read ${plugin} at its ${where} ${commit}.`);

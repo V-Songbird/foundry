@@ -421,16 +421,31 @@ describe("checkFlintStyle", () => {
   });
 
   test("no flint checkout is skipped and named", () => {
-    assert.deepEqual(checkFlintStyle(tree(agreeing())), { problems: [], agreed: [], skipped: ["flint"], commits: new Map() });
+    const root = tree(agreeing());
+    assert.deepEqual(checkFlintStyle(root), { problems: [], agreed: [], skipped: [`Skipped flint's style copy: flint has no checkout at ${path.join(root, "flint")}.`], commits: new Map() });
   });
 
-  test("a missing hush checkout skips hush, not flint, and the CLI names the folder it looked in", () => {
+  test("a missing hush checkout skips flint's style copy and names hush", () => {
+    const { root } = flintTree();
+    fs.rmSync(path.join(root, "hush"), { recursive: true, force: true });
+    const hushDir = path.join(root, "hush");
+    const result = checkFlintStyle(root);
+    assert.deepEqual({ problems: result.problems, skipped: result.skipped }, {
+      problems: [],
+      skipped: [`Skipped flint's style copy: hush has no checkout at ${hushDir}.`],
+    });
+    const run = spawnSync(process.execPath, [SCRIPT, root], { encoding: "utf8", cwd: root });
+    assert.ok(run.stdout.split("\n").map((l) => l.trimEnd()).includes(`Skipped flint's style copy: hush has no checkout at ${hushDir}.`), run.stdout);
+  });
+
+  test("a hush override that is no checkout fails and adds no flint skip", () => {
     const { root } = flintTree();
     const empty = fs.mkdtempSync(path.join(os.tmpdir(), "no-hush-"));
-    const result = checkFlintStyle(root, { dirs: { hush: empty } });
-    assert.deepEqual({ problems: result.problems, skipped: result.skipped }, { problems: [], skipped: ["hush"] });
+    assert.deepEqual(checkFlintStyle(root, { dirs: { hush: empty } }).skipped, []);
     const run = spawnSync(process.execPath, [SCRIPT, "--hush", empty, root], { encoding: "utf8", cwd: root });
-    assert.equal(run.stdout.match(/^Skipped .*$/gm).join("\n"), `Skipped hush: no checkout at ${empty}.`);
+    assert.equal(run.status, 1);
+    assert.doesNotMatch(run.stdout, /style copy/);
+    assert.match(run.stderr, /is not a Git checkout/);
   });
 
   test("the cut count in the messages follows the cut list", () => {
