@@ -4,6 +4,7 @@ summary: "Which skill folders the Antigravity CLI (agy 1.5.0) lists in a workspa
 related_files:
   - .agents/skills/cut-release/SKILL.md
   - .agents/skills/brand/SKILL.md
+  - .claude/skills/brand/SKILL.md
 ---
 
 # Skills on Antigravity
@@ -34,6 +35,26 @@ no known Antigravity setting stops the model from using a listed skill.
 
 - Antigravity shows each skill's `name` and `description`.
 - A `SKILL.md` that also carries `license`, `compatibility` and `metadata` is still listed.
+
+## Repeat the check
+
+Use this to confirm the table above after a new `agy` release. It needs the `agy` CLI and
+starts one model session.
+
+1. Create an empty throwaway project folder outside any Foundry checkout.
+2. In it, add a skill at `.agents/skills/quokka-ledger/SKILL.md` and a control skill at
+   `.agent/skills/heron-ledger/SKILL.md`. Give each the `name`, `description`, `license`,
+   `compatibility` and `metadata` keys, so the run also shows whether the extra keys matter.
+   Use a different word in each skill, so the answer shows which one was listed.
+3. Start `agy` from the project folder in print mode, with the folder passed through
+   `--add-dir`: `agy -p "<prompt>" --add-dir <project> --output-format stream-json`. The prompt
+   forbids reading files and running commands, and asks the model to list the name and
+   description of every skill it has, then to state whether each of the two skills is among them.
+4. Remove the `CLAUDE*` variables from the environment of the run, and point `TEMP` and `TMP` at
+   a scratch folder.
+5. Read the reply. A skill the model names is listed; a skill it does not name is not.
+
+To test another location, such as `.claude/skills/`, add one more control skill there.
 
 ## Not verified
 

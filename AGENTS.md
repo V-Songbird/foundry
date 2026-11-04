@@ -16,6 +16,7 @@ hooks and tests with Node.js 22 or later and Git; Foreman needs Git 2.25 or late
 - Before changing a catalog or cutting a release, read [the release procedure](.claude/skills/cut-release/SKILL.md).
 - Before changing a plugin or flint, read its own `AGENTS.md`; each submodule is a separate repository with its own rules, tests and changelog.
 - Before editing or reviewing a plugin README, read [the README contract](docs/knowledge/plugin-readme-template.md).
+- Before adding or removing Antigravity in a skill's `compatibility` line, read [the Antigravity skills record](docs/knowledge/antigravity-skills.md).
 - Before changing any banner, icon, host card, Ember scene or evidence graphic, read [the brand guide](docs/knowledge/brand.md).
 - Before writing or changing a mod (a hooks module that draws in Claude Code), read [the native-look rules](docs/knowledge/mod-native-look.md).
 - Before changing `benchmarks/` or starting a run, read [the benchmarks README](benchmarks/README.md); a live run starts paid model sessions.
@@ -67,8 +68,8 @@ and CI checks out no submodules.
 | `.agents/plugins/marketplace.json` | Codex catalog: foreman, razor |
 | `foreman/`, `hush/`, `razor/` | Plugin repositories, mounted as submodules |
 | `flint/` | Plain-text writing and coding instructions; a submodule outside both catalogs. Its gitlink moves in an ordinary commit, only to a commit already on flint's `origin/main`; cut-release and CI do not cover it |
-| `.claude/skills/cut-release/`, `.agents/skills/cut-release/` | The release procedure, user-invoked only: Claude Code's skill holds the steps, and the Codex skill delegates to it with Codex notes; the Codex skill's `agents/openai.yaml` sets its display name and prompt and turns implicit invocation off |
-| `.claude/skills/brand/`, `.agents/skills/brand/` | The artwork procedure for Claude Code and Codex; the two `SKILL.md` files stay identical, and the Codex skill's `agents/openai.yaml` sets its display name and default prompt |
+| `.claude/skills/cut-release/`, `.agents/skills/cut-release/` | The release procedure, user-invoked only: Claude Code's skill holds the steps, and the Codex skill delegates to it with Codex notes; the Codex skill's `agents/openai.yaml` sets its display name and prompt and turns implicit invocation off. The cut-release skill stays Codex-only, but `agy` lists every skill in `.agents/skills/`, and `agents/openai.yaml` is Codex's setting, not one Antigravity is known to honor ([record](docs/knowledge/antigravity-skills.md)) |
+| `.claude/skills/brand/`, `.agents/skills/brand/` | The artwork procedure for Claude Code, Codex and Antigravity; the two `SKILL.md` files stay identical, and the Codex skill's `agents/openai.yaml` sets its display name and default prompt |
 | `.claude/agents/`, `.codex/agents/` | `plugin-docs-reviewer`, the read-only README review, for Claude Code and Codex; the two share one body that differs only in naming Bash or shell commands, so a change goes into both. On Codex it is read-only by its instructions only, because an agent role cannot set its sandbox, and starting the parent session with `-s read-only` enforces it |
 | `.claude/settings.json`, `.codex/hooks.json` | Shared Claude Code settings and the Codex hook registration for this checkout |
 | `.github/workflows/validate-marketplace.yml`, `.github/dependabot.yml` | The CI workflow that produces the required `validate` check, and the weekly update of its pinned actions |
@@ -77,7 +78,7 @@ and CI checks out no submodules.
 | `scripts/cut-release-block.test.js` | The test that runs cut-release step 4's bash block as written |
 | `brand/` | The brand kit: sources, generators and the exported images each plugin copies into its `assets/` |
 | `benchmarks/` | The benchmark harness: per-plugin runners, fixtures and offline tests; `paths.js` resolves the plugin checkouts and the ignored `.private/benchmarks/<plugin>/` folder that holds run history and output; `bench-config-dir.js` resolves `BENCH_CONFIG_DIR`, the scratch Claude state folder a live run needs; `test-env.js` gives a test that spawns a runner an environment without keys or Claude config folders; `sdk-session.js` runs a live session through the Agent SDK when a runner gets `--sdk`, and `package.json` with its lockfile pins that SDK; `hillclimb.js` writes the per-variant files that each suite's `runner/hillclimb.js` hands to `/claude-api hillclimb` |
-| `docs/knowledge/` | Public documentation: the plugin README contract and the brand guide |
+| `docs/knowledge/` | Public documentation: the plugin README contract, the brand guide, the native-look rules for mods ([mod-native-look.md](docs/knowledge/mod-native-look.md)) and the [Antigravity skills record](docs/knowledge/antigravity-skills.md) |
 
 ## Conventions
 
