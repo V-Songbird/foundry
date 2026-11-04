@@ -11,8 +11,8 @@ metadata:
 
 # cut-release
 
+This is the Codex entrypoint for this repository's release procedure. Use it only
 when explicitly invoked as `$cut-release`; take the plugin and requested version
-for it by name; take the plugin and requested version
 from the user's message. The invocation policy lives in `agents/openai.yaml`.
 
 Before taking release actions, read and follow the complete
