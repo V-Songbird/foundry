@@ -16,7 +16,7 @@ const os = require("os");
 const path = require("path");
 const { execFileSync, spawnSync } = require("child_process");
 
-const { afterHeader, fixturesArray, launcherLookup, checkShared, SHARED, checkFlintStyle, cutFlintParts } = require("./check-shared-copies");
+const { afterHeader, fixturesArray, launcherLookup, checkShared, SHARED, checkFlintStyle, cutFlintParts, FLINT_STYLE } = require("./check-shared-copies");
 
 const SCRIPT = path.join(__dirname, "check-shared-copies.js");
 const SAFE_WRITE = "hooks/lib/safe-write.js";
@@ -362,7 +362,7 @@ describe("checkFlintStyle", () => {
     const { root, hushSha, flintSha } = flintTree();
     const { problems, agreed, skipped, commits } = checkFlintStyle(root);
     assert.deepEqual({ problems, skipped }, { problems: [], skipped: [] });
-    assert.deepEqual(agreed, [`${STYLE}: flint's copy agrees with hush at ${hushSha}, after its four plugin-only cuts.`]);
+    assert.deepEqual(agreed, [`${STYLE}: flint's copy agrees with hush at ${hushSha}, after its ${FLINT_STYLE.cuts.length} plugin-only cuts.`]);
     assert.equal(commits.get("flint"), flintSha);
   });
 
@@ -422,6 +422,20 @@ describe("checkFlintStyle", () => {
 
   test("no flint checkout is skipped and named", () => {
     assert.deepEqual(checkFlintStyle(tree(agreeing())), { problems: [], agreed: [], skipped: ["flint"], commits: new Map() });
+  });
+
+  test("a missing hush checkout skips hush, not flint, and the CLI names the folder it looked in", () => {
+    const { root } = flintTree();
+    const empty = fs.mkdtempSync(path.join(os.tmpdir(), "no-hush-"));
+    const result = checkFlintStyle(root, { dirs: { hush: empty } });
+    assert.deepEqual({ problems: result.problems, skipped: result.skipped }, { problems: [], skipped: ["hush"] });
+    const run = spawnSync(process.execPath, [SCRIPT, "--hush", empty, root], { encoding: "utf8", cwd: root });
+    assert.equal(run.stdout.match(/^Skipped .*$/gm).join("\n"), `Skipped hush: no checkout at ${empty}.`);
+  });
+
+  test("the cut count in the messages follows the cut list", () => {
+    const { root } = flintTree({ flint: FLINT_COPY.replace("Middle.", "Middle, changed.") });
+    assert.match(checkFlintStyle(root).problems[0], new RegExp(`after its ${FLINT_STYLE.cuts.length} plugin-only cuts`));
   });
 
   test("CRLF line endings in flint's copy are not a difference", () => {

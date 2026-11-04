@@ -271,7 +271,8 @@ function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dir
   const hushDir = Object.hasOwn(dirs, "hush") ? dirs.hush : path.join(root, "hush");
   const { file } = FLINT_STYLE;
   if (!checkedOut(flintDir) || !checkedOut(hushDir)) {
-    skipped.push("flint");
+    if (!checkedOut(flintDir)) skipped.push("flint");
+    if (!checkedOut(hushDir)) skipped.push("hush");
     return { problems, agreed, skipped, commits };
   }
   const commit = heads ? headCommit(flintDir) : pinnedCommit(index, "flint");
@@ -306,12 +307,12 @@ function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dir
   const line = theirs.findIndex((l, i) => l !== ours[i]);
   if (line >= 0 || ours.length !== theirs.length) {
     problems.push(
-      `flint/${file} differs from hush/${file} at ${sha.slice(0, 7)}, after its four plugin-only cuts, ` +
+      `flint/${file} differs from hush/${file} at ${sha.slice(0, 7)}, after its ${FLINT_STYLE.cuts.length} plugin-only cuts, ` +
       `first at line ${(line >= 0 ? line : theirs.length) + 1} of flint's copy. Flint copies Hush's voice: ` +
       "carry the change into flint, or list a new cut in flint's AGENTS.md and FLINT_STYLE."
     );
   } else {
-    agreed.push(`${file}: flint's copy agrees with hush at ${sha}, after its four plugin-only cuts.`);
+    agreed.push(`${file}: flint's copy agrees with hush at ${sha}, after its ${FLINT_STYLE.cuts.length} plugin-only cuts.`);
   }
   return { problems, agreed, skipped, commits };
 }
@@ -338,9 +339,9 @@ function main(args = []) {
   const flint = checkFlintStyle(path.resolve(root), options);
   problems.push(...flint.problems);
   agreed.push(...flint.agreed);
-  skipped.push(...flint.skipped);
   for (const [name, commit] of flint.commits) commits.set(name, commit);
-  for (const plugin of skipped) console.log(`Skipped ${plugin}: no checkout at ${path.join(root, plugin)}.`);
+  for (const plugin of new Set([...skipped, ...flint.skipped]))
+    console.log(`Skipped ${plugin}: no checkout at ${dirs[plugin] || path.join(root, plugin)}.`);
   for (const [plugin, commit] of commits) {
     const where = dirs[plugin] ? `HEAD in ${dirs[plugin]}` : heads ? "HEAD" : "pinned commit";
     console.log(`Read ${plugin} at its ${where} ${commit}.`);
