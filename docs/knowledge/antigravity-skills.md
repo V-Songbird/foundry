@@ -1,6 +1,6 @@
 ---
 type: knowledge
-summary: "Which skill folders the Antigravity CLI (agy 1.5.0) lists in a workspace, including Foundry's .agents/skills/, which frontmatter it shows, and what remains unverified; read before claiming Antigravity support in a skill's compatibility line."
+summary: "Which skill folders the Antigravity CLI (agy 1.5.0) lists in a workspace, including Foundry's .agents/skills/, which frontmatter it shows, how disable-model-invocation hides a skill from the model, and what remains unverified; read before claiming Antigravity support in a skill's compatibility line."
 related_files:
   - .agents/skills/cut-release/SKILL.md
   - .agents/skills/brand/SKILL.md
@@ -26,15 +26,18 @@ Observed with `agy` 1.5.0 in print mode, with the folder passed through `--add-d
 
 Skills from enabled Antigravity plugins appear in the same list.
 
-In a Foundry checkout, Antigravity therefore lists `brand` and `cut-release` with the
-descriptions of their `.agents/skills/` copies. `brand` names Antigravity in its
-`compatibility` line. `cut-release` does not: it must run only when the user asks for it, and
-no known Antigravity setting stops the model from using a listed skill.
+In a Foundry checkout, Antigravity therefore finds `brand` and `cut-release` in their
+`.agents/skills/` copies. Both name Antigravity in their `compatibility` line. `cut-release`
+carries `disable-model-invocation: true`, so the model is not offered it and it runs only when
+the user invokes it as `/cut-release`.
 
 ## Frontmatter
 
 - Antigravity shows each skill's `name` and `description`.
 - A `SKILL.md` that also carries `license`, `compatibility` and `metadata` is still listed.
+- A skill marked `disable-model-invocation: true` is left out of the list the model sees. The
+  user can still invoke it in a prompt as `/<name>`, which expands the skill's body, also in
+  print mode.
 
 ## Repeat the check
 
@@ -58,9 +61,15 @@ starts one model session.
 
 To test another location, such as `.claude/skills/`, add one more control skill there.
 
+To check `disable-model-invocation`, run the same steps with two skills under
+`.agents/skills/`: one marked `disable-model-invocation: true` and an otherwise identical
+control without the key. The marked skill must be missing from the reply and the control
+present. Then start a second run whose prompt begins with `/<marked name>` and forbids reading
+files. Give the marked skill a body that asks for a reply word the model cannot guess from the
+name. The run's `init` event lists the skill under `expanded_commands`, and the reply carries
+that word.
+
 ## Not verified
 
-- Whether Antigravity honors `disable-model-invocation`, Codex's `agents/openai.yaml` policy or
-  any other setting that limits when the model may use a skill. A listed skill is offered to the
-  model.
+- Whether Antigravity honors Codex's `agents/openai.yaml` policy.
 - Whether the enclosing-folder lookup stops at the Git repository root or continues further up.

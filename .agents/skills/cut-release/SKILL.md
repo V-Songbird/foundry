@@ -1,23 +1,26 @@
 ---
 name: cut-release
 description: Release one Foundry plugin, only when the user invokes it by name. Bumps the version and changelog in the plugin repository, pushes, then pins the pushed commit in the Foundry catalogs.
+disable-model-invocation: true
 license: MIT
-compatibility: Codex in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
+compatibility: Codex and Antigravity in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
 metadata:
   version: "1.0"
 ---
 
 # cut-release
 
-This is the Codex entrypoint for this repository's release procedure. Use it only
-when explicitly invoked as `$cut-release`; take the plugin and requested version
-from the user's message. The invocation policy lives in `agents/openai.yaml`.
+This is the Codex and Antigravity entrypoint for this repository's release
+procedure. Use it only when explicitly invoked, as `$cut-release` in Codex or
+`/cut-release` in Antigravity; take the plugin and requested version from the
+user's message. Codex reads the invocation policy from `agents/openai.yaml`, and
+Antigravity from `disable-model-invocation` above.
 
 Before taking release actions, read and follow the complete
 [canonical release procedure](../../../.claude/skills/cut-release/SKILL.md). The
 procedure is shared with Claude Code; do not duplicate its steps here.
 
-## Codex execution notes
+## Codex and Antigravity execution notes
 
 - Resolve the canonical link relative to this skill directory. If it is missing,
   stop and report the missing procedure rather than inventing a release workflow.
