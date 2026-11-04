@@ -4,15 +4,14 @@ description: Release one Foundry plugin, only when the user invokes it by name. 
 argument-hint: "[plugin] [version]"
 disable-model-invocation: true
 license: MIT
-compatibility: Codex and Antigravity in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
+compatibility: Codex in the Foundry checkout. Requires git, Node 22 or later, the gh CLI and a POSIX bash, which on Windows is Git's own. The claude, codex and agy CLIs run the checks that name them.
 metadata:
   version: "1.0"
 ---
 
 # cut-release
 
-This is the Codex entrypoint for this repository's release procedure. Use it only
-when explicitly invoked as `$cut-release`, or on Antigravity when the user asks
+when explicitly invoked as `$cut-release`; take the plugin and requested version
 for it by name; take the plugin and requested version
 from the user's message. The invocation policy lives in `agents/openai.yaml`.
 
