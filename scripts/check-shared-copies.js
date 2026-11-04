@@ -40,10 +40,12 @@
 //
 // --<plugin> <dir>, such as --foreman .private/foreman-799, reads that plugin
 // from dir at its HEAD instead of from root, so a worker branch in a separate
-// worktree is compared with the other plugins before it merges. The other
-// plugins keep their pins, or their HEADs under --heads. A relative dir is
-// resolved against root, not the current directory. An override that is not
-// a Git checkout is a failure, never a skip.
+// worktree is compared with the other plugins before it merges. The plugin may
+// be flint, whose HEAD is then compared with Hush's style. The other plugins
+// keep their pins, or their HEADs under --heads. A relative dir is resolved
+// against root, not the current directory. An override that is not a Git
+// checkout is a failure, never a skip. Hush's folder must hold a .git of its
+// own, or flint's check fails rather than read an enclosing repository.
 //
 //   node scripts/check-shared-copies.js [--heads] [--<plugin> <dir>]... [root]
 
@@ -267,20 +269,26 @@ function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dir
   const agreed = [];
   const skipped = [];
   const commits = new Map();
-  const flintDir = path.join(root, "flint");
+  const flintOverride = Object.hasOwn(dirs, "flint");
+  const flintDir = flintOverride ? dirs.flint : path.join(root, "flint");
+  const head = heads || flintOverride;
   const hushDir = Object.hasOwn(dirs, "hush") ? dirs.hush : path.join(root, "hush");
   const { file } = FLINT_STYLE;
-  const absent = !checkedOut(flintDir) ? ["flint", flintDir] : !checkedOut(hushDir) ? ["hush", hushDir] : null;
+  const absent = !flintOverride && !checkedOut(flintDir) ? ["flint", flintDir] : !checkedOut(hushDir) ? ["hush", hushDir] : null;
   if (absent) {
     // A hush override that is no checkout is already a failure in checkShared, never a skip.
     if (absent[0] === "flint" || !Object.hasOwn(dirs, "hush"))
       skipped.push(`Skipped flint's style copy: ${absent[0]} has no checkout at ${absent[1]}.`);
     return { problems, agreed, skipped, commits };
   }
-  const commit = heads ? headCommit(flintDir) : pinnedCommit(index, "flint");
-  if (!commit && heads) problems.push(`flint at ${flintDir} is not a Git checkout, so it has no HEAD to compare.`);
+  if (!fs.existsSync(path.join(hushDir, ".git"))) {
+    problems.push(`hush at ${hushDir} is not a Git checkout, so it has no history to read flint's source from.`);
+    return { problems, agreed, skipped, commits };
+  }
+  const commit = head ? headCommit(flintDir) : pinnedCommit(index, "flint");
+  if (!commit && head) problems.push(`flint at ${flintDir} is not a Git checkout, so it has no HEAD to compare.`);
   else if (!commit) problems.push(`flint has no gitlink in the index of ${index}, so it has no pinned copy to compare.`);
-  else if (!heads && git(flintDir, ["cat-file", "-e", `${commit}^{commit}`]) === null)
+  else if (!head && git(flintDir, ["cat-file", "-e", `${commit}^{commit}`]) === null)
     problems.push(`flint's pinned commit ${commit} is not in its checkout: fetch it there, then rerun.`);
   if (problems.length) return { problems, agreed, skipped, commits };
   commits.set("flint", commit);
@@ -297,7 +305,7 @@ function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dir
   }
   const hushSource = readFiles(hushDir, sha, [file]).get(file);
   const flintSource = flint.get(file);
-  if (flintSource === undefined) problems.push(`flint/${file} is missing at ${heads ? "its HEAD" : "the pinned commit"}, so its copy cannot be compared.`);
+  if (flintSource === undefined) problems.push(`flint/${file} is missing at ${head ?"its HEAD" : "the pinned commit"}, so its copy cannot be compared.`);
   if (hushSource === undefined) problems.push(`hush/${file} is missing at ${sha}, so its copy cannot be compared.`);
   if (problems.length) return { problems, agreed, skipped, commits };
   const { text, missing } = cutFlintParts(hushSource.replace(/\r\n/g, "\n"));
@@ -320,7 +328,7 @@ function checkFlintStyle(root = path.join(__dirname, ".."), { heads = false, dir
 }
 
 function main(args = []) {
-  const plugins = new Set(SHARED.flatMap((s) => s.plugins));
+  const plugins = new Set([...SHARED.flatMap((s) => s.plugins), "flint"]);
   const dirs = {};
   const rest = [];
   let heads = false;

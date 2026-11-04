@@ -440,12 +440,72 @@ describe("checkFlintStyle", () => {
 
   test("a hush override that is no checkout fails and adds no flint skip", () => {
     const { root } = flintTree();
-    const empty = fs.mkdtempSync(path.join(os.tmpdir(), "no-hush-"));
+    const empty = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), "no-hush-"));
+    scratch.push(empty);
     assert.deepEqual(checkFlintStyle(root, { dirs: { hush: empty } }).skipped, []);
     const run = spawnSync(process.execPath, [SCRIPT, "--hush", empty, root], { encoding: "utf8", cwd: root });
     assert.equal(run.status, 1);
     assert.doesNotMatch(run.stdout, /style copy/);
     assert.match(run.stderr, /is not a Git checkout/);
+  });
+
+  test("a hush folder with no .git of its own fails instead of reading the enclosing repository", () => {
+    const { root } = flintTree();
+    fs.rmSync(path.join(root, "hush", ".git"), { recursive: true, force: true });
+    assert.deepEqual(checkFlintStyle(root).problems, [
+      `hush at ${path.join(root, "hush")} is not a Git checkout, so it has no history to read flint's source from.`,
+    ]);
+  });
+
+  describe("with a flint directory override", () => {
+    /** A flint worktree on a topic branch, committed with the given copy of the style. */
+    function withFlintWorktree(copy) {
+      const flintTreeResult = flintTree();
+      const worktree = path.join(fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), "sharedcopies-flint-")), "flint-1");
+      scratch.push(path.dirname(worktree));
+      git(path.join(flintTreeResult.root, "flint"), "worktree", "add", "-q", "-b", "topic", worktree);
+      const sha = commit(worktree, { [STYLE]: copy, "notes.txt": "unrelated\n" });
+      return { ...flintTreeResult, worktree, sha };
+    }
+
+    test("a drifted copy committed in the worktree fails, while the default still reads the pin", () => {
+      const { root, worktree, sha, flintSha } = withFlintWorktree(FLINT_COPY.replace("Middle.", "Middle, changed."));
+      const result = checkFlintStyle(root, { dirs: { flint: worktree } });
+      assert.equal(result.problems.length, 1);
+      assert.match(result.problems[0], DIFFERS);
+      assert.equal(result.commits.get("flint"), sha);
+      const pinned = checkFlintStyle(root);
+      assert.deepEqual(pinned.problems, []);
+      assert.equal(pinned.commits.get("flint"), flintSha);
+    });
+
+    test("a worktree whose copy agrees passes", () => {
+      const { root, worktree } = withFlintWorktree(FLINT_COPY);
+      assert.deepEqual(checkFlintStyle(root, { dirs: { flint: worktree } }).problems, []);
+    });
+
+    test("an override that is not a Git checkout fails instead of being skipped", () => {
+      const { root } = flintTree();
+      const missing = path.join(root, "no-such-worktree");
+      const { problems, skipped } = checkFlintStyle(root, { dirs: { flint: missing } });
+      assert.deepEqual({ problems, skipped }, {
+        problems: [`flint at ${missing} is not a Git checkout, so it has no HEAD to compare.`],
+        skipped: [],
+      });
+    });
+
+    test("--flint <dir> on the command reads that HEAD, given absolute or relative to the root",() => {
+      const { root, worktree, sha } = withFlintWorktree(FLINT_COPY.replace("Middle.", "Middle, changed."));
+      const run = spawnSync(process.execPath, [SCRIPT, "--flint", worktree, root], { encoding: "utf8", cwd: root });
+      assert.equal(run.status, 1);
+      assert.match(run.stdout, new RegExp(`^Read flint at its HEAD in .+flint-1 ${sha}\\.$`, "m"));
+      assert.match(run.stderr, /flint\/output-styles\/hush\.md differs/);
+      const relative = path.join(root, "flint-wt");
+      git(path.join(root, "flint"), "worktree", "add", "-q", "-b", "topic2", relative);
+      const ok = spawnSync(process.execPath, [SCRIPT, "--flint", "flint-wt", root], { encoding: "utf8", cwd: root });
+      assert.equal(ok.status, 0, ok.stderr);
+      assert.match(ok.stdout, /^Read flint at its HEAD in .+flint-wt /m);
+    });
   });
 
   test("the cut count in the messages follows the cut list", () => {
@@ -659,7 +719,7 @@ describe("this repository", () => {
   test("flint's style copy checked out here agrees with hush", (t) => {
     const { problems, agreed, skipped } = checkFlintStyle();
     assert.deepEqual(problems, []);
-    if (agreed.length === 0) t.skip(`flint's style copy not compared here; skipped ${skipped.join(", ")}`);
+    if (agreed.length === 0) t.skip(skipped.join(" "));
   });
 
   test("safe-write, the turn-boundary fixtures, the launcher, the README nav files and the pre-commit files are all watched", () => {
