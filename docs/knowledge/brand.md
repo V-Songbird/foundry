@@ -112,7 +112,7 @@ a page in the plugin references it, and remove one that no page references.
 The Codex manifests point at `assets/icon-on-light.png` and `assets/icon-on-dark.png`, so a new
 icon reaches Codex through the same copy. Flint takes the identity files only.
 
-Copy a skill icon only into a plugin that ships for Codex, today Foreman and Razor. Each skill's
+Copy a skill icon only into a plugin that ships for Codex, today Foreman, Razor, anneal and collet. Each skill's
 `agents/openai.yaml` declares its icons under `interface`, with `icon_small: "./assets/icon.svg"`
 and `icon_large: "./assets/icon.png"`; Codex ignores an icon path outside the skill's or the plugin's `assets/`.
 Hush ships for Claude Code only and has no skill icons.
