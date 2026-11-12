@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path');
 const sharp=require('sharp');
 const crypto=require('node:crypto');
 const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const brands={foundry:['#be5d27','Small tools. Thoughtful work.','PLUGINS & PLAIN-TEXT TOOLS'],hush:['#2c75a5','Less chatter. A clear answer.','A FOUNDRY PLUGIN'],foreman:['#21553b','Your next task, with its context.','A FOUNDRY PLUGIN'],razor:['#bf4935','Build what you need. Nothing extra.','A FOUNDRY PLUGIN'],flint:['#c18423','Good habits. Plain text.','FROM FOUNDRY']};
+const brands={foundry:['#be5d27','Small tools. Thoughtful work.','PLUGINS & PLAIN-TEXT TOOLS'],hush:['#2c75a5','Less chatter. A clear answer.','A FOUNDRY PLUGIN'],foreman:['#21553b','Your next task, with its context.','A FOUNDRY PLUGIN'],razor:['#bf4935','Build what you need. Nothing extra.','A FOUNDRY PLUGIN'],flint:['#c18423','Good habits. Plain text.','FROM FOUNDRY'],anneal:['#7b4fa0','Find your way. Keep the docs true.','A SLAG PLUGIN'],collet:['#3f8f4f','One task. Its files. Its proof.','A SLAG PLUGIN']};
 const out=__dirname;
 const escape=s=>s.replaceAll('&','&amp;');
 const manifest=[];
@@ -16,8 +16,8 @@ for(const [name,[accent,promise,category]]of Object.entries(brands)){
   const mark=(x,y,size)=>`<g transform="translate(${x} ${y}) scale(${size/128})">${body}</g>`;
   const svg=(w,h,content)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><g font-family="Segoe UI,Arial,sans-serif" fill="${ink}">${content}</g></svg>`;
   const frame=(w,h)=>`<rect width="${w}" height="${h}" fill="${paper}"/>`;
-  const social=svg(1280,640,frame(1280,640)+`<text x="86" y="86" font-size="17" letter-spacing="3">${escape(category)}</text>`+mark(76,140,240)+`<text x="348" y="306" font-size="112" font-weight="700" letter-spacing="-4">${name}</text><text x="91" y="426" font-size="35">${escape(promise)}</text><path d="M89 489Q394 484 652 488T1188 489" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/><text x="90" y="559" font-size="20">${name==='foundry'?'Tools for Claude Code and Codex':name==='flint'?'Writing and coding instructions you can bring to a session':'Part of Foundry'}</text>`);
-  const banner=svg(2172,724,frame(2172,724)+(['hush','foreman','razor'].includes(name)
+  const social=svg(1280,640,frame(1280,640)+`<text x="86" y="86" font-size="17" letter-spacing="3">${escape(category)}</text>`+mark(76,140,240)+`<text x="348" y="306" font-size="112" font-weight="700" letter-spacing="-4">${name}</text><text x="91" y="426" font-size="35">${escape(promise)}</text><path d="M89 489Q394 484 652 488T1188 489" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/><text x="90" y="559" font-size="20">${name==='foundry'?'Tools for Claude Code and Codex':name==='flint'?'Writing and coding instructions you can bring to a session':category==='A SLAG PLUGIN'?'Part of Slag':'Part of Foundry'}</text>`);
+  const banner=svg(2172,724,frame(2172,724)+(['hush','foreman','razor','anneal','collet'].includes(name)
    ? mark(926,64,320)+`<text x="1086" y="500" text-anchor="middle" font-size="164" font-weight="700" letter-spacing="-5">${name}</text><text x="1086" y="602" text-anchor="middle" font-size="48">${escape(promise)}</text>`
    : mark(160,100,480)+`<text x="760" y="412" font-size="200" font-weight="700" letter-spacing="-5">${name}</text><text x="774" y="518" font-size="48">${escape(promise)}</text>`));
   const logo=svg(1400,420,mark(30,40,330)+`<text x="430" y="279" font-size="170" font-weight="700" letter-spacing="-4">${name}</text>`);

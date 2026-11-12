@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=__dirname;
-const brands=['foundry','hush','foreman','razor','flint'];
+const brands=['foundry','hush','foreman','razor','flint','anneal','collet'];
 const extra={hush:['mascot','hero','demo','hero-opus5','demo-opus5'],foreman:['mascot','hero','demo'],razor:['mascot','hero','demo']};
 const media=/@media\s*\(prefers-color-scheme:\s*dark\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g;
 const text=s=>[...s.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map(m=>m[1]);
@@ -43,4 +43,4 @@ for(const skill of skills){const label=skill.replace('-',':');html+=`<h3>${label
 html+='</section>';
 html+='<p class="note">Review package. No additional publication or repository-image replacement was performed.</p></main><script>document.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>{document.body.className=b.dataset.theme==="both"?"":"only-"+b.dataset.theme;document.querySelectorAll("[data-theme]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))})</script></html>';
 fs.writeFileSync(path.join(root,'index.html'),html);
-console.log(`Complete gallery built: 5 brands, 40 identity PNGs, ${Object.values(extra).flat().length*2} light/dark supporting SVG previews, ${hosts.length*2} host-card previews, ${skills.length} skill icons. All referenced images exist.`);
+console.log(`Complete gallery built: ${brands.length} brands, ${brands.length*8} identity PNGs, ${Object.values(extra).flat().length*2} light/dark supporting SVG previews, ${hosts.length*2} host-card previews, ${skills.length} skill icons. All referenced images exist.`);

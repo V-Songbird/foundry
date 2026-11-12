@@ -33,6 +33,8 @@ Each symbol is a hallmark seal: one filled outline per brand with a glyph inside
 | Foreman | Tag with clipped corners | Plumb line | `#21553B` |
 | Razor | Blade hexagon | Trimmed block | `#BF4935` |
 | Flint | One faceted stone, no spark and no second stone | Its facets: one paper-filled, three ink lines | `#C18423` |
+| anneal | Crucible | A paper flame | `#7B4FA0` |
+| collet | Round chuck with three slits | A gripped block | `#3F8F4F` |
 
 The light theme uses ink `#252820` on `#FFFFFF`; the dark theme uses ink `#EEE9DE` on `#191C1B`.
 Seal fills and geometry stay identical between themes. Only ink, background and the glyph's
