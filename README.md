@@ -43,7 +43,13 @@ codex plugin marketplace add V-Songbird/foundry
 codex plugin add razor@foundry
 ```
 
-Review and trust the plugin's hooks with `/hooks`, then start a new Codex session. Hush has no Codex package. To take a new release, run `codex plugin marketplace upgrade`, add the plugin again and start a new session.
+Review and trust the plugin's hooks with `/hooks`, then start a new Codex session. Hush has no Codex package. To take a new release, refresh the marketplace, remove the plugin, add it again and start a new session:
+
+```text
+codex plugin marketplace upgrade
+codex plugin remove razor@foundry
+codex plugin add razor@foundry
+```
 
 Both hosts use the name `foundry` and read their own catalog. Each entry pins one commit of the plugin's repository, so an install stays the same until the catalog moves.
 
