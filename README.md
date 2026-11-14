@@ -69,6 +69,8 @@ git -C <path-to-clone> submodule update --init
 agy plugin install <path-to-clone>/razor
 ```
 
+On 2026-11-14 this repository's history was rewritten to hold only what an install needs. A clone made before that date cannot pull the new history: delete it, clone again as above and install again. If `/plugin marketplace update foundry` or `codex plugin marketplace upgrade` fails for a marketplace added before that date, remove the marketplace and add it again.
+
 Foundry has no configuration of its own. Each plugin's page lists its settings.
 
 ## Development
