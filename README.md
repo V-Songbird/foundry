@@ -1,6 +1,6 @@
 # Foundry
 
-Foundry is a plugin marketplace for Claude Code and Codex, and the home of two plugins that also run on Antigravity. It lists three plugins that help a coding session continue where the last one stopped, say less while it works, and add less code.
+Foundry is a plugin marketplace for Claude Code. Claude Code is the primary host: every plugin here is designed for it first. Foreman and Razor also run on Codex and Antigravity, as compatibility hosts. Foundry lists three plugins that help a coding session continue where the last one stopped, say less while it works, and add less code.
 
 | Plugin | Use it when | Hosts |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Each plugin works on its own. Its page holds the commands, settings, limits and 
 
 ## Requirements
 
-- Claude Code, a Codex host with plugin support, or the Antigravity CLI.
+- Claude Code 2.1.323 or later. Or, for Foreman and Razor only, a Codex host with plugin support or the Antigravity CLI.
 - Node.js 22 or later and Git on the PATH; Foreman needs Git 2.25 or later. The plugins run their hooks and tests with Node.js.
 
 ## Install
@@ -27,6 +27,15 @@ Inside Claude Code, add the marketplace once, then install the plugin you want:
 
 Start a new session to load the plugin. Its skills then appear under the plugin's name, for example `/foreman:foreman`. `/plugin uninstall foreman@foundry` removes it again.
 
+An install stays at the release it was made from. To take a new release, refresh the marketplace, update the plugin and start a new session:
+
+```text
+/plugin marketplace update foundry
+/plugin update foreman@foundry
+```
+
+### Compatibility hosts
+
 In Codex, Foreman and Razor install the same way:
 
 ```text
@@ -34,7 +43,13 @@ codex plugin marketplace add V-Songbird/foundry
 codex plugin add razor@foundry
 ```
 
-Review and trust the plugin's hooks with `/hooks`, then start a new Codex session. Hush has no Codex package.
+Review and trust the plugin's hooks with `/hooks`, then start a new Codex session. Hush has no Codex package. To take a new release, refresh the marketplace, remove the plugin, add it again and start a new session:
+
+```text
+codex plugin marketplace upgrade
+codex plugin remove razor@foundry
+codex plugin add razor@foundry
+```
 
 Both hosts use the name `foundry` and read their own catalog. Each entry pins one commit of the plugin's repository, so an install stays the same until the catalog moves.
 
@@ -58,6 +73,8 @@ Foundry has no configuration of its own. Each plugin's page lists its settings.
 
 ## Development
 
+This repository holds only what an install needs: the two catalogs, the commit each plugin is pinned at, and the check that validates them. Each plugin is developed and tested in its own repository, linked in the table above.
+
 The plugins are Git submodules. Clone with them:
 
 ```shell
@@ -73,18 +90,14 @@ node --test tests/*.test.js
 
 The command reports each test and exits non-zero on failure. From the root, `claude plugin validate .` checks the Claude Code catalog and prints `Validation passed`, and `agy plugin validate foreman` checks a plugin's Antigravity package.
 
-A release moves the plugin's version in its own repository, then the commit pins in both catalogs. The `cut-release` skill under `.claude/skills/` walks through it. Read [AGENTS.md](AGENTS.md) before changing a catalog.
-
-The harness that measures each plugin lives in `benchmarks/`. [The benchmarks README](benchmarks/README.md) covers its free offline tests and its paid live runs.
-
-The plugin pages share one layout, described in [the README contract](docs/knowledge/plugin-readme-template.md). Their banners, icons, mascot scenes and charts are built from `brand/`; [the brand guide](docs/knowledge/brand.md) covers the colors, the generators and how an image reaches a plugin.
+A release moves the plugin's version in its own repository, then the commit pins in both catalogs. A catalog entry never carries a version, and a plugin listed in both catalogs pins the same commit in both.
 
 ## Support
 
 - Bugs and questions about the catalogs: the [issue tracker](https://github.com/V-Songbird/foundry/issues), the only listed channel.
 - A problem in a plugin: that plugin's own issue tracker, linked from its page.
 - Vulnerabilities: each plugin's `SECURITY.md` gives a private address. Do not post details publicly. The catalogs have no separate policy.
-- What changed: each plugin's changelog, linked from its README.
+- What changed: each plugin's releases page on GitHub.
 
 ## License
 
