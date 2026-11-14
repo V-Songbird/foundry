@@ -13,7 +13,7 @@ Each plugin works on its own. Its page holds the commands, settings, limits and 
 
 ## Requirements
 
-- Claude Code. Or, for Foreman and Razor only, a Codex host with plugin support or the Antigravity CLI.
+- Claude Code 2.1.323 or later. Or, for Foreman and Razor only, a Codex host with plugin support or the Antigravity CLI.
 - Node.js 22 or later and Git on the PATH; Foreman needs Git 2.25 or later. The plugins run their hooks and tests with Node.js.
 
 ## Install
