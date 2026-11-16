@@ -22,7 +22,7 @@ Four of the five also run on Codex and Antigravity, two other coding assistants.
 | Plugin | Use it when | Hosts |
 | --- | --- | --- |
 | [Foreman](https://github.com/V-Songbird/foreman) | The next session needs the plan, the next task and a checked handoff | Claude Code, Codex and Antigravity |
-| [Hush](https://github.com/V-Songbird/hush) | Running commentary buries the result you asked for | Claude Code |
+| [Hush](https://github.com/V-Songbird/hush) | Answers arrive in a different shape each time, with the result under the steps | Claude Code |
 | [Razor](https://github.com/V-Songbird/razor) | A small change keeps growing into new packages and files | Claude Code, Codex and Antigravity |
 | [Anneal](https://github.com/V-Songbird/anneal) | The assistant searches, rereads or guesses its way around the repository, or the docs no longer match the code | Claude Code, Codex and Antigravity |
 | [Collet](https://github.com/V-Songbird/collet) | A session edits files its task never named, or calls the work done before its check passes | Claude Code, Codex and Antigravity |
