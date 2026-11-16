@@ -21,18 +21,30 @@ jobs:
         with:
           node-version: 22
 
-      - name: Both catalogs parse, carry the fields cut-release reads and match the gitlinks
+      - name: Both catalogs parse, carry the fields cut-release reads and match the gitlinks and the manifests
         run: |
           node -e '
             const fs = require("fs"), { execFileSync } = require("child_process");
             const pins = {};
-            for (const catalog of [".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"]) {
+            // The Claude desktop app offers an update only when the entry version differs from the installed one.
+            const CLAUDE = ".claude-plugin/marketplace.json";
+            (async () => {
+            for (const catalog of [CLAUDE, ".agents/plugins/marketplace.json"]) {
               const { plugins } = JSON.parse(fs.readFileSync(catalog, "utf8"));
               if (!Array.isArray(plugins) || plugins.length === 0) throw new Error(catalog + ": plugins must be a non-empty list");
               for (const p of plugins) {
                 const at = catalog + ", " + p.name + ": ";
-                if ("version" in p) throw new Error(at + "the entry carries version " + JSON.stringify(p.version) + "; remove it, because the version lives in the plugin manifests");
+                if (catalog !== CLAUDE && "version" in p) throw new Error(at + "the entry carries version " + JSON.stringify(p.version) + "; remove it, because only the Claude Code catalog carries one");
                 if (!/^[0-9a-f]{40}$/.test(p.source?.sha)) throw new Error(at + "source.sha is " + JSON.stringify(p.source?.sha) + "; set it to the full commit SHA, 40 lowercase hex characters");
+                if (catalog === CLAUDE) {
+                  const repo = /^https:\/\/github\.com\/([\w.-]+\/[\w.-]+?)(?:\.git)?$/.exec(p.source.url ?? "")?.[1];
+                  if (!repo) throw new Error(at + "source.url is " + JSON.stringify(p.source.url) + "; set it to the plugin repository on github.com, which holds the manifest this check reads");
+                  const url = "https://raw.githubusercontent.com/" + repo + "/" + p.source.sha + "/.claude-plugin/plugin.json";
+                  const res = await fetch(url);
+                  if (!res.ok) throw new Error(at + "cannot read " + url + " (HTTP " + res.status + "); push the pinned commit, or run the check again if GitHub failed");
+                  const manifest = JSON.parse(await res.text()).version;
+                  if (p.version !== manifest) throw new Error(at + "the entry version is " + JSON.stringify(p.version) + " and the manifest at source.sha says " + JSON.stringify(manifest) + "; set the entry version to the manifest version");
+                }
                 if (!p.source.ref) throw new Error(at + "source.ref is missing or empty; set it to main, the branch that holds the pinned commit");
                 const gitlink = execFileSync("git", ["ls-files", "--stage", "--", String(p.name)], { encoding: "utf8" });
                 if (!gitlink.startsWith("160000 ")) throw new Error(at + "the name " + p.name + " is not a submodule path; rename the entry to its submodule path or add the submodule");
@@ -43,7 +55,8 @@ jobs:
                 pins[p.name] = p.source.sha;
               }
             }
-            console.log("catalogs and gitlinks ok:", Object.keys(pins).join(", "));
+            console.log("catalogs, gitlinks and versions ok:", Object.keys(pins).join(", "));
+            })().catch((error) => { console.error(error.message); process.exit(1); });
           '
 
       - name: Claude Code accepts the catalog
