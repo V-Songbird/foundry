@@ -1,19 +1,21 @@
 # Foundry
 
-Foundry is a plugin marketplace for Claude Code. Claude Code is the primary host: every plugin here is designed for it first. Foreman and Razor also run on Codex and Antigravity, as compatibility hosts. Foundry lists three plugins that help a coding session continue where the last one stopped, say less while it works, and add less code.
+Foundry is a plugin marketplace for Claude Code. Claude Code is the primary host: every plugin here is designed for it first. Every plugin but Hush also runs on Codex and Antigravity, as compatibility hosts. Foundry lists five plugins that help a coding session continue where the last one stopped, say less while it works, add less code, find its way around the repository, and stay inside the task it was given.
 
 | Plugin | Use it when | Hosts |
 | --- | --- | --- |
 | [Foreman](https://github.com/V-Songbird/foreman) | The next session needs the plan, the next task and a checked handoff | Claude Code, Codex and Antigravity |
 | [Hush](https://github.com/V-Songbird/hush) | Running commentary buries the result you asked for | Claude Code |
 | [Razor](https://github.com/V-Songbird/razor) | A small change keeps growing into new packages and files | Claude Code, Codex and Antigravity |
+| [Anneal](https://github.com/V-Songbird/anneal) | An agent searches, rereads or guesses its way around the repository, or the docs no longer match the code | Claude Code, Codex and Antigravity |
+| [Collet](https://github.com/V-Songbird/collet) | A session edits files its task never named, or calls the work done before its check passes | Claude Code, Codex and Antigravity |
 
 Each plugin works on its own. Its page holds the commands, settings, limits and measurements.
 [Flint](https://github.com/V-Songbird/flint) is not a plugin. It is two text files with the same writing voice and coding rules, for a session where you do not want to install anything.
 
 ## Requirements
 
-- Claude Code 2.1.323 or later. Or, for Foreman and Razor only, a Codex host with plugin support or the Antigravity CLI.
+- Claude Code 2.1.323 or later. Or, for every plugin but Hush, a Codex host with plugin support or the Antigravity CLI.
 - Node.js 22 or later and Git on the PATH; Foreman needs Git 2.25 or later. The plugins run their hooks and tests with Node.js.
 
 ## Install
@@ -36,7 +38,7 @@ An install stays at the release it was made from. To take a new release, refresh
 
 ### Compatibility hosts
 
-In Codex, Foreman and Razor install the same way:
+In Codex, every plugin but Hush installs the same way:
 
 ```text
 codex plugin marketplace add V-Songbird/foundry
@@ -53,7 +55,7 @@ codex plugin add razor@foundry
 
 Both hosts use the name `foundry` and read their own catalog. Each entry pins one commit of the plugin's repository, so an install stays the same until the catalog moves.
 
-Antigravity has no marketplace for third-party plugins, so it installs Foreman or Razor from a clone of this repository. The clone checks each plugin out at the commit the catalogs pin, so Antigravity gets the same release as Claude Code and Codex. Clone with the submodules, then install a plugin directory:
+Antigravity has no marketplace for third-party plugins, so it installs a plugin from a clone of this repository. Every plugin but Hush has an Antigravity package. The clone checks each plugin out at the commit the catalogs pin, so Antigravity gets the same release as Claude Code and Codex. Clone with the submodules, then install a plugin directory:
 
 ```shell
 git clone --recurse-submodules https://github.com/V-Songbird/foundry.git <path-to-clone>
@@ -92,7 +94,7 @@ node --test tests/*.test.js
 
 The command reports each test and exits non-zero on failure. From the root, `claude plugin validate .` checks the Claude Code catalog and prints `Validation passed`, and `agy plugin validate foreman` checks a plugin's Antigravity package.
 
-A release moves the plugin's version in its own repository, then the commit pins in both catalogs. A catalog entry never carries a version, and a plugin listed in both catalogs pins the same commit in both.
+A release moves the plugin's version in its own repository, then the commit pins in both catalogs. The Claude Code catalog repeats that version in the plugin's entry, the Codex catalog carries none, and a plugin listed in both catalogs pins the same commit in both.
 
 ## Support
 
