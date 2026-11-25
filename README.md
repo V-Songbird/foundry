@@ -4,7 +4,7 @@
     <img src="assets/banner-light.png" alt="Foundry" width="900" />
   </picture>
   <h1>Foundry</h1>
-  <p><strong>Five plugins that keep a coding session on its task.</strong></p>
+  <p><strong>Six plugins that keep a coding session on its task.</strong></p>
 </div>
 
 <p align="center"><a href="#install"><strong>Get started</strong></a> · <a href="#what-is-this">What is this?</a> · <a href="#the-plugins">The plugins</a> · <a href="#good-to-know">Good to know</a> · <a href="#support">Support</a></p>
@@ -13,9 +13,9 @@
 
 Foundry is a marketplace of plugins for Claude Code, an AI coding assistant. A plugin adds commands and habits to the assistant. A marketplace is a list the assistant installs plugins from.
 
-Foundry lists five plugins. Each one works on its own, so install only the one you need.
+Foundry lists six plugins. Each one works on its own, so install only the one you need.
 
-Four of the five also run on Codex and Antigravity, two other coding assistants. Claude Code is the primary host: every plugin is designed for it first. A host is the assistant a plugin runs in.
+Four of the six also run on Codex and Antigravity, two other coding assistants. Claude Code is the primary host: every plugin is designed for it first. A host is the assistant a plugin runs in.
 
 ## The plugins
 
@@ -26,6 +26,7 @@ Four of the five also run on Codex and Antigravity, two other coding assistants.
 | [Razor](https://github.com/V-Songbird/razor) | A small change keeps growing into new packages and files | Claude Code, Codex and Antigravity |
 | [Anneal](https://github.com/V-Songbird/anneal) | The assistant searches, rereads or guesses its way around the repository, or the docs no longer match the code | Claude Code, Codex and Antigravity |
 | [Collet](https://github.com/V-Songbird/collet) | A session edits files its task never named, or calls the work done before its check passes | Claude Code, Codex and Antigravity |
+| [Mod Kit](https://github.com/V-Songbird/mod-kit) | The assistant builds a mod whose buttons, colors or spacing do not look like the rest of Claude Code | Claude Code |
 
 Each plugin's page holds its commands, settings, limits and measurements.
 
@@ -56,7 +57,7 @@ To remove it, run `/plugin uninstall foreman@foundry`.
 
 ### Codex
 
-You need a Codex host with plugin support. Hush has no Codex package.
+You need a Codex host with plugin support. Hush and Mod Kit have no Codex package.
 
 In a terminal, run:
 
@@ -69,7 +70,7 @@ Review and trust the plugin's hooks with `/hooks`. A hook is a small program the
 
 ### Antigravity
 
-You need the Antigravity CLI. It has no marketplace for third-party plugins, so you install from a copy of this repository. Hush has no Antigravity package. Replace `<path-to-clone>` with a folder of your choice.
+You need the Antigravity CLI. It has no marketplace for third-party plugins, so you install from a copy of this repository. Hush and Mod Kit have no Antigravity package. Replace `<path-to-clone>` with a folder of your choice.
 
 In a terminal, run:
 
