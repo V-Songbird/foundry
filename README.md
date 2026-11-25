@@ -1,8 +1,6 @@
 <div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png" />
-    <img src="assets/banner-light.png" alt="Foundry" width="900" />
-  </picture>
+  <img src="assets/banner-light.png#gh-light-mode-only" alt="Foundry" width="900" />
+  <img src="assets/banner-dark.png#gh-dark-mode-only" alt="Foundry" width="900" />
   <h1>Foundry</h1>
   <p><strong>Six plugins that keep a coding session on its task.</strong></p>
 </div>
